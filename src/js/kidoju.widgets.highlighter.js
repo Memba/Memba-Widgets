@@ -40,13 +40,6 @@
         var TOUCHMOVE = 'touchmove';
         var TOUCHEND = 'touchend';
         var CHANGE = 'change';
-        // var RX_WORD_SPLIT = '\\b'; // does not work with latin diacritics
-        // It is important to split < and > because we cannot htmlEncode
-        // Note that the match () also outputs all these chars in the splitted array in between the words
-        var RX_WORD_SPLIT = '(\\s|\\.|,|;|:|\\?|¿|!|<|>|\\(|\\)|&|"|`|«|»|\\[|\\]|{|})';
-        // Note: this is far from perfect as it breaks numbers like $10,000.00 and acronyms like U.N. into several words
-        // This is going to be difficult to improve because it affects storage in database as positions change with the sentence parsing
-        // If we come up with a better RegExp at some point, we will need to store this.options.split in database
         var COMMA = ',';
         var HYPHEN = '-';
         var INDEX = 'index';
@@ -75,15 +68,12 @@
              * @param options
              */
             init: function (element, options) {
-                var that = this;
                 options = options || {};
-                Widget.fn.init.call(that, element, options);
+                Widget.fn.init.call(this, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
-                that._layout();
-                that.value(that.options.value);
-                that.enable(that.options.enable);
+                this.setOptions(this.options);
                 // see http://www.telerik.com/forums/kendo-notify()
-                kendo.notify(that);
+                kendo.notify(this);
             },
 
             /**
@@ -95,9 +85,25 @@
                 value: '',
                 text: '',
                 highlightStyle: '',
-                split: RX_WORD_SPLIT,
-                words: true,
+                // split is a regular expression which is going to be used highlight only certain parts of the text, for example to split the text into words
+                // Unfortunately, splitting words on characters like punctuation does not work very well with words like U.N. or $10,000.000
+                // You actually need a syntactic and semantic parser to do that accurately in any languages
+                // A regular expression like \b works pretty well in English but is terrible in French because diacritics make word boundaries
+                // It is important to split < and > because we cannot htmlEncode
+                split: '', // The default splits the text into individual characters
+                // split: '([\\s\\.,;:\\?¿!<>\\(\\)&"`«»\\[\\]{}])' // This uses the punctuation to split the text into words
                 enable: true
+            },
+
+            /**
+             * Reset options
+             * @param options
+             */
+            setOptions: function (options) {
+                this._split = $.type(options.split) === STRING && options.split.length ? new RegExp(options.split) : '';
+                this._layout();
+                this.value(options.value || '');
+                this.enable(options.enable);
             },
 
             /**
@@ -136,14 +142,13 @@
              */
             _format: function (array) {
                 assert.isArray(array, assert.format(assert.messages.isArray.default, 'array'));
-                var options = this.options;
                 var value = '';
                 for (var i = 0, length = array.length; i < length; i++) {
                     var selection = array[i];
                     if ($.isPlainObject(selection) && $.type(selection.start) === NUMBER && $.type(selection.end) === NUMBER  && selection.start <= selection.end) {
                         var start = selection.start;
                         var end = selection.end;
-                        if (options.words) {
+                        if (this._split instanceof RegExp) {
                             // Convert word indexes into span indexes when necessary
                             start = parseInt($(this.items.get(start)).attr(kendo.attr(INDEX)), 10);
                             assert.ok(!isNaN(start), '`start` should be the index of a word');
@@ -172,14 +177,13 @@
              */
             _parse: function (value) {
                 assert.type(STRING, value, assert.format(assert.messages.type.default, 'value', STRING));
-                var options = this.options;
                 var array = value.split(COMMA);
                 for (var i = 0, length = array.length; i < length; i++) {
                     var selection = array[i].split(HYPHEN);
                     var start = parseInt(selection[0], 10);
                     var end = $.type(selection[1]) === UNDEFINED ? start : parseInt(selection[1], 10);
                     if (!isNaN(start) && !isNaN(end) && start <= end) {
-                        if (options.words) {
+                        if (this._split instanceof RegExp) {
                             // Convert word indexes into span indexes, which will automatically include punctuation and spaces between words into the highlighted selection
                             var startWord = this.items.filter(kendo.format(ATTR_SELECTOR, kendo.attr(INDEX), start));
                             assert.equal(1, startWord.length, assert.format(assert.messages.equal.default, 'startWord.length', 1));
@@ -203,7 +207,7 @@
                 assert.type(NUMBER, index, assert.format(assert.messages.type.default, 'index', NUMBER));
                 var word;
                 var pos = index;
-                if (this.options.words) {
+                if (this._split instanceof RegExp) {
                     while (isNaN(word) && pos < this.items.length) {
                         word = parseInt($(this.items.get(pos)).attr(kendo.attr(INDEX)), 10);
                         pos++;
@@ -222,7 +226,7 @@
                 assert.type(NUMBER, index, assert.format(assert.messages.type.default, 'index', NUMBER));
                 var word;
                 var pos = index;
-                if (this.options.words) {
+                if (this._split instanceof RegExp) {
                     while (isNaN(word) && pos >= 0) {
                         word = parseInt($(this.items.get(pos)).attr(kendo.attr(INDEX)), 10);
                         pos--;
@@ -331,17 +335,17 @@
                 var that = this;
                 var options = that.options;
                 that.wrapper = that.element;
+                that.element.empty();
                 that.element.addClass(WIDGET_CLASS);
-                if (options.words) {
-                    var rxWordSplit = new RegExp(options.split);
+                if (that._split instanceof RegExp) {
                     // Note: This is probably the most controversial part of the widget
                     // @see https://stackoverflow.com/questions/40881365/split-a-string-into-an-array-of-words-punctuation-and-spaces-in-javascript
                     // @see https://stackoverflow.com/questions/43876036/regex-split-string-into-array-based-on-punctuation-spaces?rq=1
-                    var split =  options.text.split(rxWordSplit);
+                    var split =  options.text.split(that._split);
                     var html = '';
                     var wordIndex = 0;
                     for (var i = 0, length = split.length; i < length; i++) {
-                        if (rxWordSplit.test(split[i])) {
+                        if (that._split.test(split[i])) {
                             html += SPAN_OPEN + split[i] + SPAN_CLOSE
                         } else if (split[i].length) {
                             html += kendo.format(SPAN_WITH_INDEX, wordIndex) + split[i] + SPAN_CLOSE;

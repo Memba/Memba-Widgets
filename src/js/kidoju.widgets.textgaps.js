@@ -26,7 +26,6 @@
         var logger = new window.Logger('kidoju.widgets.textgaps');
         var util = window.kidoju.util;
         var NULL = 'null';
-        var NUMBER = 'number';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var NS = '.kendoTextGaps';

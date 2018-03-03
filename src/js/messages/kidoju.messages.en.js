@@ -919,10 +919,10 @@
                     // Attributes
                     attributes = tools.highlighter.constructor.prototype.attributes;
                     attributes.highlightStyle.title = 'Highlight';
+                    attributes.split.title = 'Split';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Text';
                     attributes.text.defaultValue = 'Some text you can highlight.';
-                    attributes.words.title = 'Words';
                     // Properties
                     properties = tools.highlighter.constructor.prototype.properties;
                     properties.name.title = 'Name';

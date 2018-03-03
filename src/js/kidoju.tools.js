@@ -243,9 +243,9 @@
                 description: 'Highlighter',
                 attributes: {
                     highlightStyle: { title: 'Highlight' },
+                    split: { title: 'Split' },
                     style: { title: 'Style' },
-                    text: { title: 'Text', defaultValue: 'Some text you can highlight.' },
-                    words: { title: 'Words' }
+                    text: { title: 'Text', defaultValue: 'Some text you can highlight.' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -1388,10 +1388,12 @@
                 BaseAdapter.fn.init.call(this, options);
                 this.type = STRING;
                 this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+                // TODO: Not Disabled when setting teh Disabled switch
+                // And not reset when changing teh value of split => might require a window like chargrid
                 this.editor = function (container, settings) {
                     var binding = {};
                     binding[kendo.attr('bind')] = 'value: ' + settings.field;
-                    var highlighter = $('<div/>')
+                    var highLighter = $('<div/>')
                         .css({
                             width: '100%',
                             fontSize: '1em',
@@ -1399,9 +1401,9 @@
                         })
                         .attr($.extend(binding, attributes))
                         .appendTo(container);
-                    var highlighter = highlighter.kendoHighLighter({
+                    var highLighterWidget = highLighter.kendoHighLighter({
                         text: settings.model.get('attributes.text'),
-                        words: settings.model.get('attributes.words')
+                        split: settings.model.get('attributes.split')
                     });
                 };
             },
@@ -2864,7 +2866,7 @@
         });
         tools.register(DropZone);
 
-        var HIGHLIGHTER = '<div class="kj-interactive" data-#= ns #role="highlighter" data-#= ns #text="#: attributes.text #" data-#= ns #words="#: attributes.words #"  data-#= ns #highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>';
+        var HIGHLIGHTER = '<div class="kj-interactive" data-#= ns #role="highlighter" data-#= ns #text="#: attributes.text #" data-#= ns #split="#: attributes.split #"  data-#= ns #highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>';
         /**
          * @class HighLighter tool
          * @type {void|*}
@@ -2886,7 +2888,7 @@
                 highlightStyle: new adapters.StyleAdapter({ title: i18n.highlighter.attributes.highlightStyle.title }),
                 style: new adapters.StyleAdapter({ title: i18n.highlighter.attributes.style.title, defaultValue: 'font-size:32px;' }),
                 text: new adapters.TextAdapter({ title: i18n.highlighter.attributes.text.title, defaultValue: i18n.highlighter.attributes.text.defaultValue }),
-                words: new adapters.BooleanAdapter({ title: i18n.highlighter.attributes.words.title, defaultValue: true })
+                split: new adapters.StringAdapter({ title: i18n.highlighter.attributes.split.title, defaultValue: '([\\s\\.,;:\\?¿!<>\\(\\)&"`«»\\[\\]{}])' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.highlighter.properties.name.title }),
@@ -4526,11 +4528,7 @@
              * @param testItem
              */
             solution$: function (testItem) {
-                var ret = (testItem.solution || []).slice();
-                for (var i = 0; i < ret.length; i++) {
-                    ret[i] = kendo.htmlEncode(ret[i]);
-                }
-                return ret.join('<br/>');
+                return kendo.htmlEncode(testItem.solution || '').split('\n').join('<br/>');
             },
 
             /**

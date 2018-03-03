@@ -916,10 +916,10 @@
                     // Attributes
                     attributes = tools.highlighter.constructor.prototype.attributes;
                     attributes.highlightStyle.title = 'Surligne';
+                    attributes.split.title = 'Césure';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
                     attributes.text.defaultValue = 'Un peu de texte à surligner.';
-                    attributes.words.title = 'Mots';
                     // Properties
                     properties = tools.highlighter.constructor.prototype.properties;
                     properties.name.title = 'Nom';

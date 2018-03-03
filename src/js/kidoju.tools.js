@@ -254,8 +254,7 @@
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
-                    omit: { title: 'Omit' },
-                    disabled: { title: 'Disabled' }
+                    omit: { title: 'Omit' }
                 }
             },
 
@@ -439,8 +438,7 @@
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
-                    omit: { title: 'Omit' },
-                    disabled: { title: 'Disabled' }
+                    omit: { title: 'Omit' }
                 }
             },
 
@@ -458,8 +456,7 @@
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
-                    omit: { title: 'Omit' },
-                    disabled: { title: 'Disabled' }
+                    omit: { title: 'Omit' }
                 }
             },
 
@@ -2897,8 +2894,7 @@
                 validation: new adapters.ValidationAdapter({ title: i18n.highlighter.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.highlighter.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.highlighter.properties.failure.title, defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: i18n.highlighter.properties.omit.title, defaultValue: 0 }),
-                disabled: new adapters.DisabledAdapter({ title: i18n.highlighter.properties.disabled.title, defaultValue: false })
+                omit: new adapters.ScoreAdapter({ title: i18n.highlighter.properties.omit.title, defaultValue: 0 })
             },
 
             /**
@@ -4379,8 +4375,7 @@
                 validation: new adapters.ValidationAdapter({ title: i18n.textbox.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.textbox.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.textbox.properties.failure.title, defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: i18n.textbox.properties.omit.title, defaultValue: 0 }),
-                disabled: new adapters.DisabledAdapter({ title: i18n.textbox.properties.disabled.title, defaultValue: false })
+                omit: new adapters.ScoreAdapter({ title: i18n.textbox.properties.omit.title, defaultValue: 0 })
             },
 
             /**

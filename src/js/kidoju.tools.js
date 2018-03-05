@@ -447,7 +447,7 @@
                 attributes: {
                     inputStyle: { title: 'Input Style' },
                     style: { title: 'Style' },
-                    text: { title: 'Text', defaultValue: 'Some text with gaps like [] to fill.' }
+                    text: { title: 'Text', defaultValue: 'Some text with gaps like [] or [] to fill.' }
                 },
                 properties: {
                     name: { title: 'Name' },

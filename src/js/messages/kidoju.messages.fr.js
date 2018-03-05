@@ -1110,7 +1110,7 @@
                     attributes.inputStyle.title = 'Style saisie';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
-                    attributes.text.defaultValue = 'Un peu de texte avec un trou comme [] à remplir.';
+                    attributes.text.defaultValue = 'Un peu de texte avec un trou comme [] ou [] à remplir.';
                     // Properties
                     properties = tools.textgaps.constructor.prototype.properties;
                     properties.name.title = 'Nom';

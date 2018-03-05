@@ -1113,7 +1113,7 @@
                     attributes.inputStyle.title = 'Input Style';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Text';
-                    attributes.text.defaultValue = 'Some text with gaps like [] to fill.';
+                    attributes.text.defaultValue = 'Some text with gaps like [] or [] to fill.';
                     // Properties
                     properties = tools.textgaps.constructor.prototype.properties;
                     properties.name.title = 'Name';

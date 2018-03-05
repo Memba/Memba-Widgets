@@ -1837,8 +1837,17 @@
             library: [
                 {
                     name: 'equal',
+                    // formula: kendo.format(VALIDATION_CUSTOM, 'return String(value.sort()) === String(solution.trim().split("\\n").sort());')
+                    // With the formula here above, each string in the array cannot be trimmed properly
+                    // because String(arr) is the same as join(',') and each value might contain commas
+                    // So we use }-{ because there is little chance any value would contain this sequence
                     formula: kendo.format(VALIDATION_CUSTOM, '// Note: value is an array and solution is a multiline string\n\t' +
-                        'return String(value.sort()) === String(solution.trim().split("\\n").sort());')
+                        'return value.sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{") === solution.trim().split("\\n").join("}-{").replace(/\\s*}-{\\s*/g, "}-{");')
+                },
+                {
+                    name: 'ignoreCaseEqual',
+                    formula: kendo.format(VALIDATION_CUSTOM, '// Note: value is an array and solution is a multiline string\n\t' +
+                        'return value.sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{").toLowerCase() === solution.trim().split("\\n").join("}-{").replace(/\\s*}-{\\s*/g, "}-{").toLowerCase();')
                 },
                 {
                     name: 'sumEqual',
@@ -2800,7 +2809,7 @@
             value$: function (testItem) {
                 var ret = (testItem.value || []).slice();
                 for (var i = 0; i < ret.length; i++) {
-                    ret[i] = kendo.htmlEncode(ret[i]);
+                    ret[i] = kendo.htmlEncode((ret[i] || '').trim());
                 }
                 return ret.join('<br/>');
             },
@@ -2810,7 +2819,11 @@
              * @param testItem
              */
             solution$: function (testItem) {
-                return kendo.htmlEncode(testItem.solution || '').split('\n').join('<br/>');
+                var ret = (testItem.solution || '').split('\n');
+                for (var i = 0; i < ret.length; i++) {
+                    ret[i] = kendo.htmlEncode((ret[i] || '').trim());
+                }
+                return ret.join('<br/>');
             },
 
             /**
@@ -4513,7 +4526,7 @@
             value$: function (testItem) {
                 var ret = (testItem.value || []).slice();
                 for (var i = 0; i < ret.length; i++) {
-                    ret[i] = kendo.htmlEncode(ret[i]);
+                    ret[i] = kendo.htmlEncode((ret[i] || '').trim());
                 }
                 return ret.join('<br/>');
             },
@@ -4523,7 +4536,11 @@
              * @param testItem
              */
             solution$: function (testItem) {
-                return kendo.htmlEncode(testItem.solution || '').split('\n').join('<br/>');
+                var ret = (testItem.solution || '').split('\n');
+                for (var i = 0; i < ret.length; i++) {
+                    ret[i] = kendo.htmlEncode((ret[i] || '').trim());
+                }
+                return ret.join('<br/>');
             },
 
             /**

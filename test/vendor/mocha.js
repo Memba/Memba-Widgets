@@ -2034,7 +2034,7 @@ function Base (runner) {
     failures.push(test);
   });
 
-  runner.on('end', function () {
+  runner.once('end', function () {
     stats.end = new Date();
     stats.duration = stats.end - stats.start;
   });
@@ -2345,7 +2345,7 @@ function Dot (runner) {
     process.stdout.write(color('fail', Base.symbols.bang));
   });
 
-  runner.on('end', function () {
+  runner.once('end', function () {
     console.log();
     self.epilogue();
   });
@@ -2773,7 +2773,7 @@ function List (runner) {
     console.log(JSON.stringify(['fail', test]));
   });
 
-  runner.on('end', function () {
+  runner.once('end', function () {
     process.stdout.write(JSON.stringify(['end', self.stats]));
   });
 }
@@ -2843,7 +2843,7 @@ function JSONReporter (runner) {
     pending.push(test);
   });
 
-  runner.on('end', function () {
+  runner.once('end', function () {
     var obj = {
       stats: self.stats,
       tests: tests.map(clean),
@@ -2977,7 +2977,7 @@ function Landing (runner) {
     stream.write('\u001b[0m');
   });
 
-  runner.on('end', function () {
+  runner.once('end', function () {
     cursor.show();
     console.log();
     self.epilogue();
@@ -3048,7 +3048,7 @@ function List (runner) {
     console.log(color('fail', '  %d) %s'), ++n, test.fullTitle());
   });
 
-  runner.on('end', self.epilogue.bind(self));
+  runner.once('end', self.epilogue.bind(self));
 }
 
 /**
@@ -3152,7 +3152,7 @@ function Markdown (runner) {
     buf += '```\n\n';
   });
 
-  runner.on('end', function () {
+  runner.once('end', function () {
     process.stdout.write('# TOC\n');
     process.stdout.write(generateTOC(runner.suite));
     process.stdout.write(buf);
@@ -3193,7 +3193,7 @@ function Min (runner) {
     process.stdout.write('\u001b[1;3H');
   });
 
-  runner.on('end', this.epilogue.bind(this));
+  runner.once('end', this.epilogue.bind(this));
 }
 
 /**
@@ -3258,7 +3258,7 @@ function NyanCat (runner) {
     self.draw();
   });
 
-  runner.on('end', function () {
+  runner.once('end', function () {
     Base.cursor.show();
     for (var i = 0; i < self.numberOfLines; i++) {
       write('\n');
@@ -3553,7 +3553,7 @@ function Progress (runner, options) {
 
   // tests are complete, output some stats
   // and the failures if any
-  runner.on('end', function () {
+  runner.once('end', function () {
     cursor.show();
     console.log();
     self.epilogue();
@@ -3641,7 +3641,7 @@ function Spec (runner) {
     console.log(indent() + color('fail', '  %d) %s'), ++n, test.title);
   });
 
-  runner.on('end', self.epilogue.bind(self));
+  runner.once('end', self.epilogue.bind(self));
 }
 
 /**
@@ -3703,7 +3703,7 @@ function TAP (runner) {
     }
   });
 
-  runner.on('end', function () {
+  runner.once('end', function () {
     console.log('# tests ' + (passes + failures));
     console.log('# pass ' + passes);
     console.log('# fail ' + failures);
@@ -3803,7 +3803,7 @@ function XUnit (runner, options) {
     tests.push(test);
   });
 
-  runner.on('end', function () {
+  runner.once('end', function () {
     self.write(tag('testsuite', {
       name: suiteName,
       tests: stats.tests,
@@ -4052,6 +4052,24 @@ Runnable.prototype.skip = function () {
  */
 Runnable.prototype.isPending = function () {
   return this.pending || (this.parent && this.parent.isPending());
+};
+
+/**
+ * Return `true` if this Runnable has failed.
+ * @return {boolean}
+ * @private
+ */
+Runnable.prototype.isFailed = function () {
+  return !this.isPending() && this.state === 'failed';
+};
+
+/**
+ * Return `true` if this Runnable has passed.
+ * @return {boolean}
+ * @private
+ */
+Runnable.prototype.isPassed = function () {
+  return !this.isPending() && this.state === 'passed';
 };
 
 /**
@@ -5043,21 +5061,25 @@ Runner.prototype.uncaught = function (err) {
 
   runnable.clearTimeout();
 
-  // Ignore errors if complete or pending
-  if (runnable.state || runnable.isPending()) {
+  // Ignore errors if already failed or pending
+  // See #3226
+  if (runnable.isFailed() || runnable.isPending()) {
     return;
   }
+  // we cannot recover gracefully if a Runnable has already passed
+  // then fails asynchronously
+  var alreadyPassed = runnable.isPassed();
+  // this will change the state to "failed" regardless of the current value
   this.fail(runnable, err);
+  if (!alreadyPassed) {
+    // recover from test
+    if (runnable.type === 'test') {
+      this.emit('test end', runnable);
+      this.hookUp('afterEach', this.next);
+      return;
+    }
 
-  // recover from test
-  if (runnable.type === 'test') {
-    this.emit('test end', runnable);
-    this.hookUp('afterEach', this.next);
-    return;
-  }
-
-  // recover from hooks
-  if (runnable.type === 'hook') {
+    // recover from hooks
     var errSuite = this.suite;
     // if hook failure is in afterEach block
     if (runnable.fullTitle().indexOf('after each') > -1) {
@@ -5767,29 +5789,15 @@ Test.prototype.clone = function () {
 (function (process,Buffer){
 'use strict';
 
-/* eslint-env browser */
-
 /**
  * Module dependencies.
  */
 
-var basename = require('path').basename;
 var debug = require('debug')('mocha:watch');
-var exists = require('fs').existsSync;
+var fs = require('fs');
 var glob = require('glob');
 var path = require('path');
-var join = path.join;
-var readdirSync = require('fs').readdirSync;
-var statSync = require('fs').statSync;
-var watchFile = require('fs').watchFile;
-var lstatSync = require('fs').lstatSync;
 var he = require('he');
-
-/**
- * Ignored directories.
- */
-
-var ignore = ['node_modules', '.git'];
 
 exports.inherits = require('util').inherits;
 
@@ -5827,52 +5835,12 @@ exports.watch = function (files, fn) {
   var options = { interval: 100 };
   files.forEach(function (file) {
     debug('file %s', file);
-    watchFile(file, options, function (curr, prev) {
+    fs.watchFile(file, options, function (curr, prev) {
       if (prev.mtime < curr.mtime) {
         fn(file);
       }
     });
   });
-};
-
-/**
- * Ignored files.
- *
- * @api private
- * @param {string} path
- * @return {boolean}
- */
-function ignored (path) {
-  return !~ignore.indexOf(path);
-}
-
-/**
- * Lookup files in the given `dir`.
- *
- * @api private
- * @param {string} dir
- * @param {string[]} [ext=['.js']]
- * @param {Array} [ret=[]]
- * @return {Array}
- */
-exports.files = function (dir, ext, ret) {
-  ret = ret || [];
-  ext = ext || ['js'];
-
-  var re = new RegExp('\\.(' + ext.join('|') + ')$');
-
-  readdirSync(dir)
-    .filter(ignored)
-    .forEach(function (path) {
-      path = join(dir, path);
-      if (lstatSync(path).isDirectory()) {
-        exports.files(path, ext, ret);
-      } else if (path.match(re)) {
-        ret.push(path);
-      }
-    });
-
-  return ret;
 };
 
 /**
@@ -6236,40 +6204,40 @@ exports.canonicalize = function canonicalize (value, stack, typeHint) {
  * Lookup file names at the given `path`.
  *
  * @api public
- * @param {string} path Base path to start searching from.
+ * @param {string} filepath Base path to start searching from.
  * @param {string[]} extensions File extensions to look for.
  * @param {boolean} recursive Whether or not to recurse into subdirectories.
  * @return {string[]} An array of paths.
  */
-exports.lookupFiles = function lookupFiles (path, extensions, recursive) {
+exports.lookupFiles = function lookupFiles (filepath, extensions, recursive) {
   var files = [];
 
-  if (!exists(path)) {
-    if (exists(path + '.js')) {
-      path += '.js';
+  if (!fs.existsSync(filepath)) {
+    if (fs.existsSync(filepath + '.js')) {
+      filepath += '.js';
     } else {
-      files = glob.sync(path);
+      files = glob.sync(filepath);
       if (!files.length) {
-        throw new Error("cannot resolve path (or pattern) '" + path + "'");
+        throw new Error("cannot resolve path (or pattern) '" + filepath + "'");
       }
       return files;
     }
   }
 
   try {
-    var stat = statSync(path);
+    var stat = fs.statSync(filepath);
     if (stat.isFile()) {
-      return path;
+      return filepath;
     }
   } catch (err) {
     // ignore error
     return;
   }
 
-  readdirSync(path).forEach(function (file) {
-    file = join(path, file);
+  fs.readdirSync(filepath).forEach(function (file) {
+    file = path.join(filepath, file);
     try {
-      var stat = statSync(file);
+      var stat = fs.statSync(file);
       if (stat.isDirectory()) {
         if (recursive) {
           files = files.concat(lookupFiles(file, extensions, recursive));
@@ -6281,7 +6249,7 @@ exports.lookupFiles = function lookupFiles (path, extensions, recursive) {
       return;
     }
     var re = new RegExp('\\.(?:' + extensions.join('|') + ')$');
-    if (!stat.isFile() || !re.test(file) || basename(file)[0] === '.') {
+    if (!stat.isFile() || !re.test(file) || path.basename(file)[0] === '.') {
       return;
     }
     files.push(file);
@@ -6364,7 +6332,7 @@ exports.stackTraceFilter = function () {
 
       // Clean up cwd(absolute)
       if (/\(?.+:\d+:\d+\)?$/.test(line)) {
-        line = line.replace(cwd, '');
+        line = line.replace('(' + cwd, '(');
       }
 
       list.push(line);

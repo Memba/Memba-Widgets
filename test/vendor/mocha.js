@@ -1899,6 +1899,22 @@ function stringifyDiffObjs (err) {
 }
 
 /**
+ * Returns a diff between 2 strings with coloured ANSI output.
+ *
+ * The diff will be either inline or unified dependant on the value
+ * of `Base.inlineDiff`.
+ *
+ * @param {string} actual
+ * @param {string} expected
+ * @return {string} Diff
+ */
+var generateDiff = exports.generateDiff = function (actual, expected) {
+  return exports.inlineDiffs
+    ? inlineDiff(actual, expected)
+    : unifiedDiff(actual, expected);
+};
+
+/**
  * Output the given `failures` as a list.
  *
  * @param {Array} failures
@@ -1947,11 +1963,7 @@ exports.list = function (failures) {
       var match = message.match(/^([^:]+): expected/);
       msg = '\n      ' + color('error message', match ? match[1] : msg);
 
-      if (exports.inlineDiffs) {
-        msg += inlineDiff(err);
-      } else {
-        msg += unifiedDiff(err);
-      }
+      msg += generateDiff(err.actual, err.expected);
     }
 
     // indent stack trace
@@ -2100,14 +2112,15 @@ function pad (str, len) {
 }
 
 /**
- * Returns an inline diff between 2 strings with coloured ANSI output
+ * Returns an inline diff between 2 strings with coloured ANSI output.
  *
  * @api private
- * @param {Error} err with actual/expected
+ * @param {String} actual
+ * @param {String} expected
  * @return {string} Diff
  */
-function inlineDiff (err) {
-  var msg = errorDiff(err);
+function inlineDiff (actual, expected) {
+  var msg = errorDiff(actual, expected);
 
   // linenos
   var lines = msg.split('\n');
@@ -2133,13 +2146,14 @@ function inlineDiff (err) {
 }
 
 /**
- * Returns a unified diff between two strings.
+ * Returns a unified diff between two strings with coloured ANSI output.
  *
  * @api private
- * @param {Error} err with actual/expected
+ * @param {String} actual
+ * @param {String} expected
  * @return {string} The diff.
  */
-function unifiedDiff (err) {
+function unifiedDiff (actual, expected) {
   var indent = '      ';
   function cleanUp (line) {
     if (line[0] === '+') {
@@ -2159,7 +2173,7 @@ function unifiedDiff (err) {
   function notBlank (line) {
     return typeof line !== 'undefined' && line !== null;
   }
-  var msg = diff.createPatch('string', err.actual, err.expected);
+  var msg = diff.createPatch('string', actual, expected);
   var lines = msg.split('\n').splice(5);
   return '\n      ' +
     colorLines('diff added', '+ expected') + ' ' +
@@ -2172,11 +2186,12 @@ function unifiedDiff (err) {
  * Return a character diff for `err`.
  *
  * @api private
- * @param {Error} err
- * @return {string}
+ * @param {String} actual
+ * @param {String} expected
+ * @return {string} the diff
  */
-function errorDiff (err) {
-  return diff.diffWordsWithSpace(err.actual, err.expected).map(function (str) {
+function errorDiff (actual, expected) {
+  return diff.diffWordsWithSpace(actual, expected).map(function (str) {
     if (str.added) {
       return colorLines('diff added', str.value);
     }
@@ -5797,7 +5812,14 @@ var debug = require('debug')('mocha:watch');
 var fs = require('fs');
 var glob = require('glob');
 var path = require('path');
+var join = path.join;
 var he = require('he');
+
+/**
+ * Ignored directories.
+ */
+
+var ignore = ['node_modules', '.git'];
 
 exports.inherits = require('util').inherits;
 
@@ -5841,6 +5863,46 @@ exports.watch = function (files, fn) {
       }
     });
   });
+};
+
+/**
+ * Ignored files.
+ *
+ * @api private
+ * @param {string} path
+ * @return {boolean}
+ */
+function ignored (path) {
+  return !~ignore.indexOf(path);
+}
+
+/**
+ * Lookup files in the given `dir`.
+ *
+ * @api private
+ * @param {string} dir
+ * @param {string[]} [ext=['.js']]
+ * @param {Array} [ret=[]]
+ * @return {Array}
+ */
+exports.files = function (dir, ext, ret) {
+  ret = ret || [];
+  ext = ext || ['js'];
+
+  var re = new RegExp('\\.(' + ext.join('|') + ')$');
+
+  fs.readdirSync(dir)
+    .filter(ignored)
+    .forEach(function (path) {
+      path = join(dir, path);
+      if (fs.lstatSync(path).isDirectory()) {
+        exports.files(path, ext, ret);
+      } else if (path.match(re)) {
+        ret.push(path);
+      }
+    });
+
+  return ret;
 };
 
 /**

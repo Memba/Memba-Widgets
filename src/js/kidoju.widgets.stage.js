@@ -1376,9 +1376,16 @@
                     }
                     that._hideHandles();
                     that.trigger(DATABINDING);
+
+                    // Remove all elements from the stage
                     $.each(that.stage.children(DOT + ELEMENT_CLASS), function (index, stageElement) {
                         that._removeStageElementByUid($(stageElement).attr(DATA_UID));
                     });
+
+                    // Make sure there is nothing left (all elements must do their own cleaning)
+                    assert.equal(0, that.element.children().length, assert.format(assert.messages.equal.default, 'that.element.children()', '0'));
+
+                    // Add all elements to the stage
                     $.each(components, function (index, component) {
                         that._addStageElement(component);
                     });

@@ -14,7 +14,8 @@
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.color',
         './vendor/kendo/kendo.drawing',
-        './vendor/kendo/kendo.toolbar'
+        './vendor/kendo/kendo.toolbar',
+        './kidoju.util'
     ], f);
 })(function () {
 
@@ -36,7 +37,9 @@
         var ToolBar = kendo.ui.ToolBar;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.selection');
+        var util = window.kidoju.util;
         var NUMBER = 'number';
+        var OBJECT = 'object';
         var STRING = 'string';
         // var NULL = 'null';
         var UNDEFINED = 'undefined';
@@ -47,276 +50,199 @@
         var CHANGE = 'change';
         var MOUSEDOWN = 'mousedown' + NS + ' ' + 'touchstart' + NS;
         var MOUSEMOVE = 'mousemove' + NS + ' ' + 'touchmove' + NS;
+        var MOUSELEAVE = 'mouseleave' + NS + ' ' + 'touchleave' + NS;
         var MOUSEUP = 'mouseup' + NS + ' ' + 'touchend' + NS;
         var TOGGLE = 'toggle';
         var DIV = '<div/>';
-        var ROLE = 'selector';
         var ID = 'id';
+        var CONSTANT = 'constant';
         var WIDGET_CLASS = 'kj-selector';
         var SURFACE_CLASS = WIDGET_CLASS + '-surface';
         var INTERACTIVE_CLASS = 'kj-interactive';
+        var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
         var DATA_TYPE = 'selection';
-        var MIN_DIAGONAL = 30;
-        var LINE_HW_PROPORTION = 0.2;
-        var SHAPE_HIT_DISTANCE = 10;
-        var CROSS_CURVE = 0.5;
+        var BUTTON_PREFIX = 'button_';
+        var ICON_SIZE = 16;
+        var MIN_RADIUS = 15;
+        var HIT_RADIUS = 15;
 
         /*********************************************************************************
-         * Helpers
+         * SelectorEvents single ton
          *********************************************************************************/
 
-        var util = {
+        /**
+         * SelectorEvents
+         */
+        var SelectorEvents = kendo.Class.extend({
 
             /**
-             * Build a random hex string of length characters
-             * @param length
-             * @returns {string}
+             * Init mouse events to draw on surface
+             * Note: There is only one set of event handlers shared across all selector surfaces
+             * @constructor
              */
-            randomString: function (length) {
-                var s = new Array(length + 1).join('x');
-                return s.replace(/x/g, function (c) {
-                    /* jshint -W016 */
-                    return (Math.random() * 16|0).toString(16);
-                    /* jshint +W016 */
-                });
+            init: function (options) {
+                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert(STRING, options.container, assert.format(assert.messages.type.default, 'options.container', STRING));
+                assert(STRING, options.scaler, assert.format(assert.messages.type.default, 'options.scaler', STRING));
+                this._container = options.container;
+                this._scaler = options.scaler;
             },
 
             /**
-             * Get the mouse (or touch) position
+             * Enable/Disable events
+             * @param enable
+             */
+            enable: function (enable) {
+                enable = $.type(enable) === UNDEFINED ? true : !! enable;
+
+                // We need an object so that data is passed by reference between handlers
+                var data = {};
+
+                $(document)
+                    .off(NS);
+
+                if (enable) {
+
+                    // Note: mouse events cannot be caught on the selector surface,
+                    // because any element on top of the selector surface captures them first.
+                    // We need to let all mouse events bubble up to the container to ensure
+                    // events do not stop being captured while drawing a path when moving over other elements
+                    $(document)
+                        .on(MOUSEDOWN, this._container, data, this._onMouseDown.bind(this))
+                        .on(MOUSEMOVE, this._container, data, this._onMouseMove.bind(this))
+                        .on(MOUSELEAVE, this._container, data, this._onMouseEnd.bind(this))
+                        .on(MOUSEUP, data, this._onMouseEnd.bind(this));
+
+                    // Note: MOUSEUP should end the path even if it is triggered outside the container.
+                }
+            },
+
+            /**
+             * Get surface point from mouse event
              * @param e
-             * @param stage
-             * @returns {{x: *, y: *}}
+             * @private
              */
-            getMousePosition: function (e, stage) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                assert.instanceof($, stage, kendo.format(assert.messages.instanceof.default, 'stage', 'jQuery'));
-                // See http://www.jacklmoore.com/notes/mouse-position/
-                // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
-                // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
-                // ATTENTION: e.originalEvent.changedTouches instanceof TouchList, not Array
-                var originalEvent = e.originalEvent;
-                var clientX = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientX : e.clientX;
-                var clientY = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientY : e.clientY;
-                // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
-                // var stage = $(e.target).closest('.kj-stage').find(kendo.roleSelector('stage'));
-                var ownerDocument = $(stage.get(0).ownerDocument);
-                var stageOffset = stage.offset();
-                var mouse = {
-                    x: clientX - stageOffset.left + ownerDocument.scrollLeft(),
-                    y: clientY - stageOffset.top + ownerDocument.scrollTop()
-                };
-                return mouse;
+            _getSurfacePoint: function (e) {
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof(window.Element, e.target, assert.format(assert.messages.instanceof.default, 'e.target', 'Element'));
+                var container = $(e.target).closest(this._container);
+                assert.hasLength(container, assert.format(assert.messages.hasLength.default, 'container'));
+                var scaler = container.closest(this._scaler);
+                var scale = scaler.length ? util.getTransformScale(scaler) : 1;
+                var mouse = util.getMousePosition(e, container);
+                var point = new geometry.Point(mouse.x / scale, mouse.y / scale);
+                return point;
             },
 
             /**
-             * Get the position of the center of an element
-             * @param element
-             * @param stage
-             * @param scale
+             * Get the closest selector surface
+             * @param target
+             * @private
              */
-            getElementCenter: function (element, stage, scale) {
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
-                assert.instanceof($, stage, kendo.format(assert.messages.instanceof.default, 'stage', 'jQuery'));
-                assert.type(NUMBER, scale, kendo.format(assert.messages.type.default, 'scale', NUMBER));
-                // We need getBoundingClientRect to especially account for rotation
-                var rect = element[0].getBoundingClientRect();
-                var ownerDocument = $(stage.get(0).ownerDocument);
-                var stageOffset = stage.offset();
-                return {
-                    left: (rect.left - stageOffset.left + rect.width / 2  + ownerDocument.scrollLeft()) / scale,
-                    top: (rect.top - stageOffset.top + rect.height / 2 + ownerDocument.scrollTop()) / scale
-                };
-            },
-
-            /**
-             * Get the scale of an element's CSS transformation
-             * Note: the same function is used in kidoju.widgets.stage
-             * @param element
-             * @returns {Number|number}
-             */
-            getTransformScale: function (element) {
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
-                // element.css('transform') returns a matrix, so we have to read the style attribute
-                var match = (element.attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
-                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
-            },
-
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
-
-            /**
-             * Detect the shape of a path (circle, cross, line) among a list of shapes
-             * @param path
-             * @param shapes
-             */
-            detectShape: function (path, shapes) {
-                assert.instanceof(drawing.Path, path, kendo.format(assert.messages.instanceof.default, 'path', 'kendo.drawing.Path'));
-                assert.isArray(shapes, kendo.format(assert.messages.isArray.default, 'shapes'));
-                assert.hasLength(shapes, kendo.format(assert.messages.hasLength.default, 'shapes'));
-                if (shapes.length === 1) {
-                    return shapes[0];
+            _getSelectorSurface: function (target) {
+                assert.instanceof($, target, assert.format(assert.messages.instanceof.default, 'target', 'jQuery'));
+                assert.hasLength(target, assert.format(assert.messages.hasLength.default, 'target'));
+                var container = target.closest(this._container);
+                var selectorSurface = container.find(kendo.roleSelector('selectorsurface')).data('kendoSelectorSurface');
+                if (selectorSurface instanceof SelectorSurface && selectorSurface.enabled()) {
+                    return selectorSurface;
                 }
-                var bbox = path.bbox();
-                var x = Math.floor(bbox.origin.x);
-                var y = Math.floor(bbox.origin.y);
-                var height = Math.floor(bbox.size.height);
-                var width = Math.floor(bbox.size.width);
-                // Detect a line (height / width ratio)
-                if (height / width < LINE_HW_PROPORTION && shapes.indexOf(SelectorSurface.fn.shapes.line) > -1) {
-                    return SelectorSurface.fn.shapes.line;
+            },
+
+            /**
+             * Mouse down event handler
+             * @param e
+             * @private
+             */
+            _onMouseDown: function  (e) {
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof(window.Element, e.target, assert.format(assert.messages.instanceof.default, 'e.target', 'Element'));
+                var target = $(e.target);
+                // Do not interfere with interactive elements
+                if (target.closest(DOT + INTERACTIVE_CLASS).length) {
+                    return;
                 }
-                if (shapes.indexOf(SelectorSurface.fn.shapes.circle) === -1 && shapes.indexOf(SelectorSurface.fn.shapes.cross) > -1) {
-                    return SelectorSurface.fn.shapes.cross;
-                } else if (shapes.indexOf(SelectorSurface.fn.shapes.circle) > -1 && shapes.indexOf(SelectorSurface.fn.shapes.cross) === -1) {
-                    return SelectorSurface.fn.shapes.circle;
-                } else if (shapes.indexOf(SelectorSurface.fn.shapes.circle) > -1 && shapes.indexOf(SelectorSurface.fn.shapes.cross) > -1) {
-                    // Detect a circle (shape nears top, right, bottom and left)
-                    var topPoint = new geometry.Point(x + width / 2, y);
-                    var rightPoint = new geometry.Point(x + width, y + height / 2);
-                    var bottomPoint = new geometry.Point(x + width / 2, y + height);
-                    var leftPoint = new geometry.Point(x, y + height / 2);
-                    var hitTop = false;
-                    var hitRight = false;
-                    var hitBottom = false;
-                    var hitLeft = false;
-                    for (var i = 0, length = path.segments.length; i < length; i++) {
-                        var segment = path.segments[i];
-                        if (!hitTop) {
-                            hitTop = segment.anchor().distanceTo(topPoint) < SHAPE_HIT_DISTANCE;
-                        }
-                        if (!hitRight) {
-                            hitRight = segment.anchor().distanceTo(rightPoint) < SHAPE_HIT_DISTANCE;
-                        }
-                        if (!hitBottom) {
-                            hitBottom = segment.anchor().distanceTo(bottomPoint) < SHAPE_HIT_DISTANCE;
-                        }
-                        if (!hitLeft) {
-                            hitLeft = segment.anchor().distanceTo(leftPoint) < SHAPE_HIT_DISTANCE;
-                        }
-                        if (hitTop && hitRight && hitBottom && hitLeft) {
-                            break;
-                        }
-                    }
-                    if (hitTop && hitRight && hitBottom && hitLeft) {
-                        return SelectorSurface.fn.shapes.circle;
-                    } else {
-                        // Otherwise let's assume it is a cross
-                        return SelectorSurface.fn.shapes.cross;
+                var selectorSurface = this._getSelectorSurface(target);
+                // Make sure we have an enabled selector surface
+                if (selectorSurface instanceof SelectorSurface) {
+                    var point = this._getSurfacePoint(e);
+                    var pulled = selectorSurface._pullSelections(point);
+                    // If we are not removing selections under point, we are adding a new selection
+                    if (Array.isArray(pulled) && pulled.length === 0) {
+                        var stroke = selectorSurface.activeSelector.options.stroke;
+                        var path = new drawing.Path({ stroke: stroke });
+                        path.moveTo(point);
+                        selectorSurface.drawingSurface.draw(path);
+                        // IMPORTANT: Do not assign e.data directly otherwise the reference
+                        // to the data object will be lost across events
+                        e.data.path = path;
+                        e.data.selectorSurface = selectorSurface;
+                        logger.debug({
+                            method: '_onMouseDown',
+                            message: 'Started new selection',
+                            data: stroke
+                        });
                     }
                 }
             },
 
-            /* jshint +W074 */
-
             /**
-             * Get a selection data item for dataSource from a user-drawn path
-             * @param path
-             * @param color
-             * @param shapes
+             * Mouse move event handler
+             * @param e
+             * @private
              */
-            getDataItem: function (path, color, shapes) {
-                assert.instanceof(drawing.Path, path, kendo.format(assert.messages.instanceof.default, 'path', 'kendo.drawing.Path'));
-                assert.type(STRING, color, kendo.format(assert.messages.type.default, 'color', STRING));
-                assert.isArray(shapes, kendo.format(assert.messages.isArray.default, 'shapes'));
-                assert.hasLength(shapes, kendo.format(assert.messages.hasLength.default, 'shapes'));
-                var bbox = path.bbox();
-                var height = Math.floor(bbox.size.height);
-                var width = Math.floor(bbox.size.width);
-                // If the user-drawn path is too small, discard
-                if (Math.sqrt(Math.pow(height, 2) + Math.pow(width, 2)) > MIN_DIAGONAL) {
-                    return {
-                        type: DATA_TYPE,
-                        data: {
-                            color: color,
-                            origin: { x: Math.floor(bbox.origin.x), y: Math.floor(bbox.origin.y) },
-                            shape: util.detectShape(path, shapes),
-                            size: { height: height, width: width }
-                        }
-                    };
+            _onMouseMove: function  (e) {
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                var path = e.data && e.data.path;
+                if ($.isPlainObject(e.data) && e.data.path instanceof drawing.Path) {
+                    var point = this._getSurfacePoint(e);
+                    path.lineTo(point);
                 }
             },
 
             /**
-             * Get an horizontal line path within rect
-             * @param rect
-             * @param options
+             * Mouse up event handler
+             * @param e
+             * @private
              */
-            getHorizontalLineDrawing: function (rect, options) {
-                assert.instanceof(geometry.Rect, rect, kendo.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
-                var path = new drawing.Path(options);
-                path.moveTo(rect.origin.x, rect.origin.y + rect.size.height / 2);
-                path.lineTo(rect.origin.x + rect.size.width, rect.origin.y + rect.size.height / 2);
-                return path;
-            },
-
-            /**
-             * Get the arc of an ellipsis within rect
-             * @param rect
-             * @param options
-             */
-            getCircleDrawing: function (rect, options) {
-                assert.instanceof(geometry.Rect, rect, kendo.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
-                var arcGeometry = new geometry.Arc(
-                    [rect.origin.x + rect.size.width / 2, rect.origin.y + rect.size.height / 2], // center
-                    {
-                        radiusX: rect.size.width / 2,
-                        radiusY: rect.size.height / 2,
-                        startAngle: 0,
-                        endAngle: 360,
-                        anticlockwise: false
+            _onMouseEnd: function  (e) {
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                if ($.isPlainObject(e.data) && e.data.path instanceof drawing.Path) {
+                    var path = e.data.path;
+                    var selectorSurface = e.data.selectorSurface;
+                    if (selectorSurface instanceof SelectorSurface) {
+                        var rect = path.bbox();
+                        selectorSurface._pushSelection(rect);
                     }
-                );
-                return new drawing.Arc(arcGeometry, options);
-            },
-
-            /**
-             * Get a cross path within rect
-             * @param rect
-             * @param options
-             */
-            getCrossDrawing: function (rect, options) {
-                assert.instanceof(geometry.Rect, rect, kendo.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
-                var path = new drawing.Path(options);
-                var x = rect.origin.x;
-                var y = rect.origin.y;
-                var height = rect.size.height;
-                var width = rect.size.width;
-                path.moveTo(x + width, y);
-                path.lineTo(x + CROSS_CURVE * width, y + (1 - CROSS_CURVE) * height);
-                path.curveTo(
-                    [x, y + height],
-                    [x, y + height],
-                    [x, y + (1 - CROSS_CURVE) * height]
-                );
-                path.lineTo(x, y + CROSS_CURVE * height);
-                path.curveTo(
-                    [x, y],
-                    [x, y],
-                    [x + CROSS_CURVE * width, y + CROSS_CURVE * height]
-                );
-                path.lineTo(x + width, y + height);
-                return path;
-            },
-
-            /**
-             * Draw a shape from a dataSource dataItem
-             * @param dataItem
-             * @param strokeOptions
-             */
-            getSelectionDrawing: function (dataItem, strokeOptions) {
-                assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
-                var shape = dataItem.data.shape;
-                var rect = new geometry.Rect([dataItem.data.origin.x, dataItem.data.origin.y], [dataItem.data.size.width, dataItem.data.size.height]);
-                var options = { stroke: $.extend(strokeOptions, { color: dataItem.data.color }) };
-                if (shape === SelectorSurface.fn.shapes.line) {
-                    return util.getHorizontalLineDrawing(rect, options);
-                } else if (shape === SelectorSurface.fn.shapes.circle) {
-                    return util.getCircleDrawing(rect, options);
-                } else {
-                    return util.getCrossDrawing(rect, options);
+                    // IMPORTANT: Do not assign e.data directly otherwise the reference
+                    // to the data object will be lost across events
+                    e.data.path = undefined;
+                    e.data.selectorSurface = undefined;
+                    // This is a workaround because mouseleave triggers a selection in chrome (not in FF or Edge)
+                    if ($.isFunction(window.getSelection)) {
+                        var sel = window.getSelection();
+                        sel.removeAllRanges();
+                    }
                 }
             }
 
+        });
+
+        /**
+         * Singleton to share SelectorEvents
+         * @returns {SelectorEvents}
+         */
+        SelectorEvents.getSingleton = function (options) {
+            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert(STRING, options.container, assert.format(assert.messages.type.default, 'options.container', STRING));
+            assert(STRING, options.scaler, assert.format(assert.messages.type.default, 'options.scaler', STRING));
+            if (!SelectorEvents._instance) {
+                SelectorEvents._instance = new SelectorEvents(options);
+            }
+            // Note: all selectors on the same page should have the same options.container and options.scaler
+            assert.equal(options.container, SelectorEvents._instance._container, assert.format(assert.messages.equal.default, 'SelectorEvents._instance._container', 'options.container'));
+            assert.equal(options.scaler, SelectorEvents._instance._scaler, assert.format(assert.messages.equal.default, 'SelectorEvents._instance._scaler', 'options.scaler'));
+            return SelectorEvents._instance;
         };
 
         /*********************************************************************************
@@ -344,93 +270,15 @@
              */
             options: {
                 name: 'SelectorToolBar',
-                iconSize: 16,
+                iconSize: ICON_SIZE,
                 resizable: false
-            },
-
-            /**
-             * Add a color to the toolbar
-             * @param color
-             */
-            addColor: function (color) {
-                var that = this;
-                // k-button-group in kendo.ui & km-buttongroup (wo second -) in kendo.mobile.ui
-                var buttonGroup = this.element.children('.k-button-group, .km-buttongroup');
-                var toolBarColors = buttonGroup.children('.k-toggle-button').map(function () {
-                    return HASH + $(this).attr('id');
-                });
-                var buttons = [];
-                // Rebuild previous buttons;
-                for (var i = 0, length = toolBarColors.length; i < length; i++) {
-                    buttons.push({
-                        type: 'button',
-                        group: 'selectorColors',
-                        id: toolBarColors[i].substr(1), // removes the hashtag
-                        imageUrl: that._createImageUrl(toolBarColors[i]),
-                        showText: 'overflow',
-                        text: toolBarColors[i],
-                        togglable: true
-                    });
-                }
-                // Parse color for what is actually a color
-                color = kendo.parseColor(color).toCss(); // might raise an exception
-                // Do not add a color that already exists
-                var found = buttons.find(function (button) {
-                    return button.text === color;
-                });
-                // Create button
-                if ($.type(found) === UNDEFINED) {
-                    buttons.push({
-                        type: 'button',
-                        group: 'selectorColors',
-                        id: color.substr(1), // removes the hashtag
-                        imageUrl: that._createImageUrl(color),
-                        showText: 'overflow',
-                        text: color,
-                        togglable: true
-                    });
-                }
-                if (buttonGroup.length) {
-                    that.remove(buttonGroup);
-                }
-                that.add({ type: 'buttonGroup', buttons: buttons });
-                if (buttons.length) {
-                    that.toggle(HASH + buttons[0].id, true);
-                    that._onToggle({ id: buttons[0].id });
-                }
-                that.wrapper.toggle(buttons.length > 1);
-            },
-
-            /**
-             * Create toolbar icon
-             * @param: color
-             * @private
-             */
-            _createImageUrl: function (color) {
-                var canvas = document.createElement('canvas');
-                canvas.height = this.options.iconSize;
-                canvas.width = this.options.iconSize;
-                var ctx = canvas.getContext('2d');
-                ctx.beginPath();
-                ctx.arc(
-                    this.options.iconSize / 2,  // center.x
-                    this.options.iconSize / 2,  // center.y
-                    this.options.iconSize / 2,  // radius
-                    0,                          // start angle
-                    2 * Math.PI                 // end angle
-                );
-                ctx.strokeStyle = 'black';
-                ctx.fillStyle = color;
-                ctx.stroke();
-                ctx.fill();
-                return canvas.toDataURL();
             },
 
             /**
              * Register corresponding selector surface, the surface the selected color applies to
              */
             registerSelectorSurface: function (selectorSurface) {
-                assert.instanceof(SelectorSurface, selectorSurface, kendo.format(assert.messages.instanceof.default, 'selectorSurface', 'kendo.ui.SelectorSurface'));
+                assert.instanceof(SelectorSurface, selectorSurface, assert.format(assert.messages.instanceof.default, 'selectorSurface', 'kendo.ui.SelectorSurface'));
                 this.selectorSurface = selectorSurface;
             },
 
@@ -439,18 +287,119 @@
              * @private
              */
             _onToggle: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(SelectorSurface, this.selectorSurface, kendo.format(assert.messages.instanceof.default, 'this.selectorSurface', 'kendo.ui.SelectorSurface'));
-                this.selectorSurface.color(HASH + e.id);
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                assert.type(STRING, e.id, assert.format(assert.messages.type.default, 'e.id', STRING));
+                assert.instanceof(SelectorSurface, this.selectorSurface, assert.format(assert.messages.instanceof.default, 'this.selectorSurface', 'kendo.ui.SelectorSurface'));
+                assert.isArray(this.selectorSurface.selectors, assert.format(assert.messages.isArray.default, 'this.selectorSurface.selectors'));
+                var id = e.id.substr(BUTTON_PREFIX.length);
+                for (var i = 0, length = this.selectorSurface.selectors.length; i < length; i++) {
+                    if (this.selectorSurface.selectors[i].options.id === id) {
+                        this.selectorSurface.activeSelector = this.selectorSurface.selectors[i];
+                        break;
+                    }
+                }
+            },
+
+            /**
+             * Create toolbar icon
+             * @param: selector
+             * @private
+             */
+            _createButton: function (selector) {
+                assert.instanceof(Selector, selector, assert.format(assert.messages.instanceof.default, 'selector', 'kendo.ui.Selector'));
+                assert.instanceof(SelectorSurface, this.selectorSurface, assert.format(assert.messages.instanceof.default, 'this.selectorSurface', 'kendo.ui.SelectorSurface'));
+                var dfd = $.Deferred();
+                var iconSize = parseInt(this.options.iconSize, 10) || ICON_SIZE;
+                // @see https://docs.telerik.com/kendo-ui/api/javascript/drawing/stroke-options
+                var stroke = kendo.deepExtend({}, selector.options.stroke, { dashType: 'solid', opacity: 1, width: 2 });
+                var border = Math.floor(iconSize / 10);
+                var root = new drawing.Group();
+                var rect = new geometry.Rect([border, border], [iconSize - 2 * border, iconSize - 2 * border]);
+                var element;
+                switch (selector.options.shape) {
+                    case Selector.fn.shapes.circle:
+                        element = this.selectorSurface._createCirclePath(rect, stroke);
+                        break;
+                    case Selector.fn.shapes.cross:
+                        element = this.selectorSurface._createCrossPath(rect, stroke);
+                        break;
+                    case Selector.fn.shapes.rect:
+                        element = this.selectorSurface._createRectPath(rect, stroke);
+                        break;
+                }
+                if (element instanceof drawing.Element) {
+                    element.transform(geometry.transform().translate(border, border));
+                    root.append(element);
+                }
+                // https://docs.telerik.com/kendo-ui/api/javascript/drawing/methods/exportsvg
+                // drawing.exportSVG(root)
+                drawing.exportImage(root, { width: iconSize, height: iconSize })
+                    .done(function (dataUri) {
+                        dfd.resolve ({
+                            group: 'selectors',
+                            id: BUTTON_PREFIX + selector.options.id,
+                            imageUrl: dataUri,
+                            showText: 'overflow',
+                            text: 'TODO',       // TODO <-------------------------------------------
+                            togglable: true,
+                            type: 'button'
+                        });
+                    })
+                    .fail(dfd.reject);
+                return dfd.promise();
+            },
+
+            /**
+             * Refresh toolbar
+             * Note: Making selectorSurface.selectors an ObservableArray instead of a simple array raises a stack overflow
+             */
+            refresh: function () {
+                assert.instanceof(SelectorSurface, this.selectorSurface, assert.format(assert.messages.instanceof.default, 'this.selectorSurface', 'kendo.ui.SelectorSurface'));
+                assert.isArray(this.selectorSurface.selectors, assert.format(assert.messages.isArray.default, 'this.selectorSurface.selectors'));
+                function removeButtonGroup() {
+                    // k-button-group in kendo.ui & km-buttongroup (wo second -) in kendo.mobile.ui
+                    var buttonGroup = that.element.children('.k-button-group, .km-buttongroup');
+                    if (buttonGroup.length) {
+                        that.remove(buttonGroup);
+                    }
+                }
+                var that = this;
+                var selectorSurface = that.selectorSurface;
+                var length = selectorSurface.selectors.length; // TODO enabled
+                if (length > 1) {
+                    // Rebuild all buttons
+                    var promises = [];
+                    for (var i = 0; i < length; i++) {
+                        promises.push(that._createButton(selectorSurface.selectors[i]));
+                    }
+                    $.when.apply(that, promises).done(function() {
+                        // Remove buttons
+                        removeButtonGroup();
+                        // Add buttons
+                        var buttons = Array.prototype.slice.call(arguments);
+                        assert.equal(length, buttons.length, assert.format(assert.messages.equal.default, 'buttons.length', 'length'));
+                        that.add({ type: 'buttonGroup', buttons: buttons });
+                        // Toggle the active selector
+                        assert.instanceof(Selector, selectorSurface.activeSelector, assert.format(assert.messages.instanceof.default, 'selectorSurface.activeSelector', 'kendo.ui.Selector'));
+                        that.toggle(HASH + BUTTON_PREFIX + selectorSurface.activeSelector.options.id, true);
+                        // Show the toolbar with at least two buttons
+                        that.wrapper.toggle(true);
+                    });
+                } else {
+                    removeButtonGroup();
+                    that.wrapper.toggle(false);
+                }
             },
 
             /**
              * Destroy widget
              */
             destroy: function () {
-                var that = this;
-                var element = that.element;
-                ToolBar.fn.destroy.call(that);
+                var element = this.element;
+                // Unref
+                this.selectorSurface = undefined;
+                // Destroy
+                ToolBar.fn.destroy.call(this);
                 kendo.destroy(element);
             }
 
@@ -462,6 +411,10 @@
          * SelectorSurface Widget
          *********************************************************************************/
 
+        /**
+         * SelectorSurface
+         * Note: SelectorSurface does not extend drawing.Surface because drawing surfaces are created using drawing.Surface.create
+         */
         var SelectorSurface = Widget.extend({
 
             /**
@@ -470,14 +423,12 @@
              * @param options
              */
             init: function (element, options) {
-                var that = this;
-                options = options || {};
-                Widget.fn.init.call(that, element, options);
+                Widget.fn.init.call(this, element, options);
                 logger.debug('surface initialized');
-                that._layout();
-                that._createToolBar();
-                that._dataSource();
-                kendo.notify(that);
+                this.selectors = [];
+                this._layout();
+                this._initToolBar();
+                kendo.notify(this);
             },
 
             /**
@@ -485,21 +436,7 @@
              */
             options: {
                 name: 'SelectorSurface',
-                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]', // TODO: container might not be necessary??? - replace with that.element / https://github.com/kidoju/Kidoju-Widgets/issues/167
-                scaler: 'div.kj-stage',
-                penStroke: {
-                    width: 8
-                },
-                toolbar: '#toolbar'
-            },
-
-            /**
-             * Enumeration of possible shapes
-             */
-            shapes: {
-                circle: 'circle',
-                cross: 'cross',
-                line: 'line'
+                toolbar: ''
             },
 
             /**
@@ -507,25 +444,29 @@
              * @private
              */
             _layout: function () {
-                var that = this;
-                var element = that.element;
-                that.wrapper = element;
+                var element = this.wrapper = this.element;
                 element
-                    .addClass(SURFACE_CLASS);
-                that.surface = drawing.Surface.create(element);
+                    .addClass(SURFACE_CLASS)
+                    .attr(kendo.attr(ID), util.randomId()); // Add an id to match the toolbar
+                this.drawingSurface = Surface.create(element);
             },
 
             /**
-             * Create toolbar
+             * Init toolbar
              * @private
              */
-            _createToolBar: function () {
-                var that = this;
-                var toolbarContainer = $(that.options.toolbar);
+            _initToolBar: function () {
+                var toolbarContainer = $(this.options.toolbar);
+                var id = this.element.attr(kendo.attr(ID));
                 if (toolbarContainer.length) {
-                    var toolbarElement = $(DIV).appendTo(toolbarContainer);
-                    that.toolbar = toolbarElement.kendoSelectorToolBar().data('kendoSelectorToolBar');
-                    that.toolbar.registerSelectorSurface(this);
+                    var toolBar = toolbarContainer.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), id)).data('kendoSelectorToolBar');
+                    if (toolBar instanceof SelectorToolBar) {
+                        this.toolBar = toolBar;
+                    } else {
+                        var toolbarElement = $(DIV).appendTo(toolbarContainer);
+                        this.toolBar = toolbarElement.kendoSelectorToolBar().data('kendoSelectorToolBar');
+                    }
+                    this.toolBar.registerSelectorSurface(this);
                 }
             },
 
@@ -535,311 +476,335 @@
              * @private
              */
             registerSelector: function (selector) {
-                var that = this;
-                var options = that.options;
-                assert.instanceof(Selector, selector, kendo.format(assert.messages.instanceof.default, 'selector', 'Selector'));
-                assert.equal(options.container, selector.options.container, kendo.format(assert.messages.equal.default, 'selector.options.container', 'this.options.container'));
-                assert.equal(options.scaler, selector.options.scaler, kendo.format(assert.messages.equal.default, 'selector.options.scaler', 'this.options.scaler'));
-                // assert.equal(options.dataSource, selector.options.dataSource, kendo.format(assert.messages.equal.default, 'selector.options.dataSource', 'this.options.dataSource'));
-                if (!$.isArray(that.selectors)) {
-                    that.selectors = [];
-                }
-                if (that.selectors.indexOf(selector) === -1) {
-                    that.selectors.push(selector);
-                    // Set the prefix for dataSource ids (so as to only draw selections for the current page when played)
-                    var selectorId = selector.element.attr(kendo.attr(ID)) || '';
-                    if ($.type(that._selectorId) === UNDEFINED) {
-                        that._selectorId = selectorId;
-                    } else if (that._selectorId > selectorId) {
-                        that._selectorId = selectorId;
+                assert.instanceof(Selector, selector, assert.format(assert.messages.instanceof.default, 'selector', 'Selector'));
+                assert.isArray(this.selectors, assert.format(assert.messages.isArray.default, 'this.selectors'));
+                if (this.selectors.indexOf(selector) === -1) {
+                    if (this.selectors.length > 0) {
+                        var first = this.selectors[0];
+                        assert.equal(first.options.container, selector.options.container, assert.format(assert.messages.equal.default, 'first.options.container', 'selector.options.container'));
+                        assert.equal(first.options.scaler, selector.options.scaler, assert.format(assert.messages.equal.default, 'first.options.scaler', 'selector.options.scaler'));
+                        assert.equal(first.options.selectable, selector.options.selectable, assert.format(assert.messages.equal.default, 'first.options.selectable', 'selector.options.selectable'));
+                        assert.equal(first.options.toolbar, selector.options.toolbar, assert.format(assert.messages.equal.default, 'first.options.toolbar', 'selector.options.toolbar'));
+                        // Note: they should also have the same data source
                     }
-                    // Add enabled selector color to toolbar
-                    if (that.toolbar instanceof SelectorToolBar && selector._enabled) {
-                        that.toolbar.addColor(selector.options.shapeStroke.color);
+                    this.selectors.push(selector);
+                    if (!(this.activeSelector instanceof Selector)) {
+                        this.activeSelector = selector;
                     }
-                    // Reset mouse handlers
-                    that._initMouseEvents();
+                    this.toolBar.refresh();
                 }
             },
 
             /**
-             * Gets/Sets color
-             * @private
+             * Unregister selector with surface
+             * @param selector
              */
-            color: function (color) {
-                if ($.type(color) === UNDEFINED) {
-                    return this._color;
-                } else {
-                    this._color = kendo.parseColor(color).toCss(); // This might raise an exception
-                }
-            },
-
-            /**
-             * Init mouse event handlers to draw on surface
-             * @private
-             */
-            _initMouseEvents: function () {
-                // IMPORTANT
-                // We can have several widgets for selections on a page
-                // But we only have one set of event handlers shared across all selections
-                // So we cannot use `this` within handlers, which is specific to this selector surface
-                var options = this.options;
-                var data = {}; // We need an object so that data is passed by reference between handlers
-
-                // ATTENTION! There might be several options.container on the page as in Kidoju-Mobile
-                // So we need to make sure we unbind/bind events to the parent container
-                // https://github.com/kidoju/Kidoju-Widgets/issues/162
-                var container = this.element.closest(options.container);
-                var containers = $(document).find(options.container);
-                container = options.container + ':eq(' + containers.index(container) + ')';
-
-                $(document)
-                    .off(NS, container);
-                if (this.enable()) {
-                    $(document)
-                        .on(MOUSEDOWN, container, data, this._onMouseDown)
-                        .on(MOUSEMOVE, container, data, this._onMouseMove)
-                        .on(MOUSEUP, container, data, this._onMouseUp);
-                }
-            },
-
-            /**
-             * Mouse down event handler
-             * @param e
-             * @private
-             */
-            _onMouseDown: function  (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                e.preventDefault(); // prevents from selecting the div
-                if ($(e.target).hasClass(INTERACTIVE_CLASS)) {
-                    return;
-                }
-                var container = $(e.currentTarget);
-                // Although `this` is unavailable, surfaceElement and surfaceWidget give us the drawing surface and dataSource
-                var surfaceElement = container.find(DOT + SURFACE_CLASS);
-                assert.hasLength(surfaceElement, kendo.format(assert.messages.hasLength.default, surfaceElement));
-                var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
-                assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'surfaceWidget', 'kendo.ui.SelectorSurface'));
-                var scaler = container.closest(surfaceWidget.options.scaler);
-                var scale = scaler.length ? util.getTransformScale(scaler) : 1;
-                var mouse = util.getMousePosition(e, container);
-                var mousePoint = new geometry.Point(mouse.x / scale, mouse.y / scale);
-                var surface = surfaceWidget.surface;
-                assert.instanceof(Surface, surface, kendo.format(assert.messages.instanceof.default, 'surface', 'kendo.drawing.Surface'));
-                var dataSource = surfaceWidget.dataSource;
-                assert.instanceof(DataSource, dataSource, kendo.format(assert.messages.instanceof.default, 'dataSource', 'kendo.data.DataSource'));
-                var dataItems2Delete = dataSource.view().filter(function (dataItem) {
-                    var selectionBox = dataItem.data;
-                    return (mousePoint.x >= selectionBox.origin.x &&
-                    mousePoint.x <= selectionBox.origin.x + selectionBox.size.width &&
-                    mousePoint.y >= selectionBox.origin.y &&
-                    mousePoint.y <= selectionBox.origin.y + selectionBox.size.height);
-                });
-                if ($.isArray(dataItems2Delete) && dataItems2Delete.length) {
-                    dataItems2Delete.forEach(function (dataItem) {
-                        dataSource.remove(dataItem);
-                    });
-                } else {
-                    var strokeOptions = $.extend({}, surfaceWidget.options.penStroke, { color: surfaceWidget.color() });
-                    var path = new drawing.Path({ stroke: strokeOptions });
-                    path.moveTo(mousePoint);
-                    surface.draw(path);
-                    e.data.path = path;
-                    logger.debug({
-                        method: '_onMouseDown',
-                        message: 'Added new path',
-                        data: strokeOptions
-                    });
-                }
-            },
-
-            /**
-             * Mouse move event handler
-             * @param e
-             * @private
-             */
-            _onMouseMove: function  (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                var path = e.data.path;
-                if (path instanceof kendo.drawing.Path) {
-                    var container = $(e.currentTarget);
-                    // Although `this` is unavailable, surfaceElement and surfaceWidget give us the drawing surface and dataSource
-                    var surfaceElement = container.find(DOT + SURFACE_CLASS);
-                    assert.hasLength(surfaceElement, kendo.format(assert.messages.hasLength.default, surfaceElement));
-                    var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
-                    assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'surfaceWidget', 'kendo.ui.SelectorSurface'));
-                    var scaler = container.closest(surfaceWidget.options.scaler);
-                    var scale = scaler.length ? util.getTransformScale(scaler) : 1;
-                    var mouse = util.getMousePosition(e, container);
-                    path.lineTo(mouse.x / scale, mouse.y / scale);
-                }
-            },
-
-            /**
-             * Mouse up event handler
-             * @param e
-             * @private
-             */
-            _onMouseUp: function  (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                var path = e.data.path;
-                if (path instanceof drawing.Path) {
-                    var container = $(e.currentTarget);
-                    // Although `this` is unavailable, surfaceElement and surfaceWidget give us the drawing surface and dataSouce
-                    var surfaceElement = container.find(DOT + SURFACE_CLASS);
-                    assert.hasLength(surfaceElement, kendo.format(assert.messages.hasLength.default, surfaceElement));
-                    var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
-                    assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'surfaceWidget', 'kendo.ui.SelectorSurface'));
-                    var dataSource = surfaceWidget.dataSource;
-                    if (dataSource instanceof kendo.data.DataSource) {
-                        var dataItem = util.getDataItem(path, surfaceWidget.color(), surfaceWidget.getSelectorShapes());
-                        if ($.isPlainObject(dataItem)) {
-                            // Add random Object Id
-                            dataItem.id = util.randomString(24);
-                            // Designate a selector to identify the page
-                            dataItem.data.selector = surfaceWidget._selectorId;
-                            dataSource.add(dataItem);
-                        } else {
-                            // Refresh (to remove the failed attempt at drawing a selection)
-                            dataSource.trigger(CHANGE);
-                        }
+            unregisterSelector: function (selector) {
+                assert.instanceof(Selector, selector, assert.format(assert.messages.instanceof.default, 'selector', 'Selector'));
+                assert.isArray(this.selectors, assert.format(assert.messages.isArray.default, 'this.selectors'));
+                var index = this.selectors.indexOf(selector);
+                if (index > -1) {
+                    this.selectors.splice(index, 1);
+                    if (this.activeSelector === selector) {
+                        this.activeSelector = this.selectors[0]; // Note: this means the activeSelector could potentially be undefined
                     }
-                }
-                e.data.path = undefined;
-            },
-
-            /**
-             * _dataSource function to bind the refresh handler to the change event
-             * @private
-             */
-            _dataSource: function () {
-
-                var that = this;
-
-                // returns the datasource OR creates one if using array or configuration
-                that.dataSource = DataSource.create(that.options.dataSource);
-
-                // bind to the change event to refresh the widget
-                if (that._refreshHandler) {
-                    that.dataSource.unbind(CHANGE, that._refreshHandler);
-                }
-                that._refreshHandler = $.proxy(that.refresh, that);
-                that.dataSource.bind(CHANGE, that._refreshHandler);
-
-                // Filter dataSource
-                that.dataSource.filter({ field: 'type', operator: 'eq', value: DATA_TYPE });
-
-                // trigger a read on the dataSource if one hasn't happened yet
-                if (that.options.autoBind) {
-                    that.dataSource.fetch();
-                }
-
-                var selectors = that.selectors;
-                if ($.isArray(selectors)) {
-                    for (var i = 0, length = selectors.length; i < length; i++) {
-                        if (selectors[i].dataSource !== that.dataSource) {
-                            selectors[i].setDataSource(that.dataSource);
-                        }
-                    }
+                    this.toolBar.refresh();
                 }
             },
 
             /**
-             * Sets the dataSource for source binding
-             * @param dataSource
+             * Return true if at least one selector is enabled
+             * @returns {boolean}
              */
-            setDataSource: function (dataSource) {
-                var that = this;
-                // set the internal datasource equal to the one passed in by MVVM
-                that.options.dataSource = dataSource;
-                // rebuild the datasource if necessary, or just reassign
-                that._dataSource();
-            },
-
-            /**
-             * Refresh handler to redraw all selections from dataSource
-             */
-            refresh: function () {
-                var that = this;
-                var options = that.options;
-                var dataSource = that.dataSource;
-                var surface = that.surface;
-                var selectors = that.selectors;
-                assert.instanceof(DataSource, dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
-                assert.instanceof(Surface, surface, kendo.format(assert.messages.instanceof.default, 'this.surface', 'kendo.data.Surface'));
-                var dataView = dataSource.view(); // This is filtered
-                if (surface instanceof kendo.drawing.Surface) {
-                    // Clear surface
-                    surface.clear();
-                    // Draw
-                    for (var i = 0, total = dataView.length; i < total; i++) {
-                        var dataItem = dataView[i];
-                        // Draw the item only if it relates to the prefix
-                        if (dataItem.type === DATA_TYPE && dataItem.data.selector === that._selectorId) {
-                            surface.draw(util.getSelectionDrawing(dataItem, $.extend({}, options.penStroke)));
-                        }
-                    }
-                }
-                // Trigger a change on all selector widgets to recalculate databound values
-                if ($.isArray(selectors)) {
-                    for (var j = 0, length = selectors.length; j < length; j++) {
-                        var selector = selectors[j];
-                        assert.instanceof(Selector, selector, kendo.format(assert.messages.instanceof.default, 'selector', 'kendo.ui.Selector'));
-                        try {
-                            // We might get `Uncaught TypeError: Cannot read property 'value' of undefined`
-                            // because a refresh is triggered before test is added to the viewModel in play mode
-                            selector.trigger(CHANGE);
-                        } catch (ex) {}
-                    }
-                }
-            },
-
-            /**
-             * Scan registered selectors for all shapes
-             */
-            getSelectorShapes: function () {
-                var selectors = this.selectors;
-                var shapes = [];
-                if ($.isArray(selectors)) {
-                    for (var i = 0, length = selectors.length; i < length; i++) {
-                        var shape = selectors[i].options.shape;
-                        if (shapes.indexOf(shape) === -1) {
-                            shapes.push(shape); // test a dummy shape
-                        }
-                    }
-                }
-                return shapes;
-            },
-
-            /**
-             * Scan registered selectors for all colors
-             */
-            getSelectorColors: function () {
-                var selectors = this.selectors;
-                var colors = [];
-                if ($.isArray(colors)) {
-                    for (var i = 0, length = selectors.length; i < length; i++) {
-                        var color = selectors[i].options.color;
-                        if (colors.indexOf(color) === -1) {
-                            colors.push(color);
-                        }
-                    }
-                }
-                return colors;
-            },
-
-            /**
-             * Return true if any selector is enabled, false if all selectors are disabled
-             */
-            enable: function () {
-                var selectors = this.selectors;
+            enabled: function () {
+                assert.isArray(this.selectors, assert.format(assert.messages.isArray.default, 'this.selectors'));
                 var enabled = false;
-                if ($.isArray(selectors)) {
-                    for (var i = 0, length = selectors.length; i < length; i++) {
-                        enabled = enabled || selectors[i]._enabled;
-                    }
+                for (var i = 0, length = this.selectors.length; i < length; i++) {
+                    enabled = enabled || this.selectors[i]._enabled;
                 }
                 return enabled;
+            },
+
+            /**
+             * Get data item from selector
+             * @param selector
+             * @private
+             */
+            _getDataItem: function (selector) {
+                assert.instanceof(Selector, selector, assert.format(assert.messages.instanceof.default, 'selector', 'kendo.ui.Selector'));
+                assert.type(STRING, selector.options.id, assert.format(assert.messages.type.default, 'selector.options.id', STRING));
+                assert.instanceof(DataSource, selector.dataSource, assert.format(assert.messages.instanceof.default, 'selector.dataSource', 'kendo.data.DataSource'));
+                var items = selector.dataSource.view().filter(function (dataItem) {
+                    return dataItem.type === DATA_TYPE && dataItem.id === selector.options.id;
+                });
+                assert.ok(items.length <= 1, 'There should be no more than one dataItem per selector');
+                return items[0];
+            },
+
+            /**
+             * Create a new data item from selector
+             * @param selector
+             * @private
+             */
+            _createDataItem: function (selector) {
+                assert.instanceof(Selector, selector, assert.format(assert.messages.instanceof.default, 'selector', 'kendo.ui.Selector'));
+                assert.type(STRING, selector.options.id, assert.format(assert.messages.type.default, 'selector.options.id', STRING));
+                return {
+                    id: selector.options.id,
+                    type: DATA_TYPE,
+                    data: {
+                        // Remember shape and stroke in case author makes changes in a new version
+                        shape: selector.options.shape,
+                        stroke: selector.options.stroke,
+                        selections: []
+                    }
+                };
+            },
+
+            /**
+             * Check that a data item is empty
+             * @param dataItem
+             * @returns {boolean}
+             * @private
+             */
+            _isEmptyDataItem: function (dataItem) {
+                return !dataItem || !dataItem.data || !Array.isArray(dataItem.data.selections) || (dataItem.data.selections.length === 0)
+            },
+
+            /**
+             * Check small rect selection to discard
+             * @param rect
+             * @private
+             */
+            _isSmallSelection: function (selector, rect) {
+                assert.instanceof(Selector, selector, assert.format(assert.messages.instanceof.default, 'selector', 'kendo.ui.Selector'));
+                assert.instanceof(geometry.Rect, rect, assert.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
+                var radius = parseInt(selector.options.minRadius, 10) || MIN_RADIUS;
+                return Math.sqrt(Math.pow(rect.size.height, 2) + Math.pow(rect.size.width, 2)) <= 2 * Math.sqrt(2) * radius;
+            },
+
+            /**
+             * Push new selection to active selector data item in data source
+             * @param rect
+             * @private
+             */
+            _pushSelection: function (rect) {
+                assert.instanceof(geometry.Rect, rect, assert.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
+                assert.instanceof(Selector, this.activeSelector, assert.format(assert.messages.instanceof.default, 'this.activeSelector', 'kendo.ui.Selector'));
+                assert.instanceof(DataSource, this.activeSelector.dataSource, assert.format(assert.messages.instanceof.default, 'this.activeSelector.dataSource', 'kendo.data.DataSource'));
+                var selector = this.activeSelector;
+                var dataSource = selector.dataSource;
+                // Discard small selection that anyone will struggle to see on mobile
+                if (!this._isSmallSelection(selector, rect)) {
+                    // Find the dataItem corresponding to the selector
+                    var dataItem = this._getDataItem(selector);
+                    var found = true;
+                    if ($.type(dataItem) === UNDEFINED) {
+                        found = false;
+                        dataItem = this._createDataItem(selector);
+                    }
+                    // Round the origin and size to spare storage space
+                    var origin = [Math.round(rect.origin.x), Math.round(rect.origin.y)];
+                    var size = [Math.round(rect.size.width), Math.round(rect.size.height)];
+                    // Add the origin and size to the dataItem corresponding to the selector
+                    dataItem.data.selections.push({ origin: origin, size: size });
+                    if (!found) {
+                        dataSource.add(dataItem);
+                    }
+                    selector.trigger(CHANGE);
+                    logger.debug({
+                        method: '_pushSelection',
+                        message: 'Added new selection',
+                        data: { origin: origin, size: size }
+                    });
+                } else {
+                    // Remove the small path
+                    this.refresh();
+                }
+            },
+
+            /**
+             * Pull rects containing point from active selector data item in data source
+             * @param point
+             * @returns {{type: string, data: {color, origin: {x: number, y: number}, shape: *, size: {height: number, width: number}}}}
+             * @private
+             */
+            _pullSelections: function (point) {
+                assert.instanceof(geometry.Point, point, assert.format(assert.messages.instanceof.default, 'point', 'kendo.geometry.Point'));
+                assert.instanceof(Selector, this.activeSelector, assert.format(assert.messages.instanceof.default, 'this.activeSelector', 'kendo.ui.Selector'));
+                assert.instanceof(DataSource, this.activeSelector.dataSource, assert.format(assert.messages.instanceof.default, 'this.activeSelector.dataSource', 'kendo.data.DataSource'));
+                var ret = [];
+                var selector = this.activeSelector;
+                var dataSource = selector.dataSource;
+                // Find the dataItem corresponding to the selector
+                var dataItem = this._getDataItem(selector);
+                // Check and remove selections containing point
+                if ($.type(dataItem) !== UNDEFINED) {
+                    // We take a slice to avoid several change events on the dataSource as we splice
+                    var selections = dataItem.data.selections.slice();
+                    // We need to start with the highest index otherwise indexes change as we splice
+                    for (var idx = selections.length - 1; idx >= 0; idx--) {
+                        var rect = new geometry.Rect(selections[idx].origin, selections[idx].size);
+                        if (rect.containsPoint(point)) {
+                            ret.push(selections.splice(idx, 1));
+                        }
+                    }
+                    if (selections.length === 0) {
+                        // Remove will now trigger a change event to redraw
+                        dataSource.remove(dataItem);
+                    } else if (ret.length > 0) {
+                        // Set will now trigger a change event to redraw
+                        dataItem.set('data.selections', selections);
+                    }
+                }
+                if (ret.length) {
+                    selector.trigger(CHANGE);
+                    logger.debug({
+                        method: '_pullSelection',
+                        message: 'Removed selections',
+                        data: { point: [Math.round(point.x), Math.round(point.y)] }
+                    });
+                }
+                return ret;
+            },
+
+            /**
+             * Create a rect
+             * @param dataItem
+             * @param stroke
+             * @private
+             */
+            _createRectPath: function (rect, stroke) {
+                assert.instanceof(geometry.Rect, rect, kendo.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
+                assert.isPlainObject(stroke, kendo.format(assert.messages.isPlainObject.default, 'stroke'));
+                var RECT_RADIUS = 10;
+                var path = new drawing.Path({ stroke: stroke });
+                var x = rect.origin.x;
+                var y = rect.origin.y;
+                var height = rect.size.height;
+                var width = rect.size.width;
+                path.moveTo(x + width - RECT_RADIUS, y)
+                    .curveTo([x + width, y], [x + width, y], [x + width, y + RECT_RADIUS])
+                    .lineTo([x + width, y + height - RECT_RADIUS])
+                    .curveTo([x + width, y + height], [x + width, y + height], [x + width - RECT_RADIUS, y + height])
+                    .lineTo([x + RECT_RADIUS, y + height])
+                    .curveTo([x, y + height], [x, y + height], [x, y + height - RECT_RADIUS])
+                    .lineTo(x, y + RECT_RADIUS)
+                    .curveTo([x, y], [x, y], [x + RECT_RADIUS, y])
+                    .close();
+                return path;
+            },
+
+            /**
+             * Create a circle
+             * @param rect
+             * @param stroke
+             * @private
+             */
+            _createCirclePath: function (rect, stroke) {
+                assert.instanceof(geometry.Rect, rect, kendo.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
+                assert.isPlainObject(stroke, kendo.format(assert.messages.isPlainObject.default, 'stroke'));
+                var arcGeometry = new geometry.Arc(
+                    [rect.origin.x + rect.size.width / 2, rect.origin.y + rect.size.height / 2], // center
+                    {
+                        radiusX: rect.size.width / 2,
+                        radiusY: rect.size.height / 2,
+                        startAngle: 0,
+                        endAngle: 360,
+                        anticlockwise: false
+                    }
+                );
+                // We need to deepExtend stroke to remove all observable wrapping from dataSource
+                return new drawing.Arc(arcGeometry, { stroke: stroke });
+            },
+
+            /**
+             * Create a cross
+             * @param rect
+             * @param stroke
+             * @private
+             */
+            _createCrossPath: function (rect, stroke) {
+                assert.instanceof(geometry.Rect, rect, kendo.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
+                assert.isPlainObject(stroke, kendo.format(assert.messages.isPlainObject.default, 'stroke'));
+                var CROSS_CURVE = 0.5;
+                var path = new drawing.Path({ stroke: stroke });
+                var x = rect.origin.x;
+                var y = rect.origin.y;
+                var height = rect.size.height;
+                var width = rect.size.width;
+                path.moveTo(x + width, y)
+                    .lineTo(x + CROSS_CURVE * width, y + (1 - CROSS_CURVE) * height)
+                    .curveTo(
+                        [x, y + height],
+                        [x, y + height],
+                        [x, y + (1 - CROSS_CURVE) * height]
+                    )
+                    .lineTo(x, y + CROSS_CURVE * height)
+                    .curveTo(
+                        [x, y],
+                        [x, y],
+                        [x + CROSS_CURVE * width, y + CROSS_CURVE * height]
+                    )
+                    .lineTo(x + width, y + height);
+                return path;
+            },
+
+            /**
+             * Draw the selector group of selections from dataItem
+             * @param dataItem
+             * @private
+             */
+            _createSelectorGroup: function (dataItem) {
+                assert.type(OBJECT, dataItem, assert.format(assert.messages.type.default, 'dataItem', OBJECT));
+                assert.type(STRING, dataItem.id, assert.format(assert.messages.type.default, 'dataItem.id', STRING));
+                assert.equal(DATA_TYPE, dataItem.type, assert.format(assert.messages.type.default, 'dataItem.type', DATA_TYPE));
+                assert.type(OBJECT, dataItem.data, assert.format(assert.messages.type.default, 'dataItem.data', OBJECT));
+                var selections = dataItem.data.selections;
+                var group = new drawing.Group();
+                // We need a plain object for stroke
+                var stroke = dataItem.data.stroke instanceof kendo.data.ObservableObject ? dataItem.data.stroke.toJSON() : (dataItem.data.stroke || {});
+                // Iterate over selections to draw all shapes in group
+                for (var idx = 0, length = selections.length; idx < length; idx++) {
+                    var rect = new geometry.Rect(selections[idx].origin, selections[idx].size);
+                    switch (dataItem.data.shape) {
+                        case Selector.fn.shapes.circle:
+                            group.append(this._createCirclePath(rect, stroke));
+                            break;
+                        case Selector.fn.shapes.cross:
+                            group.append(this._createCrossPath(rect, stroke));
+                            break;
+                        case Selector.fn.shapes.rect:
+                            group.append(this._createRectPath(rect, stroke));
+                            break;
+                    }
+                }
+                return group;
+            },
+
+            /**
+             * Refresh handler to redraw selections
+             */
+            refresh: function (e) {
+                assert.instanceof(SelectorSurface, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.SelectorSurface'));
+                assert.isArray(this.selectors, assert.format(assert.messages.isArray.default, 'this.selectors'));
+                assert.instanceof(Surface, this.drawingSurface, assert.format(assert.messages.instanceof.default, 'this.drawingSurface', 'kendo.drawing.Surface'));
+                // Collect a hash of all data items
+                var dataItems = {};
+                for (var i = 0, length = this.selectors.length; i < length; i++) {
+                    this.selectors[i].dataSource.view().forEach(function (item) {
+                        dataItems[item.id] = item;
+                    })
+                }
+                // Clear the surface
+                this.drawingSurface.clear();
+                // Draw all groups
+                for (var id in dataItems) {
+                    if (dataItems.hasOwnProperty(id)) {
+                        var group = this._createSelectorGroup(dataItems[id]);
+                        this.drawingSurface.draw(group);
+                    }
+                }
             },
 
             /**
@@ -847,28 +812,21 @@
              * @method destroy
              */
             destroy: function () {
-                var that = this;
-                var element = that.element;
-                // unbind document events
-                that._initMouseEvents();
-                // unbind dataSource
-                if ($.isFunction(that._refreshHandler)) {
-                    that.dataSource.unbind(CHANGE, that._refreshHandler);
-                }
                 // destroy toolbar
-                if (that.toolbar instanceof SelectorToolBar) {
-                    that.toolbar.destroy();
-                    that.toolbar.wrapper.remove();
-                    that.toolbar = undefined;
+                if (this.toolBar instanceof SelectorToolBar) {
+                    this.toolBar.destroy();
+                    this.toolBar.wrapper.remove();
+                    this.toolBar = undefined;
                 }
                 // Release references
-                that.surface = undefined;
-                that.selectors = undefined;
+                this.activeSelector = undefined;
+                this.drawingSurface = undefined;
+                this.selectors = undefined;
                 // Destroy kendo
-                Widget.fn.destroy.call(that);
-                kendo.destroy(element);
+                Widget.fn.destroy.call(this);
+                kendo.destroy(this.element);
                 // Remove widget class
-                element.removeClass(WIDGET_CLASS);
+                // element.removeClass(SURFACE_CLASS);
             }
         });
 
@@ -891,14 +849,12 @@
              */
             init: function (element, options) {
                 var that = this;
-                options = options || {};
-                Widget.fn.init.call(that, element, options);
+                Widget.fn.init.call(this, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
-                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
-                that._layout();
-                that._ensureSurface();
-                that._dataSource();
-                that._drawPlaceholder();
+                this._layout();
+                this._dataSource();
+                SelectorEvents.getSingleton(this.options).enable(true);
+                this.enable(this.options.enable);
                 kendo.notify(that);
             },
 
@@ -913,27 +869,18 @@
                 dataSource: null,
                 scaler: 'div.kj-stage',
                 container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
+                selectable: 'div.kj-element>[data-' + kendo.ns + 'behavior="selectable"]',
                 toolbar: '', // This points to a container div for including the toolbar
+                empty: '',
+                hitRadius: HIT_RADIUS,
+                minRadius: MIN_RADIUS,
                 shape: 'circle',
-                color: '#FF0000',
-                frameStroke: { // strokeOptions
-                    color: '#8a8a8a',
-                    dashType: 'dot',
-                    opacity: 0.6,
-                    width: 2
-                },
-                shapeStroke: { // strokeOptions
+                stroke: {
                     color: '#FF0000',
-                    dashType: 'dot',
-                    opacity: 0.6,
+                    dashType: 'solid',
+                    opacity: 1,
                     width: 8
                 },
-                // in design mode: drawPlaceholder = true, createSurface = false, enable = false
-                // in play mode: drawPlaceholder = false, createSurface = true, enabled = true
-                // in review mode: drawPlaceholder = true, createSurface = true, enable = false
-                drawPlaceholder: true,
-                createSurface: true,
-                // showToolBar === enable
                 enable: true
             },
 
@@ -946,70 +893,59 @@
             ],
 
             /**
+             * Enumeration of possible shapes
+             */
+            shapes: {
+                circle: 'circle',
+                cross: 'cross',
+                rect: 'rect'
+            },
+
+            /**
              * Value for MVVM binding
-             * - If there is no selection of the corresponding options.shapeStroke.color, value returns undefined
-             * - If there are more selections than the number of widgets of the same shape and color, value returns 0
-             * - If there is no selection of corresponding shape and color within the widget placeholder, value returns 0
-             * - If there is a selection of corresponding shape and color within the widget placeholder, value returns 1
+             * Value returns an array of selectable values
+             *
              * @param value
              */
-            value: function () {
-                var element = this.element;
-                var options = this.options;
-                var container = element.closest(options.container);
-                var scaler = container.closest(options.scaler);
-                var scale = scaler.length ? util.getTransformScale(scaler) : 1;
-                var boundingRect = element.get(0).getBoundingClientRect(); // boundingRect includes transformations, meaning it is scaled
-                var ownerDocument = $(container.get(0).ownerDocument);
-                var stageOffset = container.offset();
-                var elementRect = new geometry.Rect(
-                    [(boundingRect.left - stageOffset.left + ownerDocument.scrollLeft()) / scale, (boundingRect.top - stageOffset.top + ownerDocument.scrollTop()) / scale],
-                    [boundingRect.width / scale, boundingRect.height / scale] // getBoundingClientRect includes borders
-                );
-                var dataSource = this.dataSource;
-                var matchingSelections = dataSource.view().filter(function (selection) {
-                    return selection.type === DATA_TYPE && // This one might not be useful considering dataSource should already be filtered
-                        selection.data.shape === options.shape &&
-                        kendo.parseColor(selection.data.color).equals(options.shapeStroke.color);
-                });
-                if ($.isArray(matchingSelections) && matchingSelections.length) {
-                    var similarSelectorElements = container.find(kendo.roleSelector(ROLE)).filter(function (index, element) {
-                        var selectorWidget = $(element).data('kendoSelector');
-                        if (selectorWidget instanceof kendo.ui.Selector) {
-                            return selectorWidget.options.shape === options.shape &&
-                                selectorWidget.options.shapeStroke.color === options.shapeStroke.color;
-                        }
-                        return false;
-                    });
-                    // If we have more matching selections (same shape, same color) than similar widgets (same shape, same color)
-                    // We cannot consider we have a match and the widget value is 0 (it would be too easy to multiply selections in hope of getting a match by mere luck)
-                    if (matchingSelections.length > similarSelectorElements.length) {
-                        return 0;
-                    }
-                    // If we have less matching selections than similar widgets, we are good to test
-                    // all selections to check whether one fits within the current widget
-                    var found = 0;
-                    for (var i = 0, length = matchingSelections.length; i < length; i++) {
-                        var selectionRect = new geometry.Rect(
-                            [matchingSelections[i].data.origin.x, matchingSelections[i].data.origin.y],
-                            [matchingSelections[i].data.size.width, matchingSelections[i].data.size.height]
-                        );
-                        if (
-                            // Check that the selection rect fits within the element bounding box
-                            selectionRect.origin.x >= elementRect.origin.x &&
-                            selectionRect.origin.x <= elementRect.origin.x + elementRect.size.width &&
-                            selectionRect.origin.y >= elementRect.origin.y &&
-                            selectionRect.origin.y <= elementRect.origin.y + elementRect.size.height &&
-                            // Also check the distance from center to center
-                            new geometry.Point(selectionRect.origin.x + selectionRect.size.width / 2, selectionRect.origin.y + selectionRect.size.height / 2)
-                                .distanceTo(new geometry.Point(elementRect.origin.x + elementRect.size.width / 2, elementRect.origin.y + elementRect.size.height / 2)) < MIN_DIAGONAL
-                        ) {
+            value: function (value) {
+                if ($.type(value) === UNDEFINED) {
+                    assert.instanceof(Selector, this, assert.format(assert.messages.instanceof.default, 'this', 'Selector'));
+                    assert.instanceof(SelectorSurface, this.selectorSurface,
+                        assert.format(assert.messages.instanceof.default, 'this.selectorSurface', 'kendo.ui.SelectorSurface'));
+                    var ret;
+                    var that = this;
+                    var element = that.element;
+                    var options = that.options;
+                    var selectorSurface = that.selectorSurface;
+                    var dataItem = selectorSurface._getDataItem(that);
+                    if (dataItem && dataItem.data && util.isAnyArray(dataItem.data.selections) && dataItem.data.selections.length) {
+                        ret = [];
+                        var container = element.closest(options.container);
+                        assert.ok($.contains(container[0], selectorSurface.element[0]),
+                            'The selector and its selector surface should be children of the same container');
+                        var selectables = container.find(options.selectable);
+                        var isValued = new Array(selectables.length);
+                        selectables.each(function(index, selectable) {
+                            selectable = $(selectable);
+                            var constant = selectable.attr(kendo.attr(CONSTANT));
+                            var bbox = that._getBBox(selectable);
+                            for (var i = 0, length = dataItem.data.selections.length; i < length; i++) {
+                                var selection = dataItem.data.selections[i];
+                                var rect = new geometry.Rect(selection.origin, selection.size);
+                                if (that._checkHit(bbox, rect) && !isValued[index]) {
+                                    // Make sure intersecting selections do not duplicate values
+                                    isValued[index] = true;
+                                    // Add constant
+                                    ret.push(constant);
+                                }
+                            }
+                        });
 
-                            found++;
-                        }
+                    } else if (this.options.empty) {
+                        // This allows deliberately empty selections
+                        ret = [this.options.empty];
                     }
-                    // Two or more selections within the widgets boundaries count as 1
-                    return found ? 1 : 0;
+                    return ret;
                 }
             },
 
@@ -1018,112 +954,39 @@
              * @private
              */
             _layout: function () {
-                var that = this;
-                var element = that.element;
-                that.wrapper = element;
-                // touch-action: 'none' is for Internet Explorer - https://github.com/jquery/jquery/issues/2987
-                // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
-                element
-                    .addClass(WIDGET_CLASS)
-                    .addClass(INTERACTIVE_CLASS)
-                    .css({ touchAction: 'none' });
-                that.surface = drawing.Surface.create(element);
+                var element = this.wrapper = this.element;
+                element.addClass(WIDGET_CLASS);
+                this._initSurface();
             },
 
             /**
-             * Draw the selector placeholder according to options.shape
+             * Init drawing surface
              * @private
              */
-            _drawPlaceholder: function () {
-                assert.instanceof(Surface, this.surface, kendo.format(assert.messages.instanceof.default, 'this.surface', 'kendo.drawing.Surface'));
-                var that = this; // this is the selection widget
-                var options = that.options;
-                if (options.drawPlaceholder) {
-                    var element = that.element;
-                    var shape = options.shape;
-                    var frameOptions = { stroke: options.frameStroke };
-                    var shapeOptions = { stroke: options.shapeStroke };
-                    var group = new drawing.Group();
-                    var bbox = new geometry.Rect(
-                        [
-                            options.shapeStroke.width / 2,
-                            options.shapeStroke.width / 2
-                        ],
-                        [
-                            // We cannot have a negative value here, esepcailly when element.width() === 0
-                            // https://github.com/kidoju/Kidoju-Widgets/issues/160
-                            Math.max(element.width(), options.shapeStroke.width)  - options.shapeStroke.width,
-                            Math.max(element.height(), options.shapeStroke.width) - options.shapeStroke.width
-                        ]
-                    );
-                    var outerRect = new drawing.Rect(bbox, frameOptions);
-                    group.append(outerRect);
-                    if (shape === SelectorSurface.fn.shapes.line) {
-                        group.append(util.getHorizontalLineDrawing(bbox, shapeOptions));
-                    } else if (shape === SelectorSurface.fn.shapes.circle) {
-                        group.append(util.getCircleDrawing(bbox, shapeOptions));
+            _initSurface: function () {
+                var options = this.options;
+                var container = this.element.closest(options.container);
+                assert.hasLength(container, assert.format(assert.messages.hasLength.default, options.container));
+                var surfaceElement = container.find(DOT + SURFACE_CLASS);
+                if (!surfaceElement.length) {
+                    assert.isUndefined(this.selectorSurface, assert.format(assert.messages.isUndefined.default, 'this.selectorSurface'));
+                    // Find interactive elements
+                    var firstInteractiveElement = container.children().has(DOT + INTERACTIVE_CLASS).first();
+                    surfaceElement = $(DIV)
+                        .addClass(SURFACE_CLASS)
+                        .css({ position: 'absolute', top: 0, left: 0 })
+                        .height(container.height())
+                        .width(container.width());
+                    if (firstInteractiveElement.length) {
+                        // Make sure interactive elements stay on top
+                        surfaceElement.insertBefore(firstInteractiveElement);
                     } else {
-                        group.append(util.getCrossDrawing(bbox, shapeOptions));
+                        // Otherwise simply append on top of all elements
+                        surfaceElement.appendTo(container);
                     }
-                    var center = new geometry.Point(bbox.origin.x + bbox.size.width / 2, bbox.origin.y + bbox.size.height / 2);
-                    var centerShapeOptions = $.extend(true, {}, shapeOptions, { stroke: { dashType: 'solid', width: 2 } });
-                    // Add vertical ligne
-                    var verticalLine = new drawing.Path(centerShapeOptions)
-                        .moveTo(center.x, center.y - MIN_DIAGONAL / 2)
-                        .lineTo(center.x, center.y + MIN_DIAGONAL / 2);
-                    group.append(verticalLine);
-                    // Add horixontal line
-                    var horizontalLine = new drawing.Path(centerShapeOptions)
-                        .moveTo(center.x - MIN_DIAGONAL / 2, center.y)
-                        .lineTo(center.x + MIN_DIAGONAL / 2, center.y);
-                    group.append(horizontalLine);
-                    // Add inner circle
-                    // var innerCircleGeometry = new geometry.Circle(center, MIN_DIAGONAL / 2);
-                    // var innerCircle = new drawing.Circle(innerCircleGeometry, centerShapeOptions);
-                    // group.append(innerCircle);
-                    that.surface.clear();
-                    that.surface.draw(group);
+                    surfaceElement.kendoSelectorSurface({ toolbar: options.toolbar });
                 }
-            },
-
-            /**
-             * Ensure drawing surface for all selections
-             * @private
-             */
-            _ensureSurface: function () {
-                var that = this;
-                var options = that.options;
-                if (options.createSurface) {
-                    var element = that.element;
-                    var container = element.closest(options.container);
-                    assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
-                    var surfaceElement = container.find(DOT + SURFACE_CLASS);
-                    if (!surfaceElement.length) {
-                        assert.isUndefined(that.selectorSurface, kendo.format(assert.messages.isUndefined.default, 'this.selectorSurface'));
-                        var firstInteractiveElement = container.children().has(DOT + INTERACTIVE_CLASS).first();
-                        surfaceElement = $(DIV)
-                            .addClass(SURFACE_CLASS)
-                            .css({ position: 'absolute', top: 0, left: 0 })
-                            .height(container.height())
-                            .width(container.width());
-                        // Selections are not draggables so we have to consider that there might be no firstInteractiveElement
-                        if (firstInteractiveElement.length) {
-                            surfaceElement.insertBefore(firstInteractiveElement);
-                        } else {
-                            surfaceElement.appendTo(container);
-                        }
-                        surfaceElement.kendoSelectorSurface({
-                            container: options.container,
-                            dataSource: options.dataSource,
-                            scaler: options.scaler,
-                            toolbar: options.toolbar
-                        });
-                    }
-                    var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
-                    assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'surfaceWidget', 'kendo.ui.SelectorSurface'));
-                    surfaceWidget.registerSelector(that);
-                    that.selectorSurface = surfaceWidget;
-                }
+                this.selectorSurface = surfaceElement.data('kendoSelectorSurface');
             },
 
             /**
@@ -1146,8 +1009,14 @@
 
                 // trigger a read on the dataSource if one hasn't happened yet
                 if (that.options.autoBind) {
-                    that.dataSource.fetch();
+                    // that.dataSource.fetch();
+                    that.dataSource.filter({ field: 'type', operator: 'eq', value: DATA_TYPE });
                 }
+
+                // We need to trigger a change to recalculate value after source and value bindings
+                setTimeout(function () {
+                    that.trigger(CHANGE);
+                }, 0);
             },
 
             /**
@@ -1163,32 +1032,71 @@
             },
 
             /**
-             * Refresh event handler for the dataSource
-             * @param e
+             * Enable/disable user interactivity on container
              */
-            refresh: function (e) {
-                if (e && $.type(e.action) === UNDEFINED) {
-                    // When resetting the dataSource, set the new dataSource on the selectorSurface widget
-                    var surfaceWidget = this.selectorSurface;
-                    if (surfaceWidget instanceof SelectorSurface && surfaceWidget.dataSource !== e.sender) {
-                        surfaceWidget.setDataSource(e.sender);
-                        logger.debug({
-                            method: 'refresh',
-                            message: 'reset the surfaceWidget dataSource (if infinite loop, make sure all selectors are bound to the same source)'
-                        });
+            enable: function (enable) {
+                assert.instanceof(SelectorSurface, this.selectorSurface, assert.format(assert.messages.instanceof.default, 'this.selectorSurface', 'kendo.ui.SelectorSurface'));
+                enable = $.type(enable) === UNDEFINED ? true : !!enable;
+                // Register/unregister selector with surface (and toolbar)
+                if (this._enabled !== enable) {
+                    this._enabled = enable;
+                    if (this._enabled) {
+                        this.selectorSurface.registerSelector(this);
+                    } else {
+                        this.selectorSurface.unregisterSelector(this);
                     }
                 }
             },
 
             /**
-             * Enable/disable user interactivity on container
+             * Get the bounding box of an element
+             * @param element
+             * @private
              */
-            enable: function (enabled) {
-                this._enabled = !!enabled;
-                var selectorSurface = this.selectorSurface;
-                if (selectorSurface instanceof SelectorSurface) {
-                    selectorSurface._initMouseEvents();
+            _getBBox: function (element) {
+                var options = this.options;
+                var container = element.closest(options.container);
+                var scaler = container.closest(options.scaler);
+                var scale = scaler.length ? util.getTransformScale(scaler) : 1;
+                var boundingRect = element.get(0).getBoundingClientRect(); // boundingRect includes transformations, meaning it is scaled
+                var ownerDocument = $(container.get(0).ownerDocument);
+                var stageOffset = container.offset();
+                var rect = new geometry.Rect(
+                    [(boundingRect.left - stageOffset.left + ownerDocument.scrollLeft()) / scale, (boundingRect.top - stageOffset.top + ownerDocument.scrollTop()) / scale],
+                    [boundingRect.width / scale, boundingRect.height / scale] // getBoundingClientRect includes borders
+                );
+                return rect;
+            },
+
+            /**
+             * Check that a bbox, representing the bounding rect of a selectable, is selected by a selection
+             * @param bbox
+             * @param selection
+             * @private
+             */
+            _checkHit: function (bbox, selection) {
+                assert.instanceof(geometry.Rect, bbox, assert.format(assert.messages.instanceof.default, bbox, 'kendo.geometry.Rect'));
+                assert.instanceof(geometry.Rect, selection, assert.format(assert.messages.instanceof.default, selection, 'kendo.geometry.Rect'));
+                var hitRadius = parseInt(this.options.hitRadius, 10) || HIT_RADIUS;
+                var center = bbox.center();
+                return selection.containsPoint(center.translate(-hitRadius, 0)) &&
+                    selection.containsPoint(center.translate(2 * hitRadius, 0)) &&
+                    selection.containsPoint(center.translate(-hitRadius, -hitRadius)) &&
+                    selection.containsPoint(center.translate(0, 2 * hitRadius))
+            },
+
+            /**
+             * Refresh event handler for the dataSource
+             * @param e
+             */
+            refresh: function (e) {
+                assert.instanceof(SelectorSurface, this.selectorSurface, assert.format(assert.messages.instanceof.default, 'this.selectorSurface', 'kendo.ui.SelectorSurface'));
+                // Set the sender to the selector
+                if ($.isPlainObject(e)) {
+                    e.sender = this;
                 }
+                // Delegate to the surface
+                this.selectorSurface.refresh.bind(this.selectorSurface)(e);
             },
 
             /**
@@ -1196,27 +1104,28 @@
              * @method destroy
              */
             destroy: function () {
-                var that = this;
-                var options = that.options;
                 // unbind dataSource
-                that.dataSource.unbind(CHANGE, that._refreshHandler);
-                // dereference selectors
-                if (that.selectorSurface instanceof SelectorSurface && $.isArray(that.selectorSurface.selectors)) {
-                    // unregister this selector
-                    if (that.selectorSurface.selectors.length > 0) {
-                        var index = that.selectorSurface.selectors.indexOf(that);
-                        that.selectorSurface.selectors.splice(index, 1);
+                if ($.isFunction(this._refreshHandler)) {
+                    this.dataSource.unbind(CHANGE, this._refreshHandler);
+                    this._refreshHandler = undefined;
+                }
+                kendo.unbind(this);
+                // dereference selectors and destroy surface
+                if (this.selectorSurface instanceof SelectorSurface) {
+                    this.selectorSurface.unregisterSelector(this);
+                    if (this.selectorSurface.selectors.length === 0) {
+                        this.selectorSurface.destroy();
+                        this.selectorSurface.wrapper.remove();
+                        if ($(document).find(kendo.roleSelector('surfaceselector')).length === 0) {
+                            // Note: As we play a Kidoju, SelectorEvents_instance survives between pages
+                            SelectorEvents.getSingleton(this.options).enable(false);
+                        }
                     }
-                    // if all selectors are unregistered, destroy selector surface (which should destroy the toolbar)
-                    if (that.selectorSurface.selectors.length === 0) {
-                        that.selectorSurface.destroy();
-                        that.selectorSurface.wrapper.remove();
-                    }
-                    that.selectorSurface = undefined;
+                    this.selectorSurface = undefined;
                 }
                 // Destroy kendo
-                Widget.fn.destroy.call(that);
-                kendo.destroy(that.element);
+                Widget.fn.destroy.call(this);
+                kendo.destroy(this.element);
             }
         });
 

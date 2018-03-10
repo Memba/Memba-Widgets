@@ -28,45 +28,60 @@
                 }
             });
             SystemJS.import('./js/kidoju.widgets.selector.js').then(function (kendo) {
-                window.onSelect = function(e) {
-                    var EVT = 'color.kendoSelector';
-                    switch(e.index) {
-                        case 0:
-                            $(document).trigger(EVT, ['#FF0000']);
-                            break;
-                        case 1:
-                            $(document).trigger(EVT, ['#00FF00']);
-                            break;
-                        case 2:
-                            $(document).trigger(EVT, ['#0000FF']);
-                            break;
-                        case 3:
-                            $(document).trigger(EVT, ['#FF00FF']);
-                            break;
-                    }
-                };
-                var viewModel = kendo.observable({
-                    red: undefined,
-                    green: undefined,
-                    blue: undefined,
-                    magenta: undefined,
-                    source: [{ type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} }], // Test type filtering
-                    source2: new kendo.data.DataSource([{ type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }]),
-                    source$: function() {
+                function formatSelector(selector) {
+                    return function () {
                         var ret = '';
-                        this.get('source').forEach(function(item) {
+                        (this.get(selector) || []).forEach(function(item) {
+                            ret += item + ',';
+                        });
+                        return ret;
+                    };
+                }
+                function formatSource(source) {
+                    return function() {
+                        var ret = '';
+                        var data = this.get(source);
+                        if ($.isFunction(data.data)) {
+                            data = data.data();
+                        }
+                        data.forEach(function (item) {
                             switch(item.type) {
                                 case 'selection':
-                                    ret += kendo.format('{0} {1} ({2}) --> at ({3},{4})\n', item.data.shape, item.id, item.data.color, item.data.origin.x, item.data.origin.y);
+                                    ret += item.id + ' ' + item.data.shape /*stroke*/ + ' ---> [';
+                                    for (var i = 0, length = item.data.selections.length; i < length; i++) {
+                                        ret += '[{' + item.data.selections[i].origin.join(',') + '},{' + item.data.selections[i].size.join(',') + '}]';
+                                    }
+                                    ret += ']\n';
                                     break;
                                 default:
-                                    ret += 'A dummy type which should not break kendo.ui.Selector\n'
+                                    ret += 'Any dummy type which should not break kendo.ui.Selector\n'
                             }
                         });
                         return ret;
-                    },
-                    visible: true,
-                    enabled: true
+                    }
+                }
+                var viewModel = kendo.observable({
+                    // A - Top stage
+                    sourceA: [
+                        // Test type filtering
+                        { type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} },
+                        // Test initial value
+                        { type: 'selection', id: 'val_abcde1', data: { stroke: { color: '#00ffff', width: 6, opacity: 1, dashType: 'solid' }, shape: 'rect', selections: [{ origin: [2,12],size: [93,57]}] } }
+                    ],
+                    sourceA$: formatSource('sourceA'),
+                    selectorA1: null,
+                    selectorA1$: formatSelector('selectorA1'),
+                    selectorA2: null,
+                    selectorA2$: formatSelector('selectorA2'),
+                    visibleA: true,
+                    enabledA: true,
+                    // B - Bottom stage
+                    sourceB: new kendo.data.DataSource([{ type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }]),
+                    sourceB$: formatSource('sourceB'),
+                    selectorB1: null,
+                    selectorB1$: formatSelector('selectorB1'),
+                    visibleB: true,
+                    enabledB: true
                 });
                 $(function() {
                     kendo.bind('body', viewModel, kendo.ui, kendo.mobile.ui);
@@ -77,62 +92,86 @@
 </head>
 <body>
 <h1>kidoju.widgets.selector</h1>
-<div id="toolbar1"></div>
+<div id="toolbarA"></div>
 <div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.75);">
     <div data-role="stage" style="height:300px;width:300px;">
         <div class="kj-element" style="position:absolute;top:10px;left:10px;height:50px;width:100px;">
-            <div data-role="selector" data-id="val_abcde0" data-shape="line" data-shape-stroke="{ color: '#FF0000', opacity: 0.6, width: 4 }" data-toolbar="#toolbar1" style="height:50px;width:100px;" data-bind="value: red, source: source, visible: visible, enabled: enabled"></div>
+            <div data-behavior="selectable" data-constant="red" style="height:50px;width:100px;background:#ff0000;border:solid 1px #000000;border-radius:50%"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:10px;left:190px;height:50px;width:100px;">
-            <div data-role="selector" data-id="val_abcde1" data-shape="cross" data-shape-stroke="{ color: '#00FF00', opacity: 0.6, width: 4 }" data-toolbar="#toolbar1" style="height:50px;width:100px;" data-bind="value: green, source: source, visible: visible, enabled: enabled"></div>
+            <div data-behavior="selectable" data-constant="green" style="height:50px;width:100px;background:#00ff00;border:solid 1px #000000;border-radius:50%"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:190px;height:50px;width:100px;">
-            <div data-role="selector" data-id="val_abcde2" data-shape="circle" data-shape-stroke="{ color: '#0000FF', opacity: 0.6, width: 4 }" data-toolbar="#toolbar1" style="height:50px;width:100px;" data-bind="value: blue, source: source, visible: visible, enabled: enabled"></div>
+            <div data-behavior="selectable" data-constant="blue" style="height:50px;width:100px;background:#0000ff;border:solid 1px #000000;border-radius:50%"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:10px;height:50px;width:100px;">
-            <div data-role="selector" data-id="val_abcde3" data-shape="circle" data-shape-stroke="{ color: '#FF00FF', opacity: 0.6, width: 4 }" data-toolbar="#toolbar1" style="height:50px;width:100px;" data-bind="value: magenta1, source: source, visible: visible, enabled: enabled"></div>
+            <div data-behavior="selectable" data-constant="magenta" style="height:50px;width:100px;background:#ff00ff;border:solid 1px #000000;border-radius:50%"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:125px;left:100px;height:50px;width:100px;">
-            <div data-role="selector" data-id="val_abcde4" data-shape="circle" data-shape-stroke="{ color: '#FF00FF', opacity: 0.6, width: 4 }" data-toolbar="#toolbar1" style="height:50px;width:100px;" data-bind="value: magenta2, source: source, visible: visible, enabled: enabled"></div>
+            <input type="text" class="kj-interactive" style="height:50px;width:100px;font-size:40px;">
+        </div>
+        <div class="kj-element" style="position:absolute;top:0px;left:290px;height:10px;width:10px;">
+            <div data-role="selector" data-id="val_abcde1" data-shape="rect" data-stroke="{ color: '#00FFFF', width: 6 }" data-toolbar="#toolbarA" style="height:10px;width:10px;" data-bind="value: selectorA1, source: sourceA, visible: visibleA, enabled: enabledA"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:0px;left:290px;height:10px;width:10px;">
+            <div data-role="selector" data-id="val_abcde2" data-shape="cross" data-stroke="{ color: '#AAFF22', width: 6 }" data-toolbar="#toolbarA" style="height:10px;width:10px;" data-bind="value: selectorA2, source: sourceA, visible: visibleA, enabled: enabledA"></div>
         </div>
     </div>
 </div>
 
 <pre>
 {
-    red: <span data-bind="text: red"></span>
-    green: <span data-bind="text: green"></span>
-    blue: <span data-bind="text: blue"></span>
-    magenta1: <span data-bind="text: magenta1"></span>
-    magenta2: <span data-bind="text: magenta2"></span>
-    source$:
-    <div data-bind="text: source$" style="margin-left:50px;"></div>
-    visible: <span data-bind="text: visible"></span>
-    enabled: <span data-bind="text: enabled"></span>
+    selectorA1: <span data-bind="text: selectorA1$"></span>
+    selectorA2: <span data-bind="text: selectorA2$"></span>
+    source:
+    <div data-bind="text: sourceA$" style="margin-left:50px;"></div>
+    visible: <span data-bind="text: visibleA"></span>
+    enabled: <span data-bind="text: enabledA"></span>
 }
 </pre>
 <div>
-    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
-    <input type="checkbox" data-bind="checked: enabled" />enabled
+    <input type="checkbox" data-bind="checked: visibleA" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabledA" />enabled
 </div>
 
 <h2>Check a second widget on the same page</h2>
-<div id="toolbar2"></div>
+<div id="toolbarB"></div>
 <div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.9);">
     <div data-role="stage" style="height:300px;width:300px;">
         <div class="kj-element" style="position:absolute;top:10px;left:10px;height:50px;width:100px;">
-            <div data-role="selector" data-id="val_abcde0" data-shape-stroke="{ color: '#FF0000', width: 4 }" data-toolbar="#toolbar2" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-behavior="selectable" data-constant="red" style="height:50px;width:100px;background:#ff0000;border:solid 1px #000000;border-radius:50%"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:10px;left:190px;height:50px;width:100px;">
-            <div data-role="selector" data-id="val_abcde1" data-shape-stroke="{ color: '#00FF00', width: 4 }" data-toolbar="#toolbar2" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-behavior="selectable" data-constant="green" style="height:50px;width:100px;background:#00ff00;border:solid 1px #000000;border-radius:50%"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:190px;height:50px;width:100px;">
-            <div data-role="selector" data-id="val_abcde2" data-shape-stroke="{ color: '#0000FF', width: 4 }" data-toolbar="#toolbar2" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-behavior="selectable" data-constant="blue" style="height:50px;width:100px;background:#0000ff;border:solid 1px #000000;border-radius:50%"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:10px;height:50px;width:100px;">
-            <div data-role="selector" data-id="val_abcde3" data-shape-stroke="{ color: '#FF00FF', width: 4 }" data-toolbar="#toolbar2" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-behavior="selectable" data-constant="magenta" style="height:50px;width:100px;background:#ff00ff;border:solid 1px #000000;border-radius:50%"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:125px;left:100px;height:50px;width:100px;">
+            <div data-behavior="selectable" data-constant="cyan" style="height:50px;width:100px;background:#00ffff;border:solid 1px #000000;border-radius:50%"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:0px;left:290px;height:10px;width:10px;">
+            <div data-role="selector" data-id="val_abcde5" data-shape="cross" data-stroke="{ color: '#000000', width: 4 }" data-toolbar="#toolbarB" style="height:10px;width:10px;" data-bind="value: selectorB1, source: sourceB, visible: visibleB, enabled: enabledB"></div>
         </div>
     </div>
 </div>
+
+<pre>
+{
+    selectorB1: <span data-bind="text: selectorB1$"></span>
+    source:
+    <div data-bind="text: sourceB$" style="margin-left:50px;"></div>
+    visible: <span data-bind="text: visibleB"></span>
+    enabled: <span data-bind="text: enabledB"></span>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visibleB" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabledB" />enabled
+</div>
+
 </body>
 </html>

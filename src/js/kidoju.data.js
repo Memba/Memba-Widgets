@@ -59,8 +59,15 @@
                 rnd = Math.floor (100 * Math.random());
             }
             var end = Date.now();
+            // In fact app.DEBUG is not the right test: we need to detect when dev tools are opened because they slow things down
+            var k = (window.app || {}).DEBUG ? 4 : 1;
             // A minimum of 250ms is required in browsers and 400ms in Phonegap
-            return Math.max(kendo.support.mobileOS.cordova ? 400 : 250, 10 * (end - start));
+            var timeout = k * Math.max(kendo.support.mobileOS.cordova ? 400 : 250, 10 * (end - start));
+            logger.info({
+                method: 'workerTimeout',
+                message: 'Worker timeout set to ' + timeout + ' ms'
+            });
+            return timeout;
         }
 
         /*********************************************************************************

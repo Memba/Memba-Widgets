@@ -241,7 +241,7 @@
             mode: function (value) {
                 var that = this;
                 if ($.type(value) !== UNDEFINED) {
-                    assert.type(STRING, value, kendo.format(assert.messages.type.default, 'value', STRING));
+                    assert.type(STRING, value, assert.format(assert.messages.type.default, 'value', STRING));
                     if ($.type(that.modes[value]) === UNDEFINED) {
                         throw new RangeError();
                     }
@@ -603,7 +603,7 @@
              * @private
              */
             _toggleNoPageMessage: function (enable) {
-                assert.instanceof($, this.wrapper, kendo.format(assert.messages.instanceof.default, 'this.wrapper', 'jQuery'));
+                assert.instanceof($, this.wrapper, assert.format(assert.messages.instanceof.default, 'this.wrapper', 'jQuery'));
                 var wrapper = this.wrapper;
 
                 // clear
@@ -630,7 +630,7 @@
              * @private
              */
             _toggleReadOnlyOverlay: function (enable) {
-                assert.instanceof($, this.wrapper, kendo.format(assert.messages.instanceof.default, 'this.wrapper', 'jQuery'));
+                assert.instanceof($, this.wrapper, assert.format(assert.messages.instanceof.default, 'this.wrapper', 'jQuery'));
                 var wrapper = this.wrapper;
 
                 // clear
@@ -704,7 +704,7 @@
              * @private
              */
             _toggleHandleBox: function (enable) {
-                assert.instanceof($, this.wrapper, kendo.format(assert.messages.instanceof.default, 'this.wrapper', 'jQuery'));
+                assert.instanceof($, this.wrapper, assert.format(assert.messages.instanceof.default, 'this.wrapper', 'jQuery'));
                 var that = this;
                 var wrapper = that.wrapper;
 
@@ -749,7 +749,7 @@
              * @private
              */
             _toggleTransformEventHandlers: function (enable) {
-                assert.instanceof($, this.stage, kendo.format(assert.messages.instanceof.default, 'this.stage', 'jQuery'));
+                assert.instanceof($, this.stage, assert.format(assert.messages.instanceof.default, 'this.stage', 'jQuery'));
                 var that = this;
                 var stage = that.stage;
 
@@ -775,9 +775,9 @@
              */
             _enableStageElement: function (e, component, enable) {
                 var tools = this.options.tools;
-                assert.instanceof(ObservableObject, tools, kendo.format(assert.messages.instanceof.default, 'this.options.tools', 'kendo.data.ObservableObject'));
+                assert.instanceof(ObservableObject, tools, assert.format(assert.messages.instanceof.default, 'this.options.tools', 'kendo.data.ObservableObject'));
                 var tool = tools[component.tool];
-                assert.instanceof(Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                assert.instanceof(Tool, tool, assert.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
                 if ($.isFunction(tool.onEnable)) {
                     tool.onEnable(e, component, enable);
                 }
@@ -791,9 +791,9 @@
              */
             _moveStageElement: function (e, component) {
                 var tools = this.options.tools;
-                assert.instanceof(ObservableObject, tools, kendo.format(assert.messages.instanceof.default, 'this.options.tools', 'kendo.data.ObservableObject'));
+                assert.instanceof(ObservableObject, tools, assert.format(assert.messages.instanceof.default, 'this.options.tools', 'kendo.data.ObservableObject'));
                 var tool = tools[component.tool];
-                assert.instanceof(Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                assert.instanceof(Tool, tool, assert.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
                 if ($.isFunction(tool.onMove)) {
                     tool.onMove(e, component);
                 }
@@ -807,9 +807,9 @@
              */
             _resizeStageElement: function (e, component) {
                 var tools = this.options.tools;
-                assert.instanceof(ObservableObject, tools, kendo.format(assert.messages.instanceof.default, 'this.options.tools', 'kendo.data.ObservableObject'));
+                assert.instanceof(ObservableObject, tools, assert.format(assert.messages.instanceof.default, 'this.options.tools', 'kendo.data.ObservableObject'));
                 var tool = tools[component.tool];
-                assert.instanceof(Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                assert.instanceof(Tool, tool, assert.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
                 if ($.isFunction(tool.onResize)) {
                     tool.onResize(e, component);
                 }
@@ -823,9 +823,9 @@
              */
             _rotateStageElement: function (e, component) {
                 var tools = this.options.tools;
-                assert.instanceof(ObservableObject, tools, kendo.format(assert.messages.instanceof.default, 'this.options.tools', 'kendo.data.ObservableObject'));
+                assert.instanceof(ObservableObject, tools, assert.format(assert.messages.instanceof.default, 'this.options.tools', 'kendo.data.ObservableObject'));
                 var tool = tools[component.tool];
-                assert.instanceof(Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                assert.instanceof(Tool, tool, assert.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
                 if ($.isFunction(tool.onRotate)) {
                     tool.onRotate(e, component);
                 }
@@ -869,8 +869,8 @@
              * @private
              */
             _contextMenuSelectHandler: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof($.Event, e.event, kendo.format(assert.messages.instanceof.default, 'e.event', 'jQuery.Event'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof($.Event, e.event, assert.format(assert.messages.instanceof.default, 'e.event', 'jQuery.Event'));
 
                 // TODO: Consider an event dispatcher so that the same commands can be called from toolbar
                 // Check when implementing fonts, colors, etc....
@@ -910,12 +910,12 @@
              * @private
              */
             _addStageElement: function (component) {
-                assert.instanceof(kendo.ui.Stage, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
-                assert.instanceof($, this.stage, kendo.format(assert.messages.instanceof.default, 'this.stage', 'jQuery'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.type(STRING, component.tool, kendo.format(assert.messages.type.default, 'component.tool', STRING));
-                assert.type(NUMBER, component.left, kendo.format(assert.messages.type.default, 'component.left', NUMBER));
-                assert.type(NUMBER, component.top, kendo.format(assert.messages.type.default, 'component.top', NUMBER));
+                assert.instanceof(kendo.ui.Stage, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
+                assert.instanceof($, this.stage, assert.format(assert.messages.instanceof.default, 'this.stage', 'jQuery'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.type(STRING, component.tool, assert.format(assert.messages.type.default, 'component.tool', STRING));
+                assert.type(NUMBER, component.left, assert.format(assert.messages.type.default, 'component.left', NUMBER));
+                assert.type(NUMBER, component.top, assert.format(assert.messages.type.default, 'component.top', NUMBER));
 
                 var that = this;
                 var stage = that.stage;
@@ -962,19 +962,19 @@
              * @private
              */
             _prepareStageElement: function (stageElement, component) {
-                assert.instanceof($, stageElement, kendo.format(assert.messages.instanceof.default, 'stageElement', 'jQuery'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.instanceof(kendo.ui.Stage, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
-                assert.instanceof($, this.stage, kendo.format(assert.messages.instanceof.default, 'this.stage', 'jQuery'));
+                assert.instanceof($, stageElement, assert.format(assert.messages.instanceof.default, 'stageElement', 'jQuery'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(kendo.ui.Stage, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
+                assert.instanceof($, this.stage, assert.format(assert.messages.instanceof.default, 'this.stage', 'jQuery'));
                 assert.equal(component.uid, stageElement.attr(kendo.attr('uid')), 'The stageElement data-uid attribute is expected to equal the component uid');
 
                 var tool = this.options.tools[component.tool];
-                assert.instanceof(Tool, tool, kendo.format(assert.messages.instanceof.default, tool, 'kidoju.Tool'));
+                assert.instanceof(Tool, tool, assert.format(assert.messages.instanceof.default, tool, 'kidoju.Tool'));
                 var mode = this.mode();
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var content = tool.getHtmlContent(component, mode);
                 if (!(content instanceof $)) {
-                    assert.type(STRING, content, kendo.format(assert.messages.type.default, 'tool.getHtmlContent(...)', STRING));
+                    assert.type(STRING, content, assert.format(assert.messages.type.default, 'tool.getHtmlContent(...)', STRING));
                     content = $(content);
                 }
 
@@ -1100,8 +1100,8 @@
             // This function's cyclomatic complexity is too high.
             /* jshint -W074 */
             _onMouseDown: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                assert.instanceof(kendo.ui.Stage, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof(kendo.ui.Stage, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
 
                 var that = this;
                 var tools = that.options.tools;
@@ -1121,7 +1121,7 @@
 
                     // When clicking the stage with an active tool, add a new element
                     var tool = tools[activeToolId];
-                    assert.instanceof(Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                    assert.instanceof(Tool, tool, assert.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
                     var scale = util.getTransformScale(that.wrapper);
                     var left = mouse.x / scale;
                     var top = mouse.y / scale;
@@ -1208,8 +1208,8 @@
              * @private
              */
             _onMouseMove: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                assert.instanceof(kendo.ui.Stage, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof(kendo.ui.Stage, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
                 var that = this;
                 var handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
                 var startState = handleBox.data(STATE);
@@ -1292,8 +1292,8 @@
              * @private
              */
             _onMouseUp: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                assert.instanceof(kendo.ui.Stage, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof(kendo.ui.Stage, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
                 var that = this;
                 var handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
                 var startState = handleBox.data(STATE);
@@ -1482,7 +1482,7 @@
              * @returns {h|*}
              */
             _toggleSelection: function () {
-                assert.instanceof(kendo.ui.Stage, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
+                assert.instanceof(kendo.ui.Stage, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
                 var that = this;
                 var uid = that._selectedUid;
                 var handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);

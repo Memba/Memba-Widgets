@@ -803,7 +803,7 @@
                         invalidColor: 'A(n) {0} on page {1} has an invalid color in display attributes.',
                         invalidData: 'A(n) {0} on page {1} requires values in display attributes.',
                         invalidDescription: 'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
-                        invalidDropValue: 'A(n) {0} on page {1} requires a drop value in test logic.',
+                        invalidConstant: 'A(n) {0} on page {1} requires a constant in test logic.',
                         invalidFailure: 'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
                         invalidFormula: 'A(n) {0} on page {1} requires a formula in display attributes.',
                         invalidImageFile: 'A(n) {0} on page {1} requires an image file in display attributes.',
@@ -946,8 +946,8 @@
                     attributes.style.title = 'Style';
                     // Properties
                     properties = tools.image.constructor.prototype.properties;
-                    properties.draggable.title = 'Draggable';
-                    properties.dropValue.title = 'Value';
+                    properties.behavior.title = 'Behaviour';
+                    properties.constant.title = 'Constant';
                 }
 
                 if (tools.imageset instanceof Tool) {
@@ -979,8 +979,8 @@
                     attributes.text.defaultValue = 'Label';
                     // Properties
                     properties = tools.label.constructor.prototype.properties;
-                    properties.draggable.title = 'Draggable';
-                    properties.dropValue.title = 'Value';
+                    properties.behavior.title = 'Behaviour';
+                    properties.constant.title = 'Constant';
                 }
 
                 if (tools.mathexpression instanceof Tool) {

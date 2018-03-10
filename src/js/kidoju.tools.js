@@ -73,7 +73,7 @@
         var RX_COLOR = /^#[0-9a-f]{6}$/i;
         var RX_DATA = /\S+/i;
         var RX_DESCRIPTION = /\S+/i; // question
-        var RX_DROPVALUE = /\S+/i;
+        var RX_CONSTANT = /\S+/i;
         var RX_FORMULA = /\S+/i; // Math expression
         var RX_IMAGE = /^(cdn|data):\/\/[\s\S]+.(gif|jpe?g|png|svg)$/i;
         var RX_NAME = /val_[0-9a-f]{6}/;
@@ -129,7 +129,7 @@
                 invalidColor: 'A(n) {0} on page {1} has an invalid color in display attributes.',
                 invalidData: 'A(n) {0} on page {1} requires values in display attributes.',
                 invalidDescription: 'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
-                invalidDropValue: 'A(n) {0} on page {1} requires a drop value in test logic.',
+                invalidConstant: 'A(n) {0} on page {1} requires a constant in test logic.',
                 invalidFailure: 'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
                 invalidFormula: 'A(n) {0} on page {1} requires a formula in display attributes.',
                 invalidImageFile: 'A(n) {0} on page {1} requires an image file in display attributes.',
@@ -266,8 +266,8 @@
                     style: { title: 'Style' }
                 },
                 properties: {
-                    draggable: { title: 'Draggable' },
-                    dropValue: { title: 'Value' }
+                    behavior: { title: 'Behaviour' },
+                    constant: { title: 'Constant' }
                 }
             },
 
@@ -295,8 +295,8 @@
                     text: { title: 'Text', defaultValue: 'Label' }
                 },
                 properties: {
-                    draggable: { title: 'Draggable' },
-                    dropValue: { title: 'Value' }
+                    behavior: { title: 'Behaviour' },
+                    constant: { title: 'Constant' }
                 }
             },
 
@@ -308,8 +308,8 @@
                     style: { title: 'Style' }
                 },
                 properties: {
-                    draggable: { title: 'Draggable' },
-                    dropValue: { title: 'Value' }
+                    behavior: { title: 'Behaviour' },
+                    constant: { title: 'Constant' }
                 }
             },
 
@@ -386,7 +386,10 @@
                 description: 'Selector',
                 attributes: {
                     color: { title: 'Color' },
-                    shape: { title: 'Shape' }
+                    empty: { title: 'Empty' },
+                    hitRadius: { title: 'Hit Radius' },
+                    shape: { title: 'Shape' },
+                    strokeWidth: { title: 'Stroke' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -578,7 +581,7 @@
                     invalidColor: i18n.messages.invalidColor,
                     invalidData: i18n.messages.invalidData,
                     invalidDescription: i18n.messages.invalidDescription,
-                    invalidDropValue: i18n.messages.invalidDropValue,
+                    invalidConstant: i18n.messages.invalidConstant,
                     invalidFailure: i18n.messages.invalidFailure,
                     invalidFormula: i18n.messages.invalidFormula,
                     invalidImageFile: i18n.messages.invalidImageFile,
@@ -783,10 +786,10 @@
                     var properties = component.properties;
                     var messages = this.i18n.messages;
                     var description = this.description; // tool description
-                    if (properties.draggable === true) {
+                    if (properties.behavior !== 'none') {
                         // Note: This test might be better suited to inherited tools (labels, images and math expressions)
-                        if (!properties.dropValue || !RX_DROPVALUE.test(properties.dropValue)) {
-                            ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDropValue, description, /*name,*/ pageIdx + 1) });
+                        if (!properties.constant || !RX_CONSTANT.test(properties.constant)) {
+                            ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidConstant, description, /*name,*/ pageIdx + 1) });
                         }
                     } else if ($.type(component.properties.name) === STRING) {
                         var name = properties.name;
@@ -2766,7 +2769,7 @@
         });
         tools.register(Connector);
 
-        var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #draggable=".kj-element:has([data-draggable=true])" data-#= ns #center="#: attributes.center #"  data-#= ns #empty="#: attributes.empty #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
+        var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #center="#: attributes.center #"  data-#= ns #empty="#: attributes.empty #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
         // TODO: Check whether DROPZONE requires class="kj-interactive"
         /**
          * @class DropZone tool
@@ -3026,7 +3029,7 @@
             description: i18n.image.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<img src="#: src$() #" alt="#: attributes.alt #" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">'
+                default: '<img src="#: src$() #" alt="#: attributes.alt #" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">'
             },
             height: 250,
             width: 250,
@@ -3036,8 +3039,17 @@
                 style: new adapters.StyleAdapter({ title: i18n.image.attributes.style.title })
             },
             properties: {
-                draggable: new adapters.BooleanAdapter({ title: i18n.image.properties.draggable.title, defaultValue: false }),
-                dropValue: new adapters.StringAdapter({ title: i18n.image.properties.dropValue.title })
+                behavior: new adapters.EnumAdapter(
+                    {
+                        title: i18n.image.properties.behavior.title,
+                        defaultValue: 'none',
+                        enum: ['none', 'draggable', 'selectable']
+                    },
+                    {
+                        style: 'width: 100%;'
+                    }
+                ),
+                constant: new adapters.StringAdapter({ title: i18n.image.properties.constant.title })
             },
 
             /**
@@ -3054,13 +3066,13 @@
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
                 var template = kendo.template(that.templates.default);
-                // The class$ function adds the kj-interactive class to draggables
+                // The class$ function adds the kj-interactive class to draggable components
                 component.class$ = function () {
-                    return 'kj-image' + (component.properties.draggable ? ' ' + INTERACTIVE_CLASS : '');
+                    return 'kj-image' + (component.properties.behavior === 'draggable' ? ' ' + INTERACTIVE_CLASS : '');
                 };
-                // The id$ function returns the component id for draggable components
+                // The id$ function returns the component id for components that have a behavior
                 component.id$ = function () {
-                    return component.properties.draggable && $.type(component.id) === STRING && component.id.length ? component.id : '';
+                    return (component.properties.behavior !== 'none' && $.type(component.id) === STRING && component.id.length) ? component.id : '';
                 };
                 // The src$ function resolves urls with schemes like cdn://sample.jpg
                 component.src$ = function () {
@@ -3331,7 +3343,7 @@
             description: i18n.label.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'
+                default: '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'
             },
             height: 80,
             width: 300,
@@ -3344,8 +3356,17 @@
                 style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size:60px;' })
             },
             properties: {
-                draggable: new adapters.BooleanAdapter({ title: i18n.label.properties.draggable.title, defaultValue: false }),
-                dropValue: new adapters.StringAdapter({ title: i18n.label.properties.dropValue.title })
+                behavior: new adapters.EnumAdapter(
+                    {
+                        title: i18n.label.properties.behavior.title,
+                        defaultValue: 'none',
+                        enum: ['none', 'draggable', 'selectable']
+                    },
+                    {
+                        style: 'width: 100%;'
+                    }
+                ),
+                constant: new adapters.StringAdapter({ title: i18n.label.properties.constant.title })
             },
 
             /**
@@ -3361,13 +3382,13 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(that.templates.default);
-                // The class$ function adds the kj-interactive class to draggables
+                // The class$ function adds the kj-interactive class to draggable components
                 component.class$ = function () {
-                    return 'kj-label' + (component.properties.draggable ? ' ' + INTERACTIVE_CLASS : '');
+                    return 'kj-label' + (component.properties.behavior === 'draggable' ? ' ' + INTERACTIVE_CLASS : '');
                 };
-                // The id$ function returns the component id for draggable components
+                // The id$ function returns the component id for components that have a behavior
                 component.id$ = function () {
-                    return component.properties.draggable && $.type(component.id) === STRING && component.id.length ? component.id : '';
+                    return (component.properties.behavior !== 'none' && $.type(component.id) === STRING && component.id.length) ? component.id : '';
                 };
                 return template($.extend(component, { ns: kendo.ns }));
             },
@@ -3466,7 +3487,7 @@
             description: i18n.mathexpression.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-#= ns #role="mathexpression" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #" data-#= ns #inline="#: attributes.inline #" data-#= ns #value="#: attributes.formula #" ></div>'
+                default: '<div data-#= ns #role="mathexpression" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #" data-#= ns #inline="#: attributes.inline #" data-#= ns #value="#: attributes.formula #" ></div>'
             },
             height: 180,
             width: 370,
@@ -3480,8 +3501,17 @@
                 style: new adapters.StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size:50px;' })
             },
             properties: {
-                draggable: new adapters.BooleanAdapter({ title: i18n.image.properties.draggable.title, defaultValue: false }),
-                dropValue: new adapters.StringAdapter({ title: i18n.image.properties.dropValue.title })
+                behavior: new adapters.EnumAdapter(
+                    {
+                        title: i18n.mathexpression.properties.behavior.title,
+                        defaultValue: 'none',
+                        enum: ['none', 'draggable', 'selectable']
+                    },
+                    {
+                        style: 'width: 100%;'
+                    }
+                ),
+                constant: new adapters.StringAdapter({ title: i18n.image.properties.constant.title })
             },
 
             /**
@@ -3497,13 +3527,13 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(that.templates.default);
-                // The class$ function adds the kj-interactive class to draggables
+                // The class$ function adds the kj-interactive class to draggable components
                 component.class$ = function () {
-                    return component.properties.draggable ? INTERACTIVE_CLASS : '';
+                    return component.properties.behavior === 'draggable' ? INTERACTIVE_CLASS : '';
                 };
-                // The id$ function returns the component id for draggable components
+                // The id$ function returns the component id for components that have a behavior
                 component.id$ = function () {
-                    return component.properties.draggable && $.type(component.id) === STRING && component.id.length ? component.id : '';
+                    return (component.properties.behavior !== 'none' && $.type(component.id) === STRING && component.id.length) ? component.id : '';
                 };
                 return template($.extend(component, { ns: kendo.ns }));
             },
@@ -4076,7 +4106,7 @@
         });
         tools.register(Quiz);
 
-        var SELECTOR = '<div data-#= ns #role="selector" data-#= ns #id="#: properties.name #" data-#= ns #shape="#: attributes.shape #" data-#= ns #shape-stroke="{ color: \'#: attributes.color #\', dashType: \'dot\', opacity: 0.6, width: 8 }" {0}></div>';
+        var SELECTOR = '<div data-#= ns #role="selector" data-#= ns #id="#: properties.name #" data-#= ns #shape="#: attributes.shape #" data-#= ns #stroke="{ color: \'#: attributes.color #\', dashType: \'solid\', opacity: 1, width: \'#: attributes.strokeWidth #\' }" data-#= ns #empty="#: attributes.empty #" data-#= ns #hit-radius="#: attributes.hitRadius #" {0}></div>';
         /**
          * @class Selector tool
          * @type {void|*}
@@ -4088,23 +4118,27 @@
             cursor: CURSOR_CROSSHAIR,
             weight: 1,
             templates: {
-                design: kendo.format(SELECTOR, 'data-#= ns #enable="false" data-#= ns #create-surface="false"'),
-                play: kendo.format(SELECTOR, 'data-#= ns #toolbar="\\#floating .kj-floating-content" data-#= ns #draw-placeholder="false" data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
+                design: '<img src="https://cdn.kidoju.com/images/o_collection/svg/office/selector.svg" alt="selector">',
+                // design: '<img src="#: icon$() #" alt="#: description$() #">',
+                play: kendo.format(SELECTOR, 'data-#= ns #toolbar="\\#floating .kj-floating-content" data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
                 review: kendo.format(SELECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
-            height: 150,
-            width: 250,
+            height: 50,
+            width: 50,
             attributes: {
                 color: new adapters.ColorAdapter({ title: i18n.selector.attributes.color.title, defaultValue: '#FF0000' }),
+                empty: new adapters.StringAdapter({ title: i18n.selector.attributes.empty.title }),
+                hitRadius: new adapters.NumberAdapter({ title: i18n.selector.attributes.hitRadius.title, defaultValue: 15 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 15, 'data-max': 999 }),
                 shape: new adapters.EnumAdapter(
-                    { title: i18n.selector.attributes.shape.title, defaultValue: 'circle', enum: ['circle', 'cross', 'line'] },
+                    { title: i18n.selector.attributes.shape.title, defaultValue: 'circle', enum: ['circle', 'cross', 'rect'] },
                     { style: 'width: 100%;' }
-                )
+                ),
+                strokeWidth: new adapters.NumberAdapter({ title: i18n.selector.attributes.strokeWidth.title, defaultValue: 8 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 50 })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.selector.properties.name.title }),
                 question: new adapters.QuestionAdapter({ title: i18n.selector.properties.question.title }),
-                solution: new adapters.SelectorAdapter({ title: i18n.selector.properties.solution.title }),
+                solution: new adapters.StringArrayAdapter({ title: i18n.selector.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.selector.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.selector.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.selector.properties.failure.title, defaultValue: 0 }),
@@ -4130,9 +4164,9 @@
                     content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                 }
                 // Redraw the selector widget
-                var selectorWidget = content.data('kendoSelector');
-                assert.instanceof(kendo.ui.Selector, selectorWidget, kendo.format(assert.messages.instanceof.default, 'selectorWidget', 'kendo.ui.Selector'));
-                selectorWidget._drawPlaceholder();
+                // var selectorWidget = content.data('kendoSelector');
+                // assert.instanceof(kendo.ui.Selector, selectorWidget, kendo.format(assert.messages.instanceof.default, 'selectorWidget', 'kendo.ui.Selector'));
+                // selectorWidget._drawPlaceholder();
 
                 // prevent any side effect
                 e.preventDefault();
@@ -4657,7 +4691,7 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(Video, that, kendo.format(assert.messages.instanceof.default, 'this', 'Image'));
+                assert.instanceof(Video, that, kendo.format(assert.messages.instanceof.default, 'this', 'Video'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 assert.instanceof(ToolAssets, assets.video, kendo.format(assert.messages.instanceof.default, 'assets.video', 'kidoju.ToolAssets'));

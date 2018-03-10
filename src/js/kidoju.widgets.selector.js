@@ -30,7 +30,7 @@
         var data = kendo.data;
         var drawing = kendo.drawing;
         var geometry = kendo.geometry;
-        var Color = kendo.Color;
+        // var Color = kendo.Color;
         var DataSource = data.DataSource;
         var Surface = drawing.Surface;
         var Widget = kendo.ui.Widget;
@@ -38,7 +38,7 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.selection');
         var util = window.kidoju.util;
-        var NUMBER = 'number';
+        // var NUMBER = 'number';
         var OBJECT = 'object';
         var STRING = 'string';
         // var NULL = 'null';
@@ -60,6 +60,7 @@
         var SURFACE_CLASS = WIDGET_CLASS + '-surface';
         var INTERACTIVE_CLASS = 'kj-interactive';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
+        var ROLE_SELECTOR = 'selector';
         var DATA_TYPE = 'selection';
         var BUTTON_PREFIX = 'button_';
         var ICON_SIZE = 16;
@@ -67,7 +68,7 @@
         var HIT_RADIUS = 15;
 
         /*********************************************************************************
-         * SelectorEvents single ton
+         * SelectorEvents
          *********************************************************************************/
 
         /**
@@ -118,13 +119,16 @@
             },
 
             /**
-             * Get surface point from mouse event
+             * Get stage point from mouse event
+             * Note: this gives us stage coordinates that do not depend on scale
              * @param e
              * @private
              */
-            _getSurfacePoint: function (e) {
+            _getStagePoint: function (e) {
                 assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 assert.instanceof(window.Element, e.target, assert.format(assert.messages.instanceof.default, 'e.target', 'Element'));
+                assert.type(STRING, this._container, assert.format(assert.messages.type.default, 'this._container', STRING));
+                assert.type(STRING, this._scaler, assert.format(assert.messages.type.default, 'this._scaler', STRING));
                 var container = $(e.target).closest(this._container);
                 assert.hasLength(container, assert.format(assert.messages.hasLength.default, 'container'));
                 var scaler = container.closest(this._scaler);
@@ -142,6 +146,7 @@
             _getSelectorSurface: function (target) {
                 assert.instanceof($, target, assert.format(assert.messages.instanceof.default, 'target', 'jQuery'));
                 assert.hasLength(target, assert.format(assert.messages.hasLength.default, 'target'));
+                assert.type(STRING, this._container, assert.format(assert.messages.type.default, 'this._container', STRING));
                 var container = target.closest(this._container);
                 var selectorSurface = container.find(kendo.roleSelector('selectorsurface')).data('kendoSelectorSurface');
                 if (selectorSurface instanceof SelectorSurface && selectorSurface.enabled()) {
@@ -163,9 +168,9 @@
                     return;
                 }
                 var selectorSurface = this._getSelectorSurface(target);
-                // Make sure we have an enabled selector surface
+                // Make sure we have an enabled selector surface, otherwise discard mouse event
                 if (selectorSurface instanceof SelectorSurface) {
-                    var point = this._getSurfacePoint(e);
+                    var point = this._getStagePoint(e);
                     var pulled = selectorSurface._pullSelections(point);
                     // If we are not removing selections under point, we are adding a new selection
                     if (Array.isArray(pulled) && pulled.length === 0) {
@@ -175,6 +180,7 @@
                         selectorSurface.drawingSurface.draw(path);
                         // IMPORTANT: Do not assign e.data directly otherwise the reference
                         // to the data object will be lost across events
+                        e.data.type = DATA_TYPE;
                         e.data.path = path;
                         e.data.selectorSurface = selectorSurface;
                         logger.debug({
@@ -193,10 +199,10 @@
              */
             _onMouseMove: function  (e) {
                 assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                var path = e.data && e.data.path;
-                if ($.isPlainObject(e.data) && e.data.path instanceof drawing.Path) {
-                    var point = this._getSurfacePoint(e);
-                    path.lineTo(point);
+                if ($.isPlainObject(e.data) && e.data.type === DATA_TYPE && e.data.path instanceof drawing.Path) {
+                    e.preventDefault();
+                    var point = this._getStagePoint(e);
+                    e.data.path.lineTo(point);
                 }
             },
 
@@ -207,15 +213,15 @@
              */
             _onMouseEnd: function  (e) {
                 assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                if ($.isPlainObject(e.data) && e.data.path instanceof drawing.Path) {
-                    var path = e.data.path;
-                    var selectorSurface = e.data.selectorSurface;
-                    if (selectorSurface instanceof SelectorSurface) {
-                        var rect = path.bbox();
-                        selectorSurface._pushSelection(rect);
+                if ($.isPlainObject(e.data) && e.data.type === DATA_TYPE && e.data.path instanceof drawing.Path) {
+                    e.preventDefault();
+                    if (e.data.selectorSurface instanceof SelectorSurface) {
+                        var rect = e.data.path.bbox();
+                        e.data.selectorSurface._pushSelection(rect);
                     }
                     // IMPORTANT: Do not assign e.data directly otherwise the reference
                     // to the data object will be lost across events
+                    e.data.type = undefined;
                     e.data.path = undefined;
                     e.data.selectorSurface = undefined;
                     // This is a workaround because mouseleave triggers a selection in chrome (not in FF or Edge)
@@ -225,7 +231,6 @@
                     }
                 }
             }
-
         });
 
         /**
@@ -340,7 +345,7 @@
                             id: BUTTON_PREFIX + selector.options.id,
                             imageUrl: dataUri,
                             showText: 'overflow',
-                            text: 'TODO',       // TODO <-------------------------------------------
+                            text: selector.options.shape.substr(0, 1).toUpperCase() + selector.options.shape.substr(1).toLowerCase, // TODO: i18n
                             togglable: true,
                             type: 'button'
                         });
@@ -365,7 +370,7 @@
                 }
                 var that = this;
                 var selectorSurface = that.selectorSurface;
-                var length = selectorSurface.selectors.length; // TODO enabled
+                var length = selectorSurface.selectors.length; // TODO check enabled
                 if (length > 1) {
                     // Rebuild all buttons
                     var promises = [];
@@ -436,6 +441,7 @@
              */
             options: {
                 name: 'SelectorSurface',
+                container: '',
                 toolbar: ''
             },
 
@@ -518,11 +524,12 @@
              */
             enabled: function () {
                 assert.isArray(this.selectors, assert.format(assert.messages.isArray.default, 'this.selectors'));
-                var enabled = false;
                 for (var i = 0, length = this.selectors.length; i < length; i++) {
-                    enabled = enabled || this.selectors[i]._enabled;
+                    if (this.selectors[i]._enabled) {
+                        return true;
+                    }
                 }
-                return enabled;
+                return false;
             },
 
             /**
@@ -787,15 +794,21 @@
              */
             refresh: function (e) {
                 assert.instanceof(SelectorSurface, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.SelectorSurface'));
-                assert.isArray(this.selectors, assert.format(assert.messages.isArray.default, 'this.selectors'));
+                // We need to refresh even when there are no registered selectors, especially in review mode
+                // assert.isArray(this.selectors, assert.format(assert.messages.isArray.default, 'this.selectors'));
                 assert.instanceof(Surface, this.drawingSurface, assert.format(assert.messages.instanceof.default, 'this.drawingSurface', 'kendo.drawing.Surface'));
+                var container = this.drawingSurface.element.closest(this.options.container);
+                var selectors = container.find(kendo.roleSelector(ROLE_SELECTOR));
                 // Collect a hash of all data items
                 var dataItems = {};
-                for (var i = 0, length = this.selectors.length; i < length; i++) {
-                    this.selectors[i].dataSource.view().forEach(function (item) {
-                        dataItems[item.id] = item;
-                    })
-                }
+                selectors.each(function (index, selector) {
+                    var selectorWidget = $(selector).data('kendoSelector');
+                    if (selectorWidget instanceof Selector && selectorWidget.dataSource instanceof DataSource) {
+                        selectorWidget.dataSource.view().forEach(function (item) {
+                            dataItems[item.id] = item;
+                        });
+                    }
+                });
                 // Clear the surface
                 this.drawingSurface.clear();
                 // Draw all groups
@@ -812,6 +825,8 @@
              * @method destroy
              */
             destroy: function () {
+                // Unbind
+                kendo.unbind(this.element);
                 // destroy toolbar
                 if (this.toolBar instanceof SelectorToolBar) {
                     this.toolBar.destroy();
@@ -984,7 +999,10 @@
                         // Otherwise simply append on top of all elements
                         surfaceElement.appendTo(container);
                     }
-                    surfaceElement.kendoSelectorSurface({ toolbar: options.toolbar });
+                    surfaceElement.kendoSelectorSurface({
+                        container: options.container,
+                        toolbar: options.toolbar
+                    });
                 }
                 this.selectorSurface = surfaceElement.data('kendoSelectorSurface');
             },
@@ -1109,7 +1127,7 @@
                     this.dataSource.unbind(CHANGE, this._refreshHandler);
                     this._refreshHandler = undefined;
                 }
-                kendo.unbind(this);
+                kendo.unbind(this.element);
                 // dereference selectors and destroy surface
                 if (this.selectorSurface instanceof SelectorSurface) {
                     this.selectorSurface.unregisterSelector(this);

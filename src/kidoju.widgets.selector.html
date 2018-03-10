@@ -30,11 +30,7 @@
             SystemJS.import('./js/kidoju.widgets.selector.js').then(function (kendo) {
                 function formatSelector(selector) {
                     return function () {
-                        var ret = '';
-                        (this.get(selector) || []).forEach(function(item) {
-                            ret += item + ',';
-                        });
-                        return ret;
+                        return (this.get(selector) || []).join(',');
                     };
                 }
                 function formatSource(source) {
@@ -118,7 +114,10 @@
         </div>
     </div>
 </div>
-
+<div>
+    <input type="checkbox" data-bind="checked: visibleA" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabledA" />enabled
+</div>
 <pre>
 {
     selectorA1: <span data-bind="text: selectorA1$"></span>
@@ -129,11 +128,7 @@
     enabled: <span data-bind="text: enabledA"></span>
 }
 </pre>
-<div>
-    <input type="checkbox" data-bind="checked: visibleA" />Visible&nbsp;
-    <input type="checkbox" data-bind="checked: enabledA" />enabled
-</div>
-
+<!-- -------------------------------------------------------- -->
 <h2>Check a second widget on the same page</h2>
 <div id="toolbarB"></div>
 <div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.9);">
@@ -158,7 +153,10 @@
         </div>
     </div>
 </div>
-
+<div>
+    <input type="checkbox" data-bind="checked: visibleB" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabledB" />enabled
+</div>
 <pre>
 {
     selectorB1: <span data-bind="text: selectorB1$"></span>
@@ -168,10 +166,6 @@
     enabled: <span data-bind="text: enabledB"></span>
 }
 </pre>
-<div>
-    <input type="checkbox" data-bind="checked: visibleB" />Visible&nbsp;
-    <input type="checkbox" data-bind="checked: enabledB" />enabled
-</div>
 
 </body>
 </html>

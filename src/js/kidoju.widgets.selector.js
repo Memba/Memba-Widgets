@@ -675,8 +675,8 @@
              * @private
              */
             _createRectPath: function (rect, stroke) {
-                assert.instanceof(geometry.Rect, rect, kendo.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
-                assert.isPlainObject(stroke, kendo.format(assert.messages.isPlainObject.default, 'stroke'));
+                assert.instanceof(geometry.Rect, rect, assert.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
+                assert.isPlainObject(stroke, assert.format(assert.messages.isPlainObject.default, 'stroke'));
                 var RECT_RADIUS = 10;
                 var path = new drawing.Path({ stroke: stroke });
                 var x = rect.origin.x;
@@ -702,8 +702,8 @@
              * @private
              */
             _createCirclePath: function (rect, stroke) {
-                assert.instanceof(geometry.Rect, rect, kendo.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
-                assert.isPlainObject(stroke, kendo.format(assert.messages.isPlainObject.default, 'stroke'));
+                assert.instanceof(geometry.Rect, rect, assert.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
+                assert.isPlainObject(stroke, assert.format(assert.messages.isPlainObject.default, 'stroke'));
                 var arcGeometry = new geometry.Arc(
                     [rect.origin.x + rect.size.width / 2, rect.origin.y + rect.size.height / 2], // center
                     {
@@ -725,8 +725,8 @@
              * @private
              */
             _createCrossPath: function (rect, stroke) {
-                assert.instanceof(geometry.Rect, rect, kendo.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
-                assert.isPlainObject(stroke, kendo.format(assert.messages.isPlainObject.default, 'stroke'));
+                assert.instanceof(geometry.Rect, rect, assert.format(assert.messages.instanceof.default, 'rect', 'kendo.geometry.Rect'));
+                assert.isPlainObject(stroke, assert.format(assert.messages.isPlainObject.default, 'stroke'));
                 var CROSS_CURVE = 0.5;
                 var path = new drawing.Path({ stroke: stroke });
                 var x = rect.origin.x;

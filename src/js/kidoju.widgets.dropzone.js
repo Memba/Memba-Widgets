@@ -99,8 +99,7 @@
              * @param stageElement
              */
             enabled: function (stageElement) {
-                assert.instanceof($, stageElement, assert.format(assert.messages.instanceof.default, 'stageElement', 'jQuery'));
-                var container = stageElement.closest(this._container);
+                var container = stageElement instanceof $ ? stageElement.closest(this._container) : $(document.body);
                 var dropZones = container.find(kendo.roleSelector(ROLE_SELECTOR));
                 container.find(this._draggable).css('cursor', '');
                 for (var i = 0, length = dropZones.length; i < length; i++) {
@@ -395,7 +394,7 @@
                     // This means it is instantiated before draggable elements, so we need to bind drop zones to the stage DATABOUND event
                     stageWidget.bind(DATABOUND, this._dataBoundHandler);
                 } else if (window.app && window.app.DEBUG) {
-                    // This is essentially for testing without a stage
+                    // This is essentially for running/testing without a stage widget
                     setTimeout(this._dataBoundHandler, 100);
                 }
             },
@@ -407,7 +406,7 @@
              */
             _resetEvents: function () {
                 var events = DropZoneEvents.getSingleton(this.options);
-                events.enable(events.enabled(this.element));
+                events.enable(events.enabled());
             },
 
             /**
@@ -417,8 +416,11 @@
              * @private
              */
             enable: function (enable) {
-                this._enabled = $.type(enable) === UNDEFINED ? true : !!enable;
-                this._resetEvents();
+                enable = $.type(enable) === UNDEFINED ? true : !!enable;
+                if (this._enabled !== enable) {
+                    this._enabled = enable;
+                    this._resetEvents();
+                }
             },
 
             /**
@@ -481,6 +483,8 @@
              */
             refresh: function (e) {
                 var that = this;
+                // We need setTimeout otherwise options.center does not execute properly
+                // requestAnimationFrame(function () {
                 setTimeout(function () {
                     var container = that.element.closest(that.options.container);
                     var dataItems = that.dataSource.view(); // dataSource is filtered
@@ -498,7 +502,7 @@
                             });
                         }
                     });
-                });
+                }, 0);
             },
 
             /**

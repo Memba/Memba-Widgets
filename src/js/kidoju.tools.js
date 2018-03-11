@@ -1759,26 +1759,6 @@
         });
 
         /**
-         * Selector adapter
-         */
-        adapters.SelectorAdapter = BaseAdapter.extend({
-            init: function (options, attributes) {
-                BaseAdapter.fn.init.call(this, options);
-                this.type = STRING;
-                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-                this.editor = 'input';
-                this.attributes = $.extend({}, this.attributes, attributes, { type: 'text', class: 'k-textbox' });
-            },
-            library: [
-                {
-                    name: 'hit',
-                    formula: kendo.format(VALIDATION_CUSTOM, 'return parseInt(value, 10) === 1;')
-                }
-            ],
-            libraryDefault: 'hit'
-        });
-
-        /**
          * String adapter
          */
         adapters.StringAdapter = BaseAdapter.extend({

@@ -234,8 +234,8 @@
             var range = document.createRange();
 
             range.collapse(true);
-            sel.removeAllRanges();
-            sel.addRange(range);
+            selection.removeAllRanges();
+            selection.addRange(range);
         };
 
         /**
@@ -256,7 +256,7 @@
          * @param element
          * @returns {Number|number}
          */
-         util.getTransformScale = function (element) {
+        util.getTransformScale = function (element) {
             assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'element', 'jQuery'));
             // element.css('transform') returns a matrix, so we have to read the style attribute
             var match = (element.attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);

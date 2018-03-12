@@ -18,6 +18,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -271,7 +274,7 @@
                         selection = {
                             start: Math.min(selection.start, existing.start),
                             end: Math.max (selection.end, existing.end)
-                        }
+                        };
                     }
                 }
                 if (!added) {
@@ -346,7 +349,7 @@
                     var wordIndex = 0;
                     for (var i = 0, length = split.length; i < length; i++) {
                         if (that._split.test(split[i])) {
-                            html += SPAN_OPEN + split[i] + SPAN_CLOSE
+                            html += SPAN_OPEN + split[i] + SPAN_CLOSE;
                         } else if (split[i].length) {
                             html += kendo.format(SPAN_WITH_INDEX, wordIndex) + split[i] + SPAN_CLOSE;
                             wordIndex++;
@@ -371,7 +374,7 @@
                     this.element
                         .on(MOUSEDOWN + NS + ' ' + TOUCHSTART + NS, SPAN_SELECTOR, this._onMouseDown.bind(this))
                         .on(MOUSEMOVE + NS + ' ' + TOUCHMOVE + NS, SPAN_SELECTOR, this._onMouseMove.bind(this))
-                        .on(MOUSEUP + NS + ' ' + TOUCHEND + NS, SPAN_SELECTOR, this._onMouseUp.bind(this))
+                        .on(MOUSEUP + NS + ' ' + TOUCHEND + NS, SPAN_SELECTOR, this._onMouseUp.bind(this));
                 }
             },
 
@@ -442,6 +445,9 @@
                 this.trigger(CHANGE);
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Highlight/unhighlight a selection
              * @param selection
@@ -481,6 +487,8 @@
                 this.items.filter(ACTIVE_SELECTOR).css(util.styleString2CssObject(this.options.highlightStyle));
             },
 
+            /* jshint +W074 */
+
             /**
              * Refresh the widget
              */
@@ -519,6 +527,8 @@
         kendo.ui.plugin(HighLighter);
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 

@@ -94,7 +94,7 @@
              * @param enable
              */
             enable: function (enable) {
-                enable = $.type(enable) === UNDEFINED ? true : !! enable;
+                enable = $.type(enable) === UNDEFINED ? true : !!enable;
 
                 // We need an object so that data is passed by reference between handlers
                 var data = {};
@@ -377,7 +377,7 @@
                     for (var i = 0; i < length; i++) {
                         promises.push(that._createButton(selectorSurface.selectors[i]));
                     }
-                    $.when.apply(that, promises).done(function() {
+                    $.when.apply(that, promises).done(function () {
                         // Remove buttons
                         removeButtonGroup();
                         // Add buttons
@@ -575,7 +575,7 @@
              * @private
              */
             _isEmptyDataItem: function (dataItem) {
-                return !dataItem || !dataItem.data || !Array.isArray(dataItem.data.selections) || (dataItem.data.selections.length === 0)
+                return !dataItem || !dataItem.data || !Array.isArray(dataItem.data.selections) || (dataItem.data.selections.length === 0);
             },
 
             /**
@@ -805,6 +805,7 @@
                     var selectorWidget = $(selector).data('kendoSelector');
                     if (selectorWidget instanceof Selector && selectorWidget.dataSource instanceof DataSource) {
                         selectorWidget.dataSource.view().forEach(function (item) {
+                            // If the dataSource contains selectors from other pages, they will be listed
                             dataItems[item.id] = item;
                         });
                     }
@@ -813,7 +814,8 @@
                 this.drawingSurface.clear();
                 // Draw all groups
                 for (var id in dataItems) {
-                    if (dataItems.hasOwnProperty(id)) {
+                    // We should not draw a group when the dataItem corresponds to a selector which is not on the page
+                    if (dataItems.hasOwnProperty(id) && selectors.closest(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), id)).length) {
                         var group = this._createSelectorGroup(dataItems[id]);
                         this.drawingSurface.draw(group);
                     }
@@ -940,7 +942,7 @@
                             'The selector and its selector surface should be children of the same container');
                         var selectables = container.find(options.selectable);
                         var isValued = new Array(selectables.length);
-                        selectables.each(function(index, selectable) {
+                        selectables.each(function (index, selectable) {
                             selectable = $(selectable);
                             var constant = selectable.attr(kendo.attr(CONSTANT));
                             var bbox = that._getBBox(selectable);
@@ -1100,7 +1102,7 @@
                 return selection.containsPoint(center.translate(-hitRadius, 0)) &&
                     selection.containsPoint(center.translate(2 * hitRadius, 0)) &&
                     selection.containsPoint(center.translate(-hitRadius, -hitRadius)) &&
-                    selection.containsPoint(center.translate(0, 2 * hitRadius))
+                    selection.containsPoint(center.translate(0, 2 * hitRadius));
             },
 
             /**

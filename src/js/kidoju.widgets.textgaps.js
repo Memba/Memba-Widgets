@@ -79,7 +79,9 @@
             /**
              * Widget events
              */
-            events: [ CHANGE ],
+            events: [
+                CHANGE
+            ],
 
             /**
              * Value for MVVM binding
@@ -180,7 +182,7 @@
              */
             refresh: function () {
                 var that = this;
-                that.element.children(INPUT_SELECTOR).each(function(index, htmlElement) {
+                that.element.children(INPUT_SELECTOR).each(function (index, htmlElement) {
                     if ($(htmlElement).text() !== that._value[index]) {
                         $(htmlElement).text(that._value[index]);
                     }

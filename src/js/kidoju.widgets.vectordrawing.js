@@ -369,8 +369,8 @@
                     shapeVisual = new TextBlock(visualOptions);
                 } else if (type === 'image') {
                     shapeVisual = new Image(visualOptions);
-                // BEGIN Added by JLC
-                // polyline
+                    // BEGIN Added by JLC
+                    // polyline
                 } else if (type === 'polyline') {
                     shapeVisual = new Polyline(visualOptions);
                     // END Added by JLC

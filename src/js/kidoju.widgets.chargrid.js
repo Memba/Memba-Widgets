@@ -52,10 +52,6 @@
         var RX_WHITELIST = '^[{0}]$';
         var STROKE_WIDTH = 2;
 
-        function isAnyArray(arr) {
-            return Array.isArray(arr) || arr instanceof kendo.data.ObservableArray
-        }
-
         /*********************************************************************************
          * Widget
          *********************************************************************************/
@@ -136,9 +132,9 @@
                 for (var r = 0; r < rowTotal; r++) {
                     that._value.push(new Array(rowTotal));
                     for (var c = 0; c < colTotal; c++) {
-                        if (isAnyArray(locked) && isAnyArray(locked[r]) && locked[r][c]) {
+                        if (util.isAnyArray(locked) && util.isAnyArray(locked[r]) && locked[r][c]) {
                             that._value[r][c] = '' + locked[r][c];
-                        } else if (isAnyArray(value) && isAnyArray(value[r]) && rx.test('' + value[r][c])) {
+                        } else if (util.isAnyArray(value) && util.isAnyArray(value[r]) && rx.test('' + value[r][c])) {
                             that._value[r][c] = '' + value[r][c];
                         } else {
                             that._value[r][c] = null;
@@ -158,14 +154,14 @@
              */
             _compareValues: function (value1, value2) {
                 /* jshint maxcomplexity: 10 */
-                if (!isAnyArray(value1) || !isAnyArray(value2)) {
+                if (!util.isAnyArray(value1) || !util.isAnyArray(value2)) {
                     return false;
                 }
                 if (value1.length !== value2.length) {
                     return false;
                 }
                 for (var r = 0, rowTotal = value1.length; r < rowTotal; r++) {
-                    if (!isAnyArray(value1[r]) || !isAnyArray(value2[r])) {
+                    if (!util.isAnyArray(value1[r]) || !util.isAnyArray(value2[r])) {
                         return false;
                     }
                     if (value1[r].length !== value2[r].length) {
@@ -217,7 +213,7 @@
                 var rx = new RegExp(kendo.format(RX_WHITELIST, whitelist), 'i');
                 var row = that._value[r];
                 if ($.type(value) === UNDEFINED) {
-                    if (isAnyArray(row) && rx.test(row[c])) {
+                    if (util.isAnyArray(row) && rx.test(row[c])) {
                         return row[c];
                     }
                 } else if ($.type(value) === NULL) {
@@ -257,7 +253,7 @@
                 var blank = options.blank;
                 var locked = options.locked;
                 return r >= 0 && r < rowTotal && c >= 0 && c < colTotal &&
-                    isAnyArray(locked) && isAnyArray(locked[r]) && !!locked[r][c] &&
+                    util.isAnyArray(locked) && util.isAnyArray(locked[r]) && !!locked[r][c] &&
                     that.cellValue(r, c) !== blank;
             },
 
@@ -449,7 +445,7 @@
                 // columns
                 for (var r = 0; r < rowTotal; r++) {
                     var row = that._value[r];
-                    if (isAnyArray(row)) {
+                    if (util.isAnyArray(row)) {
                         for (var c = 0; c < colTotal; c++) {
                             if (row[c] === options.blank) { // the value is a blank
                                 var blank = that._getCellRect(r, c, options.blankFill);
@@ -716,11 +712,11 @@
                 for (var c = 0; c < colTotal; c++) {
                     ret[r][c] = null;
                     // First fill with data assuming values are whitelisted
-                    if (isAnyArray(data) && isAnyArray(data[r]) && rx.test(data[r][c])) {
+                    if (util.isAnyArray(data) && util.isAnyArray(data[r]) && rx.test(data[r][c])) {
                         ret[r][c] = data[r][c];
                     }
                     // Then impose layout
-                    if (isAnyArray(layout) && isAnyArray(layout[r]) && $.type(layout[r][c]) === STRING) {
+                    if (util.isAnyArray(layout) && util.isAnyArray(layout[r]) && $.type(layout[r][c]) === STRING) {
                         ret[r][c] = layout[r][c];
                     }
                 }

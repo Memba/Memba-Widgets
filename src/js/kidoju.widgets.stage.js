@@ -1561,7 +1561,7 @@
              * Add debug visual eleemnts
              * @param wrapper
              */
-            Stage.fn._addDebugVisualElements = function(wrapper) {
+            Stage.fn._addDebugVisualElements = function (wrapper) {
 
                 // Add bounding rectangle
                 $(DEBUG_BOUNDS).css({
@@ -1599,7 +1599,7 @@
              * Update debug visual elements
              * @param options
              */
-            Stage.fn._updateDebugVisualElements = function(options) {
+            Stage.fn._updateDebugVisualElements = function (options) {
 
                 if ($.isPlainObject(options) && options.scale > 0) {
 
@@ -1632,11 +1632,11 @@
              * Hide debug visual elements
              * @param wrapper
              */
-            Stage.fn._hideDebugVisualElements = function(wrapper) {
+            Stage.fn._hideDebugVisualElements = function (wrapper) {
                 if (window.app && window.app.DEBUG) {
-                    wrapper.children(DOT + DEBUG_CENTER_CLASS).css({display: NONE});
-                    wrapper.children(DOT + DEBUG_BOUNDS_CLASS).css({display: NONE});
-                    wrapper.children(DOT + DEBUG_MOUSE_CLASS).css({display: NONE});
+                    wrapper.children(DOT + DEBUG_CENTER_CLASS).css({ display: NONE });
+                    wrapper.children(DOT + DEBUG_BOUNDS_CLASS).css({ display: NONE });
+                    wrapper.children(DOT + DEBUG_MOUSE_CLASS).css({ display: NONE });
                 }
             };
 
@@ -1644,7 +1644,7 @@
              * Remove debug visual elements
              * @param wrapper
              */
-            Stage.fn._removeDebugVisualElements = function(wrapper) {
+            Stage.fn._removeDebugVisualElements = function (wrapper) {
                 if (window.app && window.app.DEBUG) {
                     wrapper.children(DOT + DEBUG_CENTER_CLASS).remove();
                     wrapper.children(DOT + DEBUG_BOUNDS_CLASS).remove();

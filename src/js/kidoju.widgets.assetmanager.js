@@ -509,7 +509,7 @@
                 // Set the tabStrip item of the component
                 this.tabStrip = tabStrip.kendoTabStrip({
                     tabPosition: 'left',
-                    animation: false, //{ open: { effects: 'fadeIn' }, close: { effects: 'fadeOut' } },
+                    animation: false, // { open: { effects: 'fadeIn' }, close: { effects: 'fadeOut' } },
                     select: this._onTabSelect.bind(this)
                 }).data('kendoTabStrip');
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));

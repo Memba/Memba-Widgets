@@ -1071,7 +1071,7 @@
         var ShapeButton = OverflowDialogButton.extend({
             _click: function () {
                 if (this.options.enable) {
-                    this.toolbar.dialog({name: 'vectorShape'});
+                    this.toolbar.dialog({ name: 'vectorShape' });
                 }
             }
         });
@@ -1356,7 +1356,7 @@
         var OpacityButton = OverflowDialogButton.extend({
             _click: function () {
                 if (this.options.enable) {
-                    this.toolbar.dialog({name: 'vectorOpacity'});
+                    this.toolbar.dialog({ name: 'vectorOpacity' });
                 }
             }
         });
@@ -1415,7 +1415,7 @@
         var StrokeWidthButton = OverflowDialogButton.extend({
             _click: function () {
                 if (this.options.enable) {
-                    this.toolbar.dialog({name: 'vectorStrokeWidth'});
+                    this.toolbar.dialog({ name: 'vectorStrokeWidth' });
                 }
             }
         });
@@ -1521,7 +1521,7 @@
         var StrokeDashTypeButton = OverflowDialogButton.extend({
             _click: function () {
                 if (this.options.enable) {
-                    this.toolbar.dialog({name: 'vectorStrokeDashType'});
+                    this.toolbar.dialog({ name: 'vectorStrokeDashType' });
                 }
             }
         });
@@ -1603,7 +1603,7 @@
         var StartCapTypeButton = OverflowDialogButton.extend({
             _click: function () {
                 if (this.options.enable) {
-                    this.toolbar.dialog({name: 'vectorStartCapType'});
+                    this.toolbar.dialog({ name: 'vectorStartCapType' });
                 }
             }
         });
@@ -1685,7 +1685,7 @@
         var EndCapTypeButton = OverflowDialogButton.extend({
             _click: function () {
                 if (this.options.enable) {
-                    this.toolbar.dialog({name: 'vectorEndCapType'});
+                    this.toolbar.dialog({ name: 'vectorEndCapType' });
                 }
             }
         });
@@ -1886,7 +1886,7 @@
         var ArrangeButton = OverflowDialogButton.extend({
             _click: function () {
                 if (this.options.enable) {
-                    this.toolbar.dialog({name: 'vectorArrange'});
+                    this.toolbar.dialog({ name: 'vectorArrange' });
                 }
             }
         });
@@ -1945,7 +1945,7 @@
         var GuidesButton = OverflowDialogButton.extend({
             _click: function () {
                 if (this.options.enable) {
-                    this.toolbar.dialog({name: 'vectorGuides'});
+                    this.toolbar.dialog({ name: 'vectorGuides' });
                 }
             }
         });
@@ -2198,8 +2198,8 @@
                         name: 'Please enter 3 to 50 alphanumeric characters or underscores' // TODO i18n
                     },
                     rules: {
-                        name: function(input) {
-                            if (input.is("[name=name]")) {
+                        name: function (input) {
+                            if (input.is('[name="name"]')) {
                                 return RX_FILE_ID.test(input.val());
                             }
                             return true;
@@ -2302,7 +2302,7 @@
                             model.url = null;
                         }
                         getDataUriAndSize(model.url)
-                            .done(function(imgData) {
+                            .done(function (imgData) {
                                 self.trigger('action', {
                                     command: 'DrawingToolChangeCommand',
                                     params: {
@@ -2320,7 +2320,7 @@
                             })
                             .fail(function (err) {
                                 // TODO raise error event
-                                debugger;
+                                // debugger;
                             });
                     },
                     cancel: self.close.bind(self)

@@ -77,7 +77,7 @@
              * @param enable
              */
             enable: function (enable) {
-                enable = $.type(enable) === UNDEFINED ? true : !! enable;
+                enable = $.type(enable) === UNDEFINED ? true : !!enable;
 
                 // We need an object so that data is passed by reference between handlers
                 var data = {};
@@ -248,7 +248,7 @@
                             position = {
                                 left: Math.round(parseInt(dropZoneParent.css('left'), 10) + (dropZoneParent.width() - stageElement.width()) / 2),
                                 top: Math.round(parseInt(dropZoneParent.css('top'), 10) + (dropZoneParent.height() - stageElement.height()) / 2)
-                            }
+                            };
                         }
                         if ($.type(dataItem) === UNDEFINED) {
                             dataSource.add({
@@ -361,14 +361,14 @@
                     that.dataSource.view().forEach(function (dataItem) {
                         if (dataItem && dataItem.type === DATA_TYPE && $.type(dataItem.id) === STRING) {
                             ret = ret || [];
-                            // Find the correspondiong draggable and stageElement
+                            // Find the corresponding draggable and stageElement, considering it might be on another page this not found
                             var draggable = container.find(that.options.draggable).children(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), dataItem.id));
-                            assert.instanceof($, draggable, assert.format(assert.messages.instanceof.default, 'draggable', 'jQuery'));
-                            assert.hasLength(draggable, assert.format(assert.messages.hasLength.default, 'draggable'));
-                            var stageElement = draggable.parent();
-                            // Check whether it hits the drop zone
-                            if (that._checkHit(stageElement)) {
-                                ret.push(draggable.attr(kendo.attr(CONSTANT)));
+                            if (draggable.length > 0) {
+                                var stageElement = draggable.parent();
+                                // Check whether it hits the drop zone
+                                if (that._checkHit(stageElement)) {
+                                    ret.push(draggable.attr(kendo.attr(CONSTANT)));
+                                }
                             }
                         }
                     });
@@ -479,6 +479,13 @@
             },
 
             /**
+             * Check initial positions of draggables and add corresponding data items when they `hit` this drop zone
+             * Note: if a draggable is initially positioned within a drop zone, it might not be part of its value since there is no corresponding data item in the data source
+             * @private
+             */
+            _initDraggables: $.noop,
+
+            /**
              * Refresh the display
              */
             refresh: function (e) {
@@ -491,18 +498,19 @@
                     if ($.isPlainObject(e) && Array.isArray(e.items)) {
                         dataItems = e.items;
                     }
-                    $.each(dataItems, function(index, dataItem) {
+                    $.each(dataItems, function (index, dataItem) {
                         if (dataItem && dataItem.type === DATA_TYPE && $.type(dataItem.id) === STRING) {
                             var draggable = container.find(that.options.draggable).children(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), dataItem.id));
-                            assert.instanceof($, draggable, assert.format(assert.messages.instanceof.default, 'draggable', 'jQuery'));
-                            assert.hasLength(draggable, assert.format(assert.messages.hasLength.default, 'draggable'));
-                            draggable.parent().css({
-                                left: dataItem.data.left,
-                                top: dataItem.data.top
-                            });
+                            // the draggable corresponding to this dataItem might be on another page when the dataSource is share across pages
+                            if (draggable.length > 0) {
+                                draggable.parent().css({
+                                    left: dataItem.data.left,
+                                    top: dataItem.data.top
+                                });
+                            }
                         }
                     });
-                }, 0);
+                }, 100);
             },
 
             /**
@@ -521,6 +529,8 @@
                     stageWidget.unbind(DATABOUND, this._dataBoundHandler);
                     this._dataBoundHandler = undefined;
                 }
+                // Unref
+                this.enable(false);
                 // Destroy
                 Widget.fn.destroy.call(this);
                 kendo.destroy(this.element);

@@ -896,7 +896,7 @@
                     color: '#FF0000',
                     dashType: 'solid',
                     opacity: 1,
-                    width: 8
+                    width: 12
                 },
                 enable: true
             },

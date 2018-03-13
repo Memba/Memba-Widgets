@@ -134,6 +134,7 @@
                 invalidFormula: 'A(n) {0} on page {1} requires a formula in display attributes.',
                 invalidImageFile: 'A(n) {0} on page {1} requires an image file in display attributes.',
                 invalidName: 'A(n) {0} named `{1}` on page {2} has an invalid name.',
+                invalidShape: 'A(n) {0} named `{1}` on page {2} requires a shape in display attributes.',
                 invalidSolution: 'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
                 invalidStyle: 'A(n) {0} on page {1} has an invalid style in display attributes.',
                 invalidSuccess: 'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
@@ -586,6 +587,7 @@
                     invalidFormula: i18n.messages.invalidFormula,
                     invalidImageFile: i18n.messages.invalidImageFile,
                     invalidName: i18n.messages.invalidName,
+                    invalidShape: i18n.messages.invalidShape,
                     invalidSolution: i18n.messages.invalidSolution,
                     invalidStyle: i18n.messages.invalidStyle,
                     invalidSuccess: i18n.messages.invalidSuccess,
@@ -2925,31 +2927,6 @@
                 }
                 if ($.type(component.height) === NUMBER) {
                     content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
-                    // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
-                    /*
-                     * We make a best guess for the number of lines as follows
-                     * Let's suppose the height (line-height, not font-size) and width of a character are respectively y and x
-                     * We have y = x * sizeRatio
-                     * How many of these character rectangles (x, y) can we fit in the content div (width, height)?
-                     *
-                     * the label only takes 1 line, if we have:
-                     * y = height and length <= width/x, that is length <= width*sizeRatio/y or y = height <= length*sizeRatio/width, which is length >= width*sizeRatio/height
-                     *
-                     * the label takes 2 lines, if we have:
-                     * y = height/2 and length <= width/x, that is length <= 2*width*sizeRatio/y or y = height/2 <= length*sizeRatio/width, which is length >= 4*width*sizeRatio/height
-                     *
-                     * the label takes n lines if we have sqrt((length*height)/sizeRatio*width) <= lines < sqrt(((length + 1)*height)/sizeRatio*width)
-                     *
-                     */
-                    // var length = component.attributes.text.length;
-                    // var sizeRatio = 1.6; // font-size being the height, this is the line-height/char-width ratio
-                    // var lines = Math.max(1, Math.floor(Math.sqrt((length * component.height) / (width * sizeRatio))));
-                    // We can now make a best guess for the font size
-                    // var fontRatio = 1.2; // this is the line-height/font-size ration
-                    // content.css('font-size', Math.floor(component.height / lines / fontRatio));
-                    // Note: in previous versions, we have tried to iterate through a hidden clone
-                    // to find that font size that does not trigger an overflow but it is too slow
-                    // }
                 }
                 // prevent any side effect
                 e.preventDefault();
@@ -2972,12 +2949,22 @@
                 var messages = this.i18n.messages;
                 if (!component.attributes ||
                     !component.attributes.text ||
-                    (component.attributes.text === i18n.label.attributes.text.defaultValue) ||
+                    (component.attributes.text === i18n.highlighter.attributes.text.defaultValue) ||
                     !RX_TEXT.test(component.attributes.text)) {
                     ret.push({
                         type: WARNING,
                         index: pageIdx,
                         message: kendo.format(messages.invalidText, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.highlightStyle && !RX_STYLE.test(component.attributes.highlightStyle))) {
+                    // TODO: test small font-size incompatible with mobile devices
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
                     });
                 }
                 if (!component.attributes ||
@@ -2990,7 +2977,7 @@
                         message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
                     });
                 }
-                // TODO: We should also check that there is a dropZone on the page if draggable
+                // TODO also check that split regex is safe
                 return ret;
             }
 
@@ -3169,7 +3156,7 @@
                         message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
                     });
                 }
-                // TODO: We should also check that there is a dropZone on the page if draggable
+                // TODO: We should also check that there is a dropZone/Selector on the page if draggable/selectable
                 return ret;
             }
 
@@ -4113,7 +4100,7 @@
                     { title: i18n.selector.attributes.shape.title, defaultValue: 'circle', enum: ['circle', 'cross', 'rect'] },
                     { style: 'width: 100%;' }
                 ),
-                strokeWidth: new adapters.NumberAdapter({ title: i18n.selector.attributes.strokeWidth.title, defaultValue: 8 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 50 })
+                strokeWidth: new adapters.NumberAdapter({ title: i18n.selector.attributes.strokeWidth.title, defaultValue: 12 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 50 })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.selector.properties.name.title }),
@@ -4193,7 +4180,8 @@
                         message: kendo.format(messages.invalidColor, description, pageIdx + 1)
                     });
                 }
-                if (!component.attributes || ['circle', 'cross', 'line'].indexOf(component.attributes.shape) === -1) {
+                // TODO: We should have a generic validation for  enumerators
+                if (!component.attributes || ['circle', 'cross', 'rect'].indexOf(component.attributes.shape) === -1) {
                     ret.push({
                         type: WARNING,
                         index: pageIdx,
@@ -4575,26 +4563,6 @@
                 if ($.type(component.height) === NUMBER) {
                     content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                 }
-                /*
-                 // Auto-resize algorithm is not great so let's wait until we find a better solution
-                 var data = component.attributes.data;
-                 var length = data.trim().split('\n').length || 1;
-                 switch (component.attributes.mode) {
-                 case 'button':
-                 content.css('font-size', Math.floor(0.57 * component.height));
-                 break;
-                 case 'dropdown':
-                 content.css('font-size', Math.floor(0.5 * component.height));
-                 break;
-                 case 'radio':
-                 var h = component.height / (length || 1);
-                 content.css('font-size', Math.floor(0.9 * h));
-                 content.find('input')
-                 .height(0.6 * h)
-                 .width(0.6 * h);
-                 break;
-                 }
-                 */
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage
@@ -4610,13 +4578,24 @@
              * @param pageIdx
              */
             validate: function (component, pageIdx) {
-                /* jshint maxcomplexity: 8 */
+                /* jshint maxcomplexity: 12 */
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
                 if (!component.attributes ||
+                    !component.attributes.text ||
+                    (component.attributes.text === i18n.textgaps.attributes.text.defaultValue) ||
+                    !RX_TEXT.test(component.attributes.text)) {
+                    ret.push({
+                        type: WARNING,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidText, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes ||
                     // Styles are only checked if there is any (optional)
-                    (component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle))) {
+                    (component.attributes.inputStyle && !RX_STYLE.test(component.attributes.inputStyle))) {
+                    // TODO: test small font-size incompatible with mobile devices
                     ret.push({
                         type: ERROR,
                         index: pageIdx,
@@ -4624,14 +4603,16 @@
                     });
                 }
                 if (!component.attributes ||
-                    !component.attributes.data ||
-                    !RX_DATA.test(component.attributes.data)) {
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                    // TODO: test small font-size incompatible with mobile devices
                     ret.push({
                         type: ERROR,
                         index: pageIdx,
-                        message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
                     });
                 }
+                // TODO also check that split regex is safe
                 return ret;
             }
 

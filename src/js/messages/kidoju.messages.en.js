@@ -768,6 +768,8 @@
                     missingLabel: 'A Label is recommended on page {0}.',
                     missingMultimedia: 'A multimedia element (Image, Audio, Video) is recommended on page {0}.',
                     missingQuestion: 'A question is recommended on page {0}.',
+                    missingSelectable: 'Selectable Labels or Images are required for a Selector on page {0}.',
+                    missingSelector: 'A Selector is required for selectable Labels or Images on page {0}.',
                     missingInstructions: 'Instructions are recommended on page {0}.',
                     missingExplanations: 'Explanations are recommended on page {0}.'
                 };
@@ -953,7 +955,7 @@
 
                 if (tools.imageset instanceof Tool) {
                     // Description
-                    tools.imageset.constructor.prototype.description = 'Image';
+                    tools.imageset.constructor.prototype.description = 'Image Set';
                     // Attributes
                     attributes = tools.imageset.constructor.prototype.attributes;
                     attributes.style.title = 'Style';

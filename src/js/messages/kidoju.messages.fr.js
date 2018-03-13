@@ -760,11 +760,13 @@
                 data.Page.prototype.messages = {
                     emptyPage: 'La page {0} ne doit pas être vide.',
                     minConnectors: 'Au moins {0} Connecteurs sont nécessaires pour faire une question en page {1}.',
-                    missingDraggable: 'Des Étiquettes et Images déplaçables sont requis pour la/les Zone(s) de Dépôt en page {0}.',
+                    missingDraggable: 'Des Étiquettes et Images déplaçables sont requises pour la/les Zone(s) de Dépôt en page {0}.',
                     missingDropZone: 'Une Zone de Dépôt est requise pour les Étiquettes et Images déplaçables en page {0}.',
                     missingLabel: 'Une Étiquettes est recommandée en page {0}.',
                     missingMultimedia: 'Un élément multimédia (Image, Audio, Vidéo) est recommandé en page {0}.',
                     missingQuestion: 'Une question est recommandé en page {0}.',
+                    missingSelectable: 'Des Étiquettes et Images sélectables sont requises pour le Sélecteur en page {0}.',
+                    missingSelector: 'Un Sélecteur est requis pour les Étiquettes et Images sélectables en page {0}.',
                     missingInstructions: 'Des instructions sont recommandées en page {0}.',
                     missingExplanations: 'Des explications sont recommandées en page {0}.'
                 };
@@ -950,7 +952,7 @@
 
                 if (tools.imageset instanceof Tool) {
                     // Description
-                    tools.imageset.constructor.prototype.description = 'Image';
+                    tools.imageset.constructor.prototype.description = 'Jeu d’images';
                     // Attributes
                     attributes = tools.imageset.constructor.prototype.attributes;
                     attributes.style.title = 'Style';

@@ -869,6 +869,8 @@
                 missingLabel: 'A Label is recommended on page {0}.',
                 missingMultimedia: 'A multimedia element (Image, Audio, Video) is recommended on page {0}.',
                 missingQuestion: 'A question is recommended on page {0}.',
+                missingSelectable: 'Selectable Labels or Images are required for a Selector on page {0}.',
+                missingSelector: 'A Selector is required for selectable Labels or Images on page {0}.',
                 missingInstructions: 'Instructions are recommended on page {0}.',
                 missingExplanations: 'Explanations are recommended on page {0}.'
             },
@@ -882,12 +884,15 @@
              * @returns {Array}
              */
             validate: function (pageIdx) {
-                /* jshint maxcomplexity: 22 */
+                /* jshint maxcomplexity: 24 */
                 assert.instanceof (Page, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Page'));
                 assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
+                // TODO also validate that formulas only use values available on the page
                 var ret = [];
                 var hasDraggable = false;
                 var hasDropZone = false;
+                var hasSelectable = false;
+                var hasSelector = false;
                 var hasLabel = false;
                 var hasMultimedia = false;
                 var hasQuestion = false;
@@ -898,24 +903,16 @@
                 }
                 for (var i = 0; i < componentTotal; i++) {
                     var component = this.components.at(i);
-                    if (component.tool === 'label') {
-                        hasLabel = true;
-                        if (component.properties.draggable) {
-                            hasDraggable = true;
-                        }
-                    } else if (component.tool === 'image' || component.tool === 'audio' || component.tool === 'video') {
-                        hasMultimedia = true;
-                        if (component.properties.draggable) {
-                            hasDraggable = true;
-                        }
-                    } else if ($.type(component.properties) ===  OBJECT && $.type(component.properties.validation) === STRING) {
-                        hasQuestion = true;
-                        if (component.tool === 'connector') {
-                            connectorCount++;
-                        } else if (component.tool === 'dropzone') {
-                            hasDropZone = true;
-                        }
+                    if (component.tool === 'connector') {
+                        connectorCount++;
                     }
+                    hasDraggable = hasDraggable || ($.type(component.properties) ===  OBJECT && component.properties.behavior === 'draggable');
+                    hasDropZone = hasDropZone || (component.tool === 'dropzone');
+                    hasLabel = hasLabel || (component.tool === 'label');
+                    hasMultimedia = hasMultimedia || (component.tool === 'image' || component.tool === 'audio' || component.tool === 'video');
+                    hasSelectable = hasSelectable || ($.type(component.properties) ===  OBJECT && component.properties.behavior === 'selectable');
+                    hasSelector = hasSelector || (component.tool === 'selector');
+                    hasQuestion = hasQuestion || ($.type(component.properties) ===  OBJECT && $.type(component.properties.validation) === STRING && component.properties.validation.length);
                     ret = ret.concat(component.validate(pageIdx));
                 }
                 // Check a label
@@ -942,6 +939,12 @@
                     ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.missingDraggable, pageIdx + 1) });
                 } else if (!hasDropZone && hasDraggable) {
                     ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.missingDropZone, pageIdx + 1) });
+                }
+                // Check selectors and selectable
+                if (hasSelector && !hasSelectable) {
+                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.missingSelectable, pageIdx + 1) });
+                } else if (!hasSelector && hasSelectable) {
+                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.missingSelector, pageIdx + 1) });
                 }
                 // Check instructions
                 var instructions = (this.get('instructions') || '').trim();
@@ -1350,7 +1353,7 @@
                                             omit: properties.omit,
                                             failure: properties.failure,
                                             success: properties.success,
-                                            disabled: properties.disabled,
+                                            // disabled: properties.disabled,
                                             // Functions used by getScoreArray for improved display in score grid
                                             value$: function () {
                                                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));

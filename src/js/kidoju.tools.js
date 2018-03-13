@@ -742,7 +742,7 @@
              */
             showResult: function () {
                 // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
-                return '<div class=".kj-element-result" data-#= ns #bind="invisible: #: properties.name #.disabled">' +
+                return '<div class=".kj-element-result" data-#= ns #bind="visible: #: properties.name #">' +
                     '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
                     '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
                     '</div>';
@@ -788,9 +788,9 @@
                     var properties = component.properties;
                     var messages = this.i18n.messages;
                     var description = this.description; // tool description
-                    if (properties.behavior !== 'none') {
+                    if ($.type(properties.behavior) === STRING && properties.behavior !== 'none') {
                         // Note: This test might be better suited to inherited tools (labels, images and math expressions)
-                        if (!properties.constant || !RX_CONSTANT.test(properties.constant)) {
+                        if (!RX_CONSTANT.test(properties.constant)) {
                             ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidConstant, description, /*name,*/ pageIdx + 1) });
                         }
                     } else if ($.type(component.properties.name) === STRING) {
@@ -1827,19 +1827,19 @@
                     // because String(arr) is the same as join(',') and each value might contain commas
                     // So we use }-{ because there is little chance any value would contain this sequence
                     formula: kendo.format(VALIDATION_CUSTOM, '// Note: value is an array and solution is a multiline string\n\t' +
-                        'return value.sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{") === solution.trim().split("\\n").join("}-{").replace(/\\s*}-{\\s*/g, "}-{");')
+                        'return (value || []).sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{") === String(solution).trim().split("\\n").sort().join("}-{").replace(/\\s*}-{\\s*/g, "}-{");')
                 },
                 {
                     name: 'ignoreCaseEqual',
                     formula: kendo.format(VALIDATION_CUSTOM, '// Note: value is an array and solution is a multiline string\n\t' +
-                        'return value.sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{").toLowerCase() === solution.trim().split("\\n").join("}-{").replace(/\\s*}-{\\s*/g, "}-{").toLowerCase();')
+                        'return (value || []).sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{").toLowerCase() === String(solution).trim().split("\\n").sort().join("}-{").replace(/\\s*}-{\\s*/g, "}-{").toLowerCase();')
                 },
                 {
                     name: 'sumEqual',
                     formula: kendo.format(VALIDATION_CUSTOM, '// Note: value is an array and solution is a multiline string\n\t' +
                         'var ret = 0;\t' +
-                        'value.forEach(function(val){ ret += parseFloat((val || "").trim() || 0); });\t' +
-                        'return ret === parseFloat(solution.trim());')
+                        '(value || []).forEach(function(val){ ret += parseFloat((val || "").trim() || 0); });\t' +
+                        'return ret === parseFloat(String(solution).trim());')
                 }
             ],
             libraryDefault: 'equal'

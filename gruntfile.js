@@ -20,7 +20,7 @@ module.exports = function (grunt) {
             tasks: ['lint', 'test']
         },
         eslint: {
-            files: ['templates/*.mjs', 'src/js/*.mjs'],
+            files: ['templates/*.es6', 'src/js/*.es6'],
             options: {
                 config: '.eslintrc.json'
             }

@@ -38,7 +38,7 @@
             'kendo.*': '../src/js/vendor/kendo/kendo.*.js'
         }
     });
-    System.import('./valueWidget.mjs').then(function () {
+    System.import('./valueWidget.es6').then(function () {
     	var kendo = window.kendo;
         var viewModel = kendo.observable({
             data: 'Hey!'

@@ -12,6 +12,7 @@
         "prettier"
     ],
     "rules": {
+        "no-underscore-dangle": 0,
         "prettier/prettier": ["error", {
             "singleQuote": true,
             "tabWidth": 4
@@ -20,11 +21,7 @@
     },
     "settings": {
         "import/resolver": {
-            "babel-module": {
-                "extensions": [
-                    ".mjs"
-                ]
-            }
+            "babel-module": {}
         }
     }
 }

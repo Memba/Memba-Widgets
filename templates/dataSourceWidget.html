@@ -37,7 +37,7 @@
             'kendo.*': '../src/js/vendor/kendo/kendo.*.js'
         }
     });
-    System.import('./dataSourceWidget.mjs').then(function () {
+    System.import('./dataSourceWidget.es6').then(function () {
         var kendo = window.kendo;
         var viewModel = kendo.observable({
             data: ['a', 'b', 'c']

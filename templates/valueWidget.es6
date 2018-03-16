@@ -52,17 +52,19 @@ export default class ValueWidget extends ui.Widget {
 
     /**
      * Value
+     * Note: get/set won't work
      * @param value
      */
     value(value) {
+        let ret;
         if ($.type(value) === 'undefined') {
-            return this._value;
+            ret = this._value;
         } else if (this._value !== value) {
             this._value = value;
             this.refresh();
-
             // TODO add a clear button that sets this.trigger(CHANGE);
         }
+        return ret;
     }
 
     /**

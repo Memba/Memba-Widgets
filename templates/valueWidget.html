@@ -21,7 +21,13 @@
         map: {
             'plugin-babel': '../node_modules/systemjs-plugin-babel/plugin-babel.js',
             'systemjs-babel-build': '../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js',
-            'jquery': '../src/js/vendor/jquery/jquery-3.3.1.min.js'
+            'jquery': '../src/js/vendor/jquery/jquery-3.3.1.min.js',
+            // http://docs.telerik.com/kendo-ui/third-party/systemjs
+            'kendo.core': '../src/js/vendor/kendo/kendo.core.js',
+            'kendo.data': '../src/js/vendor/kendo/kendo.data.js',
+            'kendo.data.odata': '../src/js/vendor/kendo/kendo.data.odata.js',
+            'kendo.data.xml': '../src/js/vendor/kendo/kendo.data.xml.js',
+            'kendo.binder': '../src/js/vendor/kendo/kendo.binder.js'
         },
         meta: {
             '*.js' : {
@@ -31,11 +37,6 @@
                     stage3 : false
                 }
             }
-        },
-        paths: {
-        	// Note: systemJS 0.20.x does not load kendo ui using a wildcard as explained at http://docs.telerik.com/kendo-ui/third-party/systemjs
-            // 'kendo.*': '../bower_components/kendo-ui/src/js/kendo.*'
-            'kendo.*': '../src/js/vendor/kendo/kendo.*.js'
         }
     });
     System.import('./valueWidget.es6').then(function () {

@@ -105,7 +105,7 @@
                 logger.debug({ method: 'init', message: 'widget initialized' });
                 that._layout();
                 that.value(options.value);
-                that.refresh();
+                // that.refresh();
                 kendo.notify(that);
             },
 

@@ -3,18 +3,17 @@
  * Sources at https://github.com/Memba
  */
 
-import $ from 'jquery'
+import $ from 'jquery';
 import 'kendo.binder';
 
-const kendo = window.kendo;
-const ui = kendo.ui;
+const { kendo } = window;
+const { ui } = kendo;
 const CHANGE = 'change';
 
 /**
  * ValueWidget
  */
-export class ValueWidget extends ui.Widget {
-
+export default class ValueWidget extends ui.Widget {
     /**
      * ValueWidget constructor
      * @param element
@@ -55,7 +54,7 @@ export class ValueWidget extends ui.Widget {
      * Value
      * @param value
      */
-    value(value){
+    value(value) {
         if ($.type(value) === 'undefined') {
             return this._value;
         } else if (this._value !== value) {

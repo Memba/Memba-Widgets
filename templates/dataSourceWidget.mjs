@@ -3,19 +3,18 @@
  * Sources at https://github.com/Memba
  */
 
-import $ from 'jquery'
+import $ from 'jquery';
 import 'kendo.binder';
 
 const CHANGE = 'change';
-const ui = kendo.ui;
-const data = kendo.data;
-const DataSource = data.DataSource;
+const { kendo } = window;
+const { data, ui } = kendo;
+const { DataSource } = data;
 
 /**
  * DataSourceWidget
  */
-export class DataSourceWidget extends ui.Widget {
-
+export default class DataSourceWidget extends ui.Widget {
     /**
      * DataSourceWidget constructor
      * @param element
@@ -59,7 +58,10 @@ export class DataSourceWidget extends ui.Widget {
     _dataSource() {
         // if the DataSource is defined and the _refreshHandler is wired up, unbind because
         // we need to rebuild the DataSource
-        if (this.dataSource instanceof DataSource && $.isFunction(this._refreshHandler)) {
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
             this.dataSource.unbind(CHANGE, this._refreshHandler);
         } else {
             this._refreshHandler = this.refresh.bind(this);
@@ -91,10 +93,10 @@ export class DataSourceWidget extends ui.Widget {
      * Note: we should be more clever and use e.action and e.items
      */
     refresh() {
-        var list = '<ul>';
-        for (var item of this.dataSource.view()) {
-            list += '<li>' + item + '</li>'
-        }
+        let list = '<ul>';
+        this.dataSource.view().forEach(item => {
+            list += `<li>${item}</li>`;
+        });
         list += '</ul>';
         this.element.empty();
         this.element.append(list);
@@ -104,9 +106,11 @@ export class DataSourceWidget extends ui.Widget {
      * Destroy
      */
     destroy() {
-        let that = this;
-        if (that.dataSource instanceof DataSource && $.isFunction(that._refreshHandler)) {
-            that.dataSource.unbind(CHANGE, that._refreshHandler);
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
+            this.dataSource.unbind(CHANGE, this._refreshHandler);
         }
         super.destroy();
         kendo.destroy(this.element);

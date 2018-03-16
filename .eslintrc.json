@@ -1,0 +1,30 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    "extends": [
+        "airbnb-base",
+        "prettier"
+    ],
+    "parser": "babel-eslint",
+    "plugins": [
+        "prettier"
+    ],
+    "rules": {
+        "prettier/prettier": ["error", {
+            "singleQuote": true,
+            "tabWidth": 4
+        }],
+        "strict": 0
+    },
+    "settings": {
+        "import/resolver": {
+            "babel-module": {
+                "extensions": [
+                    ".mjs"
+                ]
+            }
+        }
+    }
+}

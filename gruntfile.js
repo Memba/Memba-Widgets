@@ -20,9 +20,9 @@ module.exports = function (grunt) {
             tasks: ['lint', 'test']
         },
         eslint: {
-            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'src/js/messages/kidoju.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            files: ['templates/*.mjs', 'src/js/*.mjs'],
             options: {
-                config: '.eslintrc'
+                config: '.eslintrc.json'
             }
         },
         jscs: {

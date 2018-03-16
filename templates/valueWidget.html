@@ -23,13 +23,22 @@
             'systemjs-babel-build': '../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js',
             'jquery': '../src/js/vendor/jquery/jquery-3.3.1.min.js'
         },
+        meta: {
+            '*.js' : {
+                babelOptions : {
+                    es2015 : false,
+                    stage2 : false,
+                    stage3 : false
+                }
+            }
+        },
         paths: {
         	// Note: systemJS 0.20.x does not load kendo ui using a wildcard as explained at http://docs.telerik.com/kendo-ui/third-party/systemjs
             // 'kendo.*': '../bower_components/kendo-ui/src/js/kendo.*'
             'kendo.*': '../src/js/vendor/kendo/kendo.*.js'
         }
     });
-    System.import('./valueWidget.es6').then(function () {
+    System.import('./valueWidget.mjs').then(function () {
     	var kendo = window.kendo;
         var viewModel = kendo.observable({
             data: 'Hey!'

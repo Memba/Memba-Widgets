@@ -11,6 +11,7 @@
     "plugins": [
         "prettier"
     ],
+    "root": true,
     "rules": {
         "no-underscore-dangle": 0,
         "prettier/prettier": ["error", {

@@ -13,12 +13,12 @@
     ],
     "root": true,
     "rules": {
+        "indent": ["error", 4],
         "no-underscore-dangle": 0,
         "prettier/prettier": ["error", {
             "singleQuote": true,
             "tabWidth": 4
-        }],
-        "strict": 0
+        }]
     },
     "settings": {
         "import/resolver": {

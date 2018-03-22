@@ -4404,7 +4404,7 @@
             onEnable: function (e, component, enabled) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_SELECTOR) && component instanceof PageComponent) {
-                    stageElement.children('input')
+                    stageElement.find('input')
                         .prop({
                             // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
                             readonly: !enabled

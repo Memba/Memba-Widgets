@@ -300,7 +300,8 @@
                     tagList
                         .on(MOUSEENTER, LI, function () { $(this).addClass(HOVERCLASS); })
                         .on(MOUSELEAVE, LI, function () { $(this).removeClass(HOVERCLASS); })
-                        .on(CLICK, '.k-i-close', $.proxy(that._onTagClick, that));
+                        // .on(CLICK, '.k-i-close', $.proxy(that._onTagClick, that));
+                        .on(CLICK, '.k-select', $.proxy(that._onTagClick, that));
 
                 } else {
                     if (disable) {
@@ -402,12 +403,12 @@
              */
             _onTagClick: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                var that = this;
-                var tagElement = $(e.target).closest(LI);
-                var index = that._removeTagElement(tagElement);
-                that._values.splice(index, 1);
-                that._change();
-                // that._placeholder();
+                var target = $(e.target);
+                var tagElement = target.closest(LI);
+                var index = this._removeTagElement(tagElement);
+                this._values.splice(index, 1);
+                this._change();
+                // this._placeholder();
             },
 
             /**

@@ -6,7 +6,7 @@
         [
             "module-resolver",
             {
-                "extensions": [".mjs"],
+                "extensions": [".es6"],
                 "root": ["."],
                 "alias": {
                     "jquery": "./src/js/vendor/jquery/jquery-3.3.1.min.js",

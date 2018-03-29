@@ -284,11 +284,11 @@
             },
 
             /**
-             * Substract a new selection and possibly break adjoining selections
+             * Remove a new selection and possibly break adjoining selections
              * @param selection
              * @private
              */
-            _sub: function (selection) {
+            _remove: function (selection) {
                 // This is always a selection across all spans, whether breaking the sentence into words or characters
                 assert.isPlainObject(selection, assert.format(assert.messages.isPlainObject.default, 'selection'));
                 assert.type(NUMBER, selection.start, assert.format(assert.messages.type.default, 'selection.start', NUMBER));
@@ -431,7 +431,7 @@
                 } else if ((e.data) && ($.type(e.data.initial) === UNDEFINED)) {
                     var target = this._spanFromEvent(e);
                     if (target instanceof $) {
-                        console.log(e.type);
+                        // console.log(e.type);
                         var index = this.items.index(target);
                         // We cannot reassign e.data because we need the same object throughout mouse/touch events
                         e.data.active = !target.hasClass(ACTIVE_SELECTOR.substr(1));
@@ -457,7 +457,7 @@
                 if ((e.data) && (e.data.highlighter === this)) { // same originating widget in case there are more on the page
                     var target = this._spanFromEvent(e);
                     if (target instanceof $) {
-                        console.log(e.type);
+                        // console.log(e.type);
                         var index = this.items.index(target);
                         // Make sure we can work both ways (right and left from initial mousedown)
                         if (index < e.data.initial) {
@@ -487,15 +487,14 @@
                     // A tap triggers touchstart/touchend but also mousedown/mouseup which we do not want to execute twice
                     return;
                 } else if ((e.data) && (e.data.highlighter === this)) { // same originating widget in case there are more on the page
-                    console.log(e.type);
+                    // console.log(e.type);
                     // No need to unselect to show highlight since we have CSS style user-select: none;
-                    // var selection = window.getSelection();
-                    // selection.removeAllRanges();
-                    // Add selection
+                    // window.getSelection().removeAllRanges();
+                    // Add/remove current highlighting to this._value
                     if (e.data.active) {
                         this._add(e.data.selection);
                     } else {
-                        this._sub(e.data.selection);
+                        this._remove(e.data.selection);
                     }
                     // Clear data for next time
                     // We cannot reassign e.data because we need the same object throughout mouse/touch events

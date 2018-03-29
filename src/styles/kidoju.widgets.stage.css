@@ -1,5 +1,20 @@
+.kj-stage {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+}
 .kj-stage .kj-element input.k-textbox {
     text-indent: initial;
+}
+.kj-stage .kj-element input:not([type]),
+.kj-stage .kj-element input[type="email"],
+.kj-stage .kj-element input[type="number"],
+.kj-stage .kj-element input[type="password"],
+.kj-stage .kj-element input[type="tel"],
+.kj-stage .kj-element input[type="url"],
+.kj-stage .kj-element input[type="text"] {
+    padding-left: 0;
+    padding-right: 0;
 }
 .kj-stage .kj-element-result {
     position: relative;

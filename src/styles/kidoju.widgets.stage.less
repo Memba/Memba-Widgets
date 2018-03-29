@@ -6,6 +6,16 @@
         input.k-textbox {
             text-indent: initial;
         }
+        input:not([type]),
+        input[type="email"],
+        input[type="number"],
+        input[type="password"],
+        input[type="tel"],
+        input[type="url"],
+        input[type="text"] {
+            padding-left: 0;
+            padding-right: 0;
+        }
     }
     .kj-element-result {
         position: relative;

@@ -16,15 +16,35 @@
     <script>
         (function () {
             'use strict';
-            SystemJS.config({
-                baseURL: './js',
-                defaultJSExtensions: true,
-                paths: {
+            System.config({
+                baseURL: './',
+                transpiler: 'plugin-babel',
+                map: {
+                    'plugin-babel': '../node_modules/systemjs-plugin-babel/plugin-babel.js',
+                    'systemjs-babel-build': '../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js',
                     'jquery': './js/vendor/jquery/jquery-3.3.1.min.js',
-                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                    // http://docs.telerik.com/kendo-ui/third-party/systemjs
+                    'kendo.core': './js/vendor/kendo/kendo.core.js',
+                    'kendo.data': './js/vendor/kendo/kendo.data.js',
+                    'kendo.data.odata': './js/vendor/kendo/kendo.data.odata.js',
+                    'kendo.data.xml': './js/vendor/kendo/kendo.data.xml.js',
+                    'kendo.binder': './js/vendor/kendo/kendo.binder.js',
+                    'window.assert': './js/window.assert.js',
+                    'window.logger': './js/window.logger.js'
                 },
                 meta: {
-                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                    '*.js' : {
+                        babelOptions : {
+                            es2015 : false,
+                            stage2 : false,
+                            stage3 : false
+                        }
+                    }
+                },
+                packages: {
+                    '.': {
+                        defaultExtension: 'js'
+                    }
                 }
             });
             SystemJS.import('./js/kidoju.widgets.highlighter.js').then(function (kendo) {
@@ -43,10 +63,16 @@
 <body>
 <h1>kidoju.widgets.highlighter</h1>
 <h2>highlighter with value and match attributes</h2>
-<div data-role="highlighter" data-value="4,6-8,10-12" data-text="Lorem Ipsum is (simply) dummy <text> of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." data-highlight-style="background:#FF00FF"></div>
+<div class="kj-stage" style="height: 400px; width: 500px; transform: scale(0.6);">
+    <div data-role="stage" style="position:relative;height: 600px; width: 800px;">
+        <div class="kj-element" style="position:absolute;top:100px;left:150px;width:250px;height:250px;">
+            <div data-role="highlighter" data-value="4,6-8,10-12" data-split="([\s\.,;:\?¿!<>\(\)&«»\[\]{}])" data-text="Lorem Ipsum is (simply) dummy <text> of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." data-highlight-style="background:#FF00FF"></div>
+        </div>
+    </div>
+</div>
 <h2>highlighter bound to observable</h2>
 <div id="test" data-role="highlighter" data-bind="value: value, visible: visible, enabled: enabled" data-text="Vingt-cinq mille démissions considérées comme « légitimes » ont ainsi donné droit au chômage en 2016, selon l’Unédic, auxquelles s’ajoutaient entre 20.000 et 30.000 demandes qui « ouvrent un droit suite à examen à quatre mois ». Soit 50.000 personnes concernées par an environ. En résumé, l’« ouverture » du droit au chômage aux démissionnaires promise par Emmanuel Macron concernera moins de personnes que les dispositifs préexistants auquel elle s’ajoutera. Concrètement, on passerait d’environ 50.000 auparavant à entre 70.000 et 80.000 démissionnaires indemnisés par Pôle emploi chaque année. L’esprit de la réforme détaillé dans le programme du candidat d’« [inciter] les entreprises à investir pour améliorer la qualité de vie au travail afin de conserver leurs salariés » y a également laissé des plumes."></div>
-<div>
+    <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled
 </div>

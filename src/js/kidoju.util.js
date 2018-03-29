@@ -103,15 +103,23 @@
         util.getMousePosition = function (e, stage) {
             assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
             assert.instanceof($, stage, assert.format(assert.messages.instanceof.default, 'stage', 'jQuery'));
-            // See http://www.jacklmoore.com/notes/mouse-position/
-            // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
-            // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
-            // ATTENTION: e.originalEvent.changedTouches instanceof TouchList, not Array
             var originalEvent = e.originalEvent;
-            // var clientX = originalEvent && originalEvent.touches ? originalEvent.touches[0].clientX : e.clientX;
-            // var clientY = originalEvent && originalEvent.touches ? originalEvent.touches[0].clientY : e.clientY;
-            var clientX = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientX : e.clientX;
-            var clientY = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientY : e.clientY;
+            var clientX;
+            var clientY;
+            if (originalEvent && originalEvent.touches && originalEvent.touches.length) {
+                clientX = originalEvent.touches[0].clientX;
+                clientY = originalEvent.touches[0].clientY;
+            } else if (originalEvent && originalEvent.changedTouches && originalEvent.changedTouches.length) {
+                // See http://www.jacklmoore.com/notes/mouse-position/
+                // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
+                // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
+                // ATTENTION: e.originalEvent.changedTouches instanceof TouchList, not Array
+                clientX = originalEvent.changedTouches[0].clientX;
+                clientY = originalEvent.changedTouches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
             // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
             var ownerDocument = $(stage.get(0).ownerDocument);
             var stageOffset = stage.offset();

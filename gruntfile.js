@@ -3,12 +3,12 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-module.exports = (grunt) => {
+module.exports = grunt => {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         eslint: {
             files: [
-                'gruntfile.js',
+                '*.js',
                 'templates/*.es6',
                 'src/js/**/*.es6',
                 'test/**/*.es6'
@@ -23,7 +23,7 @@ module.exports = (grunt) => {
                 config: '.jscsrc',
                 // There is no .jscsignore file
                 excludeFiles: [
-                    'gruntfile.js',
+                    '*.js',
                     'src/js/vendor/**/*.js',
                     'test/vendor/**/*.js'
                 ]
@@ -46,12 +46,11 @@ module.exports = (grunt) => {
             options: {
                 // .jshintignore does ot work with grunt-contrib-jshint
                 ignores: [
-                    'gruntfile.js',
+                    '*.js',
                     'src/js/vendor/**/*.js',
                     'test/vendor/**/*.js'
                 ],
-                // options here to override JSHint defaults
-                jshintrc: '.jshintrc'
+                jshintrc: true
             }
         },
         /*

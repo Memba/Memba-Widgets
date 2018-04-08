@@ -1,32 +1,32 @@
 .kj-playbar {
-    z-index: 1000;
+  z-index: 1000;
 }
 .kj-playbar .k-pager-numbers .k-state-selected {
-    line-height: 2em;
+  line-height: 2em;
 }
 .kj-playbar .k-pager-info {
-    margin-top: 0.175em;
+  margin-top: 0.175em;
 }
 @media (min-width: 0) {
-    .kj-playbar .k-pager-info {
-        /* always display page number */
-        display: inline-block !important;
-    }
+  .kj-playbar .k-pager-info {
+    /* always display page number */
+    display: inline-block !important;
+  }
 }
 /**
  * The following styles are aimed at expanding the drop down list of numeric values downward
  * when the kj-top style is added to the playbar
  */
 .kj-playbar.kj-top .k-pager-numbers {
-    flex-direction: column;
+  flex-direction: column;
 }
 .kj-playbar.kj-top .k-pager-numbers.k-state-expanded {
-    transform: translateY(1.72em);
-    border-radius: 0 0 4px 4px;
+  transform: translateY(1.72em);
+  border-radius: 0 0 4px 4px;
 }
 .kj-playbar.kj-top .k-pager-numbers.k-state-expanded .k-current-page {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 .kj-playbar.kj-top .k-pager-numbers.k-state-expanded .k-current-page .k-link {
-    border-radius: 1.0833em 1.0833em 0 0;
+  border-radius: 1.0833em 1.0833em 0 0;
 }

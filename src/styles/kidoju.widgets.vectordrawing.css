@@ -9,19 +9,21 @@
 .kj-vectordrawing-toolbar .k-button-icon[data-tool="arrange"],
 .kj-vectordrawing-toolbar .k-button-icon[data-tool="background"],
 .kj-vectordrawing-toolbar .k-button-icon[data-tool="guides"] {
-    width: auto;
+  width: auto;
 }
 .kj-vectordrawing-toolbar .k-icon.k-i-select,
 .kj-vectordrawing-toolbar .k-icon.k-i-stroke-width,
 .kj-vectordrawing-toolbar .k-icon.k-i-stroke-dashes {
-    font: 16px/1 kidoju !important;
+  /* stylelint-disable font-family-no-missing-generic-family-keyword */
+  font: 16px/1 kidoju !important;
+  /* stylelint-enable */
 }
-.kj-vectordrawing-toolbar .k-i-select:before {
-    content: "\e800";
+.kj-vectordrawing-toolbar .k-i-select::before {
+  content: "\e800";
 }
-.kj-vectordrawing-toolbar .k-i-stroke-width:before {
-    content: "\e801";
+.kj-vectordrawing-toolbar .k-i-stroke-width::before {
+  content: "\e801";
 }
-.kj-vectordrawing-toolbar .k-i-stroke-dashes:before {
-    content: "\e802";
+.kj-vectordrawing-toolbar .k-i-stroke-dashes::before {
+  content: "\e802";
 }

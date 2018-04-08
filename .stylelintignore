@@ -1,0 +1,9 @@
+coverage/
+docs/
+graphics/
+node_modules/
+nodejs/
+src/styles/fonts/
+src/styles/vendor/
+temp/
+test/vendor/

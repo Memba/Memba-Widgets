@@ -19,10 +19,21 @@
         &.k-i-select,
         &.k-i-stroke-width,
         &.k-i-stroke-dashes {
+            /* stylelint-disable font-family-no-missing-generic-family-keyword */
             font: 16px/1 kidoju !important;
+            /* stylelint-enable */
         }
     }
-    .k-i-select:before {content:"\e800";}
-    .k-i-stroke-width:before {content:"\e801";}
-    .k-i-stroke-dashes:before {content:"\e802";}
+
+    .k-i-select::before {
+        content: "\e800";
+    }
+
+    .k-i-stroke-width::before {
+        content: "\e801";
+    }
+
+    .k-i-stroke-dashes::before {
+        content: "\e802";
+    }
 }

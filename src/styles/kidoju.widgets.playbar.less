@@ -1,18 +1,22 @@
 .kj-playbar {
     z-index: 1000; // so that the drop down list of numeric buttons displays over other controls
+
     .k-pager-numbers {
         .k-state-selected {
             line-height: 2em;
         }
     }
+
     .k-pager-info {
         margin-top: 0.175em;
+
         @media (min-width: 0) {
             /* always display page number */
             display: inline-block !important;
         }
     }
 }
+
 /**
  * The following styles are aimed at expanding the drop down list of numeric values downward
  * when the kj-top style is added to the playbar
@@ -21,12 +25,15 @@
     .k-pager-numbers {
         flex-direction: column;
     }
+
     .k-pager-numbers.k-state-expanded {
         transform: translateY(1.72em); //same as line-height
         // border-radius: 4px 4px 0 0;
         border-radius: 0 0 4px 4px;
+
         .k-current-page {
             transform: translateY(0);
+
             .k-link {
                 // border-radius: 0 0 1.0833em 1.0833em;
                 border-radius: 1.0833em 1.0833em 0 0;

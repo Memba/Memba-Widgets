@@ -3,18 +3,22 @@
         width: auto;
     }
 }
+
 .k-spreadsheet-window.kj-markeditor-window {
     &.kj-no-padding {
         padding: 0;
+
         .kj-markeditor-preview {
             .k-splitter {
                 .k-widget.kj-markeditor {
                     border: 0;
                 }
+
                 .kj-markdown {
                     margin: 0.5em;
                 }
             }
+
             .k-action-buttons {
                 position: static;
                 bottom: 0;
@@ -23,6 +27,7 @@
             }
         }
     }
+
     .kj-mathinput-toolbar {
         // To counteract padding
         margin-top: -1.167em;
@@ -30,23 +35,30 @@
         margin-right: -0.75em;
         margin-bottom: 0.75em;
     }
+
     .kj-mathinput {
         height: 5em;
         width: 100%;
     }
-    .k-edit-form-container {
-        padding-top: .5em;
-        .k-edit-label, .k-edit-field {
-            line-height: normal;
-        }
-    }
+
     // This fixes .k-spreadsheet-window .k-edit-label (27% is too large)
     .k-edit-label {
         width: 10%;
     }
+
     .k-edit-field {
         width: 80%;
     }
+
+    .k-edit-form-container {
+        padding-top: 0.5em;
+
+        .k-edit-label,
+        .k-edit-field {
+            line-height: normal;
+        }
+    }
+
     .k-button {
         .k-image {
             height: 1.5em;

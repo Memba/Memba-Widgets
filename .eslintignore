@@ -6,3 +6,5 @@ nodejs/
 src/js/vendor/
 temp/
 test/vendor/
+**/*.js
+!gruntfile.js

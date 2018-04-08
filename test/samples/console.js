@@ -4,30 +4,30 @@
 
 (function ($) {
 
-    "use strict";
+    'use strict';
 
-    var count = 0,
-        oldMessage;
+    var count = 0;
+    var oldMessage;
 
     window.debug = {
         log: function (message, isError) {
-            //if (window.location.hostname === 'localhost') {
-            var oldContainer = $(".console div:first"),
-                counter = oldContainer.find(".count");
+            // if (window.location.hostname === 'localhost') {
+            var oldContainer = $('.console div:first');
+            var counter = oldContainer.find('.count');
 
             if (!oldContainer.length || message !== oldMessage) {
                 oldMessage = message;
                 count = 1;
 
-                $("<div" + (isError ? " class='error'" : "") + "/>")
+                $('<div' + (isError ? ' class="error"' : '') + '/>')
                     .css({
                         marginTop: -24,
-                        backgroundColor: isError ? "#ffbbbb" : "#bbddff"
+                        backgroundColor: isError ? '#ffbbbb' : '#bbddff'
                     })
                     .html(message)
-                    .prependTo(".console")
+                    .prependTo('.console')
                     .animate({ marginTop: 0 }, 300)
-                    .animate({ backgroundColor: isError ? "#ffdddd" : "#ffffff" }, 800);
+                    .animate({ backgroundColor: isError ? '#ffdddd' : '#ffffff' }, 800);
             } else {
                 count++;
 
@@ -35,16 +35,17 @@
                     counter.html(count);
                 } else {
                     oldContainer.html(oldMessage)
-                        .append("<span class='count'>" + count + "</span>");
+                        .append('<span class="count">' + count + '</span>');
                 }
             }
-            //}
+            // }
         },
 
         error: function (message) {
             this.log(message, true);
         }
     };
+
 })(jQuery);
 
 /*
@@ -55,21 +56,21 @@
 
 (function ($) {
 
-    "use strict";
+    'use strict';
 
     // We override the animation for all of these color styles
-    $.each(["backgroundColor", "borderBottomColor", "borderLeftColor", "borderRightColor", "borderTopColor", "color", "outlineColor"], function (i, attr) {
+    $.each(['backgroundColor', 'borderBottomColor', 'borderLeftColor', 'borderRightColor', 'borderTopColor', 'color', 'outlineColor'], function (i, attr) {
         $.fx.step[attr] = function (fx) {
-            if (fx.state === 0 || typeof fx.end == typeof "") {
+            if (fx.state === 0 || typeof fx.end == typeof '') {
                 fx.start = getColor(fx.elem, attr);
                 fx.end = getRGB(fx.end);
             }
 
-            fx.elem.style[attr] = ["rgb(", [
+            fx.elem.style[attr] = ['rgb(', [
                 Math.max(Math.min(parseInt((fx.pos * (fx.end[0] - fx.start[0])) + fx.start[0]), 255), 0),
                 Math.max(Math.min(parseInt((fx.pos * (fx.end[1] - fx.start[1])) + fx.start[1]), 255), 0),
                 Math.max(Math.min(parseInt((fx.pos * (fx.end[2] - fx.start[2])) + fx.start[2]), 255), 0)
-            ].join(","), ")"].join("");
+            ].join(','), ')'].join('');
         };
     });
 
@@ -109,11 +110,11 @@
             color = $.css(elem, attr);
 
             // Keep going until we find an element that has color, or we hit the body
-            if (color !== "" && color !== "transparent" || $.nodeName(elem, "body")) {
+            if (color !== '' && color !== 'transparent' || $.nodeName(elem, 'body')) {
                 break;
             }
 
-            attr = "backgroundColor";
+            attr = 'backgroundColor';
 
             elem = elem.parentNode;
 
@@ -123,20 +124,20 @@
     }
 
     var href = window.location.href;
-    if (href.indexOf("culture") > -1) {
-        $("#culture").val(href.replace(/(.*)culture=([^&]*)/, "$2"));
+    if (href.indexOf('culture') > -1) {
+        $('#culture').val(href.replace(/(.*)culture=([^&]*)/, '$2'));
     }
 
-    $("#culture").change(onlocalizationchange);
+    $('#culture').change(onlocalizationchange);
 
     function onlocalizationchange(e) {
-        //var value = $(this).val();
+        // var value = $(this).val();
         var value = $(e.currentTarget).val();
         var href = window.location.href;
-        if (href.indexOf("culture") > -1) {
-            href = href.replace(/culture=([^&]*)/, "culture=" + value);
+        if (href.indexOf('culture') > -1) {
+            href = href.replace(/culture=([^&]*)/, 'culture=' + value);
         } else {
-            href += href.indexOf("?") > -1 ? "&culture=" + value : "?culture=" + value;
+            href += href.indexOf('?') > -1 ? '&culture=' + value : '?culture=' + value;
         }
         window.location.href = href;
     }

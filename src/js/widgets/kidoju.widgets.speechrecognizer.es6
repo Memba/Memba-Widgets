@@ -5,7 +5,7 @@
 
 import $ from 'jquery';
 import 'kendo.binder';
-import 'kendo.tooltip'
+import 'kendo.tooltip';
 
 const { kendo } = window;
 const { ui } = kendo;
@@ -14,7 +14,8 @@ const CHANGE = 'change';
 const CLICK = 'click';
 const NS = '.kendoSpeechRecognizer';
 
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
 // https://www.google.com/intl/en/chrome/assets/common/images/content/mic.gif
 const MIC_STATIC =
@@ -123,7 +124,11 @@ export default class SpeechRecognizer extends ui.Widget {
      */
     _render() {
         this.element.css({ display: 'flex' });
-        this.textarea = $(this.options.multiline ? '<textarea style="resize: none;"/>' : '<input type="text">')
+        this.textarea = $(
+            this.options.multiline
+                ? '<textarea style="resize: none;"/>'
+                : '<input type="text">'
+        )
             .addClass('k-textbox')
             .width('100%')
             .appendTo(this.element);
@@ -137,20 +142,18 @@ export default class SpeechRecognizer extends ui.Widget {
                 tabindex: 0,
                 title: 'Please speak' // TODO
             })
-            .css({
-                outline: 'none'
-            })
-            .prop({
-                ariaPressed: false
-            })
+            .css({ outline: 'none' })
+            .prop({ ariaPressed: false })
             .appendTo(this.element);
-        this.tooltip = this.element.kendoTooltip({
-            // autoHide: true,
-            // height: "300px",
-            // width: "500px"
-            position: 'left',
-            showOn: 'click',
-        }).data('kendoTooltip');
+        this.tooltip = this.element
+            .kendoTooltip({
+                // autoHide: true,
+                // height: "300px",
+                // width: "500px"
+                position: 'left',
+                showOn: 'click'
+            })
+            .data('kendoTooltip');
     }
 
     /**
@@ -191,9 +194,16 @@ export default class SpeechRecognizer extends ui.Widget {
      * @private
      */
     _onClick() {
-        if (this._recognizing && $.isFunction(SpeechRecognition) && this.speechRecognition instanceof SpeechRecognition) {
+        if (
+            this._recognizing &&
+            $.isFunction(SpeechRecognition) &&
+            this.speechRecognition instanceof SpeechRecognition
+        ) {
             this.speechRecognition.stop();
-        } else if ($.isFunction(SpeechRecognition) && this.speechRecognition instanceof SpeechRecognition) {
+        } else if (
+            $.isFunction(SpeechRecognition) &&
+            this.speechRecognition instanceof SpeechRecognition
+        ) {
             this.speechRecognition.start();
             setTimeout(() => {
                 // This is for Opera which only has placeholders for webkitSpeechRecognition which do not trigger events
@@ -214,9 +224,7 @@ export default class SpeechRecognizer extends ui.Widget {
      */
     _onStart() {
         this._recognizing = true;
-        this.image
-            .prop({ ariaPressed: true })
-            .attr({ src: MIC_ANIMATED });
+        this.image.prop({ ariaPressed: true }).attr({ src: MIC_ANIMATED });
         this.showInfo(this.options.messages.speakNow);
         this._value = '';
         this.trigger(CHANGE);
@@ -230,9 +238,7 @@ export default class SpeechRecognizer extends ui.Widget {
     _onError(e) {
         this._recognizing = false;
         this._errored = true;
-        this.image
-            .prop({ ariaPressed: false })
-            .attr({ src: MIC_ERROR });
+        this.image.prop({ ariaPressed: false }).attr({ src: MIC_ERROR });
         switch (e.error) {
             case 'no-speech':
                 this.showInfo(this.options.messages.noSpeech);
@@ -262,9 +268,7 @@ export default class SpeechRecognizer extends ui.Widget {
             this.speechRecognition.onend = null;
             this.speechRecognition.stop();
             this._errored = true;
-            this.image
-                .prop({ ariaPressed: false })
-                .attr({ src: MIC_ERROR });
+            this.image.prop({ ariaPressed: false }).attr({ src: MIC_ERROR });
             this.showInfo(this.options.messages.upgrade);
             return;
         }
@@ -284,9 +288,7 @@ export default class SpeechRecognizer extends ui.Widget {
             this._errored = undefined;
             return;
         }
-        this.image
-            .prop({ ariaPressed: false })
-            .attr({ src: MIC_STATIC });
+        this.image.prop({ ariaPressed: false }).attr({ src: MIC_STATIC });
     }
 
     /**

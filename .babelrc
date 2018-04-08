@@ -12,7 +12,9 @@
                     "jquery": "./src/js/vendor/jquery/jquery-3.3.1.min.js",
                     "kendo.core": "./src/js/vendor/kendo/kendo.core.js",
                     "kendo.data": "./src/js/vendor/kendo/kendo.data.js",
-                    "kendo.binder": "./src/js/vendor/kendo/kendo.binder.js"
+                    "kendo.binder": "./src/js/vendor/kendo/kendo.binder.js",
+                    "kendo.popup": "./src/js/vendor/kendo/kendo.popup.js",
+                    "kendo.tooltip": "./src/js/vendor/kendo/kendo.tooltip.js"
                 }
             }
         ]

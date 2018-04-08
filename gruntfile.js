@@ -20,19 +20,19 @@ module.exports = function (grunt) {
             tasks: ['lint', 'test']
         },
         eslint: {
-            files: ['templates/*.es6', 'src/js/**/*.es6'],
+            files: ['templates/*.es6', 'src/js/**/*.es6', 'test/browser/**/*.es6'],
             options: {
-                config: '.eslintrc.json'
+                config: '.eslintrc'
             }
         },
         jscs: {
-            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'src/js/messages/kidoju.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'src/js/messages/kidoju.*.js', 'test/browser/*.js', 'test/zombie/*.js'],
             options: {
                 config: '.jscsrc'
             }
         },
         jshint: {
-            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'src/js/messages/kidoju.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'src/js/messages/kidoju.*.js', 'test/browser/*.js', 'test/zombie/*.js'],
             options: {
                 // options here to override JSHint defaults
                 jshintrc: '.jshintrc'
@@ -61,7 +61,7 @@ module.exports = function (grunt) {
         },
         // TODO: Consider linting html too
         mocha: { // Tests running in a browser (phantomJS)
-            browsers: {
+            browser: {
                 options: {
                     // debug: true,
                     log: true,
@@ -70,7 +70,7 @@ module.exports = function (grunt) {
                     run: true,
                     timeout: 20000
                 },
-                src: ['test/browsers/*.test.html']
+                src: ['test/browser/*.test.html']
             }
         },
         mochaTest: { // Test running in nodeJS (supertest, zombie, ...)

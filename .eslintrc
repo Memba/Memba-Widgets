@@ -18,7 +18,7 @@
         "indent": ["error", 4, { "SwitchCase": 1 }],
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
         "no-underscore-dangle": 0,
-        "node/exports-style": ["error", "module.exports"]
+        "node/exports-style": ["error", "module.exports"],
         "prettier/prettier": ["error", {
             "singleQuote": true,
             "tabWidth": 4

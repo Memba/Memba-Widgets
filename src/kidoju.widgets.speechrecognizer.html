@@ -15,33 +15,45 @@
     <div data-bind="text: data"></div>
 </div>
 <script type="text/javascript" charset="utf-8">
-    System.config({
-        baseURL: './',
-        transpiler: 'plugin-babel',
-        map: {
-            'plugin-babel': '../node_modules/systemjs-plugin-babel/plugin-babel.js',
-            'systemjs-babel-build': '../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js',
-            'jquery': './js/vendor/jquery/jquery-3.3.1.min.js',
-            // http://docs.telerik.com/kendo-ui/third-party/systemjs
-            'kendo.core': './js/vendor/kendo/kendo.core.js',
-            'kendo.data': './js/vendor/kendo/kendo.data.js',
-            'kendo.data.odata': './js/vendor/kendo/kendo.data.odata.js',
-            'kendo.data.xml': './js/vendor/kendo/kendo.data.xml.js',
-            'kendo.binder': './js/vendor/kendo/kendo.binder.js',
-            'kendo.popup': './js/vendor/kendo/kendo.popup.js',
-            'kendo.tooltip': './js/vendor/kendo/kendo.tooltip.js'
-        },
-        meta: {
-            '*.js' : {
-                babelOptions : {
-                    es2015 : false,
-                    stage2 : false,
-                    stage3 : false
+// https://github.com/systemjs/systemjs/issues/1813
+SystemJS.config({
+    baseURL: './',
+    packages: {
+        'js': {
+            defaultExtension: 'js',
+            map: {
+                'jquery': 'js/vendor/jquery/jquery-3.3.1.min.js',
+                // http://docs.telerik.com/kendo-ui/third-party/systemjs
+                'kendo.core': 'js/vendor/kendo/kendo.core.js',
+                'kendo.data': 'js/vendor/kendo/kendo.data.js',
+                'kendo.data.odata': 'js/vendor/kendo/kendo.data.odata.js',
+                'kendo.data.xml': 'js/vendor/kendo/kendo.data.xml.js',
+                'kendo.binder': 'js/vendor/kendo/kendo.binder.js',
+                'kendo.popup': 'js/vendor/kendo/kendo.popup.js',
+                'kendo.tooltip': 'js/vendor/kendo/kendo.tooltip.js'
+            },
+            meta: {
+                '*.js': {
+                    babelOptions: {
+                        es2015: false,
+                        stage2: false,
+                        stage3: false
+                    },
+                    format: 'amd'
+                },
+                '*.es6': {
+                    format: 'esm'
                 }
             }
         }
-    });
-    System.import('./js/widgets/kidoju.widgets.speechrecognizer.es6').then(function () {
+    },
+    paths: {
+        'plugin-babel': '../node_modules/systemjs-plugin-babel/plugin-babel.js',
+        'systemjs-babel-build': '../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
+    },
+    transpiler: 'plugin-babel'
+});
+SystemJS.import('./js/widgets/kidoju.widgets.speechrecognizer.es6').then(function () {
     	var kendo = window.kendo;
         var viewModel = kendo.observable({
             data: ''

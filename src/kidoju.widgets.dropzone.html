@@ -13,82 +13,6 @@
     <!-- link href="./styles/kidoju.widgets.dropzone.css" rel="stylesheet" -->
     <!-- SystemJS loader -->
     <script src="../test/vendor/system.js"></script>
-    <script>
-        (function () {
-            'use strict';
-            SystemJS.config({
-                baseURL: './js',
-                defaultJSExtensions: true,
-                paths: {
-                    'jquery': './js/vendor/jquery/jquery-3.3.1.min.js',
-                    'kendo.*': './js/vendor/kendo/kendo.*.js'
-                },
-                meta: {
-                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
-                }
-            });
-            SystemJS.import('./js/kidoju.widgets.dropzone.js').then(function (kendo) {
-                function formatValue(value) {
-                    return function () {
-                        return (this.get(value) || []).join(',');
-                    };
-                }
-                function formatSource(source) {
-                    return function () {
-                        var ret = '';
-                        this.get(source).forEach(function(item) {
-                            ret += kendo.format('{0} {1} at ({2}, {3})\n', item.type, item.id, item.data.top, item.data.left);
-                        });
-                        return ret;
-                    };
-                }
-                function formatSource(source) {
-                    return function() {
-                        var ret = '';
-                        var data = this.get(source);
-                        if ($.isFunction(data.data)) {
-                            data = data.data();
-                        }
-                        data.forEach(function (item) {
-                            switch(item.type) {
-                                case 'draggable':
-                                    ret += kendo.format('{0} {1} at ({2}, {3})\n', item.type, item.id, item.data.top, item.data.left);
-                                    break;
-                                default:
-                                    ret += 'Any dummy type which should not break kendo.ui.DropZone\n'
-                            }
-                        });
-                        return ret;
-                    }
-                }
-                var viewModel = kendo.observable({
-                    // A - Top stage
-                    valueA1: null,
-                    valueA1$: formatValue('valueA1'),
-                    valueA2: null,
-                    valueA2$: formatValue('valueA2'),
-                    sourceA: [
-                        { type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} }  // Test type filtering
-                    ],
-                    sourceA$: formatSource('sourceA'),
-                    visibleA: true,
-                    enabledA: true,
-                    // B - bottom stage
-                    valueB1: null,
-                    valueB1$: formatValue('valueB1'),
-                    sourceB: new kendo.data.DataSource([
-                        { type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }  // Test type filtering
-                    ]),
-                    sourceB$: formatSource('sourceB'),
-                    visibleB: true,
-                    enabledB: true
-                });
-                $(function() {
-                    kendo.bind('body', viewModel);
-                });
-            });
-        }());
-    </script>
     <style>
         .kj-stage {
             border: solid 1px black;
@@ -166,5 +90,104 @@
     enabledB: <span data-bind="text: enabledB"></span>
 }
 </pre>
+<script>
+SystemJS.config({
+    baseURL: './',
+    packages: {
+        'js': {
+            defaultExtension: 'js',
+            map: {
+                'jquery': 'js/vendor/jquery/jquery-3.3.1.min.js',
+                // http://docs.telerik.com/kendo-ui/third-party/systemjs
+                'kendo.core': 'js/vendor/kendo/kendo.core.js',
+                'kendo.data': 'js/vendor/kendo/kendo.data.js',
+                'kendo.data.odata': 'js/vendor/kendo/kendo.data.odata.js',
+                'kendo.data.xml': 'js/vendor/kendo/kendo.data.xml.js',
+                'kendo.binder': 'js/vendor/kendo/kendo.binder.js',
+                'window.assert': 'js/window.assert.js',
+                'window.logger': 'js/window.logger.js',
+            },
+            meta: {
+                '*.js': {
+                    babelOptions: {
+                        es2015: false,
+                        stage2: false,
+                        stage3: false
+                    },
+                    format: 'amd'
+                },
+                '*.es6': {
+                    format: 'esm'
+                }
+            }
+        }
+    },
+    paths: {
+        'plugin-babel': '../node_modules/systemjs-plugin-babel/plugin-babel.js',
+        'systemjs-babel-build': '../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
+    },
+    transpiler: 'plugin-babel'
+});
+SystemJS.import('./js/kidoju.widgets.dropzone.js').then(function (kendo) {
+    function formatValue(value) {
+        return function () {
+            return (this.get(value) || []).join(',');
+        };
+    }
+    function formatSource(source) {
+        return function () {
+            var ret = '';
+            this.get(source).forEach(function(item) {
+                ret += kendo.format('{0} {1} at ({2}, {3})\n', item.type, item.id, item.data.top, item.data.left);
+            });
+            return ret;
+        };
+    }
+    function formatSource(source) {
+        return function() {
+            var ret = '';
+            var data = this.get(source);
+            if ($.isFunction(data.data)) {
+                data = data.data();
+            }
+            data.forEach(function (item) {
+                switch(item.type) {
+                    case 'draggable':
+                        ret += kendo.format('{0} {1} at ({2}, {3})\n', item.type, item.id, item.data.top, item.data.left);
+                        break;
+                    default:
+                        ret += 'Any dummy type which should not break kendo.ui.DropZone\n'
+                }
+            });
+            return ret;
+        }
+    }
+    var viewModel = kendo.observable({
+        // A - Top stage
+        valueA1: null,
+        valueA1$: formatValue('valueA1'),
+        valueA2: null,
+        valueA2$: formatValue('valueA2'),
+        sourceA: [
+            { type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} }  // Test type filtering
+        ],
+        sourceA$: formatSource('sourceA'),
+        visibleA: true,
+        enabledA: true,
+        // B - bottom stage
+        valueB1: null,
+        valueB1$: formatValue('valueB1'),
+        sourceB: new kendo.data.DataSource([
+            { type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }  // Test type filtering
+        ]),
+        sourceB$: formatSource('sourceB'),
+        visibleB: true,
+        enabledB: true
+    });
+    $(function() {
+        kendo.bind('body', viewModel);
+    });
+});
+</script>
 </body>
 </html>

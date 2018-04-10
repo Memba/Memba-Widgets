@@ -470,12 +470,12 @@
                 var element = stageElement[0].getBoundingClientRect();
                 var dropzone = this.element[0].getBoundingClientRect();
                 var center = {
-                    x: element.x + element.width / 2,
-                    y: element.y + element.height / 2
+                    top: element.top + element.height / 2,
+                    left: element.left + element.width / 2
                 };
                 // Check the center is within the drop zone
-                return center.x >= dropzone.x && center.x <= dropzone.x + dropzone.width &&
-                    center.y >= dropzone.y && center.y <= dropzone.y + dropzone.height;
+                return center.left >= dropzone.left && center.left <= dropzone.left + dropzone.width &&
+                    center.top >= dropzone.top && center.top <= dropzone.top + dropzone.height;
             },
 
             /**

@@ -17,29 +17,191 @@
         (function () {
             'use strict';
             SystemJS.config({
-                baseURL: './js',
-                defaultJSExtensions: true,
-                paths: {
-                    'jquery': './js/vendor/jquery/jquery-3.3.1.min.js',
-                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                baseURL: './',
+                bundles: {
+                    'kendogrid': ['kendo.grid'],
+                    'kendoaspnetmvc': ['kendo.aspnetmvc'],
+                    'kendodatavizbarcode': ['kendo.dataviz.barcode'],
+                    'kendodatavizchart': ['kendo.dataviz.chart'],
+                    'kendodatavizcore': ['kendo.dataviz.core'],
+                    'kendodatavizdiagram': ['kendo.dataviz.diagram'],
+                    'kendodatavizgauge': ['kendo.dataviz.gauge'],
+                    'kendodatavizmap': ['kendo.dataviz.map'],
+                    'kendodatavizqrcode': ['kendo.dataviz.qrcode'],
+                    'kendodatavizsparkline': ['kendo.dataviz.sparkline'],
+                    'kendodatavizstock': ['kendo.dataviz.stock'],
+                    'kendodatavizthemes': ['kendo.dataviz.themes'],
+                    'kendodataviztreemap': ['kendo.dataviz.treemap'],
+                    'kendodrawing': ['kendo.drawing'],
+                    'kendoeditor': ['kendo.editor'],
+                    'kendogantt': ['kendo.gantt'],
+                    'kendopdf': ['kendo.pdf'],
+                    'kendoscheduler': ['kendo.scheduler'],
+                    'kendospreadsheet': ['kendo.spreadsheet']
                 },
-                meta: {
-                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
-                }
-            });
-            SystemJS.import('./js/kidoju.widgets.chargrid.js').then(function (kendo) {
-                var viewModel = kendo.observable({
-                    value: {},
-                    visible: true,
-                    enabled: true,
-                    value$: function () {
-                        return JSON.stringify(this.get('value'));
+                map: {
+                    'jquery': 'js/vendor/jquery/jquery-3.3.1.js',
+                    // http://docs.telerik.com/kendo-ui/third-party/systemjs
+                    'kendo.culture.en-GB': 'js/vendor/kendo/cultures/kendo.culture.en-GB.js',
+                    'kendo.messages.en-GB': 'js/vendor/kendo/messages/kendo.messages.en-GB.js',
+                    'kendo.autocomplete': 'js/vendor/kendo/kendo.autocomplete.js',
+                    'kendo.binder': 'js/vendor/kendo/kendo.binder.js',
+                    'kendo.button': 'js/vendor/kendo/kendo.button.js',
+                    'kendo.calendar': 'js/vendor/kendo/kendo.calendar.js',
+                    'kendo.color': 'js/vendor/kendo/kendo.color.js',
+                    'kendo.colorpicker': 'js/vendor/kendo/kendo.colorpicker.js',
+                    'kendo.columnmenu': 'js/vendor/kendo/kendo.columnmenu.js',
+                    'kendo.columnsorter': 'js/vendor/kendo/kendo.columnsorter.js',
+                    'kendo.combobox': 'js/vendor/kendo/kendo.combobox.js',
+                    'kendo.core': 'js/vendor/kendo/kendo.core.js',
+                    'kendo.data': 'js/vendor/kendo/kendo.data.js',
+                    'kendo.data.odata': 'js/vendor/kendo/kendo.data.odata.js',
+                    'kendo.data.signalr': 'js/vendor/kendo/kendo.data.signalr.js',
+                    'kendo.data.xml': 'js/vendor/kendo/kendo.data.xml.js',
+                    'kendo.dateinput': 'js/vendor/kendo/kendo.dateinput.js',
+                    'kendo.datepicker': 'js/vendor/kendo/kendo.datepicker.js',
+                    'kendo.datetimepicker': 'js/vendor/kendo/kendo.datetimepicker.js',
+                    'kendo.dialog': 'js/vendor/kendo/kendo.dialog.js',
+                    'kendo.dom': 'js/vendor/kendo/kendo.dom.js',
+                    'kendo.draganddrop': 'js/vendor/kendo/kendo.draganddrop.js',
+                    'kendo.dropdownlist': 'js/vendor/kendo/kendo.dropdownlist.js',
+                    'kendo.editable': 'js/vendor/kendo/kendo.editable.js',
+                    'kendo.excel': 'js/vendor/kendo/kendo.excel.js',
+                    'kendo.filebrowser': 'js/vendor/kendo/kendo.filebrowser.js',
+                    'kendo.filtercell': 'js/vendor/kendo/kendo.filtercell.js',
+                    'kendo.filtermenu': 'js/vendor/kendo/kendo.filtermenu.js',
+                    'kendo.fx': 'js/vendor/kendo/kendo.fx.js',
+                    'kendo.gantt.list': 'js/vendor/kendo/kendo.gantt.list.js',
+                    'kendo.gantt.timeline': 'js/vendor/kendo/kendo.gantt.timeline.js',
+                    'kendo.groupable': 'js/vendor/kendo/kendo.groupable.js',
+                    'kendo.imagebrowser': 'js/vendor/kendo/kendo.imagebrowser.js',
+                    'kendo.list': 'js/vendor/kendo/kendo.list.js',
+                    'kendo.listview': 'js/vendor/kendo/kendo.listview.js',
+                    'kendo.maskedtextbox': 'js/vendor/kendo/kendo.maskedtextbox.js',
+                    'kendo.mediaplayer': 'js/vendor/kendo/kendo.mediaplayer.js',
+                    'kendo.menu': 'js/vendor/kendo/kendo.menu.js',
+                    'kendo.mobile.actionsheet': 'js/vendor/kendo/kendo.mobile.actionsheet.js',
+                    'kendo.mobile.application': 'js/vendor/kendo/kendo.mobile.application.js',
+                    'kendo.mobile.button': 'js/vendor/kendo/kendo.mobile.button.js',
+                    'kendo.mobile.buttongroup': 'js/vendor/kendo/kendo.mobile.buttongroup.js',
+                    'kendo.mobile.collapsible': 'js/vendor/kendo/kendo.mobile.collapsible.js',
+                    'kendo.mobile.drawer': 'js/vendor/kendo/kendo.mobile.drawer.js',
+                    'kendo.mobile.listview': 'js/vendor/kendo/kendo.mobile.listview.js',
+                    'kendo.mobile.loader': 'js/vendor/kendo/kendo.mobile.loader.js',
+                    'kendo.mobile.modalview': 'js/vendor/kendo/kendo.mobile.modalview.js',
+                    'kendo.mobile.navbar': 'js/vendor/kendo/kendo.mobile.navbar.js',
+                    'kendo.mobile.pane': 'js/vendor/kendo/kendo.mobile.pane.js',
+                    'kendo.mobile.popover': 'js/vendor/kendo/kendo.mobile.popover.js',
+                    'kendo.mobile.scroller': 'js/vendor/kendo/kendo.mobile.scroller.js',
+                    'kendo.mobile.scrollview': 'js/vendor/kendo/kendo.mobile.scrollview.js',
+                    'kendo.mobile.shim': 'js/vendor/kendo/kendo.mobile.shim.js',
+                    'kendo.mobile.splitview': 'js/vendor/kendo/kendo.mobile.splitview.js',
+                    'kendo.mobile.switch': 'js/vendor/kendo/kendo.mobile.switch.js',
+                    'kendo.mobile.tabstrip': 'js/vendor/kendo/kendo.mobile.tabstrip.js',
+                    'kendo.mobile.view': 'js/vendor/kendo/kendo.mobile.view.js',
+                    'kendo.multiselect': 'js/vendor/kendo/kendo.multiselect.js',
+                    'kendo.notification': 'js/vendor/kendo/kendo.notification.js',
+                    'kendo.numerictextbox': 'js/vendor/kendo/kendo.numerictextbox.js',
+                    'kendo.ooxml': 'js/vendor/kendo/kendo.ooxml.js',
+                    'kendo.pager': 'js/vendor/kendo/kendo.pager.js',
+                    'kendo.panelbar': 'js/vendor/kendo/kendo.panelbar.js',
+                    'kendo.pivot.configurator': 'js/vendor/kendo/kendo.pivot.configurator.js',
+                    'kendo.pivot.fieldmenu': 'js/vendor/kendo/kendo.pivot.fieldmenu.js',
+                    'kendo.pivotgrid': 'js/vendor/kendo/kendo.pivotgrid.js',
+                    'kendo.popup': 'js/vendor/kendo/kendo.popup.js',
+                    'kendo.progressbar': 'js/vendor/kendo/kendo.progressbar.js',
+                    'kendo.reorderable': 'js/vendor/kendo/kendo.reorderable.js',
+                    'kendo.resizable': 'js/vendor/kendo/kendo.resizable.js',
+                    'kendo.responsivepanel': 'js/vendor/kendo/kendo.responsivepanel.js',
+                    'kendo.router': 'js/vendor/kendo/kendo.router.js',
+                    'kendo.scheduler.agendaview': 'js/vendor/kendo/kendo.scheduler.agendaview.js',
+                    'kendo.scheduler.dayview': 'js/vendor/kendo/kendo.scheduler.dayview.js',
+                    'kendo.scheduler.monthview': 'js/vendor/kendo/kendo.scheduler.monthview.js',
+                    'kendo.scheduler.recurrence': 'js/vendor/kendo/kendo.scheduler.recurrence.js',
+                    'kendo.scheduler.timelineview': 'js/vendor/kendo/kendo.scheduler.timelineview.js',
+                    'kendo.scheduler.view': 'js/vendor/kendo/kendo.scheduler.view.js',
+                    'kendo.selectable': 'js/vendor/kendo/kendo.selectable.js',
+                    'kendo.slider': 'js/vendor/kendo/kendo.slider.js',
+                    'kendo.sortable': 'js/vendor/kendo/kendo.sortable.js',
+                    'kendo.splitter': 'js/vendor/kendo/kendo.splitter.js',
+                    'kendo.tabstrip': 'js/vendor/kendo/kendo.tabstrip.js',
+                    'kendo.timepicker': 'js/vendor/kendo/kendo.timepicker.js',
+                    'kendo.timezones': 'js/vendor/kendo/kendo.timezones.js',
+                    'kendo.toolbar': 'js/vendor/kendo/kendo.toolbar.js',
+                    'kendo.tooltip': 'js/vendor/kendo/kendo.tooltip.js',
+                    'kendo.touch': 'js/vendor/kendo/kendo.touch.js',
+                    'kendo.treelist': 'js/vendor/kendo/kendo.treelist.js',
+                    'kendo.treeview.draganddrop': 'js/vendor/kendo/kendo.treeview.draganddrop.js',
+                    'kendo.treeview': 'js/vendor/kendo/kendo.treeview.js',
+                    'kendo.upload': 'js/vendor/kendo/kendo.upload.js',
+                    'kendo.userevents': 'js/vendor/kendo/kendo.userevents.js',
+                    'kendo.validator': 'js/vendor/kendo/kendo.validator.js',
+                    'kendo.view': 'js/vendor/kendo/kendo.view.js',
+                    'kendo.virtuallist': 'js/vendor/kendo/kendo.virtuallist.js',
+                    'kendo.window': 'js/vendor/kendo/kendo.window.js',
+                    'pako_deflate': 'js/vendor/kendo/pako_deflate.js',
+                    'kendoaspnetmvc': 'js/vendor/kendo/kendo.aspnetmvc.js',
+                    'kendodatavizbarcode': 'js/vendor/kendo/kendo.dataviz.barcode.js',
+                    'kendodatavizchart': 'js/vendor/kendo/kendo.dataviz.chart.js',
+                    'kendodatavizcore': 'js/vendor/kendo/kendo.dataviz.core.js',
+                    'kendodatavizdiagram': 'js/vendor/kendo/kendo.dataviz.diagram.js',
+                    'kendodatavizgauge': 'js/vendor/kendo/kendo.dataviz.gauge.js',
+                    'kendodatavizmap': 'js/vendor/kendo/kendo.dataviz.map.js',
+                    'kendodatavizqrcode': 'js/vendor/kendo/kendo.dataviz.qrcode.js',
+                    'kendodatavizsparkline': 'js/vendor/kendo/kendo.dataviz.sparkline.js',
+                    'kendodatavizstock': 'js/vendor/kendo/kendo.dataviz.stock.js',
+                    'kendodatavizthemes': 'js/vendor/kendo/kendo.dataviz.themes.js',
+                    'kendodataviztreemap': 'js/vendor/kendo/kendo.dataviz.treemap.js',
+                    'kendodrawing': 'js/vendor/kendo/kendo.drawing.js',
+                    'kendoeditor': 'js/vendor/kendo/kendo.editor.js',
+                    'kendogantt': 'js/vendor/kendo/kendo.gantt.js',
+                    'kendogrid': 'js/vendor/kendo/kendo.grid.js',
+                    'kendopdf': 'js/vendor/kendo/kendo.pdf.js',
+                    'kendoscheduler': 'js/vendor/kendo/kendo.scheduler.js',
+                    'kendospreadsheet': 'js/vendor/kendo/kendo.spreadsheet.js'
+                },
+                packages: {
+                    'js': {
+                        defaultExtension: 'js',
+                        meta: {
+                            '*.js': {
+                                babelOptions: {
+                                    es2015: false,
+                                    stage2: false,
+                                    stage3: false
+                                },
+                                format: 'amd'
+                            },
+                            '*.es6': {
+                                format: 'esm'
+                            }
+                        }
                     }
-                });
-                $(function() {
-                    kendo.bind('body', viewModel);
-                });
+                },
+                paths: {
+                    'plugin-babel': '../node_modules/systemjs-plugin-babel/plugin-babel.js',
+                    'systemjs-babel-build': '../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
+                },
+                transpiler: 'plugin-babel'
             });
+            SystemJS.import('kendo.drawing') // This is a workaround to force the correct load order
+                .then(function () {
+                    return SystemJS.import('./js/kidoju.widgets.chargrid.js');
+                })
+                .then(function () {
+                    var kendo = window.kendo;
+                    var viewModel = kendo.observable({
+                        value: {},
+                        visible: true,
+                        enabled: true,
+                        value$: function () {
+                            return JSON.stringify(this.get('value'));
+                        }
+                    });
+                    $(function() {
+                        kendo.bind('body', viewModel);
+                    });
+                });
         }());
     </script>
     <style>

@@ -7,7 +7,7 @@
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- kidoju.widgets.whiteboard stylesheet -->
-    <link href="./styles/kidoju.widgets.whiteboard.css" rel="stylesheet" />
+    <!--link href="./styles/widgets/kidoju.widgets.whiteboard.css" rel="stylesheet" /-->
     <!-- SystemJS loader -->
     <script src="../test/vendor/system.js"></script>
     <script>
@@ -181,7 +181,7 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/kidoju.widgets.whiteboard.js').then(function (kendo) {
+            SystemJS.import('./js/widgets/kidoju.widgets.whiteboard.es6').then(function (kendo) {
                 $(function () {
                     var viewModel = kendo.observable({
                         visible: true,

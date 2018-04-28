@@ -40,12 +40,7 @@
                 },
                 map: {
                     'jquery': 'src/js/vendor/jquery/jquery-3.3.1.js',
-                    // mocha and chai
-                    'mocha': 'test/vendor/mocha.js',
-                    'chai': 'test/vendor/chai.js',
-                    'sinon': 'test/vendor/sinon.js',
-                    'sinon-chai': 'test/vendor/sinon-chai.js',
-                    // http://docs.telerik.com/kendo-ui/third-party/systemjs
+                    // Kendo UI - http://docs.telerik.com/kendo-ui/third-party/systemjs
                     'kendo.culture.en-GB': 'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',
                     'kendo.messages.en-GB': 'src/js/vendor/kendo/messages/kendo.messages.en-GB.js',
                     'kendo.autocomplete': 'src/js/vendor/kendo/kendo.autocomplete.js',
@@ -162,11 +157,18 @@
                     'kendogrid': 'src/js/vendor/kendo/kendo.grid.js',
                     'kendopdf': 'src/js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'src/js/vendor/kendo/kendo.scheduler.js',
-                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js'
+                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
+                    // tests
+                    'chai': 'test/vendor/chai.js',
+                    'jquery.mockjax': 'test/vendor/jquery.mockjax.js',
+                    'mocha': 'test/vendor/mocha.js',
+                    'sinon': 'test/vendor/sinon.js',
+                    'sinon-chai': 'test/vendor/sinon-chai.js'
                 },
                 meta: {
-                    'test/vendor/mocha.js': { format: 'global' },
                     'test/vendor/chai.js': { format: 'global' },
+                    'test/vendor/jquery.mockjax.js': { format: 'global' },
+                    'test/vendor/mocha.js': { format: 'global' },
                     'test/vendor/sinon.js': { format: 'global' },
                     'test/vendor/sinon-chai.js': { format: 'global' }
                 },

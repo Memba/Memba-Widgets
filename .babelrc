@@ -9,12 +9,21 @@
                 "extensions": [".es6"],
                 "root": ["."],
                 "alias": {
+                    // jquery
                     "jquery": "./src/js/vendor/jquery/jquery-3.3.1.min.js",
+                    // Kendo UI
+                    "kendo.binder": "./src/js/vendor/kendo/kendo.binder.js",
                     "kendo.core": "./src/js/vendor/kendo/kendo.core.js",
                     "kendo.data": "./src/js/vendor/kendo/kendo.data.js",
-                    "kendo.binder": "./src/js/vendor/kendo/kendo.binder.js",
+                    "kendo.drawing": "./src/js/vendor/kendo/kendo.drawing.js",
                     "kendo.popup": "./src/js/vendor/kendo/kendo.popup.js",
-                    "kendo.tooltip": "./src/js/vendor/kendo/kendo.tooltip.js"
+                    "kendo.tooltip": "./src/js/vendor/kendo/kendo.tooltip.js",
+                    // tests
+                    "chai": "./test/vendor/chai.js",
+                    "jquery.mockjax": "./test/vendor/jquery.mockjax.js",
+                    "mocha": "./test/vendor/mocha.js",
+                    "sinon": "./test/vendor/sinon.js",
+                    "sinon-chai": "./test/vendor/sinon-chai.js"
                 }
             }
         ]

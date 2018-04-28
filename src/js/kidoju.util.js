@@ -282,6 +282,17 @@
         };
 
         /**
+         * ObjectId
+         * @constructor
+         */
+        util.ObjectId = function (/*id*/) {
+            this._id = util.randomString(16);
+        };
+        util.ObjectId.prototype.toString = function () {
+            return this._id;
+        };
+
+        /**
          * Get a random id
          * @returns {string}
          */

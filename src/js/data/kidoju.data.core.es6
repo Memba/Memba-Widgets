@@ -5,6 +5,8 @@
 
 import $ from 'jquery';
 import 'kendo.data';
+import assert from '../window.assert.es6';
+import CONSTANTS from '../window.constants.es6';
 
 const { kendo } = window;
 const { DataSource, Model, ObservableObject } = kendo.data;
@@ -58,7 +60,7 @@ export const BaseModel = Model.define({
             // If from is `metrics.comments.count` we need `data`, `data.metrics` and `data.metrics.comments` to not be undefined
             // which `true` provides as the safe option of kendo.getter
             let value = data ? kendo.getter(from, true)(data) : undefined;
-            if ($.type(value) === 'undefined') {
+            if ($.type(value) === CONSTANTS.UNDEFINED) {
                 value = defaults[key];
             }
             parsed[key] = this._parse(key, value);
@@ -78,7 +80,7 @@ export const BaseModel = Model.define({
         if (
             data &&
             !(data instanceof Model) &&
-            $.type(data.hasSubgroups) === 'boolean' &&
+            $.type(data.hasSubgroups) === CONSTANTS.BOOLEAN &&
             Array.isArray(data.items)
         ) {
             // This is called from flattenGroups in kendo.data.js when there are aggregates
@@ -105,7 +107,7 @@ export const BaseModel = Model.define({
         // Trigger a change event on the parent observable (possibly a viewModel)
         // Without it, any UI widget data bound to the parent is not updated
         // TODO Review this event thing.......
-        if ($.type(this.parent) === 'function') {
+        if ($.type(this.parent) === CONSTANTS.FUNCTION) {
             const parent = this.parent();
             if (parent instanceof ObservableObject) {
                 Object.keys(parent).some(key => {
@@ -116,7 +118,7 @@ export const BaseModel = Model.define({
                     ) {
                         // As we have found our nested object in the parent
                         // trigger a change event otherwise UI won't be updated via MVVM
-                        parent.trigger('change', { field: key });
+                        parent.trigger(CONSTANTS.CHANGE, { field: key });
                         // Once we have found the key holding our model in its parent and triggered the change event,
                         // break out of for loop
                         exit = true;
@@ -136,8 +138,18 @@ export const BaseModel = Model.define({
      * @param field
      */
     shouldSerialize(field) {
-        // assert.type('string', field, kendo.format(assert.messages.type.default, 'field', 'string'));
+        assert.type(
+            CONSTANTS.STRING,
+            field,
+            assert.format(
+                assert.messages.type.default,
+                'field',
+                CONSTANTS.STRING
+            )
+        );
         return (
+            // Note: all fields are replicated on inherited models
+            // Checking hasOwnProperty only ensures this.fields[field] exists
             Object.prototype.hasOwnProperty.call(this.fields, field) &&
             this.fields[field].serializable !== false &&
             Model.fn.shouldSerialize.call(this, field)
@@ -159,10 +171,13 @@ export const BaseModel = Model.define({
                 // Note also that this is consistent with JSON.stringify which ignores undefined values
                 // We also do not want to pass nullable values to MongoDB
                 // See https://github.com/christkv/mongodb-core/issues/31
-                if ($.type(value) !== 'undefined' && $.type(value) !== 'null') {
+                if (
+                    $.type(value) !== CONSTANTS.UNDEFINED &&
+                    $.type(value) !== CONSTANTS.NULL
+                ) {
                     if (
-                        $.type(value) !== 'date' &&
-                        $.type(value.toJSON) === 'function'
+                        $.type(value) !== CONSTANTS.DATE &&
+                        $.type(value.toJSON) === CONSTANTS.FUNCTION
                     ) {
                         // Call toJSON on any object that implements such method except dates
                         value = value.toJSON();
@@ -177,12 +192,12 @@ export const BaseModel = Model.define({
                     // - all objects that are not plain objects, especially instances of Class, Model or DataSource
                     // Note, this is far from perfect because a plain object containing a nested property of such types would go through
                     if (
-                        $.type(value) !== 'function' &&
-                        $.type(value) !== 'symbol' &&
+                        $.type(value) !== CONSTANTS.FUNCTION &&
+                        $.type(value) !== CONSTANTS.SYMBOL &&
                         !($.isPlainObject(value) && $.isEmptyObject(value)) && // TODO: review with patch
                         !(Array.isArray(value) && value.length === 0) && // TODO: review with patch
                         !(
-                            $.type(value) === 'object' &&
+                            $.type(value) === CONSTANTS.OBJECT &&
                             value.constructor !== Object
                         )
                     ) {
@@ -192,7 +207,9 @@ export const BaseModel = Model.define({
                         // Unfortunately kendo.setter does not create objects
                         // so kendo.setter('metrics.comments.count')(json. value) does not work
                         // @see also https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
-                        const chain = (this.fields[key].from || key).split('.');
+                        const chain = (this.fields[key].from || key).split(
+                            CONSTANTS.DOT
+                        );
                         let cursor = json;
                         while (chain.length > 1) {
                             const prop = chain.shift();

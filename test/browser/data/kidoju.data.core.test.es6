@@ -14,9 +14,9 @@ import 'jquery.mockjax';
 import {
     BaseModel,
     BaseDataSource
-} from '../../../src/js/data/kidoju.data.base.es6';
+} from '../../../src/js/data/kidoju.data.core.es6';
 // Legacy code
-import '../../../src/js/kidoju.util';
+import '../../../src/js/kidoju.util'; // For ObjectId
 
 const { describe, it, kendo, kidoju, xdescribe, xit } = window;
 const { Model } = kendo.data;
@@ -572,7 +572,7 @@ describe('Problems we had to solve with kendo.data.Model which lead to creating 
 
 describe('Enhancements of kendo.data.Model in BaseModel', () => {
     describe('toJSON', () => {
-        it('it should serialize primitive types', () => {
+        it('it should serialize primitive types and dates', () => {
             const TestModel = BaseModel.define({
                 id: 'id',
                 fields: {
@@ -819,6 +819,49 @@ describe('Enhancements of kendo.data.Model in BaseModel', () => {
             // IMPORTANT! call read
             model.books.read();
             const json = model.toJSON();
+            expect(json).to.deep.equal(data);
+        });
+
+        it('it should serialize an inherited model', () => {
+            const TestModel = BaseModel.define({
+                id: 'id',
+                fields: {
+                    id: {
+                        type: 'string',
+                        nullable: true,
+                        editable: false
+                    },
+                    children: {
+                        type: 'number'
+                    },
+                    dob: {
+                        type: 'date'
+                    },
+                    male: {
+                        type: 'boolean'
+                    },
+                    name: {
+                        type: 'string'
+                    }
+                }
+            });
+            const Inherited = TestModel.define({
+                fields: {
+                    country: {
+                        type: 'string'
+                    }
+                }
+            });
+            const data = {
+                children: 3,
+                dob: new Date(),
+                male: true,
+                name: 'jack',
+                country: 'FR'
+            };
+            const model = new Inherited(data);
+            const json = model.toJSON();
+            // id is null by default and discarded
             expect(json).to.deep.equal(data);
         });
     });

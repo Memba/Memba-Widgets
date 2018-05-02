@@ -7,7 +7,7 @@
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- kidoju.widgets.mediarecorder stylesheet -->
-    <link href="./styles/widgets/kidoju.widgets.mediarecorder.css" rel="stylesheet" />
+    <!--link href="./styles/widgets/kidoju.widgets.mediarecorder.css" rel="stylesheet" /-->
     <!-- SystemJS loader -->
     <script src="../test/vendor/system.js"></script>
     <script>
@@ -181,14 +181,17 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/widgets/kidoju.widgets.mediarecorder.es6').then(function (kendo) {
+            SystemJS.import('./js/widgets/kidoju.widgets.mediarecorder.es6').then(function () {
                 $(function () {
+                    var kendo = window.kendo;
+                    // Unbound
+                    $('#mediarecorder').kendoMediaRecorder();
+                    // Bound to observable
                     var viewModel = kendo.observable({
                         visible: true,
                         enabled: true
                     });
                     kendo.bind('body', viewModel);
-                    var mediaRecorder = $('#mediarecorder').kendoMediaRecorder({}).data('kendoMediaRecorder');
                 });
             });
         }());
@@ -197,18 +200,13 @@
 <body>
 <h1>MediaRecorder</h1>
 <h2>MediaRecorder unbound</h2>
-
 <div id="mediarecorder"></div>
-
 <h2>MediaRecorder bound to observable</h2>
-
-<div data-role="mediarecorder" data-audio="true" data-video="false" data-bind="visible: visible, enabled: enabled"></div>
-
+<!--div data-role="mediarecorder" data-bind="visible: visible, enabled: enabled"></div-->
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled
 </div>
-
 <pre>
     {
         visible: <span data-bind="text: visible"></span>,

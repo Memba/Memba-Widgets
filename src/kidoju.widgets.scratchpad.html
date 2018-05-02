@@ -184,8 +184,11 @@
             SystemJS.import('./js/widgets/kidoju.widgets.scratchpad.es6').then(function () {
                 $(function () {
                     var kendo = window.kendo;
+                    // Unbound
+                    $('#scratchpad').kendoScratchPad();
+                    // Bound to observable
                     var viewModel = kendo.observable({
-                        stream: [],
+                        surface: [],
                         visible: true,
                         enabled: true
                     });
@@ -198,9 +201,9 @@
 <body>
 <h1>ScratchPad</h1>
 <h2>ScratchPad unbound</h2>
-<div id="scratchpad1" data-role="scratchpad"></div>
+<div id="scratchpad" style="height:500px; width:500px;"></div>
 <h2>ScratchPad bound to observable</h2>
-<div id="scratchpad2" data-bind="value: stream, visible: visible, enabled: enabled" /></div>
+<div data-role="scratchpad" data-bind="value: surface, visible: visible, enabled: enabled" style="height:500px; width:500px;" /></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled

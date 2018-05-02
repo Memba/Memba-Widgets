@@ -19,11 +19,23 @@ const CONSTANTS = {
     UNDEFINED: 'undefined',
     // Events
     CHANGE: 'change',
+    CLICK: 'click',
+    MOUSEDOWN: 'mousedown',
+    MOUSEMOVE: 'mousemove',
+    MOUSEOUT: 'mouseout',
+    MOUSEUP: 'mouseup',
+    TOUCHEND: 'touchend',
+    TOUCHLEAVE: 'touchleave',
+    TOUCHMOVE: 'touchmove',
+    TOUCHSTART: 'touchstart',
     // Regular Expressions
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
     // Characeters
     DOT: '.',
-    HASH: '#'
+    HASH: '#',
+    HYPHEN: '-',
+    // Miscellaneous
+    ID: 'id'
 };
 
 /**

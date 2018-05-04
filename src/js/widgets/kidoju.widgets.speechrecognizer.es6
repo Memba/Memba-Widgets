@@ -5,11 +5,11 @@
 
 import $ from 'jquery';
 import 'kendo.binder';
-import 'kendo.tooltip';
+import 'kendo.tooltip'; // TODO: replace tooltip with notification
 
 const { kendo } = window;
 const { ui } = kendo;
-const UNDEFINED = 'undefined';
+const UNDEFINED = 'undefined'; // TODO use constants
 const CHANGE = 'change';
 const CLICK = 'click';
 const NS = '.kendoSpeechRecognizer';
@@ -36,7 +36,7 @@ const MIC_ERROR =
  * @see https://w3c.github.io/speech-api/speechapi.html#examples
  * @see https://www.google.com/intl/en/chrome/demos/speech.html
  */
-export default class SpeechRecognizer extends ui.Widget {
+class SpeechRecognizer extends ui.Widget {
     /**
      * SpeechRecognizer constructor
      * @param element
@@ -44,6 +44,7 @@ export default class SpeechRecognizer extends ui.Widget {
      */
     constructor(element, options) {
         super(element, Object.assign({}, SpeechRecognizer.options, options));
+        // logger.debug({ method: 'init', message: 'widget initialized' });
         this.events = SpeechRecognizer.events;
         this.wrapper = this.element;
         this._initSpeechRecognition();

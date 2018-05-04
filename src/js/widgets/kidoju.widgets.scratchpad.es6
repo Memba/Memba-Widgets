@@ -8,11 +8,12 @@ import 'kendo.binder';
 import 'kendo.data';
 import 'kendo.drawing';
 import 'kendo.userevents'; // Required for getTouches
+import assert from '../window.assert.es6';
 import CONSTANTS from '../window.constants.es6';
 
 const { getTouches, roleSelector } = window.kendo;
 const { plugin, Widget } = window.kendo.ui;
-const { Path, Surface } = window.kendo.drawing;
+const { Path, Segment, Surface } = window.kendo.drawing;
 const { ObservableArray } = window.kendo.data;
 const WIDGET_CLASS = 'k-widget kj-scratchpad';
 
@@ -63,7 +64,7 @@ Path.prototype.toSegments = function() {
     };
     for (let i = 0, { length } = this.segments; i < length; i++) {
         const segment = this.segments[i];
-        // assert instanceof Segment
+        assert.instanceof(Segment, segment, assert.format(assert.messages.instanceof.default, 'segment', 'kendo.drawing.Segment'));
         ret.push([
             segment.anchor().toArray(),
             (segment.controlIn() || empty).toArray(),
@@ -88,6 +89,7 @@ class ScratchPad extends Widget {
      */
     constructor(element, options) {
         super(element, Object.assign({}, ScratchPad.options, options));
+        // logger.debug({ method: 'init', message: 'widget initialized' });
         this.events = ScratchPad.events;
         this.wrapper = this.element;
         this._render();

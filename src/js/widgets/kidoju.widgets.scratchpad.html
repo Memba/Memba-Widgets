@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>ScratchPad</title>
-    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- kidoju.widgets.scratchpad stylesheet -->
     <!--link href="./styles/widgets/kidoju.widgets.scratchpad.css" rel="stylesheet" /-->
     <!-- SystemJS loader -->
-    <script src="../test/vendor/system.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
             SystemJS.config({
-                baseURL: './',
+                baseURL: '../../',
                 bundles: {
                     'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
@@ -176,12 +176,12 @@
                     }
                 },
                 paths: {
-                    'plugin-babel': '../node_modules/systemjs-plugin-babel/plugin-babel.js',
-                    'systemjs-babel-build': '../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
+                    'plugin-babel': '../../../node_modules/systemjs-plugin-babel/plugin-babel.js',
+                    'systemjs-babel-build': '../../../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/widgets/kidoju.widgets.scratchpad.es6').then(function () {
+            SystemJS.import('./kidoju.widgets.scratchpad.es6').then(function () {
                 $(function () {
                     var kendo = window.kendo;
                     // Unbound

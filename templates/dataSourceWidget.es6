@@ -5,16 +5,17 @@
 
 import $ from 'jquery';
 import 'kendo.binder';
+import 'kendo.data';
 
+const { destroy } = window.kendo;
+const { plugin, Widget } = window.kendo.ui;
+const { DataSource } = window.kendo.data;
 const CHANGE = 'change';
-const { kendo } = window;
-const { data, ui } = kendo;
-const { DataSource } = data;
 
 /**
  * DataSourceWidget
  */
-export default class DataSourceWidget extends ui.Widget {
+export default class DataSourceWidget extends Widget {
     /**
      * DataSourceWidget constructor
      * @param element
@@ -23,6 +24,9 @@ export default class DataSourceWidget extends ui.Widget {
     constructor(element, options) {
         super(element, Object.assign({}, DataSourceWidget.options, options));
         this.events = DataSourceWidget.events;
+        this.wrapper = this.element;
+        // this.render();
+        // this.enable(this.options.enable);
         this._dataSource();
     }
 
@@ -113,9 +117,9 @@ export default class DataSourceWidget extends ui.Widget {
             this.dataSource.unbind(CHANGE, this._refreshHandler);
         }
         super.destroy();
-        kendo.destroy(this.element);
+        destroy(this.element); // TODO Review
     }
 }
 
-// Create a jQuery plugin.
-ui.plugin(DataSourceWidget);
+// Register DataSourceWidget
+plugin(DataSourceWidget);

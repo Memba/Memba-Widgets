@@ -6,14 +6,14 @@
 import $ from 'jquery';
 import 'kendo.binder';
 
-const { kendo } = window;
-const { ui } = kendo;
+const { destroy } = window.kendo;
+const { plugin, Widget } = window.kendo.ui;
 const CHANGE = 'change';
 
 /**
  * ValueWidget
  */
-export default class ValueWidget extends ui.Widget {
+export default class ValueWidget extends Widget {
     /**
      * ValueWidget constructor
      * @param element
@@ -23,6 +23,8 @@ export default class ValueWidget extends ui.Widget {
         super(element, Object.assign({}, ValueWidget.options, options));
         this.events = ValueWidget.events;
         this.wrapper = this.element;
+        // this._render();
+        // this.enable(this.options.enable);
         this.value(this.options.value);
     }
 
@@ -79,8 +81,9 @@ export default class ValueWidget extends ui.Widget {
      */
     destroy() {
         super.destroy();
+        destroy(this.element); // TODO Review
     }
 }
 
 // Create a jQuery plugin, this calls ValueWidget.fn.options.name
-ui.plugin(ValueWidget);
+plugin(ValueWidget);

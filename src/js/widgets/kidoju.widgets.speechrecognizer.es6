@@ -38,7 +38,7 @@ const MIC_ERROR =
  */
 const SpeechRecognizer = Widget.extend({
     /**
-     * SpeechRecognizer constructor
+     * Constructor
      * @param element
      * @param options
      */
@@ -52,12 +52,12 @@ const SpeechRecognizer = Widget.extend({
     },
 
     /**
-     * Widget events
+     * Events
      */
     events: [CONSTANTS.CHANGE],
 
     /**
-     * Widget options
+     * Options
      */
     options: {
         name: 'SpeechRecognizer',
@@ -149,7 +149,8 @@ const SpeechRecognizer = Widget.extend({
      * @param enable
      */
     enable(enable) {
-        const isEnabled = $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        const isEnabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         this.image.off(NS);
         if ($.isFunction(this._refreshHandler)) {
             this.unbind(CONSTANTS.CHANGE, this._refreshHandler);

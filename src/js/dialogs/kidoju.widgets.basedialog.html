@@ -3,14 +3,14 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.messagebox</title>
+    <title>kidoju.widgets.basedialog</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- TODO kidoju.widgets.messagebox stylesheet -->
+    <!-- TODO kidoju.widgets.basedialog stylesheet -->
     <link href="../../styles/kidoju.widgets.messagebox.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
@@ -185,11 +185,17 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.widgets.messagebox.es6').then(function () {
+            Promise.all([
+                SystemJS.import('./kidoju.widgets.basedialog.es6'),
+                SystemJS.import('./kidoju.dialogs.alert.es6'),
+                SystemJS.import('./kidoju.dialogs.prompt.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
+                var kidoju = window.kidoju;
                 $(function () {
                     kendo.init('body');
-                    var messageBox = $('#messagebox1').data('kendoBaseDialog');
+                    // At this stage, there should only be one
+                    var messageBox = $(kendo.roleSelector('basedialog')).data('kendoBaseDialog');
                     messageBox.bind('click', function (e) {
                         $("#console1").append(kendo.format("<div>action `{0}` at {1}</div>", e.action, new Date().toLocaleTimeString()));
                         e.preventDefault(); // Prevents closing
@@ -199,7 +205,7 @@
                     });
 
                     $('#button2').click(function (e) {
-                        kendo.alertEx({
+                        kidoju.dialogs.openAlert({
                             type: 'error',
                             message: 'Hey Houston, we\'ve got a problem!'
                         }).done(function(result) {
@@ -208,11 +214,11 @@
                     });
 
                     $('#button3').click(function (e) {
-                        kendo.promptEx({
+                        kidoju.dialogs.openPrompt({
                             title: 'Your name',
                             message: 'Please enter tour name:'
                         }).done(function(result) {
-                            $("#console3").append(kendo.format("<div>action `{0}` with input `{1}` at {2}</div>", result.action, result.input, new Date().toLocaleTimeString()));
+                            $("#console3").append(kendo.format("<div>action `{0}` with input `{1}` at {2}</div>", result.action, result.data.input, new Date().toLocaleTimeString()));
                         });
                     });
                 });
@@ -231,18 +237,18 @@
 
 <body>
 
-<h1>kidoju.widgets.messagebox</h1>
+<h1>kidoju.widgets.basedialog</h1>
 
 <h2>html declaration</h2>
 <button id="button1" class="k-button">Show Me!</button>
-<div id="messagebox1" data-role="basedialog" data-title="Oops!" data-content="Hi! John Doe" data-actions="[{&quot;action&quot;:&quot;close&quot;,&quot;text&quot;:&quot;Close&quot;,&quot;primary&quot;:true}]"></div>
+<div data-role="basedialog" data-title="Oops!" data-content="Hi! John Doe" data-actions="[{&quot;action&quot;:&quot;close&quot;,&quot;text&quot;:&quot;Close&quot;,&quot;primary&quot;:true}]"></div>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 
-<h2>using kendo.alertEx</h2>
+<h2>using kidoju.dialogs.openAlert</h2>
 <button id="button2" class="k-button">Show Me!</button>
 <div id="console2" class="highlight-section k-block" style="margin-top:20px;"></div>
 
-<h2>using kendo.promptEx</h2>
+<h2>using kidoju.dialogs.openPrompt</h2>
 <button id="button3" class="k-button">Show Me!</button>
 <div id="console3" class="highlight-section k-block" style="margin-top:20px;"></div>
 

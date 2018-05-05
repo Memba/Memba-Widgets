@@ -18,7 +18,7 @@ import {
     getUserMedia
 } from '../common/kidoju.media.es6';
 
-const { attr, drawing, format, geometry, saveAs } = window.kendo;
+const { attr, destroy, drawing, format, geometry, saveAs } = window.kendo;
 const { plugin, Widget } = window.kendo.ui;
 const NS = '.kendoMediaRecorder';
 const WIDGET_CLASS = 'k-widget kj-mediarecorder';
@@ -53,64 +53,51 @@ var BUTTON_TMPL = '<a class="k-button" data-' + kendo.ns + 'command="{0}" title=
  * @class MediaRecorder
  * @extend Widget
  */
-class MediaRecorder extends Widget {
-
+const MediaRecorder = Widget.extend({
     /**
-     * MediaRecorder constructor
+     * Constructor
      * @param element
      * @param options
      */
-    constructor(element, options) {
-        super(element, Object.assign({}, MediaRecorder.options, options));
+    init(element, options) {
+        Widget.fn.init.call(this, element, options);
         // logger.debug({ method: 'init', message: 'widget initialized' });
-        this.events = MediaRecorder.events;
         this.wrapper = this.element;
         this._render();
         this.enable(this.options.enable);
         this.value(this.options.value);
         // kendo.notify(this); // TODO Review
-    }
+    },
 
     /**
-     * fn static getter
+     * Events
      */
-    static get fn() {
-        return this;
-    }
+    events: [CONSTANTS.CHANGE, CONSTANTS.ERROR],
 
     /**
-     * Default events
+     * Options
      */
-    static get events() {
-        return [CONSTANTS.CHANGE, CONSTANTS.ERROR];
-    }
-
-    /**
-     * Default options
-     */
-    static get options() {
-        return Object.assign({}, this.prototype.options, {
-            name: 'MediaRecorder',
-            enable: true,
-            audio: true,
-            video: true, // { mandatory: { minWidth: 640, minHeight: 360 }
-            mimeType: '', // Let the widget decide
-            // audioBitsPerSecond : 128000,
-            // videoBitsPerSecond : 2500000,
-            codecs: '',
-            devices: false,
-            proxyURL: '', // for kendo.saveAs
-            messages: {
-                camera: 'Camera',
-                microphone: 'Microphone',
-                pauseResume: 'Pause/Resume',
-                record: 'Record',
-                speaker: 'Speaker',
-                stop: 'Stop',
-                unsupported: 'Media recording is only available on Chrome and Firefox'
-            }
-        });
-    }
+    options: {
+        name: 'MediaRecorder',
+        enable: true,
+        audio: true,
+        video: true, // { mandatory: { minWidth: 640, minHeight: 360 }
+        mimeType: '', // Let the widget decide
+        // audioBitsPerSecond : 128000,
+        // videoBitsPerSecond : 2500000,
+        codecs: '',
+        devices: false,
+        proxyURL: '', // for kendo.saveAs
+        messages: {
+            camera: 'Camera',
+            microphone: 'Microphone',
+            pauseResume: 'Pause/Resume',
+            record: 'Record',
+            speaker: 'Speaker',
+            stop: 'Stop',
+            unsupported: 'Media recording is only available on Chrome and Firefox'
+        }
+    },
 
     /**
      * Check MediaRecorder support
@@ -121,7 +108,7 @@ class MediaRecorder extends Widget {
         // getUserMedia() must be run from a secure origin: HTTPS or localhost.
         var isSecureOrigin = location.protocol === 'https:' || location.hostname === 'localhost';
         return isSecureOrigin && !!WindowMediaRecorder;
-    }
+    },
 
     /**
      * Builds the widget layout
@@ -142,7 +129,7 @@ class MediaRecorder extends Widget {
         } else {
             throw new Error('Set widget options for audio or video');
         }
-    }
+    },
 
     /**
      * Gets value (a setter does not make sense)
@@ -156,7 +143,7 @@ class MediaRecorder extends Widget {
      */
     value() {
         return this._chunks;
-    }
+    },
 
     /**
      * Oops, your browser does not support our media recorder
@@ -168,7 +155,7 @@ class MediaRecorder extends Widget {
             .text(this.options.messages.unsupported)
             .appendTo(this.element);
         // TODO this._updateToolbar();
-    }
+    },
 
     /**
      * Builds the audio layout
@@ -184,7 +171,7 @@ class MediaRecorder extends Widget {
             .width('100%')
             .appendTo(this.element);
         this._updateToolbar();
-    }
+    },
 
     /**
      * Builds the video layout
@@ -196,7 +183,7 @@ class MediaRecorder extends Widget {
             .width('100%')
             .appendTo(this.element);
         this._updateToolbar();
-    }
+    },
 
     /**
      * Initialize a volume meter
@@ -210,7 +197,7 @@ class MediaRecorder extends Widget {
         const meter = createAudioMeter(context);
         source.connect(meter);
         this._drawVolumeMeter(meter);
-    }
+    },
 
     /**
      * Draws an audio volume meter
@@ -239,7 +226,7 @@ class MediaRecorder extends Widget {
         window.requestAnimationFrame(() => {
             this._drawVolumeMeter(meter);
         });
-    }
+    },
 
     /**
      * Initialize toolbar
@@ -296,7 +283,7 @@ class MediaRecorder extends Widget {
 
             /* jshint +W074 */
         }
-    }
+    },
 
     /**
      * Event handler for clicking toolbar buttons
@@ -306,7 +293,7 @@ class MediaRecorder extends Widget {
     _onButtonClick(e) {
         var command = $(e.currentTarget).attr(attr('command'));
         this[command]();
-    }
+    },
 
     /**
      * Update the toolbar based on MediaRecorder state
@@ -328,7 +315,7 @@ class MediaRecorder extends Widget {
             .toggleClass(DISABLED_CLASS, isInactive).toggleClass(ACTIVE_CLASS, isPaused);
         this.toolbar.children(format(ATTR_SELECTOR, attr('command'), 'stop'))
             .toggleClass(DISABLED_CLASS, isInactive);
-    }
+    },
 
     /* This function's cyclomatic complexity is too high. */
     /* jshint -W074 */
@@ -364,7 +351,7 @@ class MediaRecorder extends Widget {
             }
         }
         return !!withCodecs ? format(MIME_TYPE, options.mimeType, options.codecs) : options.mimeType;
-    }
+    },
 
     /* jshint +W074 */
 
@@ -380,7 +367,7 @@ class MediaRecorder extends Widget {
             fileName: 'test.' + this.mimeType().replace(/^\w+\//, ''),
             proxyURL: this.options.proxy
         });
-    }
+    },
 
     /**
      * Start recording
@@ -409,7 +396,7 @@ class MediaRecorder extends Widget {
                 recorder.start();
             })
             .fail(that._onError.bind(that));
-    }
+    },
 
     /**
      * Pause/resume recording
@@ -423,7 +410,7 @@ class MediaRecorder extends Widget {
                 this._recorder.resume();
             }
         }
-    }
+    },
 
     /**
      * Stop recording
@@ -435,7 +422,7 @@ class MediaRecorder extends Widget {
             recorder.stream.getTracks() // get all tracks from the MediaStream
                 .forEach(function (track) { track.stop(); }); // stop each of them
         }
-    }
+    },
 
     /**
      * Mute/unmute
@@ -451,7 +438,7 @@ class MediaRecorder extends Widget {
             // TODO: Not yet implemented in the toolbar because we need to be able to set it both before (recorder is not yet available) and during recording
             $.noop();
         }
-    }
+    },
 
     /**
      * Error event handler
@@ -466,7 +453,7 @@ class MediaRecorder extends Widget {
                 $.noop();
             }
         }
-    }
+    },
 
     /**
      * Start event handler
@@ -476,7 +463,7 @@ class MediaRecorder extends Widget {
     _onStart(e) {
         logger.debug({ method: '_onStart', message: 'Recording started' });
         this._updateToolbar();
-    }
+    },
 
     /**
      * Data available event handler
@@ -487,7 +474,7 @@ class MediaRecorder extends Widget {
         if (e && e.data && e.data.size > 0) {
             this._chunks.push(e.data);
         }
-    }
+    },
 
     /**
      * Pause event handler
@@ -497,7 +484,7 @@ class MediaRecorder extends Widget {
     _onPause(e) {
         logger.debug({ method: '_onPause', message: 'Recording paused' });
         this._updateToolbar();
-    }
+    },
 
     /**
      * Resume event handler
@@ -507,7 +494,7 @@ class MediaRecorder extends Widget {
     _onResume(e) {
         logger.debug({ method: '_onResume', message: 'Recording resumed' });
         this._updateToolbar();
-    }
+    },
 
     /**
      * Stop event handler
@@ -518,7 +505,7 @@ class MediaRecorder extends Widget {
         logger.debug({ method: '_onStop', message: 'Recording stopped' });
         this._updateToolbar();
         this._preview(this._chunks);
-    }
+    },
 
     /**
      * Reset content preview
@@ -552,7 +539,7 @@ class MediaRecorder extends Widget {
         // preview.onloadedmetadata = function (e) {
         //    preview.play(); // the audio/video tag has the autoplay attribute, so we don't really need that
         // };
-    }
+    },
 
     /**
      * Function called by widget.resize and kendo.resize
@@ -561,7 +548,7 @@ class MediaRecorder extends Widget {
      */
     _resize(e) {
         // TODO to make video as big as possible and centered in widget, but is this the best option?
-    }
+    },
 
     /**
      * Function called by the enabled/disabled bindings
@@ -569,7 +556,7 @@ class MediaRecorder extends Widget {
      */
     enable(enabled) {
         // TODO
-    }
+    },
 
     /**
      * Destroys the widget
@@ -587,10 +574,10 @@ class MediaRecorder extends Widget {
         that._recorder = undefined;
         that._chunks = undefined;
         // Destroy widget
-        super.destroy();
-        kendo.destroy(element);
+        Widget.fn.destroy.call(this);
+        destroy(element);
     }
-}
+});
 
 // Register MediaRecorder
 plugin(MediaRecorder);

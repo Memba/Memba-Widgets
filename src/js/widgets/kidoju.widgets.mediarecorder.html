@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../styles/vendor/kendo/web/kendo.rtl.min.css">
     <link rel="stylesheet" href="../../styles/vendor/kendo/web/kendo.default.min.css">
     <!-- kidoju.widgets.mediarecorder stylesheet -->
-    <!--link href="./styles/widgets/kidoju.widgets.mediarecorder.css" rel="stylesheet" /-->
+    <!--link href="../../styles/widgets/kidoju.widgets.mediarecorder.css" rel="stylesheet" /-->
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -182,8 +182,8 @@
                 transpiler: 'plugin-babel'
             });
             SystemJS.import('./kidoju.widgets.mediarecorder.es6').then(function () {
+                var kendo = window.kendo;
                 $(function () {
-                    var kendo = window.kendo;
                     // Unbound
                     $('#mediarecorder').kendoMediaRecorder();
                     // Bound to observable

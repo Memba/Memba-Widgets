@@ -5,13 +5,13 @@
 
 import $ from 'jquery';
 import 'kendo.binder';
-import 'kendo.tooltip'; // TODO: replace tooltip with notification
+import 'kendo.tooltip';
+// TODO import assert from '../window.assert.es6';
+import CONSTANTS from '../window.constants.es6';
+// TODO: import Logger from '../window.logger.es6';
 
-const { kendo } = window;
-const { ui } = kendo;
-const UNDEFINED = 'undefined'; // TODO use constants
-const CHANGE = 'change';
-const CLICK = 'click';
+const { destroy } = window.kendo;
+const { plugin, Widget } = window.kendo.ui;
 const NS = '.kendoSpeechRecognizer';
 
 const SpeechRecognition =
@@ -36,59 +36,46 @@ const MIC_ERROR =
  * @see https://w3c.github.io/speech-api/speechapi.html#examples
  * @see https://www.google.com/intl/en/chrome/demos/speech.html
  */
-class SpeechRecognizer extends ui.Widget {
+const SpeechRecognizer = Widget.extend({
     /**
      * SpeechRecognizer constructor
      * @param element
      * @param options
      */
-    constructor(element, options) {
-        super(element, Object.assign({}, SpeechRecognizer.options, options));
-        // logger.debug({ method: 'init', message: 'widget initialized' });
-        this.events = SpeechRecognizer.events;
+    init(element, options) {
+        Widget.fn.init.call(this, element, options);
         this.wrapper = this.element;
         this._initSpeechRecognition();
         this._render();
         this.enable(this.options.enable);
         // this.value(this.options.value);
-    }
+    },
 
     /**
-     * fn static getter
+     * Widget events
      */
-    static get fn() {
-        return this;
-    }
+    events: [CONSTANTS.CHANGE],
 
     /**
-     * Default events
+     * Widget options
      */
-    static get events() {
-        return [CHANGE];
-    }
-
-    /**
-     * Default options
-     */
-    static get options() {
-        return Object.assign({}, this.prototype.options, {
-            name: 'SpeechRecognizer',
-            enable: true,
-            locale: 'en-US',
-            messages: {
-                alt: 'Microphone',
-                denied: 'Denied',
-                noEvent: 'No event triggered',
-                noMicrophone: 'No microphone',
-                noSpeech: 'No speech',
-                speakNow: 'Speak now!',
-                unknown: 'Unknown error',
-                upgrade: 'Upgrade your browser'
-            },
-            multiline: true,
-            value: ''
-        });
-    }
+    options: {
+        name: 'SpeechRecognizer',
+        enable: true,
+        locale: 'en-US',
+        messages: {
+            alt: 'Microphone',
+            denied: 'Denied',
+            noEvent: 'No event triggered',
+            noMicrophone: 'No microphone',
+            noSpeech: 'No speech',
+            speakNow: 'Speak now!',
+            unknown: 'Unknown error',
+            upgrade: 'Upgrade your browser'
+        },
+        multiline: true,
+        value: ''
+    },
 
     /**
      * Value
@@ -97,7 +84,7 @@ class SpeechRecognizer extends ui.Widget {
      */
     value() {
         return this._value;
-    }
+    },
 
     /**
      * Initialize speech recognition
@@ -117,7 +104,7 @@ class SpeechRecognizer extends ui.Widget {
         } else {
             // Microsoft Edge
         }
-    }
+    },
 
     /**
      * Render the widget
@@ -155,31 +142,31 @@ class SpeechRecognizer extends ui.Widget {
                 showOn: 'click'
             })
             .data('kendoTooltip');
-    }
+    },
 
     /**
      * Enable/disable the widget
      * @param enable
      */
     enable(enable) {
-        const isEnabled = $.type(enable) === UNDEFINED ? true : !!enable;
+        const isEnabled = $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         this.image.off(NS);
         if ($.isFunction(this._refreshHandler)) {
-            this.unbind(CHANGE, this._refreshHandler);
+            this.unbind(CONSTANTS.CHANGE, this._refreshHandler);
         }
         if (isEnabled) {
-            this.image.on(CLICK + NS, this._onClick.bind(this));
+            this.image.on(CONSTANTS.CLICK + NS, this._onClick.bind(this));
             this._refreshHandler = this.refresh.bind(this);
-            this.bind(CHANGE, this._refreshHandler);
+            this.bind(CONSTANTS.CHANGE, this._refreshHandler);
         }
-    }
+    },
 
     /**
      * Refresh
      */
     refresh() {
         this.textarea.val(this._value || '');
-    }
+    },
 
     /**
      * Display tooltip
@@ -188,7 +175,7 @@ class SpeechRecognizer extends ui.Widget {
     showInfo(text) {
         this.image.attr('title', text);
         this.tooltip.show(this.image);
-    }
+    },
 
     /**
      * Click event handler
@@ -217,7 +204,7 @@ class SpeechRecognizer extends ui.Widget {
             // This is for Microsoft Edge and other browsers that do not implement SpeechRecognition
             this._onError({ error: 'no-speech' });
         }
-    }
+    },
 
     /**
      * Start event handler
@@ -228,8 +215,8 @@ class SpeechRecognizer extends ui.Widget {
         this.image.prop({ ariaPressed: true }).attr({ src: MIC_ANIMATED });
         this.showInfo(this.options.messages.speakNow);
         this._value = '';
-        this.trigger(CHANGE);
-    }
+        this.trigger(CONSTANTS.CHANGE);
+    },
 
     /**
      * Error event handler
@@ -257,7 +244,7 @@ class SpeechRecognizer extends ui.Widget {
                 this.showInfo(this.options.messages.unknown);
                 break;
         }
-    }
+    },
 
     /**
      * Result event handler
@@ -265,7 +252,7 @@ class SpeechRecognizer extends ui.Widget {
      * @private
      */
     _onResult(e) {
-        if ($.type(e.results) === UNDEFINED) {
+        if ($.type(e.results) === CONSTANTS.UNDEFINED) {
             this.speechRecognition.onend = null;
             this.speechRecognition.stop();
             this._errored = true;
@@ -276,8 +263,8 @@ class SpeechRecognizer extends ui.Widget {
         for (let i = e.resultIndex; i < e.results.length; i++) {
             this._value += e.results[i][0].transcript;
         }
-        this.trigger(CHANGE);
-    }
+        this.trigger(CONSTANTS.CHANGE);
+    },
 
     /**
      * End event handler
@@ -290,15 +277,16 @@ class SpeechRecognizer extends ui.Widget {
             return;
         }
         this.image.prop({ ariaPressed: false }).attr({ src: MIC_STATIC });
-    }
+    },
 
     /**
      * Destroy
      */
     destroy() {
-        super.destroy();
+        Widget.fn.destroy.call(this);
+        destroy(this.element);
     }
-}
+});
 
 // Create a jQuery plugin, this calls SpeechRecognizer.fn.options.name
-ui.plugin(SpeechRecognizer);
+plugin(SpeechRecognizer);

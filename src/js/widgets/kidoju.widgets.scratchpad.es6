@@ -10,8 +10,9 @@ import 'kendo.drawing';
 import 'kendo.userevents'; // Required for getTouches
 import assert from '../window.assert.es6';
 import CONSTANTS from '../window.constants.es6';
+// TODO: import Logger from '../window.logger.es6';
 
-const { getTouches, roleSelector } = window.kendo;
+const { destroy, getTouches, roleSelector } = window.kendo;
 const { plugin, Widget } = window.kendo.ui;
 const { Path, Segment, Surface } = window.kendo.drawing;
 const { ObservableArray } = window.kendo.data;
@@ -64,7 +65,15 @@ Path.prototype.toSegments = function() {
     };
     for (let i = 0, { length } = this.segments; i < length; i++) {
         const segment = this.segments[i];
-        assert.instanceof(Segment, segment, assert.format(assert.messages.instanceof.default, 'segment', 'kendo.drawing.Segment'));
+        assert.instanceof(
+            Segment,
+            segment,
+            assert.format(
+                assert.messages.instanceof.default,
+                'segment',
+                'kendo.drawing.Segment'
+            )
+        );
         ret.push([
             segment.anchor().toArray(),
             (segment.controlIn() || empty).toArray(),
@@ -81,48 +90,36 @@ Path.prototype.toSegments = function() {
 /**
  * ScratchPad
  */
-class ScratchPad extends Widget {
+const ScratchPad = Widget.extend({
     /**
-     * ScratchPad constructor
+     * Constructor
      * @param element
      * @param options
      */
-    constructor(element, options) {
-        super(element, Object.assign({}, ScratchPad.options, options));
+    init(element, options) {
+        Widget.fn.init.call(this, element, options);
         // logger.debug({ method: 'init', message: 'widget initialized' });
-        this.events = ScratchPad.events;
         this.wrapper = this.element;
         this._render();
         this.enable(this.options.enable);
         this.value(this.options.value);
-    }
+    },
 
     /**
-     * fn static getter
+     * Events
      */
-    static get fn() {
-        return this;
-    }
+    events: [CONSTANTS.CHANGE],
 
     /**
-     * Default events
+     * Options
      */
-    static get events() {
-        return [CONSTANTS.CHANGE];
-    }
-
-    /**
-     * Default options
-     */
-    static get options() {
-        return Object.assign({}, this.prototype.options, {
-            name: 'ScratchPad',
-            enable: true,
-            // messages: {},
-            stroke: {}, // TODO
-            value: []
-        });
-    }
+    options: {
+        name: 'ScratchPad',
+        enable: true,
+        // messages: {},
+        stroke: {}, // TODO
+        value: []
+    },
 
     /**
      * Value
@@ -142,7 +139,7 @@ class ScratchPad extends Widget {
             );
         }
         return ret;
-    }
+    },
 
     /**
      * Render the widget
@@ -154,7 +151,7 @@ class ScratchPad extends Widget {
             userSelect: 'none' // Prevents selecting when scratching
         });
         this.surface = Surface.create(this.element);
-    }
+    },
 
     /**
      * Enable/disable the widget
@@ -180,95 +177,7 @@ class ScratchPad extends Widget {
             });
         }
         */
-    }
-
-    /**
-     * mousedown event handler
-     * @param e
-     * @private
-     */
-    static _onMouseDown(e) {
-        const that = $(e.currentTarget).data('kendoScratchPad');
-        const touches = getTouches(e);
-        if (
-            that instanceof ScratchPad &&
-            that._enabled &&
-            Array.isArray(touches) &&
-            touches.length
-        ) {
-            e.data.widget = that;
-            e.data.path = new Path();
-            e.data.path.moveTo(
-                touches[0].location.pageX - that.element.offset().left,
-                touches[0].location.pageY - that.element.offset().top
-            );
-            that.surface.draw(e.data.path);
-        }
-    }
-
-    /**
-     * mousemove event handler
-     * @param e
-     * @private
-     */
-    static _onMouseMove(e) {
-        if (
-            e.data.widget instanceof ScratchPad &&
-            e.data.path instanceof Path
-        ) {
-            const that = $(e.currentTarget).data('kendoScratchPad');
-            const touches = getTouches(e);
-            if (
-                that === e.data.widget &&
-                that._enabled &&
-                Array.isArray(touches) &&
-                touches.length
-            ) {
-                e.data.path.lineTo(
-                    touches[0].location.pageX - that.element.offset().left,
-                    touches[0].location.pageY - that.element.offset().top
-                );
-            }
-        }
-    }
-
-    /**
-     * mouseup event handler
-     * @param e
-     * @private
-     */
-    static _onMouseEnd(e) {
-        if (
-            (e.type === CONSTANTS.MOUSEOUT ||
-                e.type === CONSTANTS.TOUCHLEAVE) &&
-            (e.currentTarget === e.relatedTarget ||
-                $.contains(e.currentTarget, e.relatedTarget))
-        ) {
-            // Discard mouseout and touchleave when leaving
-            // to a relatedTarget contained within the currentTarget
-            // especially when crossing paths
-            return;
-        }
-        if (
-            e.data.widget instanceof ScratchPad &&
-            e.data.path instanceof Path
-        ) {
-            ScratchPad._onMouseMove(e);
-            e.data.widget._value.push({
-                segments: e.data.path.toSegments()
-                /*
-                options: {
-                    stroke: {
-                        color: e.data.path.stroke().color
-                    }
-                }
-                */
-            });
-            e.data.widget.trigger(CONSTANTS.CHANGE);
-            delete e.data.path;
-            delete e.data.widget;
-        }
-    }
+    },
 
     /**
      * Refresh
@@ -279,15 +188,16 @@ class ScratchPad extends Widget {
             const path = Path.fromSegments(p.segments, p.options);
             this.surface.draw(path);
         });
-    }
+    },
 
     /**
      * Destroy
      */
     destroy() {
-        super.destroy();
+        Widget.fn.destroy.call(this);
+        destroy(this.element);
     }
-}
+});
 
 // Register ScratchPad
 plugin(ScratchPad);
@@ -299,6 +209,91 @@ plugin(ScratchPad);
 const NS = '.kendoScratchPad';
 const ROLE = 'scratchpad';
 const data = {};
+
+/**
+ * mousedown event handler
+ * @param e
+ * @private
+ */
+ScratchPad._onMouseDown = function onMouseDown(e) {
+    const that = $(e.currentTarget).data('kendoScratchPad');
+    const touches = getTouches(e);
+    if (
+        that instanceof ScratchPad &&
+        that._enabled &&
+        Array.isArray(touches) &&
+        touches.length
+    ) {
+        e.data.widget = that;
+        e.data.path = new Path();
+        e.data.path.moveTo(
+            touches[0].location.pageX - that.element.offset().left,
+            touches[0].location.pageY - that.element.offset().top
+        );
+        that.surface.draw(e.data.path);
+    }
+};
+
+/**
+ * mousemove event handler
+ * @param e
+ * @private
+ */
+ScratchPad._onMouseMove = function onMouseMove(e) {
+    if (e.data.widget instanceof ScratchPad && e.data.path instanceof Path) {
+        const that = $(e.currentTarget).data('kendoScratchPad');
+        const touches = getTouches(e);
+        if (
+            that === e.data.widget &&
+            that._enabled &&
+            Array.isArray(touches) &&
+            touches.length
+        ) {
+            e.data.path.lineTo(
+                touches[0].location.pageX - that.element.offset().left,
+                touches[0].location.pageY - that.element.offset().top
+            );
+        }
+    }
+};
+
+/**
+ * mouseup event handler
+ * @param e
+ * @private
+ */
+ScratchPad._onMouseEnd = function onMouseEnd(e) {
+    if (
+        (e.type === CONSTANTS.MOUSEOUT || e.type === CONSTANTS.TOUCHLEAVE) &&
+        (e.currentTarget === e.relatedTarget ||
+            $.contains(e.currentTarget, e.relatedTarget))
+    ) {
+        // Discard mouseout and touchleave when leaving
+        // to a relatedTarget contained within the currentTarget
+        // especially when crossing paths
+        return;
+    }
+    if (e.data.widget instanceof ScratchPad && e.data.path instanceof Path) {
+        ScratchPad._onMouseMove(e);
+        e.data.widget._value.push({
+            segments: e.data.path.toSegments()
+            /*
+            options: {
+                stroke: {
+                    color: e.data.path.stroke().color
+                }
+            }
+            */
+        });
+        e.data.widget.trigger(CONSTANTS.CHANGE);
+        delete e.data.path;
+        delete e.data.widget;
+    }
+};
+
+/**
+ * Initialize document events
+ */
 $(document)
     .on(
         `${CONSTANTS.MOUSEDOWN}${NS} ${CONSTANTS.TOUCHSTART}${NS}`,

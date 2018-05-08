@@ -22,7 +22,9 @@
         }]
     },
     "settings": {
+        "import/ignore": ["\\.(scss|less|css)$"],
         "import/resolver": {
+            // Look in .babelrc for resoluton paths
             "babel-module": {}
         }
     }

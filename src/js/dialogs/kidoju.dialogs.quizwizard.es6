@@ -25,12 +25,14 @@ export default function openQuizWizard(options = {}) {
     // Ids
     const questionId = guid();
     const solutionId = guid();
+    const multipleId = guid();
 
     // Localized message field names  // TODO i18n
     const message =
         'Please enter a question and a solution to compare answers with.';
     const questionName = 'Question';
     const solutionName = 'Solution';
+    const multipleName = 'Multiple Answers';
 
     // Create the dialog
     const dialog = element
@@ -46,6 +48,10 @@ export default function openQuizWizard(options = {}) {
                             <div class="kj-dialog-flexrow">
                               <div class="kj-dialog-col25"><label for="${questionId}">${questionName}:</label></div>
                               <div class="kj-dialog-col75"><input id="${questionId}" type="text" name="${questionName}" class="k-input k-textbox" data-${ns}bind="value: question" required pattern="\\S+"></div>
+                            </div>
+                            <div class="kj-dialog-flexrow">
+                                <input id="${multipleId}" type="checkbox" class="k-checkbox">
+                                 <label for="${multipleId}" class="k-checkbox-label">${multipleName}</label>
                             </div>
                             <div class="kj-dialog-flexrow">
                               <div class="kj-dialog-col25"><label for="${solutionId}">${solutionName}:</label></div>

@@ -8,7 +8,6 @@ const {
     template,
     ui: { BaseDialog }
 } = window.kendo;
-const WIDGET_CLASS = 'kj-dialog';
 
 /**
  * A shortcut function to display a prompt dialog
@@ -29,7 +28,9 @@ export default function openPrompt(options = {}) {
             $.extend({}, options, {
                 title:
                     options.title ||
-                    BaseDialog.fn.options.messages.title[options.type || 'info'],
+                    BaseDialog.fn.options.messages.title[
+                        options.type || 'info'
+                    ],
                 content:
                     options.content ||
                     template(PROMPT_TEMPLATE)({
@@ -51,8 +52,7 @@ export default function openPrompt(options = {}) {
                         action: 'cancel',
                         imageUrl:
                             'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
-                        text:
-                            BaseDialog.fn.options.messages.action.cancel
+                        text: BaseDialog.fn.options.messages.action.cancel
                     }
                 ]
             })

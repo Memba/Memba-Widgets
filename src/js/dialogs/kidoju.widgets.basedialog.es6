@@ -13,8 +13,12 @@ import CONSTANTS from '../window.constants.es6';
 
 // TODO Review styles including the button container at the bottom consider suggestions to Telerik
 
-const { bind, observable, template } = window.kendo;
-const { Dialog, plugin } = window.kendo.ui;
+const {
+    bind,
+    observable,
+    template,
+    ui: { Dialog, plugin }
+} = window.kendo;
 // const NS = '.kendoBaseDialog';
 
 const templates = {
@@ -218,6 +222,27 @@ const BaseDialog = Dialog.extend({
         Dialog.fn.destroy.call(this);
     }
 });
+
+/**
+ * Static getter for the dialog element
+ */
+BaseDialog.getElement = function(cssClass = 'kj-dialog-tools') {
+    // If a dialog already exists, remove it
+    let element = $(`.${WIDGET_CLASS}.${cssClass}`);
+    if (element.length > 0) {
+        const dialog = element.data('kendoBaseDialog');
+        if (dialog instanceof BaseDialog) {
+            dialog.destroy();
+        }
+        // element.empty(); We replace the content anyway
+    } else {
+        // Add a div to the html document for the alert dialog
+        // cssClass ensures we do not mess with other dialogs
+        // when opening several depths of dialogs
+        element = $(`<div class="${cssClass}"></div>`).appendTo(document.body);
+    }
+    return element;
+};
 
 // Register BaseDialog
 plugin(BaseDialog);

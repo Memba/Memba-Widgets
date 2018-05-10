@@ -5,23 +5,22 @@ import CONSTANTS from '../window.constants.es6';
 
 const {
     ns,
-    template,
+    resize,
+    roleSelector,
     ui: { BaseDialog }
 } = window.kendo;
-const WIDGET_CLASS = 'kj-dialog';
 
 /**
- * A shortcut function to display a prompt dialog
- * @param options (Same as kendo.ui.Dialog, expect `title` and `content` should be replaced by `type` and `message`)
+ * A shortcut function to display a dialog with a summary finder
+ * @param options
  * @returns {*}
  */
-export default function openPrompt(options = {}) {
-    const PROMPT_TEMPLATE = `<div><div class="k-widget k-notification k-notification-#: type #"><div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div></div><div><input type="text" class="k-textbox" style="width:100%; margin-top: 1em;" data-${ns}bind="value: input"></div></div>`;
-
+export default function openFinder(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
-    const element = BaseDialog.getElement('kj-dialog-prompt');
+    const element = BaseDialog.getElement();
+    element.css({ padding: 0 });
 
     // Create the dialog
     const dialog = element
@@ -29,16 +28,8 @@ export default function openPrompt(options = {}) {
             $.extend({}, options, {
                 title:
                     options.title ||
-                    BaseDialog.fn.options.messages.title[options.type || 'info'],
-                content:
-                    options.content ||
-                    template(PROMPT_TEMPLATE)({
-                        type: options.type || 'info',
-                        message: options.message || ''
-                    }),
-                data: {
-                    input: ''
-                },
+                    BaseDialog.fn.options.messages[options.type || 'info'],
+                content: `<div data-${ns}role="spreadsheet"></div>`,
                 actions: options.actions || [
                     {
                         action: 'ok',
@@ -48,7 +39,9 @@ export default function openPrompt(options = {}) {
                     },
                     {
                         action: 'cancel',
-                        text: BaseDialog.fn.options.messages.action.cancel,
+                        text:
+                            BaseDialog.fn.options.messages.action
+                                .cancel,
                         imageUrl:
                             'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg'
                     }
@@ -57,15 +50,33 @@ export default function openPrompt(options = {}) {
         )
         .data('kendoBaseDialog');
 
+    // Rebind the initOpen event considering the kendo.ui.Spreadsheet widget cannot bind to a viewModel
+    dialog.unbind('initOpen');
+    dialog.bind('initOpen', e => {
+        const spreadSheet = e.sender.element
+            .find(roleSelector('spreadsheet'))
+            .kendoSpreadsheet()
+            .data('kendoSpreadsheet');
+        spreadSheet.fromJSON(options.data);
+    });
+
+    // Bind the show event to resize once opened
+    dialog.bind('show', e => {
+        resize(e.sender.element);
+    });
+
     // Bind the click event
     dialog.bind(CONSTANTS.CLICK, e => {
+        const spreadSheet = e.sender.element
+            .find(roleSelector('spreadsheet'))
+            .data('kendoSpreadsheet');
         dfd.resolve({
             action: e.action,
-            data: e.sender.viewModel.toJSON()
+            data: spreadSheet.toJSON()
         });
     });
 
-    // Show the dialog
+    // Display the message dialog
     dialog.open();
 
     return dfd.promise();
@@ -76,4 +87,4 @@ export default function openPrompt(options = {}) {
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openPrompt = openPrompt;
+window.kidoju.dialogs.openSpreadsheet = openSpreadsheet;

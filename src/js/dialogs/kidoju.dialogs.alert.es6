@@ -3,51 +3,39 @@ import 'kendo.core';
 import './kidoju.widgets.basedialog.es6';
 import CONSTANTS from '../window.constants.es6';
 
-const { template } = window.kendo;
-const { BaseDialog } = window.kendo.ui;
-const WIDGET_CLASS = 'kj-dialog';
+const {
+    template,
+    ui: { BaseDialog }
+} = window.kendo;
 
 /**
  * A shortcut function to display an alert dialog
  * @param options (Same as kendo.ui.Dialog, expect `title` and `content` should be replaced by `type` and `message`)
  * @returns {*}
  */
-export default function openAlert(options) {
-    const opts = options || {};
-    const cssClass = opts.cssClass || 'kj-dialog-alert';
+export default function openAlert(options = {}) {
     const ALERT_TEMPLATE =
         '<div class="k-widget k-notification k-notification-#: type #"><div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div></div>';
 
     const dfd = $.Deferred();
-    let box;
 
-    // Create or reuse an existing dialog
-    let element = $(`.${WIDGET_CLASS}.${cssClass}`);
-    if (element.length > 0) {
-        box = element.data('kendoBaseDialog');
-        if (box instanceof BaseDialog) {
-            box.destroy();
-        }
-    } else {
-        // Add a div to the html document for the alert dialog
-        // cssClass ensures we do not mess with other dialogs
-        element = $(`<div class="${cssClass}"></div>`).appendTo(document.body);
-    }
+    // Find or create the DOM element
+    const element = BaseDialog.getElement('kj-dialog-alert');
 
     // Create the dialog
-    box = element
+    const dialog = element
         .kendoBaseDialog(
-            $.extend({}, opts, {
+            $.extend({}, options, {
                 title:
-                    opts.title ||
-                    BaseDialog.fn.options.messages.title[opts.type || 'info'],
+                    options.title ||
+                    BaseDialog.fn.options.messages.title[options.type || 'info'],
                 content:
-                    opts.content ||
+                    options.content ||
                     template(ALERT_TEMPLATE)({
-                        type: opts.type || 'info',
-                        message: opts.message || ''
+                        type: options.type || 'info',
+                        message: options.message || ''
                     }),
-                actions: opts.actions || [
+                actions: options.actions || [
                     {
                         action: 'ok',
                         text: BaseDialog.fn.options.messages.action.ok,
@@ -66,12 +54,12 @@ export default function openAlert(options) {
         .data('kendoBaseDialog');
 
     // Bind the click event
-    box.bind(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, e => {
         dfd.resolve({ action: e.action });
     });
 
     // Show the dialog
-    box.open();
+    dialog.open();
 
     return dfd.promise();
 }
@@ -82,3 +70,4 @@ export default function openAlert(options) {
 window.kidoju = window.kidoju || {};
 window.kidoju.dialogs = window.kidoju.dialogs || {};
 window.kidoju.dialogs.openAlert = openAlert;
+// window.kendo.alertEx = openAlert;

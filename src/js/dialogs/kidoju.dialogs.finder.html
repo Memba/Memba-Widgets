@@ -185,26 +185,16 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.dialogs.spreadsheet.es6').then(function () {
+            SystemJS.import('./kidoju.dialogs.finder.es6').then(function () {
                 var kendo = window.kendo;
                 var kidoju = window.kidoju;
                 $(function () {
                     $('#button1').click(function (e) {
-                        kidoju.dialogs.openSpreadsheet({
-                            title: 'My Spreadsheet',
+                        kidoju.dialogs.openFinder({
+                            title: 'Finder',
                             data: {
-                                sheets: [{
-                                    name: "Food Order",
-                                    mergedCells: [
-                                        "A1:G1"
-                                    ],
-                                    rows: [{
-                                        height: 70,
-                                        cells: [{
-                                            value: "My Company", fontSize: 32, textAlign: "center"
-                                        }]
-                                    }]
-                                }]
+                                language: 'en',
+                                summaryId: null
                             },
                             width: 860
                         }).done(function(result) {

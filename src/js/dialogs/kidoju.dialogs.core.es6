@@ -20,9 +20,7 @@ const DIALOG_SELECTOR = 'kj-tools-dialog';
 
 const { kidoju } = window;
 
-// TODO Merge with kidoju.widgets.messagebox
 
-// TODO Review styles including the button container at the bottom consider suggestions to Telerik
 
 // TODO Progressively migrate all tools dialogs:
 // - Asset Manager

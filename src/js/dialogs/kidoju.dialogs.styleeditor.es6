@@ -4,50 +4,35 @@ import './kidoju.widgets.basedialog.es6';
 import CONSTANTS from '../window.constants.es6';
 
 const {
+    ns,
     resize,
     ui: { BaseDialog }
 } = window.kendo;
-const WIDGET_CLASS = 'kj-dialog';
 
 /**
- * A shortcut function to display a dialog with a kendo.ui.AssetManager
+ * A shortcut function to display a dialog with a kendo.ui.StyleEditor
  * @param options
  * @returns {*}
  */
-export default function openStyleEditor(options) {
+export default function openStyleEditor(options = {}) {
     const dfd = $.Deferred();
     import('../kidoju.widgets.styleeditor') // TODO CSS?
         .then(() => {
-            const opts = options || {};
-            const cssClass = opts.cssClass || 'kj-dialog-tools';
-            let box;
-            // If a dialog already exists, remove it
-            let element = $(`.${WIDGET_CLASS}.${cssClass}`);
-            if (element.length > 0) {
-                box = element.data('kendoBaseDialog');
-                if (box instanceof BaseDialog) {
-                    box.destroy();
-                }
-                // element.empty(); We replace the content anyway
-            } else {
-                // Add a div to the html document for the alert dialog
-                // cssClass ensures we do not mess with other dialogs
-                element = $(`<div class="${cssClass}"></div>`).appendTo(
-                    document.body
-                );
-            }
+            // Find or create the DOM element
+            const element = BaseDialog.getElement();
             element.css({ padding: 0 });
 
             // Create the dialog
-            box = element
+            const dialog = element
                 .kendoBaseDialog(
-                    $.extend({}, opts, {
+                    $.extend({}, options, {
                         title:
-                            opts.title ||
-                            BaseDialog.fn.options.messages[opts.type || 'info'],
-                        content:
-                            '<div data-role="styleeditor" data-bind="value: style"></div>',
-                        actions: opts.actions || [
+                            options.title ||
+                            BaseDialog.fn.options.messages[
+                                options.type || 'info'
+                            ],
+                        content: `<div data-${ns}role="styleeditor" data-${ns}bind="value: style"></div>`,
+                        actions: options.actions || [
                             {
                                 action: 'ok',
                                 text: BaseDialog.fn.options.messages.action.ok,
@@ -68,20 +53,20 @@ export default function openStyleEditor(options) {
                 .data('kendoBaseDialog');
 
             // Bind the show event to resize once opened
-            box.bind('show', e => {
+            dialog.bind('show', e => {
                 resize(e.sender.element);
             });
 
             // Bind the click event
-            box.bind(CONSTANTS.CLICK, e => {
+            dialog.bind(CONSTANTS.CLICK, e => {
                 dfd.resolve({
                     action: e.action,
                     data: e.sender.viewModel.toJSON()
                 });
             });
 
-            // Display the message box
-            box.open();
+            // Display the message dialog
+            dialog.open();
         })
         .catch(ex => {
             dfd.reject(ex);

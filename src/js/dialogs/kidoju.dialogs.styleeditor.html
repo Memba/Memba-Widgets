@@ -10,8 +10,9 @@
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- TODO kidoju.dialogs.styleeditor stylesheet -->
+    <!-- TODO kidoju.widgets.styleeditor stylesheet -->
     <link href="../../styles/kidoju.widgets.messagebox.css" rel="stylesheet">
+    <link href="../../styles/kidoju.widgets.styleeditor.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.src.js"></script>
     <script>
@@ -201,7 +202,13 @@
                             },
                             width: 860
                         }).done(function(result) {
-                            $("#console1").append(kendo.format("<div>action `{0}` with data `{1}` at {2}</div>", result.action, JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()));
+                            $("#console1").append(
+                                kendo.format(
+                                    '<div>action `{0}` with data `{1}` at {2}</div>',
+                                    result.action,
+                                    JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
+                                )
+                            );
                         });
                     });
                 });

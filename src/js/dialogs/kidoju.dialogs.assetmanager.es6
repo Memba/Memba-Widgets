@@ -11,13 +11,13 @@ const {
 } = window.kendo;
 
 /**
- * A shortcut function to display a dialog with a kendo.ui.Spreadsheet
+ * A shortcut function to display a dialog with a kendo.ui.AssetManager
  * @param options
  * @returns {*}
  */
-export default function openSpreadsheet(options = {}) {
+export default function openAssetManager(options = {}) {
     const dfd = $.Deferred();
-    import('kendo.spreadsheet')
+    import('../kidoju.widgets.assetmanager')
         .then(() => {
             // Find or create the DOM element
             const element = BaseDialog.getElement();
@@ -32,7 +32,7 @@ export default function openSpreadsheet(options = {}) {
                             BaseDialog.fn.options.messages[
                                 options.type || 'info'
                             ],
-                        content: `<div data-${ns}role="spreadsheet" style="width:100%;border:0;"></div>`,
+                        content: `<div data-${ns}role="assetmanager"></div>`,
                         actions: options.actions || [
                             {
                                 action: 'ok',
@@ -58,9 +58,7 @@ export default function openSpreadsheet(options = {}) {
             dialog.bind('initOpen', e => {
                 const spreadSheet = e.sender.element
                     .find(roleSelector('spreadsheet'))
-                    .kendoSpreadsheet({
-                        sheetsbar: false
-                    })
+                    .kendoSpreadsheet()
                     .data('kendoSpreadsheet');
                 spreadSheet.fromJSON(options.data);
             });
@@ -95,4 +93,4 @@ export default function openSpreadsheet(options = {}) {
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openSpreadsheet = openSpreadsheet;
+window.kidoju.dialogs.openAssetManager = openAssetManager;

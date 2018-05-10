@@ -3,15 +3,16 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.dialogs.spreadsheet</title>
+    <title>kidoju.dialogs.assetmanager</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- TODO kidoju.widgets.spreadsheet stylesheet -->
+    <!-- TODO kidoju.widgets.assetmanager stylesheet -->
     <link href="../../styles/kidoju.widgets.messagebox.css" rel="stylesheet">
+    <link href="../../styles/kidoju.widgets.assetmanager.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -38,7 +39,7 @@
                     'kendogantt': ['kendo.gantt'],
                     'kendopdf': ['kendo.pdf'],
                     'kendoscheduler': ['kendo.scheduler'],
-                    'kendospreadsheet': ['kendo.spreadsheet']
+                    'kendoassetmanager': ['kendo.assetmanager']
                 },
                 map: {
                     'jquery': 'js/vendor/jquery/jquery-3.3.1.js',
@@ -159,7 +160,7 @@
                     'kendogrid': 'js/vendor/kendo/kendo.grid.js',
                     'kendopdf': 'js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'js/vendor/kendo/kendo.scheduler.js',
-                    'kendospreadsheet': 'js/vendor/kendo/kendo.spreadsheet.js'
+                    'kendoassetmanager': 'js/vendor/kendo/kendo.assetmanager.js'
                 },
                 packages: {
                     'js': {
@@ -185,28 +186,14 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.dialogs.spreadsheet.es6').then(function () {
+            SystemJS.import('./kidoju.dialogs.assetmanager.es6').then(function () {
                 var kendo = window.kendo;
                 var kidoju = window.kidoju;
                 $(function () {
                     $('#button1').click(function (e) {
-                        kidoju.dialogs.openSpreadsheet({
-                            title: 'My Spreadsheet',
-                            data: {
-                                sheets: [{
-                                    name: "Food Order",
-                                    mergedCells: [
-                                        "A1:G1"
-                                    ],
-                                    rows: [{
-                                        height: 70,
-                                        cells: [{
-                                            value: "My Company", fontSize: 32, textAlign: "center"
-                                        }]
-                                    }]
-                                }]
-                            },
-                            width: 860
+                        kidoju.dialogs.openAssetManager({
+                            title: 'My AssetManager',
+                            data: ''
                         }).done(function(result) {
                             $("#console1").append(
                                 kendo.format(
@@ -233,9 +220,9 @@
 
 <body>
 
-<h1>kidoju.dialogs.spreadsheet</h1>
+<h1>kidoju.dialogs.assetmanager</h1>
 
-<h2>using kendo.dialogs.openSpreadsheet</h2>
+<h2>using kendo.dialogs.openassetmanager</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

@@ -20,7 +20,7 @@ export default function openAssetManager(options = {}) {
     import('../kidoju.widgets.assetmanager')
         .then(() => {
             // Find or create the DOM element
-            const element = BaseDialog.getElement();
+            const element = BaseDialog.getElement(options.cssClass);
             element.css({ padding: 0 });
 
             // Create the dialog

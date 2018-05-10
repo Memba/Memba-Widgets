@@ -28,7 +28,9 @@ export default function openAlert(options = {}) {
             $.extend({}, options, {
                 title:
                     options.title ||
-                    BaseDialog.fn.options.messages.title[options.type || 'info'],
+                    BaseDialog.fn.options.messages.title[
+                        options.type || 'info'
+                    ],
                 content:
                     options.content ||
                     template(ALERT_TEMPLATE)({

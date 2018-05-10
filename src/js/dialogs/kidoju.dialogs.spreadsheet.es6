@@ -20,7 +20,7 @@ export default function openSpreadsheet(options = {}) {
     import('kendo.spreadsheet')
         .then(() => {
             // Find or create the DOM element
-            const element = BaseDialog.getElement();
+            const element = BaseDialog.getElement(options.cssClass);
             element.css({ padding: 0 });
 
             // Create the dialog

@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.dialogs.assetmanager</title>
+    <title>kidoju.dialogs.quizwizard</title>
     <script>
         window.app = { DEBUG: true };
     </script>
@@ -12,8 +12,6 @@
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- kidoju.dialogs.basedialog stylesheet -->
     <link href="../../styles/dialogs/kidoju.dialogs.basedialog.css" rel="stylesheet">
-    <!-- kidoju.widgets.assetmanager stylesheet -->
-    <link href="../../styles/kidoju.widgets.assetmanager.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -40,7 +38,7 @@
                     'kendogantt': ['kendo.gantt'],
                     'kendopdf': ['kendo.pdf'],
                     'kendoscheduler': ['kendo.scheduler'],
-                    'kendoassetmanager': ['kendo.assetmanager']
+                    'kendospreadsheet': ['kendo.spreadsheet']
                 },
                 map: {
                     'jquery': 'js/vendor/jquery/jquery-3.3.1.js',
@@ -161,7 +159,7 @@
                     'kendogrid': 'js/vendor/kendo/kendo.grid.js',
                     'kendopdf': 'js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'js/vendor/kendo/kendo.scheduler.js',
-                    'kendoassetmanager': 'js/vendor/kendo/kendo.assetmanager.js'
+                    'kendospreadsheet': 'js/vendor/kendo/kendo.spreadsheet.js'
                 },
                 packages: {
                     'js': {
@@ -187,14 +185,19 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.dialogs.assetmanager.es6').then(function () {
+            SystemJS.import('./kidoju.dialogs.quizwizard.es6').then(function () {
                 var kendo = window.kendo;
                 var kidoju = window.kidoju;
                 $(function () {
                     $('#button1').click(function (e) {
-                        kidoju.dialogs.openAssetManager({
-                            title: 'My AssetManager',
-                            data: ''
+                        kidoju.dialogs.openQuizWizard({
+                            title: 'New Quiz',
+                            data: {
+                                question : '',
+                                values: [],
+                                solution: null
+                            },
+                            width: 860
                         }).done(function(result) {
                             $("#console1").append(
                                 kendo.format(
@@ -221,9 +224,9 @@
 
 <body>
 
-<h1>kidoju.dialogs.assetmanager</h1>
+<h1>kidoju.dialogs.quizwizard</h1>
 
-<h2>using kendo.dialogs.openassetmanager</h2>
+<h2>using kendo.dialogs.openQuizWizard</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

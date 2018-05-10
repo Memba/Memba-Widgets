@@ -11,6 +11,8 @@ import CONSTANTS from '../window.constants.es6';
 // const logger = new window.Logger('kidoju.widgets.messagebox');
 // const logger = { debug: $.noop }; // TODO Review
 
+// TODO Review styles including the button container at the bottom consider suggestions to Telerik
+
 const { bind, observable, template } = window.kendo;
 const { Dialog, plugin } = window.kendo.ui;
 // const NS = '.kendoBaseDialog';

@@ -23,8 +23,7 @@ const {
 
 const templates = {
     action: template(
-        // '<button type=\'button\' class=\'k-button# if (data.primary) { # k-primary# } role=\'button\' #\'></button>'
-        '<li class="k-button# if (data.primary) { # k-primary# } #" role="button"></li>'
+        '<button type="button" class="k-button# if (data.primary) { # k-primary# } #" role="button"></button>'
     ),
     text: template(
         '<img alt="#: data.text #" class="k-image" src="#: data.imageUrl #">#: data.text #'
@@ -224,7 +223,7 @@ const BaseDialog = Dialog.extend({
 });
 
 /**
- * Static getter for the dialog element
+ * Static getter for the dialog DOM element
  */
 BaseDialog.getElement = function(cssClass = 'kj-dialog-tools') {
     // If a dialog already exists, remove it
@@ -236,7 +235,7 @@ BaseDialog.getElement = function(cssClass = 'kj-dialog-tools') {
         }
         // element.empty(); We replace the content anyway
     } else {
-        // Add a div to the html document for the alert dialog
+        // Add a div to the html document for the dialog
         // cssClass ensures we do not mess with other dialogs
         // when opening several depths of dialogs
         element = $(`<div class="${cssClass}"></div>`).appendTo(document.body);

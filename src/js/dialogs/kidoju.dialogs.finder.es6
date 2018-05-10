@@ -33,17 +33,17 @@ export default function openFinder(options = {}) {
                 actions: options.actions || [
                     {
                         action: 'ok',
-                        text: BaseDialog.fn.options.messages.action.ok,
                         imageUrl:
-                            'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg'
+                            'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
+                        primary: true,
+                        text: BaseDialog.fn.options.messages.action.ok
                     },
                     {
                         action: 'cancel',
-                        text:
-                            BaseDialog.fn.options.messages.action
-                                .cancel,
                         imageUrl:
-                            'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg'
+                            'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
+                        text:
+                            BaseDialog.fn.options.messages.action.cancel
                     }
                 ]
             })

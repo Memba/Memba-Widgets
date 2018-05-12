@@ -95,6 +95,12 @@ const BaseDialog = Dialog.extend({
             this.one('initOpen', e => {
                 bind(e.sender.element.children(), e.sender.viewModel);
             });
+            this.one(CONSTANTS.CLOSE, e => {
+                // The content method destroys widgets and unbinds data
+                e.sender.content('');
+                // Release the viewModel
+                e.sender.viewModel = undefined;
+            });
         }
     },
 

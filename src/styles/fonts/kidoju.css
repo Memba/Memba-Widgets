@@ -1,336 +1,351 @@
 @font-face {
-    font-family: "kidoju";
-    src: url("kidoju.eot");
-    src: url("kidoju.eot?#iefix") format("embedded-opentype"), url("kidoju.woff") format("woff"), url("kidoju.ttf") format("truetype");
-    font-weight: normal;
-    font-style: normal;
+  font-family: "kidoju";
+  src: url("kidoju.eot");
+  src: url("kidoju.eot?#iefix") format("embedded-opentype"), url("kidoju.woff") format("woff"), url("kidoju.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
 }
 .kf {
-    font-family: "kidoju";
-    display: inline-block;
-    vertical-align: middle;
-    line-height: 1;
-    font-weight: normal;
-    font-style: normal;
-    speak: none;
-    text-decoration: inherit;
-    text-transform: none;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  font-family: "kidoju";
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+  font-weight: normal;
+  font-style: normal;
+  speak: none;
+  text-decoration: inherit;
+  text-transform: none;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 .kf-add:before {
-    content: "\f101";
+  content: "\f101";
 }
 .kf-alpha:before {
-    content: "\3b1";
+  content: "\3b1";
 }
 .kf-android:before {
-    content: "\f102";
+  content: "\f102";
 }
 .kf-apple:before {
-    content: "\f103";
+  content: "\f103";
 }
 .kf-arccos:before {
-    content: "\e734";
+  content: "\e734";
 }
 .kf-arcsin:before {
-    content: "\e733";
+  content: "\e733";
 }
 .kf-arctan:before {
-    content: "\e735";
+  content: "\e735";
 }
 .kf-submit:before {
-    content: "\e320";
+  content: "\e320";
 }
 .kf-backspace:before {
-    content: "\232b";
+  content: "\232b";
 }
 .kf-chemistry:before {
-    content: "\e703";
+  content: "\e703";
 }
 .kf-binomial:before {
-    content: "\e761";
+  content: "\e761";
 }
 .kf-bleft:before {
-    content: "\5b";
+  content: "\5b";
 }
 .kf-blog:before {
-    content: "\f104";
+  content: "\f104";
 }
 .kf-bmatrix:before {
-    content: "\e752";
+  content: "\e752";
 }
 .kf-bright:before {
-    content: "\5d";
+  content: "\5d";
 }
 .kf-calculator:before {
-    content: "\e701";
+  content: "\e701";
 }
 .kf-datetime:before {
-    content: "\f105";
+  content: "\f105";
 }
 .kf-cbrt:before {
-    content: "\221b";
+  content: "\221b";
+}
+.kf-cc-by:before {
+  content: "\f106";
+}
+.kf-cc-nc:before {
+  content: "\f107";
+}
+.kf-cc-nd:before {
+  content: "\f108";
+}
+.kf-cc-sa:before {
+  content: "\f109";
+}
+.kf-cc-zero:before {
+  content: "\f10a";
 }
 .kf-cleft:before {
-    content: "\7b";
+  content: "\7b";
 }
 .kf-sync:before {
-    content: "\e340";
+  content: "\e340";
 }
 .kf-cmatrix:before {
-    content: "\e753";
+  content: "\e753";
 }
 .kf-column:before {
-    content: "\e756";
+  content: "\e756";
 }
 .kf-cos:before {
-    content: "\e731";
+  content: "\e731";
 }
 .kf-cright:before {
-    content: "\7d";
+  content: "\7d";
 }
 .kf-cursor:before {
-    content: "\e800";
+  content: "\e800";
 }
 .kf-dashes:before {
-    content: "\e802";
+  content: "\e802";
 }
 .kf-derivative:before {
-    content: "\e740";
+  content: "\e740";
 }
 .kf-dice:before {
-    content: "\2680";
+  content: "\2680";
 }
 .kf-summary:before {
-    content: "\e303";
+  content: "\e303";
 }
 .kf-signout:before {
-    content: "\f106";
+  content: "\f10b";
 }
 .kf-drawer:before {
-    content: "\e300";
+  content: "\e300";
 }
 .kf-ear:before {
-    content: "\e360";
+  content: "\e360";
 }
 .kf-view:before {
-    content: "\f107";
+  content: "\f10c";
 }
 .kf-facebook:before {
-    content: "\e510";
+  content: "\e510";
 }
 .kf-factorial:before {
-    content: "\e760";
+  content: "\e760";
 }
 .kf-feed:before {
-    content: "\f108";
+  content: "\f10d";
 }
 .kf-search-adv:before {
-    content: "\f109";
+  content: "\f10e";
 }
 .kf-frac:before {
-    content: "\e710";
+  content: "\e710";
 }
 .kf-fx:before {
-    content: "\e702";
+  content: "\e702";
 }
 .kf-settings:before {
-    content: "\e0da";
+  content: "\e0da";
 }
 .kf-google:before {
-    content: "\e515";
+  content: "\e515";
 }
 .kf-history:before {
-    content: "\e305";
+  content: "\e305";
 }
 .kf-home:before {
-    content: "\e0dd";
+  content: "\e0dd";
 }
 .kf-int:before {
-    content: "\e742";
+  content: "\e742";
 }
 .kf-keypad:before {
-    content: "\2328";
+  content: "\2328";
 }
 .kf-support:before {
-    content: "\f10a";
+  content: "\f10f";
 }
 .kf-lim:before {
-    content: "\e746";
+  content: "\e746";
 }
 .kf-linkedin:before {
-    content: "\e520";
+  content: "\e520";
 }
 .kf-live:before {
-    content: "\e525";
+  content: "\e525";
 }
 .kf-ln:before {
-    content: "\e728";
+  content: "\e728";
 }
 .kf-signin:before {
-    content: "\f10b";
+  content: "\f110";
 }
 .kf-log:before {
-    content: "\e726";
+  content: "\e726";
 }
 .kf-log10:before {
-    content: "\e727";
+  content: "\e727";
 }
 .kf-logic:before {
-    content: "\26ad";
+  content: "\26ad";
 }
 .kf-search:before {
-    content: "\e0e9";
+  content: "\e0e9";
 }
 .kf-matrix:before {
-    content: "\e750";
+  content: "\e750";
 }
 .kf-play:before {
-    content: "\e309";
+  content: "\e309";
 }
 .kf-report:before {
-    content: "\f10c";
+  content: "\f111";
 }
 .kf-comment:before {
-    content: "\f10d";
+  content: "\f112";
 }
 .kf-first:before {
-    content: "\e310";
+  content: "\e310";
 }
 .kf-last:before {
-    content: "\e313";
+  content: "\e313";
 }
 .kf-previous:before {
-    content: "\e311";
+  content: "\e311";
 }
 .kf-next:before {
-    content: "\e312";
+  content: "\e312";
 }
 .kf-nthroot:before {
-    content: "\221c";
+  content: "\221c";
 }
 .kf-oint:before {
-    content: "\e743";
+  content: "\e743";
 }
 .kf-omega-maj:before {
-    content: "\f10e";
+  content: "\f113";
 }
 .kf-overline:before {
-    content: "\e762";
+  content: "\e762";
 }
 .kf-partial:before {
-    content: "\e741";
+  content: "\e741";
 }
 .kf-pinterest:before {
-    content: "\f10f";
+  content: "\f114";
 }
 .kf-pleft:before {
-    content: "\28";
+  content: "\28";
 }
 .kf-create:before {
-    content: "\f110";
+  content: "\f115";
 }
 .kf-pm:before {
-    content: "\b1";
+  content: "\b1";
 }
 .kf-pmatrix:before {
-    content: "\e751";
+  content: "\e751";
 }
 .kf-scan:before {
-    content: "\e0db";
+  content: "\e0db";
 }
 .kf-pow:before {
-    content: "\e721";
+  content: "\e721";
 }
 .kf-pow2:before {
-    content: "\e722";
+  content: "\e722";
 }
 .kf-pow3:before {
-    content: "\e723";
+  content: "\e723";
 }
 .kf-pright:before {
-    content: "\29";
+  content: "\29";
 }
 .kf-prod:before {
-    content: "\e745";
+  content: "\e745";
 }
 .kf-publish:before {
-    content: "\f111";
+  content: "\f116";
 }
 .kf-help:before {
-    content: "\f112";
+  content: "\f117";
 }
 .kf-row:before {
-    content: "\e757";
+  content: "\e757";
 }
 .kf-share:before {
-    content: "\f113";
+  content: "\f118";
 }
 .kf-sin:before {
-    content: "\e730";
+  content: "\e730";
 }
 .kf-sqrt:before {
-    content: "\221a";
+  content: "\221a";
 }
 .kf-star:before {
-    content: "\2605";
+  content: "\2605";
 }
 .kf-star-o:before {
-    content: "\2606";
+  content: "\2606";
 }
 .kf-stumbleupon:before {
-    content: "\f114";
+  content: "\f119";
 }
 .kf-subscript:before {
-    content: "\e711";
+  content: "\e711";
 }
 .kf-sum:before {
-    content: "\e744";
+  content: "\e744";
 }
 .kf-tags:before {
-    content: "\f115";
+  content: "\f11a";
 }
 .kf-tan:before {
-    content: "\e732";
+  content: "\e732";
 }
 .kf-field:before {
-    content: "\e700";
+  content: "\e700";
 }
 .kf-score:before {
-    content: "\e330";
+  content: "\e330";
 }
 .kf-twitter:before {
-    content: "\e550";
+  content: "\e550";
 }
 .kf-user:before {
-    content: "\e302";
+  content: "\e302";
 }
 .kf-uservoice:before {
-    content: "\f116";
+  content: "\f11b";
 }
 .kf-vector:before {
-    content: "\e758";
+  content: "\e758";
 }
 .kf-vleft:before {
-    content: "\9b";
+  content: "\9b";
 }
 .kf-vmatrix:before {
-    content: "\e754";
+  content: "\e754";
 }
 .kf-vright:before {
-    content: "\9d";
+  content: "\9d";
 }
 .kf-vvmatrix:before {
-    content: "\e755";
+  content: "\e755";
 }
 .kf-widehat:before {
-    content: "\e759";
+  content: "\e759";
 }
 .kf-width:before {
-    content: "\e801";
+  content: "\e801";
 }
 .kf-youtube:before {
-    content: "\f117";
+  content: "\f11c";
 }

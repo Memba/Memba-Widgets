@@ -88,6 +88,9 @@
 .kf-cc-zero:before {
   content: "\f10a";
 }
+.kf-cc:before {
+  content: "\f10b";
+}
 .kf-cleft:before {
   content: "\7b";
 }
@@ -122,7 +125,7 @@
   content: "\e303";
 }
 .kf-signout:before {
-  content: "\f10b";
+  content: "\f10c";
 }
 .kf-drawer:before {
   content: "\e300";
@@ -131,7 +134,7 @@
   content: "\e360";
 }
 .kf-view:before {
-  content: "\f10c";
+  content: "\f10d";
 }
 .kf-facebook:before {
   content: "\e510";
@@ -140,10 +143,10 @@
   content: "\e760";
 }
 .kf-feed:before {
-  content: "\f10d";
+  content: "\f10e";
 }
 .kf-search-adv:before {
-  content: "\f10e";
+  content: "\f10f";
 }
 .kf-frac:before {
   content: "\e710";
@@ -170,7 +173,7 @@
   content: "\2328";
 }
 .kf-support:before {
-  content: "\f10f";
+  content: "\f110";
 }
 .kf-lim:before {
   content: "\e746";
@@ -185,7 +188,7 @@
   content: "\e728";
 }
 .kf-signin:before {
-  content: "\f110";
+  content: "\f111";
 }
 .kf-log:before {
   content: "\e726";
@@ -206,10 +209,10 @@
   content: "\e309";
 }
 .kf-report:before {
-  content: "\f111";
+  content: "\f112";
 }
 .kf-comment:before {
-  content: "\f112";
+  content: "\f113";
 }
 .kf-first:before {
   content: "\e310";
@@ -230,7 +233,7 @@
   content: "\e743";
 }
 .kf-omega-maj:before {
-  content: "\f113";
+  content: "\f114";
 }
 .kf-overline:before {
   content: "\e762";
@@ -239,13 +242,13 @@
   content: "\e741";
 }
 .kf-pinterest:before {
-  content: "\f114";
+  content: "\f115";
 }
 .kf-pleft:before {
   content: "\28";
 }
 .kf-create:before {
-  content: "\f115";
+  content: "\f116";
 }
 .kf-pm:before {
   content: "\b1";
@@ -272,16 +275,16 @@
   content: "\e745";
 }
 .kf-publish:before {
-  content: "\f116";
+  content: "\f117";
 }
 .kf-help:before {
-  content: "\f117";
+  content: "\f118";
 }
 .kf-row:before {
   content: "\e757";
 }
 .kf-share:before {
-  content: "\f118";
+  content: "\f119";
 }
 .kf-sin:before {
   content: "\e730";
@@ -296,7 +299,7 @@
   content: "\2606";
 }
 .kf-stumbleupon:before {
-  content: "\f119";
+  content: "\f11a";
 }
 .kf-subscript:before {
   content: "\e711";
@@ -305,7 +308,7 @@
   content: "\e744";
 }
 .kf-tags:before {
-  content: "\f11a";
+  content: "\f11b";
 }
 .kf-tan:before {
   content: "\e732";
@@ -323,7 +326,7 @@
   content: "\e302";
 }
 .kf-uservoice:before {
-  content: "\f11b";
+  content: "\f11c";
 }
 .kf-vector:before {
   content: "\e758";
@@ -347,5 +350,5 @@
   content: "\e801";
 }
 .kf-youtube:before {
-  content: "\f11c";
+  content: "\f11d";
 }

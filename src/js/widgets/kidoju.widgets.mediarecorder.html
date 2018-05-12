@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>MediaRecorder</title>
+    <title>kidoju.widgets.nediarecorder</title>
     <link rel="stylesheet" href="../../styles/vendor/kendo/web/kendo.common.min.css">
     <link rel="stylesheet" href="../../styles/vendor/kendo/web/kendo.rtl.min.css">
     <link rel="stylesheet" href="../../styles/vendor/kendo/web/kendo.default.min.css">
@@ -191,17 +191,17 @@
                         visible: true,
                         enabled: true
                     });
-                    kendo.bind('body', viewModel);
+                    kendo.bind(document.body, viewModel);
                 });
             });
         }());
     </script>
 </head>
 <body>
-<h1>MediaRecorder</h1>
-<h2>MediaRecorder unbound</h2>
+<h1>kidoju.widgets.nediarecorder</h1>
+<h2>Code initilization</h2>
 <div id="mediarecorder"></div>
-<h2>MediaRecorder bound to observable</h2>
+<h2>Bound to observable</h2>
 <!--div data-role="mediarecorder" data-bind="visible: visible, enabled: enabled"></div-->
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;

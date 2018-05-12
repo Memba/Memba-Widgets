@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>ScratchPad</title>
+    <title>kidoju.widgets.scratchpad</title>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
@@ -192,23 +192,22 @@
                         visible: true,
                         enabled: true
                     });
-                    kendo.bind('body', viewModel);
+                    kendo.bind(document.body, viewModel);
                 });
             });
         }());
     </script>
 </head>
 <body>
-<h1>ScratchPad</h1>
-<h2>ScratchPad unbound</h2>
+<h1>kidoju.widgets.scratchpad</h1>
+<h2>Code initialization</h2>
 <div id="scratchpad" style="height:500px; width:500px;"></div>
-<h2>ScratchPad bound to observable</h2>
+<h2>Bound to observable</h2>
 <div data-role="scratchpad" data-bind="value: surface, visible: visible, enabled: enabled" style="height:500px; width:500px;" /></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled
 </div>
-
 <pre>
     {
         value: <span data-bind="text: stream"></span>,

@@ -2,19 +2,19 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Whiteboard</title>
-    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <title>kidoju.widgets.whiteboard</title>
+    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- kidoju.widgets.whiteboard stylesheet -->
     <!--link href="./styles/widgets/kidoju.widgets.whiteboard.css" rel="stylesheet" /-->
     <!-- SystemJS loader -->
-    <script src="../test/vendor/system.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
             SystemJS.config({
-                baseURL: './',
+                baseURL: '../../',
                 bundles: {
                     'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
@@ -176,18 +176,19 @@
                     }
                 },
                 paths: {
-                    'plugin-babel': '../node_modules/systemjs-plugin-babel/plugin-babel.js',
-                    'systemjs-babel-build': '../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
+                    'plugin-babel': '../../../node_modules/systemjs-plugin-babel/plugin-babel.js',
+                    'systemjs-babel-build': '../../../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/widgets/kidoju.widgets.whiteboard.es6').then(function (kendo) {
+            SystemJS.import('./kidoju.widgets.whiteboard.es6').then(function () {
+                var kendo = window.kendo;
                 $(function () {
                     var viewModel = kendo.observable({
                         visible: true,
                         enabled: true
                     });
-                    kendo.bind('body', viewModel);
+                    kendo.bind(document.body, viewModel);
                     var whiteboard = $('#whiteboard').kendoWhiteboard({}).data('kendoWhiteboard');
                     $('#record').click(function () {
                         whiteboard.record();
@@ -201,21 +202,17 @@
     </script>
 </head>
 <body>
-<h1>Whiteboard</h1>
-<h2>Whiteboard unbound</h2>
-
+<h1>kidoju.widgets.whiteboard</h1>
+<h2>Cofe initilization</h2>
 <div id="whiteboard" style="width:640px;height:480px"></div>
 <button id="record">Record</button>
 <button id="pause">Pause</button>
 <button id="stop">Stop</button>
-
-<h2>Whiteboard bound to observable</h2>
-
+<h2>Bound to observable</h2>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled
 </div>
-
 <pre>
     {
         visible: <span data-bind="text: visible"></span>,

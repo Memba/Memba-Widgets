@@ -65,11 +65,6 @@ export default function openCodeEditor(options = {}) {
                 });
             });
 
-            // Since $dialog is reused, clear padding when closing
-            dialog.one(CONSTANTS.CLOSE, e => {
-                e.sender.element.css({ padding: '' });
-            });
-
             // Display the message dialog
             dialog.open();
         })

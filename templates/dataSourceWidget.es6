@@ -7,53 +7,44 @@ import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.data';
 
-const { destroy } = window.kendo;
-const { plugin, Widget } = window.kendo.ui;
-const { DataSource } = window.kendo.data;
+const {
+    data: { DataSource },
+    ui: { plugin, Widget, DataBoundWidget }
+} = window.kendo;
 const CHANGE = 'change';
 
 /**
  * DataSourceWidget
  */
-export default class DataSourceWidget extends Widget {
+const DataSourceWidget = DataBoundWidget.extend({
     /**
-     * DataSourceWidget constructor
+     * Constructor
+     * @constructor
      * @param element
      * @param options
      */
-    constructor(element, options) {
-        super(element, Object.assign({}, DataSourceWidget.options, options));
-        this.events = DataSourceWidget.events;
+    init(element, options) {
+        DataBoundWidget.fn.init.call(this, element, options);
         this.wrapper = this.element;
         // this.render();
-        // this.enable(this.options.enable);
+        // this.enable(this.options.enabled);
         this._dataSource();
-    }
+    },
 
     /**
-     * fn static getter
+     * Widget events
      */
-    static get fn() {
-        return this;
-    }
-
-    /**
-     * Default events
-     */
-    static get events() {
-        return [CHANGE];
-    }
+    events: [CHANGE],
 
     /**
      * Default options
      */
-    static get options() {
-        return Object.assign({}, this.prototype.options, {
-            name: 'DataSourceWidget',
-            autoBind: true,
-            dataSource: []
-        });
-    }
+    options: {
+        name: 'DataSourceWidget',
+        autoBind: true,
+        // enabled: true,
+        dataSource: []
+    },
 
     /**
      * _dataSource
@@ -79,7 +70,7 @@ export default class DataSourceWidget extends Widget {
         if (this.options.autoBind) {
             this.dataSource.fetch();
         }
-    }
+    },
 
     /**
      * setDataSource
@@ -90,7 +81,7 @@ export default class DataSourceWidget extends Widget {
         this.options.dataSource = dataSource;
         // rebuild the datasource if necessary, or just reassign
         this._dataSource();
-    }
+    },
 
     /**
      * Refresh
@@ -104,7 +95,7 @@ export default class DataSourceWidget extends Widget {
         list += '</ul>';
         this.element.empty();
         this.element.append(list);
-    }
+    },
 
     /**
      * Destroy
@@ -116,10 +107,9 @@ export default class DataSourceWidget extends Widget {
         ) {
             this.dataSource.unbind(CHANGE, this._refreshHandler);
         }
-        super.destroy();
-        destroy(this.element); // TODO Review
+        DataBoundWidget.fn.destroy.call(this)
     }
-}
+});
 
-// Register DataSourceWidget
+// Register widget
 plugin(DataSourceWidget);

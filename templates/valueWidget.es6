@@ -6,51 +6,42 @@
 import $ from 'jquery';
 import 'kendo.binder';
 
-const { destroy } = window.kendo;
-const { plugin, Widget } = window.kendo.ui;
-const CHANGE = 'change';
+const {
+    ui: { plugin, Widget }
+} = window.kendo;
+// const CHANGE = 'change';
 
 /**
  * ValueWidget
  */
-export default class ValueWidget extends Widget {
+const ValueWidget = Widget.extend({
     /**
-     * ValueWidget constructor
+     * Constructor
+     * @constructor
      * @param element
      * @param options
      */
-    constructor(element, options) {
-        super(element, Object.assign({}, ValueWidget.options, options));
-        this.events = ValueWidget.events;
+    init(element, options) {
+        Widget.fn.init.call(this, element, options);
         this.wrapper = this.element;
         // this._render();
-        // this.enable(this.options.enable);
+        // this.enable(this.options.enabled);
         this.value(this.options.value);
-    }
+    },
 
     /**
-     * fn static getter
+     * Widget events
      */
-    static get fn() {
-        return this;
-    }
+    // events: [CHANGE],
 
     /**
-     * Default events
+     * Widget options
      */
-    static get events() {
-        return [CHANGE];
-    }
-
-    /**
-     * Default options
-     */
-    static get options() {
-        return Object.assign({}, this.prototype.options, {
-            name: 'ValueWidget',
-            value: ''
-        });
-    }
+    options: {
+        name: 'ValueWidget',
+        // enabled: true,
+        value: ''
+    },
 
     /**
      * Value
@@ -64,26 +55,24 @@ export default class ValueWidget extends Widget {
         } else if (this._value !== value) {
             this._value = value;
             this.refresh();
-            // TODO add a clear button that sets this.trigger(CHANGE);
         }
         return ret;
-    }
+    },
 
     /**
      * Refresh
      */
     refresh() {
         this.element.text(this._value);
-    }
+    },
 
     /**
      * Destroy
      */
     destroy() {
-        super.destroy();
-        destroy(this.element); // TODO Review
+        Widget.fn.destroy.call(this);
     }
-}
+});
 
-// Create a jQuery plugin, this calls ValueWidget.fn.options.name
+// Register widget
 plugin(ValueWidget);

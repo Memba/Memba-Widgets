@@ -92,7 +92,7 @@ const BaseDialog = Dialog.extend({
     _initViewModel() {
         if (this.options.data) {
             this.viewModel = observable(this.options.data);
-            this.bind('initOpen', e => {
+            this.one('initOpen', e => {
                 bind(e.sender.element.children(), e.sender.viewModel);
             });
         }

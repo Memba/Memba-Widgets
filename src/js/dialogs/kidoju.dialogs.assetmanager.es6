@@ -4,6 +4,7 @@ import './kidoju.widgets.basedialog.es6';
 import CONSTANTS from '../window.constants.es6';
 
 const {
+    bind,
     ns,
     resize,
     roleSelector,
@@ -17,14 +18,17 @@ const {
  */
 export default function openAssetManager(options = {}) {
     const dfd = $.Deferred();
-    import('../kidoju.widgets.assetmanager')
+    Promise.all([
+        import('../kidoju.widgets.vectordrawing'),
+        import('../kidoju.widgets.assetmanager')
+    ])
         .then(() => {
             // Find or create the DOM element
-            const element = BaseDialog.getElement(options.cssClass);
-            element.css({ padding: 0 });
+            const $dialog = BaseDialog.getElement(options.cssClass);
+            $dialog.css({ padding: 0 }).addClass('k-tabstrip k-header');
 
             // Create the dialog
-            const dialog = element
+            const dialog = $dialog
                 .kendoBaseDialog(
                     $.extend({}, options, {
                         title:
@@ -32,7 +36,7 @@ export default function openAssetManager(options = {}) {
                             BaseDialog.fn.options.messages[
                                 options.type || 'info'
                             ],
-                        content: `<div data-${ns}role="assetmanager"></div>`,
+                        content: `<div data-${ns}role="assetmanager" data-${ns}bind="value:url"></div>`,
                         actions: options.actions || [
                             {
                                 action: 'ok',
@@ -48,35 +52,42 @@ export default function openAssetManager(options = {}) {
                                 text:
                                     BaseDialog.fn.options.messages.action.cancel
                             }
-                        ]
+                        ],
+                        width: 860
                     })
                 )
                 .data('kendoBaseDialog');
 
             // Rebind the initOpen event considering the kendo.ui.Spreadsheet widget cannot bind to a viewModel
             dialog.unbind('initOpen');
-            dialog.bind('initOpen', e => {
-                const spreadSheet = e.sender.element
-                    .find(roleSelector('spreadsheet'))
-                    .kendoSpreadsheet()
-                    .data('kendoSpreadsheet');
-                spreadSheet.fromJSON(options.data);
+            dialog.one('initOpen', e => {
+                // Designate assets
+                const $assetManager = e.sender.element.find(
+                    roleSelector('assetmanager')
+                );
+                $assetManager
+                    .kendoAssetManager(options.assets)
+                    .data('kendoAssetManager');
+                // Bind viewModel
+                bind($assetManager, e.sender.viewModel);
             });
 
             // Bind the show event to resize once opened
-            dialog.bind('show', e => {
+            dialog.one('show', e => {
                 resize(e.sender.element);
             });
 
             // Bind the click event
-            dialog.bind(CONSTANTS.CLICK, e => {
-                const spreadSheet = e.sender.element
-                    .find(roleSelector('spreadsheet'))
-                    .data('kendoSpreadsheet');
+            dialog.one(CONSTANTS.CLICK, e => {
                 dfd.resolve({
                     action: e.action,
-                    data: spreadSheet.toJSON()
+                    data: e.sender.viewModel.toJSON()
                 });
+            });
+
+            // Bind the close event
+            dialog.one(CONSTANTS.CLOSE, e => {
+                e.sender.element.removeClass('k-tabstrip k-header');
             });
 
             // Display the message dialog

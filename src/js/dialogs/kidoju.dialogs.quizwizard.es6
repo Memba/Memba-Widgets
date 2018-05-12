@@ -20,7 +20,7 @@ export default function openQuizWizard(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
-    const element = BaseDialog.getElement(options.cssClass);
+    const $dialog = BaseDialog.getElement(options.cssClass);
 
     // Ids
     const questionId = guid();
@@ -35,7 +35,7 @@ export default function openQuizWizard(options = {}) {
     const multipleName = 'Multiple Answers';
 
     // Create the dialog
-    const dialog = element
+    const dialog = $dialog
         .kendoBaseDialog(
             $.extend({}, options, {
                 title:
@@ -77,18 +77,18 @@ export default function openQuizWizard(options = {}) {
         )
         .data('kendoBaseDialog');
 
-    const validator = element
+    const validator = $dialog
         .find('.kj-dialog-form')
         .kendoValidator()
         .data('kendoValidator');
 
     // Bind the show event to resize once opened
-    dialog.bind('show', e => {
+    dialog.one('show', e => {
         resize(e.sender.element);
     });
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.one(CONSTANTS.CLICK, e => {
         if (e.action === 'cancel' || validator.validate()) {
             dfd.resolve({
                 action: e.action,

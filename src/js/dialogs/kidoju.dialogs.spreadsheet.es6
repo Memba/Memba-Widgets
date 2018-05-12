@@ -20,11 +20,11 @@ export default function openSpreadsheet(options = {}) {
     import('kendo.spreadsheet')
         .then(() => {
             // Find or create the DOM element
-            const element = BaseDialog.getElement(options.cssClass);
-            element.css({ padding: 0 });
+            const $dialog = BaseDialog.getElement(options.cssClass);
+            $dialog.css({ padding: 0 });
 
             // Create the dialog
-            const dialog = element
+            const dialog = $dialog
                 .kendoBaseDialog(
                     $.extend({}, options, {
                         title:
@@ -55,7 +55,7 @@ export default function openSpreadsheet(options = {}) {
 
             // Rebind the initOpen event considering the kendo.ui.Spreadsheet widget cannot bind to a viewModel
             dialog.unbind('initOpen');
-            dialog.bind('initOpen', e => {
+            dialog.one('initOpen', e => {
                 const spreadSheet = e.sender.element
                     .find(roleSelector('spreadsheet'))
                     .kendoSpreadsheet({
@@ -66,12 +66,12 @@ export default function openSpreadsheet(options = {}) {
             });
 
             // Bind the show event to resize once opened
-            dialog.bind('show', e => {
+            dialog.one('show', e => {
                 resize(e.sender.element);
             });
 
             // Bind the click event
-            dialog.bind(CONSTANTS.CLICK, e => {
+            dialog.one(CONSTANTS.CLICK, e => {
                 const spreadSheet = e.sender.element
                     .find(roleSelector('spreadsheet'))
                     .data('kendoSpreadsheet');
@@ -79,6 +79,11 @@ export default function openSpreadsheet(options = {}) {
                     action: e.action,
                     data: spreadSheet.toJSON()
                 });
+            });
+
+            // Since $dialog is reused, clear padding when closing
+            dialog.one(CONSTANTS.CLOSE, e => {
+                e.sender.element.css({ padding: '' });
             });
 
             // Display the message dialog

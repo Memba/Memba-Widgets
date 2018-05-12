@@ -20,10 +20,10 @@ export default function openPrompt(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
-    const element = BaseDialog.getElement('kj-dialog-prompt');
+    const $dialog = BaseDialog.getElement('kj-dialog-prompt');
 
     // Create the dialog
-    const dialog = element
+    const dialog = $dialog
         .kendoBaseDialog(
             $.extend({}, options, {
                 title:
@@ -60,7 +60,7 @@ export default function openPrompt(options = {}) {
         .data('kendoBaseDialog');
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.one(CONSTANTS.CLICK, e => {
         dfd.resolve({
             action: e.action,
             data: e.sender.viewModel.toJSON()

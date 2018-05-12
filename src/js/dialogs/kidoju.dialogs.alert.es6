@@ -20,10 +20,10 @@ export default function openAlert(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
-    const element = BaseDialog.getElement('kj-dialog-alert');
+    const $dialog = BaseDialog.getElement('kj-dialog-alert');
 
     // Create the dialog
-    const dialog = element
+    const dialog = $dialog
         .kendoBaseDialog(
             $.extend({}, options, {
                 title:
@@ -57,7 +57,7 @@ export default function openAlert(options = {}) {
         .data('kendoBaseDialog');
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.one(CONSTANTS.CLICK, e => {
         dfd.resolve({ action: e.action });
     });
 

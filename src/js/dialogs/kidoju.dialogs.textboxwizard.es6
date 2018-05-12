@@ -77,12 +77,12 @@ export default function openTextBoxWizard(options = {}) {
         .data('kendoValidator');
 
     // Bind the show event to resize once opened
-    dialog.bind('show', e => {
+    dialog.one('show', e => {
         resize(e.sender.element);
     });
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.one(CONSTANTS.CLICK, e => {
         if (e.action === 'cancel' || validator.validate()) {
             dfd.resolve({
                 action: e.action,

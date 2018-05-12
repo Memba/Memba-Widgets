@@ -18,11 +18,11 @@ export default function openFinder(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
-    const element = BaseDialog.getElement(options.cssClass);
-    element.css({ padding: 0 });
+    const $dialog = BaseDialog.getElement(options.cssClass);
+    $dialog.css({ padding: 0 });
 
     // Create the dialog
-    const dialog = element
+    const dialog = $dialog
         .kendoBaseDialog(
             $.extend({}, options, {
                 title:
@@ -49,16 +49,21 @@ export default function openFinder(options = {}) {
         .data('kendoBaseDialog');
 
     // Bind the show event to resize once opened
-    dialog.bind('show', e => {
+    dialog.one('show', e => {
         resize(e.sender.element);
     });
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.one(CONSTANTS.CLICK, e => {
         dfd.resolve({
             action: e.action,
             data: e.sender.viewModel.toJSON()
         });
+    });
+
+    // Since $dialog is reused, clear padding when closing
+    dialog.one(CONSTANTS.CLOSE, e => {
+        e.sender.element.css({ padding: '' });
     });
 
     // Display the message dialog

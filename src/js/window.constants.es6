@@ -20,6 +20,11 @@ const CONSTANTS = {
     // Events
     CHANGE: 'change',
     CLICK: 'click',
+    CLOSE: 'close',
+    ERROR: 'error',
+    KEYDOWN: 'keydown',
+    KEYPRESS: 'keypress',
+    KEYUP: 'keyup',
     MOUSEDOWN: 'mousedown',
     MOUSEMOVE: 'mousemove',
     MOUSEOUT: 'mouseout',
@@ -28,9 +33,18 @@ const CONSTANTS = {
     TOUCHLEAVE: 'touchleave',
     TOUCHMOVE: 'touchmove',
     TOUCHSTART: 'touchstart',
+    // Well-known classes
+    DISABLED_CLASS: 'k-state-disabled',
+    FOCUS_CLASS: 'k-state-focus',
+    // CSS Properties
+    HEIGHT: 'height',
+    WIDTH: 'width',
+    // Other properties
+    ACTION: 'action',
     // Regular Expressions
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
-    // Characeters
+    RX_URL: /^https?:\/\//, // TODO Review
+    // Characters
     DOT: '.',
     HASH: '#',
     HYPHEN: '-',

@@ -37,11 +37,11 @@ export default function openQuizWizard(options = {}) {
     // Create the dialog
     const dialog = $dialog
         .kendoBaseDialog(
-            $.extend({}, options, {
-                title:
-                    options.title ||
-                    BaseDialog.fn.options.messages[options.type || 'info'],
-                content: `<div class="k-widget k-notification k-notification-info">
+            Object.assign(
+                {
+                    title:
+                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    content: `<div class="k-widget k-notification k-notification-info">
                             <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${message}</div>
                           </div>
                           <div class="kj-dialog-form">
@@ -58,22 +58,14 @@ export default function openQuizWizard(options = {}) {
                               <div class="kj-dialog-col75"><input id="${solutionId}" type="text" name="${solutionName}" class="k-input k-textbox" data-${ns}bind="value: solution" required pattern="\\S+"></div>
                             </div>
                           </div>`,
-                actions: options.actions || [
-                    {
-                        action: 'ok',
-                        imageUrl:
-                            'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
-                        primary: true,
-                        text: BaseDialog.fn.options.messages.action.ok
-                    },
-                    {
-                        action: 'cancel',
-                        imageUrl:
-                            'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
-                        text: BaseDialog.fn.options.messages.action.cancel
-                    }
-                ]
-            })
+                    actions: [
+                        BaseDialog.fn.options.messages.actions.ok,
+                        BaseDialog.fn.options.messages.actions.cancel
+                    ],
+                    width: 860
+                },
+                options
+            )
         )
         .data('kendoBaseDialog');
 
@@ -89,7 +81,10 @@ export default function openQuizWizard(options = {}) {
 
     // Bind the click event
     dialog.one(CONSTANTS.CLICK, e => {
-        if (e.action === 'cancel' || validator.validate()) {
+        if (
+            e.action === BaseDialog.fn.options.messages.actions.cancel.action ||
+            validator.validate()
+        ) {
             dfd.resolve({
                 action: e.action,
                 data: e.sender.viewModel.toJSON()

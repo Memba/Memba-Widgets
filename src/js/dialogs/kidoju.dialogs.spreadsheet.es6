@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.spreadsheet';
 import './kidoju.widgets.basedialog.es6';
 import CONSTANTS from '../window.constants.es6';
 
@@ -17,76 +18,60 @@ const {
  */
 export default function openSpreadsheet(options = {}) {
     const dfd = $.Deferred();
-    import('kendo.spreadsheet')
-        .then(() => {
-            // Find or create the DOM element
-            const $dialog = BaseDialog.getElement(options.cssClass);
-            $dialog.css({ padding: 0 });
 
-            // Create the dialog
-            const dialog = $dialog
-                .kendoBaseDialog(
-                    $.extend({}, options, {
-                        title:
-                            options.title ||
-                            BaseDialog.fn.options.messages[
-                                options.type || 'info'
-                            ],
-                        content: `<div data-${ns}role="spreadsheet" style="width:100%;border:0;"></div>`,
-                        actions: options.actions || [
-                            {
-                                action: 'ok',
-                                imageUrl:
-                                    'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
-                                primary: true,
-                                text: BaseDialog.fn.options.messages.action.ok
-                            },
-                            {
-                                action: 'cancel',
-                                imageUrl:
-                                    'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
-                                text:
-                                    BaseDialog.fn.options.messages.action.cancel
-                            }
-                        ]
-                    })
-                )
-                .data('kendoBaseDialog');
+    // Find or create the DOM element
+    const $dialog = BaseDialog.getElement(options.cssClass);
+    $dialog.css({ padding: 0 });
 
-            // Rebind the initOpen event considering the kendo.ui.Spreadsheet widget cannot bind to a viewModel
-            dialog.unbind('initOpen');
-            dialog.one('initOpen', e => {
-                const spreadSheet = e.sender.element
-                    .find(roleSelector('spreadsheet'))
-                    .kendoSpreadsheet({
-                        sheetsbar: false
-                    })
-                    .data('kendoSpreadsheet');
-                spreadSheet.fromJSON(options.data);
-            });
+    // Create the dialog
+    const dialog = $dialog
+        .kendoBaseDialog(
+            Object.assign(
+                {
+                    title:
+                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    content: `<div data-${ns}role="spreadsheet" style="width:100%;border:0;"></div>`,
+                    actions: [
+                        BaseDialog.fn.options.messages.actions.ok,
+                        BaseDialog.fn.options.messages.actions.cancel
+                    ]
+                },
+                options
+            )
+        )
+        .data('kendoBaseDialog');
 
-            // Bind the show event to resize once opened
-            dialog.one('show', e => {
-                resize(e.sender.element);
-            });
+    // Rebind the initOpen event considering the kendo.ui.Spreadsheet widget cannot bind to a viewModel
+    dialog.unbind('initOpen');
+    dialog.one('initOpen', e => {
+        const spreadSheet = e.sender.element
+            .find(roleSelector('spreadsheet'))
+            .kendoSpreadsheet({
+                sheetsbar: false
+            })
+            .data('kendoSpreadsheet');
+        spreadSheet.fromJSON(options.data);
+    });
 
-            // Bind the click event
-            dialog.one(CONSTANTS.CLICK, e => {
-                const spreadSheet = e.sender.element
-                    .find(roleSelector('spreadsheet'))
-                    .data('kendoSpreadsheet');
-                dfd.resolve({
-                    action: e.action,
-                    data: spreadSheet.toJSON()
-                });
-            });
+    // Bind the show event to resize once opened
+    dialog.one('show', e => {
+        resize(e.sender.element);
+    });
 
-            // Display the message dialog
-            dialog.open();
-        })
-        .catch(ex => {
-            dfd.reject(ex);
+    // Bind the click event
+    dialog.one(CONSTANTS.CLICK, e => {
+        const spreadSheet = e.sender.element
+            .find(roleSelector('spreadsheet'))
+            .data('kendoSpreadsheet');
+        dfd.resolve({
+            action: e.action,
+            data: spreadSheet.toJSON()
         });
+    });
+
+    // Display the message dialog
+    dialog.open();
+
     return dfd.promise();
 }
 

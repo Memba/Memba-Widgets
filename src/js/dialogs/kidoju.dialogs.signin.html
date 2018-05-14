@@ -1,13 +1,17 @@
 <!DOCTYPE html>
+
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>ScratchPad</title>
+    <title>kidoju.dialogs.textboxwizard</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.scratchpad stylesheet -->
-    <!--link href="./styles/widgets/kidoju.widgets.scratchpad.css" rel="stylesheet" /-->
+    <!-- kidoju.dialogs.basedialog stylesheet -->
+    <link href="../../styles/dialogs/kidoju.widgets.basedialog.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -181,18 +185,49 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.dialogs.core.es6').then(function () {
+            SystemJS.import('./kidoju.dialogs.signin.es6').then(function () {
+                var kendo = window.kendo;
+                var kidoju = window.kidoju;
                 $(function () {
-                    $('button').click(function () {
-                        window.alert('ok');
+                    $('#button1').click(function (e) {
+                        kidoju.dialogs.openSignIn({
+                            title: 'Signin',
+                            data: {
+                                provider : '',
+                                terms: false
+                            },
+                            width: 860
+                        }).done(function(result) {
+                            $("#console1").append(
+                                kendo.format(
+                                    '<div>action `{0}` with data `{1}` at {2}</div>',
+                                    result.action,
+                                    JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
+                                )
+                            );
+                        });
                     });
                 });
             });
         }());
     </script>
+    <style type="text/css">
+        .highlight-section {
+            margin-top: 10px;
+            width: 600px;
+            padding: 7px 7px 7px 7px;
+            min-height: 35px;
+        }
+    </style>
 </head>
+
 <body>
-<h1>Dialog</h1>
-<button>Show</button>
+
+<h1>kidoju.dialogs.textboxwizard</h1>
+
+<h2>using kendo.dialogs.openTextBoxWizard</h2>
+<button id="button1" class="k-button">Show Me!</button>
+<div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
+
 </body>
 </html>

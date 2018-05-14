@@ -68,21 +68,54 @@ const BaseDialog = Dialog.extend({
         buttonLayout: 'normal',
         data: null, // <-- The data to feed to our viewModel
         minWidth: '320px', // iPhone 5 width in portrait mode
-        model: true,
+        modal: true,
         messages: {
-            // For kendo.alertEx
             title: {
                 error: 'Error',
                 info: 'Information',
                 success: 'Success',
                 warning: 'Warning'
             },
-            action: {
-                cancel: 'Cancel',
-                ok: 'OK'
+            actions: {
+                cancel: {
+                    action: 'cancel',
+                    imageUrl:
+                        'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
+                    text: 'Cancel'
+                },
+                no: {
+                    action: 'no',
+                    imageUrl:
+                        'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
+                    text: 'No'
+                },
+                ok: {
+                    action: 'ok',
+                    imageUrl:
+                        'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
+                    primary: true,
+                    text: 'OK'
+                },
+                yes: {
+                    action: 'yes',
+                    imageUrl:
+                        'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
+                    primary: true,
+                    text: 'Yes'
+                }
             }
         },
         visible: false
+    },
+
+    /**
+     * Message type
+     */
+    type: {
+        error: 'error',
+        info: 'info',
+        success: 'success',
+        warning: 'warning'
     },
 
     /**
@@ -233,7 +266,7 @@ const BaseDialog = Dialog.extend({
 /**
  * Static getter for the dialog DOM element
  */
-BaseDialog.getElement = function(cssClass = 'kj-dialog-tools') {
+BaseDialog.getElement = function getElement(cssClass = 'kj-dialog-tools') {
     // If a dialog already exists, remove it
     let element = $(`.${WIDGET_CLASS}.${cssClass}`);
     if (element.length > 0) {

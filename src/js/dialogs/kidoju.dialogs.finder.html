@@ -11,7 +11,7 @@
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- kidoju.dialogs.basedialog stylesheet -->
-    <link href="../../styles/dialogs/kidoju.dialogs.basedialog.css" rel="stylesheet">
+    <link href="../../styles/dialogs/kidoju.widgets.basedialog.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -194,6 +194,14 @@
                             title: 'Finder',
                             data: {
                                 language: 'en',
+                                languages: [{ text: 'English', value: 'en' }, { text: 'French', value: 'fr' }],
+                                search: '',
+                                summaries: new kendo.data.DataSource({
+                                    data: [
+                                        { id: kendo.guid(), ProductName: 'Tomato' },
+                                        { id: kendo.guid(), ProductName: 'Potato' },
+                                    ]
+                                }),
                                 summaryId: null
                             },
                             width: 860

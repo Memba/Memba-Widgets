@@ -25,34 +25,23 @@ export default function openAlert(options = {}) {
     // Create the dialog
     const dialog = $dialog
         .kendoBaseDialog(
-            $.extend({}, options, {
-                title:
-                    options.title ||
-                    BaseDialog.fn.options.messages.title[
-                        options.type || 'info'
-                    ],
-                content:
-                    options.content ||
-                    template(ALERT_TEMPLATE)({
+            Object.assign(
+                {
+                    title:
+                        BaseDialog.fn.options.messages.title[
+                            options.type || 'info'
+                        ],
+                    content: template(ALERT_TEMPLATE)({
                         type: options.type || 'info',
                         message: options.message || ''
                     }),
-                actions: options.actions || [
-                    {
-                        action: 'ok',
-                        imageUrl:
-                            'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
-                        primary: true,
-                        text: BaseDialog.fn.options.messages.action.ok
-                    },
-                    {
-                        action: 'cancel',
-                        imageUrl:
-                            'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
-                        text: BaseDialog.fn.options.messages.action.cancel
-                    }
-                ]
-            })
+                    actions: [
+                        BaseDialog.fn.options.messages.actions.ok,
+                        BaseDialog.fn.options.messages.actions.cancel
+                    ]
+                },
+                options
+            )
         )
         .data('kendoBaseDialog');
 
@@ -68,9 +57,41 @@ export default function openAlert(options = {}) {
 }
 
 /**
+ * An alert with OK/Cancel buttons (forced)
+ * @param options
+ */
+export function openOKCancelAlert(options = {}) {
+    openAlert(
+        Object.assign(options, {
+            actions: [
+                BaseDialog.fn.options.messages.actions.ok,
+                BaseDialog.fn.options.messages.actions.cancel
+            ]
+        })
+    );
+}
+
+/**
+ * An alert with yes/no buttons
+ * @param options
+ */
+export function openYesNoAlert(options = {}) {
+    openAlert(
+        Object.assign(options, {
+            actions: [
+                BaseDialog.fn.options.messages.actions.yes,
+                BaseDialog.fn.options.messages.actions.no
+            ]
+        })
+    );
+}
+
+
+/**
  * Maintain compatibility with legacy code
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.dialogs = window.kidoju.dialogs || {};
 window.kidoju.dialogs.openAlert = openAlert;
-// window.kendo.alertEx = openAlert;
+window.kidoju.dialogs.openOKCancelAlert = openOKCancelAlert;
+window.kidoju.dialogs.openYesNoAlert = openYesNoAlert;

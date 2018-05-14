@@ -25,37 +25,26 @@ export default function openPrompt(options = {}) {
     // Create the dialog
     const dialog = $dialog
         .kendoBaseDialog(
-            $.extend({}, options, {
-                title:
-                    options.title ||
-                    BaseDialog.fn.options.messages.title[
-                        options.type || 'info'
-                    ],
-                content:
-                    options.content ||
-                    template(PROMPT_TEMPLATE)({
+            Object.assign(
+                {
+                    title:
+                        BaseDialog.fn.options.messages.title[
+                            options.type || 'info'
+                        ],
+                    content: template(PROMPT_TEMPLATE)({
                         type: options.type || 'info',
                         message: options.message || ''
                     }),
-                data: {
-                    input: ''
-                },
-                actions: options.actions || [
-                    {
-                        action: 'ok',
-                        imageUrl:
-                            'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
-                        primary: true,
-                        text: BaseDialog.fn.options.messages.action.ok
+                    data: {
+                        input: ''
                     },
-                    {
-                        action: 'cancel',
-                        imageUrl:
-                            'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
-                        text: BaseDialog.fn.options.messages.action.cancel
-                    }
-                ]
-            })
+                    actions: [
+                        BaseDialog.fn.options.messages.actions.ok,
+                        BaseDialog.fn.options.messages.actions.cancel
+                    ]
+                },
+                options
+            )
         )
         .data('kendoBaseDialog');
 

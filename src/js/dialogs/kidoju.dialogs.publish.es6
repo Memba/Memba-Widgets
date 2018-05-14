@@ -55,7 +55,8 @@ export default function openTextBoxWizard(options = {}) {
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel
-                    ]
+                    ],
+                    width: 860
                 },
                 options
             )

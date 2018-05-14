@@ -1,27 +1,28 @@
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.validator';
 import './kidoju.widgets.basedialog.es6';
-import '../kidoju.widgets.codeeditor'; // TODO CSS
 import CONSTANTS from '../window.constants.es6';
 
 const {
+    guid,
     ns,
     resize,
-    roleSelector,
     ui: { BaseDialog }
 } = window.kendo;
 
 /**
- * A shortcut function to display a dialog with a kendo.ui.CodeEditor
+ * A shortcut function to display a dialog with autentication providers
  * @param options
  * @returns {*}
  */
-export default function openCodeEditor(options = {}) {
+export default function openSignIn(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
     const $dialog = BaseDialog.getElement(options.cssClass);
-    $dialog.css({ padding: 0 });
+
+    const message = 'Oops';
 
     // Create the dialog
     const dialog = $dialog
@@ -30,35 +31,40 @@ export default function openCodeEditor(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div data-${ns}role="codeeditor" data-${ns}bind="value: code, source: library"></div>`,
-                    actions: [
-                        BaseDialog.fn.options.messages.actions.ok,
-                        BaseDialog.fn.options.messages.actions.cancel
-                    ],
-                    width: 860
+                    content: `<div class="k-widget k-notification k-notification-info">
+                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${message}</div>
+                          </div>
+                          `
+                    // actions: []
                 },
                 options
             )
         )
         .data('kendoBaseDialog');
 
+    const validator = $dialog
+        .find('.kj-dialog-form')
+        .kendoValidator()
+        .data('kendoValidator');
+
     // Bind the show event to resize once opened
     dialog.one('show', e => {
         resize(e.sender.element);
-        // IMPORTANT, we need to refresh CodeMirror here otherwise the open animation messes with CodeMirror calculations
-        // and gutter and line numbers are not displayed properly
-        const codeEditor = e.sender.element
-            .find(roleSelector('codeeditor'))
-            .data('kendoCodeEditor');
-        codeEditor.codeMirror.refresh();
     });
 
     // Bind the click event
     dialog.one(CONSTANTS.CLICK, e => {
-        dfd.resolve({
-            action: e.action,
-            data: e.sender.viewModel.toJSON()
-        });
+        if (
+            e.action === BaseDialog.fn.options.messages.actions.cancel.action ||
+            validator.validate()
+        ) {
+            dfd.resolve({
+                action: e.action,
+                data: e.sender.viewModel.toJSON()
+            });
+        } else {
+            e.preventDefault();
+        }
     });
 
     // Display the message dialog
@@ -72,4 +78,4 @@ export default function openCodeEditor(options = {}) {
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openCodeEditor = openCodeEditor;
+window.kidoju.dialogs.openSignIn = openSignIn;

@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import 'kendo.core';
 import './kidoju.widgets.basedialog.es6';
+import '../kidoju.widgets.styleeditor'; // TODO CSS?
 import CONSTANTS from '../window.constants.es6';
 
 const {
@@ -16,61 +17,46 @@ const {
  */
 export default function openStyleEditor(options = {}) {
     const dfd = $.Deferred();
-    import('../kidoju.widgets.styleeditor') // TODO CSS?
-        .then(() => {
-            // Find or create the DOM element
-            const $dialog = BaseDialog.getElement(options.cssClass);
-            $dialog.css({ padding: 0 });
 
-            // Create the dialog
-            const dialog = $dialog
-                .kendoBaseDialog(
-                    $.extend({}, options, {
-                        title:
-                            options.title ||
-                            BaseDialog.fn.options.messages[
-                                options.type || 'info'
-                            ],
-                        content: `<div data-${ns}role="styleeditor" data-${ns}bind="value: style"></div>`,
-                        actions: options.actions || [
-                            {
-                                action: 'ok',
-                                imageUrl:
-                                    'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
-                                primary: true,
-                                text: BaseDialog.fn.options.messages.action.ok
-                            },
-                            {
-                                action: 'cancel',
-                                imageUrl:
-                                    'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
-                                text:
-                                    BaseDialog.fn.options.messages.action.cancel
-                            }
-                        ]
-                    })
-                )
-                .data('kendoBaseDialog');
+    // Find or create the DOM element
+    const $dialog = BaseDialog.getElement(options.cssClass);
+    $dialog.css({ padding: 0 });
 
-            // Bind the show event to resize once opened
-            dialog.one('show', e => {
-                resize(e.sender.element);
-            });
+    // Create the dialog
+    const dialog = $dialog
+        .kendoBaseDialog(
+            Object.assign(
+                {
+                    title:
+                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    content: `<div data-${ns}role="styleeditor" data-${ns}bind="value: style"></div>`,
+                    actions: [
+                        BaseDialog.fn.options.messages.actions.ok,
+                        BaseDialog.fn.options.messages.actions.cancel
+                    ],
+                    width: 860
+                },
+                options
+            )
+        )
+        .data('kendoBaseDialog');
 
-            // Bind the click event
-            dialog.one(CONSTANTS.CLICK, e => {
-                dfd.resolve({
-                    action: e.action,
-                    data: e.sender.viewModel.toJSON()
-                });
-            });
+    // Bind the show event to resize once opened
+    dialog.one('show', e => {
+        resize(e.sender.element);
+    });
 
-            // Display the message dialog
-            dialog.open();
-        })
-        .catch(ex => {
-            dfd.reject(ex);
+    // Bind the click event
+    dialog.one(CONSTANTS.CLICK, e => {
+        dfd.resolve({
+            action: e.action,
+            data: e.sender.viewModel.toJSON()
         });
+    });
+
+    // Display the message dialog
+    dialog.open();
+
     return dfd.promise();
 }
 

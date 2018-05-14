@@ -6,6 +6,7 @@ import CONSTANTS from '../window.constants.es6';
 const {
     ns,
     resize,
+    roleSelector,
     ui: { BaseDialog }
 } = window.kendo;
 
@@ -55,6 +56,18 @@ export default function openCodeEditor(options = {}) {
             // Bind the show event to resize once opened
             dialog.one('show', e => {
                 resize(e.sender.element);
+                // IMPORTANT, we need to refresh CodeMirror here otherwise the open animation messes with CodeMirror calculations
+                // and gutter and line numbers are not displayed properly
+                const codeEditor = $dialog
+                    .find(roleSelector('codeeditor'))
+                    .data('kendoCodeEditor');
+                if (
+                    codeEditor instanceof kendo.ui.CodeEditor &&
+                    codeEditor.codeMirror &&
+                    $.type(codeEditor.codeMirror.refresh) === CONSTANTS.FUNCTION
+                ) {
+                    codeEditor.codeMirror.refresh();
+                }
             });
 
             // Bind the click event

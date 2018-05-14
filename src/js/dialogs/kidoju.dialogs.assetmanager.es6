@@ -46,6 +46,7 @@ export default function openAssetManager(options = {}) {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
                     content: `<div data-${ns}role="assetmanager" data-${ns}bind="value:url"></div>`,
+                    data: { url: '' },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel

@@ -191,13 +191,7 @@
                 $(function () {
                     $('#button1').click(function (e) {
                         kidoju.dialogs.openQuizWizard({
-                            title: 'New Quiz',
-                            data: {
-                                question : '',
-                                values: [],
-                                solution: null
-                            },
-                            width: 860
+                            title: 'New Quiz'
                         }).done(function(result) {
                             $("#console1").append(
                                 kendo.format(

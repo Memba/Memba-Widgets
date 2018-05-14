@@ -52,6 +52,10 @@ export default function openTextBoxWizard(options = {}) {
                               <div class="kj-dialog-col75"><input id="${solutionId}" type="text" name="${solutionName}" class="k-input k-textbox" data-${ns}bind="value: solution" required pattern="\\S+"></div>
                             </div>
                           </div>`,
+                    data: {
+                        question: '',
+                        solution: ''
+                    },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel

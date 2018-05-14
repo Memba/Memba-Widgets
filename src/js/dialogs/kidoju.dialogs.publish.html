@@ -191,12 +191,7 @@
                 $(function () {
                     $('#button1').click(function (e) {
                         kidoju.dialogs.openTextBoxWizard({
-                            title: 'New Open Question',
-                            data: {
-                                question : '',
-                                solution: null
-                            },
-                            width: 860
+                            title: 'New Open Question'
                         }).done(function(result) {
                             $("#console1").append(
                                 kendo.format(

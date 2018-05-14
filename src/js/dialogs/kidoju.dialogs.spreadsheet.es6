@@ -31,6 +31,9 @@ export default function openSpreadsheet(options = {}) {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
                     content: `<div data-${ns}role="spreadsheet" style="width:100%;border:0;"></div>`,
+                    data: {
+                        sheets: []
+                    },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel

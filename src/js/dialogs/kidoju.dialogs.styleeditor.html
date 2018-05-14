@@ -197,11 +197,7 @@
                 $(function () {
                     $('#button1').click(function (e) {
                         kidoju.dialogs.openStyleEditor({
-                            title: 'My Style',
-                            data: {
-                                style: ''
-                            },
-                            width: 860
+                            title: 'My Style'
                         }).done(function(result) {
                             $("#console1").append(
                                 kendo.format(

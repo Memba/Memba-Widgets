@@ -33,8 +33,10 @@ export default function openSignIn(options = {}) {
                         BaseDialog.fn.options.messages[options.type || 'info'],
                     content: `<div class="k-widget k-notification k-notification-info">
                             <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${message}</div>
-                          </div>
-                          `
+                          </div>`,
+                    data: {
+                        // TODO
+                    }
                     // actions: []
                 },
                 options

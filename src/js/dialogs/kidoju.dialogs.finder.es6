@@ -78,6 +78,9 @@ export default function openFinder(options = {}) {
                             </script>
                             <div  style="border:0" data-${ns}role="pager" data-${ns}bind="source: summaries" data-auto-bind="false"></div>
                          </div>`,
+                    data: {
+                        // TODO
+                    },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel

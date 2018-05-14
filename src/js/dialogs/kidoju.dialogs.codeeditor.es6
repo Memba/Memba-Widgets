@@ -31,6 +31,7 @@ export default function openCodeEditor(options = {}) {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
                     content: `<div data-${ns}role="codeeditor" data-${ns}bind="value: code, source: library"></div>`,
+                    data: { code: '' }, // TODO: solution??
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel

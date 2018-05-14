@@ -30,6 +30,9 @@ export default function openStyleEditor(options = {}) {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
                     content: `<div data-${ns}role="styleeditor" data-${ns}bind="value: style"></div>`,
+                    data: {
+                        style: ''
+                    },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel

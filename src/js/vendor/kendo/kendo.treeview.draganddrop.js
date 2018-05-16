@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -45,7 +45,7 @@
         var extend = $.extend;
         var VISIBILITY = 'visibility';
         var KSTATEHOVER = 'k-state-hover';
-        var INPUTSELECTOR = 'input,a,textarea,.k-multiselect-wrap,select,button,a.k-button>.k-icon,button.k-button>.k-icon,span.k-icon.k-i-arrow-60-right,span.k-icon.k-i-arrow-45-down-right';
+        var INPUTSELECTOR = 'input,a:not(.k-in),textarea,.k-multiselect-wrap,select,button,a.k-button>.k-icon,button.k-button>.k-icon,span.k-icon.k-i-arrow-60-right,span.k-icon.k-i-arrow-45-down-right';
         ui.HierarchicalDragAndDrop = kendo.Class.extend({
             init: function (element, options) {
                 this.element = element;

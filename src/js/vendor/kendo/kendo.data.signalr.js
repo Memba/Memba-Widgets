@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,6 +33,14 @@
         hidden: true
     };
     (function ($) {
+        var kendo = window.kendo;
+        var isFunction = kendo.isFunction;
+        function isJQueryPromise(promise) {
+            return promise && isFunction(promise.done) && isFunction(promise.fail);
+        }
+        function isNativePromise(promise) {
+            return promise && isFunction(promise.then) && isFunction(promise.catch);
+        }
         var transport = kendo.data.RemoteTransport.extend({
             init: function (options) {
                 var signalr = options && options.signalr ? options.signalr : {};
@@ -40,7 +48,7 @@
                 if (!promise) {
                     throw new Error('The "promise" option must be set.');
                 }
-                if (typeof promise.done != 'function' || typeof promise.fail != 'function') {
+                if (!isJQueryPromise(promise) && !isNativePromise(promise)) {
                     throw new Error('The "promise" option must be a Promise.');
                 }
                 this.promise = promise;
@@ -68,6 +76,7 @@
             },
             _crud: function (options, type) {
                 var hub = this.hub;
+                var promise = this.promise;
                 var server = this.options.signalr.server;
                 if (!server || !server[type]) {
                     throw new Error(kendo.format('The "server.{0}" option must be set.', type));
@@ -77,9 +86,15 @@
                 if (!$.isEmptyObject(data)) {
                     args.push(data);
                 }
-                this.promise.done(function () {
-                    hub.invoke.apply(hub, args).done(options.success).fail(options.error);
-                });
+                if (isJQueryPromise(promise)) {
+                    promise.done(function () {
+                        hub.invoke.apply(hub, args).done(options.success).fail(options.error);
+                    });
+                } else if (isNativePromise(promise)) {
+                    promise.then(function () {
+                        hub.invoke.apply(hub, args).then(options.success).catch(options.error);
+                    });
+                }
             },
             read: function (options) {
                 this._crud(options, 'read');

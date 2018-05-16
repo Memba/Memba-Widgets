@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -158,6 +158,11 @@
                     that.placeholder = null;
                 }
                 kendo.destroy(that.element);
+            },
+            setOptions: function (options) {
+                Widget.fn.setOptions.call(this, options);
+                this._templates();
+                this._dataSource();
             },
             events: [
                 CHANGE,
@@ -1302,9 +1307,9 @@
                 var toolElement = that.element.find('[data-command=\'' + toolName + '\']')[0];
                 if (toolElement && command && command.canExecute) {
                     if (command.canExecute()) {
-                        $(toolElement).removeClass(DISABLED_STATE_CLASS);
+                        $(toolElement).removeClass(DISABLED_STATE_CLASS).removeAttr(TABINDEX);
                     } else {
-                        $(toolElement).addClass(DISABLED_STATE_CLASS);
+                        $(toolElement).addClass(DISABLED_STATE_CLASS).attr(TABINDEX, '-1');
                     }
                 }
             }

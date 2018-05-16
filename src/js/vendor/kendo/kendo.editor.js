@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -498,24 +498,24 @@
                 var domain = specifiedDomain || document.domain;
                 var domainScript = '';
                 var src = 'javascript:""';
-                if (specifiedDomain || domain != location.hostname) {
-                    domainScript = '<script>document.domain="' + domain + '"</script>';
-                    src = 'javascript:document.write(\'' + domainScript + '\')';
-                }
                 textarea.hide();
                 iframe = $('<iframe />', {
                     title: editor.options.messages.editAreaTitle,
                     frameBorder: '0'
                 })[0];
                 $(iframe).css('display', '').addClass('k-content').attr('tabindex', textarea[0].tabIndex).insertBefore(textarea);
-                iframe.src = src;
+                if (specifiedDomain || domain != location.hostname) {
+                    domainScript = '<script>document.domain="' + domain + '"</script>';
+                    src = 'javascript:document.write(\'' + domainScript + '\')';
+                    iframe.src = src;
+                }
                 wnd = iframe.contentWindow || iframe;
                 doc = wnd.document || iframe.contentDocument;
                 $(iframe).one('load', function () {
                     editor.toolbar.decorateFrom(doc.body);
                 });
                 doc.open();
-                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (browser.msie || browser.edge ? 'height:auto;' : '') + (os.ios ? 'word-break:break-all;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + 'k\\:script{display:none;}' + '</style>' + domainScript + '<script>(function(d,c){d[c](\'header\'),d[c](\'article\'),d[c](\'nav\'),d[c](\'section\'),d[c](\'footer\');})(document, \'createElement\');</script>' + $.map(stylesheets, function (href) {
+                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (browser.msie || browser.edge ? 'height:auto;' : '') + (os.ios ? 'word-break:break-all;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + 'k\\:script{display:none;}' + '</style>' + domainScript + $.map(stylesheets, function (href) {
                     return '<link rel=\'stylesheet\' href=\'' + href + '\'>';
                 }).join('') + '</head><body autocorrect=\'off\' contenteditable=\'true\'></body></html>');
                 doc.close();
@@ -1914,7 +1914,7 @@
                         }
                     } else if (node.className != KMARKER) {
                         Dom.trim(node);
-                        if (node.childNodes.length === 0 || Dom.allWhitespaceContent(node) && Dom.isBlock(node) && !Dom.isEmpty(node)) {
+                        if (!Dom.isEmpty(node) && node.childNodes.length === 0 || Dom.isBlock(node) && Dom.allWhitespaceContent(node)) {
                             Dom.remove(node);
                         }
                     }
@@ -2160,7 +2160,7 @@
             },
             closestEditableOfType: function (node, types) {
                 var editable = Dom.closestEditable(node, types);
-                if (editable && Dom.ofType(editable, types)) {
+                if (editable && Dom.ofType(editable, types) && !$(editable).is('.k-editor')) {
                     return editable;
                 }
             },
@@ -2298,13 +2298,17 @@
                 $(root).find('*').each(function () {
                     var attributes = this.attributes;
                     var attribute, i, l, name;
+                    var attributesToRemove = [];
                     for (i = 0, l = attributes.length; i < l; i++) {
                         attribute = attributes[i];
                         name = attribute.nodeName;
                         if (attribute.specified && /^on/i.test(name)) {
                             this.setAttribute('k-script-' + name, attribute.value);
-                            this.removeAttribute(name);
+                            attributesToRemove.push(name);
                         }
+                    }
+                    for (i = 0, l = attributesToRemove.length; i < l; i++) {
+                        this.removeAttribute(attributesToRemove[i]);
                     }
                 });
             },
@@ -2786,7 +2790,7 @@
                             width: 'auto'
                         });
                         listWidth = list.width();
-                        if (listWidth) {
+                        if (listWidth > 0) {
                             listWidth += 20;
                         } else {
                             listWidth = that._listWidth;
@@ -4660,7 +4664,7 @@
                     $(this).addClass('k-state-disabled');
                     $(this).children().filter(function () {
                         return !$(this).hasClass('k-state-disabled');
-                    }).removeClass('k-group-end').first().addClass('k-group-start').end().last().addClass('k-group-end').end().parent().removeClass('k-state-disabled');
+                    }).removeClass('k-group-end').first().addClass('k-group-start').end().last().addClass('k-group-end').end().parent().removeClass('k-state-disabled').css('display', '');
                 });
             },
             decorateFrom: function (body) {
@@ -8912,6 +8916,7 @@
                     html = html.replace(/(<br>(\s|&nbsp;)*)+(<\/?(div|p|li|col|t))/gi, '$3');
                     html = html.replace(/<(a|span)[^>]*><\/\1>/gi, '');
                 }
+                html = html.replace(/<(a|span|font)([^>]*)> <\/\1>/gi, '<$1$2>&nbsp;</$1>');
                 html = html.replace(/^<li/i, '<ul><li').replace(/li>$/g, 'li></ul>');
                 var block = this.isBlock(html);
                 editor.focus();
@@ -10655,8 +10660,8 @@
                 var columnWidthOffset = rtl ? 0 : outerWidth(column);
                 var scrollBarWidth = rtl ? getScrollBarWidth(rootElement[0]) : 0;
                 that.resizeHandle.css({
-                    top: tableBody.position().top + scrollTopOffset,
-                    left: column.position().left + columnWidthOffset + (scrollLeftOffset - scrollBarWidth) - handleWidth / 2,
+                    top: tableBody.offset().top + scrollTopOffset,
+                    left: column.offset().left + columnWidthOffset + (scrollLeftOffset - scrollBarWidth) - handleWidth / 2,
                     position: 'absolute'
                 });
             },
@@ -10676,14 +10681,14 @@
                 var min = options.min;
                 var rtl = options.rtl;
                 var columnWidth = outerWidth(column);
-                var columnLeftOffset = column.position().left;
+                var columnLeftOffset = column.offset().left;
                 var adjacentColumnWidth = outerWidth(column.next());
                 var resizeHandle = $(that.resizeHandle);
                 var rootElement = $(options.rootElement);
                 var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
                 var scrollBarWidth = rtl ? getScrollBarWidth(rootElement[0]) : 0;
                 var handleOffset = constrain({
-                    value: resizeHandle.position().left + (scrollLeftOffset - scrollBarWidth) + e.x.delta,
+                    value: resizeHandle.offset().left + (scrollLeftOffset - scrollBarWidth) + e.x.delta,
                     min: columnLeftOffset + (scrollLeftOffset - scrollBarWidth) - (rtl ? adjacentColumnWidth : 0) + min,
                     max: columnLeftOffset + columnWidth + (scrollLeftOffset - scrollBarWidth) + (rtl ? 0 : adjacentColumnWidth) - handleWidth - min
                 });
@@ -10857,7 +10862,7 @@
                 var that = this;
                 var options = that.options;
                 var handleHeight = options.handle[HEIGHT];
-                var rowPosition = row.position();
+                var rowPosition = row.offset();
                 var rootElement = $(options.rootElement);
                 var scrollTopOffset = rootElement.is(BODY) ? 0 : rootElement.scrollTop();
                 var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
@@ -10880,14 +10885,14 @@
                 var options = that.options;
                 var min = options.min;
                 var tableBody = $(that.element).children(TBODY);
-                var tableBodyTopOffset = tableBody.position().top;
+                var tableBodyTopOffset = tableBody.offset().top;
                 var resizeHandle = $(that.resizeHandle);
                 var row = $(e.currentTarget).data(options.handle.dataAttribute);
                 var rootElement = $(options.rootElement);
                 var scrollTopOffset = rootElement.is(BODY) ? 0 : rootElement.scrollTop();
                 var handleOffset = constrain({
-                    value: resizeHandle.position().top + scrollTopOffset + e.y.delta,
-                    min: $(row).position().top + scrollTopOffset + min,
+                    value: resizeHandle.offset().top + scrollTopOffset + e.y.delta,
+                    min: $(row).offset().top + scrollTopOffset + min,
                     max: tableBodyTopOffset + outerHeight(tableBody) + scrollTopOffset - options.handle[HEIGHT] - min
                 });
                 resizeHandle.css({ top: handleOffset });

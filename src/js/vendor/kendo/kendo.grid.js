@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -292,6 +292,7 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, DataSource = kendo.data.DataSource, ObservableObject = kendo.data.ObservableObject, tbodySupportsInnerHtml = kendo.support.tbodyInnerHtml, activeElement = kendo._activeElement, Widget = ui.Widget, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, keys = kendo.keys, isPlainObject = $.isPlainObject, extend = $.extend, map = $.map, grep = $.grep, isArray = $.isArray, inArray = $.inArray, push = Array.prototype.push, proxy = $.proxy, isFunction = kendo.isFunction, isEmptyObject = $.isEmptyObject, contains = $.contains, math = Math, PROGRESS = 'progress', ERROR = 'error', DATA_CELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', SELECTION_CELL_SELECTOR = 'tbody>tr:not(.k-grouping-row):not(.k-detail-row):not(.k-group-footer) > td:not(.k-group-cell):not(.k-hierarchy-cell)', NAVROW = 'tr:not(.k-footer-template):visible', NAVCELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', ITEMROW = 'tr:not(.k-grouping-row):not(.k-detail-row):not(.k-footer-template):not(.k-group-footer):visible', FIRSTITEMROW = ITEMROW + ':first', LASTITEMROW = ITEMROW + ':last', FIRSTNAVITEM = NAVROW + ':first>' + NAVCELL + ':first', HEADERCELLS = 'th.k-header:not(.k-group-cell):not(.k-hierarchy-cell)', NS = '.kendoGrid', EDIT = 'edit', BEFOREEDIT = 'beforeEdit', SAVE = 'save', REMOVE = 'remove', DETAILINIT = 'detailInit', FILTERMENUINIT = 'filterMenuInit', COLUMNMENUINIT = 'columnMenuInit', FILTERMENUOPEN = 'filterMenuOpen', COLUMNMENUOPEN = 'columnMenuOpen', CELLCLOSE = 'cellClose', CHANGE = 'change', COLUMNHIDE = 'columnHide', COLUMNSHOW = 'columnShow', SAVECHANGES = 'saveChanges', DATABOUND = 'dataBound', DETAILEXPAND = 'detailExpand', DETAILCOLLAPSE = 'detailCollapse', ITEM_CHANGE = 'itemchange', PAGE = 'page', PAGING = 'paging', SCROLL = 'scroll', SYNC = 'sync', FOCUSED = 'k-state-focused', FOCUSABLE = ':kendoFocusable', SELECTED = 'k-state-selected', CHECKBOX = 'k-checkbox', CHECKBOXINPUT = 'input[data-role=\'checkbox\'].' + CHECKBOX, NORECORDSCLASS = 'k-grid-norecords', COLUMNRESIZE = 'columnResize', COLUMNREORDER = 'columnReorder', COLUMNLOCK = 'columnLock', COLUMNUNLOCK = 'columnUnlock', NAVIGATE = 'navigate', CLICK = 'click', HEIGHT = 'height', TABINDEX = 'tabIndex', FUNCTION = 'function', STRING = 'string', BOTTOM = 'bottom', CONTAINER_FOR = 'container-for', FIELD = 'field', INPUT = 'input', INCELL = 'incell', INLINE = 'inline', UNIQUE_ID = 'uid', DELETECONFIRM = 'Are you sure you want to delete this record?', NORECORDS = 'No records available.', CONFIRMDELETE = 'Delete', CANCELDELETE = 'Cancel', COLLAPSE = 'Collapse', EXPAND = 'Expand', ARIALABEL = 'aria-label', formatRegExp = /(\}|\#)/gi, templateHashRegExp = /#/gi, whitespaceRegExp = '[\\x20\\t\\r\\n\\f]', nonDataCellsRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-group-cell|k-hierarchy-cell)' + '(' + whitespaceRegExp + '|$)'), filterRowRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-filter-row)' + '(' + whitespaceRegExp + '|$)'), COMMANDBUTTONTMPL = '# if (iconClass) {#' + '<a role="button" class="k-button k-button-icontext #=className#" #=attr# href="\\#"><span class="#=iconClass#"></span>#=text#</a>' + '# } else { #' + '<a role="button" class="k-button k-button-icontext #=className#" #=attr# href="\\#">#=text#</a>' + '# } #', SELECTCOLUMNTMPL = '# var checkboxGuid = kendo.guid(); #' + '<input class="' + CHECKBOX + '" data-role="checkbox" id="#= checkboxGuid #" aria-label="Select row" aria-checked="false" type="checkbox">' + '<label for="#= checkboxGuid #" class="k-checkbox-label k-no-text">&\\#8203;</label>', SELECTCOLUMNHEADERTMPL = '# var checkboxGuid = kendo.guid(); #' + '<input class="' + CHECKBOX + '" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox" id="#= checkboxGuid #">' + '<label for="#= checkboxGuid #" class="k-checkbox-label k-no-text">##&\\#8203;##</label>', isRtl = false, browser = kendo.support.browser, isIE7 = browser.msie && browser.version == 7, isIE8 = browser.msie && browser.version == 8;
+        var isIE11 = browser.msie && browser.version === 11;
         var VirtualScrollable = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -340,6 +341,7 @@
                 }).css(isRtl ? 'padding-left' : 'padding-right', scrollbar);
                 that.content = element.children().first();
                 wrapper = that.wrapper = that.content.wrap('<div class="k-virtual-scrollable-wrap"/>').parent().bind('DOMMouseScroll' + NS + ' mousewheel' + NS, proxy(that._wheelScroll, that));
+                that._wrapper();
                 if (kendo.support.kineticScrollNeeded) {
                     that.drag = new kendo.UserEvents(that.wrapper, {
                         global: true,
@@ -355,6 +357,13 @@
                     });
                 }
                 that.verticalScrollbar = $('<div class="k-scrollbar k-scrollbar-vertical" />').css({ width: scrollbar }).appendTo(element).bind('scroll' + NS, proxy(that._scroll, that));
+            },
+            _wrapper: function () {
+                var that = this;
+                if (isIE11) {
+                    that.wrapper.css({ 'overflow-y': SCROLL });
+                    that.element.css(isRtl ? 'padding-left' : 'padding-right', 0);
+                }
             },
             _wheelScroll: function (e) {
                 if (e.ctrlKey) {
@@ -457,9 +466,9 @@
                 var halfHeight;
                 element = $(element);
                 if (element[0] && contains(wrapper[0], element[0])) {
-                    offsetTop = parseInt(element.position().top, 10);
+                    offsetTop = element.offset().top - wrapper.offset().top;
                     halfHeight = element.outerHeight() / 2;
-                    if ((offsetTop >= 0 || math.abs(offsetTop) <= halfHeight) && offsetTop + halfHeight <= wrapper.height()) {
+                    if ((offsetTop >= 0 || math.abs(offsetTop) <= halfHeight) && math.floor(offsetTop + halfHeight) <= wrapper.height()) {
                         return true;
                     }
                 }
@@ -874,14 +883,16 @@
         }
         function findParentColumnWithChildren(columns, index, source, rtl) {
             var target;
-            var locked = source.locked;
+            var locked = !!source.locked;
+            var targetLocked;
             do {
                 target = columns[index];
                 index += rtl ? 1 : -1;
-            } while (target && index > -1 && index < columns.length && target != source && !target.columns && target.locked == locked);
+                targetLocked = !!target.locked;
+            } while (target && index > -1 && index < columns.length && target != source && !target.columns && targetLocked === locked);
             return target;
         }
-        function findReorderTarget(columns, target, source, before) {
+        function findReorderTarget(columns, target, source, before, masterColumns) {
             if (target.columns) {
                 target = target.columns;
                 return target[before ? 0 : target.length - 1];
@@ -903,8 +914,12 @@
                 }
                 var sourceIndex = inArray(source, parentColumns);
                 target = findParentColumnWithChildren(parentColumns, index, source, sourceIndex > index);
+                var targetIndex = inArray(target, masterColumns);
+                if (target.columns && (!targetIndex || targetIndex === parentColumns.length - 1)) {
+                    return null;
+                }
                 if (target && target != source && target.columns) {
-                    return findReorderTarget(columns, target, source, before);
+                    return findReorderTarget(columns, target, source, before, masterColumns);
                 }
             }
             return null;
@@ -1430,15 +1445,18 @@
             setDataSource: function (dataSource) {
                 var that = this;
                 var scrollable = that.options.scrollable;
+                var scrollableContent;
                 that.options.dataSource = dataSource;
                 that._dataSource();
                 that._pageable();
                 that._thead();
                 if (scrollable) {
                     if (scrollable.virtual) {
-                        that.content.find('>.k-virtual-scrollable-wrap').scrollLeft(0);
+                        scrollableContent = that.content.find('>.k-virtual-scrollable-wrap');
+                        scrollableContent.scrollLeft(leftMostPosition(scrollableContent, isRtl));
                     } else {
-                        that.content.scrollLeft(0);
+                        scrollableContent = that.tbody;
+                        that.content.scrollLeft(leftMostPosition(scrollableContent, isRtl));
                     }
                 }
                 if (that.options.groupable) {
@@ -1527,9 +1545,7 @@
                 if (that.selectable && that.selectable.element) {
                     that.selectable.destroy();
                     that.clearArea();
-                    if (that.options.persistSelection === true) {
-                        that._selectedIds = null;
-                    }
+                    that._selectedIds = null;
                     if (that.copyHandler) {
                         that.wrapper.off('keydown', that.copyHandler);
                         that.unbind(that.copyHandler);
@@ -1842,9 +1858,12 @@
                             } else {
                                 col = contentTable.children('colgroup').find('col:not(.k-group-col):not(.k-hierarchy-col):eq(' + index + ')');
                             }
+                            var columns = $.map(that.columns, function (a) {
+                                return !a.hidden && (isLocked && a.locked || !isLocked && !a.locked) ? a : null;
+                            });
                             columnStart = e.x.location;
                             columnWidth = outerWidth(th);
-                            columnMinWidth = leafColumns(that.columns)[index].minResizableWidth || 10;
+                            columnMinWidth = leafColumns(columns)[index].minResizableWidth || 10;
                             gridWidth = isLocked ? outerWidth(contentTable.children('tbody')) : outerWidth(that.tbody);
                             if (browser.webkit) {
                                 that.wrapper.addClass('k-grid-column-resizing');
@@ -2014,7 +2033,7 @@
                         moveCellsBetweenContainers(sources, target, leafs, that.columns, that.thead, that.lockedHeader.find('thead'), this._groups());
                     }
                     if (target.columns || sourcePosition.cell - destPosition.cell > 1 || destPosition.cell - sourcePosition.cell > 1) {
-                        target = findReorderTarget(that.columns, target, sources[0], before);
+                        target = findReorderTarget(that.columns, target, sources[0], before, that.columns);
                         if (target) {
                             that._reorderHeader(leafs, target, before);
                         }
@@ -2299,7 +2318,7 @@
                     this.wrapper.addClass('k-editable');
                     var mode = that._editMode();
                     if (mode === 'incell') {
-                        that.table.add(that.lockedTable).on(kendo.support.touch ? 'touchstart' + NS : 'mousedown' + NS, NAVROW + '>' + NAVCELL, function (e) {
+                        that.table.add(that.lockedTable).on('mousedown' + NS, NAVROW + '>' + NAVCELL, function (e) {
                             var target = $(e.target);
                             if (that._editMode() === 'incell' && target.hasClass('k-checkbox-label') && target.prev().attr(kendo.attr('bind'))) {
                                 e.preventDefault();
@@ -2544,7 +2563,7 @@
                 this._removeRow(row);
             },
             _removeRow: function (row) {
-                var that = this, model, modelId, key, mode = that._editMode();
+                var that = this, model, modelId, key, schema, mode = that._editMode();
                 if (mode !== 'incell') {
                     that.cancelRow();
                 }
@@ -2558,7 +2577,8 @@
                         row: row,
                         model: model
                     })) {
-                    if (that.options.persistSelection) {
+                    schema = that.dataSource.options.schema;
+                    if (that._selectedIds && schema && schema.model) {
                         modelId = that.dataSource.options.schema.model.id;
                         key = model[modelId];
                         delete that._selectedIds[key];
@@ -3356,7 +3376,8 @@
                                 if (that.dataSource.options.endless) {
                                     that.dataSource.options.endless = null;
                                     that._endlessPageSize = that.dataSource.options.pageSize;
-                                    that.dataSource.pageSize(that.dataSource.options.pageSize);
+                                    that.dataSource._skip = 0;
+                                    that.dataSource._page = 1;
                                 }
                             }
                         }
@@ -3386,9 +3407,7 @@
                     if (that.selectable) {
                         that.selectable.destroy();
                     }
-                    if (that.options.persistSelection === true) {
-                        that._selectedIds = {};
-                    }
+                    that._selectedIds = {};
                     selectable = kendo.ui.Selectable.parseOptions(selectable);
                     multi = selectable.multiple;
                     cell = selectable.cell;
@@ -3412,7 +3431,7 @@
                         aria: true,
                         multiple: multi,
                         change: function () {
-                            if (that.options.persistSelection && !cell) {
+                            if (!cell) {
                                 that._persistSelectedRows();
                             }
                             that.trigger(CHANGE);
@@ -3464,7 +3483,7 @@
                                     that.selectable._lastActive = current;
                                 }
                                 that.selectable.value(current);
-                            } else if (!cell && (e.shiftKey && e.keyCode == keys.LEFT || e.shiftKey && e.keyCode == keys.RIGHT || e.shiftKey && e.keyCode == keys.UP || e.shiftKey && e.keyCode == keys.DOWN || e.keyCode === keys.SPACEBAR && e.shiftKey)) {
+                            } else if (!cell && ($(target).is('td') || $(target).is('table') && inArray(target, this._navigatableTables)) && (e.shiftKey && e.keyCode == keys.LEFT || e.shiftKey && e.keyCode == keys.RIGHT || e.shiftKey && e.keyCode == keys.UP || e.shiftKey && e.keyCode == keys.DOWN || e.keyCode === keys.SPACEBAR && e.shiftKey)) {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 current = current.parent();
@@ -3645,6 +3664,17 @@
                 table = table[0] === this.table[0] ? lockedTable : this.table;
                 return table.find('>tbody>tr').eq(index);
             },
+            _relatedCell: function (cell) {
+                var lockedTable = this.lockedTable;
+                cell = $(cell);
+                if (!lockedTable) {
+                    return cell;
+                }
+                var table = cell.closest(this.table.add(this.lockedTable));
+                var index = table.find('>tbody>tr>td').index(cell);
+                table = table[0] === this.table[0] ? lockedTable : this.table;
+                return table.find('>tbody>tr>td').index(index);
+            },
             clearSelection: function () {
                 var that = this;
                 if (that.selectable) {
@@ -3656,11 +3686,13 @@
                 }
                 if (that.options.persistSelection) {
                     that._persistSelectedRows();
+                } else {
+                    that._selectedIds = {};
                 }
                 that.trigger(CHANGE);
             },
             select: function (items) {
-                var that = this, selectable = that.selectable;
+                var that = this, selectable = that.selectable, selectableoptions = kendo.ui.Selectable.parseOptions(this.options.selectable), cell = selectableoptions.cell;
                 items = that.table.add(that.lockedTable).find(items);
                 if (items.length) {
                     if (selectable && !selectable.options.multiple) {
@@ -3669,7 +3701,11 @@
                     }
                     if (that._isLocked()) {
                         items = items.add(items.map(function () {
-                            return that._relatedRow(this);
+                            if (cell) {
+                                return that._relatedCell(this);
+                            } else {
+                                return that._relatedRow(this);
+                            }
                         }));
                     }
                     if (selectable) {
@@ -3681,7 +3717,7 @@
                         if (that.select().length === that.items().length) {
                             that._toggleHeaderCheckState(true);
                         }
-                        if (that.options.persistSelection) {
+                        if (!cell) {
                             that._persistSelectedRows();
                         }
                         that.trigger(CHANGE);
@@ -3712,11 +3748,17 @@
                 that._toggleHeaderCheckState(false);
                 if (that.options.persistSelection) {
                     that._persistSelectedRows();
+                } else {
+                    that._selectedIds = {};
                 }
                 that.trigger(CHANGE);
             },
             _persistSelectedRows: function () {
-                var that = this, key, dataItem, allRows = that.items(), dataSourceOptions = that.dataSource.options, modelId = dataSourceOptions.schema.model.id, selectedViewIds = {};
+                var that = this, key, dataItem, allRows = that.items(), dataSourceOptions = that.dataSource.options, schema = dataSourceOptions.schema, modelId, selectedViewIds = {};
+                if (!schema || !schema.model || !schema.model.id) {
+                    return;
+                }
+                modelId = schema.model.id;
                 that.select().each(function () {
                     dataItem = that.dataItem(this);
                     selectedViewIds[dataItem[modelId]] = true;
@@ -3871,9 +3913,6 @@
                 table.attr(TABINDEX, 0);
             },
             _tableFocus: function (e) {
-                if (kendo.support.touch) {
-                    return;
-                }
                 var current = this.current();
                 var table = $(e.currentTarget);
                 if (current && current.is(':visible')) {
@@ -4516,7 +4555,9 @@
                         that.scrollables = that.scrollables.add(footer.children('.k-grid-footer-wrap'));
                     }
                     headerWrap.unbind('scroll' + NS).bind('scroll' + NS, function (e) {
-                        that.scrollables.not(e.currentTarget).scrollLeft(this.scrollLeft);
+                        if (that._scrollLeft !== this.scrollLeft) {
+                            that.scrollables.not(e.currentTarget).scrollLeft(this.scrollLeft);
+                        }
                     });
                     if (scrollable.virtual) {
                         that.content.find('>.k-virtual-scrollable-wrap').unbind('scroll' + NS).bind('scroll' + NS, function () {
@@ -4532,7 +4573,8 @@
                             that._endlessPageSize = originalPageSize;
                         }
                         that.content.unbind('scroll' + NS).bind('scroll' + NS, function (e) {
-                            that.scrollables.not(e.currentTarget).scrollLeft(this.scrollLeft);
+                            that._scrollLeft = this.scrollLeft;
+                            that.scrollables.not(e.currentTarget).scrollLeft(that._scrollLeft);
                             if (that.lockedContent && e.currentTarget == that.content[0]) {
                                 that.lockedContent[0].scrollTop = this.scrollTop;
                             }
@@ -4774,7 +4816,7 @@
                     this.lockedHeader.add(this.lockedContent).width(width);
                     headerWrap[0].style.width = headerWrap.parent().width() - width - 2 + 'px';
                     headerTable.add(this.table).width(nonLockedColsWidth);
-                    if (this.virtualScrollable) {
+                    if (this.virtualScrollable && !isIE11) {
                         contentWidth -= scrollbar;
                     }
                     this.content[0].style.width = contentWidth - width - 2 + 'px';
@@ -4788,6 +4830,7 @@
             },
             _setContentHeight: function () {
                 var that = this, options = that.options, height = that.wrapper.innerHeight(), header = that.wrapper.children('.k-grid-header'), scrollbar = kendo.support.scrollbar();
+                var scrollableHeight = (options.scrollable || {}).height;
                 if (options.scrollable && that.wrapper.is(':visible')) {
                     height -= outerHeight(header);
                     if (that.pager && that.pager.element.is(':visible')) {
@@ -4828,6 +4871,8 @@
                         } else {
                             that.content.height(scrollbar * 2 + 1);
                         }
+                    } else if (scrollableHeight) {
+                        that.content.css('height', scrollableHeight);
                     }
                 }
             },
@@ -5337,9 +5382,7 @@
                 if ($.grep(leafColumns(that.columns), function (col) {
                         return col.selectable;
                     }).length) {
-                    if (that.options.persistSelection) {
-                        that._selectedIds = {};
-                    }
+                    that._selectedIds = {};
                     that._checkBoxSelection = true;
                     that.wrapper.on(CLICK + NS, 'tbody > tr ' + CHECKBOXINPUT, proxy(that._checkboxClick, that));
                     that.wrapper.on(CLICK + NS, 'thead > tr ' + CHECKBOXINPUT, proxy(that._headerCheckboxClick, that));
@@ -6124,7 +6167,7 @@
                 }
                 return html;
             },
-            _groupRowHtml: function (group, colspan, level, groupHeaderBuilder, templates, skipColspan) {
+            _groupRowHtml: function (group, colspan, level, groupHeaderBuilder, templates, skipColspan, skipLastGroup) {
                 var that = this, html = '', idx, length, field = group.field, column = grep(leafColumns(that.columns), function (column) {
                         return column.field == field;
                     })[0] || {}, template = column.groupHeaderTemplate, text = (column.title || field) + ': ' + formatGroupValue(group.value, column.format, column.values, column.encoded), footerDefaults = that._groupAggregatesDefaultObject || {}, groupItems = group.items, aggregates = extend({}, footerDefaults, group.aggregates), headerData = extend({}, {
@@ -6143,11 +6186,7 @@
                 }
                 if (group.hasSubgroups) {
                     for (idx = 0, length = groupItems.length; idx < length; idx++) {
-                        if (!that._skipRerenderItemsCount) {
-                            html += that._groupRowHtml(groupItems[idx], skipColspan ? colspan : colspan - 1, level + 1, groupHeaderBuilder, templates, skipColspan);
-                        } else {
-                            that._groupRowHtml(groupItems[idx], skipColspan ? colspan : colspan - 1, level + 1, groupHeaderBuilder, templates, skipColspan);
-                        }
+                        html += that._groupRowHtml(groupItems[idx], skipColspan ? colspan : colspan - 1, level + 1, groupHeaderBuilder, templates, skipColspan, skipLastGroup && idx === groupItems.length - 1);
                     }
                 } else {
                     html += that._rowsHtml(groupItems, templates);
@@ -6163,7 +6202,18 @@
                             }
                         });
                     }
-                    html += groupFooterTemplate(footerData);
+                    if (skipLastGroup) {
+                        if (!inArray(group.value, that._skippedGroups)) {
+                            that._skippedGroups.push(group.value);
+                        }
+                    } else {
+                        if (that._skippedGroups.length && that._skippedGroups[0] === group.value) {
+                            that._skippedGroups.shift();
+                        }
+                        if (!that._skipRerenderItemsCount) {
+                            html += groupFooterTemplate(footerData);
+                        }
+                    }
                 }
                 return html;
             },
@@ -6256,6 +6306,9 @@
                             groupsCount--;
                         }
                     }
+                }
+                if (level === 0 && that.options.scrollable.endless && this._isLocked()) {
+                    that._syncLockedContentHeight();
                 }
             },
             _updateHeader: function (groups) {
@@ -6553,9 +6606,8 @@
                 return this.table[0] === active || $.contains(this.table[0], active) || this._isLocked() && (this.lockedTable[0] === active || $.contains(this.lockedTable[0], active));
             },
             refresh: function (e) {
-                var that = this, data = that.dataSource.view(), navigatable = that.options.navigatable, currentIndex, current = $(that.current()), isCurrentInHeader = false, groups = (that.dataSource.group() || []).length, colspan = groups + visibleLeafColumns(visibleColumns(that.columns)).length;
-                var contentScrollLeft;
-                if (e && e.action === 'itemchange' && that.editable) {
+                var that = this, data = that.dataSource.view(), navigatable = that.options.navigatable, currentIndex, current = $(that.current()), isCurrentInHeader = false, groups = (that.dataSource.group() || []).length, colspan = groups + visibleLeafColumns(visibleColumns(that.columns)).length, contentScrollLeft, cachedItemsToSkip;
+                if (e && e.action === 'itemchange' && (that.editable || that.options.scrollable.endless)) {
                     return;
                 }
                 if (e && e.action === 'remove' && that.editable && that.editable.options.model && inArray(that.editable.options.model, e.items) > -1) {
@@ -6611,7 +6663,11 @@
                 if (that.content) {
                     contentScrollLeft = that.content.scrollLeft();
                 }
+                cachedItemsToSkip = that._skipRerenderItemsCount;
                 that._renderContent(data, colspan, groups);
+                if (that.options.scrollable && that.options.scrollable.endless && this.lockedContent) {
+                    that._skipRerenderItemsCount = cachedItemsToSkip;
+                }
                 that._renderLockedContent(data, colspan, groups);
                 that._footer();
                 that._renderNoRecordsContent();
@@ -6647,6 +6703,8 @@
                 }
                 if (that.options.persistSelection && (that.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell || that._checkBoxSelection)) {
                     that._restoreSelection();
+                } else {
+                    that._selectedIds = {};
                 }
                 that.trigger(DATABOUND);
             },
@@ -6736,7 +6794,7 @@
                 }
             },
             _renderContent: function (data, colspan, groups) {
-                var that = this, idx, length, html = '', isLocked = that.lockedContent != null, endlessAppend = null, scrollable = that.options.scrollable, templates = {
+                var that = this, idx, length, html = '', isLocked = that.lockedContent != null, endlessAppend = null, skipLastGroup, flatViewLength, scrollable = that.options.scrollable, templates = {
                         rowTemplate: that.rowTemplate,
                         altRowTemplate: that.altRowTemplate,
                         groupFooterTemplate: that.groupFooterTemplate
@@ -6757,8 +6815,15 @@
                     if (that.groupFooterTemplate) {
                         that._groupAggregatesDefaultObject = that.dataSource.aggregates();
                     }
+                    if (that.options.scrollable.endless) {
+                        flatViewLength = that.dataSource.flatView().length;
+                    }
                     for (idx = 0, length = data.length; idx < length; idx++) {
-                        html += that._groupRowHtml(data[idx], colspan, 0, isLocked ? groupRowLockedContentBuilder : groupRowBuilder, templates, isLocked);
+                        if (!that._skippedGroups) {
+                            that._skippedGroups = [];
+                        }
+                        skipLastGroup = flatViewLength && idx === data.length - 1 && flatViewLength !== that.dataSource.total();
+                        html += that._groupRowHtml(data[idx], colspan, 0, isLocked ? groupRowLockedContentBuilder : groupRowBuilder, templates, isLocked, skipLastGroup);
                     }
                 } else {
                     html += that._rowsHtml(data, templates);
@@ -6777,22 +6842,27 @@
                 }
             },
             _renderLockedContent: function (data, colspan, groups) {
-                var html = '', idx, length, templates = {
+                var html = '', idx, length, endlessAppend = null, templates = {
                         rowTemplate: this.lockedRowTemplate,
                         altRowTemplate: this.lockedAltRowTemplate,
                         groupFooterTemplate: this.lockedGroupFooterTemplate
                     };
                 if (this.lockedContent) {
                     var table = this.lockedTable;
+                    endlessAppend = this._skipRerenderItemsCount > 0;
                     if (groups > 0) {
                         colspan = colspan - visibleColumns(leafColumns(nonLockedColumns(this.columns))).length;
                         for (idx = 0, length = data.length; idx < length; idx++) {
-                            html += this._groupRowHtml(data[idx], colspan, 0, groupRowBuilder, templates);
+                            html += this._groupRowHtml(data[idx], colspan, 0, groupRowBuilder, templates, false, this.options.scrollable.endless && idx === data.length - 1);
                         }
                     } else {
                         html = this._rowsHtml(data, templates);
                     }
-                    appendContent(table.children('tbody'), table, html, this.options.$angular);
+                    if (endlessAppend) {
+                        table.children('tbody').append(html);
+                    } else {
+                        appendContent(table.children('tbody'), table, html, this.options.$angular);
+                    }
                     this._syncLockedContentHeight();
                 }
             },
@@ -7080,9 +7150,6 @@
         }
         function tableClick(e) {
             var currentTarget = $(e.currentTarget), isHeader = currentTarget.is('th'), table = this.table.add(this.lockedTable), headerTable = this.thead.parent().add($('>table', this.lockedHeader)), isInput = isInputElement(e.target), target = $(e.target), currentTable = currentTarget.closest('table')[0];
-            if (kendo.support.touch) {
-                return;
-            }
             if (isInput && currentTarget.find(kendo.roleSelector('filtercell')).length) {
                 this._setCurrent(currentTarget);
                 return;
@@ -7108,6 +7175,16 @@
             if (isHeader) {
                 e.preventDefault();
             }
+        }
+        function leftMostPosition(element, rtl) {
+            if (!rtl) {
+                return 0;
+            }
+            var result = 0;
+            if (kendo.support.browser.webkit) {
+                result = element.width();
+            }
+            return result;
         }
         function isInEdit(cell) {
             return cell && (cell.hasClass('k-edit-cell') || cell.parent().hasClass('k-grid-edit-row'));

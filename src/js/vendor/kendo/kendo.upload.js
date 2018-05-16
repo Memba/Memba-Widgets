@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -281,7 +281,7 @@
                     return;
                 }
                 var that = this, input = sourceInput.clone().val('');
-                input.insertAfter(that.element).data('kendoUpload', that);
+                input.insertAfter(that.element).data('kendo' + that.options.prefix + that.options.name, that);
                 $(that.element).hide().attr('tabindex', '-1').removeAttr('id').off(NS);
                 that._activeInput(input);
                 that.element.focus();
@@ -944,6 +944,7 @@
                     }
                 }, function () {
                     dropZone.removeClass('k-dropzone-hovered');
+                    dropZone.find('.k-dropzone-hovered').removeClass('k-dropzone-hovered');
                 });
                 that._bindDocumentDragEventWrappers(dropZone);
             },
@@ -1579,8 +1580,9 @@
             removeFileEntry: function (fileEntry) {
                 var chunkSize = this.upload.options.async.chunkSize;
                 var concurrent = this.upload.options.async.concurrent;
+                var isUploadButtonVisible = this.upload.wrapper.find('.k-upload-selected').length > 0;
                 this.cleanupFileEntry(fileEntry);
-                if (chunkSize && !concurrent) {
+                if (chunkSize && !concurrent && !isUploadButtonVisible) {
                     if (fileEntry.next().length) {
                         this.performUpload(fileEntry.next());
                     }
@@ -1593,7 +1595,7 @@
                 var fileMetaData;
                 if (this.upload.options.async.chunkSize) {
                     fileMetaData = this.metaData[fileUid];
-                    percentComplete = fileMetaData.totalChunks ? Math.round(fileMetaData.chunkIndex / fileMetaData.totalChunks * 100) : 100;
+                    percentComplete = fileMetaData && fileMetaData.totalChunks ? Math.round(fileMetaData.chunkIndex / fileMetaData.totalChunks * 100) : 100;
                 }
                 this.upload._onFileProgress({ target: $(fileEntry, this.upload.wrapper) }, percentComplete);
             },

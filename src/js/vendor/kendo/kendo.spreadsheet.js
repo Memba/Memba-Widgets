@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -804,6 +804,12 @@
                     return {
                         reason: 'error',
                         type: 'cannotModifyDisabled'
+                    };
+                }
+                if (!this.range().canEditArrayFormula()) {
+                    return {
+                        reason: 'error',
+                        type: 'intersectsArray'
                     };
                 }
                 this.getState();
@@ -4661,9 +4667,13 @@
                 return this.includesHiddenRows(this._sheet.select());
             },
             deleteSelectedColumns: function () {
-                var indexes = [];
-                this.forEachSelectedColumn(function (sheet, index, i) {
-                    index -= i;
+                var indexes = [], delta = 0;
+                this.forEachSelectedColumn(function (sheet, index) {
+                    index -= delta;
+                    if (sheet.isHiddenColumn(index)) {
+                        return;
+                    }
+                    delta++;
                     var formulas = [];
                     indexes.unshift({
                         index: index,
@@ -4677,9 +4687,13 @@
                 return indexes;
             },
             deleteSelectedRows: function () {
-                var indexes = [];
-                this.forEachSelectedRow(function (sheet, index, i) {
-                    index -= i;
+                var indexes = [], delta = 0;
+                this.forEachSelectedRow(function (sheet, index) {
+                    index -= delta;
+                    if (sheet.isHiddenRow(index)) {
+                        return;
+                    }
+                    delta++;
                     var formulas = [];
                     indexes.unshift({
                         index: index,
@@ -5049,18 +5063,22 @@
             });
             return obj;
         }
-        function cellState(element) {
+        function cellState(row, col, element, hBorders, vBorders) {
             var styles = window.getComputedStyle(element);
             var text = element.innerText;
             var borders = borderObject(styles);
             var state = {
                 value: text === '' ? null : text,
-                borderBottom: borders.borderBottom,
-                borderRight: borders.borderRight,
-                borderLeft: borders.borderLeft,
-                borderTop: borders.borderTop,
+                borderTop: borders.borderTop || hBorders.get(row, col) || null,
+                borderBottom: borders.borderBottom || hBorders.get(row + 1, col) || null,
+                borderLeft: borders.borderLeft || vBorders.get(row, col) || null,
+                borderRight: borders.borderRight || vBorders.get(row, col + 1) || null,
                 fontSize: parseInt(styles['font-size'], 10)
             };
+            hBorders.set(row, col, state.borderTop);
+            hBorders.set(row + 1, col, state.borderBottom);
+            vBorders.set(row, col, state.borderLeft);
+            vBorders.set(row, col + 1, state.borderRight);
             if (styles['background-color'] !== 'rgb(0, 0, 0)' && styles['background-color'] !== 'rgba(0, 0, 0, 0)') {
                 state.background = styles['background-color'];
             }
@@ -5093,6 +5111,8 @@
             for (var i = 0; i < table.rows.length; ++i) {
                 done.push([]);
             }
+            var hBorders = new kendo.spreadsheet.calc.runtime.Matrix();
+            var vBorders = new kendo.spreadsheet.calc.runtime.Matrix();
             for (var ri = 0; ri < table.rows.length; ++ri, ++row) {
                 var tr = table.rows[ri];
                 col = 0;
@@ -5105,7 +5125,7 @@
                     }
                     var style = td.getAttribute('style');
                     var ignoreColspan = /mso-ignore:colspan/.test(style);
-                    setStateData(state, row, col, cellState(td));
+                    setStateData(state, row, col, cellState(row, col, td, hBorders, vBorders));
                     if (rowSpan > 1 || colSpan > 1 && !ignoreColspan) {
                         state.mergedCells.push(new kendo.spreadsheet.RangeRef(new CellRef(row, col), new CellRef(row + rowSpan - 1, col + colSpan - 1)).toString());
                     }
@@ -5299,7 +5319,7 @@
                             if (type === 'date') {
                                 value = kendo.toString(kendo.spreadsheet.numberToDate(value), kendo.culture().calendar.patterns.d);
                             } else if (type === 'percent') {
-                                value = value * 100 + '%';
+                                value = kendo.spreadsheet.calc.runtime.limitPrecision(value * 100) + '%';
                             } else if (typeof value == 'string' && (/^[=']/.test(value) || /^(?:true|false)$/i.test(value) || looksLikeANumber(value))) {
                                 value = '\'' + value;
                             }
@@ -6058,23 +6078,20 @@
                 return true;
             }
         },
-        cellValues: function (a, f) {
+        cellValues: function (a, wantNulls) {
             var ret = [];
             for (var i = 0; i < a.length; ++i) {
                 var val = a[i];
                 if (val instanceof Ref) {
-                    val = this.getRefData(val);
+                    val = this.getRefData(val, wantNulls);
                     ret = ret.concat(val);
                 } else if (Array.isArray(val)) {
-                    ret = ret.concat(this.cellValues(val));
+                    ret = ret.concat(this.cellValues(val, wantNulls));
                 } else if (val instanceof Matrix) {
-                    ret = ret.concat(this.cellValues(val.data));
+                    ret = ret.concat(this.cellValues(val.data, wantNulls));
                 } else {
                     ret.push(val);
                 }
-            }
-            if (f) {
-                return f.apply(this, ret);
             }
             return ret;
         },
@@ -6193,13 +6210,13 @@
                 return m;
             }
         },
-        getRefCells: function (refs, hiddenInfo) {
+        getRefCells: function (refs, hiddenInfo, wantNulls) {
             var f = this.formula;
-            return this.ss.getRefCells(refs, hiddenInfo, f.sheet, f.row, f.col);
+            return this.ss.getRefCells(refs, hiddenInfo, f.sheet, f.row, f.col, wantNulls);
         },
-        getRefData: function (ref) {
+        getRefData: function (ref, wantNulls) {
             var f = this.formula;
-            return this.ss.getData(ref, f.sheet, f.row, f.col);
+            return this.ss.getData(ref, f.sheet, f.row, f.col, wantNulls);
         },
         workbook: function () {
             return this.ss.workbook;
@@ -6225,6 +6242,12 @@
             var line = this.data[row];
             var val = line ? line[col] : null;
             return val instanceof Ref ? this.context.getRefData(val) : val;
+        },
+        getNA: function (row, col) {
+            if (row < this.height && col < this.width) {
+                return this.get(row, col);
+            }
+            return new CalcError('N/A');
         },
         set: function (row, col, data) {
             var line = this.data[row];
@@ -6471,7 +6494,7 @@
             var refs = this.refs.map(function (ref) {
                 return ref.clone();
             });
-            return new Formula(refs, this.handler, this.print, this.sheet, this.row, this.col);
+            return new Formula(refs, this.handler, this.print, this.sheet, this.row, this.col, this.arrayFormulaRange);
         },
         resolve: function (val) {
             this.pending = false;
@@ -6703,17 +6726,20 @@
             } else {
                 var type = x[1];
                 if (Array.isArray(type) && /^#?collect/.test(type[0])) {
+                    var wantNulls = /!$/.test(type[0]);
                     var n = type[2];
                     force();
                     code += 'try {' + 'var $' + name + ' = this.cellValues(args.slice(i';
                     if (n) {
                         code += ', i + ' + n;
                     }
-                    code += ')).filter(function($' + name + '){ ';
-                    if (type[0] == 'collect') {
+                    code += ')' + (wantNulls ? ',true' : '') + ').reduce(function(ret, $' + name + '){ ';
+                    if (type[0].charAt(0) != '#') {
                         code += 'if ($' + name + ' instanceof CalcError) throw $' + name + '; ';
                     }
-                    code += 'return ' + cond(type[1]) + '; }, this); ';
+                    code += 'if (' + cond(type[1]) + ') ret.push($' + name + '); ';
+                    code += 'return ret; ';
+                    code += '}.bind(this), []); ';
                     if (n) {
                         code += 'i += ' + n + '; ';
                     } else {
@@ -6752,7 +6778,7 @@
             return '($' + name + ' = this.force($' + name + '))';
         }
         function forceNum(round) {
-            return '(' + (round ? '(typeof ' + force() + ' == \'number\' ? ($' + name + ' = round($' + name + '), true) : false) || ' : '(typeof ' + force() + ' == \'number\') || ') + '(typeof $' + name + ' == \'boolean\') || ' + '(typeof $' + name + ' == \'string\' && !/^(?:=|true|false)/i.test($' + name + ') ? (' + 'tmp = kendo.spreadsheet.calc.parse(0, 0, 0, $' + name + '), ' + '/^date|number|percent$/.test(tmp.type) ? ($' + name + ' = +tmp.value, true) : false' + ') : false)' + ')';
+            return '(' + (round ? '(typeof ' + force() + ' == \'number\' ? ($' + name + ' = round($' + name + '), true) : false) || ' : '(typeof ' + force() + ' == \'number\') || ') + '(typeof $' + name + ' == \'boolean\' ? ($' + name + ' = +$' + name + ', true) : false) || ' + '(typeof $' + name + ' == \'string\' && !/^(?:=|true|false)/i.test($' + name + ') ? (' + 'tmp = kendo.spreadsheet.calc.parse(0, 0, 0, $' + name + '), ' + '/^date|number|percent$/.test(tmp.type) ? ($' + name + ' = +tmp.value, true) : false' + ') : false)' + ')';
         }
         function typeCheck(type, allowError) {
             forced = false;
@@ -6810,6 +6836,9 @@
             }
             if (type == 'number' || type == 'datetime') {
                 return forceNum(true);
+            }
+            if (type == 'number!') {
+                return '(typeof ' + force() + ' == \'number\' ? ($' + name + ' = round($' + name + '), true) : false)';
             }
             if (type == 'integer' || type == 'date') {
                 return '(' + forceNum() + ' && (($' + name + ' |= 0), true))';
@@ -6909,8 +6938,7 @@
                                 var xargs = [];
                                 for (var i = 0; i < args.length; ++i) {
                                     if (x.arrays[i]) {
-                                        var m = args[i];
-                                        xargs[i] = m.get(row % m.height, col % m.width);
+                                        xargs[i] = args[i].getNA(row, col);
                                     } else {
                                         xargs[i] = args[i];
                                     }
@@ -6955,8 +6983,7 @@
                                 var xargs = [];
                                 for (var i = 0; i < args.length; ++i) {
                                     if (x.arrays[i]) {
-                                        var m = args[i];
-                                        xargs[i] = m.get(row % m.height, col % m.width);
+                                        xargs[i] = args[i].getNA(row, col);
                                     } else {
                                         xargs[i] = args[i];
                                     }
@@ -7317,6 +7344,8 @@
         ]
     ]);
     defineFunction('binary=', function (a, b) {
+        a = typeof a === 'string' ? a.toLowerCase() : a;
+        b = typeof b === 'string' ? b.toLowerCase() : b;
         return a === b;
     }).args(ARGS_ANYVALUE);
     defineFunction('binary<>', function (a, b) {
@@ -10708,7 +10737,7 @@
                 value: input.substr(1)
             };
         }
-        if (/^[0-9.]+%$/.test(input)) {
+        if (/^[0-9]+%$/.test(input)) {
             var str = input.substr(0, input.length - 1);
             var num = parseFloat(str);
             if (!isNaN(num) && num == str) {
@@ -10928,6 +10957,16 @@
             value: sign * parseFloat(value)
         };
     });
+    registerFormatParser(function (input) {
+        var m;
+        if (m = /^([0-9]*)\.([0-9]+)(\s*%)$/.exec(input)) {
+            return {
+                type: 'number',
+                value: parseFloat(input) / 100,
+                format: '0.' + repeat('0', m[2].length) + m[3]
+            };
+        }
+    });
     var NUMBER_FORMAT_RX = {};
     function getNumberRegexp(comma, dot) {
         var id = comma + dot;
@@ -11111,12 +11150,14 @@
                         sheet = items[localSheetId].options.name;
                     }
                     var name = attrs.name;
-                    if (sheet) {
-                        name = '\'' + sheet.replace(/\'/g, '\\\'') + '\'!' + name;
+                    if (name != '_xlnm._FilterDatabase') {
+                        if (sheet) {
+                            name = '\'' + sheet.replace(/\'/g, '\\\'') + '\'!' + name;
+                        }
+                        withErrorLog(sheet, null, function () {
+                            workbook.defineName(name, text, bool(attrs.hidden));
+                        }, 'reading user-defined name: ' + name);
                     }
-                    withErrorLog(sheet, null, function () {
-                        workbook.defineName(name, text, bool(attrs.hidden));
-                    }, 'reading user-defined name: ' + name);
                 }
             }
         });
@@ -11207,6 +11248,7 @@
         return pts * 1.5625;
     }
     function readSheet(zip, file, sheet, strings, styles) {
+        var sharedFormulas = {};
         var ref, type, value, formula, formulaRange, isArrayFormula;
         var nCols = sheet._columns._count;
         var prevCellRef = null;
@@ -11222,12 +11264,19 @@
         var filters = [];
         ERROR_LOG = sheet._workbook.excelImportErrors;
         parse(zip, xl(file), {
-            enter: function (tag, attrs) {
+            enter: function (tag, attrs, closed) {
                 var tmp;
-                if (this.is(SEL_CELL)) {
+                if (this.is(SEL_FORMULA)) {
+                    if (closed) {
+                        if (attrs.t == 'shared' && attrs.si != null) {
+                            formula = sheet.range(sharedFormulas[attrs.si])._get('formula');
+                        }
+                    }
+                } else if (this.is(SEL_CELL)) {
                     value = null;
                     formula = null;
                     ref = attrs.r;
+                    formulaRange = null;
                     if (ref == null) {
                         ref = parseReference(prevCellRef);
                         ref.col++;
@@ -11333,7 +11382,11 @@
                 }
             },
             leave: function (tag, attrs) {
-                if (this.is(SEL_CELL)) {
+                if (this.is(SEL_FORMULA)) {
+                    if (!formula && attrs.t == 'shared' && attrs.si != null) {
+                        formula = sheet.range(sharedFormulas[attrs.si])._get('formula');
+                    }
+                } else if (this.is(SEL_CELL)) {
                     if (formula != null) {
                         var failed = withErrorLog(sheet, formulaRange || ref, function () {
                             sheet.range(formulaRange || ref).formula(formula, isArrayFormula);
@@ -11421,7 +11474,11 @@
                 } else if (attrs = this.is(SEL_FORMULA)) {
                     formula = text;
                     isArrayFormula = attrs.t == 'array';
-                    formulaRange = isArrayFormula || attrs.t == 'shared' ? attrs.ref : null;
+                    if (isArrayFormula) {
+                        formulaRange = attrs.ref;
+                    } else if (attrs.t == 'shared') {
+                        sharedFormulas[attrs.si] = ref;
+                    }
                 } else if (this.is(SEL_VALIDATION_FORMULA1)) {
                     formula1 = text;
                 } else if (this.is(SEL_VALIDATION_FORMULA2)) {
@@ -11592,6 +11649,9 @@
             }
             if (f.italic) {
                 range.italic(true);
+            }
+            if (f.underline) {
+                range.underline(true);
             }
         }
         function setBorder(b) {
@@ -11799,6 +11859,8 @@
                         font.bold = bool(attrs.val, true);
                     } else if (tag == 'i') {
                         font.italic = bool(attrs.val, true);
+                    } else if (tag == 'u') {
+                        font.underline = attrs.val == null || attrs.val == 'single';
                     }
                 } else if (this.is(SEL_FILL)) {
                     styles.fills.push(fill = {});
@@ -12598,7 +12660,7 @@
         init: function (workbook) {
             this.workbook = workbook;
         },
-        getRefCells: function (ref, hiddenInfo, fsheet, frow, fcol) {
+        getRefCells: function (ref, hiddenInfo, fsheet, frow, fcol, wantNulls) {
             var sheet, formula, value, i;
             if (ref instanceof CellRef) {
                 sheet = this.workbook.sheetByName(ref.sheet);
@@ -12607,7 +12669,7 @@
                 }
                 formula = sheet.formula(ref);
                 value = sheet.range(ref.row, ref.col).value();
-                if (formula != null || value != null) {
+                if (wantNulls || formula != null || value != null) {
                     return [{
                             formula: formula,
                             value: value,
@@ -12646,7 +12708,7 @@
                             var index = sheet._grid.index(row, col);
                             formula = sheet._properties.get('formula', index);
                             value = values.at(index);
-                            if (formula != null || value != null) {
+                            if (wantNulls || formula != null || value != null) {
                                 states.push({
                                     formula: formula,
                                     value: value,
@@ -12693,12 +12755,12 @@
             }
             return val;
         },
-        getData: function (ref, fsheet, frow, fcol) {
+        getData: function (ref, fsheet, frow, fcol, wantNulls) {
             var single = ref instanceof CellRef;
             if (ref instanceof NameRef) {
                 single = this.workbook.nameValue(ref.name) instanceof CellRef;
             }
-            var data = this.getRefCells(ref, false, fsheet, frow, fcol).map(function (cell) {
+            var data = this.getRefCells(ref, false, fsheet, frow, fcol, wantNulls).map(function (cell) {
                 var val = cell.value;
                 if (val instanceof kendo.spreadsheet.calc.runtime.Formula) {
                     val = val.value;
@@ -12727,7 +12789,15 @@
                         tlRow = row;
                         tlCol = col;
                     }
-                    sheet._value(row, col, value.get((row - tlRow) % height, (col - tlCol) % width));
+                    var vrow = row - tlRow;
+                    var vcol = col - tlCol;
+                    var val;
+                    if (vrow < height && vcol < width) {
+                        val = value.get(vrow, vcol);
+                    } else {
+                        val = new kendo.spreadsheet.calc.runtime.CalcError('N/A');
+                    }
+                    sheet._value(row, col, val);
                 });
             } else {
                 if (value instanceof Ref) {
@@ -12927,6 +12997,7 @@
                 if (result) {
                     this._preventNavigation = true;
                     if (result.reason === 'error') {
+                        this.editor.deactivate(true);
                         this.view.showError(result, function () {
                             this.activateEditor(false);
                             this.editor.value(this._lastEditorValue);
@@ -13035,6 +13106,9 @@
                 if (workbook.activeSheet().name() !== sheet.name()) {
                     if (this._workbook.trigger('selectSheet', { sheet: sheet })) {
                         return;
+                    }
+                    if (!this.editor.canInsertRef(false)) {
+                        this.editor.deactivate();
                     }
                     workbook.activeSheet(sheet);
                 }
@@ -15515,14 +15589,18 @@
             fromJSON: function (field, values) {
                 for (var idx = 0; idx < values.length; idx++) {
                     var el = values[idx];
-                    var value = el[field] || el.hidden;
                     var index = el.index;
                     if (index === undefined) {
                         index = idx;
                     }
-                    this.value(index, index, value);
-                    if (el.hidden) {
+                    var value = el[field];
+                    if (value === 0) {
+                        if (el.hidden) {
+                            this.value(index, index, el.hidden);
+                        }
                         this.hide(index);
+                    } else {
+                        this.value(index, index, value);
                     }
                 }
             },
@@ -16907,6 +16985,9 @@
                 var decpart = str.substr(pos + 1);
                 if (decpart.length > 14) {
                     decpart = String(Math.round(decpart / Math.pow(10, decpart.length - 14)));
+                    while (decpart.length < 14) {
+                        decpart = '0' + decpart;
+                    }
                 }
                 if (decpart.length < decimals) {
                     while (decpart.length < decimals) {
@@ -18644,14 +18725,7 @@
             'numbers',
             [
                 'collect',
-                [
-                    'and',
-                    'number',
-                    [
-                        'not',
-                        'boolean'
-                    ]
-                ]
+                'number!'
             ]
         ],
         [
@@ -21638,16 +21712,16 @@
         [
             'array1',
             [
-                'collect',
-                'number',
+                'collect!',
+                'anything',
                 1
             ]
         ],
         [
             'array2',
             [
-                'collect',
-                'number',
+                'collect!',
+                'anything',
                 1
             ]
         ],
@@ -23586,6 +23660,7 @@
         return my - b1 * mx / b2;
     }
     function pearson(x_, y_) {
+        whipNumberArrays(x_, y_);
         var mx = _mean(x_), my = _mean(y_);
         var s1 = 0, s2 = 0, s3 = 0;
         for (var i = 0, n = x_.length; i < n; i++) {
@@ -24119,6 +24194,14 @@
     function PRICEDISC(settl, matur, discount, redemption, basis) {
         var dsm = _daysBetween(settl, matur, basis), dy = daysInYear(unpackDate(matur).year, basis);
         return redemption - discount * redemption * dsm / dy;
+    }
+    function whipNumberArrays(a, b) {
+        for (var i = a.length; --i >= 0;) {
+            if (typeof a[i] != 'number' || typeof b[i] != 'number') {
+                a.splice(i, 1);
+                b.splice(i, 1);
+            }
+        }
     }
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
@@ -24938,7 +25021,7 @@
                     width: 'auto'
                 });
                 listWidth = list.width();
-                if (listWidth) {
+                if (listWidth > 0) {
                     listWidth += 20;
                 } else {
                     listWidth = ddl._listWidth;
@@ -24947,14 +25030,17 @@
                 ddl._listWidth = listWidth;
             },
             _change: function (e) {
+                var that = this;
                 var instance = e.sender;
                 var value = instance.value();
                 var dataItem = instance.dataItem();
                 var popupName = dataItem ? dataItem.popup : undefined;
                 if (popupName) {
-                    this.toolbar.dialog({ name: popupName });
+                    setTimeout(function () {
+                        that.toolbar.dialog({ name: popupName });
+                    });
                 } else {
-                    this.toolbar.action({
+                    that.toolbar.action({
                         command: 'PropertyChangeCommand',
                         options: {
                             property: this.options.property,
@@ -27252,7 +27338,7 @@
         };
         var SheetDataSourceBinder = kendo.Class.extend({
             init: function (options) {
-                this.options = $.extend({}, this.options, options);
+                this.options = kendo.jQuery.extend({}, this.options, options);
                 this.columns = this._normalizeColumns(this.options.columns);
                 this._sheet();
                 this._dataSource();
@@ -29141,7 +29227,7 @@
             fitWidth: false,
             scale: 1,
             rowHeight: 20,
-            maxEmpty: 0.2
+            maxEmpty: 1
         });
         kendo.drawing.pdf.defineFont(kendo.drawing.drawDOM.getFontFaces(document));
         var charWidth = charWidthFunction(options.fontFamily, options.fontSize);
@@ -29175,7 +29261,16 @@
             if (!data.length) {
                 return progress.reject('Empty dataset');
             }
-            var columns = options.columns;
+            var columns = options.columns.map(function (col) {
+                if (typeof col == 'string') {
+                    return {
+                        title: col,
+                        field: col
+                    };
+                } else {
+                    return col;
+                }
+            });
             var columnTitles = columns.map(function (col) {
                 return col.title || col.field;
             });

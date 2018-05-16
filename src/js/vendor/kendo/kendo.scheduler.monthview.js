@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -610,8 +610,12 @@
                 if (that.options.editable.create !== false) {
                     that._addUserEvents = new kendo.UserEvents(that.element, {
                         threshold: threshold,
+                        useClickAsTap: !kendo.support.browser.edge,
                         filter: '.k-scheduler-monthview .k-scheduler-content td',
                         tap: function (e) {
+                            if (that._scrolling) {
+                                return;
+                            }
                             var offset = $(e.target).offset();
                             var slot = that._slotByPosition(offset.left, offset.top);
                             if (slot) {
@@ -632,7 +636,11 @@
                     that._editUserEvents = new kendo.UserEvents(that.element, {
                         threshold: threshold,
                         filter: '.k-scheduler-monthview .k-event',
+                        useClickAsTap: !kendo.support.browser.edge,
                         tap: function (e) {
+                            if (that._scrolling) {
+                                return;
+                            }
                             if ($(e.event.target).closest('a:has(.k-i-close)').length === 0) {
                                 that.trigger('edit', { uid: $(e.target).closest('.k-event').attr(kendo.attr('uid')) });
                                 e.preventDefault();

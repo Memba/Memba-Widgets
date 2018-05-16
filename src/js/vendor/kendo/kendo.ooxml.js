@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -121,9 +121,9 @@
                 var name = options.name || options.title || 'Sheet' + (i + 1);
                 return '<sheet name="' + ESC(name) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '" />';
             }) + '\n  </sheets>\n  ' + (filterNames.length || userNames.length ? '\n    <definedNames>\n      ' + foreach(filterNames, function (f) {
-                return '\n          <definedName name="_xlnm._FilterDatabase" hidden="1" localSheetId="' + f.localSheetId + '">' + ESC(f.name) + '!$' + ESC(f.from) + ':$' + ESC(f.to) + '</definedName>';
+                return '\n         <definedName name="_xlnm._FilterDatabase" hidden="1" localSheetId="' + f.localSheetId + '">' + ESC(f.name) + '!' + ESC(f.from) + ':' + ESC(f.to) + '</definedName>';
             }) + '\n      ' + foreach(userNames, function (f) {
-                return '\n         <definedName name="' + f.name + '" hidden="' + (f.hidden ? 1 : 0) + '"' + (f.localSheetId != null ? 'localSheetId="' + f.localSheetId + '"' : '') + '</definedName>';
+                return '\n         <definedName name="' + f.name + '" hidden="' + (f.hidden ? 1 : 0) + '" ' + (f.localSheetId != null ? 'localSheetId="' + f.localSheetId + '"' : '') + '>' + ESC(f.value) + '</definedName>';
             }) + '\n    </definedNames>' : '') + '\n  <calcPr fullCalcOnLoad="1" calcId="145621" />\n</workbook>';
         };
         var WORKSHEET = function (ref) {
@@ -210,7 +210,7 @@
             return numChar(colIndex) + (rowIndex + 1);
         }
         function $ref(rowIndex, colIndex) {
-            return numChar(colIndex) + '$' + (rowIndex + 1);
+            return '$' + numChar(colIndex) + '$' + (rowIndex + 1);
         }
         function filterRowIndex(options) {
             var frozenRows = options.frozenRows || (options.freezePane || {}).rowSplit || 1;
@@ -223,7 +223,7 @@
             return px * 0.75;
         }
         function stripFunnyChars(value) {
-            return String(value).replace(/[\x00-\x08]/g, '').replace(/\n/g, '\r\n');
+            return String(value).replace(/[\x00-\x1F]/g, '').replace(/\n/g, '\r\n');
         }
         var DATE_EPOCH = new Date(1900, 0, 0);
         var Worksheet = kendo.Class.extend({
@@ -547,13 +547,25 @@
                         var sheetName = options.name || options.title || 'Sheet' + (index + 1);
                         sheetIds[sheetName.toLowerCase()] = index;
                         var filter = options.filter;
-                        if (filter && typeof filter.from !== 'undefined' && typeof filter.to !== 'undefined') {
-                            return {
-                                localSheetId: index,
-                                name: sheetName,
-                                from: $ref(filterRowIndex(options), filter.from),
-                                to: $ref(filterRowIndex(options), filter.to)
-                            };
+                        if (filter) {
+                            if (filter.ref) {
+                                var a = filter.ref.split(':');
+                                var from = parseRef(a[0]);
+                                var to = parseRef(a[1]);
+                                return {
+                                    localSheetId: index,
+                                    name: sheetName,
+                                    from: $ref(from.row, from.col),
+                                    to: $ref(to.row, to.col)
+                                };
+                            } else if (typeof filter.from !== 'undefined' && typeof filter.to !== 'undefined') {
+                                return {
+                                    localSheetId: index,
+                                    name: sheetName,
+                                    from: $ref(filterRowIndex(options), filter.from),
+                                    to: $ref(filterRowIndex(options), filter.to)
+                                };
+                            }
                         }
                     }),
                     userNames: map(this.options.names || [], function (def) {

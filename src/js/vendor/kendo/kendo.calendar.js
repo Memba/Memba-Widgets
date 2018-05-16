@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -391,7 +391,7 @@
                     }
                     return;
                 }
-                if (eventArgs.event.ctrlKey) {
+                if (eventArgs.event.ctrlKey || eventArgs.event.metaKey) {
                     if ($(eventArgs.event.currentTarget).is(CELLSELECTORVALID)) {
                         that._toggleSelection($(eventArgs.event.currentTarget));
                     } else {
@@ -489,7 +489,7 @@
                     currentValue.setFullYear(temp.getFullYear());
                     prevent = true;
                 }
-                if (e.ctrlKey) {
+                if (e.ctrlKey || e.metaKey) {
                     if (key == keys.RIGHT && !isRtl || key == keys.LEFT && isRtl) {
                         that.navigateToFuture();
                         prevent = true;
@@ -1231,9 +1231,8 @@
             e.preventDefault();
         }
         function createDate(year, month, date) {
-            var leapYear = 1904;
-            var dateObject = new DATE(leapYear, month, date);
-            dateObject.setFullYear(year);
+            var dateObject = new DATE(year, month, date);
+            dateObject.setFullYear(year, month, date);
             return dateObject;
         }
         function getCalendarInfo(culture) {

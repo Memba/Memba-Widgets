@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -409,6 +409,7 @@
             },
             _mediaTimeUpdate: function () {
                 var currentTime = this._youTubeVideo ? this._ytmedia.getCurrentTime() : this._media.currentTime;
+                currentTime = currentTime ? currentTime : 0;
                 var timeInMs = this._msToTime(currentTime);
                 this._currentTimeElement.text(kendo.toString(timeInMs, this._timeFormat));
                 if (!this._isDragging) {

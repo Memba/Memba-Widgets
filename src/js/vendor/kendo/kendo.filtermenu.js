@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -720,6 +720,7 @@
             _createForm: function () {
                 var options = this.options;
                 var html = '';
+                var that = this;
                 if (!this._isMobile) {
                     if (options.search) {
                         html += '<div class=\'k-textbox k-space-right\'>' + '<input placeholder=\'' + options.messages.search + '\'/>' + '<span class=\'k-icon k-i-zoom\' />' + '</div>';
@@ -734,7 +735,6 @@
                     this.container = this.form.find('.k-multicheck-wrap');
                 }
                 if (this._isMobile) {
-                    var that = this;
                     that.form = $('<div />').html(kendo.template(multiCkeckMobileTemplate)({
                         field: that.field,
                         title: options.title || that.field,
@@ -755,9 +755,15 @@
                     });
                 } else {
                     if (!options.appendToElement) {
-                        this.popup = this.form.kendoPopup({
-                            anchor: this._link,
-                            activate: proxy(this._activate, this)
+                        that.popup = that.form.kendoPopup({
+                            anchor: that._link,
+                            open: proxy(that._open, that),
+                            activate: proxy(that._activate, that),
+                            close: function () {
+                                if (that.options.closeCallback) {
+                                    that.options.closeCallback(that.element);
+                                }
+                            }
                         }).data(POPUP);
                     } else {
                         this.popup = this.element.closest('.k-popup').data(POPUP);

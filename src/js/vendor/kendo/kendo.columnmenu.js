@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -276,7 +276,7 @@
                 var i;
                 var listElement;
                 var columns = that._ownerColumns() || [];
-                var columnList = that._isMobile && that.view ? $(that.view.element).find('.k-columns-item').children('ul') : $(that.wrapper).find('.k-menu-group');
+                var columnList = that._isMobile && that.view ? $(that.view.element).find('.k-columns-item').children('ul') : $(that.wrapper).find('.k-menu-group').first();
                 for (i = 0; i < columns.length; i++) {
                     listElement = columnList.find(attrEquals('field', columns[i].originalField)).closest('li');
                     if (listElement[0] && listElement.index() !== i) {
@@ -412,7 +412,7 @@
                         }
                         field = input.attr(kendo.attr('field'));
                         column = grep(columns, function (column) {
-                            return column.field == field || column.title == field;
+                            return column.field == field || !column.field && column.title == field;
                         })[0];
                         if (column.hidden === true) {
                             that.owner.showColumn(column);
@@ -432,6 +432,8 @@
                         return col.locked === true;
                     }).length, nonLockedCount = grep(visibleDataFields, function (col) {
                         return col.locked !== true;
+                    }).length, columnNotInMenuCount = grep(this.owner.columns, function (col) {
+                        return col.menu === false;
                     }).length;
                 visible = map(visible, function (col) {
                     return col.field;
@@ -451,7 +453,7 @@
                         if (lockedCount == 1 && locked) {
                             current.prop('disabled', true);
                         }
-                        if (nonLockedCount == 1 && !locked) {
+                        if (columnNotInMenuCount === 0 && nonLockedCount == 1 && !locked) {
                             current.prop('disabled', true);
                         }
                     }

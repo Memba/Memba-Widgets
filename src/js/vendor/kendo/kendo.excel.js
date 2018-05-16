@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -68,7 +68,7 @@
                 var workbook = {
                     sheets: [{
                             columns: this._columns(),
-                            rows: this.hierarchy ? this._hierachyRows() : this._rows(),
+                            rows: this.hierarchy ? this._hierarchyRows() : this._rows(),
                             freezePane: this._freezePane(),
                             filter: this._filter()
                         }]
@@ -102,7 +102,7 @@
                     return null;
                 }
                 var value = function (dataItem) {
-                    return getter(column.field)(dataItem);
+                    return getter(column.field, true)(dataItem);
                 };
                 var values = null;
                 if (column.values) {
@@ -111,7 +111,7 @@
                         values[item.value] = item.text;
                     });
                     value = function (dataItem) {
-                        return values[getter(column.field)(dataItem)];
+                        return values[getter(column.field, true)(dataItem)];
                     };
                 }
                 return $.extend({}, column, {
@@ -195,7 +195,7 @@
                 }
                 return rows;
             },
-            _hierachyRows: function () {
+            _hierarchyRows: function () {
                 var this$1 = this;
                 var depth = this._depth();
                 var data = this.data;
@@ -487,6 +487,9 @@
                 this.options = options;
                 var dataSource = options.dataSource;
                 if (dataSource instanceof kendo.data.DataSource) {
+                    if (!dataSource.filter()) {
+                        dataSource.options.filter = undefined;
+                    }
                     this.dataSource = new dataSource.constructor(extend({}, dataSource.options, {
                         page: options.allPages ? 0 : dataSource.page(),
                         filter: dataSource.filter(),

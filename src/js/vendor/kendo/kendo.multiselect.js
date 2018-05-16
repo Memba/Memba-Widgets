@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -229,7 +229,6 @@
                         break;
                     }
                 }
-                this.persistTagList = false;
                 this._selectValue(e.added, e.removed);
             },
             _selectedItemChange: function (e) {
@@ -342,7 +341,7 @@
                 var that = this, disable = options.disable, readonly = options.readonly, wrapper = that.wrapper.off(ns), tagList = that.tagList.off(ns), input = that.element.add(that.input.off(ns));
                 if (!readonly && !disable) {
                     wrapper.removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover).on('mousedown' + ns + ' touchend' + ns, proxy(that._wrapperMousedown, that));
-                    that.input.on(KEYDOWN, proxy(that._keydown, that)).on('paste' + ns, proxy(that._search, that)).on('focus' + ns, proxy(that._inputFocus, that)).on('focusout' + ns, proxy(that._inputFocusout, that));
+                    that.input.on(KEYDOWN, proxy(that._keydown, that)).on('paste' + ns, proxy(that._search, that)).on('input' + ns, proxy(that._search, that)).on('focus' + ns, proxy(that._inputFocus, that)).on('focusout' + ns, proxy(that._inputFocusout, that));
                     that._clear.on('click' + ns, proxy(that._clearClick, that));
                     input.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false);
                     tagList.on(MOUSEENTER, LI, function () {
@@ -387,15 +386,15 @@
                     that._open = true;
                     that._state = REBIND;
                     that.listView.skipUpdate(true);
-                    that.persistTagList = true;
+                    that.persistTagList = that._initialOpen && !that.listView.bound() ? false : true;
                     that._filterSource();
                     that._focusItem();
                 } else if (that._allowOpening()) {
-                    if (!that.options.autoBind && !that.options.virtual && that.options.value && !$.isPlainObject(that.options.value[0])) {
+                    if (that._initialOpen && !that.options.autoBind && !that.options.virtual && that.options.value && !$.isPlainObject(that.options.value[0])) {
                         that.value(that._initialValues);
-                        that._initialOpen = false;
                     }
                     that.popup._hovered = true;
+                    that._initialOpen = false;
                     that.popup.open();
                     that._focusItem();
                 }
@@ -646,6 +645,9 @@
                         that._selectRange(0, listView.items().length - 1);
                     }
                 } else if (key === keys.ENTER && visible) {
+                    if (!listView.focus()) {
+                        return;
+                    }
                     e.preventDefault();
                     if (listView.focus().hasClass(SELECTEDCLASS)) {
                         that._close();
@@ -1020,7 +1022,7 @@
                             var isSelected = $(candidate).hasClass('k-state-selected');
                             that.trigger(isSelected ? SELECT : DESELECT, {
                                 dataItem: dataItem,
-                                item: candidate
+                                item: $(candidate)
                             });
                         });
                         that._change();
@@ -1075,7 +1077,7 @@
             _tagList: function () {
                 var that = this, tagList = that._innerWrapper.children('ul');
                 if (!tagList[0]) {
-                    tagList = $('<ul role="listbox" deselectable="on" class="k-reset"/>').appendTo(that._innerWrapper);
+                    tagList = $('<ul role="listbox" unselectable="on" class="k-reset"/>').appendTo(that._innerWrapper);
                 }
                 that.tagList = tagList;
             },
@@ -1093,7 +1095,7 @@
                 defaultTemplate = isMultiple ? kendo.template('#:' + kendo.expr(options.dataTextField, 'data') + '#', { useWithBlock: false }) : kendo.template('#:values.length# item(s) selected');
                 that.tagTextTemplate = tagTemplate = tagTemplate ? kendo.template(tagTemplate) : defaultTemplate;
                 that.tagTemplate = function (data) {
-                    return '<li class="k-button" deselectable="on"><span deselectable="on">' + tagTemplate(data) + '</span><span unselectable="on" aria-label="' + (isMultiple ? 'delete' : 'open') + '" class="k-select"><span class="k-icon ' + (isMultiple ? 'k-i-close' : 'k-i-arrow-60-down') + '">' + '</span></span></li>';
+                    return '<li class="k-button" unselectable="on"><span unselectable="on">' + tagTemplate(data) + '</span><span unselectable="on" aria-label="' + (isMultiple ? 'delete' : 'open') + '" class="k-select"><span class="k-icon ' + (isMultiple ? 'k-i-close' : 'k-i-arrow-60-down') + '">' + '</span></span></li>';
                 };
             },
             _loader: function () {
@@ -1117,10 +1119,10 @@
             _wrapper: function () {
                 var that = this, element = that.element, wrapper = element.parent('span.k-multiselect');
                 if (!wrapper[0]) {
-                    wrapper = element.wrap('<div class="k-widget k-multiselect k-header" deselectable="on" />').parent();
+                    wrapper = element.wrap('<div class="k-widget k-multiselect" unselectable="on" />').parent();
                     wrapper[0].style.cssText = element[0].style.cssText;
                     wrapper[0].title = element[0].title;
-                    $('<div class="k-multiselect-wrap k-floatwrap" deselectable="on" />').insertBefore(element);
+                    $('<div class="k-multiselect-wrap k-floatwrap" unselectable="on" />').insertBefore(element);
                 }
                 that.wrapper = wrapper.addClass(element[0].className).css('display', '');
                 that._innerWrapper = $(wrapper[0].firstChild);

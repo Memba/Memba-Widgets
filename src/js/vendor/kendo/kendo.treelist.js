@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -345,18 +345,10 @@
                 }
                 this[operation](data);
             },
-            _readData: function (newData, requestParams) {
-                var data = this.data(), target = data, source, parentItem;
+            _readData: function (newData) {
+                var data = this.data();
                 newData = DataSource.fn._readData.call(this, newData);
-                source = data.toJSON().concat(newData);
-                if (requestParams && requestParams.id) {
-                    parentItem = this.get(requestParams.id);
-                    if (this.childNodes(parentItem).length > 0) {
-                        source = newData;
-                        target = this._subtree(this._childrenMap(this.data()), requestParams.id);
-                    }
-                }
-                this._replaceData(source, target);
+                this._replaceData(data.toJSON().concat(newData), data);
                 if (newData instanceof ObservableArray) {
                     return newData;
                 }
@@ -378,9 +370,12 @@
                 return result;
             },
             remove: function (root) {
-                var items = this._subtree(this._childrenMap(this.data()), root.id);
-                this._removeItems(items);
+                this._removeChildData(root);
                 DataSource.fn.remove.call(this, root);
+            },
+            _removeChildData: function (model) {
+                var items = this._subtree(this._childrenMap(this.data()), model.id);
+                this._removeItems(items);
             },
             _filterCallback: function (query) {
                 var i, item;
@@ -506,6 +501,7 @@
                     }
                 } else if (model.hasChildren) {
                     method = 'read';
+                    this._removeChildData(model);
                 }
                 return this[method]({ id: model.id }).done(proxy(this._modelLoaded, this, model.id)).fail(proxy(this._modelError, this, model.id));
             },

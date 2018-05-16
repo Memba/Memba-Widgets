@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -319,6 +319,14 @@
                     return getter(dataItem);
                 });
             },
+            _highlightSelectedItems: function () {
+                for (var i = 0; i < this._selectedDataItems.length; i++) {
+                    var item = this._getElementByDataItem(this._selectedDataItems[i]);
+                    if (item.length) {
+                        item.addClass(SELECTED);
+                    }
+                }
+            },
             refresh: function (e) {
                 var that = this;
                 var action = e && e.action;
@@ -336,13 +344,14 @@
                     that._createList();
                     if (!action && that._values.length && !filtered && !that.options.skipUpdateOnBind) {
                         that._selectingValue = true;
+                        that.bound(true);
                         that.value(that._values, true).done(function () {
-                            that.bound(true);
                             that._selectingValue = false;
                             that._triggerListBound();
                         });
                     } else {
                         that.bound(true);
+                        that._highlightSelectedItems();
                         that._triggerListBound();
                     }
                 } else {
@@ -553,13 +562,20 @@
                 var that = this;
                 var take = that.itemCount;
                 var skip = that._getSkip(index, take);
+                var view = this._getRange(skip, take);
                 if (!that._getRange(skip, take).length) {
                     return null;
                 }
-                that.mute(function () {
-                    that.dataSource.range(skip, take);
-                });
-                return that._findDataItem(that.dataSource.view(), [index - skip]);
+                if (that.options.type === 'group') {
+                    kendo.ui.progress($(that.wrapper), true);
+                    that.mute(function () {
+                        that.dataSource.range(skip, take, function () {
+                            kendo.ui.progress($(that.wrapper), false);
+                        });
+                        view = that.dataSource.view();
+                    });
+                }
+                return that._findDataItem(view, [index - skip]);
             },
             selectedDataItems: function () {
                 return this._selectedDataItems.slice();
@@ -706,7 +722,7 @@
                 if (removed.length || !indices.length || isAlreadySelected) {
                     that._triggerChange(removed);
                     if (that._valueDeferred) {
-                        that._valueDeferred.resolve();
+                        that._valueDeferred.resolve().promise();
                     }
                     return that._selectDeferred.resolve().promise();
                 }
@@ -1209,7 +1225,9 @@
                 for (; idx < indices.length; idx++) {
                     position = -1;
                     index = indices[idx];
-                    value = this._valueGetter(this.dataItemByIndex(index));
+                    if (this.dataItemByIndex(index)) {
+                        value = this._valueGetter(this.dataItemByIndex(index));
+                    }
                     for (j = 0; j < values.length; j++) {
                         if (value == values[j]) {
                             position = j;

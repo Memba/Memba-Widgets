@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2018.1.221'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2018.2.515'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1101,8 +1101,9 @@
                                 return null;
                             }
                             if (count > 2) {
+                                minutesOffset = matches[0][0] + minutesOffset;
                                 minutesOffset = parseInt(minutesOffset, 10);
-                                if (isNaN(minutesOffset) || outOfRange(minutesOffset, 0, 59)) {
+                                if (isNaN(minutesOffset) || outOfRange(minutesOffset, -59, 59)) {
                                     return null;
                                 }
                             }
@@ -1733,9 +1734,9 @@
             var documentMode = document.documentMode;
             support.hashChange = 'onhashchange' in window && !(support.browser.msie && (!documentMode || documentMode <= 8));
             support.customElements = 'registerElement' in window.document;
-            var chrome = support.browser.chrome;
+            var chrome = support.browser.chrome, mozilla = support.browser.mozilla;
             support.msPointers = !chrome && window.MSPointerEvent;
-            support.pointers = !chrome && window.PointerEvent;
+            support.pointers = !chrome && !mozilla && window.PointerEvent;
             support.kineticScrollNeeded = mobileOS && (support.touch || support.msPointers || support.pointers);
         }());
         function size(obj) {
@@ -2244,14 +2245,18 @@
             }
             return value;
         }
-        function parseOptions(element, options) {
+        function parseOptions(element, options, source) {
             var result = {}, option, value;
             for (option in options) {
                 value = parseOption(element, option);
                 if (value !== undefined) {
                     if (templateRegExp.test(option)) {
                         if (typeof value === 'string') {
-                            value = kendo.template($('#' + value).html());
+                            if ($('#' + value).length) {
+                                value = kendo.template($('#' + value).html());
+                            } else if (source) {
+                                value = kendo.template(source[value]);
+                            }
                         } else {
                             value = element.getAttribute(option);
                         }
@@ -3750,7 +3755,7 @@
             run: function (effects) {
                 var that = this, effect, idx, jdx, length = effects.length, element = that.element, options = that.options, deferred = $.Deferred(), start = {}, end = {}, target, children, childrenLength;
                 that.effects = effects;
-                deferred.then($.proxy(that, 'complete'));
+                deferred.done($.proxy(that, 'complete'));
                 element.data('animating', true);
                 for (idx = 0; idx < length; idx++) {
                     effect = effects[idx];
@@ -3997,7 +4002,7 @@
                     return this.compositeRun();
                 }
                 var that = this, element = that.element, idx = 0, restore = that.restore, length = restore.length, value, deferred = $.Deferred(), start = {}, end = {}, target, children = that.children(), childrenLength = children.length;
-                deferred.then($.proxy(that, '_complete'));
+                deferred.done($.proxy(that, '_complete'));
                 element.data('animating', true);
                 for (idx = 0; idx < length; idx++) {
                     value = restore[idx];
@@ -6556,6 +6561,9 @@
         Query.process = function (data, options, inPlace) {
             options = options || {};
             var query = new Query(data), group = options.group, sort = normalizeGroup(group || []).concat(normalizeSort(options.sort || [])), total, filterCallback = options.filterCallback, filter = options.filter, skip = options.skip, take = options.take;
+            if (sort && inPlace) {
+                query = query.sort(sort, undefined, undefined, inPlace);
+            }
             if (filter) {
                 query = query.filter(filter);
                 if (filterCallback) {
@@ -6563,12 +6571,8 @@
                 }
                 total = query.toArray().length;
             }
-            if (sort) {
-                if (inPlace) {
-                    query = query.sort(sort, undefined, undefined, inPlace);
-                } else {
-                    query = query.sort(sort);
-                }
+            if (sort && !inPlace) {
+                query = query.sort(sort);
                 if (group) {
                     data = query.toArray();
                 }
@@ -6615,7 +6619,9 @@
                     add: noop
                 };
                 parameterMap = options.parameterMap;
-                that.submit = options.submit;
+                if (options.submit) {
+                    that.submit = options.submit;
+                }
                 if (isFunction(options.push)) {
                     that.push = options.push;
                 }
@@ -6756,6 +6762,11 @@
         function wrapDataAccess(originalFunction, model, converter, getters, originalFieldNames, fieldNames) {
             return function (data) {
                 data = originalFunction(data);
+                return wrapDataAccessBase(model, converter, getters, originalFieldNames, fieldNames)(data);
+            };
+        }
+        function wrapDataAccessBase(model, converter, getters, originalFieldNames, fieldNames) {
+            return function (data) {
                 if (data && !isEmptyObject(getters)) {
                     if (toString.call(data) !== '[object Array]' && !(data instanceof ObservableArray)) {
                         data = [data];
@@ -6805,6 +6816,7 @@
                         }
                     }
                     that._dataAccessFunction = dataFunction;
+                    that._wrapDataAccessBase = wrapDataAccessBase(model, convertRecords, getters, originalFieldNames, fieldNames);
                     that.data = wrapDataAccess(dataFunction, model, convertRecords, getters, originalFieldNames, fieldNames);
                     that.groups = wrapDataAccess(groupsFunction, model, convertGroup, getters, originalFieldNames, fieldNames);
                 }
@@ -6825,6 +6837,27 @@
                 return data;
             }
         });
+        function fillLastGroup(originalGroup, newGroup) {
+            var currOriginal;
+            var currentNew;
+            if (newGroup.items && newGroup.items.length) {
+                for (var i = 0; i < newGroup.items.length; i++) {
+                    currOriginal = originalGroup.items[i];
+                    currentNew = newGroup.items[i];
+                    if (currOriginal && currentNew) {
+                        if (currOriginal.hasSubgroups) {
+                            fillLastGroup(currOriginal, currentNew);
+                        } else if (currOriginal.field && currOriginal.value == currentNew.value) {
+                            currOriginal.items.push.apply(currOriginal.items, currentNew.items);
+                        } else {
+                            originalGroup.items.push.apply(originalGroup.items, [currentNew]);
+                        }
+                    } else if (currentNew) {
+                        originalGroup.items.push.apply(originalGroup.items, [currentNew]);
+                    }
+                }
+            }
+        }
         function mergeGroups(target, dest, skip, take) {
             var group, idx = 0, items;
             while (dest.length && take) {
@@ -7265,6 +7298,8 @@
                 return model;
             },
             pushInsert: function (index, items) {
+                var that = this;
+                var rangeSpan = that._getCurrentRangeSpan();
                 if (!items) {
                     items = index;
                     index = 0;
@@ -7285,6 +7320,9 @@
                             pristine = this._wrapInEmptyGroup(pristine);
                         }
                         this._pristineData.push(pristine);
+                        if (rangeSpan && rangeSpan.length) {
+                            $(rangeSpan).last()[0].pristineData.push(pristine);
+                        }
                         index++;
                     }
                 } finally {
@@ -7538,7 +7576,15 @@
                 return read.call(this.reader, data);
             },
             _eachPristineItem: function (callback) {
-                this._eachItem(this._pristineData, callback);
+                var that = this;
+                var options = that.options;
+                var rangeSpan = that._getCurrentRangeSpan();
+                that._eachItem(that._pristineData, callback);
+                if (options.serverPaging && options.useRanges) {
+                    each(rangeSpan, function (i, range) {
+                        that._eachItem(range.pristineData, callback);
+                    });
+                }
             },
             _eachItem: function (data, callback) {
                 if (data && data.length) {
@@ -7705,7 +7751,7 @@
                 return this.reader.aggregates(data);
             },
             success: function (data) {
-                var that = this, options = that.options, requestParams;
+                var that = this, options = that.options;
                 that.trigger(REQUESTEND, {
                     response: data,
                     type: 'read'
@@ -7719,12 +7765,14 @@
                     that._total = that.reader.total(data);
                     if (that._pageSize > that._total) {
                         that._pageSize = that._total;
+                        if (that.options.pageSize && that.options.pageSize > that._pageSize) {
+                            that._pageSize = that.options.pageSize;
+                        }
                     }
                     if (that._aggregate && options.serverAggregates) {
                         that._aggregateResult = that._readAggregates(data);
                     }
-                    requestParams = arguments.length > 1 ? arguments[1] : undefined;
-                    data = that._readData(data, requestParams);
+                    data = that._readData(data);
                     that._destroyed = [];
                 } else {
                     data = that._readData(data);
@@ -7756,6 +7804,10 @@
                 that._detachObservableParents();
                 if (that.options.endless) {
                     that._data.unbind(CHANGE, that._changeHandler);
+                    if (that._isServerGrouped() && that._data[that._data.length - 1].value === data[0].value) {
+                        fillLastGroup(that._data[that._data.length - 1], data[0]);
+                        data.shift();
+                    }
                     data = that._observe(data);
                     for (var i = 0; i < data.length; i++) {
                         that._data.push(data[i]);
@@ -7813,7 +7865,7 @@
                     }
                     this.offlineData(state.concat(destroyed));
                     if (updatePristine) {
-                        this._pristineData = this._readData(state);
+                        this._pristineData = this.reader._wrapDataAccessBase(state);
                     }
                 }
             },
@@ -7823,9 +7875,13 @@
                     start: start,
                     end: end,
                     data: data,
-                    timestamp: new Date().getTime()
+                    pristineData: data.toJSON(),
+                    timestamp: that._timeStamp()
                 });
-                that._ranges.sort(function (x, y) {
+                that._sortRanges();
+            },
+            _sortRanges: function () {
+                this._ranges.sort(function (x, y) {
                     return x.start - y.start;
                 });
             },
@@ -8420,18 +8476,17 @@
                             if (that._ranges[idx].start === skip) {
                                 found = true;
                                 range = that._ranges[idx];
+                                range.pristineData = temp;
+                                range.data = that._observe(temp);
+                                range.end = range.start + that._flatData(range.data, true).length;
+                                that._sortRanges();
                                 break;
                             }
                         }
                         if (!found) {
-                            that._ranges.push(range);
+                            that._addRange(that._observe(temp), skip);
                         }
                     }
-                    range.data = that._observe(temp);
-                    range.end = range.start + that._flatData(range.data, true).length;
-                    that._ranges.sort(function (x, y) {
-                        return x.start - y.start;
-                    });
                     that._total = that.reader.total(data);
                     if (force || (timestamp >= that._currentRequestTimeStamp || !that._skipRequestsInProgress)) {
                         if (callback && temp.length) {
@@ -8505,6 +8560,23 @@
                     }
                 }
                 return false;
+            },
+            _getCurrentRangeSpan: function () {
+                var that = this;
+                var ranges = that._ranges;
+                var start = that.currentRangeStart();
+                var end = start + (that.take() || 0);
+                var rangeSpan = [];
+                var range;
+                var idx;
+                var length = ranges.length;
+                for (idx = 0; idx < length; idx++) {
+                    range = ranges[idx];
+                    if (range.start <= start && range.end >= start || range.start >= start && range.start <= end) {
+                        rangeSpan.push(range);
+                    }
+                }
+                return rangeSpan;
             },
             _removeModelFromRanges: function (model) {
                 var that = this;
@@ -9290,6 +9362,14 @@
         hidden: true
     };
     (function ($) {
+        var kendo = window.kendo;
+        var isFunction = kendo.isFunction;
+        function isJQueryPromise(promise) {
+            return promise && isFunction(promise.done) && isFunction(promise.fail);
+        }
+        function isNativePromise(promise) {
+            return promise && isFunction(promise.then) && isFunction(promise.catch);
+        }
         var transport = kendo.data.RemoteTransport.extend({
             init: function (options) {
                 var signalr = options && options.signalr ? options.signalr : {};
@@ -9297,7 +9377,7 @@
                 if (!promise) {
                     throw new Error('The "promise" option must be set.');
                 }
-                if (typeof promise.done != 'function' || typeof promise.fail != 'function') {
+                if (!isJQueryPromise(promise) && !isNativePromise(promise)) {
                     throw new Error('The "promise" option must be a Promise.');
                 }
                 this.promise = promise;
@@ -9325,6 +9405,7 @@
             },
             _crud: function (options, type) {
                 var hub = this.hub;
+                var promise = this.promise;
                 var server = this.options.signalr.server;
                 if (!server || !server[type]) {
                     throw new Error(kendo.format('The "server.{0}" option must be set.', type));
@@ -9334,9 +9415,15 @@
                 if (!$.isEmptyObject(data)) {
                     args.push(data);
                 }
-                this.promise.done(function () {
-                    hub.invoke.apply(hub, args).done(options.success).fail(options.error);
-                });
+                if (isJQueryPromise(promise)) {
+                    promise.done(function () {
+                        hub.invoke.apply(hub, args).done(options.success).fail(options.error);
+                    });
+                } else if (isNativePromise(promise)) {
+                    promise.then(function () {
+                        hub.invoke.apply(hub, args).then(options.success).catch(options.error);
+                    });
+                }
             },
             read: function (options) {
                 this._crud(options, 'read');
@@ -10071,7 +10158,7 @@
                     }
                 },
                 refresh: function (e) {
-                    var that = this, source, widget = that.widget, select, multiselect;
+                    var that = this, source, widget = that.widget, select, multiselect, dropdowntree;
                     e = e || {};
                     if (!e.action) {
                         that.destroy();
@@ -10085,9 +10172,14 @@
                             } else if (source && source._dataSource) {
                                 widget[setter](source._dataSource);
                             } else {
-                                widget[fieldName].data(source);
                                 select = kendo.ui.Select && widget instanceof kendo.ui.Select;
                                 multiselect = kendo.ui.MultiSelect && widget instanceof kendo.ui.MultiSelect;
+                                dropdowntree = kendo.ui.DropDownTree && widget instanceof kendo.ui.DropDownTree;
+                                if (!dropdowntree) {
+                                    widget[fieldName].data(source);
+                                } else {
+                                    widget.treeview[fieldName].data(source);
+                                }
                                 if (that.bindings.value && (select || multiselect)) {
                                     widget.value(retrievePrimitiveValues(that.bindings.value.get(), widget.options.dataValueField));
                                 }
@@ -10310,6 +10402,101 @@
                     this.widget.unbind(CHANGE, this._change);
                 }
             }),
+            dropdowntree: {
+                value: Binder.extend({
+                    init: function (widget, bindings, options) {
+                        Binder.fn.init.call(this, widget.element[0], bindings, options);
+                        this.widget = widget;
+                        this._change = $.proxy(this.change, this);
+                        this.widget.first(CHANGE, this._change);
+                        this._initChange = false;
+                    },
+                    change: function () {
+                        var that = this, oldValues = that.bindings[VALUE].get(), valuePrimitive = that.options.valuePrimitive, selectedNode = that.widget.treeview.select(), nonPrimitiveValues = that.widget._isMultipleSelection() ? that.widget._getAllChecked() : that.widget.treeview.dataItem(selectedNode) || that.widget.value(), newValues = valuePrimitive || that.widget.options.autoBind === false ? that.widget.value() : nonPrimitiveValues;
+                        var field = this.options.dataValueField || this.options.dataTextField;
+                        newValues = newValues.slice ? newValues.slice(0) : newValues;
+                        that._initChange = true;
+                        if (oldValues instanceof ObservableArray) {
+                            var remove = [];
+                            var newLength = newValues.length;
+                            var i = 0, j = 0;
+                            var old = oldValues[i];
+                            var same = false;
+                            var removeIndex;
+                            var newValue;
+                            var found;
+                            while (old !== undefined) {
+                                found = false;
+                                for (j = 0; j < newLength; j++) {
+                                    if (valuePrimitive) {
+                                        same = newValues[j] == old;
+                                    } else {
+                                        newValue = newValues[j];
+                                        newValue = newValue.get ? newValue.get(field) : newValue;
+                                        same = newValue == (old.get ? old.get(field) : old);
+                                    }
+                                    if (same) {
+                                        newValues.splice(j, 1);
+                                        newLength -= 1;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found) {
+                                    remove.push(old);
+                                    arraySplice(oldValues, i, 1);
+                                    removeIndex = i;
+                                } else {
+                                    i += 1;
+                                }
+                                old = oldValues[i];
+                            }
+                            arraySplice(oldValues, oldValues.length, 0, newValues);
+                            if (remove.length) {
+                                oldValues.trigger('change', {
+                                    action: 'remove',
+                                    items: remove,
+                                    index: removeIndex
+                                });
+                            }
+                            if (newValues.length) {
+                                oldValues.trigger('change', {
+                                    action: 'add',
+                                    items: newValues,
+                                    index: oldValues.length - 1
+                                });
+                            }
+                        } else {
+                            that.bindings[VALUE].set(newValues);
+                        }
+                        that._initChange = false;
+                    },
+                    refresh: function () {
+                        if (!this._initChange) {
+                            var options = this.options, widget = this.widget, field = options.dataValueField || options.dataTextField, value = this.bindings.value.get(), data = value, idx = 0, length, values = [], selectedValue;
+                            if (field) {
+                                if (value instanceof ObservableArray) {
+                                    for (length = value.length; idx < length; idx++) {
+                                        selectedValue = value[idx];
+                                        values[idx] = selectedValue.get ? selectedValue.get(field) : selectedValue;
+                                    }
+                                    value = values;
+                                } else if (value instanceof ObservableObject) {
+                                    value = value.get(field);
+                                }
+                            }
+                            if (options.autoBind === false && options.valuePrimitive !== true) {
+                                widget._preselect(data, value);
+                            } else {
+                                widget.value(value);
+                            }
+                        }
+                    },
+                    destroy: function () {
+                        this.widget.unbind(CHANGE, this._change);
+                    }
+                })
+            },
             gantt: { dependencies: dataSourceBinding('dependencies', 'dependencies', 'setDependenciesDataSource') },
             multiselect: {
                 value: Binder.extend({
@@ -10586,6 +10773,9 @@
             return result;
         }
         function bindElement(element, source, roles, parents) {
+            if (!element) {
+                return;
+            }
             var role = element.getAttribute('data-' + kendo.ns + 'role'), idx, bind = element.getAttribute('data-' + kendo.ns + 'bind'), childrenCopy = [], deep = true, bindings, options = {}, target;
             parents = parents || [source];
             if (role || bind) {
@@ -10604,7 +10794,7 @@
                         valueUpdate: CHANGE,
                         valuePrimitive: false,
                         autoBind: true
-                    });
+                    }, source);
                     options.roles = roles;
                     target = new BindingTarget(element, options);
                 }
@@ -13056,7 +13246,7 @@
             }
         }
         function scrollableRoot() {
-            return $(kendo.support.browser.chrome ? document.body : document.documentElement);
+            return $(kendo.support.browser.edge || kendo.support.browser.safari ? document.body : document.documentElement);
         }
         function findScrollableParent(element) {
             var root = scrollableRoot();

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -83,7 +83,7 @@
                 that._refreshHandler = that.element = that.link = that.dataSource = null;
             },
             refresh: function () {
-                var that = this, sort = that.dataSource.sort() || [], idx, length, descriptor, dir, element = that.element, field = element.attr(kendo.attr(FIELD)), sortOrder;
+                var that = this, sort = that.dataSource.sort() || [], idx, length, descriptor, dir, element = that.element, field = element.attr(kendo.attr(FIELD)), headerIndex, sortOrder;
                 element.removeAttr(kendo.attr(DIR));
                 element.removeAttr(ARIASORT);
                 for (idx = 0, length = sort.length; idx < length; idx++) {
@@ -102,8 +102,9 @@
                         table = null;
                     }
                     if (table) {
+                        headerIndex = element.parent().children(':visible').index(element);
                         element.toggleClass('k-sorted', dir !== undefined);
-                        table.children('colgroup').children().eq(element.index()).toggleClass('k-sorted', dir !== undefined);
+                        table.children('colgroup').children().eq(headerIndex).toggleClass('k-sorted', dir !== undefined);
                     }
                 }
                 element.find('.k-i-sort-asc-sm,.k-i-sort-desc-sm,.k-sort-order').remove();

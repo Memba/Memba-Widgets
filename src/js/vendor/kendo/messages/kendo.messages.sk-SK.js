@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -888,19 +888,6 @@ $.extend(true, kendo.ui.TreeList.prototype.options.messages, {
     }
 });
 }
-
-if (kendo.ui.TreeList) {
-kendo.ui.TreeList.prototype.options.columnMenu =
-$.extend(true, kendo.ui.TreeList.prototype.options.columnMenu, {
-    "messages": {
-        "columns": "Zvoľte stĺpce",
-        "filter": "Použiť filter",
-        "sortAscending": "Usporiadať vzostupne",
-        "sortDescending": "Usporiadať zostupne"
-    }
-});
-}
-
 
 /* TreeView messages */
 

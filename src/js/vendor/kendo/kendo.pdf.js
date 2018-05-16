@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1729,6 +1729,19 @@
             self.GRAD_OPC = {};
             var catalog = self.attach(new PDFCatalog());
             var pageTree = self.attach(new PDFPageTree());
+            if (getOption('autoPrint')) {
+                var nameTree = {};
+                nameTree.JavaScript = new PDFDictionary({
+                    Names: [
+                        new PDFString('JS'),
+                        self.attach(new PDFDictionary({
+                            S: _('JavaScript'),
+                            JS: new PDFString('print(true);')
+                        }))
+                    ]
+                });
+                catalog.props.Names = new PDFDictionary(nameTree);
+            }
             catalog.setPages(pageTree);
             var info = self.attach(new PDFDictionary({
                 Producer: new PDFString(getOption('producer', 'Kendo UI PDF Generator')),
@@ -2240,9 +2253,8 @@
                 out(NL, 'endstream');
             }
         });
-        var PDFCatalog = defclass(function PDFCatalog(props) {
-            props = this.props = props || {};
-            props.Type = _('Catalog');
+        var PDFCatalog = defclass(function PDFCatalog() {
+            this.props = { Type: _('Catalog') };
         }, {
             setPages: function (pagesObj) {
                 this.props.Pages = pagesObj;
@@ -3340,7 +3352,8 @@
                     subject: getOption('subject'),
                     keywords: getOption('keywords'),
                     creator: getOption('creator'),
-                    date: getOption('date')
+                    date: getOption('date'),
+                    autoPrint: getOption('autoPrint')
                 });
                 function drawPage(group) {
                     var options = group.options;

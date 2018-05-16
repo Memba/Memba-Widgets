@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1344,6 +1344,9 @@
         Query.process = function (data, options, inPlace) {
             options = options || {};
             var query = new Query(data), group = options.group, sort = normalizeGroup(group || []).concat(normalizeSort(options.sort || [])), total, filterCallback = options.filterCallback, filter = options.filter, skip = options.skip, take = options.take;
+            if (sort && inPlace) {
+                query = query.sort(sort, undefined, undefined, inPlace);
+            }
             if (filter) {
                 query = query.filter(filter);
                 if (filterCallback) {
@@ -1351,12 +1354,8 @@
                 }
                 total = query.toArray().length;
             }
-            if (sort) {
-                if (inPlace) {
-                    query = query.sort(sort, undefined, undefined, inPlace);
-                } else {
-                    query = query.sort(sort);
-                }
+            if (sort && !inPlace) {
+                query = query.sort(sort);
                 if (group) {
                     data = query.toArray();
                 }
@@ -1403,7 +1402,9 @@
                     add: noop
                 };
                 parameterMap = options.parameterMap;
-                that.submit = options.submit;
+                if (options.submit) {
+                    that.submit = options.submit;
+                }
                 if (isFunction(options.push)) {
                     that.push = options.push;
                 }
@@ -1544,6 +1545,11 @@
         function wrapDataAccess(originalFunction, model, converter, getters, originalFieldNames, fieldNames) {
             return function (data) {
                 data = originalFunction(data);
+                return wrapDataAccessBase(model, converter, getters, originalFieldNames, fieldNames)(data);
+            };
+        }
+        function wrapDataAccessBase(model, converter, getters, originalFieldNames, fieldNames) {
+            return function (data) {
                 if (data && !isEmptyObject(getters)) {
                     if (toString.call(data) !== '[object Array]' && !(data instanceof ObservableArray)) {
                         data = [data];
@@ -1593,6 +1599,7 @@
                         }
                     }
                     that._dataAccessFunction = dataFunction;
+                    that._wrapDataAccessBase = wrapDataAccessBase(model, convertRecords, getters, originalFieldNames, fieldNames);
                     that.data = wrapDataAccess(dataFunction, model, convertRecords, getters, originalFieldNames, fieldNames);
                     that.groups = wrapDataAccess(groupsFunction, model, convertGroup, getters, originalFieldNames, fieldNames);
                 }
@@ -1613,6 +1620,27 @@
                 return data;
             }
         });
+        function fillLastGroup(originalGroup, newGroup) {
+            var currOriginal;
+            var currentNew;
+            if (newGroup.items && newGroup.items.length) {
+                for (var i = 0; i < newGroup.items.length; i++) {
+                    currOriginal = originalGroup.items[i];
+                    currentNew = newGroup.items[i];
+                    if (currOriginal && currentNew) {
+                        if (currOriginal.hasSubgroups) {
+                            fillLastGroup(currOriginal, currentNew);
+                        } else if (currOriginal.field && currOriginal.value == currentNew.value) {
+                            currOriginal.items.push.apply(currOriginal.items, currentNew.items);
+                        } else {
+                            originalGroup.items.push.apply(originalGroup.items, [currentNew]);
+                        }
+                    } else if (currentNew) {
+                        originalGroup.items.push.apply(originalGroup.items, [currentNew]);
+                    }
+                }
+            }
+        }
         function mergeGroups(target, dest, skip, take) {
             var group, idx = 0, items;
             while (dest.length && take) {
@@ -2053,6 +2081,8 @@
                 return model;
             },
             pushInsert: function (index, items) {
+                var that = this;
+                var rangeSpan = that._getCurrentRangeSpan();
                 if (!items) {
                     items = index;
                     index = 0;
@@ -2073,6 +2103,9 @@
                             pristine = this._wrapInEmptyGroup(pristine);
                         }
                         this._pristineData.push(pristine);
+                        if (rangeSpan && rangeSpan.length) {
+                            $(rangeSpan).last()[0].pristineData.push(pristine);
+                        }
                         index++;
                     }
                 } finally {
@@ -2326,7 +2359,15 @@
                 return read.call(this.reader, data);
             },
             _eachPristineItem: function (callback) {
-                this._eachItem(this._pristineData, callback);
+                var that = this;
+                var options = that.options;
+                var rangeSpan = that._getCurrentRangeSpan();
+                that._eachItem(that._pristineData, callback);
+                if (options.serverPaging && options.useRanges) {
+                    each(rangeSpan, function (i, range) {
+                        that._eachItem(range.pristineData, callback);
+                    });
+                }
             },
             _eachItem: function (data, callback) {
                 if (data && data.length) {
@@ -2493,7 +2534,7 @@
                 return this.reader.aggregates(data);
             },
             success: function (data) {
-                var that = this, options = that.options, requestParams;
+                var that = this, options = that.options;
                 that.trigger(REQUESTEND, {
                     response: data,
                     type: 'read'
@@ -2507,12 +2548,14 @@
                     that._total = that.reader.total(data);
                     if (that._pageSize > that._total) {
                         that._pageSize = that._total;
+                        if (that.options.pageSize && that.options.pageSize > that._pageSize) {
+                            that._pageSize = that.options.pageSize;
+                        }
                     }
                     if (that._aggregate && options.serverAggregates) {
                         that._aggregateResult = that._readAggregates(data);
                     }
-                    requestParams = arguments.length > 1 ? arguments[1] : undefined;
-                    data = that._readData(data, requestParams);
+                    data = that._readData(data);
                     that._destroyed = [];
                 } else {
                     data = that._readData(data);
@@ -2544,6 +2587,10 @@
                 that._detachObservableParents();
                 if (that.options.endless) {
                     that._data.unbind(CHANGE, that._changeHandler);
+                    if (that._isServerGrouped() && that._data[that._data.length - 1].value === data[0].value) {
+                        fillLastGroup(that._data[that._data.length - 1], data[0]);
+                        data.shift();
+                    }
                     data = that._observe(data);
                     for (var i = 0; i < data.length; i++) {
                         that._data.push(data[i]);
@@ -2601,7 +2648,7 @@
                     }
                     this.offlineData(state.concat(destroyed));
                     if (updatePristine) {
-                        this._pristineData = this._readData(state);
+                        this._pristineData = this.reader._wrapDataAccessBase(state);
                     }
                 }
             },
@@ -2611,9 +2658,13 @@
                     start: start,
                     end: end,
                     data: data,
-                    timestamp: new Date().getTime()
+                    pristineData: data.toJSON(),
+                    timestamp: that._timeStamp()
                 });
-                that._ranges.sort(function (x, y) {
+                that._sortRanges();
+            },
+            _sortRanges: function () {
+                this._ranges.sort(function (x, y) {
                     return x.start - y.start;
                 });
             },
@@ -3208,18 +3259,17 @@
                             if (that._ranges[idx].start === skip) {
                                 found = true;
                                 range = that._ranges[idx];
+                                range.pristineData = temp;
+                                range.data = that._observe(temp);
+                                range.end = range.start + that._flatData(range.data, true).length;
+                                that._sortRanges();
                                 break;
                             }
                         }
                         if (!found) {
-                            that._ranges.push(range);
+                            that._addRange(that._observe(temp), skip);
                         }
                     }
-                    range.data = that._observe(temp);
-                    range.end = range.start + that._flatData(range.data, true).length;
-                    that._ranges.sort(function (x, y) {
-                        return x.start - y.start;
-                    });
                     that._total = that.reader.total(data);
                     if (force || (timestamp >= that._currentRequestTimeStamp || !that._skipRequestsInProgress)) {
                         if (callback && temp.length) {
@@ -3293,6 +3343,23 @@
                     }
                 }
                 return false;
+            },
+            _getCurrentRangeSpan: function () {
+                var that = this;
+                var ranges = that._ranges;
+                var start = that.currentRangeStart();
+                var end = start + (that.take() || 0);
+                var rangeSpan = [];
+                var range;
+                var idx;
+                var length = ranges.length;
+                for (idx = 0; idx < length; idx++) {
+                    range = ranges[idx];
+                    if (range.start <= start && range.end >= start || range.start >= start && range.start <= end) {
+                        rangeSpan.push(range);
+                    }
+                }
+                return rangeSpan;
             },
             _removeModelFromRanges: function (model) {
                 var that = this;

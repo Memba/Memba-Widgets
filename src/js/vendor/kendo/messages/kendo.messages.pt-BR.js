@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -935,18 +935,6 @@ $.extend(true, kendo.ui.TreeList.prototype.options.messages,{
       "excel": "Exportar para Excel",
       "pdf": "Exportar para PDF"
   }
-});
-}
-
-if (kendo.ui.TreeList) {
-kendo.ui.TreeList.prototype.options.columnMenu =
-$.extend(true, kendo.ui.TreeList.prototype.options.columnMenu, {
-    "messages": {
-        "columns": "Escolher colunas",
-        "filter": "Aplicar filtro",
-        "sortAscending": "Classificar (asc)",
-        "sortDescending": "Classificar (desc)"
-    }
 });
 }
 

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -42,7 +42,7 @@
             }]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, data = kendo.data, extend = $.extend, template = kendo.template, isArray = $.isArray, Widget = ui.Widget, HierarchicalDataSource = data.HierarchicalDataSource, proxy = $.proxy, keys = kendo.keys, NS = '.kendoTreeView', SELECT = 'select', CHECK = 'check', NAVIGATE = 'navigate', EXPAND = 'expand', CHANGE = 'change', ERROR = 'error', CHECKED = 'checked', INDETERMINATE = 'indeterminate', COLLAPSE = 'collapse', DRAGSTART = 'dragstart', DRAG = 'drag', DROP = 'drop', DRAGEND = 'dragend', DATABOUND = 'dataBound', CLICK = 'click', UNDEFINED = 'undefined', KSTATEHOVER = 'k-state-hover', KTREEVIEW = 'k-treeview', VISIBLE = ':visible', NODE = '.k-item', STRING = 'string', ARIASELECTED = 'aria-selected', ARIADISABLED = 'aria-disabled', DISABLED = 'k-state-disabled', TreeView, subGroup, nodeContents, nodeIcon, spriteRe, bindings = {
+        var kendo = window.kendo, ui = kendo.ui, data = kendo.data, extend = $.extend, template = kendo.template, isArray = $.isArray, Widget = ui.Widget, HierarchicalDataSource = data.HierarchicalDataSource, proxy = $.proxy, keys = kendo.keys, NS = '.kendoTreeView', TEMP_NS = '.kendoTreeViewTemp', SELECT = 'select', CHECK = 'check', NAVIGATE = 'navigate', EXPAND = 'expand', CHANGE = 'change', ERROR = 'error', CHECKED = 'checked', INDETERMINATE = 'indeterminate', COLLAPSE = 'collapse', DRAGSTART = 'dragstart', DRAG = 'drag', DROP = 'drop', DRAGEND = 'dragend', DATABOUND = 'dataBound', CLICK = 'click', UNDEFINED = 'undefined', KSTATEHOVER = 'k-state-hover', KTREEVIEW = 'k-treeview', VISIBLE = ':visible', NODE = '.k-item', STRING = 'string', ARIALABEL = 'aria-label', ARIASELECTED = 'aria-selected', ARIADISABLED = 'aria-disabled', DISABLED = 'k-state-disabled', TreeView, subGroup, nodeContents, nodeIcon, spriteRe, bindings = {
                 text: 'dataTextField',
                 url: 'dataUrlField',
                 spriteCssClass: 'dataSpriteCssClassField',
@@ -80,7 +80,9 @@
                     parentNode = group.parent();
                 }
                 return this._dataSourceMove(nodeData, group, parentNode, function (dataSource, model) {
-                    return this._insert(dataSource.data(), model, referenceNode.index() + indexOffset);
+                    var referenceItem = this.dataItem(referenceNode);
+                    var referenceNodeIndex = referenceItem ? referenceItem.parent().indexOf(referenceItem) : referenceNode.index();
+                    return this._insert(dataSource.data(), model, referenceNodeIndex + indexOffset);
                 });
             };
         }
@@ -285,6 +287,11 @@
                             });
                         },
                         drop: function (options) {
+                            var dropTarget = $(options.dropTarget);
+                            var navigationTarget = dropTarget.closest('a');
+                            if (navigationTarget && navigationTarget.attr('href')) {
+                                widget._tempPreventNavigation(navigationTarget);
+                            }
                             return widget.trigger(DROP, {
                                 originalEvent: options.originalEvent,
                                 sourceNode: options.source,
@@ -329,6 +336,12 @@
                     dragging.destroy();
                     this.dragging = null;
                 }
+            },
+            _tempPreventNavigation: function (node) {
+                node.on(CLICK + NS + TEMP_NS, function (ev) {
+                    ev.preventDefault();
+                    node.off(CLICK + NS + TEMP_NS);
+                });
             },
             _hintText: function (node) {
                 return this.templates.dragClue({
@@ -547,7 +560,9 @@
                     return;
                 }
                 for (var i = 0, nodes = datasource.view(); i < nodes.length; i++) {
-                    nodes[i][CHECKED] = value;
+                    if (nodes[i].enabled !== false) {
+                        nodes[i].set(CHECKED, value);
+                    }
                     if (nodes[i].children) {
                         this._setChecked(nodes[i].children, value);
                     }
@@ -610,7 +625,7 @@
                     if (checkbox.prop(INDETERMINATE) === false) {
                         this.dataItem(parentNode).set(CHECKED, checkbox.prop(CHECKED));
                     } else {
-                        delete this.dataItem(parentNode).checked;
+                        this.dataItem(parentNode).set(CHECKED, false);
                     }
                     this._skip = false;
                     this._bubbleIndeterminate(parentNode, true);
@@ -631,7 +646,7 @@
                 if (node.is('[aria-disabled=\'true\']')) {
                     return;
                 }
-                this.toggle($(e.target).closest(NODE));
+                this.toggle(node);
             },
             _mousedown: function (e) {
                 var node = $(e.currentTarget).closest(NODE);
@@ -875,7 +890,7 @@
                 var checkboxes = options.checkboxes;
                 var defaultTemplate;
                 if (checkboxes) {
-                    defaultTemplate = '<input aria-label=\'#=item.text#\' type=\'checkbox\' tabindex=\'-1\' #= (item.enabled === false) ? \'disabled\' : \'\' # #= item.checked ? \'checked\' : \'\' #';
+                    defaultTemplate = '<input type=\'checkbox\' tabindex=\'-1\' #= (item.enabled === false) ? \'disabled\' : \'\' # #= item.checked ? \'checked\' : \'\' #';
                     if (checkboxes.name) {
                         defaultTemplate += ' name=\'' + checkboxes.name + '\'';
                     }
@@ -908,6 +923,7 @@
                     wrapper.children('.k-icon').removeClass('k-i-expand k-i-collapse').addClass(templates.toggleButtonClass(nodeData));
                     group.addClass('k-group');
                 }
+                this._checkboxAria(node);
             },
             _processNodes: function (nodes, callback) {
                 var that = this;
@@ -957,6 +973,7 @@
                 }
                 that._updateNodeClasses(node.prev().first());
                 that._updateNodeClasses(node.next().last());
+                that._checkboxAria(node);
                 for (i = 0; i < nodeData.length; i++) {
                     item = nodeData[i];
                     if (item.hasChildren) {
@@ -967,6 +984,14 @@
                     }
                 }
                 return node;
+            },
+            _checkboxAria: function (nodes) {
+                var text;
+                nodes.each(function (index, node) {
+                    node = $(node);
+                    text = node.find('.k-in:first').text();
+                    $(node).find('> div .k-checkbox-wrapper [type=checkbox]').attr(ARIALABEL, text);
+                });
             },
             _updateNodes: function (items, field) {
                 var that = this;
@@ -1055,6 +1080,11 @@
                 var group = subGroup(parentNode);
                 var children = group.children();
                 var collapsed = !this._expanded(parentNode);
+                if (this.element === parentNode) {
+                    index = this.dataSource.view().indexOf(items[0]);
+                } else if (items.length) {
+                    index = items[0].parent().indexOf(items[0]);
+                }
                 if (typeof index == UNDEFINED) {
                     index = children.length;
                 }
@@ -1270,28 +1300,25 @@
                 if (contents.data('animating')) {
                     return;
                 }
-                if (!this._trigger(direction, node)) {
-                    this._expanded(node, expand);
-                    loaded = dataItem && dataItem.loaded();
-                    if (expand && !loaded) {
-                        if (options.loadOnDemand) {
-                            this._progress(node, true);
-                        }
-                        contents.remove();
-                        dataItem.load();
-                    } else {
-                        this._updateNodeClasses(node, {}, { expanded: expand });
-                        if (!expand) {
-                            contents.css('height', contents.height()).css('height');
-                        }
-                        contents.kendoStop(true, true).kendoAnimate(extend({ reset: true }, options.animation[direction], {
-                            complete: function () {
-                                if (expand) {
-                                    contents.css('height', '');
-                                }
-                            }
-                        }));
+                loaded = dataItem && dataItem.loaded();
+                if (expand && !loaded) {
+                    if (options.loadOnDemand) {
+                        this._progress(node, true);
                     }
+                    contents.remove();
+                    dataItem.load();
+                } else {
+                    this._updateNodeClasses(node, {}, { expanded: expand });
+                    if (!expand) {
+                        contents.css('height', contents.height()).css('height');
+                    }
+                    contents.kendoStop(true, true).kendoAnimate(extend({ reset: true }, options.animation[direction], {
+                        complete: function () {
+                            if (expand) {
+                                contents.css('height', '');
+                            }
+                        }
+                    }));
                 }
             },
             toggle: function (node, expand) {
@@ -1319,22 +1346,25 @@
                 var expandedAttr = kendo.attr('expanded');
                 var dataItem = this.dataItem(node);
                 var expanded = value;
+                var direction = expanded ? 'expand' : 'collapse';
                 if (arguments.length == 1) {
                     return node.attr(expandedAttr) === 'true' || dataItem && dataItem.expanded;
                 }
                 if (nodeContents(node).data('animating')) {
                     return;
                 }
-                if (dataItem) {
-                    dataItem.set('expanded', expanded);
-                    expanded = dataItem.expanded;
-                }
-                if (expanded) {
-                    node.attr(expandedAttr, 'true');
-                    node.attr('aria-expanded', 'true');
-                } else {
-                    node.removeAttr(expandedAttr);
-                    node.attr('aria-expanded', 'false');
+                if (!this._trigger(direction, node)) {
+                    if (dataItem) {
+                        dataItem.set('expanded', expanded);
+                        expanded = dataItem.expanded;
+                    }
+                    if (expanded) {
+                        node.attr(expandedAttr, 'true');
+                        node.attr('aria-expanded', 'true');
+                    } else {
+                        node.removeAttr(expandedAttr);
+                        node.attr('aria-expanded', 'false');
+                    }
                 }
             },
             _progress: function (node, showProgress) {
@@ -1418,6 +1448,10 @@
             insertBefore: insertAction(0),
             append: function (nodeData, parentNode, success) {
                 var group = this.root;
+                if (parentNode && nodeData instanceof jQuery && parentNode[0] === nodeData[0]) {
+                    return;
+                }
+                parentNode = parentNode && parentNode.length ? parentNode : null;
                 if (parentNode) {
                     group = subGroup(parentNode);
                 }

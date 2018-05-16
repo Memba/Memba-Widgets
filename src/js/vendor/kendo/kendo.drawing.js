@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3776,7 +3776,7 @@
             }
         });
         function renderAttr(name, value) {
-            return defined(value) && value !== null ? ' ' + name + '=\'' + value + '\' ' : '';
+            return defined(value) && value !== null ? ' ' + name + '="' + value + '" ' : '';
         }
         function renderAllAttr(attrs) {
             var output = '';
@@ -3830,19 +3830,15 @@
         function baseUrl() {
             var base = document.getElementsByTagName('base')[0];
             var href = document.location.href;
-            var hashIndex = href.indexOf('#');
             var url = '';
             if (base && !supportBrowser.msie) {
+                var hashIndex = href.indexOf('#');
                 if (hashIndex !== -1) {
                     href = href.substring(0, hashIndex);
                 }
                 url = href;
             }
             return url;
-        }
-        function refUrl(id, skipBaseHref) {
-            var base = skipBaseHref ? '' : baseUrl();
-            return 'url(' + base + '#' + id + ')';
         }
         var Node = BaseNode.extend({
             init: function (srcElement, options) {
@@ -4114,7 +4110,12 @@
             },
             refUrl: function (id) {
                 var skipBaseHref = (this.options || {}).skipBaseHref;
-                return refUrl(id, skipBaseHref);
+                var baseHref = this.baseUrl().replace(/'/g, '\\\'');
+                var base = skipBaseHref ? '' : baseHref;
+                return 'url(' + base + '#' + id + ')';
+            },
+            baseUrl: function () {
+                return baseUrl();
             }
         });
         var GradientStopNode = Node.extend({
@@ -5833,7 +5834,8 @@
         var IMAGE_CACHE = {};
         var nodeInfo = {};
         nodeInfo._root = nodeInfo;
-        var microsoft = browser.msie || browser.edge;
+        var inBrowser = typeof window !== 'undefined';
+        var microsoft = inBrowser ? browser.msie || browser.edge : false;
         var TextRect = Text.extend({
             init: function (str, rect, options) {
                 Text.fn.init.call(this, str, rect.getOrigin(), options);
@@ -6198,6 +6200,9 @@
                 function splitElement(element) {
                     if (element.tagName == 'TABLE') {
                         setCSS(element, { tableLayout: 'fixed' });
+                    }
+                    if (keepTogether(element)) {
+                        return;
                     }
                     var style = getComputedStyle(element);
                     var bottomPadding = parseFloat(getPropertyValue(style, 'padding-bottom'));
@@ -8147,7 +8152,7 @@
                             right: -Infinity,
                             bottom: -Infinity,
                             left: Infinity
-                        };
+                        }, done = false;
                     for (var i = 0; i < rectangles.length; ++i) {
                         var b = rectangles[i];
                         if (b.width <= 1 || b.bottom === prevLineBottom) {
@@ -8157,6 +8162,10 @@
                         box.top = Math.min(b.top, box.top);
                         box.right = Math.max(b.right, box.right);
                         box.bottom = Math.max(b.bottom, box.bottom);
+                        done = true;
+                    }
+                    if (!done) {
+                        return range.getBoundingClientRect();
                     }
                     box.width = box.right - box.left;
                     box.height = box.bottom - box.top;

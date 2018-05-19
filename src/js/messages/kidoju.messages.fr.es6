@@ -89,6 +89,20 @@ if (BaseDialog) {
                     'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
                 text: 'Annuler'
             },
+            close: {
+                action: 'close',
+                imageUrl:
+                    'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
+                primary: true,
+                text: 'Fermer'
+            },
+            create: {
+                action: 'create',
+                imageUrl:
+                    'https://cdn.kidoju.com/images/o_collection/svg/office/plus.svg',
+                primary: true,
+                text: 'Créer'
+            },
             no: {
                 action: 'no',
                 imageUrl:

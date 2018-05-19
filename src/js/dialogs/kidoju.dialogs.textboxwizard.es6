@@ -28,6 +28,7 @@ export default function openTextBoxWizard(options = {}) {
 
     // Find or create the DOM element
     const $dialog = BaseDialog.getElement(options.cssClass);
+    $dialog.css({ padding: '' });
 
     // Unique ids and i18n
     const ids = { question: guid(), solution: guid() };

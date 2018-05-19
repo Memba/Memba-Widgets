@@ -29,7 +29,7 @@ export default function openCharGrid(options = {}) {
 
     // Find or create the DOM element
     const $dialog = BaseDialog.getElement(options.cssClass);
-    $dialog.css({ padding: 0 });
+    $dialog.css({ padding: '' });
 
     // Create the dialog
     const dialog = $dialog
@@ -38,7 +38,9 @@ export default function openCharGrid(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div style="display:flex;flex-direction:row"><div data-${ns}role="chargrid" data-${ns}bind="value:value" style="flex-shrink:0;padding:20px;"></div><div class="kj-chargrid-message" style="padding:20px 0;"></div></div>`,
+                    content: `<div style="display:flex;flex-direction:row"><div data-${ns}role="chargrid" data-${ns}bind="value:value" style="flex-shrink:0"></div><div class="kj-chargrid-message" style="margin-left:1em;">${
+                        options.message
+                    }</div></div>`,
                     data: {
                         value: []
                     },
@@ -55,37 +57,17 @@ export default function openCharGrid(options = {}) {
 
     dialog.unbind('initOpen');
     dialog.one('initOpen', e => {
+        const width = 550;
         // Initialize chargrid
         e.sender.element
             .find(roleSelector('chargrid'))
-            .height(0.7 * e.sender.options.height)
-            .width(0.7 * e.sender.options.width)
-            .kendoCharGrid({
-                scaler: '.k-content',
-                container: '.k-content',
-                // rotator: '.kj-element',
-                columns: 6,
-                rows: 4,
-                blank: '.',
-                whitelist: '1-9',
-                /*
-                ' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S}" ' +
-                                (options.field === 'properties.solution' ? 'data-${ns}locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '')
-                 */
-                gridFill: '#cce6ff',
-                gridStroke: '#000000',
-                blankFill: '#000000',
-                selectedFill: '#ffffcc',
-                lockedFill: '#e6e6e6',
-                lockedColor: '#9999b6',
-                valueColor: '#9999b6',
-                locked: []
-            });
-        // Display message
-        e.sender.element
-            .find('.kj-chargrid-message')
-            .html('<h1>Message</h1>');
-        // (options.field === 'properties.solution' ? kendo.format(this.messages.solution, model.get('attributes.whitelist')) : kendo.format(this.messages.layout, model.get('attributes.blank'))) +
+            .height(
+                width *
+                    e.sender.options.charGrid.height /
+                    e.sender.options.charGrid.width
+            )
+            .width(width)
+            .kendoCharGrid(options.charGrid);
         // Bind viewModel
         bind(e.sender.element.children(), e.sender.viewModel);
     });
@@ -93,7 +75,6 @@ export default function openCharGrid(options = {}) {
     // Bind the show event to resize once opened
     dialog.one('show', e => {
         resize(e.sender.element);
-
     });
 
     // Bind the click event

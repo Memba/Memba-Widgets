@@ -28,6 +28,7 @@ export default function openQuizWizard(options = {}) {
 
     // Find or create the DOM element
     const $dialog = BaseDialog.getElement(options.cssClass);
+    $dialog.css({ padding: '' });
 
     // Ids
     const questionId = guid();

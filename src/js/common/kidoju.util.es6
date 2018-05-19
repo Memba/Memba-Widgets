@@ -69,6 +69,7 @@ export class ObjectId {
     isMobileId() {
         return this._id.substr(MACHINE_POS, MACHINE_ID.length) === MACHINE_ID;
     }
+    // eslint-disable-next-line class-methods-use-this
     toMobileId() {
         throw new Error('Not yet implemented, see window.pongodb');
     }

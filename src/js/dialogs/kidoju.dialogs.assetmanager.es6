@@ -1,10 +1,15 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
 import $ from 'jquery';
 import 'kendo.core';
 import './kidoju.widgets.basedialog.es6';
-import '../kidoju.widgets.vectordrawing'; // TODO CSS
+import '../kidoju.widgets.vectordrawing';
 import '../kidoju.widgets.assetmanager';
 import CONSTANTS from '../window.constants.es6';
-// import assert from '../window.assert';
+// import assert from '../window.assert.es6';
 
 const {
     bind,
@@ -13,6 +18,8 @@ const {
     roleSelector,
     ui: { BaseDialog }
 } = window.kendo;
+
+// const { ToolAssets } = window.kidoju;
 
 /**
  * A shortcut function to display a dialog with a kendo.ui.AssetManager
@@ -45,8 +52,8 @@ export default function openAssetManager(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div data-${ns}role="assetmanager" data-${ns}bind="value:url"></div>`,
-                    data: { url: '' },
+                    content: `<div data-${ns}role="assetmanager" data-${ns}bind="value:value"></div>`,
+                    data: { value: '' },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel
@@ -58,18 +65,15 @@ export default function openAssetManager(options = {}) {
         )
         .data('kendoBaseDialog');
 
-    // Rebind the initOpen event considering the kendo.ui.Spreadsheet widget cannot bind to a viewModel
+    // Rebind the initOpen event considering the kendo.ui.AssetManager widget requires assets which cannot be bound via a viewModel
     dialog.unbind('initOpen');
     dialog.one('initOpen', e => {
         // Designate assets
-        const $assetManager = e.sender.element.find(
-            roleSelector('assetmanager')
-        );
-        $assetManager
-            .kendoAssetManager(options.assets)
-            .data('kendoAssetManager');
+        e.sender.element
+            .find(roleSelector('assetmanager'))
+            .kendoAssetManager(e.sender.options.assets);
         // Bind viewModel
-        bind($assetManager, e.sender.viewModel);
+        bind(e.sender.element.children(), e.sender.viewModel);
     });
 
     // Bind the show event to resize once opened
@@ -81,7 +85,7 @@ export default function openAssetManager(options = {}) {
     dialog.one(CONSTANTS.CLICK, e => {
         // assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
         // assert.instanceof(kendo.ui.Dialog, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-        const url = e.sender.viewModel.get('url');
+        const url = e.sender.viewModel.get('value');
         let hasScheme = false;
         Object.keys(options.assets.schemes).some(scheme => {
             hasScheme = url.startsWith(`${scheme}://`);
@@ -95,7 +99,7 @@ export default function openAssetManager(options = {}) {
             });
         } else if (
             e.action === BaseDialog.fn.options.messages.actions.ok.action &&
-            CONSTANTS.RX_URL.test(e.sender.viewModel.get('url'))
+            CONSTANTS.RX_URL.test(url)
         ) {
             // This is a web asset that needs importing
             // TODO: Assert properly options.assets.collections[0].transport.import
@@ -106,12 +110,13 @@ export default function openAssetManager(options = {}) {
                     // assert.instanceof(kendo.ui.Dialog, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
                     // assert.isUndefined(e.sender.viewModel, assert.format(assert.messages.isUndefined.default, 'e.sender.viewModel'));
                     // At this stage, the dialog is closed and e.sender.viewModel has been reset to undefined.
-                    // e.sender.viewModel.set('url', response.data[0].url); won't work
-                    // We need to restore the viewModel and let onOKAction reset it once again to undefined
-                    e.sender.viewModel.set('url', response.data[0].url);
+                    // e.sender.viewModel.set('value', response.data[0].url); won't work
+                    // We need to pass the url directly to dfd resolve
                     dfd.resolve({
                         action: e.action,
-                        data: e.sender.viewModel.toJSON()
+                        data: {
+                            value: response.data[0].url
+                        }
                     });
                 },
                 error: dfd.reject

@@ -1,0 +1,209 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+import $ from 'jquery';
+import 'kendo.data';
+import { BaseModel } from './kidoju.data.core.es6.tmp';
+import CONSTANTS from '../window.constants.es6';
+
+const { DataSource } = window.kendo.data;
+
+// TODO: Add better descriptions for PageExplorer (requires access to tools)
+
+// TODO List assets (requires access to tools)
+
+/**
+ * PageComponent model
+ */
+const PageComponent = BaseModel.define({
+    id: 'id',
+    fields: {
+        id: {
+            type: 'string',
+            editable: false,
+            nullable: true
+        },
+        tool: {
+            type: 'string',
+            editable: false,
+            nullable: true // TODO why nullable ?
+        },
+        top: {
+            type: 'number'
+            // defaultValue: 0
+        },
+        left: {
+            type: 'number'
+            // defaultValue: 0
+        },
+        height: {
+            type: 'number'
+            // defaultValue: -1 // why not 0?
+        },
+        width: {
+            type: 'number'
+            // defaultValue: -1 // why not 0?
+        },
+        rotate: {
+            type: 'number',
+            // defaultValue: 0,
+            parse(value) {
+                return $.type(value) === 'number' ? (value + 360) % 360 : 0;
+            }
+        },
+        /*
+        tag: {
+            type: 'string',
+            defaultValue: null
+        },
+        */
+        attributes: {
+            defaultValue: null
+        },
+        properties: {
+            defaultValue: null
+        }
+    },
+
+    // TODO Consider a better way to round height, top, left, width only when saving
+
+    /**
+     * Constructor
+     * @param component
+     */
+    init(component) {
+
+        var that = this;
+
+        // Note: Kendo UI requires that new PageComponent() works, i.e. component = undefined
+        if ($.type(component) === OBJECT /*&& !$.isEmptyObject(component)*/) {
+            assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+            if ($.type(component.tool) !== 'string' || component.tool.length === 0 || !(kidoju.tools[component.tool] instanceof kidoju.Tool)) {
+                throw new Error(kendo.format('`{0}` is not a valid Kidoju tool', component.tool));
+            }
+        }
+
+        Model.fn.init.call(that, component);
+
+        if (kidoju.tools && $.type(that.tool) === 'string' && that.tool.length) {
+
+            var tool = kidoju.tools[that.tool];
+            if (tool instanceof kidoju.Tool) {
+
+                // Let the tool build a Model for attributes to allow validation in the property grid
+                var Attributes = tool._getAttributeModel();
+                // Extend component attributes with possible new attributes as tools improve
+                var attributes = $.extend({}, Attributes.prototype.defaults, that.attributes);
+                // Cast with Model
+                // that.set('attributes', new Attributes(attributes)); // <--- this sets the dirty flag and raises the change event
+                that.attributes = new Attributes(attributes);
+                that.attributes.bind(CHANGE, function (e) {
+                    e.field = 'attributes.' + e.field;
+                    that.trigger(CHANGE, e);
+                });
+
+                // Let the tool build a Model for properties to allow validation in the property grid
+                var Properties = tool._getPropertyModel();
+                // Extend component properties with possible new properties as tools improve
+                var properties = $.extend({}, Properties.prototype.defaults, that.properties);
+                // Cast with Model
+                // that.set('properties', new Properties(properties)); // <--- this sets the dirty flag and raises the change event
+                that.properties = new Properties(properties);
+                that.properties.bind(CHANGE, function (e) {
+                    e.field = 'properties.' + e.field;
+                    that.trigger(CHANGE, e);
+                });
+
+                // Add the code library if any, otherwise we will be missing code for any items designated by a name
+                if (tool.properties && tool.properties.validation instanceof kidoju.adapters.ValidationAdapter) {
+                    that._library = tool.properties.validation.library;
+                }
+
+            }
+        }
+    },
+    /* jshint +W074 */
+
+    /**
+     * Get the parent page
+     * @returns {*}
+     */
+    page() {
+        let page;
+        if ($.type(this.parent) === CONSTANTS.FUNCTION) {
+            const collection = this.parent();
+            if (collection instanceof DataSource && $.isFunction(collection.parent)) {
+                page = collection.parent();
+            }
+        }
+        return page;
+    },
+
+    /**
+     * Clone a page component
+     */
+    clone: function () {
+        var component = this;
+        assert.type('string', component.tool, kendo.format(assert.messages.type.default, 'component.tool', 'string'));
+        var fields = component.fields;
+        var clone = {};
+        // Copy page component fields (tool, top, left, height, width, rotate, ...), but not attributes and properties
+        for (var field in fields) {
+            // copy any field where fields[field].type is a string including 'boolean', 'number' and 'string' (i.e. not undefined)
+            if (fields.hasOwnProperty(field) && $.type(fields[field].type) === 'string' && field !== component.idField) {
+                clone[field] = component.get(field);
+            }
+        }
+        // Copy display attributes
+        fields = component.attributes.fields;
+        clone.attributes = {};
+        for (/*var */field in fields) {
+            if (fields.hasOwnProperty(field)) {
+                clone.attributes[field] = JSON.parse(JSON.stringify(component.get('attributes.' + field)));
+            }
+        }
+        // copy some property attributes
+        fields = component.properties.fields;
+        clone.properties = {};
+        for (/*var */field in fields) {
+            // Copying validation can be fairly complex depending on the use of all, considering components need to change name
+            if (fields.hasOwnProperty(field) && ['name', 'question', 'solution', 'validation', 'success', 'failure', 'omit'].indexOf(field) === -1) {
+                clone.properties[field] = JSON.parse(JSON.stringify(component.get('properties.' + field)));
+            }
+        }
+        // Return clone
+        return new PageComponent(clone);
+    },
+
+    /**
+     * PageComponent validation
+     * @param pageIdx (in PageCollection)
+     */
+    validate: function (pageIdx) {
+        assert.instanceof (PageComponent, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.PageComponent'));
+        assert.type('number', pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', 'number'));
+        assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+        var component = this;
+        var ret = [];
+        var tool = component.get('tool');
+        assert.type('string', tool, kendo.format(assert.messages.type.default, 'tool', 'string'));
+        if (kidoju.tools[tool] instanceof kidoju.Tool) {
+            ret = kidoju.tools[tool].validate(component, pageIdx);
+        }
+        return ret;
+    }
+});
+
+/**
+ * ES6 default export
+ */
+export default PageComponent;
+
+/**
+ * Maintain compatibility with legacy code
+ */
+window.kidoju = window.kidoju || {};
+window.kidoju.data = window.kidoju.data || {};
+window.kidoju.data.PageComponent = PageComponent;

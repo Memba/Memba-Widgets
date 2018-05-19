@@ -13,18 +13,6 @@ const { DataSource, Model, ObservableObject } = kendo.data;
 
 // TODO: Add asserts
 
-/*
-function dataMethod(name) {
-    return function () {
-        var data = this._data, result = DataSource.fn[name].apply(this, slice.call(arguments));
-        if (this._data != data) {
-            this._attachBubbleHandlers();
-        }
-        return result;
-    };
-}
-*/
-
 /**
  * BaseModel enhances kendo.data.Model
  * for nesting submodels as a mongoose document property can designate a subdocument
@@ -266,6 +254,19 @@ export const BaseModel = Model.define({
     // TODO Consider an LRUCache for history
 });
 
+/*
+function dataMethod(name) {
+    return function () {
+        const data = this._data;
+        const result = DataSource.fn[name].apply(this, slice.call(arguments));
+        if (this._data != data) {
+            this._attachBubbleHandlers();
+        }
+        return result;
+    };
+}
+*/
+
 /**
  * BaseDataSource enhances kendo.data.DataSource
  */
@@ -289,11 +290,15 @@ export const BaseDataSource = DataSource.extend({
      */
     /*
      _attachBubbleHandlers: function () {
-     var that = this;
-     that._data.bind(ERROR, function (e) {
-     that.trigger(ERROR, e);
-     });
+         var that = this;
+         that._data.bind(ERROR, function (e) {
+         that.trigger(ERROR, e);
+         });
      },
+     */
+    /*
+     * // TODO on any error raise a $(document).trigger('dataError');
+     * // https://docs.telerik.com/kendo-ui/api/javascript/data/datasource/events/error
      */
 });
 

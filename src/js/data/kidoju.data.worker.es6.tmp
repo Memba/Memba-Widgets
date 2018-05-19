@@ -1,0 +1,136 @@
+var location = window.location;
+var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js';
+// var workerLibPath = location.protocol + '//' + location.host + '/src/js/kidoju.data.workerlib.js'; // for WEINRE
+
+// Important...
+// TODO Check https://github.com/josdejong/workerpool
+
+
+/**
+ * Define our worker timeout from CPU capacity
+ * @returns {number}
+ */
+function workerTimeout() {
+    // TODO spawn a worker to do that
+    var start = Date.now();
+    var rnd;
+    // This would take about 10 ms on an iPad Pro
+    // This would take about 100 ms on a Nexus 7 2012
+    for (var i = 0; i < 1000000; i++) {
+        rnd = Math.floor (100 * Math.random());
+    }
+    var end = Date.now();
+    // In fact app.DEBUG is not the right test: we need to detect when dev tools are opened because they slow things down
+    var k = (window.app || {}).DEBUG ? 4 : 1;
+    // A minimum of 250ms is required in browsers and 400ms in Phonegap
+    var timeout = k * Math.max(kendo.support.mobileOS.cordova ? 400 : 250, 10 * (end - start));
+    logger.info({
+        method: 'workerTimeout',
+        message: 'Worker timeout set to ' + timeout + ' ms'
+    });
+    return timeout;
+}
+
+/**
+ * WorkerPool
+ * @class WorkerPool
+ * @param concurrency
+ * @param timeOut
+ */
+var WorkerPool = models.WorkerPool = function (concurrency, timeOut) {
+    // concurrency = concurrency || navigator.hardwareConcurrency || 4;
+    // Array of concurrent working threads
+    var workers = new Array(concurrency);
+    // Queue of tasks
+    var tasks = [];
+    // Array of deferreds
+    var deferreds = [];
+    // State of worker pool
+    var running = false;
+
+    /**
+     * Helper function to chain tasks on a thread
+     * Note: thread is a number between 0 and concurrency - 1 which designates an entry in the workers array
+     * @param thread
+     */
+    function runNextTask(thread) {
+        logger.debug({
+            message: 'Run next workerpool task on thread ' + thread,
+            method: 'WorkerPool.runNextTask'
+        });
+        if (tasks.length > 0) {
+            var task = tasks.shift();
+            workers[thread] = new Worker(task.script);
+            workers[thread].onmessage = function (e) {
+                deferreds[task.id].resolve({ name: task.name, value: e.data });
+                // workers[thread].terminate();
+                window.URL.revokeObjectURL(task.script);
+                runNextTask(thread);
+            };
+            workers[thread].onerror = function (e) {
+                // e is an ErrorEvent and e.error is null
+                var error = new Error(e.message || 'Unknown error');
+                error.taskname = task.name;
+                error.filename = e.filename;
+                error.colno = e.colno;
+                error.lineno = e.lineno;
+                deferreds[task.id].reject(error);
+                // workers[thread].terminate();
+                window.URL.revokeObjectURL(task.script);
+                logger.crit(error);
+                // No need to run next task because $.when fails on the first failing deferred
+                // runNextTask(thread);
+            };
+            // We need JSON.stringify because of a DataCloneError with character grid values
+            workers[thread].postMessage(JSON.stringify(task.message));
+            if ($.type(timeOut) === 'number') {
+                setTimeout(function () {
+                    if (deferreds[task.id].state() === 'pending') {
+                        var error = new Error('The execution of a web worker has timed out');
+                        error.taskname = task.name;
+                        error.filename = task.script;
+                        error.timeout = true;
+                        deferreds[task.id].reject(error);
+                        workers[thread].terminate();
+                        window.URL.revokeObjectURL(task.script);
+                        logger.crit(error);
+                        // No need to run next task because $.when fails on the first failing deferred
+                        // runNextTask(thread);
+                    }
+                }, timeOut);
+            }
+        }
+    }
+
+    /***
+     * Add a task to the queue
+     * @param name
+     * @param script
+     * @param message
+     */
+    this.add = function (name, script, message) {
+        if (running) {
+            throw new Error('Cannot add to running pool');
+        }
+        tasks.push({ name: name, script: script, message: message, id: tasks.length });
+        deferreds.push($.Deferred());
+    };
+
+    /**
+     * Run the work pool
+     * Note: Add all tasks first
+     * @returns {*}
+     */
+    this.run = function () {
+        if (running) {
+            throw new Error('A worker pool cannot be executed twice');
+        }
+        running = true;
+        // Start each pool
+        for (var poolId = 0; poolId < workers.length; poolId++) {
+            runNextTask(poolId);
+        }
+        // Return an array of deferreds
+        return $.when.apply($, deferreds);
+    };
+};

@@ -10,7 +10,7 @@
 (function (f, define) {
     'use strict';
     define([
-        './vendor/kendo/kendo.core',
+        '../vendor/kendo/kendo.core',
         './vendor/kendo/kendo.drawing'
     ], f);
 })(function () {

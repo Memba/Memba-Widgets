@@ -13,7 +13,7 @@
     <link href="./styles/fonts/kidoju.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.vectordrawing.css" rel="stylesheet">
     <!-- kidoju.widgets.assetmanager stylesheets -->
-    <link href="./styles/kidoju.widgets.messagebox.css" rel="stylesheet">
+    <link href="./styles/dialogs/kidoju.widgets.basedialog.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.splitbutton.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.assetmanager.css" rel="stylesheet">
     <!-- SystemJS loader -->
@@ -204,7 +204,6 @@
                             enabled: true,
                             hook: function (e) {
                                 // assetManager.unbind('beforeOpen');
-                                debugger;
                                 assetManager.unbind('click');
                                 if ($(e.currentTarget).prop('checked')) {
                                     assetManager.bind('click', function(e) {

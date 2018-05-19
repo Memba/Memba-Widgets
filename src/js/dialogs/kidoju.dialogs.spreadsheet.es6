@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.spreadsheet';
@@ -31,13 +38,12 @@ export default function openSpreadsheet(options = {}) {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
                     content: `<div data-${ns}role="spreadsheet" style="width:100%;border:0;"></div>`,
-                    data: {
-                        sheets: []
-                    },
+                    // data: {}
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel
-                    ]
+                    ],
+                    width: 860
                 },
                 options
             )
@@ -47,18 +53,31 @@ export default function openSpreadsheet(options = {}) {
     // Rebind the initOpen event considering the kendo.ui.Spreadsheet widget cannot bind to a viewModel
     dialog.unbind('initOpen');
     dialog.one('initOpen', e => {
-        const spreadSheet = e.sender.element
-            .find(roleSelector('spreadsheet'))
-            .kendoSpreadsheet({
-                sheetsbar: false
-            })
-            .data('kendoSpreadsheet');
-        spreadSheet.fromJSON(options.data);
+        e.sender.element.find(roleSelector('spreadsheet')).kendoSpreadsheet(
+            Object.assign(
+                {
+                    sheetsbar: false,
+                    sheets: []
+                },
+                e.sender.options.data
+            )
+        );
     });
 
     // Bind the show event to resize once opened
     dialog.one('show', e => {
         resize(e.sender.element);
+        // spreadsheetWidget.activeSheet().range('A1:A1').select();
+        // Disable context menu
+        // spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
+        // Set default font size
+        /*
+        var activeSheet = spreadsheetWidget.activeSheet();
+        activeSheet.range('R1C1:R' + rows + 'C' + columns).forEachCell(function (rowIndex, columnIndex) {
+            var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
+            range.fontSize(range.fontSize() || 48);
+        });
+        */
     });
 
     // Bind the click event

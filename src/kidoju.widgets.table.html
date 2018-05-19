@@ -185,7 +185,7 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
-                SystemJS.import('./js/vendor/kendo/kendo.spreadsheet.js'),
+                SystemJS.import('kendo.spreadsheet'),
                 SystemJS.import('./js/kidoju.widgets.table.js')
             ]).then(function () {
                 var kendo = window.kendo;

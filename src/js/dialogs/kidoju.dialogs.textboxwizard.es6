@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.validator';
@@ -22,15 +29,11 @@ export default function openTextBoxWizard(options = {}) {
     // Find or create the DOM element
     const $dialog = BaseDialog.getElement(options.cssClass);
 
-    // Ids
-    const questionId = guid();
-    const solutionId = guid();
-
-    // Localized message field names  // TODO i18n
-    const message =
-        'Please enter a question and a solution to compare answers with.';
-    const questionName = 'Question';
-    const solutionName = 'Solution';
+    // Unique ids and i18n
+    const ids = { question: guid(), solution: guid() };
+    const i18n =
+        (((window.kidoju || {}).dialogs || {}).messages || {}).textboxwizard ||
+        {};
 
     // Create the dialog
     const dialog = $dialog
@@ -39,19 +42,21 @@ export default function openTextBoxWizard(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
+                    /* eslint-disable prettier/prettier */
                     content: `<div class="k-widget k-notification k-notification-info">
-                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${message}</div>
+                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${i18n.message}</div>
                           </div>
                           <div class="kj-dialog-form">
                             <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${questionId}">${questionName}:</label></div>
-                              <div class="kj-dialog-col75"><input id="${questionId}" type="text" name="${questionName}" class="k-input k-textbox" data-${ns}bind="value: question" required pattern="\\S+"></div>
+                              <div class="kj-dialog-col25"><label for="${ids.question}">${i18n.question}:</label></div>
+                              <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="${i18n.question}" class="k-input k-textbox" data-${ns}bind="value: question" required pattern="\\S+"></div>
                             </div>
                             <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${solutionId}">${solutionName}:</label></div>
-                              <div class="kj-dialog-col75"><input id="${solutionId}" type="text" name="${solutionName}" class="k-input k-textbox" data-${ns}bind="value: solution" required pattern="\\S+"></div>
+                              <div class="kj-dialog-col25"><label for="${ids.solution}">${i18n.solution}:</label></div>
+                              <div class="kj-dialog-col75"><input id="${ids.solution}" type="text" name="${i18n.solution}" class="k-input k-textbox" data-${ns}bind="value: solution" required pattern="\\S+"></div>
                             </div>
                           </div>`,
+                    /* eslint-enable prettier/prettier */
                     data: {
                         question: '',
                         solution: ''
@@ -59,7 +64,8 @@ export default function openTextBoxWizard(options = {}) {
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel
-                    ]
+                    ],
+                    width: 860
                 },
                 options
             )

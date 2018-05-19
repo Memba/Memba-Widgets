@@ -19,8 +19,8 @@
         './vendor/kendo/kendo.tabstrip',
         './vendor/kendo/kendo.window',
         // './vendor/kendo/kendo.upload' // <--- does not work with AWS S3
-        './kidoju.widgets.messagebox',
-        './kidoju.widgets.vectordrawing'
+        './kidoju.widgets.vectordrawing',
+        './dialogs/kidoju.dialogs.alert.es6'
     ], f);
 })(function () {
 
@@ -186,7 +186,7 @@
             assert.type(OBJECT, schemes, kendo.format(assert.messages.type.default, 'schemes', OBJECT));
             var ret = url;
             for (var scheme in schemes) {
-                if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(url)) {
+                if (Object.prototype.hasOwnProperty.call(schemes, scheme) && (new RegExp('^' + scheme + '://')).test(url)) {
                     ret = url.replace(scheme + '://', schemes[scheme]);
                     break;
                 }
@@ -730,14 +730,10 @@
                     }
                 }
                 if (found.length) {
-                    kendo.alertEx({
-                        type: kendo.ui.MessageBox.fn.type.warning,
+                    window.kidoju.dialogs.openAlert({
+                        type: kendo.ui.BaseDialog.fn.type.warning,
                         title: options.messages.dialogs.confirm,
-                        message: kendo.format(options.messages.dialogs.warningOverwrite, found.join('`, `')),
-                        actions: [
-                            { action: 'ok', text: options.messages.dialogs.ok.text, primary: true, imageUrl: options.messages.dialogs.ok.imageUrl },
-                            { action: 'cancel', text: options.messages.dialogs.cancel.text, primary: true, imageUrl: options.messages.dialogs.cancel.imageUrl }
-                        ]
+                        message: kendo.format(options.messages.dialogs.warningOverwrite, found.join('`, `'))
                     })
                         .done(function (e) {
                             if (e.action === 'ok') {

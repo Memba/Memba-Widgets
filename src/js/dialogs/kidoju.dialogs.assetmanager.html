@@ -187,10 +187,13 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('kendo.dataviz.diagram').then(function () {
-                // Note: this is a workaround to force early loading otherwise we get
-                // Uncaught (in promise) Error: Cannot read property 'Connection' of undefined
-                SystemJS.import('./kidoju.dialogs.assetmanager.es6').then(function () {
+            SystemJS.import('kendo.dataviz.diagram')
+                .then(function () {
+                    // Note: this is a workaround to force early loading of kendo.dataviz.diagram
+                    // otherwise we get: Uncaught (in promise) Error: Cannot read property 'Connection' of undefined
+                    return SystemJS.import('./kidoju.dialogs.assetmanager.es6');
+                })
+                .then(function () {
                     var kendo = window.kendo;
                     var kidoju = window.kidoju;
                     var COLLECTIONS = [
@@ -374,7 +377,6 @@
                         });
                     });
                 });
-            });
         }());
     </script>
     <style type="text/css">
@@ -391,7 +393,7 @@
 
 <h1>kidoju.dialogs.assetmanager</h1>
 
-<h2>using kendo.dialogs.openassetmanager</h2>
+<h2>using kendo.dialogs.openAssetManager</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

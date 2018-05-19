@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.data';
@@ -32,7 +34,7 @@ const WIDGET_CLASS = 'k-widget kj-scratchpad';
  * fromArray of [anchor, controlIn, controlOut]
  * @param segments
  */
-Path.fromSegments = function(segments, options) {
+Path.fromSegments = function fromSegments(segments, options) {
     const path = new Path(options);
     segments.forEach((segment, index, all) => {
         if (index === 0) {
@@ -56,7 +58,7 @@ Path.fromSegments = function(segments, options) {
 /**
  * toArray of [anchor, controlIn, controlOut]
  */
-Path.prototype.toSegments = function() {
+Path.prototype.toSegments = function toSegments() {
     const ret = [];
     const empty = {
         toArray() {

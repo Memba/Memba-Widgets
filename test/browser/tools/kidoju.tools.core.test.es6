@@ -14,7 +14,7 @@ import chai from 'chai';
 const { describe, it } = window;
 const { expect } = chai;
 
-describe('kidoju.media', () => {
+describe('kidoju.tools.core', () => {
     describe('Test', () => {
         it('It should', () => {
             expect(true).to.be.true;

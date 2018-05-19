@@ -185,30 +185,33 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.dialogs.textboxwizard.es6').then(function () {
-                var kendo = window.kendo;
-                var kidoju = window.kidoju;
-                $(function () {
-                    $('#button1').click(function (e) {
-                        kidoju.dialogs.openTextBoxWizard({
-                            title: 'New Open Question',
-                            data: {
-                                question : '',
-                                solution: null
-                            },
-                            width: 860
-                        }).done(function(result) {
-                            $("#console1").append(
-                                kendo.format(
-                                    '<div>action `{0}` with data `{1}` at {2}</div>',
-                                    result.action,
-                                    JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
-                                )
-                            );
+            SystemJS.import('./kidoju.dialogs.textboxwizard.es6')
+                .then(function () {
+                    SystemJS.import('../messages/kidoju.dialogs.en.es6').then(function () {
+                        var kendo = window.kendo;
+                        var kidoju = window.kidoju;
+                        $(function () {
+                            $('#button1').click(function (e) {
+                                kidoju.dialogs.openTextBoxWizard({
+                                    title: 'New Open Question',
+                                    data: {
+                                        question : '',
+                                        solution: null
+                                    },
+                                    width: 860
+                                }).done(function(result) {
+                                    $("#console1").append(
+                                        kendo.format(
+                                            '<div>action `{0}` with data `{1}` at {2}</div>',
+                                            result.action,
+                                            JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
+                                        )
+                                    );
+                                });
+                            });
                         });
                     });
                 });
-            });
         }());
     </script>
     <style type="text/css">

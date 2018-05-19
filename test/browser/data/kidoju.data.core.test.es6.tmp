@@ -14,7 +14,7 @@ import 'jquery.mockjax';
 import {
     BaseModel,
     BaseDataSource
-} from '../../../src/js/data/kidoju.data.core.es6';
+} from '../../../src/js/data/kidoju.data.core.es6.tmp';
 // Legacy code
 import '../../../src/js/kidoju.util'; // For ObjectId
 

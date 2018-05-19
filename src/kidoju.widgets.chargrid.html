@@ -184,7 +184,9 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('kendo.drawing') // This is a workaround to force the correct load order
+            // We need to load kendo.drawing here because AMD does not load it as a bundle
+            // Note that Promise.all cannot guarantee it is available before te chargrid is initialized
+            SystemJS.import('kendo.drawing')
                 .then(function () {
                     return SystemJS.import('./js/kidoju.widgets.chargrid.js');
                 })

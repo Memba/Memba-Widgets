@@ -248,7 +248,7 @@
                     model[options.imageField + '$'] = function () {
                         var image = this.get(options.imageField);
                         for (var scheme in options.schemes) {
-                            if (options.schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
+                            if (Object.prototype.hasOwnProperty.call(options.schemes, scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
                                 image = image.replace(scheme + '://', options.schemes[scheme]);
                                 break;
                             }

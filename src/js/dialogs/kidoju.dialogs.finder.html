@@ -191,7 +191,8 @@
                 $(function () {
                     $('#button1').click(function (e) {
                         kidoju.dialogs.openFinder({
-                            title: 'Finder',
+                            title: 'Finder'
+                            /*
                             data: {
                                 language: 'en',
                                 languages: [{ text: 'English', value: 'en' }, { text: 'French', value: 'fr' }],
@@ -204,7 +205,7 @@
                                 }),
                                 summaryId: null
                             },
-                            width: 860
+                            */
                         }).done(function(result) {
                             $("#console1").append(
                                 kendo.format(
@@ -233,7 +234,7 @@
 
 <h1>kidoju.dialogs.finder</h1>
 
-<h2>using kendo.dialogs.openSpreadsheet</h2>
+<h2>using kendo.dialogs.openFinder</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

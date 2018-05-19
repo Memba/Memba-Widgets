@@ -1,7 +1,14 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import 'kendo.core';
 import './kidoju.widgets.basedialog.es6';
-import '../kidoju.widgets.styleeditor'; // TODO CSS?
+import '../kidoju.widgets.styleeditor';
 import CONSTANTS from '../window.constants.es6';
 
 const {
@@ -29,9 +36,9 @@ export default function openStyleEditor(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div data-${ns}role="styleeditor" data-${ns}bind="value: style"></div>`,
+                    content: `<div data-${ns}role="styleeditor" data-${ns}bind="value:value" data-${ns}height="400"></div>`,
                     data: {
-                        style: ''
+                        value: ''
                     },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
@@ -47,6 +54,10 @@ export default function openStyleEditor(options = {}) {
     // Bind the show event to resize once opened
     dialog.one('show', e => {
         resize(e.sender.element);
+        // Workaround for issue described at
+        // https://github.com/telerik/kendo-ui-core/issues/1990 and
+        // https://github.com/telerik/kendo-ui-core/issues/2156
+        // e.sender.element.find(roleSelector('styleeditor)).data('kendoStyleEditor').refresh();
     });
 
     // Bind the click event

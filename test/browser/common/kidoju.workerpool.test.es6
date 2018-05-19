@@ -8,20 +8,16 @@
 // import $ from 'jquery';
 import chai from 'chai';
 // import sinon from 'sinon';
-import 'sinon-chai';
-import 'jquery.mockjax';
-import CONSTANTS from '../../../src/js/window.constants.es6';
-import {
-    ObjectId,
-    randomHexString,
-    randomId
-} from '../../../src/js/common/kidoju.util.es6';
+// import 'sinon-chai';
+// import 'jquery.mockjax';
 
-const { describe, it, kidoju } = window;
+const { describe, it } = window;
 const { expect } = chai;
 
 describe('kidoju.workerpool', () => {
-
-
-
+    describe('Test', () => {
+        it('It should', () => {
+            expect(true).to.be.true;
+        });
+    });
 });

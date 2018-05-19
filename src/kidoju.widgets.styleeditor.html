@@ -20,7 +20,6 @@
             SystemJS.config({
                 baseURL: './',
                 bundles: {
-                    'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
                     'kendodatavizbarcode': ['kendo.dataviz.barcode'],
                     'kendodatavizchart': ['kendo.dataviz.chart'],
@@ -36,6 +35,7 @@
                     'kendodrawing': ['kendo.drawing'],
                     'kendoeditor': ['kendo.editor'],
                     'kendogantt': ['kendo.gantt'],
+                    'kendogrid': ['kendo.grid'],
                     'kendopdf': ['kendo.pdf'],
                     'kendoscheduler': ['kendo.scheduler'],
                     'kendospreadsheet': ['kendo.spreadsheet']
@@ -169,7 +169,7 @@
                                 babelOptions: {
                                     es2015: false,
                                     stage2: false,
-                                    stage3: false
+                                    stage3: false,
                                 },
                                 format: 'amd'
                             },
@@ -185,7 +185,8 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/kidoju.widgets.styleeditor.js').then(function (kendo) {
+            SystemJS.import('./js/kidoju.widgets.styleeditor.js').then(function () {
+                var kendo = window.kendo;
                 var viewModel = kendo.observable({
                     style: 'vertical-align:middle;text-decoration:underline;text-align:center;margin:10px;padding:10px;font-weight:bold;font-style:italic;font-size:20px;font-family:Times New Roman;border-width:1px;border-color:#000000;background-color:#ffffff;border-style:solid;border-radius:5px;color:#ff0000;'
                 });

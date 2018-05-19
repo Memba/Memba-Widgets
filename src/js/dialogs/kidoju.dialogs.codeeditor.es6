@@ -1,7 +1,14 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import 'kendo.core';
 import './kidoju.widgets.basedialog.es6';
-import '../kidoju.widgets.codeeditor'; // TODO CSS
+import '../kidoju.widgets.codeeditor';
 import CONSTANTS from '../window.constants.es6';
 
 const {
@@ -30,8 +37,17 @@ export default function openCodeEditor(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div data-${ns}role="codeeditor" data-${ns}bind="value: code, source: library"></div>`,
-                    data: { code: '' }, // TODO: solution??
+                    content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" data-${ns}default="${JSON.stringify(
+                        (options.data || {}).defaultValue || ''
+                    )}" data-${ns}solution="${JSON.stringify(
+                        (options.data || {}).solution
+                    )}"></div>`,
+                    data: {
+                        value: '',
+                        library: []
+                        // defaultValue: null,
+                        // solution: null
+                    },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel

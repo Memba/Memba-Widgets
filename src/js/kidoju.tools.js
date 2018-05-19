@@ -501,9 +501,9 @@
                 var collections = options.collections || [];
                 var extensions = options.extensions || [];
                 var schemes = options.schemes || {};
-                assert.isArray(collections, kendo.format(assert.messages.isArray.default, 'options.collections'));
-                assert.isArray(extensions, kendo.format(assert.messages.isArray.default, 'options.extensions'));
-                assert.type(OBJECT, schemes, kendo.format(assert.messages.type.default, 'options.schemes', OBJECT));
+                assert.isArray(collections, assert.format(assert.messages.isArray.default, 'options.collections'));
+                assert.isArray(extensions, assert.format(assert.messages.isArray.default, 'options.extensions'));
+                assert.type(OBJECT, schemes, assert.format(assert.messages.type.default, 'options.schemes', OBJECT));
                 this.collections = collections;
                 this.extensions = extensions;
                 this.schemes = schemes;
@@ -530,10 +530,10 @@
         var tools = kidoju.tools = kendo.observable({
             active: null,
             register: function (Class) {
-                assert.type(OBJECT, Class.prototype, kendo.format(assert.messages.type.default, 'Class.prototype', OBJECT));
+                assert.type(OBJECT, Class.prototype, assert.format(assert.messages.type.default, 'Class.prototype', OBJECT));
                 var obj = new Class();
-                assert.instanceof(Tool, obj, kendo.format(assert.messages.instanceof.default, 'obj', 'kidoju.Tool'));
-                assert.type(STRING, obj.id, kendo.format(assert.messages.type.default, 'obj.id', STRING));
+                assert.instanceof(Tool, obj, assert.format(assert.messages.instanceof.default, 'obj', 'kidoju.Tool'));
+                assert.type(STRING, obj.id, assert.format(assert.messages.type.default, 'obj.id', STRING));
                 obj.id = obj.id.trim();
                 assert.ok(obj.id.length > 0, 'A tool cannot have an empty id');
                 assert.ok(obj.id !== ACTIVE && obj.id !== REGISTER, 'A tool cannot have `active` or `register` for id');
@@ -626,7 +626,7 @@
             _getAttributeModel: function () {
                 var model = { fields: {} };
                 for (var attr in this.attributes) {
-                    if (this.attributes.hasOwnProperty(attr)) {
+                    if (Object.prototype.hasOwnProperty.call(this.attributes, attr)) {
                         if (this.attributes[attr] instanceof BaseAdapter) {
                             model.fields[attr] = this.attributes[attr].getField();
                         }
@@ -656,7 +656,7 @@
 
                 // Add other attributes
                 for (var attr in this.attributes) {
-                    if (this.attributes.hasOwnProperty(attr)) {
+                    if (Object.prototype.hasOwnProperty.call(this.attributes, attr)) {
                         if (this.attributes[attr] instanceof BaseAdapter) {
                             rows.push(this.attributes[attr].getRow('attributes.' + attr));
                         }
@@ -721,8 +721,8 @@
              * @returns {*}
              */
             getHtmlContent: function (component, mode) {
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(this.templates[mode] || this.templates.default);
                 return template($.extend(component, { ns: kendo.ns }));
             },
@@ -781,8 +781,8 @@
              */
             validate: function (component, pageIdx) {
                 /* jshint maxcomplexity: 14 */
-                assert.instanceof (PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
+                assert.instanceof (PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.type(NUMBER, pageIdx, assert.format(assert.messages.type.default, 'pageIdx', NUMBER));
                 var ret = [];
                 if (component.properties && !component.properties.disabled) {
                     var properties = component.properties;
@@ -864,40 +864,6 @@
                 this.attributes = options.attributes;
             },
 
-            /**
-             * Get a dialog window
-             */
-            getDialog: function (options) {
-                var that = this;
-                var dialogWidget = $(DIALOG_SELECTOR).data('kendoDialog');
-                assert.ok(kendo.ui.Dialog, '`kendo.dialog.js` is expected to be loaded');
-                // Find or create dialog frame
-                if (!(dialogWidget instanceof kendo.ui.Dialog)) {
-                    // Create dialog
-                    dialogWidget = $(kendo.format(DIALOG_DIV, DIALOG_SELECTOR.substr(1)))
-                        .appendTo(document.body)
-                        .kendoDialog({
-                            actions: [
-                                { text: Tool.fn.i18n.dialogs.ok.text, primary: true, action: $.proxy(that.onOkAction, that, options) },
-                                { text: Tool.fn.i18n.dialogs.cancel.text }
-                            ],
-                            buttonLayout: 'normal',
-                            modal: true,
-                            visible: false,
-                            width: 860,
-                            close: function (e) {
-                                // This is a reusable dialog, so we need to make sure it is ready for the next content
-                                dialogWidget.element.removeClass(NO_PADDING_CLASS);
-                                // The content method destroys widgets and unbinds data
-                                dialogWidget.content('');
-                                dialogWidget.viewModel = undefined;
-                            }
-                        })
-                        .data('kendoDialog');
-                }
-                return dialogWidget;
-            },
-
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
@@ -916,7 +882,7 @@
                     field.defaultValue = this.defaultValue;
                 }
                 if ($.type(this.editable) === BOOLEAN) {
-                    field.editable = this.defaultValue;
+                    field.editable = this.editable;
                 }
                 if ($.type(this.nullable) === BOOLEAN) {
                     field.nullable = this.nullable;
@@ -1012,22 +978,24 @@
                 };
             },
             showDialog: function (options/*, e*/) {
-                assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
-                assert.instanceof(ToolAssets, assets[options.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[options.model.tool]', 'kidoju.ToolAssets'));
-                kidoju.dialogs.showAssetManager(
-                    assets[options.model.tool],
-                    options.model.get(options.field),
-                    {
-                        title: options.title
+                assert.instanceof(PageComponent, options.model, assert.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
+                assert.instanceof(ToolAssets, assets[options.model.tool], assert.format(assert.messages.instanceof.default, 'assets[options.model.tool]', 'kidoju.ToolAssets'));
+                // TODO wrap in import('./dialogs/kidoju.dialogs.assetmanager.es6').then(function () {...});
+                kidoju.dialogs.openAssetManager({
+                    title: options.title,
+                    data: {
+                        value: options.model.get(options.field)
                     },
-                    function (e) {
-                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                        assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-                        options.model.set(options.field, e.sender.viewModel.get('url'));
-                        // Considering we might have restored the viewModel in kidoju,dialogs.wrapWithUploader, we need to make sure it is now undefined
-                        e.sender.viewModel = undefined;
-                    }
-                );
+                    assets: assets[options.model.tool]
+                })
+                    .done(function (result) {
+                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                            options.model.set(options.field, result.data.value);
+                        }
+                    })
+                    .fail(function (err) {
+                        // TODO
+                    });
             }
         });
 
@@ -1079,47 +1047,23 @@
                 var whitelist = model.get('attributes.whitelist');
                 var layout = model.get('attributes.layout');
                 var data = model.get(options.field);
-                // Create viewModel (Cancel shall not save changes to main model)
-                dialogWidget.viewModel = kendo.observable({
-                    chargrid: kendo.ui.CharGrid._getCharGridArray(rows, columns, whitelist, layout, data)
-                });
-                // Prepare UI
-                dialogWidget.title(options.title);
-                dialogWidget.content('<div style="display:flex;flex-direction:row">' +
-                    // character grid
-                    '<div ' +
-                    'data-' + kendo.ns + 'role="chargrid" ' +
-                    'data-' + kendo.ns + 'bind="value: chargrid" ' +
-                    'data-' + kendo.ns + 'scaler=".k-content" ' +
-                    'data-' + kendo.ns + 'container=".k-content" ' +
-                    'data-' + kendo.ns + 'columns="' + model.get('attributes.columns') + '" ' +
-                    'data-' + kendo.ns + 'rows="' + model.get('attributes.rows') + '" ' +
-                    'data-' + kendo.ns + 'blank="' + model.get('attributes.blank') + '" ' +
-                    'data-' + kendo.ns + 'whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
-                    (options.field === 'properties.solution' ? 'data-' + kendo.ns + 'locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
-                    'data-' + kendo.ns + 'grid-fill="' + model.get('attributes.gridFill') + '" ' +
-                    'data-' + kendo.ns + 'grid-stroke="' + model.get('attributes.gridStroke') + '" ' +
-                    'data-' + kendo.ns + 'blank-fill="' + model.get('attributes.gridStroke') + '" ' +
-                    'data-' + kendo.ns + 'selected-fill="' + model.get('attributes.selectedFill') + '" ' +
-                    'data-' + kendo.ns + 'locked-fill="' + model.get('attributes.lockedFill') + '" ' +
-                    'data-' + kendo.ns + 'locked-color="' + model.get('attributes.fontColor') + '" ' +
-                    'data-' + kendo.ns + 'value-color="' + model.get('attributes.fontColor') + '" ' +
-                    'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;flex-shrink:0;padding:20px;"></div>' +
-                    // Explanations
-                    '<div style="padding:20px 0;">' +
-                    (options.field === 'properties.solution' ? kendo.format(this.messages.solution, model.get('attributes.whitelist')) : kendo.format(this.messages.layout, model.get('attributes.blank'))) +
-                    '</div>' +
-                    // Close parent div
-                    '</div>');
-                kendo.bind(dialogWidget.element, dialogWidget.viewModel);
-                dialogWidget.element.addClass(NO_PADDING_CLASS);
-                // Show dialog
-                dialogWidget.open();
-            },
-            onOkAction: function (options, e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-                options.model.set(options.field, e.sender.viewModel.get('chargrid'));
+                // TODO wrap in import('./dialogs/kidoju.dialogs.chargrid.es6').then(function () {...});
+                kidoju.dialogs.openCharGrid({
+                    title: options.title,
+                    data: {
+                        value: kendo.ui.CharGrid._getCharGridArray(rows, columns, whitelist, layout, data)
+                    }
+                })
+                    .done(function (result) {
+                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
+                            // $.type(result.data.url) === STRING
+                        ) {
+                            options.model.set(options.field, result.data.value);
+                        }
+                    })
+                    .fail(function (err) {
+                        // TODO
+                    });
             },
             library: [
                 {
@@ -1153,44 +1097,30 @@
                 };
             },
             showDialog: function (options/*, e*/) {
-                var that = this;
-                var dialogWidget = that.getDialog(options);
                 var model = options.model;
                 var columns = model.get('attributes.categories') + 1;
                 var rows = model.get('attributes.values') + 1;
-                // Prepare UI
-                dialogWidget.title(options.title);
-                dialogWidget.content('<div data-' + kendo.ns + 'role="spreadsheet"/>');
-                var spreadsheet = dialogWidget.element.find(kendo.roleSelector('spreadsheet'));
-                assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
-                var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
-                    columns: columns,
-                    rows: rows,
-                    sheetsbar: false,
-                    toolbar: false
-                }).data('kendoSpreadsheet');
-                assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
-                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990 and https://github.com/telerik/kendo-ui-core/issues/2156
-                dialogWidget.one('show', function () {
-                    kendo.resize(dialogWidget.element); // spreadsheetWidget.refresh();
-                    spreadsheetWidget.activeSheet().range('A1:A1').select();
-                });
-                // Load JSON after resizing data to the predefined number of rows and columns
-                spreadsheetWidget.fromJSON(util.resizeSpreadsheetData(model.get('attributes.data'), rows, columns));
-                // Disable context menu
-                spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
-                dialogWidget.element.addClass(NO_PADDING_CLASS);
-                // Show dialog
-                dialogWidget.open();
-            },
-            onOkAction: function (options, e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-                var spreadsheet = e.sender.element.find(kendo.roleSelector('spreadsheet'));
-                assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
-                var spreadsheetWidget = spreadsheet.data('kendoSpreadsheet');
-                assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
-                options.model.set(options.field, spreadsheetWidget.toJSON());
+                var data = util.resizeSpreadsheetData(model.get('attributes.data'), rows, columns);
+                // TODO wrap in import('./dialogs/kidoju.dialogs.spreadsheet.es6').then(function () {...});
+                kidoju.dialogs.openSpreadsheet({
+                    title: options.title,
+                    data: Object.assign(data, {
+                        columns: columns,
+                        rows: rows,
+                        sheetsbar: false,
+                        toolbar: false
+                    })
+                })
+                    .done(function (result) {
+                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                            // TODO test result.data???
+                            options.model.set(options.field, result.data);
+                        }
+                    })
+                    .fail(function (err) {
+                        // TODO
+                    });
+
             }
         });
 
@@ -1247,7 +1177,7 @@
                             var handleBox = stage.parent().children('.kj-handle-box');
                             var uid = handleBox.attr(kendo.attr('uid'));
                             // find all unselected connectors
-                            assert.instanceof (PageComponent, settings.model, kendo.format(assert.messages.instanceof.default, 'settings.model', 'kidoju.data.PageModel'));
+                            assert.instanceof (PageComponent, settings.model, assert.format(assert.messages.instanceof.default, 'settings.model', 'kidoju.data.PageModel'));
                             if (settings.model.parent() instanceof kendo.Observable && settings.model.parent().selectedPage instanceof Page) {
                                 var components = settings.model.parent().selectedPage.components;
                                 $.each(components.data(), function (index, component) {
@@ -1436,7 +1366,7 @@
                         schemes: assets.image.schemes,
                         click: $.proxy(that.showDialog, that, settings)
                     }).data('kendoImageList');
-                    assert.instanceof(kendo.ui.ImageList, imageListWidget, kendo.format(assert.messages.instanceof.default, 'imageListWidget', 'kendo.ui.ImageList'));
+                    assert.instanceof(kendo.ui.ImageList, imageListWidget, assert.format(assert.messages.instanceof.default, 'imageListWidget', 'kendo.ui.ImageList'));
                     imageListWidget.dataSource.bind('change', function (e) {
                         // When the dataSource raises a change event on any of the quiz data items that is added, changed or removed
                         // We need to trigger a change event on the model field to ensure the stage element (which is not databound) is redrawn
@@ -1447,34 +1377,25 @@
                 };
             },
             showDialog: function (options, e) {
+                // Note should return a promise to be used with app.notification?
                 if (e.action === 'image') {
-                    var that = this;
-                    var item = e.item;
-                    var dialogWidget = that.getDialog(options);
-                    // Create viewModel (Cancel shall not save changes to main model)
-                    dialogWidget.viewModel = kendo.observable({
-                        image: item.get('image')
-                    });
-                    dialogWidget.viewModel._item = item;
-                    // Prepare UI
-                    dialogWidget.title(options.title);
-                    dialogWidget.content('<div ' +
-                        'data-' + kendo.ns + 'role="assetmanager" ' +
-                        'data-' + kendo.ns + 'bind="value: image"/>');
-                    assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
-                    assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
-                    var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets.image).data('kendoAssetManager');
-                    kendo.bind(dialogWidget.element, dialogWidget.viewModel);
-                    dialogWidget.element.addClass(NO_PADDING_CLASS);
-                    // Show dialog
-                    assetManagerWidget.tabStrip.activateTab(0);
-                    dialogWidget.open();
+                    // TODO wrap in import('./dialogs/kidoju.dialogs.assetmanager.es6').then(function () {...});
+                    kidoju.dialogs.openAssetManager({
+                        title: options.title,
+                        data: {
+                            value: e.item.get('image')
+                        },
+                        assets: assets.image
+                    })
+                        .done(function (result) {
+                            if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                                e.item.set('image', result.data.value);
+                            }
+                        })
+                        .fail(function (err) {
+                            // TODO
+                        });
                 }
-            },
-            onOkAction: function (options, e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-                e.sender.viewModel._item.set('image', e.sender.viewModel.get('image'));
             }
         });
 
@@ -1567,7 +1488,7 @@
                                         var image = this.get('image');
                                         var schemes = assets.image.schemes;
                                         for (var scheme in schemes) {
-                                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
+                                            if (Object.prototype.hasOwnProperty.call(schemes, scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
                                                 image = image.replace(scheme + '://', schemes[scheme]);
                                                 break;
                                             }
@@ -1719,7 +1640,7 @@
                                         var image = this.get('image');
                                         var schemes = assets.image.schemes;
                                         for (var scheme in schemes) {
-                                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
+                                            if (Object.prototype.hasOwnProperty.call(schemes, scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
                                                 image = image.replace(scheme + '://', schemes[scheme]);
                                                 break;
                                             }
@@ -1883,35 +1804,21 @@
                 };
             },
             showDialog: function (options/*, e*/) {
-                var that = this;
-                var dialogWidget = that.getDialog(options);
-                // Create viewModel (Cancel shall not save changes to main model)
-                dialogWidget.viewModel = kendo.observable({
-                    style: options.model.get(options.field)
-                });
-                // Prepare UI
-                dialogWidget.title(options.title);
-                dialogWidget.content('<div ' +
-                    'data-' + kendo.ns + 'role="styleeditor" ' +
-                    'data-' + kendo.ns + 'bind="value: style" ' +
-                    'data-' + kendo.ns + 'height="400"/>');
-                kendo.bind(dialogWidget.element, dialogWidget.viewModel);
-                var styleEditor = dialogWidget.element.find(kendo.roleSelector('styleeditor'));
-                assert.hasLength(styleEditor, kendo.format(assert.messages.hasLength.default, 'styleEditor'));
-                var styleEditorWidget = styleEditor.data('kendoStyleEditor');
-                assert.instanceof(kendo.ui.StyleEditor, styleEditorWidget, kendo.format(assert.messages.instanceof.default, 'styleEditorWidget', 'kendo.ui.StyleEditor'));
-                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990 and https://github.com/telerik/kendo-ui-core/issues/2156
-                dialogWidget.one('show', function () {
-                    styleEditorWidget.refresh();
-                });
-                dialogWidget.element.addClass(NO_PADDING_CLASS);
-                // Show dialog
-                dialogWidget.open();
-            },
-            onOkAction: function (options, e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-                options.model.set(options.field, e.sender.viewModel.get('style'));
+                // TODO wrap in import('./dialogs/kidoju.dialogs.styleedtor.es6').then(function () {...});
+                kidoju.dialogs.openStyleEditor({
+                    title: options.title,
+                    data: {
+                        value: options.model.get(options.field)
+                    }
+                })
+                    .then(function (result) {
+                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                            options.model.set(options.field, result.data.value);
+                        }
+                    })
+                    .fail(function (err) {
+                        // TODO
+                    });
             }
         });
 
@@ -1934,57 +1841,47 @@
                 };
             },
             showDialog: function (options/*, e*/) {
-                var that = this;
-                var dialogWidget = that.getDialog(options);
                 var model = options.model;
                 var columns = model.get('attributes.columns');
                 var rows = model.get('attributes.rows');
-                // Prepare UI
-                dialogWidget.title(options.title);
-                dialogWidget.content('<div data-' + kendo.ns + 'role="spreadsheet"/>');
-                var spreadsheet = dialogWidget.element.find(kendo.roleSelector('spreadsheet'));
-                assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
-                var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
-                    columns: columns,
-                    rows: rows,
-                    columnWidth: 150,
-                    rowHeight: 58,
-                    sheetsbar: false,
-                    toolbar: {
-                        // TODO: merge and hide not included in v1
-                        home: [['bold', 'italic', 'underline'], 'backgroundColor', 'textColor', 'borders', 'fontSize', 'fontFamily', 'alignment', 'textWrap', ['formatDecreaseDecimal', 'formatIncreateDecimal'], 'format'],
-                        insert: false,
-                        data: false
-                    }
-                }).data('kendoSpreadsheet');
-                assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
-                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990 and https://github.com/telerik/kendo-ui-core/issues/2156
-                dialogWidget.one('show', function () {
-                    kendo.resize(dialogWidget.element); // spreadsheetWidget.refresh();
-                    spreadsheetWidget.activeSheet().range('A1:A1').select();
-                });
-                // Load JSON after resizing data to the predefined number of rows and columns
-                spreadsheetWidget.fromJSON(util.resizeSpreadsheetData(model.get('attributes.data'), rows, columns));
-                // Disable context menu
-                spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
-                // Set default font size
-                var activeSheet = spreadsheetWidget.activeSheet();
-                activeSheet.range('R1C1:R' + rows + 'C' + columns).forEachCell(function (rowIndex, columnIndex) {
-                    var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
-                    range.fontSize(range.fontSize() || 48);
-                });
-                dialogWidget.element.addClass(NO_PADDING_CLASS);
-                // Show dialog
-                dialogWidget.open();
-            },
-            onOkAction: function (options, e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-                var spreadsheet = e.sender.element.find(kendo.roleSelector('spreadsheet'));
-                assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
-                var spreadsheetWidget = spreadsheet.data('kendoSpreadsheet');
-                assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
-                options.model.set(options.field, spreadsheetWidget.toJSON());
+                var data = util.resizeSpreadsheetData(model.get('attributes.data'), rows, columns);
+                debugger;
+                // TODO wrap in import('./dialogs/kidoju.dialogs.spreadsheet.es6').then(function () {...});
+                kidoju.dialogs.openSpreadsheet({
+                    title: options.title,
+                    data: Object.assign({
+                        columns: columns,
+                        rows: rows,
+                        columnWidth: 150,
+                        rowHeight: 58,
+                        sheets: [],
+                        sheetsbar: false,
+                        toolbar: {
+                            // Note: merge and hide not included in v1
+                            home: [
+                                ['bold', 'italic', 'underline'],
+                                'backgroundColor',
+                                'textColor',
+                                'borders',
+                                'fontSize',
+                                'fontFamily',
+                                'alignment',
+                                'textWrap',
+                                ['formatDecreaseDecimal', 'formatIncreateDecimal'],
+                                'format'],
+                            insert: false,
+                            data: false
+                        }
+                    }, data)
+                })
+                    .done(function (result) {
+                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                            options.model.set(options.field, result.data);
+                        }
+                    })
+                    .fail(function (err) {
+                        // TODO
+                    });
             }
         });
 
@@ -2052,40 +1949,24 @@
             },
             showDialog: function (options/*, e*/) {
                 var that = this;
-                var dialogWidget = that.getDialog(options);
-                // Create viewModel (Cancel shall not save changes to main model)
-                dialogWidget.viewModel = kendo.observable({
-                    code: options.model.get(options.field),
-                    library: [CUSTOM].concat(that.library)
-                });
-                // Prepare UI
-                dialogWidget.title(options.title);
-                dialogWidget.content('<div ' +
-                    'data-' + kendo.ns + 'role="codeeditor" ' +
-                    'data-' + kendo.ns + 'bind="value: code, source: library" ' +
-                    'data-' + kendo.ns + 'default="' + that.defaultValue + '" ' +
-                    'data-' + kendo.ns + 'solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"/>');
-                kendo.bind(dialogWidget.element, dialogWidget.viewModel);
-                dialogWidget.element.addClass(NO_PADDING_CLASS);
-                // Bind window activate handler
-                dialogWidget.one('show', function () {
-                    // IMPORTANT, we need13 to refresh codemirror here
-                    // otherwise the open animation messes with CodeMirror calculations
-                    // and gutter and line numbers are displayed at the wrong coordinates
-                    var codeEditor = dialogWidget.element
-                        .find('.kj-codeeditor')
-                        .data('kendoCodeEditor');
-                    if (codeEditor instanceof kendo.ui.CodeEditor && codeEditor.codeMirror && $.isFunction(codeEditor.codeMirror.refresh)) {
-                        codeEditor.codeMirror.refresh();
+                // TODO import('./dialogs/kidoju.dialogs.codeeditor.es6').then(function () {...});
+                kidoju.dialogs.openCodeEditor({
+                    title: options.title,
+                    data: {
+                        value: options.model.get(options.field),
+                        library: [CUSTOM].concat(that.library),
+                        defaultValue: that.defaultValue, // ????????????????????????
+                        solution: kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution')))
                     }
-                });
-                // Show dialog
-                dialogWidget.open();
-            },
-            onOkAction: function (options, e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-                options.model.set(options.field, e.sender.viewModel.get('code'));
+                })
+                    .then(function (result) {
+                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                            options.model.set(options.field, result.data.value);
+                        }
+                    })
+                    .fail(function (err) {
+                        // TODO
+                    });
             }
         });
 
@@ -2137,10 +2018,10 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(Audio, that, kendo.format(assert.messages.instanceof.default, 'this', 'Audio'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                assert.instanceof(ToolAssets, assets.audio, kendo.format(assert.messages.instanceof.default, 'assets.audio', 'kidoju.ToolAssets'));
+                assert.instanceof(Audio, that, assert.format(assert.messages.instanceof.default, 'this', 'Audio'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.audio, assert.format(assert.messages.instanceof.default, 'assets.audio', 'kidoju.ToolAssets'));
                 var template = kendo.template(that.templates.default);
                 // The files$ function resolves urls with schemes like cdn://audio.mp3 and returns a stringified array
                 component.files$ = function () {
@@ -2148,7 +2029,7 @@
                     var ogg = component.attributes.get('ogg');
                     var schemes = assets.audio.schemes;
                     for (var scheme in schemes) {
-                        if (schemes.hasOwnProperty(scheme)) {
+                        if (Object.prototype.hasOwnProperty.call(schemes, scheme)) {
                             var schemeRx = new RegExp('^' + scheme + '://');
                             if (schemeRx.test(mp3)) {
                                 mp3 = mp3.replace(scheme + '://', schemes[scheme]);
@@ -2180,7 +2061,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
                 var widget = content.data('kendoMediaPlayer');
                 if ($.type(component.width) === NUMBER) {
@@ -2336,8 +2217,8 @@
                     // verticalBullet: { type: 'verticalBullet' },
                     verticalLine: { type: 'verticalLine' }
                 };
-                assert.instanceof(Chart, that, kendo.format(assert.messages.instanceof.default, 'this', 'Chart'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(Chart, that, assert.format(assert.messages.instanceof.default, 'this', 'Chart'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var template = kendo.template(that.templates.default);
                 var style = component.attributes.get('style');
                 // Get font from style - @see http://www.telerik.com/forums/charts---changing-the-default-font
@@ -2493,7 +2374,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('chart'));
                 var widget = content.data('kendoChart');
                 if ($.type(component.width) === NUMBER) {
@@ -2620,7 +2501,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div.kj-chargrid');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -2630,7 +2511,7 @@
                 }
                 // Redraw the charGrid widget
                 var charGridWidget = content.data('kendoCharGrid');
-                assert.instanceof(kendo.ui.CharGrid, charGridWidget, kendo.format(assert.messages.instanceof.default, 'charGridWidget', 'kendo.ui.CharGrid'));
+                assert.instanceof(kendo.ui.CharGrid, charGridWidget, assert.format(assert.messages.instanceof.default, 'charGridWidget', 'kendo.ui.CharGrid'));
                 charGridWidget.refresh();
                 // prevent any side effect
                 e.preventDefault();
@@ -2699,7 +2580,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div[' + kendo.attr('role') + '="connector"]');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -2709,7 +2590,7 @@
                 }
                 // Redraw the connector widget
                 var connectorWidget = content.data('kendoConnector');
-                assert.instanceof(kendo.ui.Connector, connectorWidget, kendo.format(assert.messages.instanceof.default, 'connectorWidget', 'kendo.ui.Connector'));
+                assert.instanceof(kendo.ui.Connector, connectorWidget, assert.format(assert.messages.instanceof.default, 'connectorWidget', 'kendo.ui.Connector'));
                 connectorWidget._drawConnector();
 
                 // prevent any side effect
@@ -2820,7 +2701,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -2904,9 +2785,9 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(HighLighter, that, kendo.format(assert.messages.instanceof.default, 'this', 'HighLighter'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(HighLighter, that, assert.format(assert.messages.instanceof.default, 'this', 'HighLighter'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(that.templates[mode]);
                 return template($.extend(component, { ns: kendo.ns }));
             },
@@ -2920,7 +2801,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -3028,10 +2909,10 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(Image, that, kendo.format(assert.messages.instanceof.default, 'this', 'Image'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                assert.instanceof(Image, that, assert.format(assert.messages.instanceof.default, 'this', 'Image'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
                 var template = kendo.template(that.templates.default);
                 // The class$ function adds the kj-interactive class to draggable components
                 component.class$ = function () {
@@ -3046,7 +2927,7 @@
                     var src = component.attributes.get('src');
                     var schemes = assets.image.schemes;
                     for (var scheme in schemes) {
-                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(src)) {
+                        if (Object.prototype.hasOwnProperty.call(schemes, scheme) && (new RegExp('^' + scheme + '://')).test(src)) {
                             src = src.replace(scheme + '://', schemes[scheme]);
                             break;
                         }
@@ -3065,7 +2946,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('img');
                 // Assuming we can get the natural size of the image, we shall keep proportions
                 var naturalHeight = content[0].naturalHeight;
@@ -3207,10 +3088,10 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(ImageSet, that, kendo.format(assert.messages.instanceof.default, 'this', 'ImageSet'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                assert.instanceof(ImageSet, that, assert.format(assert.messages.instanceof.default, 'this', 'ImageSet'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
                 var template = kendo.template(that.templates[mode]);
                 // The data$ function resolves urls with schemes like cdn://sample.jpg
                 component.data$ = function () {
@@ -3223,7 +3104,7 @@
                             image: ''
                         };
                         for (var scheme in schemes) {
-                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(data[i].image)) {
+                            if (Object.prototype.hasOwnProperty.call(schemes, scheme) && (new RegExp('^' + scheme + '://')).test(data[i].image)) {
                                 item.image = data[i].image.replace(scheme + '://', schemes[scheme]);
                                 break;
                             }
@@ -3246,7 +3127,7 @@
                 /* jshint maxcomplexity: 8 */
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('imageset'));
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -3345,9 +3226,9 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(Label, that, kendo.format(assert.messages.instanceof.default, 'this', 'Label'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(Label, that, assert.format(assert.messages.instanceof.default, 'this', 'Label'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(that.templates.default);
                 // The class$ function adds the kj-interactive class to draggable components
                 component.class$ = function () {
@@ -3369,7 +3250,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -3490,9 +3371,9 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(MathExpression, that, kendo.format(assert.messages.instanceof.default, 'this', 'MathExpression'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(MathExpression, that, assert.format(assert.messages.instanceof.default, 'this', 'MathExpression'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(that.templates.default);
                 // The class$ function adds the kj-interactive class to draggable components
                 component.class$ = function () {
@@ -3514,7 +3395,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -3615,9 +3496,9 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(MathInput, that, kendo.format(assert.messages.instanceof.default, 'this', 'MathInput'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(MathInput, that, assert.format(assert.messages.instanceof.default, 'this', 'MathInput'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(that.templates[mode]);
                 component.toolbar$ = function () {
                     var tools = [];
@@ -3671,7 +3552,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -3771,10 +3652,10 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(MultiQuiz, that, kendo.format(assert.messages.instanceof.default, 'this', 'MultiQuiz'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                assert.instanceof(MultiQuiz, that, assert.format(assert.messages.instanceof.default, 'this', 'MultiQuiz'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
                 var template = kendo.template(that.templates[mode]);
                 // The data$ function resolves urls with schemes like cdn://sample.jpg
                 component.data$ = function () {
@@ -3787,7 +3668,7 @@
                             image: ''
                         };
                         for (var scheme in schemes) {
-                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(data[i].image)) {
+                            if (Object.prototype.hasOwnProperty.call(schemes, scheme) && (new RegExp('^' + scheme + '://')).test(data[i].image)) {
                                 item.image = data[i].image.replace(scheme + '://', schemes[scheme]);
                                 break;
                             }
@@ -3834,7 +3715,7 @@
                 /* jshint maxcomplexity: 8 */
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('quiz'));
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -3958,10 +3839,10 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(Quiz, that, kendo.format(assert.messages.instanceof.default, 'this', 'Quiz'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                assert.instanceof(Quiz, that, assert.format(assert.messages.instanceof.default, 'this', 'Quiz'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
                 var template = kendo.template(that.templates[mode]);
                 // The data$ function resolves urls with schemes like cdn://sample.jpg
                 component.data$ = function () {
@@ -3974,7 +3855,7 @@
                             image: ''
                         };
                         for (var scheme in schemes) {
-                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(data[i].image)) {
+                            if (Object.prototype.hasOwnProperty.call(schemes, scheme) && (new RegExp('^' + scheme + '://')).test(data[i].image)) {
                                 item.image = data[i].image.replace(scheme + '://', schemes[scheme]);
                                 break;
                             }
@@ -3997,7 +3878,7 @@
                 /* jshint maxcomplexity: 8 */
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('quiz'));
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -4122,7 +4003,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div[' + kendo.attr('role') + '="selector"]');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -4132,7 +4013,7 @@
                 }
                 // Redraw the selector widget
                 // var selectorWidget = content.data('kendoSelector');
-                // assert.instanceof(kendo.ui.Selector, selectorWidget, kendo.format(assert.messages.instanceof.default, 'selectorWidget', 'kendo.ui.Selector'));
+                // assert.instanceof(kendo.ui.Selector, selectorWidget, assert.format(assert.messages.instanceof.default, 'selectorWidget', 'kendo.ui.Selector'));
                 // selectorWidget._drawPlaceholder();
 
                 // prevent any side effect
@@ -4224,7 +4105,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children(kendo.roleSelector('table'));
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -4322,7 +4203,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('textarea');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -4421,7 +4302,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.find('input'); // span > input
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width')  - content.outerWidth(true) + content.outerWidth());
@@ -4514,9 +4395,9 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(TextGaps, that, kendo.format(assert.messages.instanceof.default, 'this', 'TextGaps'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(TextGaps, that, assert.format(assert.messages.instanceof.default, 'this', 'TextGaps'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(that.templates[mode]);
                 return template($.extend(component, { ns: kendo.ns }));
             },
@@ -4555,7 +4436,7 @@
                 /* jshint maxcomplexity: 8 */
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('textgaps'));
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -4652,10 +4533,10 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(Video, that, kendo.format(assert.messages.instanceof.default, 'this', 'Video'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                assert.instanceof(ToolAssets, assets.video, kendo.format(assert.messages.instanceof.default, 'assets.video', 'kidoju.ToolAssets'));
+                assert.instanceof(Video, that, assert.format(assert.messages.instanceof.default, 'this', 'Video'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.video, assert.format(assert.messages.instanceof.default, 'assets.video', 'kidoju.ToolAssets'));
                 var template = kendo.template(this.templates.default);
 
                 /* This function's cyclomatic complexity is too high. */
@@ -4668,7 +4549,7 @@
                     var wbem = component.attributes.get('wbem');
                     var schemes = assets.video.schemes;
                     for (var scheme in schemes) {
-                        if (schemes.hasOwnProperty(scheme)) {
+                        if (Object.prototype.hasOwnProperty.call(schemes, scheme)) {
                             var schemeRx = new RegExp('^' + scheme + '://');
                             if (schemeRx.test(mp4)) {
                                 mp4 = mp4.replace(scheme + '://', schemes[scheme]);
@@ -4710,7 +4591,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width')  - content.outerWidth(true) + content.outerWidth());

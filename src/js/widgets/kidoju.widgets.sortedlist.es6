@@ -1,4 +1,6 @@
-import $ from 'jquery';
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions
+// import $ from 'jquery';
 import 'kendo.listview';
 import 'kendo.sortable';
 

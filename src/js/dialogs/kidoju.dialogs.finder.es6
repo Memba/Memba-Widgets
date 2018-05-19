@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.data';
@@ -41,7 +48,7 @@ export default function openFinder(options = {}) {
                                 <div style="width:10%;text-align: right;line-height:2em;">Search:</div>
                                 <input style="width:50%;" type="search" class="k-input k-textbox" data-${ns}bind="value: search">
                             </div>
-                            <ul class="media-list" data-${ns}role="listview" data-${ns}selectable="single" data-${ns}template="summary-template" data-${ns}bind="source: summaries"></ul>                         
+                            <ul class="media-list" data-${ns}role="listview" data-${ns}selectable="single" data-${ns}template="finder-listview-template" data-${ns}bind="source: summaries"></ul>                         
                             <script id="finder-listview-template" type="text/x-kendo-template">
                                 <li class="media">
                                     <div class="media-left">
@@ -79,12 +86,19 @@ export default function openFinder(options = {}) {
                             <div  style="border:0" data-${ns}role="pager" data-${ns}bind="source: summaries" data-auto-bind="false"></div>
                          </div>`,
                     data: {
-                        // TODO
+                        language: 'en',
+                        languages: [
+                            { text: 'English', value: 'en' },
+                            { text: 'French', value: 'fr' }
+                        ], // TODO i18n
+                        search: '',
+                        summaries: []
                     },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel
-                    ]
+                    ],
+                    width: 860
                 },
                 options
             )

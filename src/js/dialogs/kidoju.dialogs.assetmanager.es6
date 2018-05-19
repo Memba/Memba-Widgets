@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import 'kendo.core';
 import './kidoju.widgets.basedialog.es6';
@@ -92,23 +94,23 @@ export default function openAssetManager(options = {}) {
             return hasScheme;
         });
         if (hasScheme) {
-            // This is an asset selected from our store
+            // This is an asset selected from our library of images or from the project
             dfd.resolve({
                 action: e.action,
                 data: e.sender.viewModel.toJSON()
             });
         } else if (
+            CONSTANTS.RX_URL.test(url) &&
             e.action === BaseDialog.fn.options.messages.actions.ok.action &&
-            CONSTANTS.RX_URL.test(url)
+            options.assets.collections.length > 0 &&
+            options.assets.collections[0].transport &&
+            $.type(options.assets.collections[0].transport.import) ===
+                CONSTANTS.FUNCTION
         ) {
             // This is a web asset that needs importing
-            // TODO: Assert properly options.assets.collections[0].transport.import
             options.assets.collections[0].transport.import({
                 data: { url },
                 success(response) {
-                    // assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
-                    // assert.instanceof(kendo.ui.Dialog, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-                    // assert.isUndefined(e.sender.viewModel, assert.format(assert.messages.isUndefined.default, 'e.sender.viewModel'));
                     // At this stage, the dialog is closed and e.sender.viewModel has been reset to undefined.
                     // e.sender.viewModel.set('value', response.data[0].url); won't work
                     // We need to pass the url directly to dfd resolve
@@ -121,7 +123,19 @@ export default function openAssetManager(options = {}) {
                 },
                 error: dfd.reject
             });
+        } else if (
+            CONSTANTS.RX_URL.test(url) &&
+            e.action !== BaseDialog.fn.options.messages.actions.ok.action
+        ) {
+            // This is a web asset that would have needed importing but user pressed cancel
+            dfd.resolve({
+                action: e.action,
+                data: {
+                    value: ''
+                }
+            });
         } else {
+            // We do not know how to handle that url
             dfd.reject(new Error('Unknown url scheme'));
         }
     });

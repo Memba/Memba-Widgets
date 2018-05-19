@@ -195,7 +195,7 @@
                 kidoju.tools.getIds = function() {
                     var ret = [], tools = kidoju.tools;
                     for (var prop in tools) {
-                        if (tools.hasOwnProperty(prop) && tools[prop] instanceof Tool) {
+                        if (Object.prototype.hasOwnProperty.call(tools, prop) && tools[prop] instanceof Tool) {
                             ret.push(prop);
                         }
                     }

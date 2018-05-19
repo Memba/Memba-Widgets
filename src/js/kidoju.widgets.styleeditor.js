@@ -193,6 +193,7 @@
             { name: 'text-align', value: 'center', editor: textAlign },
             { name: 'text-decoration', value: 'underline', editor: textDecoration },
             { name: 'vertical-align', value: 'middle', editor: verticalAlign }
+            // TODO: box-sizing, height, width, background-image, background-position, ...
         ];
 
 

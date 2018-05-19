@@ -862,6 +862,12 @@
              * i18n Messages
              */
             messages: {
+                createMultiQuizExplanations: 'The correct answers are:\n\n- **{0}**.',
+                createMultiQuizInstructions: 'Please select the options which correspond to your answers to the question: _{0}_.',
+                createTextBoxExplanations: 'The correct answer is **{0}**.',
+                createTextBoxInstructions: 'Please fill in the text box with your answer to the question: _{0}_.',
+                createQuizExplanations: 'The correct answer is **{0}**.',
+                createQuizInstructions: 'Please select the option which corresponds to your answer to the question: _{0}_.',
                 emptyPage: 'Page {0} cannot be empty.',
                 minConnectors: 'At least {0} Connectors are required to make a question on page {1}.',
                 missingDraggable: 'Draggable Labels or Images are required for a Drop Zone on page {0}.',
@@ -962,6 +968,162 @@
             /* jshint +W074 */
 
         });
+
+        /**
+         * createTextBoxPage
+         */
+        Page.createTextBoxPage = function (options) {
+            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.type(STRING, options.question, assert.format(assert.messages.type.default, options.question, STRING));
+            assert.type(STRING, options.solution, assert.format(assert.messages.type.default, options.solution, STRING));
+            return new Page({
+                components: [
+                    new PageComponent({
+                        tool: 'label',
+                        top: 40,
+                        left: 40,
+                        width: 940,
+                        height: 160,
+                        attributes: {
+                            text: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'image',
+                        top: 250,
+                        left: 580,
+                        width: 360,
+                        height: 360,
+                        attributes: {
+                            alt: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'textbox',
+                        top: 380,
+                        left: 80,
+                        width: 380,
+                        height: 100,
+                        properties: {
+                            question: options.question,
+                            solution: options.solution,
+                            validation: '// ignoreCaseEqual'
+                        }
+                    })
+
+                ],
+                instructions: kendo.format(Page.prototype.messages.createTextBoxInstructions, options.question),
+                explanations: kendo.format(Page.prototype.messages.createTextBoxExplanations, options.solution)
+            });
+        };
+
+        /**
+         * createQuizPage
+         */
+        Page.createQuizPage = function (options) {
+            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.type(STRING, options.question, assert.format(assert.messages.type.default, options.question, STRING));
+            assert.isArray(options.data, assert.format(assert.messages.isArray.default, options.data));
+            assert.type(STRING, options.solution, assert.format(assert.messages.type.default, options.solution, STRING));
+            // TODO Check that options.data has text and image
+            return new Page({
+                components: [
+                    new PageComponent({
+                        tool: 'label',
+                        top: 40,
+                        left: 40,
+                        width: 940,
+                        height: 160,
+                        attributes: {
+                            text: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'image',
+                        top: 250,
+                        left: 580,
+                        width: 360,
+                        height: 360,
+                        attributes: {
+                            alt: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'quiz',
+                        top: 250,
+                        left: 80,
+                        width: 440,
+                        height: 360,
+                        attributes: {
+                            mode: 'radio',
+                            data: options.data
+                        },
+                        properties: {
+                            question: options.question,
+                            solution: options.solution,
+                            validation: '// equal'
+                        }
+                    })
+
+                ],
+                instructions: kendo.format(Page.prototype.messages.createQuizInstructions, options.question),
+                explanations: kendo.format(Page.prototype.messages.createQuizExplanations, options.solution)
+            });
+        };
+
+        /**
+         * createMultiQuizPage
+         */
+        Page.createMultiQuizPage = function (options) {
+            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.type(STRING, options.question, assert.format(assert.messages.type.default, options.question, STRING));
+            assert.isArray(options.data, assert.format(assert.messages.isArray.default, options.data));
+            // TODO Check that options.data has text and image
+            assert.isArray(options.solution, assert.format(assert.messages.isArray.default, options.solution));
+            return new Page({
+                components: [
+                    new PageComponent({
+                        tool: 'label',
+                        top: 40,
+                        left: 40,
+                        width: 940,
+                        height: 160,
+                        attributes: {
+                            text: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'image',
+                        top: 250,
+                        left: 580,
+                        width: 360,
+                        height: 360,
+                        attributes: {
+                            alt: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'multiquiz',
+                        top: 250,
+                        left: 80,
+                        width: 440,
+                        height: 360,
+                        attributes: {
+                            mode: 'checkbox',
+                            data: options.data
+                        },
+                        properties: {
+                            question: options.question,
+                            solution: options.solution,
+                            validation: '// equal'
+                        }
+                    })
+
+                ],
+                instructions: kendo.format(Page.prototype.messages.createQuizInstructions, options.question),
+                explanations: kendo.format(Page.prototype.messages.createMultiQuizExplanations, options.solution.join('**,\n- **'))
+            });
+        };
 
         /**
          * WorkerPool
@@ -1611,7 +1773,8 @@
                         if (properties) {
                             if ($.type(properties.name) === STRING) {
                                 // Collect all pages where a name can be found in view to check that each name is only used once
-                                names[properties.name] = (names[properties.name] || []).push(i);
+                                names[properties.name] = names[properties.name] || [];
+                                names[properties.name].push(i);
                             }
                             if ($.type(properties.validation) === STRING) {
                                 assert.type(STRING, component.tool, kendo.format(assert.messages.type.default, 'component.tool', STRING));

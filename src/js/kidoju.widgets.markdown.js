@@ -248,7 +248,7 @@
                     var src = tokens[idx].attrs[srcIndex][1];
                     var schemes = that.options.schemes;
                     for (var scheme in (schemes || {})) {
-                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(src)) {
+                        if (Object.prototype.hasOwnProperty.call(schemes, scheme) && (new RegExp('^' + scheme + '://')).test(src)) {
                             src = src.replace(scheme + '://', schemes[scheme]);
                             break;
                         }

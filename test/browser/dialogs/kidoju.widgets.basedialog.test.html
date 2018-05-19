@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.data.core</title>
+    <title>kidoju.widgets.basedialog</title>
     <script>
         window.app = { DEBUG: true };
     </script>
@@ -216,7 +216,7 @@
                     exports.test = context.test || context.it;
                     exports.run = context.run;
                     // now use SystemJS to load all test files
-                    SystemJS.import('./kidoju.data.core.test.es6').then(function () {
+                    SystemJS.import('./kidoju.widgets.basedialog.test.es6').then(function () {
                         // mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'jQuery*', 'kendo', 'kidoju', 'chai', 'sinon']);
                         mocha.checkLeaks().globals(['jQuery']);
                         if (!window.blanket && !window.PHANTOMJS) {
@@ -232,7 +232,7 @@
     </script>
 </head>
 <body>
-<h1>kidoju.data.core</h1>
+<h1>kidoju.widgets.basedialog</h1>
 <div id="mocha"></div>
 <div id="fixtures"></div>
 </body>

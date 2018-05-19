@@ -61,7 +61,7 @@
     // We override the animation for all of these color styles
     $.each(['backgroundColor', 'borderBottomColor', 'borderLeftColor', 'borderRightColor', 'borderTopColor', 'color', 'outlineColor'], function (i, attr) {
         $.fx.step[attr] = function (fx) {
-            if (fx.state === 0 || typeof fx.end == typeof '') {
+            if (fx.state === 0 || typeof fx.end === typeof '') {
                 fx.start = getColor(fx.elem, attr);
                 fx.end = getRGB(fx.end);
             }
@@ -100,7 +100,7 @@
         }
 
         // Otherwise, we're most likely dealing with a named color
-        return colors[$.trim(color).toLowerCase()];
+        return $.trim(color).toLowerCase();
     }
 
     function getColor(elem, attr) {

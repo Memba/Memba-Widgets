@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1"
+	 id="Layer_1" shape-rendering="geometricPrecision" image-rendering="optimizeQuality" text-rendering="geometricPrecision"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1024 1024"
+	 style="enable-background:new 0 0 1024 1024;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#808080;}
+	.st1{fill:#4D82B8;}
+</style>
+<title>text_field icon</title>
+<desc>text_field icon from the IconExperience.com O-Collection. Copyright by INCORS GmbH (www.incors.com).</desc>
+<path id="curve0" class="st0" d="M208,225.5h96v32h-32v128h32v32h-96v-32h32v-128h-32V225.5z"/>
+<path class="st1" d="M896,115.5H128H64v64v665v64h64h768h64v-64v-665v-64H896z M896,844.5H128v-665h768V844.5z"/>
+<g>
+	<rect x="353" y="273" class="st0" width="460" height="97"/>
+	<rect x="208" y="654" class="st0" width="605" height="97"/>
+	<rect x="208" y="463.5" class="st0" width="605" height="97"/>
+</g>
+</svg>

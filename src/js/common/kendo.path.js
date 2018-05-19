@@ -37,8 +37,8 @@
          */
         function getSqDist(p1, p2) {
 
-            var dx = p1.x - p2.x,
-                dy = p1.y - p2.y;
+            var dx = p1.x - p2.x;
+            var dy = p1.y - p2.y;
 
             return dx * dx + dy * dy;
         }
@@ -52,10 +52,10 @@
          */
         function getSqSegDist(p, p1, p2) {
 
-            var x = p1.x,
-                y = p1.y,
-                dx = p2.x - x,
-                dy = p2.y - y;
+            var x = p1.x;
+            var y = p1.y;
+            var dx = p2.x - x;
+            var dy = p2.y - y;
 
             if (dx !== 0 || dy !== 0) {
 
@@ -85,9 +85,9 @@
          */
         function simplifyRadialDist(points, sqTolerance) {
 
-            var prevPoint = points[0],
-                newPoints = [prevPoint],
-                point;
+            var prevPoint = points[0];
+            var newPoints = [prevPoint];
+            var point;
 
             for (var i = 1, len = points.length; i < len; i++) {
                 point = points[i];
@@ -98,7 +98,9 @@
                 }
             }
 
-            if (prevPoint !== point) newPoints.push(point);
+            if (prevPoint !== point) {
+                newPoints.push(point);
+            }
 
             return newPoints;
         }
@@ -112,8 +114,8 @@
          * @param simplified
          */
         function simplifyDPStep(points, first, last, sqTolerance, simplified) {
-            var maxSqDist = sqTolerance,
-                index;
+            var maxSqDist = sqTolerance;
+            var index;
 
             for (var i = first + 1; i < last; i++) {
                 var sqDist = getSqSegDist(points[i], points[first], points[last]);
@@ -125,9 +127,13 @@
             }
 
             if (maxSqDist > sqTolerance) {
-                if (index - first > 1) simplifyDPStep(points, first, index, sqTolerance, simplified);
+                if (index - first > 1) {
+                    simplifyDPStep(points, first, index, sqTolerance, simplified);
+                }
                 simplified.push(points[index]);
-                if (last - index > 1) simplifyDPStep(points, index, last, sqTolerance, simplified);
+                if (last - index > 1) {
+                    simplifyDPStep(points, index, last, sqTolerance, simplified);
+                }
             }
         }
 
@@ -152,6 +158,9 @@
          * see https://www.particleincell.com/2012/bezier-splines/
          **************************************************************************************************************/
 
+        /* This function has too many statements. */
+        /* jshint -W071 */
+
         /**
          * Computes a series of control points on an x or y axis to make a bezier spline
          * @param K
@@ -159,11 +168,13 @@
          */
         function computeControlPoints(K)
         {
+            /* jshint maxstatements: 33 */
+
             var p1 = [];
             var p2 = [];
             var i;
             var m;
-            var n = K.length-1;
+            var n = K.length - 1;
 
             /*rhs vector*/
             var a = [];
@@ -183,35 +194,39 @@
                 a[i] = 1;
                 b[i] = 4;
                 c[i] = 1;
-                r[i] = 4 * K[i] + 2 * K[i+1];
+                r[i] = 4 * K[i] + 2 * K[i + 1];
             }
 
             /*right segment*/
-            a[n-1] = 2;
-            b[n-1] = 7;
-            c[n-1] = 0;
-            r[n-1] = 8 * K[n - 1] + K[n];
+            a[n - 1] = 2;
+            b[n - 1] = 7;
+            c[n - 1] = 0;
+            r[n - 1] = 8 * K[n - 1] + K[n];
 
             /*solves Ax=b with the Thomas algorithm (from Wikipedia)*/
             for (i = 1; i < n; i++)
             {
-                m = a[i] / b[i-1];
+                m = a[i] / b[i - 1];
                 b[i] = b[i] - m * c[i - 1];
                 r[i] = r[i] - m * r[i - 1];
             }
 
             p1[n - 1] = r[n - 1] / b[n - 1];
-            for (i = n - 2; i >= 0; --i)
+            for (i = n - 2; i >= 0; --i) {
                 p1[i] = (r[i] - c[i] * p1[i + 1]) / b[i];
+            }
 
             /*we have p1, now compute p2*/
-            for (i = 0; i < n - 1; i++)
+            for (i = 0; i < n - 1; i++) {
                 p2[i] = 2 * K[i + 1] - p1[i + 1];
+            }
 
             p2[n - 1] = 0.5 * (K[n] + p1[n - 1]);
 
             return { p1:p1, p2:p2 };
         }
+
+        /* jshint +W071 */
 
         /**************************************************************************************************************
          * kendo.drawing.PathEx
@@ -236,12 +251,12 @@
                 var sqTolerance = tolerance !== undefined ? tolerance * tolerance : 1;
 
                 // Calculate simplified anchors using Ramer-Douglas-Peucker
-                var anchors = Array.prototype.map.call(this.segments, function (segment) { return segment.anchor().clone() });
+                var anchors = Array.prototype.map.call(this.segments, function (segment) { return segment.anchor().clone(); });
                 anchors = useDistances ? simplifyRadialDist(anchors, sqTolerance) : anchors;
                 anchors = simplifyDouglasPeucker(anchors, sqTolerance);
 
                 // Modify the path
-                var segments = anchors.map(function (anchor) { return new drawing.Segment(anchor) });
+                var segments = anchors.map(function (anchor) { return new drawing.Segment(anchor); });
                 // ElementsArray is not public to call ElementsArray.prototype.splice.apply and pass an array
                 // this.segments.splice(0, this.segments.length, segments[0], segments[1], ...);
                 this.segments._splice(0, this.segments.length, segments);

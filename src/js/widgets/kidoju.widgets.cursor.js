@@ -9,7 +9,7 @@
 (function (f, define) {
     'use strict';
     define([
-        './window.assert',
+        '../window.assert',
         './window.logger',
         './vendor/kendo/kendo.core',
         './vendor/kendo/kendo.userevents'

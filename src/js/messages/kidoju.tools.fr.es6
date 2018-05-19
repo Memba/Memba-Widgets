@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions
 import $ from 'jquery';
 
 /**
@@ -20,6 +22,16 @@ if (window.kidoju && window.kidoju.data) {
 
     if (Page) {
         Page.prototype.messages = {
+            createMultiQuizExplanations:
+                'Les bonnes réponses sont:\n\n- **{0}**.',
+            createMultiQuizInstructions:
+                'Veuillez sélectionner les options qui correspondent à vos réponses à la question: _{0}_.',
+            createTextBoxExplanations: 'La bonne réponse est **{0}**.',
+            createTextBoxInstructions:
+                'Veuillez remplir la zone de texte avec votre réponse à la question: _{0}_.',
+            createQuizExplanations: 'La bonne réponse est **{0}**.',
+            createQuizInstructions:
+                'Veuillez sélectionner l´option qui correspond à votre réponse à la question: _{0}_.',
             emptyPage: 'La page {0} ne doit pas être vide.',
             minConnectors:
                 'Au moins {0} Connecteurs sont nécessaires pour faire une question en page {1}.',

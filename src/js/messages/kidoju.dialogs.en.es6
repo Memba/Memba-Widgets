@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions
 import $ from 'jquery';
 
 if (window.kidoju && window.kidoju.dialogs) {

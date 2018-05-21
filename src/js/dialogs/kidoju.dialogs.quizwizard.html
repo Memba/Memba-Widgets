@@ -185,7 +185,11 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.dialogs.quizwizard.es6').then(function () {
+            SystemJS.import('./kidoju.dialogs.quizwizard.es6')
+            .then(function () {
+                return SystemJS.import('../messages/kidoju.dialogs.en.es6');
+            })
+            .then(function () {
                 var kendo = window.kendo;
                 var kidoju = window.kidoju;
                 $(function () {

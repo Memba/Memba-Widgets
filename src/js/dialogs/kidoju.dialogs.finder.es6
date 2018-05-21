@@ -111,7 +111,7 @@ export default function openFinder(options = {}) {
     });
 
     // Bind the click event
-    dialog.one(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, e => {
         const listView = $dialog
             .find(roleSelector('listview'))
             .data('kendoListView');

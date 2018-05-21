@@ -61,7 +61,7 @@ export default function openStyleEditor(options = {}) {
     });
 
     // Bind the click event
-    dialog.one(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, e => {
         dfd.resolve({
             action: e.action,
             data: e.sender.viewModel.toJSON()

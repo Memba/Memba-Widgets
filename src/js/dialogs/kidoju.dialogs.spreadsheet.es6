@@ -81,7 +81,7 @@ export default function openSpreadsheet(options = {}) {
     });
 
     // Bind the click event
-    dialog.one(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, e => {
         const spreadSheet = e.sender.element
             .find(roleSelector('spreadsheet'))
             .data('kendoSpreadsheet');

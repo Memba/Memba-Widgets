@@ -31,7 +31,15 @@ if (window.kidoju && window.kidoju.dialogs) {
             publish: {},
 
             /* kidoju.dialogs.quizwizard */
-            quizwizard: {},
+            quizwizard: {
+                add: 'Add',
+                message:
+                    'Please enter a question and fill in the grid with multiple choices.',
+                option: 'Option',
+                question: 'Question',
+                solution: 'Solution',
+                text: 'Option 1'
+            },
 
             /* kidoju.dialogs.signin */
             signin: {},

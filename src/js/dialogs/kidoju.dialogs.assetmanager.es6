@@ -84,7 +84,7 @@ export default function openAssetManager(options = {}) {
     });
 
     // Bind the click event
-    dialog.one(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, e => {
         // assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
         // assert.instanceof(kendo.ui.Dialog, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
         const url = e.sender.viewModel.get('value');

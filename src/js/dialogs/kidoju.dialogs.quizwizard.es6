@@ -7,14 +7,19 @@
 // eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.data';
+import 'kendo.grid';
 import 'kendo.validator';
 import './kidoju.widgets.basedialog.es6';
 import CONSTANTS from '../window.constants.es6';
 
 const {
+    bind,
+    data: { DataSource, Model },
     guid,
     ns,
     resize,
+    support: { touch },
     ui: { BaseDialog }
 } = window.kendo;
 
@@ -30,17 +35,10 @@ export default function openQuizWizard(options = {}) {
     const $dialog = BaseDialog.getElement(options.cssClass);
     $dialog.css({ padding: '' });
 
-    // Ids
-    const questionId = guid();
-    const solutionId = guid();
-    const multipleId = guid();
-
-    // Localized message field names  // TODO i18n
-    const message =
-        'Please enter a question and a solution to compare answers with.';
-    const questionName = 'Question';
-    const solutionName = 'Solution';
-    const multipleName = 'Multiple Answers';
+    // Unique ids and culture
+    const ids = { question: guid(), grid: guid() };
+    const culture =
+        (((window.kidoju || {}).dialogs || {}).messages || {}).quizwizard || {};
 
     // Create the dialog
     const dialog = $dialog
@@ -49,27 +47,47 @@ export default function openQuizWizard(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
+                    /* eslint-disable prettier/prettier */
                     content: `<div class="k-widget k-notification k-notification-info">
-                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${message}</div>
+                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${culture.message}</div>
                           </div>
                           <div class="kj-dialog-form">
                             <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${questionId}">${questionName}:</label></div>
-                              <div class="kj-dialog-col75"><input id="${questionId}" type="text" name="${questionName}" class="k-input k-textbox" data-${ns}bind="value: question" required pattern="\\S+"></div>
-                            </div>
+                              <div class="kj-dialog-col25"><label for="${ids.question}">${culture.question}:</label></div>
+                              <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="${culture.question}" class="k-input k-textbox" data-${ns}bind="value:question" required pattern="(?:\\S+\\s*)+"></div>
+                            </div>  
                             <div class="kj-dialog-flexrow">
-                                <input id="${multipleId}" type="checkbox" class="k-checkbox">
-                                 <label for="${multipleId}" class="k-checkbox-label">${multipleName}</label>
+                              <div id="${ids.grid}"></div>
                             </div>
-                            <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${solutionId}">${solutionName}:</label></div>
-                              <div class="kj-dialog-col75"><input id="${solutionId}" type="text" name="${solutionName}" class="k-input k-textbox" data-${ns}bind="value: solution" required pattern="\\S+"></div>
-                            </div>
+                            <div>
+                              <input type="hidden" name="grid">
+                              <span class="k-invalid-msg" data-for="name"></span>
+                            </div> 
                           </div>`,
+                    /* eslint-enable prettier/prettier */
                     data: {
                         question: '',
-                        values: [],
-                        solution: null
+                        source: new DataSource({
+                            autoSync: true,
+                            data: [
+                                {
+                                    text: culture.text,
+                                    solution: true
+                                }
+                            ],
+                            schema: {
+                                model: Model.define({
+                                    fields: {
+                                        text: {
+                                            type: CONSTANTS.STRING
+                                        },
+                                        solution: {
+                                            type: CONSTANTS.BOOLEAN
+                                        }
+                                    }
+                                })
+                            }
+                        })
                     },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
@@ -84,8 +102,132 @@ export default function openQuizWizard(options = {}) {
 
     const validator = $dialog
         .find('.kj-dialog-form')
-        .kendoValidator()
+        .kendoValidator({
+            rules: {
+                grid(input) {
+                    if (input.is('[name="grid"]')) {
+                        const data = dialog.viewModel.source.data();
+                        const total = dialog.viewModel.source.total();
+                        let solutionCount = 0;
+                        let emptyCount = 0;
+                        data.forEach(dataItem => {
+                            if ((dataItem.text || '').trim().length === 0) {
+                                emptyCount += 1;
+                            }
+                            if (dataItem.solution) {
+                                solutionCount += 1;
+                            }
+                        });
+                        return (
+                            total > 0 && solutionCount > 0 && emptyCount === 0
+                        );
+                    }
+                    return true;
+                }
+            },
+            messages: {
+                grid:
+                    'At least one option and one checked solution is required. Also options cannot be left empty.'
+            }
+        })
         .data('kendoValidator');
+
+    dialog.unbind('initOpen');
+    dialog.bind('initOpen', e => {
+        // Create the grid widget
+        const $grid = e.sender.element.find(`#${ids.grid}`).width('100%');
+        const grid = $grid
+            .kendoGrid({
+                columns: [
+                    {
+                        template:
+                            '<span class="k-icon k-i-handler-drag"></span>',
+                        width: '2em'
+                    },
+                    {
+                        field: 'text',
+                        title: culture.option
+                    },
+                    {
+                        attributes: {
+                            style: 'text-align: center'
+                        },
+                        editable() {
+                            return false;
+                        },
+                        field: 'solution',
+                        template:
+                            '<input type="checkbox" #= solution ? \'checked="checked"\' : "" #>',
+                        title: culture.solution,
+                        width: '5em'
+                    },
+                    {
+                        command: ['destroy'],
+                        title: '&nbsp;',
+                        width: '6em'
+                    }
+                ],
+                dataSource: e.sender.viewModel.source,
+                editable: {
+                    confirmation: false,
+                    createAt: 'bottom',
+                    mode: 'incell'
+                },
+                navigatable: true,
+                scrollable: false,
+                toolbar: [{ name: 'create', text: culture.add }]
+            })
+            .data('kendoGrid');
+
+        // Make the grid sortable
+        grid.table.kendoSortable({
+            filter: '>tbody >tr',
+            handler: 'td:first-child, td:first-child>span',
+            holdToDrag: touch,
+            hint: $.noop,
+            cursor: 'move',
+            placeholder(element) {
+                return element
+                    .clone()
+                    .addClass('k-state-hover')
+                    .css({ opacity: 0.65 });
+            },
+            container: `#${ids.grid} tbody`,
+            change(evt) {
+                const { dataSource } = grid;
+                const skip = dataSource.skip() || 0;
+                // const oldIndex = evt.oldIndex + skip;
+                const newIndex = evt.newIndex + skip;
+                // const data = dataSource.data();
+                const dataItem = dataSource.getByUid(evt.item.data('uid'));
+                dataSource.remove(dataItem);
+                dataSource.insert(newIndex, dataItem);
+            }
+        });
+
+        // Add an event handler to ensure a blur (change event) commits input changes
+        // See https://docs.telerik.com/kendo-ui/knowledge-base/grid-bound-checkbox-editable-column
+        $grid.find('tbody').on('change', 'input', evt => {
+            const $target = $(evt.target);
+            const dataItem = grid.dataItem($(evt.target).closest('tr'));
+            // use equals, not the set() method because set will trigger the change event of the data source and the grid will rebind
+            if ($target.is('[type="text"]')) {
+                dataItem.text = $target.val().trim();
+            } else if ($target.is('[type="checkbox"]')) {
+                dataItem.solution = $target.prop('checked');
+            }
+            // add the dirty red corner flag to the cell
+            // $target.closest('td').prepend('<span class="k-dirty"></span>');
+            // mark the item as dirty so it will be added to the next update request
+            dataItem.dirty = true;
+        });
+
+        // Bind the question input
+        bind(
+            e.sender.element.find('.kj-dialog-flexrow:first-child'),
+            e.sender.viewModel
+        );
+    });
 
     // Bind the show event to resize once opened
     dialog.one('show', e => {
@@ -93,14 +235,20 @@ export default function openQuizWizard(options = {}) {
     });
 
     // Bind the click event
-    dialog.one(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, e => {
         if (
             e.action === BaseDialog.fn.options.messages.actions.cancel.action ||
             validator.validate()
         ) {
+            $(`#${ids.grid}`)
+                .find('tbody')
+                .off('change');
             dfd.resolve({
                 action: e.action,
-                data: e.sender.viewModel.toJSON()
+                data: {
+                    question: e.sender.viewModel.get('question'),
+                    source: e.sender.viewModel.source.data().toJSON()
+                }
             });
         } else {
             e.preventDefault();

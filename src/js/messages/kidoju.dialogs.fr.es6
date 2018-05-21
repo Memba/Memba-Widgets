@@ -31,7 +31,15 @@ if (window.kidoju && window.kidoju.dialogs) {
             publish: {},
 
             /* kidoju.dialogs.quizwizard */
-            quizwizard: {},
+            quizwizard: {
+                add: 'Ajouter',
+                message:
+                    'Veuillez saisir une question et remplir la grille avec les choix multiples.',
+                option: 'Option',
+                question: 'Question',
+                solution: 'Solution',
+                text: 'Option 1'
+            },
 
             /* kidoju.dialogs.signin */
             signin: {},

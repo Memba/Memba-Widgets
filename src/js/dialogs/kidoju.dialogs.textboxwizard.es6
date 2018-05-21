@@ -30,9 +30,9 @@ export default function openTextBoxWizard(options = {}) {
     const $dialog = BaseDialog.getElement(options.cssClass);
     $dialog.css({ padding: '' });
 
-    // Unique ids and i18n
+    // Unique ids and culture
     const ids = { question: guid(), solution: guid() };
-    const i18n =
+    const culture =
         (((window.kidoju || {}).dialogs || {}).messages || {}).textboxwizard ||
         {};
 
@@ -45,16 +45,16 @@ export default function openTextBoxWizard(options = {}) {
                         BaseDialog.fn.options.messages[options.type || 'info'],
                     /* eslint-disable prettier/prettier */
                     content: `<div class="k-widget k-notification k-notification-info">
-                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${i18n.message}</div>
+                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${culture.message}</div>
                           </div>
                           <div class="kj-dialog-form">
                             <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${ids.question}">${i18n.question}:</label></div>
-                              <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="${i18n.question}" class="k-input k-textbox" data-${ns}bind="value: question" required pattern="\\S+"></div>
+                              <div class="kj-dialog-col25"><label for="${ids.question}">${culture.question}:</label></div>
+                              <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="${culture.question}" class="k-input k-textbox" data-${ns}bind="value: question" required pattern="(?:\\S+\\s*)+"></div>
                             </div>
                             <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${ids.solution}">${i18n.solution}:</label></div>
-                              <div class="kj-dialog-col75"><input id="${ids.solution}" type="text" name="${i18n.solution}" class="k-input k-textbox" data-${ns}bind="value: solution" required pattern="\\S+"></div>
+                              <div class="kj-dialog-col25"><label for="${ids.solution}">${culture.solution}:</label></div>
+                              <div class="kj-dialog-col75"><input id="${ids.solution}" type="text" name="${culture.solution}" class="k-input k-textbox" data-${ns}bind="value: solution" required pattern="(?:\\S+\\s*)+"></div>
                             </div>
                           </div>`,
                     /* eslint-enable prettier/prettier */
@@ -84,7 +84,7 @@ export default function openTextBoxWizard(options = {}) {
     });
 
     // Bind the click event
-    dialog.one(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, e => {
         if (
             e.action === BaseDialog.fn.options.messages.actions.cancel.action ||
             validator.validate()

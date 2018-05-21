@@ -6,10 +6,11 @@
 }
 .k-dialog .kj-dialog-flexrow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   margin-top: 1em;
 }
-.k-dialog .kj-dialog-flexrow .k-input {
+.k-dialog .kj-dialog-flexrow .k-input,
+.k-dialog .kj-dialog-flexrow .k-textbox {
   width: 100%;
 }
 .k-dialog .kj-dialog-flexrow .kj-dialog-col25 {

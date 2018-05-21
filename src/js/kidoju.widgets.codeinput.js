@@ -12,6 +12,7 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
+        './vendor/kendo/kendo.popup', // Otherwise SystemJS cannot load it properly
         './vendor/kendo/kendo.dropdownlist'
     ], f);
 })(function () {

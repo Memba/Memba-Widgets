@@ -184,7 +184,8 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/kidoju.widgets.codeinput.js').then(function (kendo) {
+            SystemJS.import('./js/kidoju.widgets.codeinput.js').then(function () {
+                var kendo = window.kendo;
                 var library = [
                     {
                         name: 'custom',

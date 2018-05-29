@@ -202,8 +202,12 @@
                         $('#button1').click(function (e) {
                             kidoju.dialogs.openCharGrid({
                                 title: 'My CharGrid',
+                                message: 'Hello World',
+                                charGrid: {
+                                    height: 400,
+                                    width: 600
+                                },
                                 data: {
-                                    // TODO: value????
                                     value: [['.','1','2','3','4','5'],['+',null,null,'3','4','5']]
                                 },
                             }).done(function(result) {

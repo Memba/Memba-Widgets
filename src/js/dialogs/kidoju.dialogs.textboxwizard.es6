@@ -50,11 +50,11 @@ export default function openTextBoxWizard(options = {}) {
                           <div class="kj-dialog-form">
                             <div class="kj-dialog-flexrow">
                               <div class="kj-dialog-col25"><label for="${ids.question}">${culture.question}:</label></div>
-                              <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="${culture.question}" class="k-input k-textbox" data-${ns}bind="value: question" required pattern="(?:\\S+\\s*)+"></div>
+                              <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="question" class="k-input k-textbox" data-${ns}bind="value: question"></div>
                             </div>
                             <div class="kj-dialog-flexrow">
                               <div class="kj-dialog-col25"><label for="${ids.solution}">${culture.solution}:</label></div>
-                              <div class="kj-dialog-col75"><input id="${ids.solution}" type="text" name="${culture.solution}" class="k-input k-textbox" data-${ns}bind="value: solution" required pattern="(?:\\S+\\s*)+"></div>
+                              <div class="kj-dialog-col75"><textarea id="${ids.solution}" type="text" name="solution" class="k-input k-textbox" data-${ns}bind="value: solution" style="height:5em;"></textarea></div>
                             </div>
                           </div>`,
                     /* eslint-enable prettier/prettier */
@@ -75,7 +75,26 @@ export default function openTextBoxWizard(options = {}) {
 
     const validator = $dialog
         .find('.kj-dialog-form')
-        .kendoValidator()
+        .kendoValidator({
+            rules: {
+                question(input) {
+                    if (input.is('[name="question"]')) {
+                        return input.val().trim().length > 0;
+                    }
+                    return true;
+                },
+                solution(input) {
+                    if (input.is('[name="solution"]')) {
+                        return input.val().trim().length > 0;
+                    }
+                    return true;
+                }
+            },
+            messages: {
+                question: culture.validation.question,
+                solution: culture.validation.solution
+            }
+        })
         .data('kendoValidator');
 
     // Bind the show event to resize once opened

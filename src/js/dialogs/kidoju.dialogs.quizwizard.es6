@@ -54,14 +54,14 @@ export default function openQuizWizard(options = {}) {
                           <div class="kj-dialog-form">
                             <div class="kj-dialog-flexrow">
                               <div class="kj-dialog-col25"><label for="${ids.question}">${culture.question}:</label></div>
-                              <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="${culture.question}" class="k-input k-textbox" data-${ns}bind="value:question" required pattern="(?:\\S+\\s*)+"></div>
+                              <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="question" class="k-input k-textbox" data-${ns}bind="value:question"></div>
                             </div>  
                             <div class="kj-dialog-flexrow">
                               <div id="${ids.grid}"></div>
                             </div>
                             <div>
                               <input type="hidden" name="grid">
-                              <span class="k-invalid-msg" data-for="name"></span>
+                              <span class="k-invalid-msg" data-for="grid"></span>
                             </div> 
                           </div>`,
                     /* eslint-enable prettier/prettier */
@@ -104,6 +104,12 @@ export default function openQuizWizard(options = {}) {
         .find('.kj-dialog-form')
         .kendoValidator({
             rules: {
+                question(input) {
+                    if (input.is('[name="question"]')) {
+                        return input.val().trim().length > 0;
+                    }
+                    return true;
+                },
                 grid(input) {
                     if (input.is('[name="grid"]')) {
                         const data = dialog.viewModel.source.data();
@@ -126,8 +132,8 @@ export default function openQuizWizard(options = {}) {
                 }
             },
             messages: {
-                grid:
-                    'At least one option and one checked solution is required. Also options cannot be left empty.'
+                question: culture.validation.question,
+                grid: culture.validation.grid
             }
         })
         .data('kendoValidator');

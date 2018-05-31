@@ -10,7 +10,7 @@ import chai from 'chai';
 // import sinon from 'sinon';
 import 'sinon-chai';
 import 'jquery.mockjax';
-import CONSTANTS from '../../../src/js/window.constants.es6';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import {
     ObjectId,
     randomHexString,

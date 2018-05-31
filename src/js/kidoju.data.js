@@ -9,8 +9,9 @@
 (function (f, define) {
     'use strict';
     define([
-        './window.assert',
+        './common/window.assert.es6',
         './window.logger',
+        './common/kidoju.util.es6',
         './vendor/kendo/kendo.binder'
         // './kidoju.tools'
     ], f);
@@ -976,6 +977,14 @@
             assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
             assert.type(STRING, options.question, assert.format(assert.messages.type.default, options.question, STRING));
             assert.type(STRING, options.solution, assert.format(assert.messages.type.default, options.solution, STRING));
+            var solutions = options.solution.split('\n');
+            for (var i = solutions.length - 1; i >= 0; i++) {
+                if (solutions[i] === '') {
+                    // Note: we do not trim spaces
+                    solutions.splice(i, 1);
+                }
+            }
+            var escaped = solutions.map(kidoju.util.escapeRegExp);
             return new Page({
                 components: [
                     new PageComponent({
@@ -1006,14 +1015,16 @@
                         height: 100,
                         properties: {
                             question: options.question,
-                            solution: options.solution,
-                            validation: '// ignoreCaseEqual'
+                            solution: solutions[0],
+                            validation: solutions.length > 1 ?
+                                '// ignoreCaseMatch ' + JSON.stringify(['^(?:' + escaped.join('|') + ')$']) :
+                                '// ignoreCaseEqual'
                         }
                     })
 
                 ],
                 instructions: kendo.format(Page.prototype.messages.createTextBoxInstructions, options.question),
-                explanations: kendo.format(Page.prototype.messages.createTextBoxExplanations, options.solution)
+                explanations: kendo.format(Page.prototype.messages.createTextBoxExplanations, solutions[0])
             });
         };
 

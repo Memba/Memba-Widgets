@@ -294,3 +294,9 @@ assert.messages = {
         default: '`{0}` is expected to have type `{1}` or be undefined'
     }
 };
+
+/**
+ * Maintain compatibility with legacy code
+ * @type {assert}
+ */
+window.assert = assert;

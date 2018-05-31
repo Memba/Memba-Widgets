@@ -49,7 +49,8 @@ const CONSTANTS = {
     HASH: '#',
     HYPHEN: '-',
     // Miscellaneous
-    ID: 'id'
+    ID: 'id',
+    ME: 'me'
 };
 
 /**

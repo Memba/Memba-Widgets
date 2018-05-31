@@ -11,15 +11,37 @@
     .kj-dialog-flexrow {
         display: flex;
         align-items: flex-start;
-        margin-top: 1em;
+        line-height: 2em;
+
+        // &.k-header.k-toolbar {
+        &.k-toolbar {
+            padding: 0.5em 1em;
+        }
+
+        // &:not(.k-header.k-toolbar) { => does not work!
+        &:not(.k-toolbar) {
+            margin-top: 1em;
+        }
 
         .k-input,
         .k-textbox {
             width: 100%;
         }
 
+        .kj-align-right {
+            text-align: right;
+        }
+
+        .kj-dialog-col10 {
+            width: 10%;
+        }
+
         .kj-dialog-col25 {
             width: 25%;
+        }
+
+        .kj-dialog-col30 {
+            width: 30%;
         }
 
         .kj-dialog-col50 {

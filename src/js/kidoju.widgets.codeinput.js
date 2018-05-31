@@ -9,7 +9,7 @@
 (function (f, define) {
     'use strict';
     define([
-        './window.assert',
+        './common/window.assert.es6',
         './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.popup', // Otherwise SystemJS cannot load it properly

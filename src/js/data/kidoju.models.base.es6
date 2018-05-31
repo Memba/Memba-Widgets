@@ -5,11 +5,13 @@
 
 import $ from 'jquery';
 import 'kendo.data';
-import assert from '../window.assert.es6';
-import CONSTANTS from '../window.constants.es6';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
 
-const { kendo } = window;
-const { DataSource, Model, ObservableObject } = kendo.data;
+const {
+    data: { DataSource, Model, ObservableObject },
+    getter
+} = window.kendo;
 
 // TODO: Add asserts
 
@@ -18,7 +20,7 @@ const { DataSource, Model, ObservableObject } = kendo.data;
  * for nesting submodels as a mongoose document property can designate a subdocument
  * for nesting datasources of submodels as a mongoose document property can designate an array of subdocuments
  */
-export const BaseModel = Model.define({
+const BaseModel = Model.define({
     /**
      * Function called in init(data) and accept(data) to parse data and convert fields to model field types
      * There are several issues with kendo.data.Model that we attempt to fix here:
@@ -47,7 +49,7 @@ export const BaseModel = Model.define({
             const from = field.from || key;
             // If from is `metrics.comments.count` we need `data`, `data.metrics` and `data.metrics.comments` to not be undefined
             // which `true` provides as the safe option of kendo.getter
-            let value = data ? kendo.getter(from, true)(data) : undefined;
+            let value = data ? getter(from, true)(data) : undefined;
             if ($.type(value) === CONSTANTS.UNDEFINED) {
                 value = defaults[key];
             }
@@ -254,58 +256,7 @@ export const BaseModel = Model.define({
     // TODO Consider an LRUCache for history
 });
 
-/*
-function dataMethod(name) {
-    return function () {
-        const data = this._data;
-        const result = DataSource.fn[name].apply(this, slice.call(arguments));
-        if (this._data != data) {
-            this._attachBubbleHandlers();
-        }
-        return result;
-    };
-}
-*/
-
 /**
- * BaseDataSource enhances kendo.data.DataSource
+ * Default export
  */
-export const BaseDataSource = DataSource.extend({
-    /**
-     * @ constructor
-     * @param options
-     */
-    // init: dataMethod('init'),
-    /**
-     * @method success
-     */
-    // success: dataMethod('success'),
-    /**
-     * @method data
-     */
-    // data: dataMethod('data'),
-    /**
-     * @method _attachBubbleHandlers
-     * @private
-     */
-    /*
-     _attachBubbleHandlers: function () {
-         var that = this;
-         that._data.bind(ERROR, function (e) {
-         that.trigger(ERROR, e);
-         });
-     },
-     */
-    /*
-     * // TODO on any error raise a $(document).trigger('dataError');
-     * // https://docs.telerik.com/kendo-ui/api/javascript/data/datasource/events/error
-     */
-});
-
-/**
- * Maintain compatibility with legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.data = window.kidoju.data || {};
-window.kidoju.data.Model = BaseModel;
-window.kidoju.data.DataSource = BaseDataSource;
+export default BaseModel;

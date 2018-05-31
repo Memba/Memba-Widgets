@@ -15,7 +15,7 @@
         './vendor/highlight/highlight.pack',
         './vendor/markdown-it/twemoji.amd',
         // Keep the above at the top considering function parameters below
-        './window.assert',
+        './common/window.assert.es6',
         './window.logger',
         './vendor/kendo/kendo.binder'
     ], f);

@@ -7,14 +7,29 @@
 .k-dialog .kj-dialog-flexrow {
   display: flex;
   align-items: flex-start;
+  line-height: 2em;
+}
+.k-dialog .kj-dialog-flexrow.k-toolbar {
+  padding: 0.5em 1em;
+}
+.k-dialog .kj-dialog-flexrow:not(.k-toolbar) {
   margin-top: 1em;
 }
 .k-dialog .kj-dialog-flexrow .k-input,
 .k-dialog .kj-dialog-flexrow .k-textbox {
   width: 100%;
 }
+.k-dialog .kj-dialog-flexrow .kj-align-right {
+  text-align: right;
+}
+.k-dialog .kj-dialog-flexrow .kj-dialog-col10 {
+  width: 10%;
+}
 .k-dialog .kj-dialog-flexrow .kj-dialog-col25 {
   width: 25%;
+}
+.k-dialog .kj-dialog-flexrow .kj-dialog-col30 {
+  width: 30%;
 }
 .k-dialog .kj-dialog-flexrow .kj-dialog-col50 {
   width: 50%;

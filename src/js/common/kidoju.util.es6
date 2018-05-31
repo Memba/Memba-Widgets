@@ -3,11 +3,21 @@
  * Sources at https://github.com/Memba
  */
 import $ from 'jquery';
-import assert from '../window.assert.es6';
-import CONSTANTS from '../window.constants.es6';
+import assert from './window.assert.es6';
+import CONSTANTS from './window.constants.es6';
 
 const MACHINE_POS = 8;
 const MACHINE_ID = '000000';
+
+/**
+ * Escape text for regular expression
+ * @see https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+ * @param str
+ * @returns {*}
+ */
+export function escapeRegExp(str) {
+    return str.replace(/[-[]\/{}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+}
 
 /**
  * Build a random hex string of length characters
@@ -83,6 +93,7 @@ export class ObjectId {
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.util = window.kidoju.util || {};
+window.kidoju.util.escapeRegExp = escapeRegExp;
 window.kidoju.util.ObjectId = ObjectId;
 window.kidoju.util.randomId = randomId;
 window.kidoju.util.randomString = randomHexString;

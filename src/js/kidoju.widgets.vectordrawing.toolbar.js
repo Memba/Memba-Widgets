@@ -19,7 +19,7 @@
         './vendor/kendo/kendo.toolbar',
         './vendor/kendo/kendo.window',
         './vendor/kendo/kendo.dataviz.diagram',
-        './window.assert',
+        './common/window.assert.es6',
         './window.logger',
         './kidoju.image'
     ], f);

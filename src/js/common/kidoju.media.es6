@@ -4,8 +4,8 @@
  */
 
 import $ from 'jquery';
-import assert from '../window.assert.es6';
-import CONSTANTS from '../window.constants.es6';
+import assert from './window.assert.es6';
+import CONSTANTS from './window.constants.es6';
 
 const { navigator } = window;
 

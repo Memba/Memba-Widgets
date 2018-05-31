@@ -15,6 +15,7 @@ import './kidoju.widgets.basedialog.es6';
 import CONSTANTS from '../window.constants.es6';
 
 const {
+    data: { DataSource, Model },
     ns,
     resize,
     roleSelector,
@@ -92,7 +93,29 @@ export default function openFinder(options = {}) {
                             { text: 'French', value: 'fr' }
                         ], // TODO i18n
                         search: '',
-                        summaries: []
+                        summaries: new DataSource({
+                            data: [{
+
+                            }],
+                            schema: {
+                                model: Model.define({
+                                    /*
+                                    author,
+                                    icon,
+                                    metrics.comments.count,
+                                    language,
+                                    metrics.ratings.average,
+                                    metrics.scores.average,
+                                    metrics.views.count,
+                                    published,
+                                    tags,
+                                    title,
+                                    type,
+                                    updated
+                                    */
+                                })
+                            }
+                        })
                     },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,

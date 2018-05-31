@@ -10,8 +10,8 @@ import 'kendo.binder';
 import 'kendo.data';
 import 'kendo.drawing';
 import 'kendo.userevents'; // Required for getTouches
-import assert from '../window.assert.es6';
-import CONSTANTS from '../window.constants.es6';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
 // TODO: import Logger from '../window.logger.es6';
 
 const { destroy, getTouches, roleSelector } = window.kendo;

@@ -8,9 +8,9 @@
 import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.tooltip';
-// TODO import assert from '../window.assert.es6';
-import CONSTANTS from '../window.constants.es6';
-// TODO: import Logger from '../window.logger.es6';
+// TODO import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+// TODO: import Logger from '../common/.logger.es6';
 
 const { destroy } = window.kendo;
 const { plugin, Widget } = window.kendo.ui;

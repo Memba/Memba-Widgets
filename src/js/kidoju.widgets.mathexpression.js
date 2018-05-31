@@ -10,7 +10,7 @@
     'use strict';
     define([
         './vendor/khan/katex', // Keep at the top considering function parameter below
-        './window.assert',
+        './common/window.assert.es6',
         './window.logger',
         './vendor/kendo/kendo.binder'
     ], f);

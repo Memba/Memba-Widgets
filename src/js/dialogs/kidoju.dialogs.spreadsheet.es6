@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.spreadsheet';
 import './kidoju.widgets.basedialog.es6';
-import CONSTANTS from '../window.constants.es6';
+import CONSTANTS from '../common/window.constants.es6';
 
 const {
     ns,

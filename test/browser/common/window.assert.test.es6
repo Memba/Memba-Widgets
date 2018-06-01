@@ -1,0 +1,386 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/* eslint-disable no-unused-expressions */
+
+import $ from 'jquery';
+import chai from 'chai';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import assert from '../../../src/js/common/window.assert.es6';
+
+const { describe, it, JSC, xit } = window;
+const { expect } = chai;
+const ERR_MSG = 'Oops!';
+class Person {
+    constructor(first, last) {
+        this.firstName = first;
+        this.lastName = last;
+    }
+    fullName() {
+        return `${this.firstName} ${this.lastName}`;
+    }
+}
+class Company {
+    constructor(name) {
+        this.name = name;
+    }
+    advert() {
+        return `${this.name} is a great company`;
+    }
+}
+
+describe('window.assert', () => {
+    describe('Legacy export', () => {
+        it('Check window.assert', () => {
+            expect(window.assert).to.equal(assert);
+        });
+    });
+
+    describe('Assertions', () => {
+        it('default (is `ok`)', () => {
+            function fn() {
+                assert(false, ERR_MSG);
+            }
+            expect(fn).to.throw(Error, ERR_MSG);
+            expect(assert(true, ERR_MSG)).to.be.undefined;
+        });
+
+        it('enum', () => {
+            expect(assert.messages.enum.default).to.be.a(CONSTANTS.STRING);
+            function fn() {
+                assert.enum(['a', 'b', 'c'], 'd', ERR_MSG);
+            }
+            expect(fn).to.throw(RangeError, ERR_MSG);
+            expect(assert.enum(['a', 'b', 'c'], 'a', ERR_MSG)).to.be.undefined;
+            expect(assert.enum(['a', 'b', 'c'], 'b', ERR_MSG)).to.be.undefined;
+            expect(assert.enum(['a', 'b', 'c'], 'c', ERR_MSG)).to.be.undefined;
+        });
+
+        it('equal', () => {
+            expect(assert.messages.equal.default).to.be.a(CONSTANTS.STRING);
+            function fn1() {
+                assert.equal(true, false, ERR_MSG);
+            }
+            function fn2() {
+                assert.equal(1, 0, ERR_MSG);
+            }
+            function fn3() {
+                assert.equal('a', 'b', ERR_MSG);
+            }
+            expect(fn1).to.throw(RangeError, ERR_MSG);
+            expect(fn2).to.throw(RangeError, ERR_MSG);
+            expect(fn3).to.throw(RangeError, ERR_MSG);
+            expect(assert.equal(true, true, ERR_MSG)).to.be.undefined;
+            expect(assert.equal(false, false, ERR_MSG)).to.be.undefined;
+            expect(assert.equal(10, 10, ERR_MSG)).to.be.undefined;
+            expect(assert.equal('a', 'a', ERR_MSG)).to.be.undefined;
+        });
+
+        it('format', () => {
+            expect(assert.format('{0}', 1)).to.equal('1');
+            expect(
+                assert.format(
+                    '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}',
+                    'a',
+                    'b',
+                    'c',
+                    'd',
+                    'e',
+                    'f',
+                    'g',
+                    'h',
+                    'i',
+                    'j'
+                )
+            ).to.equal('a,b,c,d,e,f,g,h,i,j');
+        });
+
+        it('hasLength', () => {
+            expect(assert.messages.hasLength.default).to.be.a(CONSTANTS.STRING);
+            function fn1() {
+                assert.hasLength(undefined, ERR_MSG);
+            }
+            function fn2() {
+                assert.hasLength(1, ERR_MSG);
+            }
+            function fn3() {
+                assert.hasLength({}, ERR_MSG);
+            }
+            function fn4() {
+                assert.hasLength([], ERR_MSG);
+            }
+            expect(fn1).to.throw(TypeError, ERR_MSG);
+            expect(fn2).to.throw(TypeError, ERR_MSG);
+            expect(fn3).to.throw(TypeError, ERR_MSG);
+            expect(fn4).to.throw(TypeError, ERR_MSG);
+            expect(assert.hasLength($(window), ERR_MSG)).to.be.undefined;
+            expect(assert.hasLength($(document), ERR_MSG)).to.be.undefined;
+            expect(assert.hasLength(['a', 'b'], ERR_MSG)).to.be.undefined;
+        });
+
+        it('instanceof', () => {
+            expect(assert.messages.instanceof.default).to.be.a(
+                CONSTANTS.STRING
+            );
+            const p = new Person('John', 'Doe');
+            const c = new Company('ACME');
+            const el = $('<div>');
+            function fn1() {
+                assert.instanceof($, p, ERR_MSG);
+            }
+            function fn2() {
+                assert.instanceof(Person, c, ERR_MSG);
+            }
+            function fn3() {
+                assert.instanceof(Company, el, ERR_MSG);
+            }
+            expect(fn1).to.throw(TypeError, ERR_MSG);
+            expect(fn2).to.throw(TypeError, ERR_MSG);
+            expect(fn3).to.throw(TypeError, ERR_MSG);
+            expect(assert.instanceof($, el, ERR_MSG)).to.be.undefined;
+            expect(assert.instanceof(Person, p, ERR_MSG)).to.be.undefined;
+            expect(assert.instanceof(Company, c, ERR_MSG)).to.be.undefined;
+        });
+
+        it('isArray', () => {
+            expect(assert.messages.isArray.default).to.be.a(CONSTANTS.STRING);
+            const a = ['a', 'b', 'c'];
+            const c = new Company('ACME');
+            const el = $('<div>');
+            const n = 3;
+            function fn1() {
+                assert.isArray(c, ERR_MSG);
+            }
+            function fn2() {
+                assert.isArray(el, ERR_MSG);
+            }
+            function fn3() {
+                assert.isArray(n, ERR_MSG);
+            }
+            expect(fn1).to.throw(TypeError, ERR_MSG);
+            expect(fn2).to.throw(TypeError, ERR_MSG);
+            expect(fn3).to.throw(TypeError, ERR_MSG);
+            expect(assert.isArray(a, ERR_MSG)).to.be.undefined;
+        });
+
+        it('isOptionalObject', () => {
+            expect(assert.messages.isOptionalObject.default).to.be.a(
+                CONSTANTS.STRING
+            );
+            const p = new Person('John', 'Doe');
+            function fn1() {
+                assert.isOptionalObject(null, ERR_MSG);
+            }
+            function fn2() {
+                assert.isOptionalObject(true, ERR_MSG);
+            }
+            function fn3() {
+                assert.isOptionalObject('a', ERR_MSG);
+            }
+            function fn4() {
+                // IMPORTANT: Empty object!!!!!!
+                assert.isOptionalObject({}, ERR_MSG);
+            }
+            function fn5() {
+                // IMPORTANT: Prototyped Object!!!!!!
+                assert.isOptionalObject(p, ERR_MSG);
+            }
+            expect(fn1).to.throw(TypeError, ERR_MSG);
+            expect(fn2).to.throw(TypeError, ERR_MSG);
+            expect(fn3).to.throw(TypeError, ERR_MSG);
+            expect(fn4).to.throw(TypeError, ERR_MSG);
+            expect(fn5).to.throw(TypeError, ERR_MSG);
+            expect(assert.isOptionalObject(undefined, ERR_MSG)).to.be.undefined;
+            expect(assert.isOptionalObject({ prop: true }, ERR_MSG)).to.be
+                .undefined;
+        });
+
+        it('isPlainObject', () => {
+            expect(assert.messages.isPlainObject.default).to.be.a(
+                CONSTANTS.STRING
+            );
+            const p = new Person('John', 'Doe');
+            function fn1() {
+                assert.isPlainObject(null, ERR_MSG);
+            }
+            function fn2() {
+                assert.isPlainObject(true, ERR_MSG);
+            }
+            function fn3() {
+                assert.isPlainObject('a', ERR_MSG);
+            }
+            function fn4() {
+                // IMPORTANT: Empty object!!!!!!
+                assert.isPlainObject({}, ERR_MSG);
+            }
+            function fn5() {
+                // IMPORTANT: Prototyped Object!!!!!!
+                assert.isPlainObject(p, ERR_MSG);
+            }
+            function fn6() {
+                assert.isPlainObject(undefined, ERR_MSG);
+            }
+            expect(fn1).to.throw(TypeError, ERR_MSG);
+            expect(fn2).to.throw(TypeError, ERR_MSG);
+            expect(fn3).to.throw(TypeError, ERR_MSG);
+            expect(fn4).to.throw(TypeError, ERR_MSG);
+            expect(fn5).to.throw(TypeError, ERR_MSG);
+            expect(fn6).to.throw(TypeError, ERR_MSG);
+            expect(assert.isPlainObject({ prop: true }, ERR_MSG)).to.be
+                .undefined;
+        });
+
+        it('isUndefined', () => {
+            expect(assert.messages.isUndefined.default).to.be.a(
+                CONSTANTS.STRING
+            );
+            function fn1() {
+                assert.isUndefined(true, ERR_MSG);
+            }
+            function fn2() {
+                assert.isUndefined(10, ERR_MSG);
+            }
+            function fn3() {
+                assert.isUndefined('a', ERR_MSG);
+            }
+            function fn4() {
+                assert.isUndefined({}, ERR_MSG);
+            }
+            function fn5() {
+                assert.isUndefined([], ERR_MSG);
+            }
+            expect(fn1).to.throw(TypeError, ERR_MSG);
+            expect(fn2).to.throw(TypeError, ERR_MSG);
+            expect(fn3).to.throw(TypeError, ERR_MSG);
+            expect(fn4).to.throw(TypeError, ERR_MSG);
+            expect(fn5).to.throw(TypeError, ERR_MSG);
+            expect(assert.isUndefined(undefined, ERR_MSG)).to.be.undefined;
+        });
+
+        it('match', () => {
+            expect(assert.messages.match.default).to.be.a(CONSTANTS.STRING);
+            function fn() {
+                assert.match(/abc/, 'cba', ERR_MSG);
+            }
+            expect(fn).to.throw(Error, ERR_MSG);
+            expect(assert.match(/abc/, '9abcd', ERR_MSG)).to.be.undefined;
+        });
+
+        it('ok', () => {
+            expect(assert.messages.ok.default).to.be.a(CONSTANTS.STRING);
+            function fn() {
+                assert(false, ERR_MSG);
+            }
+            expect(fn).to.throw(Error, ERR_MSG);
+            expect(assert(true, ERR_MSG)).to.be.undefined;
+        });
+
+        it('type', () => {
+            expect(assert.messages.type.default).to.be.a(CONSTANTS.STRING);
+            function fn1() {
+                assert.type('undefined', null, ERR_MSG);
+            }
+            function fn2() {
+                assert.type('null', true, ERR_MSG);
+            }
+            function fn3() {
+                assert.type('boolean', 10, ERR_MSG);
+            }
+            function fn4() {
+                assert.type('number', 'a', ERR_MSG);
+            }
+            function fn5() {
+                assert.type('string', {}, ERR_MSG);
+            }
+            function fn6() {
+                assert.type('object', [], ERR_MSG);
+            }
+            function fn7() {
+                assert.type('array', undefined, ERR_MSG);
+            }
+            expect(fn1).to.throw(Error, ERR_MSG);
+            expect(fn2).to.throw(Error, ERR_MSG);
+            expect(fn3).to.throw(Error, ERR_MSG);
+            expect(fn4).to.throw(Error, ERR_MSG);
+            expect(fn5).to.throw(Error, ERR_MSG);
+            expect(fn6).to.throw(Error, ERR_MSG);
+            expect(fn7).to.throw(Error, ERR_MSG);
+            expect(assert.type('undefined', undefined, ERR_MSG)).to.be
+                .undefined;
+            expect(assert.type('null', null, ERR_MSG)).to.be.undefined;
+            expect(assert.type('boolean', true, ERR_MSG)).to.be.undefined;
+            expect(assert.type('number', 10, ERR_MSG)).to.be.undefined;
+            expect(assert.type('string', 'a', ERR_MSG)).to.be.undefined;
+            expect(assert.type('object', {}, ERR_MSG)).to.be.undefined;
+            expect(assert.type('array', [], ERR_MSG)).to.be.undefined;
+        });
+
+        it('typeOrUndef', () => {
+            expect(assert.messages.typeOrUndef.default).to.be.a(
+                CONSTANTS.STRING
+            );
+            function fn1() {
+                assert.typeOrUndef('undefined', null, ERR_MSG);
+            }
+            function fn2() {
+                assert.typeOrUndef('null', true, ERR_MSG);
+            }
+            function fn3() {
+                assert.typeOrUndef('boolean', 10, ERR_MSG);
+            }
+            function fn4() {
+                assert.typeOrUndef('number', 'a', ERR_MSG);
+            }
+            function fn5() {
+                assert.typeOrUndef('string', {}, ERR_MSG);
+            }
+            function fn6() {
+                assert.typeOrUndef('object', [], ERR_MSG);
+            }
+            function fn7() {
+                assert.typeOrUndef('array', new Company('World'), ERR_MSG);
+            }
+            expect(fn1).to.throw(Error, ERR_MSG);
+            expect(fn2).to.throw(Error, ERR_MSG);
+            expect(fn3).to.throw(Error, ERR_MSG);
+            expect(fn4).to.throw(Error, ERR_MSG);
+            expect(fn5).to.throw(Error, ERR_MSG);
+            expect(fn6).to.throw(Error, ERR_MSG);
+            expect(fn7).to.throw(Error, ERR_MSG);
+            expect(assert.typeOrUndef('undefined', undefined, ERR_MSG)).to.be
+                .undefined;
+            expect(assert.typeOrUndef('null', null, ERR_MSG)).to.be.undefined;
+            expect(assert.typeOrUndef('boolean', true, ERR_MSG)).to.be
+                .undefined;
+            expect(assert.typeOrUndef('boolean', undefined, ERR_MSG)).to.be
+                .undefined;
+            expect(assert.typeOrUndef('number', 10, ERR_MSG)).to.be.undefined;
+            expect(assert.typeOrUndef('number', undefined, ERR_MSG)).to.be
+                .undefined;
+            expect(assert.typeOrUndef('string', 'a', ERR_MSG)).to.be.undefined;
+            expect(assert.typeOrUndef('string', undefined, ERR_MSG)).to.be
+                .undefined;
+            expect(assert.typeOrUndef('object', {}, ERR_MSG)).to.be.undefined;
+            expect(assert.typeOrUndef('object', undefined, ERR_MSG)).to.be
+                .undefined;
+            expect(assert.typeOrUndef('array', [], ERR_MSG)).to.be.undefined;
+            expect(assert.typeOrUndef('array', undefined, ERR_MSG)).to.be
+                .undefined;
+        });
+
+        xit('TODO jscheck', done => {
+            function lte(a, b) {
+                return a <= b;
+            }
+            JSC.assert(
+                'Less than',
+                (verdict, a, b) => verdict(lte(a, b)),
+                [JSC.integer(10), JSC.integer(20)],
+                (a, b) => (a <= b ? 'ok' : false),
+                done
+            );
+        });
+    });
+});

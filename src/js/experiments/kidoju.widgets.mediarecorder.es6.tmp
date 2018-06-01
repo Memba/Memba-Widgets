@@ -10,7 +10,7 @@ import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.drawing';
 import 'kendo.dialog';
-import '../window.logger'; // TODO
+import '../common/window.logger.es6'; // TODO
 // import 'kendo.userevents'; // Required for getTouches
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -18,7 +18,7 @@ import {
     createAudioMeter,
     enumerateDevices,
     getUserMedia
-} from '../common/kidoju.media.es6';
+} from '../common/window.media.es6';
 
 const { attr, destroy, drawing, format, geometry, saveAs } = window.kendo;
 const { plugin, Widget } = window.kendo.ui;

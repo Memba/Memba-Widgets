@@ -11,8 +11,8 @@
     define([
         './vendor/silentmatt/expr-eval',
         // './vendor/mathjs/math',
-        './window.assert',
-        './window.logger',
+        './common/window.assert.es6',
+        './common/window.logger.es6',
         './kidoju.util',
         './kidoju.widgets.mathgraph.tools',
         './kidoju.widgets.mathgraph.toolbar'

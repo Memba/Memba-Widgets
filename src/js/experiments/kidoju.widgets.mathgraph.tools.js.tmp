@@ -10,7 +10,7 @@
     'use strict';
     define([
         './window.assert',
-        './window.logger',
+        './common/window.logger.es6',
         './vendor/kendo/kendo.drawing',
         './kidoju.util'
     ], f);

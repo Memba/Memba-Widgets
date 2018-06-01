@@ -16,7 +16,7 @@
         './vendor/markdown-it/twemoji.amd',
         // Keep the above at the top considering function parameters below
         './common/window.assert.es6',
-        './window.logger',
+        './common/window.logger.es6',
         './vendor/kendo/kendo.binder'
     ], f);
 })(function (markdown, katex, emoji, highlight, twemo) {

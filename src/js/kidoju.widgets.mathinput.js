@@ -11,7 +11,7 @@
     define([
         './vendor/mathquill/mathquill', // Keep at the top considering function parameter below
         './common/window.assert.es6',
-        './window.logger',
+        './common/window.logger.es6',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.window',
         './kidoju.widgets.mathinput.toolbar'

@@ -12,7 +12,7 @@
         './vendor/codemirror/lib/codemirror.js',
         './vendor/codemirror/mode/gfm/gfm.js', // loads markdown.js
         './common/window.assert.es6',
-        './window.logger',
+        './common/window.logger.es6',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.window',
         './kidoju.widgets.markeditor.toolbar'

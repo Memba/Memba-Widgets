@@ -10,7 +10,7 @@ const class2type = {};
     .forEach(name => {
         class2type[`[object ${name}]`] = name.toLowerCase();
     });
-const { toString, hasOwn } = class2type;
+const { toString, hasOwnProperty } = class2type;
 
 // jQuery core functions to remove any dependencies
 // @see https://github.com/jquery/jquery/blob/99e8ff1baa7ae341e94bb89c3e84570c7c3ad9ea/src/core.js
@@ -44,7 +44,7 @@ const $ = {
         }
         if (
             obj.constructor &&
-            !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')
+            !hasOwnProperty.call(obj.constructor.prototype, 'isPrototypeOf')
         ) {
             return false;
         }

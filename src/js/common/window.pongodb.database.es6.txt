@@ -1,0 +1,160 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/**
+ * Database
+ * @param options
+ * @constructor
+ */
+export default class Database extends {
+
+    /**
+     *
+     * @param options
+     */
+    constructor(options) {
+        assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+        assert.type(STRING, options.name, assert.format(assert.messages.isPlainObject.default, 'options.name', STRING));
+        assert.hasLength(options.name, assert.format(assert.messages.hasLength.default, 'options.name'));
+        options.collections = options.collections || [];
+        assert.isArray(options.collections, assert.format(assert.messages.isArray.default, 'db', 'options.collections'));
+
+        this._idField = options.idField || 'id';
+        this._name = options.name || 'pongodb';
+
+        // Configure localForage default store name
+        options.storeName = META;
+
+        // Force the use of WEBSQL in iOS WKWebView because indexedDB does not work properly
+        // if (!window.chrome && window.webkit && window.indexedDB) {
+        //     options.driver = localForage.WEBSQL;
+        // }
+
+        localForage.config(options);
+        /*
+        localForage.config({
+            driver      : localForage.WEBSQL, // Force WebSQL; same as using setDriver()
+            name        : name,
+            version     : version,
+            size        : 4980736 // Size of database, in bytes. WebSQL-only for now.
+            storeName   : 'keyvaluepairs', // Should be alphanumeric, with underscores.
+            description : 'some description'
+        });
+        */
+
+        // Add collections
+        var collections = options.collections;
+        for (var i = 0, length = collections.length; i < length; i++) {
+            this[collections[i]] = new Collection({ db: this, name: collections[i] });
+        }
+
+        // Add upgrade
+        this.upgrade = new Upgrade({ db: this });
+
+        // We cannot set the database version in the initialization code
+        // We need to run an upgrade to set the version number unless Database.prototype.version is called explicitly
+    },
+
+    /**
+     * Database name
+     * @returns {*|string}
+     */
+    get name() {
+        return this._name;
+    },
+
+    /**
+     * Database version
+     * @param value
+     */
+    version(value) {
+        var dfd = $.Deferred();
+        if ($.type(value) === UNDEFINED) {
+            localForage.getItem(VERSION, function (err, item) {
+                if (err) {
+                    dfd.reject(err);
+                } else if ($.type(item) === STRING) {
+                    dfd.resolve(item);
+                } else {
+                    // If the value of version is not found, we return 0.0.0 to ensure upgrade migrations run
+                    dfd.resolve(VERSION_000);
+                }
+            });
+        } else {
+            localForage.setItem(VERSION, value, function (err, item) {
+                if (err) {
+                    dfd.reject(err);
+                } else {
+                    dfd.resolve(item);
+                }
+            });
+        }
+        return dfd.promise();
+    },
+
+    /**
+     * Create a collection
+     * @see https://docs.mongodb.com/manual/reference/method/db.createCollection/
+     * @param name
+     * @param options
+     */
+    createCollection(name, options) {
+    // Note: we could keep track of collections in the META table
+    throw new Error('Instantiate a new Database object and pass an array of collection names to the constructor.');
+},
+
+    /**
+     * Add full text index
+     * @param collection
+     * @param textFields
+     */
+    addFullTextIndex(collection, textFields) {
+        assert.type(STRING, collection, assert.format(assert.messages.type.default, 'collection', STRING));
+        assert.instanceof(Collection, this[collection], assert.format(assert.messages.instanceof.default, 'this[collection]', 'Collection'));
+        assert.isArray(textFields, assert.format(assert.messages.isArray.default, 'textFields'));
+        this[collection]._textFields = textFields;
+    },
+
+    /**
+     * Trigger
+     * @param collection
+     * @param events, a string or an array of strings
+     * @param callback
+     */
+    createTrigger(collection, events, callback) {
+        if ($.type(events) === STRING) {
+            events = [events];
+        }
+        assert.type(STRING, collection, assert.format(assert.messages.type.default, 'collection', STRING));
+        assert.instanceof(Collection, this[collection], assert.format(assert.messages.instanceof.default, 'this[collection]', 'Collection'));
+        assert.isArray(events, assert.format(assert.messages.isArray.default, 'events'));
+        assert.isFunction(callback, assert.format(assert.messages.isFunction.default, 'callback'));
+        for (var i = 0, length = events.length; i < length; i++) {
+            var event = events[i].toLowerCase();
+            if ([TRIGGER.INSERT, TRIGGER.UPDATE, TRIGGER.REMOVE].indexOf(event) > -1) {
+                this[collection]._triggers[event].push(callback);
+            }
+        }
+    },
+
+    /**
+     * Drop a database
+     * @see https://docs.mongodb.com/manual/reference/method/db.dropDatabase/
+     */
+    dropDatabase() {
+        // See https://github.com/localForage/localForage/issues/620
+        throw new Error(NOT_IMPLEMENTED);
+        var dfd = $.Deferred();
+        localForage.dropInstance(this._name, function (err) {
+            if (err) {
+                dfd.reject(err);
+            } else {
+                dfd.resolve();
+            }
+        });
+        return dfd.promise();
+    }
+
+};

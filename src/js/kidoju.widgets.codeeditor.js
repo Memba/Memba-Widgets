@@ -15,7 +15,7 @@
         './vendor/codemirror/addon/lint/lint.js',
         './vendor/codemirror/addon/lint/javascript-lint.js',
         './common/window.assert.es6',
-        './window.logger',
+        './common/window.logger.es6',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.tooltip'

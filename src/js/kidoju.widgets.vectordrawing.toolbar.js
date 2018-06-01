@@ -20,7 +20,7 @@
         './vendor/kendo/kendo.window',
         './vendor/kendo/kendo.dataviz.diagram',
         './common/window.assert.es6',
-        './window.logger',
+        './common/window.logger.es6',
         './kidoju.image'
     ], f);
 })(function () {

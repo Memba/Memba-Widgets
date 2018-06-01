@@ -10,7 +10,7 @@
     'use strict';
     define([
         './common/window.assert.es6',
-        './window.logger',
+        './common/window.logger.es6',
         './vendor/kendo/kendo.draganddrop',
         './vendor/kendo/kendo.window'
     ], f);

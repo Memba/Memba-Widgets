@@ -1,0 +1,68 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/* jshint browser: true, expr: true */
+/* global describe, it, before */
+
+;(function ($, undefined) {
+
+    'use strict';
+
+    var expect = window.chai.expect;
+    var secureStorage = window.secureStorage;
+
+    var KEY1 = '123456789012345678901234';
+    // var KEY2 = '987654321098765432109876';
+    var VALUE1 = '1234';
+    // var VALUE2 = '9876';
+
+    describe('app.secure', function () {
+
+        before (function () {
+            secureStorage.init('Kidoju.App');
+        });
+
+        it('it should write', function (done) {
+            secureStorage.setItem(KEY1, VALUE1)
+                .done(function (key) {
+                    expect(key).to.equal(KEY1);
+                })
+                .fail(function (err) {
+                    expect(err).to.be.null;
+                })
+                .always(function () {
+                    done();
+                });
+        });
+
+        it('it should read', function (done) {
+            secureStorage.getItem(KEY1)
+                .done(function (value) {
+                    expect(value).to.equal(VALUE1);
+                })
+                .fail(function (err) {
+                    expect(err).to.be.null;
+                })
+                .always(function () {
+                    done();
+                });
+        });
+
+        it('it should clear', function (done) {
+            secureStorage.removeItem(KEY1)
+                .done(function (key) {
+                    expect(key).to.equal(KEY1);
+                })
+                .fail(function (err) {
+                    expect(err).to.be.null;
+                })
+                .always(function () {
+                    done();
+                });
+        });
+    });
+
+
+}(window.jQuery));

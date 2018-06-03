@@ -15,13 +15,14 @@ const { expect } = chai;
 
 describe('window.pongodb.objectid', () => {
     describe('Legacy export', () => {
-        it('Check window.kidoju.util.*', () => {
+        it('Check window.pongodb.*', () => {
+            expect(window.pongodb.ObjectId).to.equal(ObjectId);
             expect(window.kidoju.util.ObjectId).to.equal(ObjectId);
         });
     });
 
     describe('ObjectId', () => {
-        it('It should fail to build an ObjectId from unaccpetable values', () => {
+        it('It should fail to create an ObjectId from invalid values', () => {
             function test1() {
                 return new ObjectId(true);
             }

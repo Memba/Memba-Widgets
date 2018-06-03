@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.workerpool</title>
+    <title>window.workerpool</title>
     <script>
         window.app = { DEBUG: true };
     </script>
@@ -160,6 +160,7 @@
                     'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
                     // tests
                     'chai': 'test/vendor/chai.js',
+                    'chai-jquery': 'test/vendor/chai-jquery.js',
                     'jquery.mockjax': 'test/vendor/jquery.mockjax.js',
                     'mocha': 'test/vendor/mocha.js',
                     'sinon': 'test/vendor/sinon.js',
@@ -167,6 +168,7 @@
                 },
                 meta: {
                     'test/vendor/chai.js': { format: 'global' },
+                    'test/vendor/chai-jquery.js': { format: 'global' },
                     'test/vendor/jquery.mockjax.js': { format: 'global' },
                     'test/vendor/mocha.js': { format: 'global' },
                     'test/vendor/sinon.js': { format: 'global' },
@@ -216,7 +218,7 @@
                     exports.test = context.test || context.it;
                     exports.run = context.run;
                     // now use SystemJS to load all test files
-                    SystemJS.import('./kidoju.workerpool.test.es6').then(function () {
+                    SystemJS.import('./window.workerpool.test.es6').then(function () {
                         // mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'jQuery*', 'kendo', 'kidoju', 'chai', 'sinon']);
                         mocha.checkLeaks().globals(['jQuery']);
                         if (!window.blanket && !window.PHANTOMJS) {
@@ -232,7 +234,7 @@
     </script>
 </head>
 <body>
-<h1>kidoju.workerpool</h1>
+<h1>window.workerpool</h1>
 <div id="mocha"></div>
 <div id="fixtures"></div>
 </body>

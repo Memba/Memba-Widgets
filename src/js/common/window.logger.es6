@@ -174,7 +174,9 @@ function log2Console(entry) {
         }
         if (entry.data) {
             try {
-                message += `${first ? FIRST : SEP}data${EQ}${JSON.stringify(entry.data)}`;
+                message += `${first ? FIRST : SEP}data${EQ}${JSON.stringify(
+                    entry.data
+                )}`;
             } catch (exception) {
                 if (typeof entry.data.toString === CONSTANTS.FUNCTION) {
                     message += `${
@@ -332,7 +334,7 @@ export default class Logger {
  * @param colno
  * @param error
  */
-window.onerror = function(message, source, lineno, colno, error) {
+window.onerror = function onerror(message, source, lineno, colno, error) {
     const logger = new Logger('window.logger');
     logger.crit({
         message,

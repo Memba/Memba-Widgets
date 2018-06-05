@@ -100,3 +100,6 @@ export default class ObjectId {
 window.kidoju = window.kidoju || {};
 window.kidoju.util = window.kidoju.util || {};
 window.kidoju.util.ObjectId = ObjectId;
+
+window.pongodb = window.pongodb || {};
+window.pongodb.ObjectId = ObjectId;

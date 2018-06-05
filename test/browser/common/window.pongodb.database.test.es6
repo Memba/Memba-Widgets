@@ -5,10 +5,14 @@
 
 /* eslint-disable no-unused-expressions */
 
+import $ from 'jquery';
 import chai from 'chai';
+import sinon from 'sinon';
+import 'sinon-chai';
 import localForage from '../../../src/js/vendor/localforage/localforage.nopromises';
 import Database from '../../../src/js/common/window.pongodb.database.es6';
 import Collection from '../../../src/js/common/window.pongodb.collection.es6';
+import Migration from '../../../src/js/common/window.pongodb.migration.es6';
 
 const { before, describe, it } = window;
 const { expect } = chai;
@@ -238,11 +242,69 @@ describe('window.pongodb.database', () => {
                 .to.have.property(MOVIES)
                 .that.is.an.instanceof(Collection);
             db.version()
-                .then(version => {
-                    expect(version).to.equal('0.0.0');
-                    done();
+                .done(version => {
+                    try {
+                        expect(version).to.equal('0.0.0');
+                        done();
+                    } catch (ex) {
+                        done(ex);
+                    }
                 })
                 .fail(done);
+        });
+
+        it('It should upgrade a Database', done => {
+            const db = new Database({
+                name: PONGO_DB,
+                collections: [HEROES, MOVIES]
+            });
+            expect(db).to.be.an.instanceof(Database);
+            const migration = sinon.spy();
+            const VERSION = '1.0.0';
+            db.addMigration(
+                new Migration({
+                    version: VERSION,
+                    scripts: [
+                        function script(options) {
+                            migration(options);
+                            return $
+                                .Deferred()
+                                .resolve()
+                                .promise();
+                        }
+                    ]
+                })
+            );
+            db.upgrade()
+                .done(() => {
+                    try {
+                        // Check that migration script has been executed
+                        expect(migration).to.have.been.calledWith(db);
+                        db.version()
+                            .done(version => {
+                                try {
+                                    // Check that database version has been numped
+                                    expect(version).to.equal(VERSION);
+                                    done();
+                                } catch (ex) {
+                                    done(ex);
+                                }
+                            })
+                            .fail(done);
+                    } catch (ex) {
+                        done(ex);
+                    }
+                })
+                .fail(done);
+        });
+
+        it('it should drop a database', done => {
+            const db = new Database({
+                name: PONGO_DB,
+                collections: [HEROES, MOVIES]
+            });
+            expect(db).to.be.an.instanceof(Database);
+            db.dropDatabase().then(done);
         });
     });
 });

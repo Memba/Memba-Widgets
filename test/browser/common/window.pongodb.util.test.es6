@@ -19,7 +19,7 @@ import {
     setter
 } from '../../../src/js/common/window.pongodb.util.es6';
 
-const { describe, it } = window;
+const { describe, it, xit } = window;
 const { expect } = chai;
 
 describe('window.pongodb.util', () => {
@@ -365,22 +365,14 @@ describe('window.pongodb.util', () => {
     });
 
     describe('convertFilter', () => {
-        xit('It should throw on invalid values', () => {
+        xit('It should throw on invalid values', () => {});
 
-        });
-
-        xit('It should convert', () => {
-
-        });
+        xit('It should convert', () => {});
     });
 
     describe('convertSort', () => {
-        xit('It should throw on invalid values', () => {
+        xit('It should throw on invalid values', () => {});
 
-        });
-
-        xit('It should convert', () => {
-
-        });
+        xit('It should convert', () => {});
     });
 });

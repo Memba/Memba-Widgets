@@ -3,6 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
+// eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import assert from './window.assert.es6';
 import CONSTANTS from './window.constants.es6';
@@ -36,8 +37,16 @@ export function enumerateDevices() {
  * @see https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
  * @see https://webrtc.github.io/adapter/adapter-latest.js
  */
-export function getUserMedia(constraints) {
-    // TODO assert params
+export function getUserMedia(constraints = { audio: true, video: true }) {
+    assert.type(
+        CONSTANTS.OBJECT,
+        constraints,
+        assert.format(
+            assert.messages.type.default,
+            constraints,
+            CONSTANTS.OBJECT
+        )
+    );
     const dfd = $.Deferred();
     if (
         navigator.mediaDevices &&

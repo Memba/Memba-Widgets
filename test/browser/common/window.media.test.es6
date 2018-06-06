@@ -5,19 +5,67 @@
 
 /* eslint-disable no-unused-expressions */
 
-// import $ from 'jquery';
 import chai from 'chai';
-// import sinon from 'sinon';
-// import 'sinon-chai';
-// import 'jquery.mockjax';
+import {
+    enumerateDevices,
+    getUserMedia,
+    createAudioMeter
+} from '../../../src/js/common/window.media.es6';
 
-const { describe, it } = window;
+const {
+    AudioContext,
+    describe,
+    it,
+    MediaDeviceInfo,
+    MediaStream,
+    ScriptProcessorNode
+} = window;
 const { expect } = chai;
 
 describe('window.media', () => {
-    describe('Test', () => {
-        it('It should', () => {
-            expect(true).to.be.true;
+    describe('enumerateDevices', () => {
+        it('It should enumerate devices', done => {
+            enumerateDevices()
+                .done(devices => {
+                    try {
+                        expect(devices)
+                            .to.be.an('array')
+                            .with.property('length')
+                            .gt(0);
+                        for (let i = 0, { length } = devices; i < length; i++) {
+                            expect(devices[i]).to.be.an.instanceof(
+                                MediaDeviceInfo
+                            );
+                        }
+                        done();
+                    } catch (ex) {
+                        done(ex);
+                    }
+                })
+                .fail(done);
+        });
+    });
+
+    describe('getUserMedia', () => {
+        it('It should get user media', done => {
+            getUserMedia()
+                .done(stream => {
+                    try {
+                        expect(stream).to.be.an.instanceof(MediaStream);
+                        done();
+                    } catch (ex) {
+                        done(ex);
+                    }
+                })
+                .fail(done);
+        });
+    });
+
+    describe('createAudioMeter', () => {
+        it('It should create an audio meter', () => {
+            const context = new AudioContext();
+            const processor = createAudioMeter(context);
+            expect(processor).to.be.an.instanceof(ScriptProcessorNode);
         });
     });
 });

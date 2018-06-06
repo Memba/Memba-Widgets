@@ -17,7 +17,7 @@ const { expect } = chai;
 
 const MODULE = 'window.logger.test';
 const MESSAGE = 'My message';
-const METHOD = 'myMethod';
+// const METHOD = 'myMethod';
 const TRACE = '1234567890';
 const DATA = { a: 1, b: 2, c: 3 };
 const ERROR = new SyntaxError('Bad syntax');

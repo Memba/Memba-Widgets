@@ -9,11 +9,14 @@ import CONSTANTS from './window.constants.es6';
 /**
  * Escape text for regular expression
  * @see https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+ * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
+ * @see https://github.com/lodash/lodash/blob/master/escapeRegExp.js
  * @param str
  * @returns {*}
  */
 export function escapeRegExp(str) {
-    return str.replace(/[-[]\/{}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+    // From https://github.com/lodash/lodash/blob/master/escapeRegExp.js
+    return str.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
 }
 
 /**

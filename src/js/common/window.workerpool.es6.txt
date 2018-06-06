@@ -1,4 +1,15 @@
 /**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// eslint-disable-next-line import/extensions
+import $ from 'jquery';
+import assert from './window.assert.es6';
+import CONSTANTS from './window.constants.es6';
+
+
+/**
  * WorkerPool
  * @class WorkerPool
  * @param concurrency

@@ -48,6 +48,7 @@ const CONSTANTS = {
     DOT: '.',
     HASH: '#',
     HYPHEN: '-',
+    UNDERSCORE: '_',
     // Miscellaneous
     ID: 'id',
     ME: 'me'

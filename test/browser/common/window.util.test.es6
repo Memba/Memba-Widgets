@@ -26,9 +26,9 @@ describe('window.util', () => {
 
     describe('escapeRegExp', () => {
         it('Should return an escaped regular expression', () => {
-            expect(escapeRegExp('()')).to.equal('\(\)');
-            expect(escapeRegExp('[]')).to.equal('\[\]');
-            expect(escapeRegExp('{}')).to.equal('\{\}');
+            expect(escapeRegExp('()')).to.equal('\\(\\)');
+            expect(escapeRegExp('[]')).to.equal('\\[\\]');
+            expect(escapeRegExp('{}')).to.equal('\\{\\}');
         });
     });
 

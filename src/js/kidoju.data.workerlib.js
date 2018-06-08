@@ -65,6 +65,7 @@
         // true in IE where typeof global.ActiveXObject === 'undefined'
         global.ActiveXObject = undefined;
     }
+    global.Blob = undefined;
     global.clearInterval = undefined;
     global.clearTimeout = undefined;
     global.eval = undefined;

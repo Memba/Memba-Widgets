@@ -175,15 +175,16 @@ describe('window.workers', () => {
         });
 
         it('blacklisted unsafe functions', done => {
-            const UNSAFE = [
+            const DATA = [
                 // deactivated
                 'ActiveXObject',
+                'Blob',
                 'clearInterval',
                 'clearTimeout',
                 'eval',
                 'fetch',
                 'Function',
-                'importScripts',
+                'importScripts', // This occurs after using it in window.workers.es6, so the library gets loaded
                 'indexedDB',
                 'mozIndexedDB',
                 'webkitIndexedDB',
@@ -206,16 +207,16 @@ describe('window.workers', () => {
             ];
             const promises = [];
             const script = // 'console.log(e.data + ": " + typeof self[e.data]); ' +
-                'self.postMessage(typeof self[e.data] === "undefined" || typeof self[e.data].open === "undefined");';
-            UNSAFE.forEach(unsafe => {
-                promises.push(pool.exec(script, unsafe, unsafe));
+                'self.postMessage((typeof self[e.data] === "undefined") || (self[e.data] && typeof self[e.data].open === "undefined"));';
+            DATA.forEach(data => {
+                promises.push(pool.exec(script, data, data));
             });
             $.when(...promises)
                 .done((...args) => {
                     try {
-                        expect(args.length).to.equal(UNSAFE.length);
+                        expect(args.length).to.equal(DATA.length);
                         for (let i = 0; i < args.length; i++) {
-                            expect(args[i]).to.have.property('name', UNSAFE[i]);
+                            expect(args[i]).to.have.property('name', DATA[i]);
                             expect(args[i]).to.have.property('value', true);
                         }
                         done();

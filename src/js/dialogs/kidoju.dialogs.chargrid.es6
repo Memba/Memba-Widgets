@@ -62,8 +62,7 @@ export default function openCharGrid(options = {}) {
         e.sender.element
             .find(roleSelector('chargrid'))
             .height(
-                width *
-                    e.sender.options.charGrid.height /
+                (width * e.sender.options.charGrid.height) /
                     e.sender.options.charGrid.width
             )
             .width(width)

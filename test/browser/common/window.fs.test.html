@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>window.workerpool</title>
+    <title>window.fs</title>
     <script>
         window.app = { DEBUG: true };
     </script>
@@ -218,14 +218,16 @@
                     exports.test = context.test || context.it;
                     exports.run = context.run;
                     // now use SystemJS to load all test files
-                    SystemJS.import('./window.workerpool.test.es6').then(function () {
-                        // mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'jQuery*', 'kendo', 'kidoju', 'chai', 'sinon']);
-                        mocha.checkLeaks().globals(['jQuery']);
-                        if (!window.blanket && !window.PHANTOMJS) {
-                            mocha.run();
-                        }
-                    });
-
+                    SystemJS.import('./window.fs.mock.es6')
+                        .then(function () {
+                            return SystemJS.import('./window.fs.test.es6')
+                        })
+                        .then(function () {
+                            mocha.checkLeaks().globals(['jQuery', 'requestFileSystem', 'storageInfo']);
+                            if (!window.blanket && !window.PHANTOMJS) {
+                                mocha.run();
+                            }
+                        });
                 });
                 mocha.setup('bdd');
                 mocha.timeout(10000);
@@ -234,7 +236,7 @@
     </script>
 </head>
 <body>
-<h1>window.workerpool</h1>
+<h1>window.fs</h1>
 <div id="mocha"></div>
 <div id="fixtures"></div>
 </body>

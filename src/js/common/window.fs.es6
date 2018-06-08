@@ -26,7 +26,6 @@ const TEMPORARY_STORAGE_SIZE = 10 * 1024 * 1024; // 10 MB
 // The following allows FS_ROOT[window.TEMPORARY] and FS_ROOT[window.PERSISTENT];
 // var FS_ROOT = ['cdvfile://localhost/temporary/', 'cdvfile://localhost/persistent/'];
 const FS_ERROR_MISSING_API = 'HTML 5 FileSystem API not supported';
-const FS_ERROR_INIT = 'FileSystem has not been initialized';
 const FILE_ERROR_CODES = {
     NOT_FOUND_ERR: 1,
     SECURITY_ERR: 2,
@@ -59,6 +58,15 @@ const FILE_TRANFER_ERROR_CODES = {
 function makeDir(dfd, root, folders) {
     assert.type(
         CONSTANTS.OBJECT,
+        dfd,
+        assert.format(assert.messages.type.default, 'dfd', CONSTANTS.OBJECT)
+    );
+    assert.isFunction(
+        dfd.then,
+        assert.format(assert.messages.isFunction.default, 'dfd.then')
+    );
+    assert.type(
+        CONSTANTS.OBJECT,
         root,
         assert.format(assert.messages.type.default, 'root', CONSTANTS.OBJECT)
     );
@@ -87,8 +95,8 @@ function makeDir(dfd, root, folders) {
         const rootURL = root.toURL();
 
         logger.debug({
-            message: 'Calling DirectoryEntry.getDirectory',
-            method: 'getDirectoryEntry',
+            message: 'Calling root.getDirectory',
+            method: 'makeDir',
             data: { rootURL, folder: folders[0] }
         });
 
@@ -98,7 +106,7 @@ function makeDir(dfd, root, folders) {
             directoryEntry => {
                 // Recursively add the new subfolder (if we still have another to create).
                 if (folders.length > 1) {
-                    makeDir(directoryEntry, folders.slice(1));
+                    makeDir(dfd, directoryEntry, folders.slice(1));
                 } else {
                     dfd.resolve(directoryEntry);
                 }
@@ -310,6 +318,11 @@ export default class FileSystem {
             type === window.TEMPORARY || type === window.PERSISTENT,
             '`type` should either be window.TEMPORARY or window.PERSISTENT'
         );
+        const fs = this._getFileSystem(type);
+        assert.ok(
+            $.type(fs) !== CONSTANTS.UNDEFINED,
+            'Call init on FileSystem before using it.'
+        );
 
         logger.debug({
             message: 'Getting directory',
@@ -318,13 +331,7 @@ export default class FileSystem {
         });
 
         const dfd = $.Deferred();
-        const fs = this._getFileSystem(type);
-        if ($.type(fs) !== CONSTANTS.UNDEFINED) {
-            // assert.instanceof(window.DirectoryEntry, fs.root, assert.format(assert.messages.instanceof.default, 'fs.root', 'window.DirectoryEntry'));
-            makeDir(dfd, fs.root, path.split('/'));
-        } else {
-            dfd.reject(new Error(FS_ERROR_INIT));
-        }
+        makeDir(dfd, fs.root, path.split('/'));
         return dfd.promise();
     }
 
@@ -333,7 +340,8 @@ export default class FileSystem {
      * @param directoryEntry (determines file storage type)
      * @param fileName
      */
-    static getFileEntry(directoryEntry, fileName) {
+    // eslint-disable-next-line class-methods-use-this
+    getFileEntry(directoryEntry, fileName) {
         assert.type(
             CONSTANTS.OBJECT,
             directoryEntry,
@@ -387,7 +395,8 @@ export default class FileSystem {
      * @param fileEntry
      * @param headers
      */
-    static download(remoteUrl, fileEntry, headers) {
+    // eslint-disable-next-line class-methods-use-this
+    download(remoteUrl, fileEntry, headers) {
         assert.type(
             CONSTANTS.STRING,
             remoteUrl,

@@ -12,6 +12,9 @@
         mocha.setup('bdd');
         mocha.timeout(10000);
     </script>
+    <!-- KAS -->
+    <script src="../../src/js/vendor/jashkenas/underscore.js"></script>
+    <script src="../../src/js/vendor/khan/kas.js"></script>
     <!-- workerlib requirements -->
     <script src="../../src/js/kidoju.data.workerlib.js"></script>
 </head>
@@ -19,7 +22,8 @@
 <div id="mocha"></div>
 <script src="kidoju.data.workerlib.test.js"></script>
 <script>
-    mocha.checkLeaks().globals(['_jb_debug_helper', 'chai', 'sinon']);
+    // mocha.checkLeaks().globals(['_jb_debug_helper', 'chai', 'sinon']);
+    mocha.checkLeaks().globals([]);
     if (!window.blanket && !window.PHANTOMJS) {
         mocha.run();
     }

@@ -68,7 +68,7 @@
         /* jshint +W071 */
 
         it('Soundex', function () {
-            var SOUNDEX = [
+            var DATA = [
                 { name: 'Soundex', value: 'S532' },
                 { name: 'Example', value: 'E251' },
                 { name: 'Sownteks', value: 'S532' },
@@ -91,47 +91,66 @@
                 { name: 'Burrows', value: 'B620' },
                 { name: 'O\'Hara', value: 'O600' }
             ];
-            for (var i = 0, length = SOUNDEX.length; i < length; i++) {
-                expect(window.soundex(SOUNDEX[i].name)).to.equal(SOUNDEX[i].value);
+            for (var i = 0, length = DATA.length; i < length; i++) {
+                expect(window.soundex(DATA[i].name)).to.equal(DATA[i].value);
             }
         });
 
         it('Metaphone', function () {
-            var METAPHONE = [
+            var DATA = [
                 { name: 'Gnu', value: 'N' },
                 { name: 'bigger', value: 'BKR' },
                 { name: 'accuracy', value: 'AKKRS' },
                 { name: 'batch batcher', value: 'BXBXR' }
                 // TODO we need more...
             ];
-            for (var i = 0, length = METAPHONE.length; i < length; i++) {
-                expect(window.metaphone(METAPHONE[i].name)).to.equal(METAPHONE[i].value);
+            for (var i = 0, length = DATA.length; i < length; i++) {
+                expect(window.metaphone(DATA[i].name)).to.equal(DATA[i].value);
             }
         });
 
         it('removeDiacritics', function () {
-            var DIACRITICS = [
+            var DATA = [
                 { name: 'La leçon est terminée', value: 'La lecon est terminee' },
                 { name: 'Cómo está usted', value: 'Como esta usted' },
                 { name: 'można zapoznać się', value: 'mozna zapoznac sie' },
                 { name: 'Z przyjemnością prezentuje Państwu', value: 'Z przyjemnoscia prezentuje Panstwu' }
                 // TODO we need more...
             ];
-            for (var i = 0, length = DIACRITICS.length; i < length; i++) {
-                expect(window.removeDiacritics(DIACRITICS[i].name)).to.equal(DIACRITICS[i].value);
+            for (var i = 0, length = DATA.length; i < length; i++) {
+                expect(window.removeDiacritics(DATA[i].name)).to.equal(DATA[i].value);
             }
         });
 
         it('Array.equals', function () {
-            var ARRAYS = [
-                { a: [1, 2, 3], b: [1, 2, 3] },
-                { a: ['a', 'b', 'c'], b: ['a', 'b', 'c'] }
+            var DATA = [
+                { value: [1, 2, 3], solution: [1, 2, 3], result: true },
+                { value: ['a', 'b', 'c'], solution: ['a', 'b', 'c'], result: true },
+                { value: [1, 2], solution: [2, 1], result: false },
+                { value: ['a', 'b', 'c'], solution: ['x', 'y', 'z'], result: false }
             ];
-            for (var i = 0, length = ARRAYS.length; i < length; i++) {
-                expect(ARRAYS[i].a.equals(ARRAYS[i].b)).to.be.true;
+            for (var i = 0, length = DATA.length; i < length; i++) {
+                expect(DATA[i].value.equals(DATA[i].solution)).to.equal(DATA[i].result);
             }
         });
 
+        it('KAS parse and compare', function () {
+            var DATA = [
+                { value: '(x-2)(x-1)', solution: '(x-1)(x-2)', result: true },
+                { value: '(x-5)', solution: '-x-3', result: false },
+                { value: '(3x+7)/(x+4)', solution: '(-3x-7)/(-x-4)', result: true },
+                { value: '\\frac{x-1}{y}', solution: '(x-1)/(y)', result: true },
+                { value: '(x-5)(x+5)', solution: 'x^2-25', result: true }
+            ];
+            for (var i = 0, length = DATA.length; i < length; i++) {
+                var value = window.KAS.parse(DATA[i].value).expr;
+                var solution = window.KAS.parse(DATA[i].solution).expr;
+                var compare = window.KAS.compare(value, solution);
+                expect(compare.equal).to.equal(DATA[i].result);
+                // The following is actually the preferred way of comparing formulas
+                expect(window.Formula(DATA[i].value).equals(DATA[i].solution)).to.equal(DATA[i].result);
+            }
+        });
     });
 
 }(this));

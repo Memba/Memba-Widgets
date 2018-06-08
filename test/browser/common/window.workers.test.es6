@@ -12,9 +12,17 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 
 const { before, describe, it, location } = window;
 const { expect } = chai;
-const url = `${location.protocol}//${location.host}${
-    /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
-}/src/js/kidoju.data.workerlib.js`;
+const libraries = [
+    `${location.protocol}//${location.host}${
+        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
+    }/src/js/vendor/jashkena/underscore.js`,
+    `${location.protocol}//${location.host}${
+        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
+    }/src/js/vendor/khan/kas.js`,
+    `${location.protocol}//${location.host}${
+        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
+    }/src/js/kidoju.data.workerlib.js`
+];
 
 function noop() {}
 
@@ -53,7 +61,7 @@ describe('window.workers', () => {
 
         it('It should load a library', done => {
             const pool = new WorkerPool();
-            pool.load(url)
+            pool.load(libraries)
                 .done(() => {
                     try {
                         expect(pool)
@@ -169,7 +177,7 @@ describe('window.workers', () => {
         const pool = new WorkerPool();
 
         before(done => {
-            pool.load(url).done(() => {
+            pool.load(libraries).done(() => {
                 done();
             });
         });
@@ -354,10 +362,96 @@ describe('window.workers', () => {
                 .fail(done);
         });
 
-        /*
         it('Array.equals', done => {
-            done();
+            const DATA = [
+                { value: [1, 2, 3], solution: [1, 2, 3], result: true },
+                { value: [1, 2], solution: [2, 1], result: false },
+                {
+                    value: ['a', 'b', 'c'],
+                    solution: ['a', 'b', 'c'],
+                    result: true
+                },
+                {
+                    value: ['a', 'b', 'c'],
+                    solution: ['c', 'b', 'a'],
+                    result: false
+                },
+                {
+                    value: ['a', 'b', 'c'],
+                    solution: ['x', 'y', 'z'],
+                    result: false
+                }
+            ];
+            const script =
+                'self.postMessage(e.data.value.equals(e.data.solution));';
+            const promises = [];
+            DATA.forEach((data, index) => {
+                promises.push(pool.exec(script, data, `Task ${index}`));
+            });
+            $.when(...promises)
+                .done((...args) => {
+                    try {
+                        expect(args.length).to.equal(DATA.length);
+                        for (let i = 0; i < args.length; i++) {
+                            expect(args[i]).to.have.property(
+                                'name',
+                                `Task ${i}`
+                            );
+                            expect(args[i]).to.have.property(
+                                'value',
+                                DATA[i].result
+                            );
+                        }
+                        done();
+                    } catch (ex) {
+                        done(ex);
+                    }
+                })
+                .fail(done);
         });
-        */
+
+        it('Formula.equals', done => {
+            const DATA = [
+                { value: '(x-2)(x-1)', solution: '(x-1)(x-2)', result: true },
+                { value: '(x-5)', solution: '-x-3', result: false },
+                {
+                    value: '(3x+7)/(x+4)',
+                    solution: '(-3x-7)/(-x-4)',
+                    result: true
+                },
+                {
+                    value: '\\frac{x-1}{y}',
+                    solution: '(x-1)/(y)',
+                    result: true
+                },
+                { value: '(x-5)(x+5)', solution: 'x^2-25', result: true }
+            ];
+            const script =
+                'self.postMessage(Formula(e.data.value).equals(e.data.solution));';
+            const promises = [];
+            DATA.forEach((data, index) => {
+                promises.push(pool.exec(script, data, `Task ${index}`));
+            });
+            $.when(...promises)
+                .done((...args) => {
+                    try {
+                        expect(args.length).to.equal(DATA.length);
+                        for (let i = 0; i < args.length; i++) {
+                            expect(args[i]).to.have.property(
+                                'name',
+                                `Task ${i}`
+                            );
+                            expect(args[i]).to.have.property(
+                                'value',
+                                DATA[i].result
+                            );
+                        }
+                        done();
+                    } catch (ex) {
+                        done(ex);
+                    }
+                })
+                .fail(done);
+        });
     });
 });

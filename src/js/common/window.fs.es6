@@ -16,7 +16,7 @@ import Logger from './window.logger.es6';
  *
  * On other platforms we need a polyfill like https://raw.githubusercontent.com/ebidel/idb.filesystem.js/master/src/idb.filesystem.js
  * Check https://docs.microsoft.com/en-us/microsoft-edge/dev-guide/storage/indexeddb/saving-large-files-locally
- * Note that in Cordova, images can be accessed using file://, which is not possible with blobs stored in indexedDB, so the polyfill is only used in app.fs.test.html
+ * Note that in Cordova, images can be accessed using file://, which is not possible with blobs stored in indexedDB, so the polyfill is only used in window.fs.test.html
  */
 
 const logger = new Logger('window.fs');

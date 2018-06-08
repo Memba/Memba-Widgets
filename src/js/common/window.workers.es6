@@ -47,9 +47,31 @@ function workerTimeout() {
     });
     return timeout;
 }
-function noop() {}
 const CONCURRENCY = Math.max(1, (navigator.hardwareConcurrency || 4) - 1);
 const TTL = workerTimeout();
+
+/**
+ * Concat multiple $.ajax responses
+ * @param responses
+ * @returns {*}
+ */
+function concat(responses) {
+    let ret;
+    if (Array.isArray(responses) && Array.isArray(responses[0])) {
+        ret = responses.map(r => r[0]).join('\n\n');
+    } else if (
+        Array.isArray(responses) &&
+        $.type(responses[0]) === CONSTANTS.STRING
+    ) {
+        [ret] = responses;
+    }
+    assert.type(
+        CONSTANTS.STRING,
+        ret,
+        assert.format(assert.messages.type.default, 'ret', CONSTANTS.STRING)
+    );
+    return ret;
+}
 
 /**
  * WorkerPool
@@ -86,17 +108,19 @@ export default class WorkerPool {
     }
 
     /**
-     * Load a library
+     * Load a library or an array of libraries
      */
     load(url) {
-        assert.match(
-            CONSTANTS.RX_URL,
-            url,
-            assert.format(
-                assert.messages.match.default,
-                'url',
-                CONSTANTS.RX_URL
-            )
+        let libraries = url;
+        if ($.type(libraries) === CONSTANTS.STRING) {
+            libraries = [url];
+        }
+        assert.isArray(
+            libraries,
+            assert.format(assert.messages.isArray.default, 'url')
+        );
+        const promises = libraries.map(library =>
+            $.ajax({ url: library, cache: true, dataType: 'text' })
         );
         /**
          * IMPORTANT:
@@ -104,20 +128,17 @@ export default class WorkerPool {
          * We have implemented the later because it makes one common blob with the library and all other blobs are very small which makes a smaller memory footprint.
          * If the library were merged, each worker blob would contain the library, potentially making a much larger memory footprint.
          */
-        /*
-        // Here library is loaded so as to be merged with script (see exec)
-        return $.ajax({ url, cache: true, dataType: 'text' }).done(script => {
-            this._library = script;
-        });
-        */
-        // Here library is loaded as a common blob to be imported via importScripts
-        if (this._library) {
-            // Note: Considering URL.revokeObjectURL(this._library) won't be called in th eend
-            // let's make sure we call it on any existing library before setting a new one
-            URL.revokeObjectURL(this._library);
-        }
-        return $.ajax({ url, cache: true, dataType: 'text' }).done(script => {
-            const blob = new Blob([script], {
+        return $.when(...promises).done((...responses) => {
+            // Here library is loaded so as to be merged with script (see exec)
+            // this._library = concat(responses);
+
+            // Here library is loaded as a common blob to be imported via importScripts
+            if (this._library) {
+                // Note: Considering URL.revokeObjectURL(this._library) won't be called in th eend
+                // let's make sure we call it on any existing library before setting a new one
+                URL.revokeObjectURL(this._library);
+            }
+            const blob = new Blob([concat(responses)], {
                 type: 'application/javascript'
             });
             this._library = URL.createObjectURL(blob);
@@ -212,18 +233,14 @@ export default class WorkerPool {
 
     /**
      * Runs next task
-     * @param thread
      */
     _next() {
         const { tasks, ttl, workers } = this;
         const _next = this._next.bind(this);
         function terminate(thread, task) {
-            try {
+            if (workers[thread] instanceof Worker) {
                 // Unterminated errored workers make further workers unstable in FF
-                // and try/catch avoids errors when Chrome devtools are opened
                 workers[thread].terminate();
-            } catch (ex) {
-                noop(); // To please eslint
             }
             workers[thread] = undefined;
             URL.revokeObjectURL(task.blobURL);

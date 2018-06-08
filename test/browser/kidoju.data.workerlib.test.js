@@ -19,12 +19,14 @@
 
         it('Blacklisted globals', function () {
             expect(window.ActiveXObject).to.be.undefined;
+            expect(window.Blob).to.be.undefined;
             expect(window.clearInterval).to.be.undefined;
             expect(window.clearTimeout).to.be.undefined;
             /* eval can be harmful. */
             /* jshint -W061 */
             expect(window.eval).to.be.undefined;
             /* jshint +W061 */
+            expect(window.fetch).to.be.undefined;
             expect(window.Function).to.be.undefined;
             expect(window.importScripts).to.be.undefined;
             if (window.indexedDB && !window.PHANTOMJS) {

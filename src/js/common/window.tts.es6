@@ -66,7 +66,7 @@ if (window.cordova) {
  * @see https://github.com/vilic/cordova-plugin-tts
  * @type {*}
  */
-function useCordovaPlugIn() {
+export function useCordovaPlugIn() {
     // This has to be a function because it needs to be evaluated once the TTS plugin is loaded
     // return !!(window.cordova && window.device && window.device.platform !== 'browser' && !RX_IOS_11.test(window.navigator.userAgent) && window.TTS && $.isFunction(window.TTS.speak));
     return !!(

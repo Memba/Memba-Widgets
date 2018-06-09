@@ -49,8 +49,7 @@ describe('window.pongodb.migration', () => {
                     spy =>
                         function map(...rest) {
                             spy(...rest);
-                            return $
-                                .Deferred()
+                            return $.Deferred()
                                 .resolve()
                                 .promise();
                         }

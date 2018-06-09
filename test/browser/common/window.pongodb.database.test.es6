@@ -267,8 +267,7 @@ describe('window.pongodb.database', () => {
                     scripts: [
                         function script(options) {
                             migration(options);
-                            return $
-                                .Deferred()
+                            return $.Deferred()
                                 .resolve()
                                 .promise();
                         }

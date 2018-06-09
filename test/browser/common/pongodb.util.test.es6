@@ -17,12 +17,12 @@ import {
     normalizeFilter,
     search,
     setter
-} from '../../../src/js/common/window.pongodb.util.es6';
+} from '../../../src/js/common/pongodb.util.es6';
 
 const { describe, it, xit } = window;
 const { expect } = chai;
 
-describe('window.pongodb.util', () => {
+describe('pongodb.util', () => {
     describe('Legacy export', () => {
         it('Check window.pongodb.util.*', () => {
             expect(window.pongodb.util.compareVersions).to.equal(

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>window.pongodb.database</title>
+    <title>pongodb.database</title>
     <script>
         window.app = { DEBUG: true };
     </script>
@@ -218,7 +218,7 @@
                     exports.test = context.test || context.it;
                     exports.run = context.run;
                     // now use SystemJS to load all test files
-                    SystemJS.import('./window.pongodb.database.test.es6').then(function () {
+                    SystemJS.import('./pongodb.database.test.es6').then(function () {
                         // mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'jQuery*', 'kendo', 'kidoju', 'chai', 'sinon']);
                         mocha.checkLeaks().globals(['jQuery']);
                         if (!window.blanket && !window.PHANTOMJS) {
@@ -234,7 +234,7 @@
     </script>
 </head>
 <body>
-<h1>window.pongodb.database</h1>
+<h1>pongodb.database</h1>
 <div id="mocha"></div>
 <div id="fixtures"></div>
 </body>

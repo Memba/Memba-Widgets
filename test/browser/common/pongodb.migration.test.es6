@@ -9,14 +9,14 @@ import $ from 'jquery';
 import chai from 'chai';
 import sinon from 'sinon';
 import 'sinon-chai';
-import Migration from '../../../src/js/common/window.pongodb.migration.es6';
-import Database from '../../../src/js/common/window.pongodb.database.es6';
+import Migration from '../../../src/js/common/pongodb.migration.es6';
+import Database from '../../../src/js/common/pongodb.database.es6';
 
 const { after, before, describe, it } = window;
 const { expect } = chai;
 const PONGO_DB = 'pongo_db';
 
-describe('window.pongodb.migration', () => {
+describe('pongodb.migration', () => {
     describe('Legacy export', () => {
         it('Check window.pongodb.*', () => {
             expect(window.pongodb.Migration).to.equal(Migration);

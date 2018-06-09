@@ -9,15 +9,15 @@ import $ from 'jquery';
 import chai from 'chai';
 import sinon from 'sinon';
 import 'sinon-chai';
-import ObjectId from '../../../src/js/common/window.pongodb.objectid.es6';
-import Database from '../../../src/js/common/window.pongodb.database.es6';
-import Collection from '../../../src/js/common/window.pongodb.collection.es6';
+import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
+import Database from '../../../src/js/common/pongodb.database.es6';
+import Collection from '../../../src/js/common/pongodb.collection.es6';
 
 const { after, before, describe, it } = window;
 const { expect } = chai;
 const PONGO_DB = 'pongo_db';
 
-describe('window.pongodb.collection', () => {
+describe('pongodb.collection', () => {
     describe('Legacy export', () => {
         it('Check window.pongodb.*', () => {
             expect(window.pongodb.Collection).to.equal(Collection);

@@ -8,12 +8,12 @@
 import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { randomHexString } from '../../../src/js/common/window.util.es6';
-import ObjectId from '../../../src/js/common/window.pongodb.objectid.es6';
+import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
 
-describe('window.pongodb.objectid', () => {
+describe('pongodb.objectid', () => {
     describe('Legacy export', () => {
         it('Check window.pongodb.*', () => {
             expect(window.pongodb.ObjectId).to.equal(ObjectId);

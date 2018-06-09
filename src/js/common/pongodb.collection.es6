@@ -7,10 +7,10 @@
 import $ from 'jquery';
 import assert from './window.assert.es6';
 import CONSTANTS from './window.constants.es6';
-import ObjectId from './window.pongodb.objectid.es6';
+import ObjectId from './pongodb.objectid.es6';
 // import Database from './window.pongodb.database.es6'; // <-- circular reference
 import localForage from '../vendor/localforage/localforage.nopromises';
-import { match } from './window.pongodb.util.es6';
+import { match } from './pongodb.util.es6';
 
 const TRIGGERS = {
     insert: 'insert',

@@ -10,14 +10,14 @@ import chai from 'chai';
 import sinon from 'sinon';
 import 'sinon-chai';
 import localForage from '../../../src/js/vendor/localforage/localforage.nopromises';
-import Database from '../../../src/js/common/window.pongodb.database.es6';
-import Collection from '../../../src/js/common/window.pongodb.collection.es6';
-import Migration from '../../../src/js/common/window.pongodb.migration.es6';
+import Database from '../../../src/js/common/pongodb.database.es6';
+import Collection from '../../../src/js/common/pongodb.collection.es6';
+import Migration from '../../../src/js/common/pongodb.migration.es6';
 
 const { before, describe, it } = window;
 const { expect } = chai;
 
-describe('window.pongodb.database', () => {
+describe('pongodb.database', () => {
     describe('Legacy export', () => {
         it('Check window.pongodb.*', () => {
             expect(window.pongodb.Collection).to.equal(Collection);

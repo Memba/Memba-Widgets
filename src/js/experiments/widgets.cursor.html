@@ -2,19 +2,22 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.nediarecorder</title>
-    <link rel="stylesheet" href="../../styles/vendor/kendo/web/kendo.common.min.css">
-    <link rel="stylesheet" href="../../styles/vendor/kendo/web/kendo.rtl.min.css">
-    <link rel="stylesheet" href="../../styles/vendor/kendo/web/kendo.default.min.css">
-    <!-- kidoju.widgets.mediarecorder stylesheet -->
-    <!--link href="../../styles/widgets/kidoju.widgets.mediarecorder.css" rel="stylesheet" /-->
+    <title>widgets.cursor</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- widgets.cursor stylesheet -->
+    <!--link href="./styles/kidoju.widgets.cursir.css" rel="stylesheet"-->
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
             SystemJS.config({
-                baseURL: '../../',
+                baseURL: './',
                 bundles: {
                     'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
@@ -176,42 +179,30 @@
                     }
                 },
                 paths: {
-                    'plugin-babel': '../../../node_modules/systemjs-plugin-babel/plugin-babel.js',
-                    'systemjs-babel-build': '../../../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
+                    'plugin-babel': '../node_modules/systemjs-plugin-babel/plugin-babel.js',
+                    'systemjs-babel-build': '../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.widgets.mediarecorder.es6').then(function () {
+            SystemJS.import('./js/widgets.cursor.js').then(function () {
                 var kendo = window.kendo;
-                $(function () {
-                    // Unbound
-                    $('#mediarecorder').kendoMediaRecorder();
-                    // Bound to observable
-                    var viewModel = kendo.observable({
-                        visible: true,
-                        enabled: true
-                    });
-                    kendo.bind(document.body, viewModel);
+                $(function() {
+                    kendo.init('body');
                 });
             });
         }());
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.nediarecorder</h1>
-<h2>Code initilization</h2>
-<div id="mediarecorder"></div>
-<h2>Bound to observable</h2>
-<!--div data-role="mediarecorder" data-bind="visible: visible, enabled: enabled"></div-->
-<div>
-    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
-    <input type="checkbox" data-bind="checked: enabled" />Enabled
+<h1>widgets.cursor</h1>
+<div id="toolbar"></div>
+<div class="kj-stage" style="position:relative;height:600px;width:800px;border:solid 1px black;transform: scale(0.75);">
+    <div data-role="stage" style="height:600px;width:800px;">
+        <div class="kj-element" style="position:absolute;top:50px;left:100px;height:480px;width:640px;">
+            <input type="text">
+        </div>
+    </div>
 </div>
-<pre>
-    {
-        visible: <span data-bind="text: visible"></span>,
-        enabled: <span data-bind="text: enabled"></span>
-    }
-</pre>
+<div data-role="cursor"></div>
 </body>
 </html>

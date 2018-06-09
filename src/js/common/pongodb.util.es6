@@ -8,7 +8,6 @@ import $ from 'jquery';
 import assert from './window.assert.es6';
 import CONSTANTS from './window.constants.es6';
 import { escapeRegExp } from './window.util.es6';
-// import ObjectId from './window.pongodb.objectid.es6';
 
 /**
  * Getter for deep fields

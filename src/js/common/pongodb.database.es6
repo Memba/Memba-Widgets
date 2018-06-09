@@ -13,7 +13,7 @@ import Collection from './pongodb.collection.es6';
 import Migration from './pongodb.migration.es6';
 import localForage from '../vendor/localforage/localforage.nopromises';
 
-const logger = new Logger('window.pongodb.Database');
+const logger = new Logger('pongodb.database');
 const META = '__meta__';
 const VERSION = 'version';
 const VERSION_000 = '0.0.0';

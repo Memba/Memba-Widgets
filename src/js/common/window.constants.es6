@@ -33,6 +33,9 @@ const CONSTANTS = {
     TOUCHLEAVE: 'touchleave',
     TOUCHMOVE: 'touchmove',
     TOUCHSTART: 'touchstart',
+    // Cursors
+    CROSSHAIR_CURSOR: 'crosshair',
+    DEFAULT_CURSOR: 'default',
     // Well-known classes
     DISABLED_CLASS: 'k-state-disabled',
     FOCUS_CLASS: 'k-state-focus',
@@ -50,7 +53,6 @@ const CONSTANTS = {
     HYPHEN: '-',
     UNDERSCORE: '_',
     // Miscellaneous
-    DEFAULT: 'default',
     ID: 'id',
     ME: 'me',
     POINTER: 'pointer'

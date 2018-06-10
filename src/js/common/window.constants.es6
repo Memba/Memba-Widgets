@@ -51,7 +51,8 @@ const CONSTANTS = {
     UNDERSCORE: '_',
     // Miscellaneous
     ID: 'id',
-    ME: 'me'
+    ME: 'me',
+    POINTER: 'pointer'
 };
 
 /**

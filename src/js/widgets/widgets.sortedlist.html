@@ -2,13 +2,12 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.license</title>
+    <title>widgets.sortedlist</title>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.license stylesheet -->
-    <link href="../../styles/fonts/kidoju.css" rel="stylesheet" />
-    <link href="../../styles/widgets/kidoju.widgets.license.css" rel="stylesheet" />
+    <!-- widgets.sortedlist stylesheet -->
+    <!--link href="../../styles/widgets/widgets.sortedlist.css" rel="stylesheet" /-->
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -182,16 +181,61 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.widgets.license.es6').then(function () {
+            SystemJS.import('./widgets.sortedlist.es6').then(function () {
                 var kendo = window.kendo;
                 $(function () {
-                    // Unbound
-                    $('#license').kendoLicense({ value: 13 });
+                    // text only unbound
+                    $('#sortedlist1').kendoSortedList({
+                        dataSource: [ 'un', 'trois', 'deux', 'quatre'],
+                        template: '<div class="k-listview-item">#: data #</div>'
+                    });
+                    // text and image unbound
+                    $('#sortedlist2').kendoSortedList({
+                        dataSource: new kendo.data.DataSource({
+                            data: [
+                                {
+                                    text: 'question 1',
+                                    image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg'
+                                },
+                                {
+                                    text: 'question 2',
+                                    image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg'
+                                },
+                                {
+                                    text: 'question 3',
+                                    image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg'
+                                },
+                                {
+                                    text: 'question 4',
+                                    image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg'
+                                }
+                            ]
+                        }),
+                        template: '<div class="k-listview-item"><img alt="#: text #" src="#: image #" style="height:50px;width:50px;vertical-align: middle;margin-right: 1em;">#: text #</div>'
+                    });
+                    // image unbound
+                    $('#sortedlist3').kendoSortedList({
+                        dataSource: [ 'un', 'trois', 'deux', 'quatre'],
+                        template: '<div class="k-listview-item">#: data #</div>'
+                    });
+                    // text only
+                    $('#sortedlist4').kendoSortedList({
+                        dataSource: [ 'un', 'trois', 'deux', 'quatre'],
+                        template: '<div class="k-listview-item">#: data #</div>'
+                    });
+                    // Within scaled stage
+                    $('#sortedlist5').kendoSortedList({
+                        dataSource: [ 'un', 'trois', 'deux', 'quatre'],
+                        template: '<div class="k-listview-item">#: data #</div>'
+                    });
                     // Bound to observable
                     var viewModel = kendo.observable({
-                        license: 1,
+                        list: [],
                         visible: true,
-                        enabled: true
+                        enabled: true,
+                        list$: function() {
+                            return this.list.join(',');
+                        }
                     });
                     kendo.bind(document.body, viewModel);
                 });
@@ -200,13 +244,21 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.license</h1>
-<h2>Code initilization</h2>
-<div id="license"></div>
-<h2>Declarative</h2>
-<div data-role="license" data-value="0"></div>
-<h2>License bound to observable</h2>
-<div data-role="license" data-bind="value: license, visible: visible, enabled: enabled" /></div>
+<h1>widgets.sortedlist</h1>
+<h2>Code initialization</h2>
+<div id="sortedlist1"></div>
+<div id="sortedlist2"></div>
+<div id="sortedlist3"></div>
+<div id="sortedlist4"></div>
+<div class="kj-stage" style="height: 600px; width: 800px; transform: scale(0.75);">
+    <div data-role="stage" style="position:relative;height: 600px; width: 800px;">
+        <div class="kj-element" style="position:absolute;top:100px;left:150px;width:250px;height:250px;">
+            <div id="sortedlist5"></div>
+        </div>
+    </div>
+</div>
+<h2>Bound to observable</h2>
+<div data-role="sortedlist" data-bind="source: list, visible: visible, enabled: enabled" /></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled
@@ -214,7 +266,7 @@
 
 <pre>
     {
-        value: <span data-bind="text: license"></span>,
+        source: <span data-bind="text: list$"></span>,
         visible: <span data-bind="text: visible"></span>,
         enabled: <span data-bind="text: enabled"></span>
     }

@@ -2,12 +2,13 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.scratchpad</title>
+    <title>widgets.license</title>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.scratchpad stylesheet -->
-    <!--link href="../../styles/widgets/kidoju.widgets.scratchpad.css" rel="stylesheet" /-->
+    <!-- widgets.license stylesheet -->
+    <link href="../../styles/fonts/kidoju.css" rel="stylesheet" />
+    <link href="../../styles/widgets/widgets.license.css" rel="stylesheet" />
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -181,14 +182,14 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.widgets.scratchpad.es6').then(function () {
+            SystemJS.import('./widgets.license.es6').then(function () {
                 var kendo = window.kendo;
                 $(function () {
                     // Unbound
-                    $('#scratchpad').kendoScratchPad();
+                    $('#license').kendoLicense({ value: 13 });
                     // Bound to observable
                     var viewModel = kendo.observable({
-                        surface: [],
+                        license: 1,
                         visible: true,
                         enabled: true
                     });
@@ -199,18 +200,21 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.scratchpad</h1>
-<h2>Code initialization</h2>
-<div id="scratchpad" style="height:500px; width:500px;"></div>
-<h2>Bound to observable</h2>
-<div data-role="scratchpad" data-bind="value: surface, visible: visible, enabled: enabled" style="height:500px; width:500px;" /></div>
+<h1>widgets.license</h1>
+<h2>Code initilization</h2>
+<div id="license"></div>
+<h2>Declarative</h2>
+<div data-role="license" data-value="0"></div>
+<h2>License bound to observable</h2>
+<div data-role="license" data-bind="value: license, visible: visible, enabled: enabled" /></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled
 </div>
+
 <pre>
     {
-        value: <span data-bind="text: stream"></span>,
+        value: <span data-bind="text: license"></span>,
         visible: <span data-bind="text: visible"></span>,
         enabled: <span data-bind="text: enabled"></span>
     }

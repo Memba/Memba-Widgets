@@ -50,6 +50,7 @@ const CONSTANTS = {
     HYPHEN: '-',
     UNDERSCORE: '_',
     // Miscellaneous
+    DEFAULT: 'default',
     ID: 'id',
     ME: 'me',
     POINTER: 'pointer'

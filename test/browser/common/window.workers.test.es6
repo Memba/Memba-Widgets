@@ -15,7 +15,7 @@ const { expect } = chai;
 const libraries = [
     `${location.protocol}//${location.host}${
         /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
-    }/src/js/vendor/jashkena/underscore.js`,
+    }/src/js/vendor/jashkenas/underscore.js`,
     `${location.protocol}//${location.host}${
         /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
     }/src/js/vendor/khan/kas.js`,
@@ -23,6 +23,10 @@ const libraries = [
         /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
     }/src/js/kidoju.data.workerlib.js`
 ];
+
+// TODO Try kisonecat/math-expression
+// TODO Try kisonecat/mathjs
+// TODO Try silentmatt/math-expr
 
 function noop() {}
 

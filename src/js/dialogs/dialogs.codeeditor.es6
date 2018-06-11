@@ -7,22 +7,23 @@
 // eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import 'kendo.core';
-import './kidoju.widgets.basedialog.es6';
-import '../kidoju.widgets.styleeditor';
+import './widgets.basedialog.es6';
+import '../kidoju.widgets.codeeditor';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {
     ns,
     resize,
+    roleSelector,
     ui: { BaseDialog }
 } = window.kendo;
 
 /**
- * A shortcut function to display a dialog with a kendo.ui.StyleEditor
+ * A shortcut function to display a dialog with a kendo.ui.CodeEditor
  * @param options
  * @returns {*}
  */
-export default function openStyleEditor(options = {}) {
+export default function openCodeEditor(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
@@ -36,9 +37,16 @@ export default function openStyleEditor(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div data-${ns}role="styleeditor" data-${ns}bind="value:value" data-${ns}height="400"></div>`,
+                    content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" data-${ns}default="${JSON.stringify(
+                        (options.data || {}).defaultValue || ''
+                    )}" data-${ns}solution="${JSON.stringify(
+                        (options.data || {}).solution
+                    )}"></div>`,
                     data: {
-                        value: ''
+                        value: '',
+                        library: []
+                        // defaultValue: null,
+                        // solution: null
                     },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
@@ -54,10 +62,12 @@ export default function openStyleEditor(options = {}) {
     // Bind the show event to resize once opened
     dialog.one('show', e => {
         resize(e.sender.element);
-        // Workaround for issue described at
-        // https://github.com/telerik/kendo-ui-core/issues/1990 and
-        // https://github.com/telerik/kendo-ui-core/issues/2156
-        // e.sender.element.find(roleSelector('styleeditor)).data('kendoStyleEditor').refresh();
+        // IMPORTANT, we need to refresh CodeMirror here otherwise the open animation messes with CodeMirror calculations
+        // and gutter and line numbers are not displayed properly
+        const codeEditor = e.sender.element
+            .find(roleSelector('codeeditor'))
+            .data('kendoCodeEditor');
+        codeEditor.codeMirror.refresh();
     });
 
     // Bind the click event
@@ -79,4 +89,4 @@ export default function openStyleEditor(options = {}) {
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openStyleEditor = openStyleEditor;
+window.kidoju.dialogs.openCodeEditor = openCodeEditor;

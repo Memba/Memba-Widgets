@@ -7,12 +7,11 @@
 // eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import 'kendo.core';
-import './kidoju.widgets.basedialog.es6';
-import '../kidoju.widgets.chargrid';
+import 'kendo.spreadsheet';
+import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {
-    bind,
     ns,
     resize,
     roleSelector,
@@ -20,16 +19,16 @@ const {
 } = window.kendo;
 
 /**
- * A shortcut function to display a dialog with a kendo.ui.CodeEditor
+ * A shortcut function to display a dialog with a kendo.ui.Spreadsheet
  * @param options
  * @returns {*}
  */
-export default function openCharGrid(options = {}) {
+export default function openSpreadsheet(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
     const $dialog = BaseDialog.getElement(options.cssClass);
-    $dialog.css({ padding: '' });
+    $dialog.css({ padding: 0 });
 
     // Create the dialog
     const dialog = $dialog
@@ -38,12 +37,8 @@ export default function openCharGrid(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div style="display:flex;flex-direction:row"><div data-${ns}role="chargrid" data-${ns}bind="value:value" style="flex-shrink:0"></div><div class="kj-chargrid-message" style="margin-left:1em;">${
-                        options.message
-                    }</div></div>`,
-                    data: {
-                        value: []
-                    },
+                    content: `<div data-${ns}role="spreadsheet" style="width:100%;border:0;"></div>`,
+                    // data: {}
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel
@@ -55,32 +50,44 @@ export default function openCharGrid(options = {}) {
         )
         .data('kendoBaseDialog');
 
+    // Rebind the initOpen event considering the kendo.ui.Spreadsheet widget cannot bind to a viewModel
     dialog.unbind('initOpen');
     dialog.one('initOpen', e => {
-        const width = 550;
-        // Initialize chargrid
-        e.sender.element
-            .find(roleSelector('chargrid'))
-            .height(
-                (width * e.sender.options.charGrid.height) /
-                    e.sender.options.charGrid.width
+        e.sender.element.find(roleSelector('spreadsheet')).kendoSpreadsheet(
+            Object.assign(
+                {
+                    sheetsbar: false,
+                    sheets: []
+                },
+                e.sender.options.data
             )
-            .width(width)
-            .kendoCharGrid(options.charGrid);
-        // Bind viewModel
-        bind(e.sender.element.children(), e.sender.viewModel);
+        );
     });
 
     // Bind the show event to resize once opened
     dialog.one('show', e => {
         resize(e.sender.element);
+        // spreadsheetWidget.activeSheet().range('A1:A1').select();
+        // Disable context menu
+        // spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
+        // Set default font size
+        /*
+        var activeSheet = spreadsheetWidget.activeSheet();
+        activeSheet.range('R1C1:R' + rows + 'C' + columns).forEachCell(function (rowIndex, columnIndex) {
+            var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
+            range.fontSize(range.fontSize() || 48);
+        });
+        */
     });
 
     // Bind the click event
     dialog.bind(CONSTANTS.CLICK, e => {
+        const spreadSheet = e.sender.element
+            .find(roleSelector('spreadsheet'))
+            .data('kendoSpreadsheet');
         dfd.resolve({
             action: e.action,
-            data: e.sender.viewModel.toJSON()
+            data: spreadSheet.toJSON()
         });
     });
 
@@ -95,4 +102,4 @@ export default function openCharGrid(options = {}) {
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openCharGrid = openCharGrid;
+window.kidoju.dialogs.openSpreadsheet = openSpreadsheet;

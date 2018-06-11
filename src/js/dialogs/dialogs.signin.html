@@ -3,15 +3,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.dialogs.spreadsheet</title>
+    <title>dialogs.signin</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.dialogs.basedialog stylesheet -->
-    <link href="../../styles/dialogs/kidoju.widgets.basedialog.css" rel="stylesheet">
+    <!-- dialogs.basedialog stylesheet -->
+    <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -185,27 +185,18 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.dialogs.spreadsheet.es6').then(function () {
+            SystemJS.import('./dialogs.signin.es6').then(function () {
                 var kendo = window.kendo;
                 var kidoju = window.kidoju;
                 $(function () {
                     $('#button1').click(function (e) {
-                        kidoju.dialogs.openSpreadsheet({
-                            title: 'My Spreadsheet',
+                        kidoju.dialogs.openSignIn({
+                            title: 'Signin',
                             data: {
-                                sheets: [{
-                                    name: "Food Order",
-                                    mergedCells: [
-                                        "A1:G1"
-                                    ],
-                                    rows: [{
-                                        height: 70,
-                                        cells: [{
-                                            value: "My Company", fontSize: 32, textAlign: "center"
-                                        }]
-                                    }]
-                                }]
-                            }
+                                provider : '',
+                                terms: false
+                            },
+                            width: 860
                         }).done(function(result) {
                             $("#console1").append(
                                 kendo.format(
@@ -232,9 +223,9 @@
 
 <body>
 
-<h1>kidoju.dialogs.spreadsheet</h1>
+<h1>dialogs.signin</h1>
 
-<h2>using kendo.dialogs.openSpreadsheet</h2>
+<h2>using kendo.dialogs.openSignIn</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

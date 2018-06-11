@@ -3,15 +3,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.dialogs.quizwizard</title>
+    <title>dialogs.spreadsheet</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.dialogs.basedialog stylesheet -->
-    <link href="../../styles/dialogs/kidoju.widgets.basedialog.css" rel="stylesheet">
+    <!-- dialogs.basedialog stylesheet -->
+    <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -185,17 +185,27 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.dialogs.quizwizard.es6')
-            .then(function () {
-                return SystemJS.import('../messages/kidoju.dialogs.en.es6');
-            })
-            .then(function () {
+            SystemJS.import('./dialogs.spreadsheet.es6').then(function () {
                 var kendo = window.kendo;
                 var kidoju = window.kidoju;
                 $(function () {
                     $('#button1').click(function (e) {
-                        kidoju.dialogs.openQuizWizard({
-                            title: 'New Quiz'
+                        kidoju.dialogs.openSpreadsheet({
+                            title: 'My Spreadsheet',
+                            data: {
+                                sheets: [{
+                                    name: "Food Order",
+                                    mergedCells: [
+                                        "A1:G1"
+                                    ],
+                                    rows: [{
+                                        height: 70,
+                                        cells: [{
+                                            value: "My Company", fontSize: 32, textAlign: "center"
+                                        }]
+                                    }]
+                                }]
+                            }
                         }).done(function(result) {
                             $("#console1").append(
                                 kendo.format(
@@ -222,9 +232,9 @@
 
 <body>
 
-<h1>kidoju.dialogs.quizwizard</h1>
+<h1>dialogs.spreadsheet</h1>
 
-<h2>using kendo.dialogs.openQuizWizard</h2>
+<h2>using kendo.dialogs.openSpreadsheet</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

@@ -3,15 +3,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.dialogs.finder</title>
+    <title>dialogs.styleeditor</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.dialogs.basedialog stylesheet -->
-    <link href="../../styles/dialogs/kidoju.widgets.basedialog.css" rel="stylesheet">
+    <!-- dialogs.basedialog stylesheet -->
+    <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
+    <!-- widgets.styleeditor stylesheet -->
+    <link href="../../styles/kidoju.widgets.styleeditor.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -20,7 +22,6 @@
             SystemJS.config({
                 baseURL: '../../',
                 bundles: {
-                    'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
                     'kendodatavizbarcode': ['kendo.dataviz.barcode'],
                     'kendodatavizchart': ['kendo.dataviz.chart'],
@@ -36,6 +37,7 @@
                     'kendodrawing': ['kendo.drawing'],
                     'kendoeditor': ['kendo.editor'],
                     'kendogantt': ['kendo.gantt'],
+                    'kendogrid': ['kendo.grid'],
                     'kendopdf': ['kendo.pdf'],
                     'kendoscheduler': ['kendo.scheduler'],
                     'kendospreadsheet': ['kendo.spreadsheet']
@@ -185,27 +187,17 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.dialogs.finder.es6').then(function () {
+            Promise.all([
+                SystemJS.import('jquery'),
+                SystemJS.import('kendo.grid'), // Required because of https://github.com/systemjs/systemjs/issues/1818
+                SystemJS.import('./dialogs.styleeditor.es6')
+            ]) .then(function () {
                 var kendo = window.kendo;
                 var kidoju = window.kidoju;
                 $(function () {
                     $('#button1').click(function (e) {
-                        kidoju.dialogs.openFinder({
-                            title: 'Finder'
-                            /*
-                            data: {
-                                language: 'en',
-                                languages: [{ text: 'English', value: 'en' }, { text: 'French', value: 'fr' }],
-                                search: '',
-                                summaries: new kendo.data.DataSource({
-                                    data: [
-                                        { id: kendo.guid(), ProductName: 'Tomato' },
-                                        { id: kendo.guid(), ProductName: 'Potato' },
-                                    ]
-                                }),
-                                summaryId: null
-                            },
-                            */
+                        kidoju.dialogs.openStyleEditor({
+                            title: 'My Style'
                         }).done(function(result) {
                             $("#console1").append(
                                 kendo.format(
@@ -232,9 +224,9 @@
 
 <body>
 
-<h1>kidoju.dialogs.finder</h1>
+<h1>dialogs.styleeditor</h1>
 
-<h2>using kendo.dialogs.openFinder</h2>
+<h2>using kendo.dialogs.openStyleEditor</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

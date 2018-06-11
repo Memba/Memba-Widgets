@@ -20,7 +20,7 @@
         './vendor/kendo/kendo.window',
         // './vendor/kendo/kendo.upload' // <--- does not work with AWS S3
         './kidoju.widgets.vectordrawing',
-        './dialogs/kidoju.dialogs.alert.es6'
+        './dialogs/dialogs.alert.es6'
     ], f);
 })(function () {
 

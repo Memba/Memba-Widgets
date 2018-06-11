@@ -3,15 +3,19 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.dialogs.signin</title>
+    <title>dialogs.codeeditor</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.dialogs.basedialog stylesheet -->
-    <link href="../../styles/dialogs/kidoju.widgets.basedialog.css" rel="stylesheet">
+    <!-- dialogs.basedialog stylesheet -->
+    <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
+    <!-- widgets.codeeditor stylesheet -->
+    <link href="../../styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
+    <link href="../../styles/vendor/codemirror/addon/lint/lint.css" rel="stylesheet">
+    <link href="../../styles/kidoju.widgets.codeeditor.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -165,6 +169,10 @@
                     'js': {
                         defaultExtension: 'js',
                         meta: {
+                            // IMPORTANT! See https://github.com/jshint/jshint/issues/2840
+                            'vendor/codemirror/addon/lint/jshint.js': {
+                                format: 'global'
+                            },
                             '*.js': {
                                 babelOptions: {
                                     es2015: false,
@@ -185,16 +193,59 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./kidoju.dialogs.signin.es6').then(function () {
+            SystemJS.import('./dialogs.codeeditor.es6').then(function (module) {
                 var kendo = window.kendo;
                 var kidoju = window.kidoju;
                 $(function () {
                     $('#button1').click(function (e) {
-                        kidoju.dialogs.openSignIn({
-                            title: 'Signin',
+                        var library = [
+                            {
+                                name: 'custom',
+                                formula: 'function validate(value, solution) {\n\t// Your code should return true when value is validated against solution.\n}'
+                            },
+                            // { // Test another options.default
+                            //    name: 'equal',
+                            //    formula: 'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
+                            // },
+                            {
+                                name: 'intEqual',
+                                formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
+                            },
+                            {
+                                name: 'floatEqual',
+                                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
+                            },
+                            {
+                                name: 'round2DecimalsEqual',
+                                formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
+                            },
+                            {
+                                name: 'greaterThan',
+                                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
+                            },
+                            {
+                                name: 'greaterThanOrEqual',
+                                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
+                            },
+                            {
+                                name: 'lowerThan',
+                                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
+                            },
+                            {
+                                name: 'lowerThanOrEqual',
+                                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
+                            },
+                            {
+                                name: 'withParam',
+                                formula: 'function validate(value, solution) {\n\treturn /{0}/i.test(value);\n}',
+                                param: 'Regular Expression'
+                            }
+                        ];
+                        kidoju.dialogs.openCodeEditor({
+                            title: 'My Code',
                             data: {
-                                provider : '',
-                                terms: false
+                                value: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === 5 + parseInt(solution, 10);\n}',
+                                library: new kendo.data.DataSource({ data: library })
                             },
                             width: 860
                         }).done(function(result) {
@@ -223,9 +274,9 @@
 
 <body>
 
-<h1>kidoju.dialogs.signin</h1>
+<h1>dialogs.codeeditor</h1>
 
-<h2>using kendo.dialogs.openSignIn</h2>
+<h2>using kendo.dialogs.openCodeEditor</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

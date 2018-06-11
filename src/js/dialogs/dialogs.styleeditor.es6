@@ -7,27 +7,27 @@
 // eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import 'kendo.core';
-import './kidoju.widgets.basedialog.es6';
+import './widgets.basedialog.es6';
+import '../kidoju.widgets.styleeditor';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {
     ns,
-    template,
+    resize,
     ui: { BaseDialog }
 } = window.kendo;
 
 /**
- * A shortcut function to display a prompt dialog
- * @param options (Same as kendo.ui.Dialog, expect `title` and `content` should be replaced by `type` and `message`)
+ * A shortcut function to display a dialog with a kendo.ui.StyleEditor
+ * @param options
  * @returns {*}
  */
-export default function openPrompt(options = {}) {
-    const PROMPT_TEMPLATE = `<div><div class="k-widget k-notification k-notification-#: type #"><div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div></div><div><input type="text" class="k-textbox" style="width:100%; margin-top: 1em;" data-${ns}bind="value: input"></div></div>`;
-
+export default function openStyleEditor(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
-    const $dialog = BaseDialog.getElement('kj-dialog-prompt');
+    const $dialog = BaseDialog.getElement(options.cssClass);
+    $dialog.css({ padding: 0 });
 
     // Create the dialog
     const dialog = $dialog
@@ -35,25 +35,30 @@ export default function openPrompt(options = {}) {
             Object.assign(
                 {
                     title:
-                        BaseDialog.fn.options.messages.title[
-                            options.type || 'info'
-                        ],
-                    content: template(PROMPT_TEMPLATE)({
-                        type: options.type || 'info',
-                        message: options.message || ''
-                    }),
+                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    content: `<div data-${ns}role="styleeditor" data-${ns}bind="value:value" data-${ns}height="400"></div>`,
                     data: {
-                        input: ''
+                        value: ''
                     },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel
-                    ]
+                    ],
+                    width: 860
                 },
                 options
             )
         )
         .data('kendoBaseDialog');
+
+    // Bind the show event to resize once opened
+    dialog.one('show', e => {
+        resize(e.sender.element);
+        // Workaround for issue described at
+        // https://github.com/telerik/kendo-ui-core/issues/1990 and
+        // https://github.com/telerik/kendo-ui-core/issues/2156
+        // e.sender.element.find(roleSelector('styleeditor)).data('kendoStyleEditor').refresh();
+    });
 
     // Bind the click event
     dialog.bind(CONSTANTS.CLICK, e => {
@@ -63,7 +68,7 @@ export default function openPrompt(options = {}) {
         });
     });
 
-    // Show the dialog
+    // Display the message dialog
     dialog.open();
 
     return dfd.promise();
@@ -74,4 +79,4 @@ export default function openPrompt(options = {}) {
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openPrompt = openPrompt;
+window.kidoju.dialogs.openStyleEditor = openStyleEditor;

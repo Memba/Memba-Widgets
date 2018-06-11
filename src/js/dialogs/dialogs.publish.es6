@@ -8,28 +8,36 @@
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.validator';
-import './kidoju.widgets.basedialog.es6';
+import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {
-    // guid,
-    // ns,
+    guid,
+    ns,
     resize,
     ui: { BaseDialog }
 } = window.kendo;
 
 /**
- * A shortcut function to display a dialog with autentication providers
+ * A shortcut function to display a dialog with a textbox wizard
  * @param options
  * @returns {*}
  */
-export default function openSignIn(options = {}) {
+export default function openTextBoxWizard(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
     const $dialog = BaseDialog.getElement(options.cssClass);
 
-    const message = 'Oops';
+    // Ids
+    const questionId = guid();
+    const solutionId = guid();
+
+    // Localized message field names  // TODO i18n
+    const message =
+        'Please enter a question and a solution to compare answers with.';
+    const questionName = 'Question';
+    const solutionName = 'Solution';
 
     // Create the dialog
     const dialog = $dialog
@@ -40,11 +48,25 @@ export default function openSignIn(options = {}) {
                         BaseDialog.fn.options.messages[options.type || 'info'],
                     content: `<div class="k-widget k-notification k-notification-info">
                             <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${message}</div>
+                          </div>
+                          <div class="kj-dialog-form">
+                            <div class="kj-dialog-flexrow">
+                              <div class="kj-dialog-col25"><label for="${questionId}">${questionName}:</label></div>
+                              <div class="kj-dialog-col75"><input id="${questionId}" type="text" name="${questionName}" class="k-input k-textbox" data-${ns}bind="value: question" required pattern="\\S+"></div>
+                            </div>
+                            <div class="kj-dialog-flexrow">
+                              <div class="kj-dialog-col25"><label for="${solutionId}">${solutionName}:</label></div>
+                              <div class="kj-dialog-col75"><input id="${solutionId}" type="text" name="${solutionName}" class="k-input k-textbox" data-${ns}bind="value: solution" required pattern="\\S+"></div>
+                            </div>
                           </div>`,
                     data: {
                         // TODO
-                    }
-                    // actions: []
+                    },
+                    actions: [
+                        BaseDialog.fn.options.messages.actions.ok,
+                        BaseDialog.fn.options.messages.actions.cancel
+                    ],
+                    width: 860
                 },
                 options
             )
@@ -87,4 +109,4 @@ export default function openSignIn(options = {}) {
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openSignIn = openSignIn;
+window.kidoju.dialogs.openTextBoxWizard = openTextBoxWizard;

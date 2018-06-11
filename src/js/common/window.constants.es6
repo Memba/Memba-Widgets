@@ -33,6 +33,9 @@ const CONSTANTS = {
     TOUCHLEAVE: 'touchleave',
     TOUCHMOVE: 'touchmove',
     TOUCHSTART: 'touchstart',
+    // Errors
+    NOT_FOUND_ERR: 'Not found',
+    NOT_IMPLEMENTED_ERR: 'Not implemented',
     // Cursors
     CROSSHAIR_CURSOR: 'crosshair',
     DEFAULT_CURSOR: 'default',

@@ -41,6 +41,10 @@ describe('pongodb.util', () => {
         });
     });
 
+    describe('error2xhr', () => {
+        xit('It should ...', () => {});
+    });
+
     describe('getter', () => {
         it('It should throw on invalid values', () => {
             function fn1() {

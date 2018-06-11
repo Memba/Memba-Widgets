@@ -147,6 +147,17 @@ assert.isArray = function _isArray(value, message) {
 };
 
 /**
+ * Assert not undefined
+ * @param value
+ * @param message
+ */
+assert.isDefined = function _isDefined(value, message) {
+    if ($.type(value) === 'undefined') {
+        throw new TypeError(message);
+    }
+};
+
+/**
  * Assert empty object (i.e. {})
  * @param value
  * @param message
@@ -265,6 +276,9 @@ assert.messages = {
     },
     isArray: {
         default: '`{0}` is expected to be an array'
+    },
+    isDefined: {
+        default: '`{0}` is expected to be not undefined'
     },
     isEmptyObject: {
         default: '`{0}` is expected to be an empty object'

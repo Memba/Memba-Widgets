@@ -165,6 +165,20 @@ describe('window.assert', () => {
             expect(assert.isArray(a, ERR_MSG)).to.be.undefined;
         });
 
+        it('isDefined', () => {
+            expect(assert.messages.isDefined.default).to.be.a(CONSTANTS.STRING);
+            const a = true;
+            function fn1() {
+                assert.isDefined(undefined, ERR_MSG);
+            }
+            expect(fn1).to.throw(TypeError, ERR_MSG);
+            expect(assert.isDefined(a, ERR_MSG)).to.be.undefined;
+        });
+
+        xit('isEmptyObject', () => {});
+
+        xit('isFunction', () => {});
+
         it('isOptionalObject', () => {
             expect(assert.messages.isOptionalObject.default).to.be.a(
                 CONSTANTS.STRING

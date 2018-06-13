@@ -4,36 +4,30 @@
  */
 
 import $ from 'jquery';
+import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import assert from '../common/window.assert.es6';
 
 // TODO: maybe it is better to inject the BaseModel to automatically build projection????
 
-const collection = Symbol('collection');
-const idField = Symbol('idField');
-const partition = Symbol('partition');
-const projection = Symbol('projection');
-
 /**
- * Parameter map to change options.data payload before sending to rapi
- * @param data
- * @param type (create, destroy, get, read or update)
- * @returns {*}
+ * IMPORTANT
+ * DataSource.init calls Transport.create which does transportOptions = options.transport ? $.extend({}, options.transport)
+ * if options.transport is designed as an ES6 class, $.extend does not copy members create, destroy, read and update
+ * if options.transport is designed as a kendo.Class, it does
  */
-function parameterMap(data /* , type */) {
-    return data;
-}
+const { Class } = window.kendo;
 
 /**
  * BaseTransport
  */
-export default class BaseTransport {
+const BaseTransport = Class.extend({
     /**
      * Constructor
      * @constructor
      * @param options
      */
-    constructor(options = {}) {
+    init(options = {}) {
         assert.type(
             CONSTANTS.OBJECT,
             options,
@@ -43,64 +37,54 @@ export default class BaseTransport {
                 CONSTANTS.OBJECT
             )
         );
-        this[collection] = options.collection;
+        // Collection cannot be changed after initialization
+        this._collection = options.collection;
         assert.isDefined(
-            CONSTANTS.OBJECT,
-            this[collection],
+            this._collection,
             assert.format(
                 assert.messages.isDefined.default,
                 'options.collection'
             )
         );
-        this[idField] = options.idField || 'id';
+        // idField cannot be changed after initialization
+        this._idField = options.idField || 'id';
         assert.type(
             CONSTANTS.STRING,
-            this[idField],
+            this._idField,
             assert.format(
                 assert.messages.type.default,
                 'options.idField',
                 CONSTANTS.STRING
             )
         );
-        this.partition = options.partition;
-        this.projection = options.projection;
+        this.partition(options.partition);
+        this.projection(options.projection);
         if ($.isFunction(options.parameterMap)) {
             this.parameterMap = options.parameterMap.bind(this);
-        } else {
-            this.parameterMap = parameterMap.bind(this);
         }
-    }
+    },
 
     /**
      * collection
      * @returns {*}
      */
-    get collection() {
-        return this[collection];
-    }
+    collection() {
+        return this._collection;
+    },
 
     /**
      * idField
      * @returns {*}
      */
-    get idField() {
-        return this[idField];
-    }
+    idField() {
+        return this._idField;
+    },
 
     /**
-     * partition getter (list of table rows)
+     * partition getter/setter (list of table rows)
      * Note: some partition fields impact the endpoint (url), other partition fields impact the query (filter)
      */
-    get partition() {
-        return this[partition];
-    }
-
-    /**
-     * partition setter (list of table rows)
-     * Note: some partition fields impact the endpoint (url), other partition fields impact the query (filter)
-     * @param value
-     */
-    set partition(value) {
+    partition(value) {
         assert.typeOrUndef(
             CONSTANTS.OBJECT,
             value,
@@ -110,22 +94,20 @@ export default class BaseTransport {
                 CONSTANTS.OBJECT
             )
         );
-        // Note value can be an empty object
-        this[partition] = value;
-    }
-
-    /**
-     * projection getter (list of table columns)
-     */
-    get projection() {
-        return this[projection];
-    }
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._partition;
+        } else {
+            this._partition = value;
+        }
+        return ret;
+    },
 
     /**
      * projection setter (list of table columns)
      * @param value
      */
-    set projection(value) {
+    projection(value) {
         assert.typeOrUndef(
             CONSTANTS.STRING,
             value,
@@ -135,8 +117,14 @@ export default class BaseTransport {
                 CONSTANTS.STRING
             )
         );
-        this[projection] = value;
-    }
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._projection;
+        } else {
+            this._projection = value;
+        }
+        return ret;
+    },
 
     /**
      * Validates a data dataItem against the current partition
@@ -146,7 +134,8 @@ export default class BaseTransport {
     _validate(dataItem) {
         let ret;
         const errors = [];
-        Object.keys(this.partition).forEach(field => {
+        const partition = this.partition();
+        Object.keys(partition).forEach(field => {
             let value = dataItem;
             // TODO use getter
             // TODO check from fields
@@ -156,7 +145,7 @@ export default class BaseTransport {
             for (let i = 0, { length } = props; i < length; i++) {
                 value = value[props[i]];
             }
-            if (this.partition[field] !== value) {
+            if (partition[field] !== value) {
                 const err = new Error(`Invalid ${field}`);
                 err.field = field;
                 errors.push(err);
@@ -168,7 +157,17 @@ export default class BaseTransport {
             ret.errors = errors;
         }
         return ret;
-    }
+    },
+
+    /**
+     * Parameter map to change options.data payload before sending to transport
+     * @param data
+     * @param type (create, destroy, get, read or update)
+     * @returns {*}
+     */
+    parameterMap(data /* , type */) {
+        return data;
+    },
 
     /**
      * Create
@@ -176,7 +175,7 @@ export default class BaseTransport {
     // eslint-disable-next-line class-methods-use-this
     create() {
         throw new Error(CONSTANTS.NOT_IMPLEMENTED_ERR);
-    }
+    },
 
     /**
      * Create
@@ -184,7 +183,7 @@ export default class BaseTransport {
     // eslint-disable-next-line class-methods-use-this
     destroy() {
         throw new Error(CONSTANTS.NOT_IMPLEMENTED_ERR);
-    }
+    },
 
     /**
      * Get
@@ -192,7 +191,7 @@ export default class BaseTransport {
     // eslint-disable-next-line class-methods-use-this
     get() {
         throw new Error(CONSTANTS.NOT_IMPLEMENTED_ERR);
-    }
+    },
 
     /**
      * Read
@@ -200,7 +199,7 @@ export default class BaseTransport {
     // eslint-disable-next-line class-methods-use-this
     read() {
         throw new Error(CONSTANTS.NOT_IMPLEMENTED_ERR);
-    }
+    },
 
     /**
      * Update
@@ -209,7 +208,12 @@ export default class BaseTransport {
     update() {
         throw new Error(CONSTANTS.NOT_IMPLEMENTED_ERR);
     }
-}
+});
+
+/**
+ * Default export
+ */
+export default BaseTransport;
 
 /**
  * Maintain compatibility with legacy code

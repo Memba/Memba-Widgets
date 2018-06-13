@@ -43,10 +43,10 @@ describe('transports.array', () => {
 
         it('it should instantiate BaseTransport from valid values', () => {
             const transport = new BaseTransport(OPTIONS);
-            expect(transport.collection).to.equal(OPTIONS.collection);
-            expect(transport.idField).to.equal(OPTIONS.idField);
-            expect(transport.partition).to.deep.equal(OPTIONS.partition);
-            expect(transport.projection).to.deep.equal(OPTIONS.projection);
+            expect(transport.collection()).to.equal(OPTIONS.collection);
+            expect(transport.idField()).to.equal(OPTIONS.idField);
+            expect(transport.partition()).to.deep.equal(OPTIONS.partition);
+            expect(transport.projection()).to.deep.equal(OPTIONS.projection);
             expect(transport.parameterMap(10)).to.equal(20);
             expect(transport.create).to.throw;
             expect(transport.destroy).to.throw;
@@ -57,16 +57,16 @@ describe('transports.array', () => {
 
         it('it should have a partition setter', () => {
             const transport = new BaseTransport(OPTIONS);
-            expect(transport.partition).to.deep.equal(OPTIONS.partition);
-            transport.partition = PARTITION;
-            expect(transport.partition).to.deep.equal(PARTITION);
+            expect(transport.partition()).to.deep.equal(OPTIONS.partition);
+            transport.partition(PARTITION);
+            expect(transport.partition()).to.deep.equal(PARTITION);
         });
 
         it('it should have a projection setter', () => {
             const transport = new BaseTransport(OPTIONS);
-            expect(transport.projection).to.deep.equal(OPTIONS.projection);
-            transport.projection = PROJECTION;
-            expect(transport.projection).to.deep.equal(PROJECTION);
+            expect(transport.projection()).to.deep.equal(OPTIONS.projection);
+            transport.projection(PROJECTION);
+            expect(transport.projection()).to.deep.equal(PROJECTION);
         });
     });
 });

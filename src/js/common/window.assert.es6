@@ -310,6 +310,31 @@ assert.messages = {
 };
 
 /**
+ * Assert crud
+ * @param options
+ */
+assert.crud = function _crud(options) {
+    assert.type(
+        'object',
+        options,
+        assert.format(assert.messages.type.default, 'options', 'object')
+    );
+    assert.type(
+        'object',
+        options.data,
+        assert.format(assert.messages.type.default, 'options.data', 'object')
+    );
+    assert.isFunction(
+        options.success,
+        assert.format(assert.messages.isFunction.default, 'options.success')
+    );
+    assert.isFunction(
+        options.error,
+        assert.format(assert.messages.isFunction.default, 'options.error')
+    );
+};
+
+/**
  * Maintain compatibility with legacy code
  * @type {assert}
  */

@@ -193,9 +193,9 @@
                     // otherwise we get: Uncaught (in promise) Error: Cannot read property 'Connection' of undefined
                     return SystemJS.import('./dialogs.assetmanager.es6');
                 })
-                .then(function () {
-                    var kendo = window.kendo;
-                    var kidoju = window.kidoju;
+                .then(function (module) {
+                    var kendo =  window.kendo;
+                    var openAssetManager = module.default;
                     var COLLECTIONS = [
                         {
                             name: 'Project',
@@ -358,7 +358,7 @@
                     };
                     $(function () {
                         $('#button1').click(function (e) {
-                            kidoju.dialogs.openAssetManager({
+                            openAssetManager({
                                 title: 'My AssetManager',
                                 assets: {
                                     collections: COLLECTIONS,
@@ -393,7 +393,7 @@
 
 <h1>dialogs.assetmanager</h1>
 
-<h2>using kendo.dialogs.openAssetManager</h2>
+<h2>using openAssetManager</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

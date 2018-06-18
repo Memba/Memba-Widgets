@@ -195,7 +195,7 @@
             });
             SystemJS.import('./dialogs.codeeditor.es6').then(function (module) {
                 var kendo = window.kendo;
-                var kidoju = window.kidoju;
+                var openCodeEditor = module.default;
                 $(function () {
                     $('#button1').click(function (e) {
                         var library = [
@@ -241,7 +241,7 @@
                                 param: 'Regular Expression'
                             }
                         ];
-                        kidoju.dialogs.openCodeEditor({
+                        openCodeEditor({
                             title: 'My Code',
                             data: {
                                 value: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === 5 + parseInt(solution, 10);\n}',
@@ -276,7 +276,7 @@
 
 <h1>dialogs.codeeditor</h1>
 
-<h2>using kendo.dialogs.openCodeEditor</h2>
+<h2>using openCodeEditor</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

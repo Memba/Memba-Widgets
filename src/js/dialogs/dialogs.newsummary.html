@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>dialogs.chargrid</title>
+    <title>dualogs.newsummary</title>
     <script>
         window.app = { DEBUG: true };
     </script>
@@ -12,8 +11,6 @@
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- dialogs.basedialog stylesheet -->
     <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
-    <!-- widgets.chargrid stylesheet -->
-
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -167,10 +164,6 @@
                     'js': {
                         defaultExtension: 'js',
                         meta: {
-                            // IMPORTANT! See https://github.com/jshint/jshint/issues/2840
-                            'vendor/codemirror/addon/lint/jshint.js': {
-                                format: 'global'
-                            },
                             '*.js': {
                                 babelOptions: {
                                     es2015: false,
@@ -191,39 +184,25 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            // We need to load kendo.drawing here because AMD does not load it as a bundle
-            // from the import reference in dialogs.chargrid.es6
-            // See https://github.com/systemjs/systemjs/issues/1818
-            SystemJS.import('kendo.drawing')
-                .then(function () {
-                    return SystemJS.import('./dialogs.chargrid.es6');
-                }).then(function (module) {
-                    var kendo = window.kendo;
-                    var openCharGrid = module.default;
-                    $(function () {
-                        $('#button1').click(function (e) {
-                            openCharGrid({
-                                title: 'My CharGrid',
-                                message: 'Hello World',
-                                charGrid: {
-                                    height: 400,
-                                    width: 600
-                                },
-                                data: {
-                                    value: [['.','1','2','3','4','5'],['+',null,null,'3','4','5']]
-                                },
-                            }).done(function(result) {
-                                $("#console1").append(
-                                    kendo.format(
-                                        '<div>action `{0}` with data `{1}` at {2}</div>',
-                                        result.action,
-                                        JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
-                                    )
-                                );
-                            });
+            SystemJS.import('./dualogs.newsummary.es6').then(function (module) {
+                var kendo = window.kendo;
+                var openNewSummary = module.default;
+                $(function () {
+                    $('#button1').click(function (e) {
+                        openNewSummary({
+                            title: 'New Open Question'
+                        }).done(function(result) {
+                            $("#console1").append(
+                                kendo.format(
+                                    '<div>action `{0}` with data `{1}` at {2}</div>',
+                                    result.action,
+                                    JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
+                                )
+                            );
                         });
                     });
                 });
+            });
         }());
     </script>
     <style type="text/css">
@@ -238,9 +217,9 @@
 
 <body>
 
-<h1>dialogs.chargrid</h1>
+<h1>dialogs.newsummary</h1>
 
-<h2>using openCharGrid</h2>
+<h2>using openNewSummary</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

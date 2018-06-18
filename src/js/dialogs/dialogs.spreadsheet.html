@@ -185,12 +185,12 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./dialogs.spreadsheet.es6').then(function () {
+            SystemJS.import('./dialogs.spreadsheet.es6').then(function (module) {
                 var kendo = window.kendo;
-                var kidoju = window.kidoju;
+                var openSpreadsheet = module.default;
                 $(function () {
                     $('#button1').click(function (e) {
-                        kidoju.dialogs.openSpreadsheet({
+                        openSpreadsheet({
                             title: 'My Spreadsheet',
                             data: {
                                 sheets: [{
@@ -234,7 +234,7 @@
 
 <h1>dialogs.spreadsheet</h1>
 
-<h2>using kendo.dialogs.openSpreadsheet</h2>
+<h2>using openSpreadsheet</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

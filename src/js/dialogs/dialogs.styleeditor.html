@@ -187,29 +187,32 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            Promise.all([
-                SystemJS.import('jquery'),
-                SystemJS.import('kendo.grid'), // Required because of https://github.com/systemjs/systemjs/issues/1818
-                SystemJS.import('./dialogs.styleeditor.es6')
-            ]) .then(function () {
-                var kendo = window.kendo;
-                var kidoju = window.kidoju;
-                $(function () {
-                    $('#button1').click(function (e) {
-                        kidoju.dialogs.openStyleEditor({
-                            title: 'My Style'
-                        }).done(function(result) {
-                            $("#console1").append(
-                                kendo.format(
-                                    '<div>action `{0}` with data `{1}` at {2}</div>',
-                                    result.action,
-                                    JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
-                                )
-                            );
+            // We need to load kendo.grid here because SystemJS does not load it as a bundle
+            // from the import reference in dialogs.styleeditor.es6
+            // See https://github.com/systemjs/systemjs/issues/1818
+            SystemJS.import('kendo.grid')
+                .then(function () {
+                    return SystemJS.import('./dialogs.styleeditor.es6')
+                })
+                .then(function (module) {
+                    var kendo = window.kendo;
+                    var openStyleEditor = module.default;
+                    $(function () {
+                        $('#button1').click(function (e) {
+                            openStyleEditor({
+                                title: 'My Style'
+                            }).done(function(result) {
+                                $("#console1").append(
+                                    kendo.format(
+                                        '<div>action `{0}` with data `{1}` at {2}</div>',
+                                        result.action,
+                                        JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
+                                    )
+                                );
+                            });
                         });
                     });
                 });
-            });
         }());
     </script>
     <style type="text/css">
@@ -226,7 +229,7 @@
 
 <h1>dialogs.styleeditor</h1>
 
-<h2>using kendo.dialogs.openStyleEditor</h2>
+<h2>using openStyleEditor</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

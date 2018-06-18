@@ -186,12 +186,13 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
-                SystemJS.import('./dialogs.basedialog.es6'),
-                SystemJS.import('./kidoju.dialogs.alert.es6'),
-                SystemJS.import('./kidoju.dialogs.prompt.es6')
+                SystemJS.import('./widgets.basedialog.es6'),
+                SystemJS.import('./dialogs.alert.es6'),
+                SystemJS.import('./dialogs.prompt.es6')
             ]).then(function () {
                 var kendo = window.kendo;
-                var kidoju = window.kidoju;
+                var openAlert = window.kidoju.dialogs.openAlert;
+                var openPrompt = window.kidoju.dialogs.openPrompt;
                 $(function () {
                     kendo.init('body');
                     // At this stage, there should only be one
@@ -205,7 +206,7 @@
                     });
 
                     $('#button2').click(function (e) {
-                        kidoju.dialogs.openAlert({
+                        openAlert({
                             type: 'error',
                             message: 'Hey Houston, we\'ve got a problem!'
                         }).done(function(result) {
@@ -214,7 +215,7 @@
                     });
 
                     $('#button3').click(function (e) {
-                        kidoju.dialogs.openPrompt({
+                        openPrompt({
                             title: 'Your name',
                             message: 'Please enter tour name:'
                         }).done(function(result) {
@@ -244,11 +245,11 @@
 <div data-role="basedialog" data-title="Oops!" data-content="Hi! John Doe" data-actions="[{&quot;action&quot;:&quot;close&quot;,&quot;text&quot;:&quot;Close&quot;,&quot;primary&quot;:true}]"></div>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 
-<h2>using kidoju.dialogs.openAlert</h2>
+<h2>using openAlert</h2>
 <button id="button2" class="k-button">Show Me!</button>
 <div id="console2" class="highlight-section k-block" style="margin-top:20px;"></div>
 
-<h2>using kidoju.dialogs.openPrompt</h2>
+<h2>using openPrompt</h2>
 <button id="button3" class="k-button">Show Me!</button>
 <div id="console3" class="highlight-section k-block" style="margin-top:20px;"></div>
 

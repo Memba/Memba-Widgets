@@ -191,9 +191,8 @@
                     if ($.type(options.valueField) === STRING &&
                         that.dataSource instanceof DataSource) {
                         that.trigger(DATABINDING);
-                        var data = that.dataSource.data().find(function (item) {
-                            return item[options.valueField] === that.value();
-                        });
+                        // The following also works with HierarchicalDataSource
+                        var data = that.dataSource.get(that.value());
                         if ($.type(data) !== UNDEFINED) {
                             var html = that._template(data);
                             that.element.html(html);

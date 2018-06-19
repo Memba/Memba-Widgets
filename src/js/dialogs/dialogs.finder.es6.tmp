@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.data';
@@ -49,7 +49,7 @@ export default function openFinder(options = {}) {
                                 <div style="width:10%;text-align: right;line-height:2em;">Search:</div>
                                 <input style="width:50%;" type="search" class="k-input k-textbox" data-${ns}bind="value: search">
                             </div>
-                            <ul class="media-list" data-${ns}role="listview" data-${ns}selectable="single" data-${ns}template="finder-listview-template" data-${ns}bind="source: summaries"></ul>                         
+                            <ul class="media-list" data-${ns}role="listview" data-${ns}selectable="single" data-${ns}template="finder-listview-template" data-${ns}bind="source: summaries"></ul>
                             <script id="finder-listview-template" type="text/x-kendo-template">
                                 <li class="media">
                                     <div class="media-left">

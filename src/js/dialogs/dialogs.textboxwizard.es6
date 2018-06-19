@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.validator';
@@ -44,7 +44,7 @@ export default function openTextBoxWizard(options = {}) {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
                     /* eslint-disable prettier/prettier */
-                    content: `<div class="k-widget k-notification k-notification-info">
+                    content: `<div class="k-widget k-notification k-notification-info" role="alert">
                             <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${culture.message}</div>
                           </div>
                           <div class="kj-dialog-form">

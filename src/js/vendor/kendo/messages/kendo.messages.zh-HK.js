@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1238,6 +1238,24 @@
                 "minute": "分",
                 "second": "秒",
                 "dayperiod": "上午/下午"
+            });
+    }
+    
+    /* DropDownTree messages */
+    if (kendo.ui.DropDownTree) {
+        kendo.ui.DropDownTree.prototype.options.messages =
+            $.extend(true, kendo.ui.DropDownTree.prototype.options.messages, {
+                clear: "清空",
+                deleteTag: "刪除",
+                singleTag: "項已選擇"
+            });
+    }
+    
+    /* Chat messages */
+    if (kendo.ui.Chat) {
+        kendo.ui.Chat.prototype.options.messages =
+            $.extend(true, kendo.ui.Chat.prototype.options.messages, {
+                placeholder: "請輸入..."
             });
     }
 

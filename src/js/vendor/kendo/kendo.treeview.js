@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -794,9 +794,11 @@
                             that.select(focused);
                         }
                     }
-                } else if (key == keys.SPACEBAR && checkbox.length && !focused.find('.k-in:first').hasClass(DISABLED)) {
-                    checkbox.prop(CHECKED, !checkbox.prop(CHECKED)).data(INDETERMINATE, false).prop(INDETERMINATE, false);
-                    that._checkboxChange({ target: checkbox });
+                } else if (key == keys.SPACEBAR && checkbox.length) {
+                    if (!focused.find('.k-in:first').hasClass(DISABLED)) {
+                        checkbox.prop(CHECKED, !checkbox.prop(CHECKED)).data(INDETERMINATE, false).prop(INDETERMINATE, false);
+                        that._checkboxChange({ target: checkbox });
+                    }
                     target = focused;
                 }
                 if (target) {
@@ -1199,7 +1201,7 @@
                 }
                 if (action != 'remove') {
                     for (i = 0; i < items.length; i++) {
-                        if (!loadOnDemand || items[i].expanded) {
+                        if (!loadOnDemand || items[i].expanded || items[i]._loaded) {
                             items[i].load();
                         }
                     }

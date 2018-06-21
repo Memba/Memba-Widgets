@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -515,7 +515,7 @@
                     editor.toolbar.decorateFrom(doc.body);
                 });
                 doc.open();
-                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (browser.msie || browser.edge ? 'height:auto;' : '') + (os.ios ? 'word-break:break-all;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + 'k\\:script{display:none;}' + '</style>' + domainScript + $.map(stylesheets, function (href) {
+                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (browser.msie || browser.edge || browser.chrome ? 'height:auto;' : '') + (os.ios ? 'word-break:break-all;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + 'k\\:script{display:none;}' + '</style>' + domainScript + $.map(stylesheets, function (href) {
                     return '<link rel=\'stylesheet\' href=\'' + href + '\'>';
                 }).join('') + '</head><body autocorrect=\'off\' contenteditable=\'true\'></body></html>');
                 doc.close();
@@ -654,6 +654,7 @@
                         }
                         if (e.keyCode === keys.F10) {
                             setTimeout(proxy(editor.toolbar.focus, editor.toolbar), 100);
+                            editor.toolbar.preventPopupHide = true;
                             e.preventDefault();
                             return;
                         } else if (e.keyCode == keys.LEFT || e.keyCode == keys.RIGHT) {
@@ -1266,7 +1267,7 @@
                 'ul',
                 'ol',
                 'li'
-            ]), block = makeMap(blockElements), inlineElements = 'span,em,a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,strike,strong,sub,sup,textarea,tt,u,var,data,time,mark,ruby'.split(','), inline = makeMap(inlineElements), fillAttrs = makeMap('checked,compact,declare,defer,disabled,ismap,multiple,nohref,noresize,noshade,nowrap,readonly,selected'.split(','));
+            ]), block = makeMap(blockElements), selfClosing = makeMap('area,base,br,col,command,embed,hr,img,input,keygen,link,menuitem,meta,param,source,track,wbr'.split(',')), inlineElements = 'span,em,a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,strike,strong,sub,sup,textarea,tt,u,var,data,time,mark,ruby'.split(','), inline = makeMap(inlineElements), fillAttrs = makeMap('checked,compact,declare,defer,disabled,ismap,multiple,nohref,noresize,noshade,nowrap,readonly,selected'.split(','));
         var normalize = function (node) {
             if (node.nodeType == 1) {
                 node.normalize();
@@ -1800,6 +1801,9 @@
             },
             isBlock: function (node) {
                 return block[Dom.name(node)];
+            },
+            isSelfClosing: function (node) {
+                return selfClosing[Dom.name(node)];
             },
             isEmpty: function (node) {
                 return empty[Dom.name(node)];
@@ -2782,6 +2786,8 @@
                     this.bind('dataBound', $.proxy(this._initSelectOverlay, this));
                 }
                 that.text(that.options.title);
+                that.element.attr('title', that.options.title);
+                that.wrapper.attr('title', that.options.title);
                 that.bind('open', function () {
                     if (that.options.autoSize) {
                         var list = that.list, listWidth;
@@ -4260,7 +4266,7 @@
                 }
                 if (options.resizable && options.resizable.toolbar) {
                     that._resizeHandler = kendo.onResize(function () {
-                        that.resize();
+                        that.resize(true);
                     });
                     that.element.addClass('k-toolbar-resizable');
                 }
@@ -4465,7 +4471,7 @@
                     editorElement = editorOptions.element;
                     if (!wrapper.is(':visible') || !that.window.options.visible) {
                         if (!wrapper[0].style.width) {
-                            wrapper.width(outerWidth(editorElement) - parseInt(wrapper.css('border-left-width'), 10) - parseInt(wrapper.css('border-right-width'), 10));
+                            wrapper.width(this._getWindowWidth());
                         }
                         if (!window._moved) {
                             editorOffset = editorElement.offset();
@@ -4483,6 +4489,10 @@
                         }
                     }
                 }
+            },
+            _getWindowWidth: function () {
+                var that = this, wrapper = that.window.wrapper, editorElement = that.options.editor.element;
+                return outerWidth(editorElement) - parseInt(wrapper.css('border-left-width'), 10) - parseInt(wrapper.css('border-right-width'), 10);
             },
             _overlaps: function (box) {
                 var toolbarWrapper = this.window.wrapper, toolbarWrapperOffset = toolbarWrapper.offset(), toolbarWrapperLeft = toolbarWrapperOffset.left, toolbarWrapperTop = toolbarWrapperOffset.top, boxOffset = box.offset(), boxOffsetLeft = boxOffset.left, boxOffsetTop = boxOffset.top;
@@ -4869,9 +4879,17 @@
                 var containerWidth = e.width;
                 var resizable = this.options.resizable && this.options.resizable.toolbar;
                 var popup = this.overflowPopup;
+                var editorElement = this.options.editor.element;
+                var toolbarWindow = this.window;
                 this.refreshTools();
                 if (!resizable) {
                     return;
+                }
+                if (toolbarWindow) {
+                    toolbarWindow.wrapper.width(this._getWindowWidth());
+                    if (!toolbarWindow._moved) {
+                        toolbarWindow.wrapper.css({ left: Math.max(0, parseInt(editorElement.offset().left, 10)) });
+                    }
                 }
                 if (popup.visible()) {
                     popup.close(true);
@@ -5238,7 +5256,7 @@
                     if (node.previousSibling && node.previousSibling.className == KMARKER) {
                         last.appendChild(node.previousSibling);
                     }
-                    if (node.tagName == last.tagName && node.previousSibling == last && node.style.cssText == last.style.cssText) {
+                    if (node.tagName == last.tagName && node.previousSibling == last && node.style.cssText == last.style.cssText && node.className === last.className) {
                         while (node.firstChild) {
                             last.appendChild(node.firstChild);
                         }
@@ -5633,7 +5651,7 @@
             apply: function (range, attributes) {
                 var nodes = this.immutables ? editableTextNodes(range) : textNodes(range);
                 var markers, doc, formatter, a, parent;
-                if (attributes.innerHTML) {
+                if (attributes.innerText) {
                     doc = RangeUtils.documentFromRange(range);
                     markers = RangeUtils.getMarkers(range);
                     range.deleteContents();
@@ -5691,7 +5709,7 @@
                         this.formatter.immutables = that && that.immutables();
                         this.formatter.apply(options.range, {
                             href: options.url,
-                            innerHTML: options.text || options.url,
+                            innerText: options.text || options.url,
                             target: options.target
                         });
                     };
@@ -5747,9 +5765,9 @@
                     if (textInput.is(':visible')) {
                         text = textInput.val();
                         if (!text && !this._initialText) {
-                            this.attributes.innerHTML = href;
+                            this.attributes.innerText = href;
                         } else if (text && text !== this._initialText) {
-                            this.attributes.innerHTML = dom.stripBom(text);
+                            this.attributes.innerText = dom.stripBom(text);
                         }
                     }
                     target = $('#k-editor-link-target', element).is(':checked');
@@ -8719,6 +8737,9 @@
                 return true;
             },
             onpaste: function (e) {
+                if (this.editor.body.contentEditable === 'false') {
+                    return;
+                }
                 if (this._handleImagePaste(e)) {
                     e.preventDefault();
                     return;
@@ -8946,7 +8967,7 @@
                 childNodes = fragment.childNodes;
                 $(childNodes).filter('table').addClass('k-table').end().find('table').addClass('k-table');
                 $(childNodes).each(function (index, elm) {
-                    if (dom.isBlock(elm) && elm.innerHTML === '') {
+                    if (dom.isBlock(elm) && !dom.isSelfClosing(elm) && elm.innerHTML === '') {
                         elm.appendChild(editor.document.createTextNode('\uFEFF'));
                     }
                 });
@@ -9203,7 +9224,7 @@
                         if (!p.innerHTML) {
                             dom.remove(p);
                         } else if (li && !isLastRootLi) {
-                            li.append(p);
+                            $(li).append(p);
                         }
                         continue;
                     }
@@ -9868,6 +9889,9 @@
                 }
                 var marker = new Marker();
                 marker.add(range, false);
+                if (range.commonAncestorContainer === editor.body) {
+                    this._surroundFullyContent(marker, range);
+                }
                 if (editor.immutables) {
                     this._handleImmutables(marker);
                 }
@@ -9915,8 +9939,16 @@
                     dom.remove(endImmutable);
                 }
             },
+            _surroundFullyContent: function (marker, range) {
+                var children = range.commonAncestorContainer.children, startParent = children[0], endParent = children[children.length - 1];
+                this._moveMarker(marker, range, startParent, endParent);
+            },
             _surroundFullySelectedAnchor: function (marker, range) {
                 var start = marker.start, startParent = $(start).closest('a').get(0), end = marker.end, endParent = $(end).closest('a').get(0);
+                this._moveMarker(marker, range, startParent, endParent);
+            },
+            _moveMarker: function (marker, range, startParent, endParent) {
+                var start = marker.start, end = marker.end;
                 if (startParent && RangeUtils.isStartOf(range, startParent)) {
                     dom.insertBefore(start, startParent);
                 }
@@ -10659,9 +10691,11 @@
                 var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
                 var columnWidthOffset = rtl ? 0 : outerWidth(column);
                 var scrollBarWidth = rtl ? getScrollBarWidth(rootElement[0]) : 0;
+                var columnOffsetLeft = column.offset().left - (rootElement.offset().left + parseFloat(rootElement.css('borderLeftWidth'))) - parseFloat(column.css('marginLeft'));
+                var tBodyOffsetTop = tableBody.offset().top - (rootElement.offset().top + parseFloat(rootElement.css('borderTopWidth'))) - parseFloat(tableBody.css('marginTop'));
                 that.resizeHandle.css({
-                    top: tableBody.offset().top + scrollTopOffset,
-                    left: column.offset().left + columnWidthOffset + (scrollLeftOffset - scrollBarWidth) - handleWidth / 2,
+                    top: tBodyOffsetTop + scrollTopOffset,
+                    left: columnOffsetLeft + columnWidthOffset + (scrollLeftOffset - scrollBarWidth) - handleWidth / 2,
                     position: 'absolute'
                 });
             },
@@ -10677,18 +10711,19 @@
                 var that = this;
                 var column = $($(e.currentTarget).data(that.options.handle.dataAttribute));
                 var options = that.options;
+                var rootElement = $(options.rootElement);
                 var handleWidth = options.handle ? options.handle.width : 0;
                 var min = options.min;
                 var rtl = options.rtl;
                 var columnWidth = outerWidth(column);
-                var columnLeftOffset = column.offset().left;
+                var columnLeftOffset = column.offset().left - (rootElement.offset().left + parseFloat(rootElement.css('borderLeftWidth'))) - parseFloat(column.css('marginLeft'));
                 var adjacentColumnWidth = outerWidth(column.next());
                 var resizeHandle = $(that.resizeHandle);
-                var rootElement = $(options.rootElement);
                 var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
                 var scrollBarWidth = rtl ? getScrollBarWidth(rootElement[0]) : 0;
+                var resizeHandleOffsetLeft = resizeHandle.offset().left - (rootElement.offset().left + parseFloat(rootElement.css('borderLeftWidth'))) - parseFloat(resizeHandle.css('marginLeft'));
                 var handleOffset = constrain({
-                    value: resizeHandle.offset().left + (scrollLeftOffset - scrollBarWidth) + e.x.delta,
+                    value: resizeHandleOffsetLeft + (scrollLeftOffset - scrollBarWidth) + e.x.delta,
                     min: columnLeftOffset + (scrollLeftOffset - scrollBarWidth) - (rtl ? adjacentColumnWidth : 0) + min,
                     max: columnLeftOffset + columnWidth + (scrollLeftOffset - scrollBarWidth) + (rtl ? 0 : adjacentColumnWidth) - handleWidth - min
                 });
@@ -10862,14 +10897,15 @@
                 var that = this;
                 var options = that.options;
                 var handleHeight = options.handle[HEIGHT];
-                var rowPosition = row.offset();
                 var rootElement = $(options.rootElement);
                 var scrollTopOffset = rootElement.is(BODY) ? 0 : rootElement.scrollTop();
                 var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
                 var scrollBarWidth = options.rtl ? getScrollBarWidth(rootElement[0]) : 0;
+                var rowOffsetLeft = row.offset().left - (rootElement.offset().left + parseFloat(rootElement.css('borderLeftWidth'))) - parseFloat(row.css('marginLeft'));
+                var rowOffsetTop = row.offset().top - (rootElement.offset().top + parseFloat(rootElement.css('borderTopWidth'))) - parseFloat(row.css('marginTop'));
                 that.resizeHandle.css({
-                    top: rowPosition.top + outerHeight(row) + scrollTopOffset - handleHeight / 2,
-                    left: rowPosition.left + (scrollLeftOffset - scrollBarWidth),
+                    top: rowOffsetTop + outerHeight(row) + scrollTopOffset - handleHeight / 2,
+                    left: rowOffsetLeft + (scrollLeftOffset - scrollBarWidth),
                     position: 'absolute'
                 });
             },
@@ -10885,14 +10921,17 @@
                 var options = that.options;
                 var min = options.min;
                 var tableBody = $(that.element).children(TBODY);
-                var tableBodyTopOffset = tableBody.offset().top;
                 var resizeHandle = $(that.resizeHandle);
                 var row = $(e.currentTarget).data(options.handle.dataAttribute);
+                var $row = $(row);
                 var rootElement = $(options.rootElement);
                 var scrollTopOffset = rootElement.is(BODY) ? 0 : rootElement.scrollTop();
+                var tableBodyTopOffset = tableBody.offset().top - (rootElement.offset().top + parseFloat(rootElement.css('borderTopWidth'))) - parseFloat(tableBody.css('marginTop'));
+                var rowOffsetTop = $row.offset().top - (rootElement.offset().top + parseFloat(rootElement.css('borderTopWidth'))) - parseFloat($row.css('marginTop'));
+                var resizeHandleOffsetTop = resizeHandle.offset().top - (rootElement.offset().top + parseFloat(rootElement.css('borderTopWidth'))) - parseFloat(resizeHandle.css('marginTop'));
                 var handleOffset = constrain({
-                    value: resizeHandle.offset().top + scrollTopOffset + e.y.delta,
-                    min: $(row).offset().top + scrollTopOffset + min,
+                    value: resizeHandleOffsetTop + scrollTopOffset + e.y.delta,
+                    min: rowOffsetTop + scrollTopOffset + min,
                     max: tableBodyTopOffset + outerHeight(tableBody) + scrollTopOffset - options.handle[HEIGHT] - min
                 });
                 resizeHandle.css({ top: handleOffset });

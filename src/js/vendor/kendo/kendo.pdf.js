@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -205,7 +205,7 @@
         var drawing = kendo.drawing;
         var util = drawing.util;
         var kendoGeometry = kendo.geometry;
-        var HAS_TYPED_ARRAYS$1 = typeof Uint8Array !== 'undefined';
+        var HAS_TYPED_ARRAYS = typeof Uint8Array !== 'undefined' && (!kendo.support.browser.msie || kendo.support.browser.version > 9);
         var BASE64 = function () {
             var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
             return {
@@ -254,11 +254,11 @@
         function BinaryStream(data) {
             var offset = 0, length = 0;
             if (data == null) {
-                data = HAS_TYPED_ARRAYS$1 ? new Uint8Array(256) : [];
+                data = HAS_TYPED_ARRAYS ? new Uint8Array(256) : [];
             } else {
                 length = data.length;
             }
-            var ensure = HAS_TYPED_ARRAYS$1 ? function (len) {
+            var ensure = HAS_TYPED_ARRAYS ? function (len) {
                 if (len >= data.length) {
                     var tmp = new Uint8Array(Math.max(len + 256, data.length * 2));
                     tmp.set(data, 0);
@@ -266,12 +266,12 @@
                 }
             } : function () {
             };
-            var get = HAS_TYPED_ARRAYS$1 ? function () {
+            var get = HAS_TYPED_ARRAYS ? function () {
                 return new Uint8Array(data.buffer, 0, length);
             } : function () {
                 return data;
             };
-            var write = HAS_TYPED_ARRAYS$1 ? function (bytes) {
+            var write = HAS_TYPED_ARRAYS ? function (bytes) {
                 if (typeof bytes == 'string') {
                     return writeString(bytes);
                 }
@@ -290,7 +290,7 @@
                     writeByte(bytes[i]);
                 }
             };
-            var slice = HAS_TYPED_ARRAYS$1 ? function (start, length) {
+            var slice = HAS_TYPED_ARRAYS ? function (start, length) {
                 if (data.buffer.slice) {
                     return new Uint8Array(data.buffer.slice(start, start + length));
                 } else {
@@ -460,6 +460,27 @@
                 output += String.fromCharCode(value);
                 return output;
             }).join('');
+        }
+        function atobUint8Array(base64) {
+            var data = window.atob(base64);
+            var result = new Uint8Array(data.length);
+            for (var idx = 0; idx < data.length; idx++) {
+                result[idx] = data.charCodeAt(idx);
+            }
+            return result;
+        }
+        function createUint8Array(data) {
+            var result = new Uint8Array(data.length);
+            for (var idx = 0; idx < data.length; idx++) {
+                result[idx] = data[idx];
+            }
+            return result;
+        }
+        function base64ToUint8Array(base64) {
+            if (window.atob) {
+                return atobUint8Array(base64);
+            }
+            return createUint8Array(BASE64.decode(base64));
         }
         function hasOwnProperty$1(obj, key) {
             return Object.prototype.hasOwnProperty.call(obj, key);
@@ -1412,7 +1433,6 @@
             }
         };
         var browser = kendo.support.browser;
-        var HAS_TYPED_ARRAYS = typeof Uint8Array !== 'undefined';
         var NL = '\n';
         var RESOURCE_COUNTER = 0;
         var PAPER_SIZE = {
@@ -1829,6 +1849,11 @@
             'ZapfDingbats': true
         };
         function loadBinary(url, cont) {
+            var m;
+            if (browser.msie && (m = /^data:.*?;base64,/i.exec(url))) {
+                cont(base64ToUint8Array(url.substr(m[0].length)));
+                return;
+            }
             function error() {
                 if (window.console) {
                     if (window.console.error) {
@@ -1911,25 +1936,7 @@
                     img.onerror = _onerror;
                 }
             }
-            function _onerror() {
-                cont(IMAGE_CACHE[url] = 'TAINTED');
-            }
-            function _onload() {
-                if (size) {
-                    if (size.width >= img.width || size.height >= img.height) {
-                        size = null;
-                    }
-                }
-                if (!size && blob && /^image\/jpe?g$/i.test(blob.type)) {
-                    var reader = new FileReader();
-                    reader.onload = function () {
-                        var img = new PDFJpegImage(BinaryStream(new Uint8Array(this.result)));
-                        URL.revokeObjectURL(bloburl);
-                        cont(IMAGE_CACHE[url] = img);
-                    };
-                    reader.readAsArrayBuffer(blob);
-                    return;
-                }
+            function _trycanvas() {
                 if (!size) {
                     size = {
                         width: img.width,
@@ -1975,6 +1982,31 @@
                     img = new PDFJpegImage(stream);
                 }
                 cont(IMAGE_CACHE[url] = img);
+            }
+            function _onerror() {
+                cont(IMAGE_CACHE[url] = 'ERROR');
+            }
+            function _onload() {
+                if (size) {
+                    if (size.width >= img.width || size.height >= img.height) {
+                        size = null;
+                    }
+                }
+                if (!size && blob && /^image\/jpe?g$/i.test(blob.type)) {
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        try {
+                            var img = new PDFJpegImage(BinaryStream(new Uint8Array(this.result)));
+                            URL.revokeObjectURL(bloburl);
+                            cont(IMAGE_CACHE[url] = img);
+                        } catch (ex) {
+                            _trycanvas();
+                        }
+                    };
+                    reader.readAsArrayBuffer(blob);
+                } else {
+                    _trycanvas();
+                }
             }
         }
         function manyLoader(loadOne) {
@@ -2034,7 +2066,7 @@
                     if (!img) {
                         throw new Error('Image ' + url + ' has not been loaded');
                     }
-                    if (img === 'TAINTED') {
+                    if (img === 'ERROR') {
                         return null;
                     }
                     img = this.IMAGES[url] = this.attach(img.asStream(this));

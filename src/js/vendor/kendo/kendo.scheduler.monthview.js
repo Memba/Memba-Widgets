@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -294,8 +294,8 @@
                     var currentSlot = range.collection._slots[i];
                     var dateRange = group.daySlotRanges(currentSlot.start, currentSlot.start, true)[0];
                     var occurrence = event.clone({
-                        start: i === startIndex ? currentSlot.start : start,
-                        end: i === endIndex ? currentSlot.end : end,
+                        start: i === startIndex ? start : currentSlot.startDate(),
+                        end: i === endIndex ? end : currentSlot.endDate(),
                         head: i !== endIndex || range.head,
                         tail: i !== startIndex || range.tail
                     });

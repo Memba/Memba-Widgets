@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1574,7 +1574,7 @@
                 var dataFunction = proxy(that.data, that);
                 that._dataAccessFunction = dataFunction;
                 if (that.model) {
-                    var groupsFunction = proxy(that.groups, that), serializeFunction = proxy(that.serialize, that), originalFieldNames = {}, getters = {}, serializeGetters = {}, fieldNames = {}, shouldSerialize = false, fieldName;
+                    var groupsFunction = proxy(that.groups, that), serializeFunction = proxy(that.serialize, that), originalFieldNames = {}, getters = {}, serializeGetters = {}, fieldNames = {}, shouldSerialize = false, fieldName, name;
                     model = that.model;
                     if (model.fields) {
                         each(model.fields, function (field, value) {
@@ -1589,7 +1589,8 @@
                                 fromName = value.from;
                             }
                             shouldSerialize = shouldSerialize || fromName && fromName !== field || fieldName !== field;
-                            getters[field] = getter(fromName || fieldName);
+                            name = fromName || fieldName;
+                            getters[field] = name.indexOf('.') !== -1 ? getter(name, true) : getter(name);
                             serializeGetters[field] = getter(field);
                             originalFieldNames[fromName || fieldName] = field;
                             fieldNames[field] = fromName || fieldName;
@@ -2839,6 +2840,9 @@
                     options.take = that._take || that._pageSize;
                     if (options.skip === undefined && that._page !== undefined && that._pageSize !== undefined) {
                         options.skip = (that._page - 1) * that._pageSize;
+                    }
+                    if (that.options.useRanges) {
+                        options.skip = that.currentRangeStart();
                     }
                 }
                 if (that.options.serverSorting !== true) {

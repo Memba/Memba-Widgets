@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -38,6 +38,7 @@
         var Widget = ui.Widget;
         var keys = kendo.keys;
         var proxy = $.proxy;
+        var template = kendo.template;
         var NS = '.kendoButtonGroup';
         var KWIDGET = 'k-widget';
         var KBUTTONGROUP = 'k-button-group';
@@ -53,7 +54,12 @@
         var FOCUS = 'focus';
         var BLUR = 'blur';
         var MOUSEDOWN = 'mousedown';
-        var ITEM_TEMPLATE = '# var item = data; #' + '# var text = item.text; #' + '# var selected = item.selected; #' + '# var enabled = item.enabled; #' + '# var icon = item.icon; #' + '# var badge = item.badge; #' + '# var image = item.imageUrl; #' + '<span class="#= selected ? " ' + ACTIVE + '" : "" #" ' + '#= enabled === false ? "disabled" : "" # ' + '# if (icon && !image) { #' + kendo.attr('icon') + '="#=icon#"' + '# } #' + '# if (badge) { #' + kendo.attr('badge') + '="#=badge#"' + '# } #' + '>' + '# if (image) { #' + '<img alt="icon" src="#=image#" />' + '# } #' + '# if (text) { #' + '#= text #' + '# } #' + '</span>';
+        var templates = {
+            item: template('<span class="#= item.selected ? " ' + ACTIVE + '" : "" #" ' + '#= item.enabled === false ? "disabled" : "" # ' + '# if (item.badge) { #' + kendo.attr('badge') + '="#=item.badge#"' + '# } #' + '>' + '#= icon(iconClass) #' + '#= image(item) #' + '#= text #' + '</span>'),
+            image: template('<img alt="icon" src="#=data.imageUrl#" />'),
+            icon: template('<span class="#=data#" />'),
+            empty: template('')
+        };
         function createBadge(value, item) {
             if (value === undefined) {
                 return;
@@ -66,19 +72,12 @@
                 Widget.fn.init.call(that, element, options);
                 that.wrapper = that.element;
                 if (that.options.items) {
-                    for (var index = 0; index < that.options.items.length; index++) {
-                        var item = that.options.items[index];
-                        var renderedItem = $(that._renderItem(that.options.items[index]));
-                        if (item.attributes) {
-                            renderedItem.attr(item.attributes);
-                        }
-                        renderedItem.appendTo(that.element);
-                    }
+                    that._renderItems(that.options.items);
                 }
                 that.selectedIndices = [];
                 that.element.addClass(KWIDGET + ' ' + KBUTTONGROUP).attr('role', 'group').attr('tabindex', that.element.attr('tabindex') || '0').children().each(function () {
                     var item = $(this);
-                    that._button.bind(that)(item);
+                    that._updateClasses.bind(that)(item);
                 });
                 that._enable = true;
                 if (!that.options.enable) {
@@ -103,8 +102,24 @@
             current: function () {
                 return this.element.find('.' + ACTIVE);
             },
-            _renderItem: function (item) {
-                return kendo.template(ITEM_TEMPLATE, { useWithBlock: false })(item);
+            _renderItems: function (items) {
+                var that = this;
+                items.forEach(function (item) {
+                    var renderedItem = $(templates.item({
+                        image: item.imageUrl ? templates.image : templates.empty,
+                        icon: !item.imageUrl && (item.iconClass || item.icon) ? templates.icon : templates.empty,
+                        iconClass: item.iconClass || 'k-icon k-i-' + item.icon,
+                        item: item,
+                        text: item.text ? item.encoded === false ? item.text : kendo.htmlEncode(item.text) : ''
+                    }));
+                    if (item.attributes) {
+                        renderedItem.attr(item.attributes);
+                    }
+                    if (item.iconClass || item.icon || item.imageUrl) {
+                        renderedItem.addClass(item.text ? 'k-button-icontext' : 'k-button-icon');
+                    }
+                    renderedItem.appendTo(that.element);
+                });
             },
             _focus: function () {
                 var element = $(this.element);
@@ -202,7 +217,7 @@
                 that.element.off(NS);
                 Widget.fn.destroy.call(that);
             },
-            _button: function (button) {
+            _updateClasses: function (button) {
                 var icon = kendo.attrValue(button, 'icon');
                 var badge = kendo.attrValue(button, 'badge');
                 var image = button.find('img').addClass('k-image');
@@ -218,7 +233,7 @@
                     }
                 }
                 if (!image[0] && icon) {
-                    button.prepend($('<span class="k-icon k-i-' + icon + '" />'));
+                    button.prepend($(templates.icon('k-icon k-i-' + icon)));
                 }
                 button.contents().filter(function () {
                     return !$(this).hasClass('k-icon') && !$(this).hasClass('k-image');

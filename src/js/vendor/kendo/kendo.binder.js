@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -534,13 +534,13 @@
                         } else {
                             element.checked = source;
                         }
-                    } else if (element.type == 'radio' && value != null) {
+                    } else if (element.type == 'radio') {
                         if (type == 'date') {
                             value = kendo.toString(value, 'yyyy-MM-dd');
                         } else if (type == 'datetime-local') {
                             value = kendo.toString(value, 'yyyy-MM-ddTHH:mm:ss');
                         }
-                        if (element.value === value.toString()) {
+                        if (value !== null && typeof value !== 'undefined' && element.value === value.toString()) {
                             element.checked = true;
                         } else {
                             element.checked = false;
@@ -1351,7 +1351,7 @@
             return result;
         }
         function bindElement(element, source, roles, parents) {
-            if (!element) {
+            if (!element || element.getAttribute('data-' + kendo.ns + 'stop')) {
                 return;
             }
             var role = element.getAttribute('data-' + kendo.ns + 'role'), idx, bind = element.getAttribute('data-' + kendo.ns + 'bind'), childrenCopy = [], deep = true, bindings, options = {}, target;

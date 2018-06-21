@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1090,7 +1090,7 @@
                     that.close(element, true);
                     return;
                 }
-                if (kendo.support.browser.msie && !e.toElement && !e.relatedTarget || e.clientX < 0 || e.clientY < 0 || e.clientY > $window.height() || e.clientX > $window.width()) {
+                if (kendo.support.browser.msie && !e.toElement && !e.relatedTarget && !isPointerTouch(e) || e.clientX < 0 || e.clientY < 0 || e.clientY > $window.height() || e.clientX > $window.width()) {
                     that.close(element);
                 }
             },
@@ -1752,7 +1752,7 @@
                                 type: CLOSE
                             }) === false) {
                             that.popup.close();
-                            DOCUMENT_ELEMENT.off(kendo.support.mousedown + NS, that._closeProxy);
+                            DOCUMENT_ELEMENT.off(kendo.support.mousedown + NS + that._marker, that._closeProxy);
                             that.unbind(SELECT, that._closeTimeoutProxy);
                         }
                     }

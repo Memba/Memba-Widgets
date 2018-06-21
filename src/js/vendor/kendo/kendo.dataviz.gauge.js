@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -191,7 +191,7 @@
         ]
     };
     (function ($, undefined) {
-        var math = Math, kendo = window.kendo, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, dataviz = kendo.dataviz, autoMajorUnit = dataviz.autoMajorUnit, ChartElement = dataviz.ChartElement, NumericAxis = dataviz.NumericAxis, Axis = dataviz.Axis, Box2D = dataviz.Box2D, Class = kendo.Class, defined = dataviz.defined, isNumber = dataviz.isNumber, interpolateValue = dataviz.interpolateValue, getSpacing = dataviz.getSpacing, round = dataviz.round, geo = dataviz.geometry, draw = dataviz.drawing, Point = geo.Point, Group = draw.Group, Path = draw.Path, Rect = geo.Rect, Text = draw.Text;
+        var math = Math, kendo = window.kendo, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, dataviz = kendo.dataviz, autoMajorUnit = dataviz.autoMajorUnit, ChartElement = dataviz.ChartElement, NumericAxis = dataviz.NumericAxis, Axis = dataviz.Axis, Box2D = dataviz.Box2D, Class = kendo.Class, defined = dataviz.defined, isNumber = dataviz.isNumber, interpolateValue = dataviz.interpolateValue, getSpacing = dataviz.getSpacing, limitValue = dataviz.limitValue, round = dataviz.round, geo = dataviz.geometry, draw = dataviz.drawing, Point = geo.Point, Group = draw.Group, Path = draw.Path, Rect = geo.Rect, Text = draw.Text;
         var ANGULAR_SPEED = 150, LINEAR_SPEED = 250, ARROW = 'arrow', ARROW_POINTER = 'arrowPointer', BAR_POINTER = 'barPointer', BLACK = '#000', CAP_SIZE = 0.05, COORD_PRECISION = dataviz.COORD_PRECISION, MAX_VALUE = Number.MAX_VALUE, MIN_VALUE = -Number.MAX_VALUE, DEFAULT_HEIGHT = 200, DEFAULT_LINE_WIDTH = 0.5, DEFAULT_WIDTH = 200, DEFAULT_MIN_WIDTH = 60, DEFAULT_MIN_HEIGHT = 60, DEFAULT_MARGIN = 5, DEGREE = math.PI / 180, GEO_ARC_ADJUST_ANGLE = 180, INSIDE = 'inside', LINEAR = 'linear', NEEDLE = 'needle', OUTSIDE = 'outside', RADIAL_POINTER = 'radialPointer', X = 'x', Y = 'y';
         var Pointer = Class.extend({
             init: function (scale, options) {
@@ -286,7 +286,8 @@
             reflow: function (arc) {
                 var that = this;
                 var center = that.center = arc.center;
-                var radius = that.radius = arc.getRadiusX();
+                var length = limitValue(this.options.length || 1, 0.1, 1.5);
+                var radius = this.radius = arc.getRadiusX() * length;
                 var capSize = that.capSize = Math.round(radius * that.options.cap.size);
                 that.bbox = Rect.fromPoints(new Point(center.x - capSize, center.y - capSize), new Point(center.x + capSize, center.y + capSize));
             },

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1634,6 +1634,14 @@
                     var startRect = range.innerRect(startTime, endTime, false);
                     startRect.top = start.offsetTop;
                     var width = startRect.right - startRect.left;
+                    if (width < 0) {
+                        for (var i = 0; i < range.events().length; i++) {
+                            if (range.events()[i].uid === event.uid) {
+                                width = range.events()[i].rectRight - startRect.left;
+                                break;
+                            }
+                        }
+                    }
                     var height = range.endSlot().offsetTop + start.offsetHeight - startRect.top;
                     var left = this._adjustLeftPosition(startRect.left);
                     var hint = SchedulerView.fn._createResizeHint.call(this, left, startRect.top, width, height);

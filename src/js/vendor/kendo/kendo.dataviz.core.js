@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -4533,6 +4533,7 @@
                 });
                 options = applyDefaults(min, max, options);
                 Axis.fn.init.call(this, options, chartService);
+                this.intlService = intlService;
                 this.seriesMin = min;
                 this.seriesMax = max;
                 this.totalMin = toTime(floorDate(toTime(min) - 1, options.baseUnit));
@@ -4575,7 +4576,7 @@
                 return this.getTickPositions(this.options.minorUnit);
             },
             getSlot: function (a, b, limit) {
-                return NumericAxis.prototype.getSlot.call(this, toDate(a), toDate(b), limit);
+                return NumericAxis.prototype.getSlot.call(this, parseDate(this.intlService, a), parseDate(this.intlService, b), limit);
             },
             getValue: function (point) {
                 var value = NumericAxis.prototype.getValue.call(this, point);

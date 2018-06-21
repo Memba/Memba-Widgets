@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1472,7 +1472,7 @@
                     that._selectable();
                 }
                 if (that.options.autoBind) {
-                    dataSource.fetch();
+                    that.dataSource.fetch();
                 }
             },
             options: {
@@ -2050,33 +2050,45 @@
                 var visibleSources = visibleColumns(sources);
                 var sourceIndex = inArray(source, leafColumns(that.columns));
                 var destIndex = inArray(destination, leafColumns(that.columns));
-                var colSourceIndex = inArray(source, visibleLeafColumns(that.columns));
+                var colSourceIndex = inArray(visibleSources[0], visibleLeafColumns(that.columns));
                 var colDest = inArray(destination, visibleLeafColumns(that.columns));
                 var lockedCount = lockedColumns(that.columns).length;
                 var isLocked = !!destination.locked;
                 var footer = that.footer || that.wrapper.find('.k-grid-footer');
-                var headerCol, footerCol;
+                var headerCol, footerCol, beforeVisibleColumn;
                 headerCol = footerCol = colDest;
                 if (destination.hidden) {
-                    if (isLocked) {
-                        colDest = that.lockedTable.find('colgroup');
-                        headerCol = that.lockedHeader.find('colgroup');
-                        footerCol = $(that.lockedFooter).find('>table>colgroup');
+                    var columnsArray = isLocked ? lockedColumns(that.columns) : nonLockedColumns(that.columns);
+                    if (visibleColumns(columnsArray).length > 0) {
+                        headerCol = footerCol = colDest = this._findClosestVisibleColumnIndex(columnsArray, destIndex);
+                        beforeVisibleColumn = visibleColumns(columnsArray.slice(destIndex)).length > 0;
                     } else {
-                        colDest = that.tbody.prev();
-                        headerCol = that.thead.prev();
-                        footerCol = footer.find('.k-grid-footer-wrap').find('>table>colgroup');
+                        if (isLocked) {
+                            colDest = that.lockedTable.find('colgroup');
+                            headerCol = that.lockedHeader.find('colgroup');
+                            footerCol = $(that.lockedFooter).find('>table>colgroup');
+                        } else {
+                            colDest = that.tbody.prev();
+                            headerCol = that.thead.prev();
+                            footerCol = footer.find('.k-grid-footer-wrap').find('>table>colgroup');
+                        }
                     }
                 }
                 if (that._hasFilterRow()) {
                     reorder(that.wrapper.find('.k-filter-row th:not(.k-group-cell,.k-hierarchy-cell)'), sourceIndex, destIndex, before, sources.length);
                 }
-                reorder(elements(that.lockedHeader, that.thead.prev(), 'col:not(.k-group-col,.k-hierarchy-col)'), colSourceIndex, headerCol, before, visibleSources.length);
+                if (colSourceIndex >= 0) {
+                    reorder(elements(that.lockedHeader, that.thead.prev(), 'col:not(.k-group-col,.k-hierarchy-col)'), colSourceIndex, headerCol, beforeVisibleColumn ? beforeVisibleColumn : before, visibleSources.length);
+                }
                 if (that.options.scrollable) {
-                    reorder(elements(that.lockedTable, that.tbody.prev(), 'col:not(.k-group-col,.k-hierarchy-col)'), colSourceIndex, colDest, before, visibleSources.length);
+                    if (colSourceIndex >= 0) {
+                        reorder(elements(that.lockedTable, that.tbody.prev(), 'col:not(.k-group-col,.k-hierarchy-col)'), colSourceIndex, colDest, beforeVisibleColumn ? beforeVisibleColumn : before, visibleSources.length);
+                    }
                 }
                 if (footer && footer.length) {
-                    reorder(elements(that.lockedFooter, footer.find('.k-grid-footer-wrap'), '>table>colgroup>col:not(.k-group-col,.k-hierarchy-col)'), colSourceIndex, footerCol, before, visibleSources.length);
+                    if (colSourceIndex >= 0) {
+                        reorder(elements(that.lockedFooter, footer.find('.k-grid-footer-wrap'), '>table>colgroup>col:not(.k-group-col,.k-hierarchy-col)'), colSourceIndex, footerCol, beforeVisibleColumn ? beforeVisibleColumn : before, visibleSources.length);
+                    }
                     reorder(footer.find('.k-footer-template>td:not(.k-group-cell,.k-hierarchy-cell)'), sourceIndex, destIndex, before, sources.length);
                 }
                 var rows = that.tbody.children(':not(.k-grouping-row,.k-detail-row)');
@@ -2093,6 +2105,10 @@
                 for (var idx = 0, length = rows.length; idx < length; idx += 1) {
                     reorder(elements(lockedRows[idx], rows[idx], '>td:not(.k-group-cell,.k-hierarchy-cell)'), sourceIndex, destIndex, before, sources.length);
                 }
+            },
+            _findClosestVisibleColumnIndex: function (columns, columnIndex) {
+                var columnsArray = visibleColumns(columns.slice(columnIndex)).length > 0 ? columns.slice(columnIndex) : columns.slice(0, columnIndex + 1).reverse(), closestVisibleColumn = visibleColumns(columnsArray)[0];
+                return inArray(closestVisibleColumn, visibleColumns(this.columns));
             },
             _autoFitLeafColumn: function (leafIndex) {
                 this.autoFitColumn(leafColumns(this.columns)[leafIndex]);
@@ -2914,8 +2930,6 @@
             },
             cancelRow: function (notify) {
                 var that = this, container = that._editContainer, model;
-                var virtualScrollable = that.virtualScrollable;
-                var isScrolledToBottom = virtualScrollable && virtualScrollable._isScrolledToBottom();
                 if (container) {
                     model = that._modelForContainer(container);
                     if (!model || notify && that.trigger('cancel', {
@@ -2926,9 +2940,6 @@
                     }
                     that._destroyEditable();
                     that.dataSource.cancelChanges(model);
-                    if (that._isVirtualEditable() && isScrolledToBottom) {
-                        that._restoreVirtualView();
-                    }
                     that._clearEditableState();
                     if (that._editMode() !== 'popup') {
                         that._displayRow(container);
@@ -3192,34 +3203,6 @@
                     that.virtualScrollable._preventScroll = true;
                     that.virtualScrollable._page(skip, take, callback);
                 }
-            },
-            _restoreVirtualView: function () {
-                var that = this;
-                var dataSource = that.dataSource;
-                var virtualScrollable = that.virtualScrollable;
-                var scrollbar = virtualScrollable.verticalScrollbar;
-                var wrapper = virtualScrollable.wrapper;
-                var take = dataSource.take();
-                var total = dataSource.total();
-                var rangeStart = dataSource.currentRangeStart();
-                var skip = total >= take ? math.min(rangeStart, total - take) : rangeStart;
-                var initialItemHeight = virtualScrollable.itemHeight;
-                var scrolledItemsCount = scrollbar.scrollTop() / initialItemHeight;
-                that._virtualPage(skip, take, function () {
-                    var itemHeight = virtualScrollable.itemHeight;
-                    var newScrollbarTop = scrolledItemsCount * itemHeight;
-                    if (virtualScrollable._isScrolledToBottom()) {
-                        virtualScrollable.scrollToBottom();
-                    } else {
-                        if (scrollbar.scrollTop() !== newScrollbarTop) {
-                            virtualScrollable._preventScroll = true;
-                        } else {
-                            virtualScrollable._preventScroll = false;
-                        }
-                        scrollbar.scrollTop(newScrollbarTop);
-                        wrapper.scrollTop(scrollbar.scrollTop() - skip * itemHeight);
-                    }
-                });
             },
             _firstEditableColumnIndex: function (container) {
                 var that = this, column, columns = leafColumns(that.columns), idx, length, model = that._modelForContainer(container);
@@ -5348,7 +5331,7 @@
                 }
             },
             _columns: function (columns) {
-                var that = this, table = that.table, encoded, cols = table.find('col'), lockedCols, dataSource = that.options.dataSource;
+                var that = this, table = that.table, encoded, cols = table.find('col'), lockedCols, headers = that.element.find('thead:first th[data-index]'), columnLeafs, dataSource = that.options.dataSource;
                 columns = columns.length ? columns : map(table.find('th'), function (th, idx) {
                     th = $(th);
                     var sortable = th.attr(kendo.attr('sortable')), filterable = th.attr(kendo.attr('filterable')), type = th.attr(kendo.attr('type')), groupable = th.attr(kendo.attr('groupable')), field = th.attr(kendo.attr('field')), title = th.attr(kendo.attr('title')), menu = th.attr(kendo.attr('menu'));
@@ -5379,6 +5362,17 @@
                     columns = lockedCols.concat(columns);
                 }
                 that.columns = normalizeColumns(columns, encoded);
+                if (headers.length && that.columns.length) {
+                    columnLeafs = leafColumns(that.columns);
+                    map(headers, function (th) {
+                        th = $(th);
+                        var id = th.attr('id');
+                        var idx = kendo.parseInt(th.attr('data-index'));
+                        if (id) {
+                            columnLeafs[idx].headerAttributes = extend(columnLeafs[idx].headerAttributes, { id: id });
+                        }
+                    });
+                }
                 if ($.grep(leafColumns(that.columns), function (col) {
                         return col.selectable;
                     }).length) {
@@ -6614,18 +6608,16 @@
                     that.editable.options.model.unbind(CHANGE, that._modelChangeHandler);
                 }
                 e = e || {};
-                if (e.action === SYNC && that._isVirtualEditable()) {
-                    that._destroyEditable();
-                    that._clearEditableState();
-                    that._restoreVirtualView();
-                    return;
-                }
                 if (that.trigger('dataBinding', {
                         action: e.action || 'rebind',
                         index: e.index,
                         items: e.items
                     })) {
                     return;
+                }
+                if (e.action === SYNC && that._isVirtualEditable()) {
+                    that._destroyEditable();
+                    that._clearEditableState();
                 }
                 that._angularItems('cleanup');
                 if (!that._endlessFetchInProgress) {

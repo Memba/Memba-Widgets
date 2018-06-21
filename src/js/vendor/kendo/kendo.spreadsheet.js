@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1429,7 +1429,8 @@
                     range.setState(self._state);
                 }, {
                     layout: true,
-                    recalc: true
+                    recalc: true,
+                    ref: range._ref
                 });
             }
         });
@@ -3079,14 +3080,14 @@
                     property: Property,
                     name: 'link',
                     value: null,
-                    sortable: false,
+                    sortable: true,
                     serializable: true
                 },
                 {
                     property: Property,
                     name: 'editor',
                     value: null,
-                    sortable: false,
+                    sortable: true,
                     serializable: true
                 }
             ],
@@ -25095,7 +25096,7 @@
                 this._dialogName = options.dialogName;
                 this.toolbar = toolbar;
                 this._title = options.attributes.title;
-                this.element = $('<button class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-download\' />' + '</button>').attr('title', this._title).attr('aria-label', this._title).data('instance', this);
+                this.element = $('<button type=\'button\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-download\' />' + '</button>').attr('title', this._title).attr('aria-label', this._title).data('instance', this);
                 this.element.bind('click', this.open.bind(this)).data('instance', this);
             },
             open: function () {
@@ -29227,7 +29228,8 @@
             fitWidth: false,
             scale: 1,
             rowHeight: 20,
-            maxEmpty: 1
+            maxEmpty: 1,
+            useGridFormat: true
         });
         kendo.drawing.pdf.defineFont(kendo.drawing.drawDOM.getFontFaces(document));
         var charWidth = charWidthFunction(options.fontFamily, options.fontSize);
@@ -29279,9 +29281,19 @@
                 return {
                     cells: columns.map(function (col, colIndex) {
                         var value = row[col.field];
-                        columnWidths[colIndex] = Math.max(textWidth(value), columnWidths[colIndex]);
+                        if (options.useGridFormat) {
+                            if (value != null) {
+                                if (col.format) {
+                                    value = kendo.format(col.format, value);
+                                } else {
+                                    value += '';
+                                }
+                            }
+                            columnWidths[colIndex] = Math.max(textWidth(value), columnWidths[colIndex]);
+                        }
                         return mkCell({
                             value: value,
+                            format: options.useGridFormat ? null : col.format,
                             background: rowIndex % 2 ? options.evenBackground : options.oddBackground
                         });
                     })

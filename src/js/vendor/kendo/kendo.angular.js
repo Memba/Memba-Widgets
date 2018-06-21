@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -404,12 +404,12 @@
                 $log.warn('k-ng-model specified on a widget that does not have the value() method: ' + widget.options.name);
                 return;
             }
-            var form = $(widget.element).parents('form');
+            var form = $(widget.element).parents('ng-form, form').first();
             var ngForm = kendo.getter(form.attr('name'), true)(scope);
             var getter = $parse(kNgModel);
             var setter = getter.assign;
             var updating = false;
-            var valueIsCollection = kendo.ui.MultiSelect && widget instanceof kendo.ui.MultiSelect;
+            var valueIsCollection = kendo.ui.MultiSelect && widget instanceof kendo.ui.MultiSelect || kendo.ui.RangeSlider && widget instanceof kendo.ui.RangeSlider;
             var length = function (value) {
                 return value && valueIsCollection ? value.length : 0;
             };

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -2109,6 +2109,7 @@
                         if (selection.isAllDay) {
                             selection = $.extend({}, selection, { end: kendo.date.addDays(selection.end, -1) });
                         }
+                        e.preventDefault();
                         that.addEvent(extend({}, selection, view._resourceBySlot(selection)));
                     }
                 } else if (key === keys.DELETE && editable !== false && editable.destroy !== false) {

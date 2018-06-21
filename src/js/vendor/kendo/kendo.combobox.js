@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -236,6 +236,7 @@
                     wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
                     input.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable);
                 }
+                that._toggleCloseVisibility();
             },
             open: function () {
                 var that = this;
@@ -415,6 +416,7 @@
                     if (!keepState && that._state === STATE_FILTER) {
                         that._state = STATE_ACCEPT;
                     }
+                    that._toggleCloseVisibility();
                 });
             },
             _selectValue: function (dataItem) {
@@ -478,7 +480,8 @@
                 this.listView.refresh();
             },
             _toggleCloseVisibility: function () {
-                if (this.text()) {
+                var preventShow = this.element.is(':disabled') || this.element.is('[readonly]');
+                if (this.text() && !preventShow) {
                     this._showClear();
                 } else {
                     this._hideClear();
@@ -576,7 +579,6 @@
                     value = that._accessor() || that.listView.value()[0];
                     return value === undefined || value === null ? '' : value;
                 }
-                that._toggleCloseVisibility();
                 that.requireValueMapper(that.options, value);
                 that.trigger('set', { value: value });
                 if (value === options.value && that.input.val() === options.text) {
@@ -600,6 +602,7 @@
                     if (that._state === STATE_FILTER) {
                         that._state = STATE_ACCEPT;
                     }
+                    that._toggleCloseVisibility();
                 });
             },
             _hideBusy: function () {
@@ -731,7 +734,7 @@
                     that._firstItem();
                 } else if (key === keys.END) {
                     that._lastItem();
-                } else if (key === keys.ENTER) {
+                } else if (key === keys.ENTER || key === keys.TAB) {
                     var current = that.listView.focus();
                     var dataItem = that.dataItem();
                     var shouldTrigger = true;

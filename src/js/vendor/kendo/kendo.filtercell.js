@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -281,7 +281,7 @@
             },
             updateDsFilter: function (e) {
                 var that = this, model = that.viewModel;
-                if (that.manuallyUpdatingVM || e.field == 'operator' && model.value === undefined && !isNonValueFilter(model)) {
+                if (that.manuallyUpdatingVM || e.field == 'operator' && model.value === undefined && !isNonValueFilter(model) || e.field == 'operator' && that._clearInProgress) {
                     return;
                 }
                 var currentFilter = $.extend({}, that.viewModel.toJSON(), { field: that.options.field });

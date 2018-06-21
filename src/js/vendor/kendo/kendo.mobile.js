@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2018.2.515'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2018.2.620'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -604,9 +604,6 @@
                     }
                     return number;
                 }
-                if (negative) {
-                    number = -number;
-                }
                 if (format.indexOf('\'') > -1 || format.indexOf('"') > -1 || format.indexOf('\\') > -1) {
                     format = format.replace(literalRegExp, function (match) {
                         var quoteChar = match.charAt(0).replace('\\', ''), literal = match.slice(1).replace(quoteChar, '');
@@ -677,12 +674,8 @@
                             idx = zeroIndex;
                         }
                     }
-                    if (idx > -1) {
-                        number = round(number, idx);
-                    }
-                } else {
-                    number = round(number);
                 }
+                number = round(number, idx, negative);
                 sharpIndex = format.indexOf(SHARP);
                 startZeroIndex = zeroIndex = format.indexOf(ZERO);
                 if (sharpIndex == -1 && zeroIndex != -1) {
@@ -801,10 +794,13 @@
                 }
                 return number;
             };
-            var round = function (value, precision) {
+            var round = function (value, precision, negative) {
                 precision = precision || 0;
                 value = value.toString().split('e');
                 value = Math.round(+(value[0] + 'e' + (value[1] ? +value[1] + precision : precision)));
+                if (negative) {
+                    value = -value;
+                }
                 value = value.toString().split('e');
                 value = +(value[0] + 'e' + (value[1] ? +value[1] - precision : -precision));
                 return value.toFixed(Math.min(precision, 20));
@@ -1597,7 +1593,7 @@
             support.detectBrowser = function (ua) {
                 var browser = false, match = [], browserRxs = {
                         edge: /(edge)[ \/]([\w.]+)/i,
-                        webkit: /(chrome)[ \/]([\w.]+)/i,
+                        webkit: /(chrome|crios)[ \/]([\w.]+)/i,
                         safari: /(webkit)[ \/]([\w.]+)/i,
                         opera: /(opera)(?:.*version|)[ \/]([\w.]+)/i,
                         msie: /(msie\s|trident.*? rv:)([\w.]+)/i,
@@ -2541,6 +2537,12 @@
             if (role) {
                 if (role === 'content') {
                     role = 'scroller';
+                }
+                if (role === 'editortoolbar') {
+                    var editorToolbar = element.data('kendoEditorToolbar');
+                    if (editorToolbar) {
+                        return editorToolbar;
+                    }
                 }
                 if (suites) {
                     if (suites[0]) {
@@ -6791,7 +6793,7 @@
                 var dataFunction = proxy(that.data, that);
                 that._dataAccessFunction = dataFunction;
                 if (that.model) {
-                    var groupsFunction = proxy(that.groups, that), serializeFunction = proxy(that.serialize, that), originalFieldNames = {}, getters = {}, serializeGetters = {}, fieldNames = {}, shouldSerialize = false, fieldName;
+                    var groupsFunction = proxy(that.groups, that), serializeFunction = proxy(that.serialize, that), originalFieldNames = {}, getters = {}, serializeGetters = {}, fieldNames = {}, shouldSerialize = false, fieldName, name;
                     model = that.model;
                     if (model.fields) {
                         each(model.fields, function (field, value) {
@@ -6806,7 +6808,8 @@
                                 fromName = value.from;
                             }
                             shouldSerialize = shouldSerialize || fromName && fromName !== field || fieldName !== field;
-                            getters[field] = getter(fromName || fieldName);
+                            name = fromName || fieldName;
+                            getters[field] = name.indexOf('.') !== -1 ? getter(name, true) : getter(name);
                             serializeGetters[field] = getter(field);
                             originalFieldNames[fromName || fieldName] = field;
                             fieldNames[field] = fromName || fieldName;
@@ -8056,6 +8059,9 @@
                     options.take = that._take || that._pageSize;
                     if (options.skip === undefined && that._page !== undefined && that._pageSize !== undefined) {
                         options.skip = (that._page - 1) * that._pageSize;
+                    }
+                    if (that.options.useRanges) {
+                        options.skip = that.currentRangeStart();
                     }
                 }
                 if (that.options.serverSorting !== true) {
@@ -9956,13 +9962,13 @@
                         } else {
                             element.checked = source;
                         }
-                    } else if (element.type == 'radio' && value != null) {
+                    } else if (element.type == 'radio') {
                         if (type == 'date') {
                             value = kendo.toString(value, 'yyyy-MM-dd');
                         } else if (type == 'datetime-local') {
                             value = kendo.toString(value, 'yyyy-MM-ddTHH:mm:ss');
                         }
-                        if (element.value === value.toString()) {
+                        if (value !== null && typeof value !== 'undefined' && element.value === value.toString()) {
                             element.checked = true;
                         } else {
                             element.checked = false;
@@ -10773,7 +10779,7 @@
             return result;
         }
         function bindElement(element, source, roles, parents) {
-            if (!element) {
+            if (!element || element.getAttribute('data-' + kendo.ns + 'stop')) {
                 return;
             }
             var role = element.getAttribute('data-' + kendo.ns + 'role'), idx, bind = element.getAttribute('data-' + kendo.ns + 'bind'), childrenCopy = [], deep = true, bindings, options = {}, target;
@@ -19579,12 +19585,12 @@
                 $log.warn('k-ng-model specified on a widget that does not have the value() method: ' + widget.options.name);
                 return;
             }
-            var form = $(widget.element).parents('form');
+            var form = $(widget.element).parents('ng-form, form').first();
             var ngForm = kendo.getter(form.attr('name'), true)(scope);
             var getter = $parse(kNgModel);
             var setter = getter.assign;
             var updating = false;
-            var valueIsCollection = kendo.ui.MultiSelect && widget instanceof kendo.ui.MultiSelect;
+            var valueIsCollection = kendo.ui.MultiSelect && widget instanceof kendo.ui.MultiSelect || kendo.ui.RangeSlider && widget instanceof kendo.ui.RangeSlider;
             var length = function (value) {
                 return value && valueIsCollection ? value.length : 0;
             };

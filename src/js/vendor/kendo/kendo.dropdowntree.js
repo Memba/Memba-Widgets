@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -393,12 +393,14 @@
                     readonly: readonly === undefined ? true : readonly,
                     disable: false
                 });
+                this._toggleCloseVisibility();
             },
             enable: function (enable) {
                 this._editable({
                     readonly: false,
                     disable: !(enable = enable === undefined ? true : enable)
                 });
+                this._toggleCloseVisibility();
             },
             toggle: function (open) {
                 this._toggle(open);
@@ -674,12 +676,6 @@
                     this.span.toggleClass('k-readonly', show).text(show ? this.options.placeholder : '');
                 }
             },
-            _deselect: function () {
-                var selectedNode = this.treeview.select();
-                if (this.treeview.dataItem(selectedNode)) {
-                    this.treeview.dataItem(selectedNode).set('selected', false);
-                }
-            },
             _currentValue: function (dataItem) {
                 var currentValue = this._value(dataItem);
                 if (!currentValue) {
@@ -702,6 +698,12 @@
                     indexOfValue = currentValue.indexOf(value);
                 }
                 if (dataItem.checked) {
+                    var alreadyAddedTag = $.grep(this._tags, function (item) {
+                        return item.uid === dataItem._tagUid;
+                    });
+                    if (alreadyAddedTag.length) {
+                        return;
+                    }
                     var itemToAdd = new ObservableObject(dataItem.toJSON());
                     dataItem._tagUid = itemToAdd.uid;
                     this._tags.push(itemToAdd);
@@ -777,10 +779,10 @@
                 this._clearTextAndValue();
             },
             _clearTextAndValue: function () {
-                this._selection._clearValue();
                 this.setValue([]);
                 this._clearInput();
                 this._clearText();
+                this._selection._clearValue();
                 this.popup.position();
                 this._toggleCloseVisibility();
             },
@@ -915,7 +917,10 @@
                 }
             },
             _toggleCloseVisibility: function () {
-                if (this.value() && !this._isMultipleSelection() || this.value().length || this.element.val() && this.element.val() !== this.options.placeholder) {
+                var isReadOnly = this.element.attr(READONLY);
+                var hasValue = this.value() && !this._isMultipleSelection() || this.value().length;
+                var valueDoesNotEqualPlaceHolder = this.element.val() && this.element.val() !== this.options.placeholder;
+                if (!isReadOnly && (hasValue || valueDoesNotEqualPlaceHolder)) {
                     this._showClear();
                 } else {
                     this._hideClear();
@@ -964,6 +969,9 @@
                     if (!e.node) {
                         this._filtering = false;
                     }
+                    if (!this._isMultipleSelection()) {
+                        this._deselectItem(e);
+                    }
                     return;
                 }
                 if (!this.treeview) {
@@ -980,6 +988,22 @@
                     }
                 }
                 this.trigger('dataBound', e);
+            },
+            _deselectItem: function (e) {
+                var items = [];
+                if (!e.node) {
+                    items = e.sender.dataSource.data();
+                } else {
+                    var rootItem = e.sender.dataItem(e.node);
+                    if (rootItem) {
+                        items = rootItem.children.data();
+                    }
+                }
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].selected && !this._valueComparer(items[i], this.value())) {
+                        items[i].set('selected', false);
+                    }
+                }
             },
             _checkLoadedItems: function (items) {
                 var value = this.value();
@@ -1253,6 +1277,9 @@
                 var readonly = options.readonly;
                 var wrapper = that.wrapper.add(that.filterInput).off(ns);
                 var dropDownWrapper = that._inputWrapper.off(HOVEREVENTS);
+                if (that._isMultipleSelection()) {
+                    that.tagList.off(CLICK + ns);
+                }
                 if (!readonly && !disable) {
                     element.removeAttr(DISABLED).removeAttr(READONLY);
                     dropDownWrapper.removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
@@ -1558,8 +1585,9 @@
             },
             _clearValue: function () {
                 var dropdowntree = this._dropdowntree;
-                if (dropdowntree.value()) {
-                    dropdowntree._deselect();
+                var selectedNode = dropdowntree.treeview.select();
+                if (dropdowntree.treeview.dataItem(selectedNode)) {
+                    dropdowntree.treeview.dataItem(selectedNode).set('selected', false);
                     dropdowntree.trigger(CHANGE);
                 }
             },
@@ -1643,6 +1671,7 @@
                     tagTemplate: dropdowntree.valueTemplate
                 });
                 kendo.bind(dropdowntree.tagList, viewModel);
+                dropdowntree.tagList.attr('data-stop', true);
             },
             _setValue: function (value) {
                 var dropdowntree = this._dropdowntree;

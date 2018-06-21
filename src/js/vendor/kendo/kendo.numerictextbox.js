@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -454,8 +454,7 @@
                 that._step(step);
             },
             _step: function (step) {
-                var that = this, element = that.element, value = that._parse(element.val()) || 0;
-                var precision = that.options.decimals || 2;
+                var that = this, element = that.element, originalValue = that._value, value = that._parse(element.val()) || 0, precision = that.options.decimals || 2;
                 if (activeElement() != element[0]) {
                     that._focusin();
                 }
@@ -463,9 +462,12 @@
                     value = value / that.options.factor;
                 }
                 value = +(value + that.options.step * step).toFixed(precision);
-                that._update(that._adjust(value));
+                value = that._adjust(value);
+                that._update(value);
                 that._typing = false;
-                that.trigger(SPIN);
+                if (originalValue !== value) {
+                    that.trigger(SPIN);
+                }
             },
             _toggleHover: function (e) {
                 $(e.currentTarget).toggleClass(HOVER, e.type === 'mouseenter');

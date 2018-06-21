@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.2.515 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -111,7 +111,6 @@
             suggestedActions: 'k-quick-replies',
             suggestedAction: 'k-quick-reply',
             cardWrapper: 'k-card-container',
-            cardDeck: 'k-card-deck',
             card: 'k-card',
             cardRich: 'k-card-type-rich',
             cardBody: 'k-card-body',
@@ -165,6 +164,7 @@
                 }).bind('drag', kendo.throttle(function (e) {
                     var delta = startX - e.x.location;
                     $(e.currentTarget).scrollLeft(startLeft + delta);
+                    startLeft = $(e.currentTarget).scrollLeft();
                 }, 15));
             },
             getTemplate: function (templateName) {
@@ -199,7 +199,7 @@
                 }
                 if (attachments.length) {
                     this._renderBubble(wrapper, sender);
-                    this._lastSender = sender.id;
+                    this._lastSender = null;
                 }
             },
             renderComponent: function (type) {
@@ -215,7 +215,7 @@
                     var indicatorMessage = indicator.parents(DOT + viewStyles.message).first();
                     var indicatorGroup = indicator.parents(DOT + viewStyles.messageGroup).first();
                     indicatorMessage.remove();
-                    if (!indicatorGroup.find(DOT + viewStyles.message).length) {
+                    if (!indicatorGroup.find(DOT + viewStyles.message).length && !indicatorGroup.find(DOT + viewStyles.cardDeck).length && !indicatorGroup.find(DOT + viewStyles.cardWrapper).length) {
                         indicatorGroup.remove();
                     }
                 }

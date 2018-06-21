@@ -33,6 +33,8 @@ const CONSTANTS = {
     TOUCHLEAVE: 'touchleave',
     TOUCHMOVE: 'touchmove',
     TOUCHSTART: 'touchstart',
+    // Custom events
+    LOADED: 'i18n.loaded',
     // Errors
     NOT_FOUND_ERR: 'Not found',
     NOT_IMPLEMENTED_ERR: 'Not implemented',

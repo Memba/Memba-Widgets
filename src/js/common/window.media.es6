@@ -3,7 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
-// eslint-disable-next-line import/extensions
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import assert from './window.assert.es6';
 import CONSTANTS from './window.constants.es6';

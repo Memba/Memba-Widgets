@@ -1,0 +1,2 @@
+// TODO Add calculated solutions : What day is it today?
+// Add random number generation

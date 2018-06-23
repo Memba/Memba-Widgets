@@ -3,6 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
 import assert from '../common/window.assert.es6';
@@ -13,14 +14,35 @@ const {
     getter
 } = window.kendo;
 
-// TODO: Add asserts
-
 /**
  * BaseModel enhances kendo.data.Model
  * for nesting submodels as a mongoose document property can designate a subdocument
  * for nesting datasources of submodels as a mongoose document property can designate an array of subdocuments
  */
 const BaseModel = Model.define({
+    /**
+     * Modify original init method
+     * to add casting of object properties into their underlying type
+     * For example, if a model field of type date receives a string value, it will be cast into a date
+     * and if a model field designates a submodel, it will be cast into that submodel
+     * @see http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
+     * @param data
+     */
+    init(data = {}) {
+        if (
+            data &&
+            !(data instanceof Model) &&
+            $.type(data.hasSubgroups) === CONSTANTS.BOOLEAN &&
+            Array.isArray(data.items)
+        ) {
+            // This is called from flattenGroups in kendo.data.js when there are aggregates
+            Model.fn.init.call(this, data); // TODO Review
+        } else {
+            // Call the base init method after parsing data
+            Model.fn.init.call(this, this._parseData(data));
+        }
+    },
+
     /**
      * Function called in init(data) and accept(data) to parse data and convert fields to model field types
      * There are several issues with kendo.data.Model that we attempt to fix here:
@@ -32,6 +54,16 @@ const BaseModel = Model.define({
      * @private
      */
     _parseData(data) {
+        assert.type(
+            CONSTANTS.OBJECT,
+            data,
+            assert.format(
+                assert.messages.type.default,
+                data,
+                'data',
+                CONSTANTS.OBJECT
+            )
+        );
         // Build a set of defaults considering some default values are initializer functions
         const defaults = $.extend({}, this.defaults);
         if (this._initializers) {
@@ -56,29 +88,6 @@ const BaseModel = Model.define({
             parsed[key] = this._parse(key, value);
         });
         return parsed;
-    },
-
-    /**
-     * Modify original init method
-     * to add casting of object properties into their underlying type
-     * For example, if a model field of type date receives a string value, it will be cast into a date
-     * and if a model field designates a submodel, it will be cast into that submodel
-     * @see http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
-     * @param data
-     */
-    init(data) {
-        if (
-            data &&
-            !(data instanceof Model) &&
-            $.type(data.hasSubgroups) === CONSTANTS.BOOLEAN &&
-            Array.isArray(data.items)
-        ) {
-            // This is called from flattenGroups in kendo.data.js when there are aggregates
-            Model.fn.init.call(this, data);
-        } else {
-            // Call the base init method after parsing data
-            Model.fn.init.call(this, this._parseData(data));
-        }
     },
 
     /**
@@ -133,6 +142,7 @@ const BaseModel = Model.define({
             field,
             assert.format(
                 assert.messages.type.default,
+                field,
                 'field',
                 CONSTANTS.STRING
             )
@@ -260,3 +270,11 @@ const BaseModel = Model.define({
  * Default export
  */
 export default BaseModel;
+
+/**
+ * Maintain compatibility with legacy code
+ * @type {assert}
+ */
+window.kidoju = window.kidoju || {};
+window.kidoju.data = window.kidoju.data || {};
+window.kidoju.data.Model = BaseModel;

@@ -3,57 +3,35 @@
  * Sources at https://github.com/Memba
  */
 
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.core';
-import assert from '../common/window.assert.es6';
-import CONSTANTS from '../common/window.constants.es6';
+import assert from '../common/window.assert';
+import CONSTANTS from '../common/window.constants';
+import BaseAdapter from './adapters.base.es6';
+import NumberAdapter from './adapters.number.es6';
+import BaseModel from '../data/models.base.es6';
 
-const {
-    format,
-    observable
-} = window.kendo;
+// A way to implement private variable
+// @see http://2ality.com/2016/01/private-data-classes.html
+const id = Symbol('id');
+const icon = Symbol('icon');
+const cursor = Symbol('cursor');
 
+// TODO Add help makrdown !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // IMPORTANT TODO Modify for lazy loading of dependency modules
 // See http://blog.avenuecode.com/lazy-loading-es2015-modules-in-the-browser
-
-// TODO Add calculated solutions : WHat day is it today? And random number generation.
-
 // TODO solution$ for the list might be calculates depending on validation alorith see dropZone with sumEauql should make the sum
-
 // Add localization to textboxes with numbers and masked input
 // Add localization to Worker functions to parse numbers and dates
-
-
-/**
- * Registry of tools
- * @type {{register: Function}}
- */
-export const tools = observable({
-    active: null,
-    register(Class) {
-        assert.type(CONSTANTS.FUNCTION, Class, assert.format(assert.messages.type.default, 'Class', CONSTANTS.FUNCTION));
-        assert.type(CONSTANTS.OBJECT, Class.prototype, assert.format(assert.messages.type.default, 'Class.prototype', CONSTANTS.OBJECT));
-        const obj = new Class();
-        // assert.instanceof(Tool, obj, assert.format(assert.messages.instanceof.default, 'obj', 'kidoju.Tool'));
-        // assert.type(CONSTANTS.STRING, obj.id, assert.format(assert.messages.type.default, 'obj.id', CONSTANTS.STRING));
-        obj.id = obj.id.trim(); // TODO: why???? prefer assert.match
-        // assert.ok(obj.id.length > 0, 'A tool cannot have an empty id');
-        // assert.ok(obj.id !== ACTIVE && obj.id !== REGISTER, 'A tool cannot have `active` or `register` for id');
-        // assert.isUndefined(this[obj.id], 'Existing tools cannot be replaced');
-        this[obj.id] = obj;
-        if (obj.id === POINTER) {
-            this.active = POINTER;
-        }
-    }
-});
 
 /**
  * @class BaseTool
  */
-export class BaseTool {
+export default class BaseTool {
     svg: {
         success: SVG_SUCCESS,
         failure: SVG_FAILURE
+        // TODO warning
     },
     i18n: {
         // They are here to be translated in kidoju.messages.[locale].js
@@ -94,36 +72,70 @@ export class BaseTool {
      * @constructor
      * @param options
      */
-    constructor(options) {
-        // Extend tool with init options
+    constructor(options = {}) {
+        assert.type(
+            CONSTANTS.OBJECT,
+            options,
+            assert.format(assert.messages.type.default, options, 'options', CONSTANTS.OBJECT)
+        );
+
+        // Private data
+        this[id] = options.id || null;
+        this[icon] = options.icon || null;
+        this[cursor] = options.cursor || null;
+
+        // Extend tool with constuctor options
         $.extend(
             this,
             {
-                id: null,
-                icon: null,
-                description: null,
-                cursor: null,
-                weight: 0,
-                height: 250,
-                width: 250,
-                attributes: {},
-                properties: {},
-            },
-            options
+                attributes: options.attributes || {},
+                description: options.description || null,
+                height: options.height || 250,
+                properties: options.properties || {},
+                weight: options.weight || 0,
+                width: options.width || 250
+            }
         );
 
         // Pass solution adapter library to validation adapter, especially for the code editor
-        if (this.properties && this.properties.solution instanceof BaseAdapter && this.properties.validation instanceof adapters.ValidationAdapter) {
+        if (this.properties &&
+            this.properties.solution instanceof BaseAdapter &&
+            this.properties.validation instanceof ValidationAdapter
+        ) {
             this.properties.validation.library = this.properties.solution.library;
             this.properties.validation.defaultValue = LIB_COMMENT + this.properties.solution.libraryDefault;
         }
     }
 
     /**
-     * Get a kidoju.data.Model for attributes
+     * id getter
+     * @returns {*}
+     */
+    get id() {
+        return this[id];
+    }
+
+    /**
+     * cursor getter
+     * @returns {*}
+     */
+    get cursor() {
+        return this[cursor];
+    }
+
+    /**
+     * icon getter
+     * @returns {*}
+     */
+    get icon() {
+        return this[icon];
+    }
+
+    /**
+     * Get a BaseModel for attributes
      * @class kidoju.Tool
      * @method _getAttributeModel
-     * @returns {kidoju.data.Model}
+     * @returns {BaseModel}
      * @private
      */
     _getAttributeModel() {
@@ -135,7 +147,7 @@ export class BaseTool {
                 }
             }
         }
-        return Model.define(model);
+        return BaseModel.define(model);
     }
 
     /**
@@ -151,11 +163,11 @@ export class BaseTool {
         data[kendo.attr('decimals')] = 0;
         data[kendo.attr('format')] = 'n0';
         // Add top, left, height, width, rotation
-        rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.title }, data).getRow('top'));
-        rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.left.title }, data).getRow('left'));
-        rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.height.title }, data).getRow('height'));
-        rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.width.title }, data).getRow('width'));
-        rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.rotate.title }, data).getRow('rotate'));
+        rows.push(new NumberAdapter({ title: this.i18n.tool.top.title }, data).getRow('top'));
+        rows.push(new NumberAdapter({ title: this.i18n.tool.left.title }, data).getRow('left'));
+        rows.push(new NumberAdapter({ title: this.i18n.tool.height.title }, data).getRow('height'));
+        rows.push(new NumberAdapter({ title: this.i18n.tool.width.title }, data).getRow('width'));
+        rows.push(new NumberAdapter({ title: this.i18n.tool.rotate.title }, data).getRow('rotate'));
 
         // Add other attributes
         for (var attr in this.attributes) {
@@ -169,10 +181,10 @@ export class BaseTool {
     }
 
     /**
-     * Get a kidoju.data.Model for properties
+     * Get a BaseModel for properties
      * @class kidoju.Tool
      * @method _getPropertyModel
-     * @returns {kidoju.data.Model}
+     * @returns {BaseModel}
      * @private
      */
     _getPropertyModel() {
@@ -192,7 +204,7 @@ export class BaseTool {
                 }
             }
         }
-        return Model.define(model);
+        return BaseModel.define(model);
     }
 
     /**
@@ -323,114 +335,7 @@ export class BaseTool {
 };
 
 /**
- * @class BaseAdapter
- * An adapter provides the UI to edit a property, especially from a PageComponent
- */
-export class BaseAdapter {
-
-    // IMPORTANT TODO Consider pub sub mechanism especially to refresh or disable dependant properties
-    // Or make it systematic
-
-    // TODO: Review HTML encode????
-
-    /**
-     * Constructor
-     * @constructor
-     * @param options
-     */
-    constructor(options) {
-        const opts = options || {};
-        // this.value = opts.value;
-
-        // See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
-        this.defaultValue = opts.defaultValue;
-        this.editable = opts.editable;
-        this.nullable = opts.nullable;
-        this.parse = opts.parse;
-        this.from = opts.from;
-        this.validation = opts.validation;
-
-        // See http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns
-        this.field = opts.field;
-        this.title = opts.title;
-        this.format = opts.format;
-        this.template = opts.template;
-        this.editor = opts.editor;
-        this.attributes = opts.attributes;
-
-        // Data type of adapter
-        this.type = undefined;
-    }
-
-    /**
-     * Get a kendo.data.Model field
-     * See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
-     * @returns {{}}
-     */
-    getField() {
-        var field = {};
-        if ([CONSTANTS.STRING, CONSTANTS.NUMBER, CONSTANTS.BOOLEAN, CONSTANTS.DATE].indexOf(this.type) > -1) {
-            field.type = this.type;
-        }
-        if ($.type(this.defaultValue) === this.type ||
-            $.type(this.type) === CONSTANTS.UNDEFINED) { // TODO: test that defaultValue is null or an object
-            field.defaultValue = this.defaultValue;
-        }
-        if ($.type(this.editable) === CONSTANTS.BOOLEAN) {
-            field.editable = this.editable;
-        }
-        if ($.type(this.nullable) === CONSTANTS.BOOLEAN) {
-            field.nullable = this.nullable;
-        }
-        if ($.isFunction(this.parse)) {
-            field.parse = this.parse;
-        }
-        if ($.type(this.from) === CONSTANTS.STRING) {
-            field.from = this.from;
-        }
-        if ($.type(this.validation) === CONSTANTS.OBJECT) {
-            field.validation = this.validation;
-        }
-        return field;
-    }
-
-    /**
-     * Get a property grid row
-     * See http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns
-     * @param field - This is the MVVM path to the field the data is bound to
-     * @returns {{}}
-     */
-    getRow(field) {
-        if ($.type(field) !== CONSTANTS.STRING || field.length === 0) {
-            throw new TypeError();
-        }
-        var row = {};
-        row.field = field; // Mandatory
-        if ($.type(this.title) === CONSTANTS.STRING) {
-            row.title = this.title;
-        }
-        if ($.type(this.format) === CONSTANTS.STRING) {
-            row.format = this.format;
-        }
-        if ($.type(this.template) === CONSTANTS.STRING) {
-            row.template = this.template;
-        }
-        if ($.isFunction(this.editor) ||
-            ($.type(this.editor) === CONSTANTS.STRING && ($.type(kidoju.editors) === CONSTANTS.UNDEFINED || $.isFunction(kidoju.editors[this.editor])))) {
-            row.editor = this.editor;
-        }
-        // TODO: HTML encode????
-        if ($.isPlainObject(this.attributes)) {
-            row.attributes = this.attributes;
-        }
-        return row;
-    }
-
-}
-
-/**
  * Maintain compatibility with legacy code
  */
 window.kidoju = window.kidoju || {};
-window.kidoju.tools = tools;
 window.kidoju.Tool = BaseTool;

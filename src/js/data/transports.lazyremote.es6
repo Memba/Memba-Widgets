@@ -3,25 +3,30 @@
  * Sources at https://github.com/Memba
  */
 
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import CONSTANTS from '../common/window.constants.es6';
 import assert from '../common/window.assert.es6';
-import BaseTransport from './kidoju.transports.base.es6';
+
+import BaseTransport from './transports.base.es6';
+import ArrayTransport from './transports.array';
 
 /**
- * LazyRemoteTransport
- * A read-only transport
+ * LazyRemoteTransport (read-only)
+ * @class
  */
 const LazyRemoteTransport = BaseTransport.extend({
+
     /**
-     * Init
+     * Constructor
      * @constructor
      * @param options
      */
-    init(options) {
+    constructor(options) {
         assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
         assert.isFunction(options.collection, kendo.format(assert.messages.isFunction.default, 'options.collection'));
         this._collection = options.collection; // Something like app.rapi.v2.activities
-        BaseTransport.fn.init.call(this, options);
+        super(options);
     },
 
     /**
@@ -29,7 +34,7 @@ const LazyRemoteTransport = BaseTransport.extend({
      * @param value
      */
     partition(value) {
-        if ($.type(value) === UNDEFINED) {
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
             return models.BaseTransport.fn.partition.call(this);
         } else {
             models.BaseTransport.fn.partition.call(this, value);
@@ -46,7 +51,7 @@ const LazyRemoteTransport = BaseTransport.extend({
      * Get
      * @param options
      */
-    get: function (options) {
+    get(options) {
         assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
         assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
         assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
@@ -54,13 +59,13 @@ const LazyRemoteTransport = BaseTransport.extend({
         // Fields are part of options.data, filter and sort order are not applicable
         var data = this.parameterMap(options.data, 'get');
         this._rapi.get(data[this.idField], { fields: data.fields }).done(options.success).fail(options.error);
-    },
+    ),
 
     /**
      * Read
      * @param options
      */
-    read: function (options) {
+    read(options) {
         assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
         assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
         assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
@@ -76,9 +81,17 @@ const LazyRemoteTransport = BaseTransport.extend({
             this._rapi.read(data).done(options.success).fail(options.error);
         }
     }
+
 });
 
 /**
  * Default export
  */
 export default LazyRemoteTransport;
+
+/**
+ * Maintain compatibility with legacy code
+ */
+window.app = window.app || {};
+window.app.models = window.app.models || {};
+window.app.models.LazyRemoteTransport = LazyRemoteTransport;

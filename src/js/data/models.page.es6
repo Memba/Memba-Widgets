@@ -5,8 +5,8 @@
 
 import $ from 'jquery';
 import 'kendo.data';
-import { BaseModel } from './kidoju.data.core.es6.tmp';
-import PageComponent from './kidoju.data.pagecomponent.es6';
+import BaseModel from './models.base.es6';
+import PageComponent from './models.pagecomponent.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import assert from '../common/window.assert.es6';
 

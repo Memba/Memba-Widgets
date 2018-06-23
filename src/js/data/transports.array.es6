@@ -7,7 +7,7 @@ import $ from 'jquery';
 import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
 import assert from '../common/window.assert.es6';
-import { error2xhr } from '../common/pongodb.util.es6';
+import { error2xhr } from '../common/window.util.es6';
 import ObjectId from '../common/pongodb.objectid.es6';
 import BaseTransport from './transports.base.es6';
 

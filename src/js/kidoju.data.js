@@ -977,13 +977,10 @@
             assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
             assert.type(STRING, options.question, assert.format(assert.messages.type.default, options.question, STRING));
             assert.type(STRING, options.solution, assert.format(assert.messages.type.default, options.solution, STRING));
-            var solutions = options.solution.split('\n');
-            for (var i = solutions.length - 1; i >= 0; i++) {
-                if (solutions[i] === '') {
-                    // Note: we do not trim spaces
-                    solutions.splice(i, 1);
-                }
-            }
+            var solutions = options.solution.split('\n')
+                .filter(function (item) {
+                    return item.trim() !== '';
+                });
             var escaped = solutions.map(kidoju.util.escapeRegExp);
             return new Page({
                 components: [

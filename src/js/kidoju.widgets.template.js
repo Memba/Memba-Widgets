@@ -191,7 +191,12 @@
                     if ($.type(options.valueField) === STRING &&
                         that.dataSource instanceof DataSource) {
                         that.trigger(DATABINDING);
-                        // The following also works with HierarchicalDataSource
+                        /*
+                        var data = that.dataSource.data().find(function (item) {
+                            return item[options.valueField] === that.value();
+                        });
+                        */
+                        // TODO The following works with HierarchicalDataSource but supposes that that.value() is the idField
                         var data = that.dataSource.get(that.value());
                         if ($.type(data) !== UNDEFINED) {
                             var html = that._template(data);

@@ -191,12 +191,7 @@
                 $(function () {
                     $('#button1').click(function (e) {
                         openSignIn({
-                            title: 'Signin',
-                            data: {
-                                provider : '',
-                                terms: false
-                            },
-                            width: 860
+                            title: 'Signin'
                         }).done(function(result) {
                             $("#console1").append(
                                 kendo.format(

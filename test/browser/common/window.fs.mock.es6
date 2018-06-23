@@ -35,9 +35,11 @@ if (window.PHANTOMJS) {
             this.isDirectory = false;
             this.isFile = true;
         }
+
         toURL() {
             return this.fullPath;
         }
+
         toInternalURL() {
             return this.fullPath;
         }
@@ -51,17 +53,21 @@ if (window.PHANTOMJS) {
             this.isDirectory = true;
             this.isFile = false;
         }
+
         // getDirectory(name, options, successCallback, errorCallback) {
         getDirectory(name, options, successCallback) {
             successCallback(new DirectoryEntry(path.join(this.fullPath, name)));
         }
+
         // getFile(name, options, successCallback, errorCallback) {
         getFile(name, options, successCallback) {
             successCallback(new FileEntry(path.join(this.fullPath, name)));
         }
+
         toURL() {
             return this.fullPath;
         }
+
         toInternalURL() {
             return this.fullPath;
         }

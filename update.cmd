@@ -1,11 +1,19 @@
 REM goto current directory
 cd /d %~dp0
 
-REM Copy Kidoju webfonts
+REM Copy from Kidoju-Server
+XCOPY ..\Kidoju.Server\client\js\common .\src\js\common /C /E /I /R /Y
+ATTRIB +R .\src\js\common\pongodb.*.es6
+ATTRIB +R .\src\js\common\window.assert.es6
+ATTRIB +R .\src\js\common\window.constants.es6
+ATTRIB +R .\src\js\common\window.logger.es6
+ATTRIB +R .\src\js\common\window.util.es6
+
+REM Copy Kidoju-WebFonts
 XCOPY ..\Kidoju.WebFonts\dist\fonts\*.* .\src\styles\fonts\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\fonts\*
 
-REM update Mathquill
+REM Copy Mathquill
 ATTRIB -R .\src\js\vendor\mathquill\mathquill.js
 COPY ..\..\Explorations\mathquill\build\mathquill.js .\src\js\vendor\mathquill\mathquill.js /Y
 ATTRIB +R .\src\js\vendor\mathquill\mathquill.js

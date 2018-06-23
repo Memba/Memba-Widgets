@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
 import assert from './window.assert.es6';
 import CONSTANTS from './window.constants.es6';
 
@@ -47,9 +50,27 @@ export function error2xhr(error) {
 
 /**
  * Converts [xhr, status, errorThrown] to an Error
+ * @param xhr
+ * @param status
+ * @param errorThrown
+ * @returns {Error}
  */
-export function xhr2error(xhr, status, errorThrown) {
+export function xhr2error(/* xhr, status, errorThrown */) {
     return new Error('xhr2error'); // TODO
+}
+
+/**
+ * Date reviver for JSON.parse
+ * @see https://weblog.west-wind.com/posts/2014/Jan/06/JavaScript-JSON-Date-Parsing-and-real-Dates
+ * @param key
+ * @param value
+ */
+export function dateReviver(key, value) {
+    let ret = value;
+    if (CONSTANTS.RX_ISODATE.test(value)) {
+        ret = new Date(value);
+    }
+    return ret;
 }
 
 /**

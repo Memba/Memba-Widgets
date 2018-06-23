@@ -260,9 +260,8 @@ export function match(query, doc, textFields) {
                     case '$regex':
                         if (criterion[operator] instanceof RegExp) {
                             return criterion[operator].test(value);
-                        } else if (
-                            $.type(criterion[operator]) === CONSTANTS.STRING
-                        ) {
+                        }
+                        if ($.type(criterion[operator]) === CONSTANTS.STRING) {
                             return new RegExp(
                                 criterion[operator],
                                 criterion.$options

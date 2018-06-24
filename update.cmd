@@ -1,8 +1,11 @@
 REM goto current directory
 cd /d %~dp0
 
+REM Copy babel-polyfill
+XCOPY .\node_modules\babel-polyfill\dist .\test\vendor /C /E /I /R /Y
+
 REM Copy from Kidoju-Server
-XCOPY ..\Kidoju.Server\client\js\common .\src\js\common /C /E /I /R /Y
+XCOPY ..\Kidoju.Server\src\js\common .\src\js\common /C /E /I /R /Y
 ATTRIB +R .\src\js\common\pongodb.*.es6
 ATTRIB +R .\src\js\common\window.assert.es6
 ATTRIB +R .\src\js\common\window.constants.es6

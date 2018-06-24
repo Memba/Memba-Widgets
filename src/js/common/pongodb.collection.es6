@@ -19,6 +19,41 @@ const TRIGGERS = {
     update: 'update'
 };
 
+function deepClone(obj) {
+    let ret;
+    if (Array.isArray(obj)) {
+        ret = [];
+        obj.forEach(item => {
+            ret.push(deepClone(item));
+        });
+    } else if ($.type(obj) === CONSTANTS.OBJECT) {
+        ret = {};
+        Object.keys(obj).forEach(_key => {
+            // Note: we do not expect functions or symbols here
+            let key = _key;
+            if (key !== '__v') {
+                // Strip _id from _
+                if (key.indexOf('_') === 0) {
+                    key = key.substr(1);
+                }
+                // Flatten $oid
+                const value = obj[_key];
+                if (value && CONSTANTS.RX_MONGODB_ID.test(value.$oid)) {
+                    ret[key] = value.$oid;
+                } else if (value && CONSTANTS.RX_ISODATE.test(value.$date)) {
+                    ret[key] = new Date(value.$date);
+                } else {
+                    ret[key] = deepClone(value);
+                }
+            }
+        });
+    } else {
+        // boolean, date, number, string
+        ret = obj;
+    }
+    return ret;
+}
+
 /**
  * Collection
  * @class
@@ -685,11 +720,46 @@ export default class Collection {
      * @param item
      */
     triggers(event, item) {
+        assert.type(
+            CONSTANTS.STRING,
+            event,
+            assert.format(
+                assert.messages.type.default,
+                'event',
+                CONSTANTS.STRING
+            )
+        );
+        assert.type(
+            CONSTANTS.OBJECT,
+            item,
+            assert.format(
+                assert.messages.type.default,
+                'item',
+                CONSTANTS.OBJECT
+            )
+        );
         const promises = [];
         this._triggers[event].forEach(trigger => {
             promises.push(trigger(item));
         });
         return promises;
+    }
+
+    /**
+     * Loads an array of objects (especially from a mongo export)
+     * Note: You might want to clear the collection first
+     * @param data
+     */
+    load(data) {
+        assert.isArray(
+            data,
+            assert.format(assert.messages.isArray.default, 'data')
+        );
+        const promises = data.map(item => {
+            const doc = deepClone(item);
+            return this.insert(doc);
+        });
+        return $.when(...promises);
     }
 
     /**

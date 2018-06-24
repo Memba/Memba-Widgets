@@ -38,6 +38,8 @@ const CONSTANTS = {
     // Errors
     NOT_FOUND_ERR: 'Not found',
     NOT_IMPLEMENTED_ERR: 'Not implemented',
+    // Content types
+    JSON_CONTENT_TYPE: 'application/json',
     // Cursors
     CROSSHAIR_CURSOR: 'crosshair',
     DEFAULT_CURSOR: 'default',

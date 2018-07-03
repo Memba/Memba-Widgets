@@ -14,7 +14,7 @@ const MACHINE_ID = '000000';
  */
 function makeId() {
     return (
-        ((new Date().getTime() / 1000) | 0).toString(16) + // eslint-disable-line no-bitwise
+        Math.trunc(new Date().getTime() / 1000).toString(16) +
         MACHINE_ID +
         randomHexString(10)
     );

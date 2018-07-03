@@ -100,7 +100,7 @@ export function randomHexString(length) {
         CONSTANTS.NUMBER
     );
     const s = new Array(length + 1).join('x');
-    return s.replace(/x/g, () => ((Math.random() * 16) | 0).toString(16)); // eslint-disable-line no-bitwise
+    return s.replace(/x/g, () => Math.trunc(16 * Math.random()).toString(16));
 }
 
 /**

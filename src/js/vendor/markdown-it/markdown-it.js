@@ -1,4 +1,4 @@
-/*! markdown-it 8.4.1 https://github.com//markdown-it/markdown-it @license MIT */(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.markdownit = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/*! markdown-it 8.4.2 https://github.com//markdown-it/markdown-it @license MIT */(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.markdownit = f()}})(function(){var define,module,exports;return (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 // HTML5 entities map: { name -> utf16string }
 //
 'use strict';
@@ -615,17 +615,12 @@ var config = {
 //
 
 var BAD_PROTO_RE = /^(vbscript|javascript|file|data):/;
-
-// BEGIN Commented by JLC
-// var GOOD_DATA_RE = /^data:image\/(gif|png|jpeg|webp);/;
-// END Commented by JLC
-// BEGIN Added by JLC for data:// scheme
-var GOOD_DATA_RE = /^data:(\/\/|image\/(gif|png|jpeg|webp);)/;
-// END Added by JLC for data:// scheme
+var GOOD_DATA_RE = /^data:image\/(gif|png|jpeg|webp);/;
 
 function validateLink(url) {
   // url should be normalized at this point, and existing entities are decoded
   var str = url.trim().toLowerCase();
+
   return BAD_PROTO_RE.test(str) ? (GOOD_DATA_RE.test(str) ? true : false) : true;
 }
 
@@ -2166,7 +2161,7 @@ Ruler.prototype.__compile__ = function () {
  *
  * ##### Example
  *
- * Replace existing typorgapher replacement rule with new one:
+ * Replace existing typographer replacement rule with new one:
  *
  * ```javascript
  * var md = require('markdown-it')();

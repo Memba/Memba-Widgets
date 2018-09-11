@@ -93,18 +93,65 @@
       keys = this.hasLiedBrowserKey(keys)
       keys = this.touchSupportKey(keys)
       keys = this.customEntropyFunction(keys)
-      this.fontsKey(keys, function (newKeys) {
-        var values = []
-        that.each(newKeys.data, function (pair) {
-          var value = pair.value
-          if (value && typeof value.join === 'function') {
-            value = value.join(';')
-          }
-          values.push(value)
+      this.fontsKey(keys, function (keysWithFont) {
+        that.audioKey(keysWithFont, function (newKeys) {
+          var values = []
+          that.each(newKeys.data, function (pair) {
+            var value = pair.value
+            if (value && typeof value.join === 'function') {
+              values.push(value.join(';'))
+            } else {
+              values.push(value)
+            }
+          })
+          var murmur = that.x64hash128(values.join('~~~'), 31)
+          return done(murmur, newKeys.data)
         })
-        var murmur = that.x64hash128(values.join('~~~'), 31)
-        return done(murmur, newKeys.data)
       })
+    },
+    // Inspired by and based on https://github.com/cozylife/audio-fingerprint
+    audioKey: function (keys, done) {
+      if (this.options.excludeAudioFP) {
+        return done(keys)
+      }
+
+      var AudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext
+      var context = new AudioContext(1, 44100, 44100)
+
+      var oscillator = context.createOscillator()
+      oscillator.type = 'triangle'
+      oscillator.frequency.setValueAtTime(10000, context.currentTime)
+
+      var compressor = context.createDynamicsCompressor()
+      this.each([
+        ['threshold', -50],
+        ['knee', 40],
+        ['ratio', 12],
+        ['reduction', -20],
+        ['attack', 0],
+        ['release', 0.25]
+      ], function (item) {
+        if (compressor[item[0]] !== undefined && typeof compressor[item[0]].setValueAtTime === 'function') {
+          compressor[item[0]].setValueAtTime(item[1], context.currentTime)
+        }
+      })
+
+      context.oncomplete = function (event) {
+        var fingerprint = event.renderedBuffer.getChannelData(0)
+                     .slice(4500, 5000)
+                     .reduce(function (acc, val) { return acc + Math.abs(val) }, 0)
+                     .toString()
+        oscillator.disconnect()
+        compressor.disconnect()
+
+        keys.addPreprocessedComponent({key: 'audio_fp', value: fingerprint})
+        return done(keys)
+      }
+
+      oscillator.connect(compressor)
+      compressor.connect(context.destination)
+      oscillator.start(0)
+      context.startRendering()
     },
     customEntropyFunction: function (keys) {
       if (typeof this.options.customFunction === 'function') {
@@ -851,42 +898,22 @@
         return result.join('~')
       }
 
-      result.push('webgl vertex shader high float precision:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.HIGH_FLOAT).precision)
-      result.push('webgl vertex shader high float precision rangeMin:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.HIGH_FLOAT).rangeMin)
-      result.push('webgl vertex shader high float precision rangeMax:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.HIGH_FLOAT).rangeMax)
-      result.push('webgl vertex shader medium float precision:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.MEDIUM_FLOAT).precision)
-      result.push('webgl vertex shader medium float precision rangeMin:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.MEDIUM_FLOAT).rangeMin)
-      result.push('webgl vertex shader medium float precision rangeMax:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.MEDIUM_FLOAT).rangeMax)
-      result.push('webgl vertex shader low float precision:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.LOW_FLOAT).precision)
-      result.push('webgl vertex shader low float precision rangeMin:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.LOW_FLOAT).rangeMin)
-      result.push('webgl vertex shader low float precision rangeMax:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.LOW_FLOAT).rangeMax)
-      result.push('webgl fragment shader high float precision:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).precision)
-      result.push('webgl fragment shader high float precision rangeMin:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).rangeMin)
-      result.push('webgl fragment shader high float precision rangeMax:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).rangeMax)
-      result.push('webgl fragment shader medium float precision:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT).precision)
-      result.push('webgl fragment shader medium float precision rangeMin:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT).rangeMin)
-      result.push('webgl fragment shader medium float precision rangeMax:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_FLOAT).rangeMax)
-      result.push('webgl fragment shader low float precision:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.LOW_FLOAT).precision)
-      result.push('webgl fragment shader low float precision rangeMin:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.LOW_FLOAT).rangeMin)
-      result.push('webgl fragment shader low float precision rangeMax:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.LOW_FLOAT).rangeMax)
-      result.push('webgl vertex shader high int precision:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.HIGH_INT).precision)
-      result.push('webgl vertex shader high int precision rangeMin:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.HIGH_INT).rangeMin)
-      result.push('webgl vertex shader high int precision rangeMax:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.HIGH_INT).rangeMax)
-      result.push('webgl vertex shader medium int precision:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.MEDIUM_INT).precision)
-      result.push('webgl vertex shader medium int precision rangeMin:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.MEDIUM_INT).rangeMin)
-      result.push('webgl vertex shader medium int precision rangeMax:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.MEDIUM_INT).rangeMax)
-      result.push('webgl vertex shader low int precision:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.LOW_INT).precision)
-      result.push('webgl vertex shader low int precision rangeMin:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.LOW_INT).rangeMin)
-      result.push('webgl vertex shader low int precision rangeMax:' + gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.LOW_INT).rangeMax)
-      result.push('webgl fragment shader high int precision:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_INT).precision)
-      result.push('webgl fragment shader high int precision rangeMin:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_INT).rangeMin)
-      result.push('webgl fragment shader high int precision rangeMax:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_INT).rangeMax)
-      result.push('webgl fragment shader medium int precision:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_INT).precision)
-      result.push('webgl fragment shader medium int precision rangeMin:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_INT).rangeMin)
-      result.push('webgl fragment shader medium int precision rangeMax:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.MEDIUM_INT).rangeMax)
-      result.push('webgl fragment shader low int precision:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.LOW_INT).precision)
-      result.push('webgl fragment shader low int precision rangeMin:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.LOW_INT).rangeMin)
-      result.push('webgl fragment shader low int precision rangeMax:' + gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.LOW_INT).rangeMax)
+      var that = this
+
+      that.each(['FLOAT', 'INT'], function (numType) {
+        that.each(['VERTEX', 'FRAGMENT'], function (shader) {
+          that.each(['HIGH', 'MEDIUM', 'LOW'], function (numSize) {
+            that.each(['precision', 'rangeMin', 'rangeMax'], function (key) {
+              var format = gl.getShaderPrecisionFormat(gl[shader + '_SHADER'], gl[numSize + '_' + numType])[key]
+              if (key !== 'precision') {
+                key = 'precision ' + key
+              }
+              var line = ['webgl ', shader.toLowerCase(), ' shader ', numSize.toLowerCase(), ' ', numType.toLowerCase(), ' ', key, ':', format]
+              result.push(line.join(''))
+            })
+          })
+        })
+      })
       return result.join('~')
     },
     getWebglVendorAndRenderer: function () {

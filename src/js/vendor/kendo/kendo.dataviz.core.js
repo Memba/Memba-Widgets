@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -195,75 +195,81 @@
         var deepExtend = kendo.deepExtend;
         var isFunction = kendo.isFunction;
         var __common_getter_js = kendo.getter;
-        var X = 'x';
-        var Y = 'y';
-        var TOP = 'top';
+        var ARC = 'arc';
+        var AXIS_LABEL_CLICK = 'axisLabelClick';
+        var BLACK = '#000';
         var BOTTOM = 'bottom';
-        var LEFT = 'left';
-        var RIGHT = 'right';
         var CENTER = 'center';
-        var WIDTH = 'width';
-        var HEIGHT = 'height';
+        var CIRCLE = 'circle';
         var COORD_PRECISION = 3;
+        var CROSS = 'cross';
+        var DATE = 'date';
+        var DEFAULT_FONT = '12px sans-serif';
+        var DEFAULT_HEIGHT = 400;
+        var DEFAULT_PRECISION = 10;
+        var DEFAULT_WIDTH = 600;
+        var END = 'end';
+        var FORMAT_REGEX = /\{\d+:?/;
+        var HEIGHT = 'height';
+        var HIGHLIGHT_ZINDEX = 100;
+        var INSIDE = 'inside';
+        var LEFT = 'left';
         var MAX_VALUE = Number.MAX_VALUE;
         var MIN_VALUE = -Number.MAX_VALUE;
-        var DEFAULT_WIDTH = 600;
-        var DEFAULT_HEIGHT = 400;
-        var WHITE = '#fff';
-        var BLACK = '#000';
-        var DEFAULT_FONT = '12px sans-serif';
-        var DEFAULT_PRECISION = 10;
-        var AXIS_LABEL_CLICK = 'axisLabelClick';
+        var NONE = 'none';
         var NOTE_CLICK = 'noteClick';
         var NOTE_HOVER = 'noteHover';
-        var OUTSIDE = 'outside';
-        var NONE = 'none';
-        var CIRCLE = 'circle';
-        var TRIANGLE = 'triangle';
-        var CROSS = 'cross';
-        var ARC = 'arc';
-        var INSIDE = 'inside';
-        var VALUE = 'value';
-        var STRING = 'string';
+        var NOTE_LEAVE = 'noteLeave';
         var OBJECT = 'object';
-        var DATE = 'date';
-        var FORMAT_REGEX = /\{\d+:?/;
-        var HIGHLIGHT_ZINDEX = 100;
+        var OUTSIDE = 'outside';
+        var RIGHT = 'right';
+        var START = 'start';
+        var STRING = 'string';
+        var TOP = 'top';
+        var TRIANGLE = 'triangle';
+        var VALUE = 'value';
+        var WHITE = '#fff';
+        var WIDTH = 'width';
+        var X = 'x';
+        var Y = 'y';
         var constants = {
-            X: X,
-            Y: Y,
-            WIDTH: WIDTH,
-            HEIGHT: HEIGHT,
-            DEFAULT_HEIGHT: DEFAULT_HEIGHT,
-            DEFAULT_WIDTH: DEFAULT_WIDTH,
-            TOP: TOP,
-            LEFT: LEFT,
+            ARC: ARC,
+            AXIS_LABEL_CLICK: AXIS_LABEL_CLICK,
+            BLACK: BLACK,
             BOTTOM: BOTTOM,
-            RIGHT: RIGHT,
             CENTER: CENTER,
-            COORD_PRECISION: COORD_PRECISION,
-            DEFAULT_PRECISION: DEFAULT_PRECISION,
             CIRCLE: CIRCLE,
-            TRIANGLE: TRIANGLE,
+            COORD_PRECISION: COORD_PRECISION,
             CROSS: CROSS,
+            DATE: DATE,
+            DEFAULT_FONT: DEFAULT_FONT,
+            DEFAULT_HEIGHT: DEFAULT_HEIGHT,
+            DEFAULT_PRECISION: DEFAULT_PRECISION,
+            DEFAULT_WIDTH: DEFAULT_WIDTH,
+            END: END,
+            FORMAT_REGEX: FORMAT_REGEX,
+            HEIGHT: HEIGHT,
+            HIGHLIGHT_ZINDEX: HIGHLIGHT_ZINDEX,
+            INSIDE: INSIDE,
+            LEFT: LEFT,
             MAX_VALUE: MAX_VALUE,
             MIN_VALUE: MIN_VALUE,
-            WHITE: WHITE,
-            BLACK: BLACK,
-            DEFAULT_FONT: DEFAULT_FONT,
-            AXIS_LABEL_CLICK: AXIS_LABEL_CLICK,
-            OUTSIDE: OUTSIDE,
-            INSIDE: INSIDE,
             NONE: NONE,
             NOTE_CLICK: NOTE_CLICK,
             NOTE_HOVER: NOTE_HOVER,
-            VALUE: VALUE,
-            STRING: STRING,
+            NOTE_LEAVE: NOTE_LEAVE,
             OBJECT: OBJECT,
-            DATE: DATE,
-            ARC: ARC,
-            FORMAT_REGEX: FORMAT_REGEX,
-            HIGHLIGHT_ZINDEX: HIGHLIGHT_ZINDEX
+            OUTSIDE: OUTSIDE,
+            RIGHT: RIGHT,
+            START: START,
+            STRING: STRING,
+            TOP: TOP,
+            TRIANGLE: TRIANGLE,
+            VALUE: VALUE,
+            WHITE: WHITE,
+            WIDTH: WIDTH,
+            X: X,
+            Y: Y
         };
         function isArray(value) {
             return Array.isArray(value);
@@ -390,14 +396,14 @@
                 var values = [], len = arguments.length - 1;
                 while (len-- > 0)
                     values[len] = arguments[len + 1];
-                var intl = this.intlService;
+                var intl = this.intl;
                 if (isString(formatString) && formatString.match(FORMAT_REGEX)) {
                     return intl.format.apply(intl, [formatString].concat(values));
                 }
                 return intl.toString(values[0], formatString);
             },
             localeAuto: function (formatString, values, locale) {
-                var intl = this.intlService;
+                var intl = this.intl;
                 var result;
                 if (isString(formatString) && formatString.match(FORMAT_REGEX)) {
                     result = formatString.replace(FORMAT_REPLACE_REGEX, function (match, index, placeholderFormat) {
@@ -412,9 +418,12 @@
         });
         if (Object.defineProperties) {
             Object.defineProperties(FormatService.fn, {
-                intlService: {
+                intl: {
                     get: function () {
                         return this._intlService || IntlService.implementation;
+                    },
+                    set: function (value) {
+                        this._intlService = value;
                     }
                 }
             });
@@ -428,10 +437,16 @@
                 this.sender = context.sender || chart;
                 this.format = new FormatService(context.intlService);
                 this.chart = chart;
-                this.rtl = context.rtl;
+                this.rtl = Boolean(context.rtl);
             },
             notify: function (name, args) {
-                this.chart.trigger(name, args);
+                if (this.chart) {
+                    this.chart.trigger(name, args);
+                }
+            },
+            isPannable: function (axis) {
+                var pannable = ((this.chart || {}).options || {}).pannable;
+                return pannable && pannable.lock !== axis;
             }
         });
         if (Object.defineProperties) {
@@ -439,6 +454,10 @@
                 intl: {
                     get: function () {
                         return this._intlService || IntlService.implementation;
+                    },
+                    set: function (value) {
+                        this._intlService = value;
+                        this.format.intl = value;
                     }
                 }
             });
@@ -504,6 +523,18 @@
                 }
             }
         }
+        var HashMap = function HashMap() {
+            this._map = {};
+        };
+        HashMap.prototype.get = function get(name) {
+            return this._map[this._key(name)];
+        };
+        HashMap.prototype.set = function set(name, value) {
+            this._map[this._key(name)] = value;
+        };
+        HashMap.prototype._key = function _key(name) {
+            return name instanceof Date ? name.getTime() : name;
+        };
         function inArray(value, array) {
             if (array) {
                 return array.indexOf(value) !== -1;
@@ -651,6 +682,28 @@
                 min: min === MAX_VALUE ? undefined : min,
                 max: max === MIN_VALUE ? undefined : max
             };
+        }
+        function autoMajorUnit(min, max) {
+            var diff = round(max - min, DEFAULT_PRECISION - 1);
+            if (diff === 0) {
+                if (max === 0) {
+                    return 0.1;
+                }
+                diff = Math.abs(max);
+            }
+            var scale = Math.pow(10, Math.floor(Math.log(diff) / Math.log(10)));
+            var relativeValue = round(diff / scale, DEFAULT_PRECISION);
+            var scaleMultiplier = 1;
+            if (relativeValue < 1.904762) {
+                scaleMultiplier = 0.2;
+            } else if (relativeValue < 4.761904) {
+                scaleMultiplier = 0.5;
+            } else if (relativeValue < 9.523809) {
+                scaleMultiplier = 1;
+            } else {
+                scaleMultiplier = 2;
+            }
+            return round(scale * scaleMultiplier, DEFAULT_PRECISION);
         }
         var Point = Class.extend({
             init: function (x, y) {
@@ -1036,7 +1089,10 @@
         var ChartElement = Class.extend({
             init: function (options) {
                 this.children = [];
-                this.options = deepExtend({}, this.options, options);
+                this.options = deepExtend({}, this.options, this.initUserOptions(options));
+            },
+            initUserOptions: function (options) {
+                return options;
             },
             reflow: function (targetBox) {
                 var children = this.children;
@@ -1124,7 +1180,7 @@
                 });
             },
             createAnimation: function () {
-                if (this.visual) {
+                if (this.visual && this.options.animation) {
                     this.animation = drawing.Animation.create(this.visual, this.options.animation);
                 }
             },
@@ -1679,6 +1735,16 @@
                     gradients[hashCode] = drawingGradient;
                 }
                 return drawingGradient;
+            },
+            cleanGradients: function () {
+                var gradients = this.gradients;
+                for (var hashCode in gradients) {
+                    gradients[hashCode]._observers = [];
+                }
+            },
+            size: function () {
+                var options = this.options;
+                return new Box(0, 0, options.width, options.height);
             }
         });
         setDefaultOptions(RootElement, {
@@ -1891,9 +1957,10 @@
         }
         var ROWS_SPLIT_REGEX = /\n/m;
         var TextBox = BoxElement.extend({
-            init: function (content, options) {
+            init: function (content, options, data) {
                 BoxElement.fn.init.call(this, options);
                 this.content = content;
+                this.data = data;
                 this._initContainer();
                 if (this.options._autoReflow !== false) {
                     this.reflow(new Box());
@@ -1952,9 +2019,6 @@
             },
             createVisual: function () {
                 var options = this.options;
-                if (!options.visible) {
-                    return;
-                }
                 this.visual = new Group({
                     transform: this.rotationTransform(),
                     zIndex: options.zIndex,
@@ -1966,6 +2030,9 @@
                 }
             },
             renderVisual: function () {
+                if (!this.options.visible) {
+                    return;
+                }
                 if (this.options.visual) {
                     var visual = this.visual;
                     if (visual && !defined(visual.options.noclip)) {
@@ -1977,25 +2044,13 @@
                     BoxElement.fn.renderVisual.call(this);
                 }
             },
-            visualOptions: function () {
-                var options = this.options;
-                return {
-                    background: options.background,
-                    border: options.border,
-                    color: options.color,
-                    font: options.font,
-                    margin: options.margin,
-                    padding: options.padding,
-                    visible: options.visible
-                };
-            },
             visualContext: function (targetBox) {
                 var this$1 = this;
-                return {
+                var context = {
                     text: this.content,
                     rect: targetBox.toRect(),
                     sender: this.getSender(),
-                    options: this.visualOptions(),
+                    options: this.options,
                     createVisual: function () {
                         this$1._boxReflow = true;
                         this$1.reflow(targetBox);
@@ -2003,6 +2058,10 @@
                         return this$1.getDefaultVisual();
                     }
                 };
+                if (this.data) {
+                    $.extend(context, this.data);
+                }
+                return context;
             },
             getDefaultVisual: function () {
                 this.createVisual();
@@ -2158,11 +2217,15 @@
                 this.options.visible = true;
             },
             render: function () {
+                var this$1 = this;
                 var options = this.options;
                 if (options.visible) {
                     var label = options.label;
                     var icon = options.icon;
                     var box = new Box();
+                    var childAlias = function () {
+                        return this$1;
+                    };
                     var size = icon.size;
                     var text = this.fields.text;
                     var width, height;
@@ -2177,6 +2240,7 @@
                             label.color = label.position === INSIDE ? DEFAULT_LABEL_COLOR : icon.background;
                         }
                         this.label = new TextBox(text, deepExtend({}, label));
+                        this.label.aliasFor = childAlias;
                         if (label.position === INSIDE && !defined(size)) {
                             if (icon.type === CIRCLE) {
                                 size = Math.max(this.label.box.width(), this.label.box.height());
@@ -2190,6 +2254,7 @@
                     icon.width = width || size || DEFAULT_ICON_SIZE;
                     icon.height = height || size || DEFAULT_ICON_SIZE;
                     var marker = new ShapeElement(deepExtend({}, icon));
+                    marker.aliasFor = childAlias;
                     this.marker = marker;
                     this.append(marker);
                     if (this.label) {
@@ -2356,14 +2421,15 @@
                     e.preventDefault();
                 }
             },
-            hover: function (widget, e) {
+            over: function (widget, e) {
                 var args = this.eventArgs(e);
                 if (!widget.trigger(NOTE_HOVER, args)) {
                     e.preventDefault();
                 }
             },
-            leave: function (widget) {
-                widget._unsetActivePoint();
+            out: function (widget, e) {
+                var args = this.eventArgs(e);
+                widget.trigger(NOTE_LEAVE, args);
             },
             eventArgs: function (e) {
                 var options = this.options;
@@ -2459,11 +2525,14 @@
                     size: this.options.majorTickSize,
                     align: this.options.majorTickType
                 });
+                this.initFields();
                 if (!this.options._deferLabels) {
                     this.createLabels();
                 }
                 this.createTitle();
                 this.createNotes();
+            },
+            initFields: function () {
             },
             labelsRange: function () {
                 return {
@@ -2480,10 +2549,7 @@
                     zIndex: options.zIndex
                 });
                 var step = Math.max(1, labelOptions.step);
-                this.children = grep(this.children, function (child) {
-                    return !(child instanceof AxisLabel);
-                });
-                this.labels = [];
+                this.clearLabels();
                 if (labelOptions.visible) {
                     var range = this.labelsRange();
                     var rotation = labelOptions.rotation;
@@ -2503,6 +2569,25 @@
                         }
                     }
                 }
+            },
+            clearLabels: function () {
+                this.children = grep(this.children, function (child) {
+                    return !(child instanceof AxisLabel);
+                });
+                this.labels = [];
+            },
+            clearTitle: function () {
+                var this$1 = this;
+                if (this.title) {
+                    this.children = grep(this.children, function (child) {
+                        return child !== this$1.title;
+                    });
+                    this.title = undefined;
+                }
+            },
+            clear: function () {
+                this.clearLabels();
+                this.clearTitle();
             },
             lineBox: function () {
                 var ref = this;
@@ -2778,7 +2863,7 @@
                 var ref = this;
                 var options = ref.options;
                 var labels = ref.labels;
-                var labelsBetweenTicks = !options.justified;
+                var labelsBetweenTicks = this.labelsBetweenTicks();
                 var vertical = options.vertical;
                 var lineBox = this.lineBox();
                 var mirror = options.labels.mirror;
@@ -2929,15 +3014,53 @@
                 var box = this.box.clone();
                 var labels = this.labels;
                 if (labels.length) {
-                    if (labels[0].options.visible) {
-                        box.wrap(labels[0].box);
-                    }
-                    var lastLabel = labels[labels.length - 1];
-                    if (lastLabel.options.visible) {
-                        box.wrap(lastLabel.box);
+                    var axis = this.options.vertical ? Y : X;
+                    if (this.chartService.isPannable(axis)) {
+                        var offset = this.maxLabelOffset();
+                        box[axis + 1] -= offset.start;
+                        box[axis + 2] += offset.end;
+                    } else {
+                        if (labels[0].options.visible) {
+                            box.wrap(labels[0].box);
+                        }
+                        var lastLabel = labels[labels.length - 1];
+                        if (lastLabel.options.visible) {
+                            box.wrap(lastLabel.box);
+                        }
                     }
                 }
                 return box;
+            },
+            maxLabelOffset: function () {
+                var this$1 = this;
+                var ref = this.options;
+                var vertical = ref.vertical;
+                var reverse = ref.reverse;
+                var labelsBetweenTicks = this.labelsBetweenTicks();
+                var tickPositions = this.getLabelsTickPositions();
+                var offsetField = vertical ? Y : X;
+                var labels = this.labels;
+                var startPosition = reverse ? 1 : 0;
+                var endPosition = reverse ? 0 : 1;
+                var maxStartOffset = 0;
+                var maxEndOffset = 0;
+                for (var idx = 0; idx < labels.length; idx++) {
+                    var label = labels[idx];
+                    var tickIx = this$1.labelTickIndex(label);
+                    var startTick = void 0, endTick = void 0;
+                    if (labelsBetweenTicks) {
+                        startTick = tickPositions[tickIx + startPosition];
+                        endTick = tickPositions[tickIx + endPosition];
+                    } else {
+                        startTick = endTick = tickPositions[tickIx];
+                    }
+                    maxStartOffset = Math.max(maxStartOffset, startTick - label.box[offsetField + 1]);
+                    maxEndOffset = Math.max(maxEndOffset, label.box[offsetField + 2] - endTick);
+                }
+                return {
+                    start: maxStartOffset,
+                    end: maxEndOffset
+                };
             },
             limitRange: function (from, to, min, max, offset) {
                 var options = this.options;
@@ -2953,10 +3076,10 @@
                 var rangeSize = to - from;
                 var minValue = from;
                 var maxValue = to;
-                if (from < min) {
+                if (from < min && offset < 0) {
                     minValue = limitValue(from, min, max);
                     maxValue = limitValue(from + rangeSize, min + rangeSize, max);
-                } else if (to > max) {
+                } else if (to > max && offset > 0) {
                     maxValue = limitValue(to, min, max);
                     minValue = limitValue(to - rangeSize, min, max - rangeSize);
                 }
@@ -2970,6 +3093,11 @@
                     min: this.seriesMin,
                     max: this.seriesMax
                 };
+            },
+            labelsBetweenTicks: function () {
+                return !this.options.justified;
+            },
+            prepareUserOptions: function () {
             }
         });
         setDefaultOptions(Axis, {
@@ -3257,18 +3385,23 @@
             return arr.indexOf(value);
         }
         var CategoryAxis = Axis.extend({
-            init: function (options, chartService) {
-                Axis.fn.init.call(this, options, chartService);
+            initFields: function () {
                 this._ticks = {};
-                this._initCategories(this.options);
             },
-            _initCategories: function (options) {
-                var categories = (options.categories || []).slice(0);
+            categoriesHash: function () {
+                return '';
+            },
+            clone: function () {
+                var copy = new CategoryAxis($.extend({}, this.options), this.chartService);
+                copy.createLabels();
+                return copy;
+            },
+            initUserOptions: function (options) {
+                var categories = options.categories || [];
                 var definedMin = defined(options.min);
                 var definedMax = defined(options.max);
-                options.categories = categories;
+                options.srcCategories = options.categories = categories;
                 if ((definedMin || definedMax) && categories.length) {
-                    options.srcCategories = options.categories;
                     var min = definedMin ? Math.floor(options.min) : 0;
                     var max;
                     if (definedMax) {
@@ -3278,6 +3411,7 @@
                     }
                     options.categories = options.categories.slice(min, max);
                 }
+                return options;
             },
             rangeIndices: function () {
                 var options = this.options;
@@ -3303,7 +3437,7 @@
                 } else if (isNumber(options.min)) {
                     max = min + options.categories.length;
                 } else {
-                    max = (options.srcCategories || options.categories).length - (options.justified ? 1 : 0) || 1;
+                    max = this.totalRange().max || 1;
                 }
                 if (limit) {
                     var totalRange = this.totalRange();
@@ -3317,69 +3451,33 @@
             },
             range: function () {
                 var options = this.options;
+                var min = isNumber(options.min) ? options.min : 0;
+                var max = isNumber(options.max) ? options.max : this.totalRange().max;
                 return {
-                    min: isNumber(options.min) ? options.min : 0,
-                    max: isNumber(options.max) ? options.max : options.categories.length
+                    min: min,
+                    max: max
                 };
             },
             totalRange: function () {
                 var options = this.options;
                 return {
                     min: 0,
-                    max: Math.max(this._seriesMax || 0, (options.srcCategories || options.categories).length) - (options.justified ? 1 : 0)
+                    max: Math.max(this._seriesMax || 0, options.srcCategories.length) - (options.justified ? 1 : 0)
                 };
             },
-            getScale: function () {
+            scaleOptions: function () {
                 var ref = this.rangeIndices();
                 var min = ref.min;
                 var max = ref.max;
                 var lineBox = this.lineBox();
                 var size = this.options.vertical ? lineBox.height() : lineBox.width();
                 var scale = size / (max - min || 1);
-                return scale * (this.options.reverse ? -1 : 1);
-            },
-            getTickPositions: function (stepSize) {
-                var ref = this.options;
-                var vertical = ref.vertical;
-                var reverse = ref.reverse;
-                var ref$1 = this.rangeIndices();
-                var min = ref$1.min;
-                var max = ref$1.max;
-                var lineBox = this.lineBox();
-                var scale = this.getScale();
-                var pos = lineBox[(vertical ? Y : X) + (reverse ? 2 : 1)];
-                var positions = [];
-                var current = min % 1 !== 0 ? Math.floor(min / 1) + stepSize : min;
-                while (current <= max) {
-                    positions.push(pos + round(scale * (current - min), COORD_PRECISION));
-                    current += stepSize;
-                }
-                return positions;
-            },
-            getLabelsTickPositions: function () {
-                var tickPositions = this.getMajorTickPositions().slice(0);
-                var range = this.rangeIndices();
-                var scale = this.getScale();
-                var box = this.lineBox();
-                var options = this.options;
-                var axis = options.vertical ? Y : X;
-                var start = options.reverse ? 2 : 1;
-                var end = options.reverse ? 1 : 2;
-                if (range.min % 1 !== 0) {
-                    tickPositions.unshift(box[axis + start] - scale * (range.min % 1));
-                }
-                if (range.max % 1 !== 0) {
-                    tickPositions.push(box[axis + end] + scale * (1 - range.max % 1));
-                }
-                return tickPositions;
-            },
-            labelTickIndex: function (label) {
-                var range = this.rangeIndices();
-                var index = label.index;
-                if (range.min > 0) {
-                    index = index - Math.floor(range.min);
-                }
-                return index;
+                return {
+                    scale: scale * (this.options.reverse ? -1 : 1),
+                    box: lineBox,
+                    min: min,
+                    max: max
+                };
             },
             arrangeLabels: function () {
                 Axis.fn.arrangeLabels.call(this);
@@ -3409,33 +3507,84 @@
             getMinorTickPositions: function () {
                 return this.getTicks().minorTicks;
             },
-            getTicks: function () {
+            getLabelsTickPositions: function () {
+                return this.getTicks().labelTicks;
+            },
+            tickIndices: function (stepSize) {
+                var ref = this.rangeIndices();
+                var min = ref.min;
+                var max = ref.max;
+                var limit = Math.ceil(max);
+                var current = Math.floor(min);
+                var indices = [];
+                while (current <= limit) {
+                    indices.push(current);
+                    current += stepSize;
+                }
+                return indices;
+            },
+            getTickPositions: function (stepSize) {
                 var ref = this.options;
+                var vertical = ref.vertical;
                 var reverse = ref.reverse;
-                var justified = ref.justified;
+                var ref$1 = this.scaleOptions();
+                var scale = ref$1.scale;
+                var box = ref$1.box;
+                var min = ref$1.min;
+                var pos = box[(vertical ? Y : X) + (reverse ? 2 : 1)];
+                var indices = this.tickIndices(stepSize);
+                var positions = [];
+                for (var idx = 0; idx < indices.length; idx++) {
+                    positions.push(pos + round(scale * (indices[idx] - min), COORD_PRECISION));
+                }
+                return positions;
+            },
+            getTicks: function () {
+                var options = this.options;
                 var cache = this._ticks;
                 var range = this.rangeIndices();
                 var lineBox = this.lineBox();
-                var hash = lineBox.getHash() + range.min + ',' + range.max + reverse + justified;
+                var hash = lineBox.getHash() + range.min + ',' + range.max + options.reverse + options.justified;
                 if (cache._hash !== hash) {
+                    var hasMinor = options.minorTicks.visible || options.minorGridLines.visible;
                     cache._hash = hash;
-                    cache.majorTicks = this.getTickPositions(1);
-                    cache.minorTicks = this.getTickPositions(0.5);
+                    cache.labelTicks = this.getTickPositions(1);
+                    cache.majorTicks = this.filterOutOfRangePositions(cache.labelTicks, lineBox);
+                    cache.minorTicks = hasMinor ? this.filterOutOfRangePositions(this.getTickPositions(0.5), lineBox) : [];
                 }
                 return cache;
+            },
+            filterOutOfRangePositions: function (positions, lineBox) {
+                if (!positions.length) {
+                    return positions;
+                }
+                var axis = this.options.vertical ? Y : X;
+                var inRange = function (position) {
+                    return lineBox[axis + 1] <= position && position <= lineBox[axis + 2];
+                };
+                var end = positions.length - 1;
+                var startIndex = 0;
+                while (!inRange(positions[startIndex]) && startIndex <= end) {
+                    startIndex++;
+                }
+                var endIndex = end;
+                while (!inRange(positions[endIndex]) && endIndex >= 0) {
+                    endIndex--;
+                }
+                return positions.slice(startIndex, endIndex + 1);
             },
             getSlot: function (from, to, limit) {
                 var options = this.options;
                 var reverse = options.reverse;
                 var justified = options.justified;
                 var vertical = options.vertical;
-                var ref = this.rangeIndices();
+                var ref = this.scaleOptions();
+                var scale = ref.scale;
+                var box = ref.box;
                 var min = ref.min;
                 var valueAxis = vertical ? Y : X;
-                var lineBox = this.lineBox();
-                var scale = this.getScale();
-                var lineStart = lineBox[valueAxis + (reverse ? 2 : 1)];
-                var slotBox = lineBox.clone();
+                var lineStart = box[valueAxis + (reverse ? 2 : 1)];
+                var slotBox = box.clone();
                 var singleSlot = !defined(to);
                 var start = valueOrDefault(from, 0);
                 var end = valueOrDefault(to, start);
@@ -3447,8 +3596,8 @@
                     p2 = p1;
                 }
                 if (limit) {
-                    p1 = limitValue(p1, lineBox[valueAxis + 1], lineBox[valueAxis + 2]);
-                    p2 = limitValue(p2, lineBox[valueAxis + 1], lineBox[valueAxis + 2]);
+                    p1 = limitValue(p1, box[valueAxis + 1], box[valueAxis + 2]);
+                    p2 = limitValue(p2, box[valueAxis + 1], box[valueAxis + 2]);
                 }
                 slotBox[valueAxis + 1] = reverse ? p2 : p1;
                 slotBox[valueAxis + 2] = reverse ? p1 : p2;
@@ -3464,13 +3613,18 @@
                 return limittedSlot;
             },
             slot: function (from, to, limit) {
+                var min = Math.floor(this.options.min || 0);
                 var start = from;
                 var end = to;
                 if (typeof start === 'string') {
                     start = this.categoryIndex(start);
+                } else if (isNumber(start)) {
+                    start -= min;
                 }
                 if (typeof end === 'string') {
                     end = this.categoryIndex(end);
+                } else if (isNumber(end)) {
+                    end -= min;
                 }
                 return Axis.fn.slot.call(this, start, end, limit);
             },
@@ -3480,12 +3634,14 @@
                 var justified = ref.justified;
                 var vertical = ref.vertical;
                 var valueAxis = vertical ? Y : X;
-                var lineBox = this.lineBox();
-                var range = this.rangeIndices();
-                var startValue = reverse ? range.max : range.min;
-                var scale = this.getScale();
-                var lineStart = lineBox[valueAxis + 1];
-                var lineEnd = lineBox[valueAxis + 2];
+                var ref$1 = this.scaleOptions();
+                var scale = ref$1.scale;
+                var box = ref$1.box;
+                var min = ref$1.min;
+                var max = ref$1.max;
+                var startValue = reverse ? max : min;
+                var lineStart = box[valueAxis + 1];
+                var lineEnd = box[valueAxis + 2];
                 var pos = point[valueAxis];
                 if (pos < lineStart || pos > lineEnd) {
                     return null;
@@ -3507,9 +3663,14 @@
                 return this.options.categories[index];
             },
             categoryIndex: function (value) {
+                return this.totalIndex(value) - Math.floor(this.options.min || 0);
+            },
+            categoryAt: function (index, total) {
                 var options = this.options;
-                var index = indexOf(value, options.srcCategories || options.categories);
-                return index - Math.floor(options.min || 0);
+                return (total ? options.srcCategories : options.categories)[index];
+            },
+            categoriesCount: function () {
+                return (this.options.categories || []).length;
             },
             translateRange: function (delta) {
                 var options = this.options;
@@ -3613,7 +3774,8 @@
             },
             pan: function (delta) {
                 var range = this.totalRangeIndices(true);
-                var scale = this.getScale();
+                var ref = this.scaleOptions();
+                var scale = ref.scale;
                 var offset = round(delta / scale, DEFAULT_PRECISION);
                 var totalRange = this.totalRange();
                 var min = range.min + offset;
@@ -3625,10 +3787,11 @@
                 var reverse = ref.reverse;
                 var vertical = ref.vertical;
                 var valueAxis = vertical ? Y : X;
-                var lineBox = this.lineBox();
                 var range = this.totalRangeIndices(true);
-                var scale = this.getScale();
-                var lineStart = lineBox[valueAxis + (reverse ? 2 : 1)];
+                var ref$1 = this.scaleOptions();
+                var scale = ref$1.scale;
+                var box = ref$1.box;
+                var lineStart = box[valueAxis + (reverse ? 2 : 1)];
                 var diffStart = start[valueAxis] - lineStart;
                 var diffEnd = end[valueAxis] - lineStart;
                 var min = range.min + diffStart / scale;
@@ -3644,11 +3807,44 @@
             },
             valueRange: function () {
                 return this.range();
+            },
+            totalIndex: function (value) {
+                var options = this.options;
+                var index = this._categoriesMap ? this._categoriesMap.get(value) : indexOf(value, options.srcCategories);
+                return index;
+            },
+            currentRangeIndices: function () {
+                var options = this.options;
+                var min = 0;
+                if (isNumber(options.min)) {
+                    min = Math.floor(options.min);
+                }
+                var max;
+                if (isNumber(options.max)) {
+                    max = options.justified ? Math.floor(options.max) : Math.ceil(options.max) - 1;
+                } else {
+                    max = this.totalCount() - 1;
+                }
+                return {
+                    min: min,
+                    max: max
+                };
+            },
+            mapCategories: function () {
+                if (!this._categoriesMap) {
+                    var map$$1 = this._categoriesMap = new HashMap();
+                    var srcCategories = this.options.srcCategories;
+                    for (var idx = 0; idx < srcCategories.length; idx++) {
+                        map$$1.set(srcCategories[idx], idx);
+                    }
+                }
+            },
+            totalCount: function () {
+                return Math.max(this.options.srcCategories.length, this._seriesMax || 0);
             }
         });
         setDefaultOptions(CategoryAxis, {
             type: 'category',
-            categories: [],
             vertical: false,
             majorGridLines: {
                 visible: false,
@@ -3683,35 +3879,326 @@
             YEARS
         ];
         var FIT = 'fit';
+        function categoryRange(categories) {
+            var range = categories._range;
+            if (!range) {
+                range = categories._range = sparseArrayLimits(categories);
+                range.min = toDate(range.min);
+                range.max = toDate(range.max);
+            }
+            return range;
+        }
+        var EmptyDateRange = Class.extend({
+            init: function (options) {
+                this.options = options;
+            },
+            displayIndices: function () {
+                return {
+                    min: 0,
+                    max: 1
+                };
+            },
+            displayRange: function () {
+                return {};
+            },
+            total: function () {
+                return {};
+            },
+            valueRange: function () {
+                return {};
+            },
+            valueIndex: function () {
+                return -1;
+            },
+            values: function () {
+                return [];
+            },
+            totalIndex: function () {
+                return -1;
+            },
+            valuesCount: function () {
+                return 0;
+            },
+            totalCount: function () {
+                return 0;
+            },
+            dateAt: function () {
+                return null;
+            }
+        });
+        var DateRange = Class.extend({
+            init: function (start, end, options) {
+                this.options = options;
+                options.baseUnitStep = options.baseUnitStep || 1;
+                var roundToBaseUnit = options.roundToBaseUnit;
+                var justified = options.justified;
+                this.start = addDuration(start, 0, options.baseUnit, options.weekStartDay);
+                var lowerEnd = this.roundToTotalStep(end);
+                var expandEnd = !justified && dateEquals(end, lowerEnd) && !options.justifyEnd;
+                this.end = this.roundToTotalStep(end, !justified, expandEnd ? 1 : 0);
+                var min = options.min || start;
+                this.valueStart = this.roundToTotalStep(min);
+                this.displayStart = roundToBaseUnit ? this.valueStart : min;
+                var max = options.max;
+                if (!max) {
+                    this.valueEnd = lowerEnd;
+                    this.displayEnd = roundToBaseUnit || expandEnd ? this.end : end;
+                } else {
+                    this.valueEnd = this.roundToTotalStep(max, false, !justified && dateEquals(max, this.roundToTotalStep(max)) ? -1 : 0);
+                    this.displayEnd = roundToBaseUnit ? this.roundToTotalStep(max, !justified) : options.max;
+                }
+                if (this.valueEnd < this.valueStart) {
+                    this.valueEnd = this.valueStart;
+                }
+                if (this.displayEnd <= this.displayStart) {
+                    this.displayEnd = this.roundToTotalStep(this.displayStart, false, 1);
+                }
+            },
+            displayRange: function () {
+                return {
+                    min: this.displayStart,
+                    max: this.displayEnd
+                };
+            },
+            displayIndices: function () {
+                if (!this._indices) {
+                    var options = this.options;
+                    var baseUnit = options.baseUnit;
+                    var baseUnitStep = options.baseUnitStep;
+                    var minIdx = dateIndex(this.displayStart, this.valueStart, baseUnit, baseUnitStep);
+                    var maxIdx = dateIndex(this.displayEnd, this.valueStart, baseUnit, baseUnitStep);
+                    this._indices = {
+                        min: minIdx,
+                        max: maxIdx
+                    };
+                }
+                return this._indices;
+            },
+            total: function () {
+                return {
+                    min: this.start,
+                    max: this.end
+                };
+            },
+            totalCount: function () {
+                var last$$1 = this.totalIndex(this.end);
+                return last$$1 + (this.options.justified ? 1 : 0);
+            },
+            valueRange: function () {
+                return {
+                    min: this.valueStart,
+                    max: this.valueEnd
+                };
+            },
+            valueIndex: function (value) {
+                var options = this.options;
+                return Math.floor(dateIndex(value, this.valueStart, options.baseUnit, options.baseUnitStep));
+            },
+            totalIndex: function (value) {
+                var options = this.options;
+                return Math.floor(dateIndex(value, this.start, options.baseUnit, options.baseUnitStep));
+            },
+            dateIndex: function (value) {
+                var options = this.options;
+                return dateIndex(value, this.valueStart, options.baseUnit, options.baseUnitStep);
+            },
+            valuesCount: function () {
+                var maxIdx = this.valueIndex(this.valueEnd);
+                return maxIdx + 1;
+            },
+            values: function () {
+                var values = this._values;
+                if (!values) {
+                    var options = this.options;
+                    var range = this.valueRange();
+                    this._values = values = [];
+                    for (var date = range.min; date <= range.max;) {
+                        values.push(date);
+                        date = addDuration(date, options.baseUnitStep, options.baseUnit, options.weekStartDay);
+                    }
+                }
+                return values;
+            },
+            dateAt: function (index, total) {
+                var options = this.options;
+                return addDuration(total ? this.start : this.valueStart, options.baseUnitStep * index, options.baseUnit, options.weekStartDay);
+            },
+            roundToTotalStep: function (value, upper, next) {
+                var ref = this.options;
+                var baseUnit = ref.baseUnit;
+                var baseUnitStep = ref.baseUnitStep;
+                var weekStartDay = ref.weekStartDay;
+                var start = this.start;
+                var step = dateIndex(value, start, baseUnit, baseUnitStep);
+                var roundedStep = upper ? Math.ceil(step) : Math.floor(step);
+                if (next) {
+                    roundedStep += next;
+                }
+                return addDuration(start, roundedStep * baseUnitStep, baseUnit, weekStartDay);
+            }
+        });
+        function autoBaseUnit(options, startUnit, startStep) {
+            var categoryLimits = categoryRange(options.categories);
+            var span = (options.max || categoryLimits.max) - (options.min || categoryLimits.min);
+            var autoBaseUnitSteps = options.autoBaseUnitSteps;
+            var maxDateGroups = options.maxDateGroups;
+            var autoUnit = options.baseUnit === FIT;
+            var autoUnitIx = startUnit ? BASE_UNITS.indexOf(startUnit) : 0;
+            var baseUnit = autoUnit ? BASE_UNITS[autoUnitIx++] : options.baseUnit;
+            var units = span / TIME_PER_UNIT[baseUnit];
+            var totalUnits = units;
+            var unitSteps, step, nextStep;
+            while (!step || units >= maxDateGroups) {
+                unitSteps = unitSteps || autoBaseUnitSteps[baseUnit].slice(0);
+                do {
+                    nextStep = unitSteps.shift();
+                } while (nextStep && startUnit === baseUnit && nextStep < startStep);
+                if (nextStep) {
+                    step = nextStep;
+                    units = totalUnits / step;
+                } else if (baseUnit === last(BASE_UNITS)) {
+                    step = Math.ceil(totalUnits / maxDateGroups);
+                    break;
+                } else if (autoUnit) {
+                    baseUnit = BASE_UNITS[autoUnitIx++] || last(BASE_UNITS);
+                    totalUnits = span / TIME_PER_UNIT[baseUnit];
+                    unitSteps = null;
+                } else {
+                    if (units > maxDateGroups) {
+                        step = Math.ceil(totalUnits / maxDateGroups);
+                    }
+                    break;
+                }
+            }
+            options.baseUnitStep = step;
+            options.baseUnit = baseUnit;
+        }
+        function defaultBaseUnit(options) {
+            var categories = options.categories;
+            var count = defined(categories) ? categories.length : 0;
+            var minDiff = MAX_VALUE;
+            var lastCategory, unit;
+            for (var categoryIx = 0; categoryIx < count; categoryIx++) {
+                var category = categories[categoryIx];
+                if (category && lastCategory) {
+                    var diff = absoluteDateDiff(category, lastCategory);
+                    if (diff > 0) {
+                        minDiff = Math.min(minDiff, diff);
+                        if (minDiff >= TIME_PER_YEAR) {
+                            unit = YEARS;
+                        } else if (minDiff >= TIME_PER_MONTH - TIME_PER_DAY * 3) {
+                            unit = MONTHS;
+                        } else if (minDiff >= TIME_PER_WEEK) {
+                            unit = WEEKS;
+                        } else if (minDiff >= TIME_PER_DAY) {
+                            unit = DAYS;
+                        } else if (minDiff >= TIME_PER_HOUR) {
+                            unit = HOURS;
+                        } else if (minDiff >= TIME_PER_MINUTE) {
+                            unit = MINUTES;
+                        } else {
+                            unit = SECONDS;
+                        }
+                    }
+                }
+                lastCategory = category;
+            }
+            options.baseUnit = unit || DAYS;
+        }
+        function initUnit(options) {
+            var baseUnit = (options.baseUnit || '').toLowerCase();
+            var useDefault = baseUnit !== FIT && !inArray(baseUnit, BASE_UNITS);
+            if (useDefault) {
+                defaultBaseUnit(options);
+            }
+            if (baseUnit === FIT || options.baseUnitStep === AUTO) {
+                autoBaseUnit(options);
+            }
+            return options;
+        }
         var DateCategoryAxis = CategoryAxis.extend({
-            init: function (axisOptions, chartService) {
-                CategoryAxis.fn.init.call(this, axisOptions, chartService);
+            clone: function () {
+                var copy = new DateCategoryAxis($.extend({}, this.options), this.chartService);
+                copy.createLabels();
+                return copy;
+            },
+            categoriesHash: function () {
+                var start = this.dataRange.total().min;
+                return this.options.baseUnit + this.options.baseUnitStep + start;
+            },
+            initUserOptions: function (options) {
+                return options;
+            },
+            initFields: function () {
+                CategoryAxis.fn.initFields.call(this);
+                var chartService = this.chartService;
                 var intlService = chartService.intl;
                 var options = this.options;
+                var categories = options.categories || [];
+                if (!categories._parsed) {
+                    categories = parseDates(intlService, categories);
+                    categories._parsed = true;
+                }
                 options = deepExtend({ roundToBaseUnit: true }, options, {
-                    categories: parseDates(intlService, options.categories),
+                    categories: categories,
                     min: parseDate(intlService, options.min),
                     max: parseDate(intlService, options.max)
                 });
+                if (chartService.panning && chartService.isPannable(options.vertical ? Y : X)) {
+                    options.roundToBaseUnit = false;
+                }
                 options.userSetBaseUnit = options.userSetBaseUnit || options.baseUnit;
                 options.userSetBaseUnitStep = options.userSetBaseUnitStep || options.baseUnitStep;
-                if (options.categories && options.categories.length > 0) {
-                    var baseUnit = (options.baseUnit || '').toLowerCase();
-                    var useDefault = baseUnit !== FIT && !inArray(baseUnit, BASE_UNITS);
-                    if (useDefault) {
-                        options.baseUnit = this.defaultBaseUnit(options);
+                this.options = options;
+                options.srcCategories = categories;
+                if (categories.length > 0) {
+                    var range = categoryRange(categories);
+                    var maxDivisions = options.maxDivisions;
+                    this.dataRange = new DateRange(range.min, range.max, initUnit(options));
+                    if (maxDivisions) {
+                        var dataRange = this.dataRange.displayRange();
+                        var divisionOptions = $.extend({}, options, {
+                            justified: true,
+                            roundToBaseUnit: false,
+                            baseUnit: 'fit',
+                            min: dataRange.min,
+                            max: dataRange.max,
+                            maxDateGroups: maxDivisions
+                        });
+                        var dataRangeOptions = this.dataRange.options;
+                        autoBaseUnit(divisionOptions, dataRangeOptions.baseUnit, dataRangeOptions.baseUnitStep);
+                        this.divisionRange = new DateRange(range.min, range.max, divisionOptions);
+                    } else {
+                        this.divisionRange = this.dataRange;
                     }
-                    if (baseUnit === FIT || options.baseUnitStep === AUTO) {
-                        this.autoBaseUnit(options);
-                    }
-                    this._groupsStart = addDuration(options.categories[0], 0, options.baseUnit, options.weekStartDay);
-                    this.groupCategories(options);
                 } else {
                     options.baseUnit = options.baseUnit || DAYS;
+                    this.dataRange = this.divisionRange = new EmptyDateRange(options);
                 }
-                this.options = options;
             },
-            _initCategories: function () {
+            tickIndices: function (stepSize) {
+                var ref = this;
+                var dataRange = ref.dataRange;
+                var divisionRange = ref.divisionRange;
+                var valuesCount = divisionRange.valuesCount();
+                if (!this.options.maxDivisions || !valuesCount) {
+                    return CategoryAxis.fn.tickIndices.call(this, stepSize);
+                }
+                var indices = [];
+                var values = divisionRange.values();
+                var offset = 0;
+                if (!this.options.justified) {
+                    values = values.concat(divisionRange.dateAt(valuesCount));
+                    offset = 0.5;
+                }
+                for (var idx = 0; idx < values.length; idx++) {
+                    indices.push(dataRange.dateIndex(values[idx]) + offset);
+                    if (stepSize !== 1 && idx >= 1) {
+                        var last$$1 = indices.length - 1;
+                        indices.splice(idx, 0, indices[last$$1 - 1] + (indices[last$$1] - indices[last$$1 - 1]) * stepSize);
+                    }
+                }
+                return indices;
             },
             shouldRenderNote: function (value) {
                 var range = this.range();
@@ -3768,130 +4255,25 @@
                 }
                 return result;
             },
-            defaultBaseUnit: function (options) {
-                var categories = options.categories;
-                var count = defined(categories) ? categories.length : 0;
-                var minDiff = MAX_VALUE;
-                var lastCategory, unit;
-                for (var categoryIx = 0; categoryIx < count; categoryIx++) {
-                    var category = categories[categoryIx];
-                    if (category && lastCategory) {
-                        var diff = absoluteDateDiff(category, lastCategory);
-                        if (diff > 0) {
-                            minDiff = Math.min(minDiff, diff);
-                            if (minDiff >= TIME_PER_YEAR) {
-                                unit = YEARS;
-                            } else if (minDiff >= TIME_PER_MONTH - TIME_PER_DAY * 3) {
-                                unit = MONTHS;
-                            } else if (minDiff >= TIME_PER_WEEK) {
-                                unit = WEEKS;
-                            } else if (minDiff >= TIME_PER_DAY) {
-                                unit = DAYS;
-                            } else if (minDiff >= TIME_PER_HOUR) {
-                                unit = HOURS;
-                            } else if (minDiff >= TIME_PER_MINUTE) {
-                                unit = MINUTES;
-                            } else {
-                                unit = SECONDS;
-                            }
-                        }
-                    }
-                    lastCategory = category;
-                }
-                return unit || DAYS;
-            },
-            _categoryRange: function (categories) {
-                var range = categories._range;
-                if (!range) {
-                    range = categories._range = sparseArrayLimits(categories);
-                }
-                return range;
-            },
-            totalRange: function () {
-                return {
-                    min: 0,
-                    max: this.options.categories.length
-                };
-            },
-            rangeIndices: function () {
-                var options = this.options;
-                var categories = options.categories;
-                var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep || 1;
-                var categoryLimits = this.categoriesRange();
-                var min = toDate(options.min || categoryLimits.min);
-                var max = toDate(options.max || categoryLimits.max);
-                var minIdx = 0, maxIdx = 0;
-                if (categories.length) {
-                    minIdx = dateIndex(min, categories[0], baseUnit, baseUnitStep);
-                    maxIdx = dateIndex(max, categories[0], baseUnit, baseUnitStep);
-                    if (options.roundToBaseUnit) {
-                        minIdx = Math.floor(minIdx);
-                        maxIdx = options.justified ? Math.floor(maxIdx) : Math.ceil(maxIdx);
-                    }
-                }
-                return {
-                    min: minIdx,
-                    max: maxIdx
-                };
-            },
             labelsRange: function () {
-                var options = this.options;
-                var labelOptions = options.labels;
-                var range = this.rangeIndices();
-                var min = Math.floor(range.min);
-                var max = Math.ceil(range.max);
                 return {
-                    min: min + labelOptions.skip,
-                    max: options.categories.length ? max + (options.justified ? 1 : 0) : 0
-                };
-            },
-            categoriesRange: function () {
-                var options = this.options;
-                var range = this._categoryRange(options.srcCategories || options.categories);
-                var max = toDate(range.max);
-                if (!options.justified && dateEquals(max, this._roundToTotalStep(max, options, false))) {
-                    max = this._roundToTotalStep(max, options, true, true);
-                }
-                return {
-                    min: toDate(range.min),
-                    max: max
-                };
-            },
-            currentRange: function () {
-                var options = this.options;
-                var round$$1 = options.roundToBaseUnit !== false;
-                var totalRange = this.categoriesRange();
-                var min = options.min;
-                var max = options.max;
-                if (!min) {
-                    min = round$$1 ? this._roundToTotalStep(totalRange.min, options, false) : totalRange.min;
-                }
-                if (!max) {
-                    max = round$$1 ? this._roundToTotalStep(totalRange.max, options, !options.justified) : totalRange.max;
-                }
-                return {
-                    min: min,
-                    max: max
-                };
-            },
-            datesRange: function () {
-                var range = this._categoryRange(this.options.srcCategories || this.options.categories);
-                return {
-                    min: toDate(range.min),
-                    max: toDate(range.max)
+                    min: this.options.labels.skip,
+                    max: this.divisionRange.valuesCount()
                 };
             },
             pan: function (delta) {
+                if (this.isEmpty()) {
+                    return null;
+                }
                 var options = this.options;
                 var lineBox = this.lineBox();
                 var size = options.vertical ? lineBox.height() : lineBox.width();
-                var ref = this.currentRange();
+                var ref = this.dataRange.displayRange();
                 var min = ref.min;
                 var max = ref.max;
-                var totalLimits = this.totalLimits();
+                var totalLimits = this.dataRange.total();
                 var scale = size / (max - min);
-                var offset = round(delta / scale, DEFAULT_PRECISION);
+                var offset = round(delta / scale, DEFAULT_PRECISION) * (options.reverse ? -1 : 1);
                 var from = addTicks(min, offset);
                 var to = addTicks(max, offset);
                 var panRange = this.limitRange(toTime(from), toTime(to), toTime(totalLimits.min), toTime(totalLimits.max), offset);
@@ -3906,9 +4288,12 @@
                 }
             },
             pointsRange: function (start, end) {
+                if (this.isEmpty()) {
+                    return null;
+                }
                 var pointsRange = CategoryAxis.fn.pointsRange.call(this, start, end);
-                var datesRange = this.currentRange();
-                var indicesRange = this.rangeIndices();
+                var datesRange = this.dataRange.displayRange();
+                var indicesRange = this.dataRange.displayIndices();
                 var scale = dateDiff(datesRange.max, datesRange.min) / (indicesRange.max - indicesRange.min);
                 var options = this.options;
                 var min = addTicks(datesRange.min, pointsRange.min * scale);
@@ -3916,22 +4301,27 @@
                 return {
                     min: min,
                     max: max,
-                    baseUnit: options.userSetBaseUnit,
-                    baseUnitStep: options.userSetBaseUnitStep
+                    baseUnit: options.userSetBaseUnit || options.baseUnit,
+                    baseUnitStep: options.userSetBaseUnitStep || options.baseUnitStep
                 };
             },
             zoomRange: function (delta) {
+                if (this.isEmpty()) {
+                    return null;
+                }
                 var options = this.options;
-                var totalLimits = this.totalLimits();
-                var weekStartDay = options.weekStartDay;
-                var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep || 1;
-                var ref = this.currentRange();
+                var fit = options.userSetBaseUnit === FIT;
+                var totalLimits = this.dataRange.total();
+                var ref = this.dataRange.displayRange();
                 var rangeMin = ref.min;
                 var rangeMax = ref.max;
+                var ref$1 = this.dataRange.options;
+                var weekStartDay = ref$1.weekStartDay;
+                var baseUnit = ref$1.baseUnit;
+                var baseUnitStep = ref$1.baseUnitStep;
                 var min = addDuration(rangeMin, delta * baseUnitStep, baseUnit, weekStartDay);
                 var max = addDuration(rangeMax, -delta * baseUnitStep, baseUnit, weekStartDay);
-                if (options.userSetBaseUnit === FIT) {
+                if (fit) {
                     var autoBaseUnitSteps = options.autoBaseUnitSteps;
                     var maxDateGroups = options.maxDateGroups;
                     var maxDiff = last(autoBaseUnitSteps[baseUnit]) * maxDateGroups * TIME_PER_UNIT[baseUnit];
@@ -3966,147 +4356,52 @@
                         }
                     }
                 }
-                min = toDate(limitValue(min, totalLimits.min, totalLimits.max));
-                max = toDate(limitValue(max, totalLimits.min, totalLimits.max));
+                if (min < totalLimits.min) {
+                    min = totalLimits.min;
+                }
+                if (max > totalLimits.max) {
+                    max = totalLimits.max;
+                }
                 if (min && max && dateDiff(max, min) > 0) {
                     return {
                         min: min,
                         max: max,
-                        baseUnit: options.userSetBaseUnit,
-                        baseUnitStep: options.userSetBaseUnitStep
+                        baseUnit: options.userSetBaseUnit || options.baseUnit,
+                        baseUnitStep: options.userSetBaseUnitStep || options.baseUnitStep
                     };
                 }
             },
-            totalLimits: function () {
-                var options = this.options;
-                var datesRange = this.datesRange();
-                var min = this._roundToTotalStep(toDate(datesRange.min), options, false);
-                var max = datesRange.max;
-                if (!options.justified) {
-                    max = this._roundToTotalStep(max, options, true, dateEquals(max, this._roundToTotalStep(max, options, false)));
-                }
-                return {
-                    min: min,
-                    max: max
-                };
-            },
-            range: function (rangeOptions) {
-                var options = rangeOptions || this.options;
-                var categories = options.categories;
-                var autoUnit = options.baseUnit === FIT;
-                var baseUnit = autoUnit ? BASE_UNITS[0] : options.baseUnit;
-                var baseUnitStep = options.baseUnitStep || 1;
-                var stepOptions = {
-                    baseUnit: baseUnit,
-                    baseUnitStep: baseUnitStep,
-                    weekStartDay: options.weekStartDay
-                };
-                var categoryLimits = this._categoryRange(categories);
-                var min = toDate(options.min || categoryLimits.min);
-                var max = toDate(options.max || categoryLimits.max);
-                return {
-                    min: this._roundToTotalStep(min, stepOptions, false),
-                    max: this._roundToTotalStep(max, stepOptions, true, true)
-                };
-            },
-            autoBaseUnit: function (options) {
-                var categoryLimits = this._categoryRange(options.categories);
-                var span = toDate(options.max || categoryLimits.max) - toDate(options.min || categoryLimits.min);
-                var maxDateGroups = options.maxDateGroups || this.options.maxDateGroups;
-                var autoUnit = options.baseUnit === FIT;
-                var autoUnitIx = 0;
-                var baseUnit = autoUnit ? BASE_UNITS[autoUnitIx++] : options.baseUnit;
-                var units = span / TIME_PER_UNIT[baseUnit];
-                var totalUnits = units;
-                var autoBaseUnitSteps = deepExtend({}, this.options.autoBaseUnitSteps, options.autoBaseUnitSteps);
-                var unitSteps, step, nextStep;
-                while (!step || units >= maxDateGroups) {
-                    unitSteps = unitSteps || autoBaseUnitSteps[baseUnit].slice(0);
-                    nextStep = unitSteps.shift();
-                    if (nextStep) {
-                        step = nextStep;
-                        units = totalUnits / step;
-                    } else if (baseUnit === last(BASE_UNITS)) {
-                        step = Math.ceil(totalUnits / maxDateGroups);
-                        break;
-                    } else if (autoUnit) {
-                        baseUnit = BASE_UNITS[autoUnitIx++] || last(BASE_UNITS);
-                        totalUnits = span / TIME_PER_UNIT[baseUnit];
-                        unitSteps = null;
-                    } else {
-                        if (units > maxDateGroups) {
-                            step = Math.ceil(totalUnits / maxDateGroups);
-                        }
-                        break;
-                    }
-                }
-                options.baseUnitStep = step;
-                options.baseUnit = baseUnit;
-            },
-            groupCategories: function (options) {
-                var categories = options.categories;
-                var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep || 1;
-                var maxCategory = toDate(sparseArrayLimits(categories).max);
-                var ref = this.range(options);
-                var min = ref.min;
-                var max = ref.max;
-                var groups = [];
-                var nextDate;
-                for (var date = min; date < max; date = nextDate) {
-                    groups.push(date);
-                    nextDate = addDuration(date, baseUnitStep, baseUnit, options.weekStartDay);
-                    if (nextDate > maxCategory && !options.max) {
-                        break;
-                    }
-                }
-                options.srcCategories = categories;
-                options.categories = groups;
-            },
-            _roundToTotalStep: function (value, axisOptions, upper, roundToNext) {
-                var options = axisOptions || this.options;
-                var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep || 1;
-                var start = this._groupsStart;
-                if (start) {
-                    var step = dateIndex(value, start, baseUnit, baseUnitStep);
-                    var roundedStep = upper ? Math.ceil(step) : Math.floor(step);
-                    if (roundToNext) {
-                        roundedStep++;
-                    }
-                    return addDuration(start, roundedStep * baseUnitStep, baseUnit, options.weekStartDay);
-                }
-                return addDuration(value, upper ? baseUnitStep : 0, baseUnit, options.weekStartDay);
+            range: function () {
+                return this.dataRange.displayRange();
             },
             createAxisLabel: function (index, labelOptions) {
                 var options = this.options;
-                var dataItem = options.dataItems ? options.dataItems[index] : null;
-                var date = options.categories[index];
-                var baseUnit = options.baseUnit;
-                var unitFormat = labelOptions.dateFormats[baseUnit];
-                var visible = true;
-                if (options.justified) {
-                    var roundedDate = floorDate(date, baseUnit, options.weekStartDay);
-                    visible = dateEquals(roundedDate, date);
-                } else if (!options.roundToBaseUnit) {
-                    visible = !dateEquals(this.range().max, date);
-                }
-                if (visible) {
-                    labelOptions.format = labelOptions.format || unitFormat;
-                    var text = this.axisLabelText(date, dataItem, labelOptions);
-                    if (text) {
-                        return new AxisLabel(date, text, index, dataItem, labelOptions);
-                    }
+                var dataItem = options.dataItems && !options.maxDivisions ? options.dataItems[index] : null;
+                var date = this.divisionRange.dateAt(index);
+                var unitFormat = labelOptions.dateFormats[this.divisionRange.options.baseUnit];
+                labelOptions.format = labelOptions.format || unitFormat;
+                var text = this.axisLabelText(date, dataItem, labelOptions);
+                if (text) {
+                    return new AxisLabel(date, text, index, dataItem, labelOptions);
                 }
             },
             categoryIndex: function (value) {
-                var options = this.options;
-                var categories = options.categories;
-                var index = -1;
-                if (categories.length) {
-                    index = Math.floor(dateIndex(toDate(value), categories[0], options.baseUnit, options.baseUnitStep || 1));
+                return this.dataRange.valueIndex(value);
+            },
+            slot: function (from, to, limit) {
+                var dateRange = this.dataRange;
+                var start = from;
+                var end = to;
+                if (start instanceof Date) {
+                    start = dateRange.dateIndex(start);
                 }
-                return index;
+                if (end instanceof Date) {
+                    end = dateRange.dateIndex(end);
+                }
+                var slot = this.getSlot(start, end, limit);
+                if (slot) {
+                    return slot.toRect();
+                }
             },
             getSlot: function (a, b, limit) {
                 var start = a;
@@ -4121,11 +4416,68 @@
             },
             valueRange: function () {
                 var options = this.options;
-                var range = this._categoryRange(options.srcCategories || options.categories);
+                var range = categoryRange(options.srcCategories);
                 return {
                     min: toDate(range.min),
                     max: toDate(range.max)
                 };
+            },
+            categoryAt: function (index, total) {
+                return this.dataRange.dateAt(index, total);
+            },
+            categoriesCount: function () {
+                return this.dataRange.valuesCount();
+            },
+            rangeIndices: function () {
+                return this.dataRange.displayIndices();
+            },
+            labelsBetweenTicks: function () {
+                return !this.divisionRange.options.justified;
+            },
+            prepareUserOptions: function () {
+                if (this.isEmpty()) {
+                    return;
+                }
+                this.options.categories = this.dataRange.values();
+            },
+            getCategory: function (point) {
+                var index = this.pointCategoryIndex(point);
+                if (index === null) {
+                    return null;
+                }
+                return this.dataRange.dateAt(index);
+            },
+            totalIndex: function (value) {
+                return this.dataRange.totalIndex(value);
+            },
+            currentRangeIndices: function () {
+                var range = this.dataRange.valueRange();
+                return {
+                    min: this.dataRange.totalIndex(range.min),
+                    max: this.dataRange.totalIndex(range.max)
+                };
+            },
+            totalRange: function () {
+                return this.dataRange.total();
+            },
+            totalCount: function () {
+                return this.dataRange.totalCount();
+            },
+            isEmpty: function () {
+                return !this.options.srcCategories.length;
+            },
+            roundedRange: function () {
+                if (this.options.roundToBaseUnit !== false || this.isEmpty()) {
+                    return this.range();
+                }
+                var options = this.options;
+                var datesRange = categoryRange(options.srcCategories);
+                var dateRange = new DateRange(datesRange.min, datesRange.max, $.extend({}, options, {
+                    justified: false,
+                    roundToBaseUnit: true,
+                    justifyEnd: options.justified
+                }));
+                return dateRange.displayRange();
             }
         });
         setDefaultOptions(DateCategoryAxis, {
@@ -4183,28 +4535,6 @@
             },
             maxDateGroups: 10
         });
-        function autoMajorUnit(min, max) {
-            var diff = round(max - min, DEFAULT_PRECISION - 1);
-            if (diff === 0) {
-                if (max === 0) {
-                    return 0.1;
-                }
-                diff = Math.abs(max);
-            }
-            var scale = Math.pow(10, Math.floor(Math.log(diff) / Math.log(10)));
-            var relativeValue = round(diff / scale, DEFAULT_PRECISION);
-            var scaleMultiplier = 1;
-            if (relativeValue < 1.904762) {
-                scaleMultiplier = 0.2;
-            } else if (relativeValue < 4.761904) {
-                scaleMultiplier = 0.5;
-            } else if (relativeValue < 9.523809) {
-                scaleMultiplier = 1;
-            } else {
-                scaleMultiplier = 2;
-            }
-            return round(scale * scaleMultiplier, DEFAULT_PRECISION);
-        }
         function autoAxisMin(min, max, narrow) {
             if (!min && !max) {
                 return 0;
@@ -4251,14 +4581,25 @@
         var MIN_VALUE_RANGE = Math.pow(10, -DEFAULT_PRECISION + 1);
         var NumericAxis = Axis.extend({
             init: function (seriesMin, seriesMax, options, chartService) {
-                var autoOptions = autoAxisOptions(seriesMin, seriesMax, options);
-                var totalOptions = totalAxisOptions(autoOptions, options);
-                Axis.fn.init.call(this, axisOptions(autoOptions, options), chartService);
-                this.totalMin = totalOptions.min;
-                this.totalMax = totalOptions.max;
-                this.totalMajorUnit = totalOptions.majorUnit;
-                this.seriesMin = seriesMin;
-                this.seriesMax = seriesMax;
+                Axis.fn.init.call(this, $.extend({}, options, {
+                    seriesMin: seriesMin,
+                    seriesMax: seriesMax
+                }), chartService);
+            },
+            initUserOptions: function (options) {
+                var autoOptions = autoAxisOptions(options.seriesMin, options.seriesMax, options);
+                this.totalOptions = totalAxisOptions(autoOptions, options);
+                return axisOptions(autoOptions, options);
+            },
+            initFields: function () {
+                this.totalMin = this.totalOptions.min;
+                this.totalMax = this.totalOptions.max;
+                this.totalMajorUnit = this.totalOptions.majorUnit;
+                this.seriesMin = this.options.seriesMin;
+                this.seriesMax = this.options.seriesMax;
+            },
+            clone: function () {
+                return new NumericAxis(this.seriesMin, this.seriesMax, $.extend({}, this.options), this.chartService);
             },
             startValue: function () {
                 return 0;
@@ -4384,7 +4725,8 @@
                 }
                 return {
                     min: min + offset,
-                    max: max + offset
+                    max: max + offset,
+                    offset: offset
                 };
             },
             scaleRange: function (delta) {
@@ -4410,7 +4752,7 @@
             },
             pan: function (delta) {
                 var range = this.translateRange(delta);
-                return this.limitRange(range.min, range.max, this.totalMin, this.totalMax);
+                return this.limitRange(range.min, range.max, this.totalMin, this.totalMax, range.offset);
             },
             pointsRange: function (start, end) {
                 var startValue = this.getValue(start);
@@ -4467,10 +4809,22 @@
                 majorUnit: autoOptions.majorUnit
             };
         }
+        function clearNullValues(options, fields) {
+            for (var idx = 0; idx < fields.length; idx++) {
+                var field = fields[idx];
+                if (options[field] === null) {
+                    options[field] = undefined;
+                }
+            }
+        }
         function axisOptions(autoOptions, userOptions) {
             var options = userOptions;
             var userSetMin, userSetMax;
             if (userOptions) {
+                clearNullValues(userOptions, [
+                    'min',
+                    'max'
+                ]);
                 userSetMin = defined(userOptions.min);
                 userSetMax = defined(userOptions.max);
                 var userSetLimits = userSetMin || userSetMax;
@@ -4539,6 +4893,9 @@
                 this.totalMin = toTime(floorDate(toTime(min) - 1, options.baseUnit));
                 this.totalMax = toTime(ceilDate(toTime(max) + 1, options.baseUnit));
             },
+            clone: function () {
+                return new DateValueAxis(this.seriesMin, this.seriesMax, $.extend({}, this.options), this.chartService);
+            },
             range: function () {
                 var options = this.options;
                 return {
@@ -4605,7 +4962,7 @@
                 var size = options.vertical ? lineBox.height() : lineBox.width();
                 var range = this.range();
                 var scale = size / dateDiff(range.max, range.min);
-                var offset = round(delta / scale, DEFAULT_PRECISION);
+                var offset = round(delta / scale, DEFAULT_PRECISION) * (options.reverse ? -1 : 1);
                 var from = addTicks(options.min, offset);
                 var to = addTicks(options.max, offset);
                 if (!exact) {
@@ -4614,7 +4971,8 @@
                 }
                 return {
                     min: from,
-                    max: to
+                    max: to,
+                    offset: offset
                 };
             },
             scaleRange: function (delta) {
@@ -4644,7 +5002,7 @@
             },
             pan: function (delta) {
                 var range = this.translateRange(delta, true);
-                var limittedRange = this.limitRange(toTime(range.min), toTime(range.max), this.totalMin, this.totalMax);
+                var limittedRange = this.limitRange(toTime(range.min), toTime(range.max), this.totalMin, this.totalMax, range.offset);
                 if (limittedRange) {
                     return {
                         min: toDate(limittedRange.min),
@@ -4741,6 +5099,9 @@
                 this.seriesMin = seriesMin;
                 this.seriesMax = seriesMax;
                 this.createLabels();
+            },
+            clone: function () {
+                return new LogarithmicAxis(this.seriesMin, this.seriesMax, $.extend({}, this.options), this.chartService);
             },
             startValue: function () {
                 return this.options.min;
@@ -4844,7 +5205,8 @@
                 }
                 return {
                     min: Math.pow(base, logMin + offset),
-                    max: Math.pow(base, logMax + offset)
+                    max: Math.pow(base, logMax + offset),
+                    offset: offset
                 };
             },
             labelsCount: function () {
@@ -4965,7 +5327,7 @@
             },
             pan: function (delta) {
                 var range = this.translateRange(delta);
-                return this.limitRange(range.min, range.max, this.totalMin, this.totalMax, -delta);
+                return this.limitRange(range.min, range.max, this.totalMin, this.totalMax, range.offset);
             },
             pointsRange: function (start, end) {
                 var startValue = this.getValue(start);
@@ -5937,6 +6299,7 @@
             getter: __common_getter_js,
             grep: grep,
             hasClasses: hasClasses,
+            HashMap: HashMap,
             inArray: inArray,
             interpolateValue: interpolateValue,
             InstanceObserver: InstanceObserver,

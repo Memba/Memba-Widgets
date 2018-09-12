@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -264,6 +264,7 @@ if (kendo.ui.FilterMenu) {
 kendo.ui.FilterMenu.prototype.options.messages =
 $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "info": "Zobrazit položky s hodnotou, která:",
+  "title": "Zobrazit položky s hodnotou, která",
   "isTrue": "je pravda",
   "isFalse": "není pravda",
   "filter": "Filtrovat",
@@ -478,6 +479,26 @@ $.extend(true, kendo.ui.Pager.prototype.options.messages,{
   "morePages": "Další stránky"
 });
 }
+
+/* TreeListPager messages */
+
+if (kendo.ui.TreeListPager) {
+    kendo.ui.TreeListPager.prototype.options.messages =
+    $.extend(true, kendo.ui.TreeListPager.prototype.options.messages,{
+      "allPages": "All",
+      "display": "{0} - {1} z {2} celkem",
+      "empty": "Žádný záznam nenalezen",
+      "page": "Strana",
+      "of": "z {0}",
+      "itemsPerPage": "záznamů na stránku",
+      "first": "Na první stránku",
+      "previous": "Na předchozí stránku",
+      "next": "Na další stránku",
+      "last": "Na poslední stránku",
+      "refresh": "Obnovit",
+      "morePages": "Další stránky"
+    });
+    }
 
 /* PivotGrid messages */
 

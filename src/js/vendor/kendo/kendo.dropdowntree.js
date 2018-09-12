@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,18 +39,22 @@
         subGroup = contentChild('.k-group');
         var Tree = TreeView.extend({
             init: function (element, options, dropdowntree) {
-                var that = this, clickableItems = '.k-in:not(.k-state-disabled)';
+                var that = this;
                 that.dropdowntree = dropdowntree;
                 TreeView.fn.init.call(that, element, options);
-                if (this.dropdowntree._isMultipleSelection()) {
-                    that.wrapper.on('click' + '.kendoTreeView', clickableItems, function (e) {
-                        that._clickItem(e);
-                    });
+            },
+            _checkOnSelect: function (e) {
+                if (!e.isDefaultPrevented()) {
+                    var dataItem = this.dataItem(e.node);
+                    dataItem.set('checked', !dataItem.checked);
                 }
             },
-            _clickItem: function (e) {
-                var node = $(e.currentTarget), dataItem = this.dataItem(node);
-                dataItem.set('checked', !dataItem.checked);
+            _click: function (e) {
+                var that = this;
+                if (that.dropdowntree._isMultipleSelection()) {
+                    that.one('select', that._checkOnSelect);
+                }
+                TreeView.fn._click.call(that, e);
             },
             defaultrefresh: function (e) {
                 var node = e.node;
@@ -250,7 +254,11 @@
                 this._initial = this.element.val();
                 this._values = [];
                 var value = this.options.value;
+                if (value === null || !value.length) {
+                    this._noInitialValue = true;
+                }
                 if (value) {
+                    this._valueMethodCalled = true;
                     this._values = $.isArray(value) ? value.slice(0) : [value];
                 }
                 this._inputTemplate();
@@ -293,6 +301,7 @@
                 if (disabled) {
                     this.enable(false);
                 }
+                this._valueMethodCalled = false;
                 kendo.notify(this);
             },
             _preselect: function (data, value) {
@@ -367,6 +376,7 @@
                 checkboxes: false,
                 noDataTemplate: 'No data found.',
                 placeholder: '',
+                checkAll: false,
                 checkAllTemplate: 'Check all',
                 tagMode: 'multiple',
                 template: null,
@@ -383,10 +393,14 @@
                 'close',
                 'dataBound',
                 CHANGE,
+                'select',
                 'filtering'
             ],
             focus: function () {
                 this.wrapper.focus();
+            },
+            dataItem: function (node) {
+                return this.treeview.dataItem(node);
             },
             readonly: function (readonly) {
                 this._editable({
@@ -407,6 +421,14 @@
             },
             open: function () {
                 var popup = this.popup;
+                if (!this.options.autoBind && !this.dataSource.data().length) {
+                    this.treeview._progress(true);
+                    if (this._isFilterEnabled()) {
+                        this._search();
+                    } else {
+                        this.dataSource.fetch();
+                    }
+                }
                 if (popup.visible() || !this._allowOpening()) {
                     return;
                 }
@@ -511,15 +533,19 @@
                 this.treeview.dataItems();
             },
             value: function (value) {
+                var that = this;
                 if (value) {
-                    if (this.filterInput && this.dataSource._filter) {
-                        this._filtering = true;
-                        this.dataSource.filter({});
-                    } else if (!this.dataSource.data().length) {
-                        this.dataSource.fetch();
+                    if (that.filterInput && that.dataSource._filter) {
+                        that._filtering = true;
+                        that.dataSource.filter({});
+                    } else if (!that.dataSource.data().length) {
+                        that.dataSource.fetch(function () {
+                            that._selection._setValue(value);
+                        });
+                        return;
                     }
                 }
-                return this._selection._setValue(value);
+                return that._selection._setValue(value);
             },
             text: function (text) {
                 var loweredText;
@@ -678,14 +704,13 @@
             },
             _currentValue: function (dataItem) {
                 var currentValue = this._value(dataItem);
-                if (!currentValue) {
+                if (!currentValue && currentValue !== 0) {
                     currentValue = dataItem;
                 }
                 return currentValue;
             },
             _checkValue: function (dataItem) {
                 var value = '';
-                var text = '';
                 var indexOfValue = -1;
                 var currentValue = this.value();
                 var isMultiple = this.options.tagMode === 'multiple';
@@ -693,7 +718,6 @@
                     if (dataItem.level) {
                         dataItem._level = dataItem.level();
                     }
-                    text = this._text(dataItem);
                     value = this._currentValue(dataItem);
                     indexOfValue = currentValue.indexOf(value);
                 }
@@ -740,7 +764,7 @@
                     }
                 }
                 this._treeViewCheckAllCheck(dataItem);
-                if (!this._preventChangeTrigger) {
+                if (!this._preventChangeTrigger && !this._valueMethodCalled && !this._noInitialValue) {
                     this.trigger(CHANGE);
                 }
                 if (this.options.autoClose && this.popup.visible()) {
@@ -757,7 +781,7 @@
                     if (dataItem.level) {
                         dataItem._level = dataItem.level();
                     }
-                    text = this._text(dataItem);
+                    text = this._text(dataItem) || dataItem;
                     value = this._currentValue(dataItem);
                 }
                 if (value === null) {
@@ -766,7 +790,10 @@
                 this.setValue(value);
                 this._textAccessor(text, dataItem);
                 this._accessor(value);
-                this.trigger(CHANGE);
+                if (!this._valueMethodCalled) {
+                    this.trigger(CHANGE);
+                }
+                this._valueMethodCalled = false;
                 if (this.options.autoClose && this.popup.visible()) {
                     this.close();
                     this.wrapper.focus();
@@ -882,7 +909,7 @@
                 this._value = getterFunction(options.dataValueField);
             },
             _accessor: function (value, idx) {
-                return this[this._isSelect ? '_accessorSelect' : '_accessorInput'](value, idx);
+                return this._accessorInput(value, idx);
             },
             _accessorInput: function (value) {
                 var element = this.element[0];
@@ -954,12 +981,13 @@
                 }
             },
             _treeview: function () {
-                if (this.options.height) {
-                    this.tree.css('max-height', this.options.height);
+                var that = this;
+                if (that.options.height) {
+                    that.tree.css('max-height', that.options.height);
                 }
-                this.tree.attr('id', kendo.guid());
-                this.treeview = new TreeView(this.tree, extend({}, this.options.treeview), this);
-                this.dataSource = this.treeview.dataSource;
+                that.tree.attr('id', kendo.guid());
+                that.treeview = new TreeView(that.tree, extend({ select: that.options.select }, that.options.treeview), that);
+                that.dataSource = that.treeview.dataSource;
             },
             _treeViewDataBound: function (e) {
                 if (e.node && this._prev && this._prev.length) {
@@ -980,6 +1008,9 @@
                 if (!e.node) {
                     var rootItems = e.sender.dataSource.data();
                     this._checkLoadedItems(rootItems);
+                    if (this._noInitialValue) {
+                        this._noInitialValue = false;
+                    }
                 } else {
                     var rootItem = e.sender.dataItem(e.node);
                     if (rootItem) {
@@ -1007,12 +1038,11 @@
             },
             _checkLoadedItems: function (items) {
                 var value = this.value();
-                var length = value.length;
                 if (!items) {
                     return;
                 }
                 for (var idx = 0; idx < items.length; idx++) {
-                    this._selection._checkLoadedItem(items[idx], value, length);
+                    this._selection._checkLoadedItem(items[idx], value);
                 }
             },
             _treeViewCheckAllCheck: function (dataItem) {
@@ -1182,7 +1212,6 @@
             _itemEqualsValue: function (item, value) {
                 if (item.enabled !== false && this._valueComparer(item, value)) {
                     this.treeview.select(this.treeview.findByUid(item.uid));
-                    this._selectValue(item);
                     return false;
                 }
                 return true;
@@ -1298,6 +1327,7 @@
                     wrapper.removeAttr(TABINDEX);
                     dropDownWrapper.addClass(STATEDISABLED);
                 } else {
+                    wrapper.attr(TABINDEX, wrapper.data(TABINDEX));
                     dropDownWrapper.removeClass(STATEDISABLED);
                     wrapper.on('focusin' + ns, proxy(that._focusinHandler, that)).on('focusout' + ns, proxy(that._focusoutHandler, that));
                 }
@@ -1576,8 +1606,10 @@
                     value = typeof currentValue === 'object' ? currentValue : dropdowntree._accessor() || currentValue;
                     return value === undefined || value === null ? '' : value;
                 }
+                dropdowntree._valueMethodCalled = true;
                 if (value.length === 0) {
                     dropdowntree._clearTextAndValue();
+                    dropdowntree._valueMethodCalled = false;
                     return;
                 }
                 dropdowntree._selectItemByValue(value);
@@ -1588,13 +1620,14 @@
                 var selectedNode = dropdowntree.treeview.select();
                 if (dropdowntree.treeview.dataItem(selectedNode)) {
                     dropdowntree.treeview.dataItem(selectedNode).set('selected', false);
-                    dropdowntree.trigger(CHANGE);
+                    if (!dropdowntree._valueMethodCalled) {
+                        dropdowntree.trigger(CHANGE);
+                    }
                 }
             },
             _checkLoadedItem: function (tempItem, value) {
                 var dropdowntree = this._dropdowntree;
                 if (value && dropdowntree._valueComparer(tempItem, value) || !value && tempItem.selected) {
-                    dropdowntree._selectValue(tempItem);
                     dropdowntree.treeview.select(dropdowntree.treeview.findByUid(tempItem.uid));
                 }
             }
@@ -1680,12 +1713,14 @@
                     return dropdowntree._values.slice();
                 }
                 dropdowntree.setValue(value);
+                dropdowntree._valueMethodCalled = true;
                 if (value.length) {
                     this._removeValues(oldValues, value);
                     dropdowntree._checkItemByValue(value);
                 } else {
                     dropdowntree._clearTextAndValue();
                 }
+                dropdowntree._valueMethodCalled = false;
                 dropdowntree._toggleCloseVisibility();
             },
             _removeValues: function (oldValues, value) {
@@ -1718,15 +1753,18 @@
                 }
                 if (tagsArray.length) {
                     dropdowntree._preventChangeTrigger = false;
-                    dropdowntree.trigger(CHANGE);
+                    if (!dropdowntree._valueMethodCalled) {
+                        dropdowntree.trigger(CHANGE);
+                    }
                 }
             },
-            _checkLoadedItem: function (tempItem, value, length) {
+            _checkLoadedItem: function (tempItem, value) {
                 var dropdowntree = this._dropdowntree;
-                if (!length && tempItem.checked) {
+                if (dropdowntree._noInitialValue && tempItem.checked) {
                     dropdowntree._checkValue(tempItem);
+                    return;
                 }
-                if (length && (value.indexOf(dropdowntree._currentValue(tempItem)) !== -1 || value.indexOf(tempItem)) !== -1 && !this._findTag(dropdowntree._currentValue(tempItem))) {
+                if (value.length && (value.indexOf(dropdowntree._currentValue(tempItem)) !== -1 || value.indexOf(tempItem)) !== -1 && !this._findTag(dropdowntree._currentValue(tempItem))) {
                     if (tempItem.checked) {
                         dropdowntree._checkValue(tempItem);
                     } else {

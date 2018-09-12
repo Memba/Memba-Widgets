@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1301,7 +1301,7 @@
                                     value: {
                                         from: 'value',
                                         type: 'number',
-                                        defaultValue: ''
+                                        validation: this.options.unitsValidation
                                     },
                                     format: {
                                         from: 'format',
@@ -2182,9 +2182,15 @@
                 var model = options instanceof ObservableObject ? options : options.model;
                 var id = model.get('id');
                 var messages = this.options.messages;
-                var resourcesField = that.resources.field;
+                var resourcesField = this.resources.field;
+                var unitsValidation = { step: 0.01 };
+                var assignmentsModel = this.assignments.dataSource.options.schema.model;
+                if (assignmentsModel && assignmentsModel.fields.Units && assignmentsModel.fields.Units.validation) {
+                    extend(true, unitsValidation, assignmentsModel.fields.Units.validation);
+                }
                 var editor = this._resourceEditor = new ResourceEditor(container, {
                     resourcesField: resourcesField,
+                    unitsValidation: unitsValidation,
                     data: this._wrapResourceData(id),
                     model: model,
                     messages: extend({}, messages.editor),

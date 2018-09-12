@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -374,7 +374,7 @@
                 } else {
                     value = domElement.innerHTML;
                 }
-                that.value(value || kendo.ui.editor.emptyElementContent);
+                that.value(value || '\uFEFF');
                 this._registerHandler(document, {
                     'mousedown': function () {
                         that._endTyping();
@@ -855,39 +855,39 @@
                 fontName: [
                     {
                         text: 'Arial',
-                        value: 'Arial,Helvetica,sans-serif'
+                        value: 'Arial, Helvetica, sans-serif'
                     },
                     {
                         text: 'Courier New',
-                        value: '\'Courier New\',Courier,monospace'
+                        value: '"Courier New", Courier, monospace'
                     },
                     {
                         text: 'Georgia',
-                        value: 'Georgia,serif'
+                        value: 'Georgia, serif'
                     },
                     {
                         text: 'Impact',
-                        value: 'Impact,Charcoal,sans-serif'
+                        value: 'Impact, Charcoal, sans-serif'
                     },
                     {
                         text: 'Lucida Console',
-                        value: '\'Lucida Console\',Monaco,monospace'
+                        value: '"Lucida Console", Monaco, monospace'
                     },
                     {
                         text: 'Tahoma',
-                        value: 'Tahoma,Geneva,sans-serif'
+                        value: 'Tahoma, Geneva, sans-serif'
                     },
                     {
                         text: 'Times New Roman',
-                        value: '\'Times New Roman\',Times,serif'
+                        value: '"Times New Roman", Times,serif'
                     },
                     {
                         text: 'Trebuchet MS',
-                        value: '\'Trebuchet MS\',Helvetica,sans-serif'
+                        value: '"Trebuchet MS", Helvetica, sans-serif'
                     },
                     {
                         text: 'Verdana',
-                        value: 'Verdana,Geneva,sans-serif'
+                        value: 'Verdana, Geneva, sans-serif'
                     }
                 ],
                 fontSize: [
@@ -1113,7 +1113,7 @@
                 if (!name) {
                     throw new Error('kendoEditor.exec(): `name` parameter cannot be empty');
                 }
-                if (that.body.getAttribute('contenteditable') !== 'true' && name !== 'print' && name !== 'pdf') {
+                if (that.body.getAttribute('contenteditable') !== 'true' && name !== 'print' && name !== 'pdf' && name !== 'exportAs') {
                     return false;
                 }
                 name = name.toLowerCase();
@@ -1263,7 +1263,7 @@
             }
             return obj;
         }
-        var empty = makeMap('area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed'.split(',')), nonListBlockElements = 'div,p,h1,h2,h3,h4,h5,h6,address,applet,blockquote,button,center,dd,dir,dl,dt,fieldset,form,frameset,hr,iframe,isindex,map,menu,noframes,noscript,object,pre,script,table,tbody,td,tfoot,th,thead,tr,header,article,nav,footer,section,aside,main,figure,figcaption'.split(','), blockElements = nonListBlockElements.concat([
+        var empty = makeMap('area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed'.split(',')), nonListBlockElements = 'p,div,h1,h2,h3,h4,h5,h6,address,applet,blockquote,button,center,dd,dir,dl,dt,fieldset,form,frameset,hr,iframe,isindex,map,menu,noframes,noscript,object,pre,script,table,tbody,td,tfoot,th,thead,tr,header,article,nav,footer,section,aside,main,figure,figcaption'.split(','), blockElements = nonListBlockElements.concat([
                 'ul',
                 'ol',
                 'li'
@@ -4983,7 +4983,7 @@
             }
         });
         $.extend(editorNS, { Toolbar: Toolbar });
-    }(window.jQuery || window.kendo.jQuery));
+    }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
@@ -5093,9 +5093,7 @@
     define('editor/plugins/inlineformat', ['editor/plugins/format'], f);
 }(function () {
     (function ($) {
-        var kendo = window.kendo, Class = kendo.Class, Editor = kendo.ui.editor, formats = kendo.ui.Editor.fn.options.formats, EditorUtils = Editor.EditorUtils, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, FormatTool = Editor.FormatTool, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, extend = $.extend, registerTool = Editor.EditorUtils.registerTool, registerFormat = Editor.EditorUtils.registerFormat, preventDefault = function (ev) {
-                ev.preventDefault();
-            }, MOUSEDOWN_NS = 'mousedown.kendoEditor', KEYDOWN_NS = 'keydown.kendoEditor', KMARKER = 'k-marker';
+        var kendo = window.kendo, Class = kendo.Class, Editor = kendo.ui.editor, formats = kendo.ui.Editor.fn.options.formats, EditorUtils = Editor.EditorUtils, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, FormatTool = Editor.FormatTool, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, extend = $.extend, registerTool = Editor.EditorUtils.registerTool, registerFormat = Editor.EditorUtils.registerFormat, MOUSEDOWN_NS = 'mousedown.kendoEditor', KEYDOWN_NS = 'keydown.kendoEditor', KMARKER = 'k-marker';
         var InlineFormatFinder = Class.extend({
             init: function (format) {
                 this.format = format;
@@ -5191,33 +5189,42 @@
             apply: function (nodes) {
                 var formatNodes = [];
                 var i, l, node, formatNode;
-                var attributes = this.attributes;
-                var styleAttr = attributes ? attributes.style || {} : {};
-                for (i = 0, l = nodes.length; i < l; i++) {
-                    node = nodes[i];
-                    formatNode = this.finder.findSuitable(node);
-                    if (formatNode) {
-                        if (dom.is(formatNode, 'font')) {
-                            if (styleAttr.color) {
-                                formatNode.removeAttribute('color');
-                            }
-                            if (styleAttr.fontName) {
-                                formatNode.removeAttribute('face');
-                            }
-                            if (styleAttr.fontSize) {
-                                formatNode.removeAttribute('size');
-                            }
-                        }
-                        dom.attr(formatNode, attributes);
-                    } else {
-                        while (!dom.isBlock(node.parentNode) && node.parentNode.childNodes.length == 1 && node.parentNode.contentEditable !== 'true') {
-                            node = node.parentNode;
-                        }
-                        formatNode = this.wrap(node);
+                if (nodes.length > 1) {
+                    for (i = 0, l = nodes.length; i < l; i++) {
+                        node = nodes[i];
+                        formatNode = this.format(node, true);
+                        formatNodes.push(formatNode);
                     }
-                    formatNodes.push(formatNode);
+                } else {
+                    node = nodes[0];
+                    formatNode = this.format(node, false);
                 }
                 this.consolidate(formatNodes);
+            },
+            format: function (node, outerMostInline) {
+                var formatNode = this.finder.findSuitable(node);
+                var attributes = this.attributes;
+                var styleAttr = attributes ? attributes.style || {} : {};
+                if (formatNode) {
+                    if (dom.is(formatNode, 'font')) {
+                        if (styleAttr.color) {
+                            formatNode.removeAttribute('color');
+                        }
+                        if (styleAttr.fontName) {
+                            formatNode.removeAttribute('face');
+                        }
+                        if (styleAttr.fontSize) {
+                            formatNode.removeAttribute('size');
+                        }
+                    }
+                    dom.attr(formatNode, attributes);
+                } else {
+                    while (!dom.isBlock(node.parentNode) && node.parentNode.childNodes.length == 1 && node.parentNode.contentEditable !== 'true' && outerMostInline) {
+                        node = node.parentNode;
+                    }
+                    formatNode = this.wrap(node);
+                }
+                return formatNode;
             },
             remove: function (nodes) {
                 var i, l, formatNode;
@@ -5446,13 +5453,16 @@
                 }));
             },
             initialize: function (ui, initOptions) {
-                var editor = initOptions.editor, toolName = this.name, options = extend({}, ColorTool.fn.options, this.options), palette = options.palette, columns = options.columns;
+                var that = this, editor = initOptions.editor, toolName = this.name, options = extend({}, ColorTool.fn.options, this.options), palette = options.palette, columns = options.columns;
                 ui = this._widget = new kendo.ui.ColorPicker(ui, {
                     toolIcon: 'k-icon k-i-' + EditorUtils.getToolCssClass(options.name),
                     palette: palette,
                     columns: columns,
                     change: function () {
                         var color = ui.value();
+                        if (that.storedRange) {
+                            editor.selectRange(that.storedRange);
+                        }
                         if (color) {
                             Tool.exec(editor, toolName, color);
                         }
@@ -5460,14 +5470,22 @@
                     },
                     open: function (e) {
                         var picker = e.sender;
+                        that.storedRange = editor.getRange();
                         picker.value(null);
-                        picker._popup.element.on(MOUSEDOWN_NS, preventDefault);
+                        picker._popup.element.on(MOUSEDOWN_NS, function (e) {
+                            if (!$(e.target).is('input.k-color-value')) {
+                                e.preventDefault();
+                            }
+                        });
                         if (!picker._popup.element.is('[unselectable=\'on\']')) {
-                            picker._popup.element.attr({ unselectable: 'on' }).find('*').attr('unselectable', 'on');
+                            picker._popup.element.attr({ unselectable: 'on' }).find('*:not(input)').attr('unselectable', 'on');
                         }
                     },
                     close: function (e) {
                         e.sender._popup.element.off(MOUSEDOWN_NS);
+                        if (that.storedRange) {
+                            editor.selectRange(that.storedRange);
+                        }
                     },
                     activate: function (e) {
                         e.preventDefault();
@@ -5477,7 +5495,7 @@
                 ui.wrapper.attr({
                     title: initOptions.title,
                     unselectable: 'on'
-                }).find('*').attr('unselectable', 'on');
+                }).find('*:not(input)').attr('unselectable', 'on');
             }
         });
         extend(Editor, {
@@ -5670,8 +5688,8 @@
                         ref = markers[i];
                     }
                     if (markers.length) {
-                        dom.insertBefore(doc.createTextNode('\uFEFF'), markers[1]);
-                        dom.insertAfter(doc.createTextNode('\uFEFF'), markers[1]);
+                        dom.insertBefore(doc.createTextNode('\uFEFF'), markers[1] || markers[0]);
+                        dom.insertAfter(doc.createTextNode('\uFEFF'), markers[1] || markers[0]);
                         range.setStartBefore(markers[0]);
                         range.setEndAfter(markers[markers.length - 1]);
                     }
@@ -8317,11 +8335,11 @@
                         col: Math.floor((e.clientX + w.scrollLeft() - start.left) / cellWidth) + 1
                     };
                 }
-                element.autoApplyNS(NS).on('mousemove', function (e) {
+                element.autoApplyNS(NS).on('mousemove', '.k-ct-cell', function (e) {
                     that._setTableSize(tableFromLocation(e));
-                }).on('mouseleave', function () {
+                }).on('mouseleave', '.k-ct-cell', function () {
                     that._setTableSize();
-                }).on('down', function (e) {
+                }).on('down', '.k-ct-cell', function (e) {
                     e.preventDefault();
                     var touch = getTouches(e)[0];
                     that._exec(tableFromLocation(touch.location));
@@ -9224,8 +9242,11 @@
                         if (!p.innerHTML) {
                             dom.remove(p);
                         } else if (li && !isLastRootLi) {
-                            $(li).append(p);
+                            li.appendChild(p);
                         }
+                        continue;
+                    }
+                    if (browser.msie) {
                         continue;
                     }
                     margin = listData.level || parseFloat(p.style.marginLeft || 0);
@@ -9746,6 +9767,9 @@
             },
             _addCaret: function (container) {
                 var caret = dom.create(this.editor.document, 'a');
+                if (!kendo.support.browser.chrome && container.firstChild && container.firstChild.nodeType === nodeTypes.ELEMENT_NODE) {
+                    container = container.firstChild;
+                }
                 dom.insertAt(container, caret, 0);
                 dom.stripBomNode(caret.previousSibling);
                 dom.stripBomNode(caret.nextSibling);
@@ -12091,10 +12115,10 @@
                     height: data.height ? data.height + data.heightUnit : null,
                     textAlign: alignment.textAlign,
                     verticalAlign: alignment.verticalAlign,
-                    backgroundColor: data.bgColor || null,
+                    backgroundColor: data.bgColor || '',
                     borderWidth: data.borderWidth,
                     borderStyle: data.borderStyle,
-                    borderColor: data.borderColor,
+                    borderColor: data.borderColor || '',
                     borderCollapse: data.collapseBorders ? 'collapse' : null,
                     whiteSpace: whiteSpace
                 };

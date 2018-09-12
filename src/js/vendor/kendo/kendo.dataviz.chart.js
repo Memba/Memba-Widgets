@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -230,14 +230,13 @@
         var CategoryAxis = dataviz.CategoryAxis;
         var BoxElement = dataviz.BoxElement;
         var round = dataviz.round;
+        var limitValue = dataviz.limitValue;
         var grep = dataviz.grep;
-        var DateCategoryAxis = dataviz.DateCategoryAxis;
         var elementStyles = dataviz.elementStyles;
         var hasClasses = dataviz.hasClasses;
         var bindEvents = dataviz.bindEvents;
         var services = dataviz.services;
         var unbindEvents = dataviz.unbindEvents;
-        var limitValue = dataviz.limitValue;
         var support = kendo.support;
         var drawing = kendo.drawing;
         var Path = drawing.Path;
@@ -271,10 +270,22 @@
                 return this._axis.valueRange();
             }
         });
+        function findAxisByName(name, axes) {
+            for (var idx = 0; idx < axes.length; idx++) {
+                if (axes[idx].options.name === name) {
+                    axes[idx].prepareUserOptions();
+                    return new ChartAxis(axes[idx]);
+                }
+            }
+        }
         var ChartPane = kendo.Class.extend({
             init: function (pane) {
                 this.visual = pane.visual;
                 this.chartsVisual = pane.chartContainer.visual;
+                this._pane = pane;
+            },
+            findAxisByName: function (name) {
+                return findAxisByName(name, this._pane.axes);
             }
         });
         var ChartPlotArea = Class.extend({
@@ -661,10 +672,14 @@
         ];
         var LEGEND_ITEM_CLICK = 'legendItemClick';
         var LEGEND_ITEM_HOVER = 'legendItemHover';
+        var LEGEND_ITEM_LEAVE = 'legendItemLeave';
         var SERIES_CLICK = 'seriesClick';
         var SERIES_HOVER = 'seriesHover';
+        var SERIES_OVER = 'seriesOver';
+        var SERIES_LEAVE = 'seriesLeave';
         var PLOT_AREA_CLICK = 'plotAreaClick';
         var PLOT_AREA_HOVER = 'plotAreaHover';
+        var PLOT_AREA_LEAVE = 'plotAreaLeave';
         var DRAG = 'drag';
         var DRAG_END = 'dragEnd';
         var DRAG_START = 'dragStart';
@@ -677,6 +692,7 @@
         var RENDER = 'render';
         var SHOW_TOOLTIP = 'showTooltip';
         var HIDE_TOOLTIP = 'hideTooltip';
+        var PANE_RENDER = 'paneRender';
         var LOGARITHMIC = 'log';
         var CATEGORY = 'category';
         var INSIDE_END = 'insideEnd';
@@ -689,8 +705,11 @@
             FADEIN: FADEIN,
             LEGEND_ITEM_CLICK: LEGEND_ITEM_CLICK,
             LEGEND_ITEM_HOVER: LEGEND_ITEM_HOVER,
+            LEGEND_ITEM_LEAVE: LEGEND_ITEM_LEAVE,
             SERIES_CLICK: SERIES_CLICK,
             SERIES_HOVER: SERIES_HOVER,
+            SERIES_OVER: SERIES_OVER,
+            SERIES_LEAVE: SERIES_LEAVE,
             GLASS: GLASS,
             BORDER_BRIGHTNESS: BORDER_BRIGHTNESS,
             TOOLTIP_OFFSET: TOOLTIP_OFFSET,
@@ -739,6 +758,7 @@
             RENDER: RENDER,
             PLOT_AREA_CLICK: PLOT_AREA_CLICK,
             PLOT_AREA_HOVER: PLOT_AREA_HOVER,
+            PLOT_AREA_LEAVE: PLOT_AREA_LEAVE,
             LOGARITHMIC: LOGARITHMIC,
             DRAG: DRAG,
             DRAG_START: DRAG_START,
@@ -749,6 +769,7 @@
             SELECT_START: SELECT_START,
             SELECT: SELECT,
             SELECT_END: SELECT_END,
+            PANE_RENDER: PANE_RENDER,
             GAP: GAP,
             DONUT: DONUT,
             INSIDE_END: INSIDE_END,
@@ -1313,7 +1334,6 @@
             traverseDataPoints: function (callback) {
                 var this$1 = this;
                 var series = this.options.series;
-                var categories = this.categoryAxis.options.categories || [];
                 var count = categoriesCount(series);
                 var seriesCount = series.length;
                 for (var seriesIx = 0; seriesIx < seriesCount; seriesIx++) {
@@ -1322,7 +1342,7 @@
                 for (var categoryIx = 0; categoryIx < count; categoryIx++) {
                     for (var seriesIx$1 = 0; seriesIx$1 < seriesCount; seriesIx$1++) {
                         var currentSeries = series[seriesIx$1];
-                        var currentCategory = categories[categoryIx];
+                        var currentCategory = this$1.categoryAxis.categoryAt(categoryIx);
                         var pointData = this$1._bindPoint(currentSeries, seriesIx$1, categoryIx);
                         callback(pointData, {
                             category: currentCategory,
@@ -1388,6 +1408,12 @@
             hover: function (chart, e) {
                 return chart.trigger(SERIES_HOVER, this.eventArgs(e));
             },
+            over: function (chart, e) {
+                return chart.trigger(SERIES_OVER, this.eventArgs(e));
+            },
+            out: function (chart, e) {
+                return chart.trigger(SERIES_LEAVE, this.eventArgs(e));
+            },
             eventArgs: function (e) {
                 return {
                     value: this.value,
@@ -1442,16 +1468,10 @@
                 }
                 if (labels.visible) {
                     var labelTemplate = getTemplate(labels);
+                    var pointData = this.pointData();
                     var labelText = this.value;
                     if (labelTemplate) {
-                        labelText = labelTemplate({
-                            dataItem: this.dataItem,
-                            category: this.category,
-                            value: this.value,
-                            percentage: this.percentage,
-                            stackValue: this.stackValue,
-                            series: this.series
-                        });
+                        labelText = labelTemplate(pointData);
                     } else if (labels.format) {
                         labelText = this.formatValue(labels.format);
                     }
@@ -1463,7 +1483,7 @@
                             right: 5
                         },
                         zIndex: valueOrDefault(labels.zIndex, this.series.zIndex)
-                    }, labels));
+                    }, labels), pointData);
                     this.append(this.label);
                 }
                 this.createNote();
@@ -1650,6 +1670,16 @@
                 if (this.note) {
                     this.note.options.noclip = true;
                 }
+            },
+            pointData: function () {
+                return {
+                    dataItem: this.dataItem,
+                    category: this.category,
+                    value: this.value,
+                    percentage: this.percentage,
+                    stackValue: this.stackValue,
+                    series: this.series
+                };
             }
         });
         LinePoint.prototype.defaults = {
@@ -1706,6 +1736,26 @@
                 return result;
             },
             createVisual: function () {
+                var this$1 = this;
+                var customVisual = this.series.visual;
+                if (customVisual) {
+                    this.visual = customVisual({
+                        points: this.toGeometryPoints(this.linePoints),
+                        series: this.series,
+                        sender: this.getSender(),
+                        createVisual: function () {
+                            this$1.segmentVisual();
+                            return this$1.visual;
+                        }
+                    });
+                    if (this.visual && !defined(this.visual.options.zIndex)) {
+                        this.visual.options.zIndex = this.series.zIndex;
+                    }
+                } else {
+                    this.segmentVisual();
+                }
+            },
+            segmentVisual: function () {
                 var ref = this;
                 var options = ref.options;
                 var series = ref.series;
@@ -1778,7 +1828,7 @@
         });
         deepExtend(StepLineSegment.prototype, StepLineMixin);
         var SplineSegment = LineSegment.extend({
-            createVisual: function () {
+            segmentVisual: function () {
                 var series = this.series;
                 var defaults = series._defaults;
                 var color = series.color;
@@ -1897,7 +1947,7 @@
             createAnimation: function () {
                 var root = this.getRoot();
                 if (root && (root.options || {}).transitions !== false) {
-                    var box = root.box;
+                    var box = root.size();
                     var clipPath = Path.fromRect(box.toRect());
                     this.visual.clip(clipPath);
                     this.animation = new ClipAnimation(clipPath, { box: box });
@@ -2241,9 +2291,9 @@
             }
         });
         var BarLabel = ChartElement.extend({
-            init: function (content, options) {
+            init: function (content, options, pointData) {
                 ChartElement.fn.init.call(this, options);
-                this.textBox = new TextBox(content, this.options);
+                this.textBox = new TextBox(content, this.options, pointData);
                 this.append(this.textBox);
             },
             createVisual: function () {
@@ -2364,23 +2414,15 @@
                 var options = this.options;
                 var labels = options.labels;
                 if (labels.visible) {
+                    var pointData = this.pointData();
                     var labelTemplate = getTemplate(labels);
                     var labelText;
                     if (labelTemplate) {
-                        labelText = labelTemplate({
-                            dataItem: this.dataItem,
-                            category: this.category,
-                            value: this.value,
-                            percentage: this.percentage,
-                            stackValue: this.stackValue,
-                            runningTotal: this.runningTotal,
-                            total: this.total,
-                            series: this.series
-                        });
+                        labelText = labelTemplate(pointData);
                     } else {
                         labelText = this.formatValue(labels.format);
                     }
-                    this.label = new BarLabel(labelText, deepExtend({ vertical: options.vertical }, labels));
+                    this.label = new BarLabel(labelText, deepExtend({ vertical: options.vertical }, labels), pointData);
                     this.append(this.label);
                 }
             },
@@ -2551,6 +2593,18 @@
             },
             overlapsBox: function (box) {
                 return this.box.overlaps(box);
+            },
+            pointData: function () {
+                return {
+                    dataItem: this.dataItem,
+                    category: this.category,
+                    value: this.value,
+                    percentage: this.percentage,
+                    stackValue: this.stackValue,
+                    runningTotal: this.runningTotal,
+                    total: this.total,
+                    series: this.series
+                };
             }
         });
         deepExtend(Bar.prototype, PointEventsMixin);
@@ -4171,11 +4225,13 @@
                     options.className = 'k-chart-tooltip-inverse';
                 }
                 this.chartService.notify(SHOW_TOOLTIP, options);
+                this.visible = true;
             },
             hide: function () {
                 if (this.chartService) {
                     this.chartService.notify(HIDE_TOOLTIP);
                 }
+                this.visible = false;
             },
             destroy: function () {
                 delete this.chartService;
@@ -4459,6 +4515,11 @@
                 this.axes.push(axis);
                 axis.pane = this;
             },
+            appendAxisAt: function (axis, pos) {
+                this.content.append(axis);
+                this.axes.splice(pos, 0, axis);
+                axis.pane = this;
+            },
             appendChart: function (chart) {
                 if (this.chartContainer.parent !== this.content) {
                     this.content.append(this.chartContainer);
@@ -4543,6 +4604,7 @@
                 }
                 this.visual.append(this.content.visual);
                 this.renderComplete();
+                this.notifyRender();
             },
             chartsBox: function () {
                 var axes = this.axes;
@@ -4571,6 +4633,16 @@
             },
             clipBox: function () {
                 return this.chartContainer.clipBox;
+            },
+            notifyRender: function () {
+                var service = this.getService();
+                if (service) {
+                    service.notify(PANE_RENDER, {
+                        pane: new ChartPane(this),
+                        index: this.paneIndex,
+                        name: this.options.name
+                    });
+                }
             }
         });
         var ID = 1;
@@ -4584,6 +4656,11 @@
             title: { align: LEFT },
             visible: true
         });
+        function appendIfNotNull(array, element) {
+            if (element !== null) {
+                array.push(element);
+            }
+        }
         function segmentVisible(series, fields, index) {
             var visible = fields.visible;
             if (defined(visible)) {
@@ -4661,6 +4738,103 @@
         }
         function singleItemOrArray(array) {
             return array.length === 1 ? array[0] : array;
+        }
+        var AREA_REGEX = /area/i;
+        function seriesMissingValues(series) {
+            if (series.missingValues) {
+                return series.missingValues;
+            }
+            return AREA_REGEX.test(series.type) || series.stack ? ZERO : INTERPOLATE;
+        }
+        function hasValue$1(series, item) {
+            var fields = SeriesBinder.current.bindPoint(series, null, item);
+            var valueFields = fields.valueFields;
+            for (var field in valueFields) {
+                if (dataviz.convertableToNumber(valueFields[field])) {
+                    return true;
+                }
+            }
+        }
+        function findNext(ref) {
+            var start = ref.start;
+            var dir = ref.dir;
+            var min = ref.min;
+            var max = ref.max;
+            var getter$$1 = ref.getter;
+            var hasItem = ref.hasItem;
+            var series = ref.series;
+            var pointHasValue, outPoint;
+            var idx = start;
+            do {
+                idx += dir;
+                if (hasItem(idx)) {
+                    outPoint = getter$$1(idx);
+                    pointHasValue = hasValue$1(series, outPoint.item);
+                }
+            } while (min <= idx && idx <= max && !pointHasValue);
+            if (pointHasValue) {
+                return outPoint;
+            }
+        }
+        function createOutOfRangePoints(series, range, count, getter$$1, hasItem) {
+            var min = range.min;
+            var max = range.max;
+            var hasMinPoint = min > 0 && min < count;
+            var hasMaxPoint = max + 1 < count;
+            if (hasMinPoint || hasMaxPoint) {
+                var missingValues = seriesMissingValues(series);
+                var minPoint, maxPoint;
+                if (missingValues !== INTERPOLATE) {
+                    if (hasMinPoint) {
+                        minPoint = getter$$1(min - 1);
+                    }
+                    if (hasMaxPoint) {
+                        maxPoint = getter$$1(max + 1);
+                    }
+                } else {
+                    var outPoint, pointHasValue;
+                    if (hasMinPoint) {
+                        outPoint = getter$$1(min - 1);
+                        pointHasValue = hasValue$1(series, outPoint.item);
+                        if (!pointHasValue) {
+                            minPoint = findNext({
+                                start: min,
+                                dir: -1,
+                                min: 0,
+                                max: count - 1,
+                                getter: getter$$1,
+                                hasItem: hasItem,
+                                series: series
+                            });
+                        } else {
+                            minPoint = outPoint;
+                        }
+                    }
+                    if (hasMaxPoint) {
+                        outPoint = getter$$1(max + 1);
+                        pointHasValue = hasValue$1(series, outPoint.item);
+                        if (!pointHasValue) {
+                            maxPoint = findNext({
+                                start: max,
+                                dir: 1,
+                                min: 0,
+                                max: count - 1,
+                                getter: getter$$1,
+                                hasItem: hasItem,
+                                series: series
+                            });
+                        } else {
+                            maxPoint = outPoint;
+                        }
+                    }
+                }
+                if (minPoint) {
+                    series._outOfRangeMinPoint = minPoint;
+                }
+                if (maxPoint) {
+                    series._outOfRangeMaxPoint = maxPoint;
+                }
+            }
         }
         var PlotAreaBase = ChartElement.extend({
             init: function (series, options, chartService) {
@@ -4905,6 +5079,7 @@
                 var margin = getSpacing(options.margin);
                 this.box = targetBox.clone().unpad(margin);
                 this.reflowPanes();
+                this.detachLabels();
                 this.reflowAxes(panes);
                 this.reflowCharts(panes);
             },
@@ -4912,11 +5087,16 @@
                 var this$1 = this;
                 var panesArray = [].concat(panes);
                 this.initSeries();
+                var root = this.getRoot();
+                if (root) {
+                    root.cleanGradients();
+                }
                 for (var i = 0; i < panesArray.length; i++) {
                     this$1.removeCrosshairs(panesArray[i]);
                     panesArray[i].empty();
                 }
                 this.render(panesArray);
+                this.detachLabels();
                 this.reflowAxes(this.panes);
                 this.reflowCharts(panesArray);
                 this.createCrosshairs(panesArray);
@@ -5120,8 +5300,8 @@
             autoRotateAxisLabels: function (groupedAxes) {
                 var this$1 = this;
                 var ref = this;
-                var axes = ref.axes;
                 var panes = ref.panes;
+                var axes = allPaneAxes(panes);
                 var rotated;
                 for (var idx = 0; idx < axes.length; idx++) {
                     var axis = axes[idx];
@@ -5335,6 +5515,58 @@
                         return pane;
                     }
                 }
+            },
+            detachLabels: function () {
+                var axes = this.groupAxes(this.panes);
+                var xAxes = axes.x;
+                var yAxes = axes.y;
+                this.detachAxisGroupLabels(yAxes, xAxes);
+                this.detachAxisGroupLabels(xAxes, yAxes);
+            },
+            detachAxisGroupLabels: function (axes, crossingAxes) {
+                var this$1 = this;
+                var labelAxisCount = 0;
+                for (var i = 0; i < axes.length; i++) {
+                    var axis = axes[i];
+                    var pane = axis.pane;
+                    var anchor = paneAnchor(crossingAxes, pane) || crossingAxes[0];
+                    var axisIndex = i + labelAxisCount;
+                    var labelAxis = this$1.createLabelAxis(axis, axisIndex, anchor);
+                    if (labelAxis) {
+                        labelAxisCount++;
+                        var pos = pane.axes.indexOf(axis) + labelAxisCount;
+                        pane.appendAxisAt(labelAxis, pos);
+                    }
+                }
+            },
+            createLabelAxis: function (axis, axisIndex, anchor) {
+                var labelOptions = axis.options.labels;
+                var position = labelOptions.position;
+                var onAxis = position !== datavizConstants.END && position !== datavizConstants.START;
+                var visible = labelOptions.visible;
+                if (onAxis || visible === false) {
+                    return null;
+                }
+                var allAxes = this.groupAxes(this.panes);
+                var crossingAxes = anchor.options.vertical ? allAxes.x : allAxes.y;
+                var anchorCrossings = this.axisCrossingValues(anchor, crossingAxes);
+                var end = position === datavizConstants.END;
+                var range = anchor.range();
+                var edge = end ? range.max : range.min;
+                var crossingValue = limitValue(anchorCrossings[axisIndex], range.min, range.max);
+                if (crossingValue - edge === 0) {
+                    return null;
+                }
+                anchorCrossings.splice(axisIndex + 1, 0, edge);
+                anchor.options.axisCrossingValues = anchorCrossings;
+                var labelAxis = axis.clone();
+                axis.clear();
+                labelAxis.options.name = undefined;
+                labelAxis.options.line.visible = false;
+                labelAxis.options.crosshair = undefined;
+                labelAxis.options.notes = undefined;
+                labelAxis.options.plotBands = undefined;
+                return labelAxis;
             }
         });
         function axisGroupBox(axes) {
@@ -5363,6 +5595,11 @@
         function isTransparent(color) {
             return color === '' || color === null || color === 'none' || color === 'transparent' || !defined(color);
         }
+        var allPaneAxes = function (panes) {
+            return panes.reduce(function (acc, pane) {
+                return acc.concat(pane.axes);
+            }, []);
+        };
         setDefaultOptions(PlotAreaBase, {
             series: [],
             plotArea: { margin: {} },
@@ -5524,21 +5761,14 @@
             },
             _createLabel: function (options) {
                 var labelTemplate = getTemplate(options);
+                var pointData = this.pointData();
                 var labelText;
                 if (labelTemplate) {
-                    labelText = labelTemplate({
-                        dataItem: this.dataItem,
-                        category: this.category,
-                        value: this.value,
-                        percentage: this.percentage,
-                        runningTotal: this.runningTotal,
-                        total: this.total,
-                        series: this.series
-                    });
+                    labelText = labelTemplate(pointData);
                 } else {
                     labelText = this.formatValue(options.format);
                 }
-                return new BarLabel(labelText, deepExtend({ vertical: this.options.vertical }, options));
+                return new BarLabel(labelText, deepExtend({ vertical: this.options.vertical }, options), pointData);
             },
             reflow: function (targetBox) {
                 this.render();
@@ -6097,8 +6327,8 @@
                 this.createSegments();
             },
             traverseDataPoints: function (callback) {
+                var this$1 = this;
                 var series = this.options.series;
-                var categories = this.categoryAxis.options.categories || [];
                 var totalCategories = categoriesCount(series);
                 var isVertical = !this.options.invertAxes;
                 for (var seriesIx = 0; seriesIx < series.length; seriesIx++) {
@@ -6127,7 +6357,7 @@
                             to = total;
                         }
                         callback(data, {
-                            category: categories[categoryIx],
+                            category: this$1.categoryAxis.categoryAt(categoryIx),
                             categoryIx: categoryIx,
                             series: currentSeries,
                             seriesIx: seriesIx,
@@ -6175,11 +6405,6 @@
                 }
             }
         });
-        function appendIfNotNull(array, element) {
-            if (element !== null) {
-                array.push(element);
-            }
-        }
         var AREA_SERIES = [
             AREA,
             VERTICAL_AREA,
@@ -6299,6 +6524,8 @@
                 var this$1 = this;
                 var series = this.srcSeries || this.series;
                 var processedSeries = [];
+                this._currentPointsCache = {};
+                this._seriesPointsCache = this._seriesPointsCache || {};
                 for (var i = 0; i < series.length; i++) {
                     var currentSeries = series[i];
                     var categoryAxis = this$1.seriesCategoryAxis(currentSeries);
@@ -6306,130 +6533,113 @@
                     var dateAxis = equalsIgnoreCase(categoryAxis.options.type, DATE);
                     if ((dateAxis || currentSeries.categoryField) && inArray(axisPane, panes)) {
                         currentSeries = this$1.aggregateSeries(currentSeries, categoryAxis);
-                    } else if (isNumber(categoryAxis.options.min) || isNumber(categoryAxis.options.max)) {
+                    } else {
                         currentSeries = this$1.filterSeries(currentSeries, categoryAxis);
                     }
                     processedSeries.push(currentSeries);
                 }
+                this._seriesPointsCache = this._currentPointsCache;
+                this._currentPointsCache = null;
                 this.srcSeries = series;
                 this.series = processedSeries;
             },
             filterSeries: function (series, categoryAxis) {
-                var range = categoryAxis.totalRangeIndices();
-                var justified = categoryAxis.options.justified;
+                var dataLength = (series.data || {}).length;
+                categoryAxis._seriesMax = Math.max(categoryAxis._seriesMax || 0, dataLength);
+                if (!(isNumber(categoryAxis.options.min) || isNumber(categoryAxis.options.max))) {
+                    return series;
+                }
+                var range = categoryAxis.currentRangeIndices();
                 var outOfRangePoints = inArray(series.type, OUT_OF_RANGE_SERIES);
-                range.min = isNumber(categoryAxis.options.min) ? Math.floor(range.min) : 0;
-                if (isNumber(categoryAxis.options.max)) {
-                    range.max = justified ? Math.floor(range.max) + 1 : Math.ceil(range.max);
-                } else {
-                    range.max = series.data.length;
-                }
                 var currentSeries = deepExtend({}, series);
+                currentSeries.data = (currentSeries.data || []).slice(range.min, range.max + 1);
                 if (outOfRangePoints) {
-                    var minCategory = range.min - 1;
-                    var srcCategories = categoryAxis.options.srcCategories || [];
-                    if (minCategory >= 0 && minCategory < currentSeries.data.length) {
-                        currentSeries._outOfRangeMinPoint = {
-                            item: currentSeries.data[minCategory],
-                            category: srcCategories[minCategory],
-                            categoryIx: -1
+                    createOutOfRangePoints(currentSeries, range, dataLength, function (idx) {
+                        return {
+                            item: series.data[idx],
+                            category: categoryAxis.categoryAt(idx, true),
+                            categoryIx: idx - range.min
                         };
-                    }
-                    if (range.max < currentSeries.data.length) {
-                        currentSeries._outOfRangeMaxPoint = {
-                            item: currentSeries.data[range.max],
-                            category: srcCategories[range.max],
-                            categoryIx: range.max - range.min
-                        };
-                    }
+                    }, function (idx) {
+                        return defined(series.data[idx]);
+                    });
                 }
-                categoryAxis._seriesMax = Math.max(categoryAxis._seriesMax || 0, currentSeries.data.length);
-                currentSeries.data = (currentSeries.data || []).slice(range.min, range.max);
                 return currentSeries;
             },
-            aggregateSeries: function (series, categoryAxis) {
+            clearSeriesPointsCache: function () {
+                this._seriesPointsCache = {};
+            },
+            seriesSourcePoints: function (series, categoryAxis) {
                 var this$1 = this;
-                var outOfRangePoints = inArray(series.type, OUT_OF_RANGE_SERIES);
-                var ref = categoryAxis.options;
-                var categories = ref.categories;
-                var srcCategories = ref.srcCategories;
-                if (srcCategories === void 0) {
-                    srcCategories = categories;
+                var key = series.index + ';' + categoryAxis.categoriesHash();
+                if (this._seriesPointsCache[key]) {
+                    this._currentPointsCache[key] = this._seriesPointsCache[key];
+                    return this._seriesPointsCache[key];
                 }
-                var dataItems = ref.dataItems;
-                if (dataItems === void 0) {
-                    dataItems = [];
-                }
-                var dateAxis = equalsIgnoreCase(categoryAxis.options.type, DATE);
-                var aggregatorSeries = deepExtend({}, series);
-                var result = deepExtend({}, series);
+                var axisOptions = categoryAxis.options;
+                var srcCategories = axisOptions.srcCategories;
+                var dateAxis = equalsIgnoreCase(axisOptions.type, DATE);
                 var srcData = series.data;
-                var srcPoints = [];
-                var outOfRangeMinIdx = MIN_VALUE;
-                var outOfRangeMaxIdx = MAX_VALUE;
-                var getFn = getField;
-                var outOfRangeMinCategory, outOfRangeMaxCategory;
-                if (dateAxis) {
-                    getFn = getDateField;
+                var getFn = dateAxis ? getDateField : getField;
+                var result = [];
+                if (!dateAxis) {
+                    categoryAxis.mapCategories();
                 }
-                for (var i = 0; i < srcData.length; i++) {
+                for (var idx = 0; idx < srcData.length; idx++) {
                     var category = void 0;
                     if (series.categoryField) {
-                        category = getFn(series.categoryField, srcData[i], this$1.chartService.intl);
+                        category = getFn(series.categoryField, srcData[idx], this$1.chartService.intl);
                     } else {
-                        category = srcCategories[i];
+                        category = srcCategories[idx];
                     }
-                    if (defined(category)) {
-                        var categoryIx = categoryAxis.categoryIndex(category);
-                        if (0 <= categoryIx && categoryIx < categories.length) {
-                            srcPoints[categoryIx] = srcPoints[categoryIx] || [];
-                            srcPoints[categoryIx].push(i);
-                        } else if (outOfRangePoints) {
-                            if (categoryIx < 0) {
-                                if (categoryIx === outOfRangeMinIdx) {
-                                    outOfRangeMinCategory.points.push(i);
-                                } else if (categoryIx > outOfRangeMinIdx) {
-                                    outOfRangeMinIdx = categoryIx;
-                                    outOfRangeMinCategory = {
-                                        category: category,
-                                        points: [i]
-                                    };
-                                }
-                            } else if (categoryIx >= categories.length) {
-                                if (categoryIx === outOfRangeMaxIdx) {
-                                    outOfRangeMaxCategory.points.push(i);
-                                } else if (categoryIx < outOfRangeMaxIdx) {
-                                    outOfRangeMaxIdx = categoryIx;
-                                    outOfRangeMaxCategory = {
-                                        category: category,
-                                        points: [i]
-                                    };
-                                }
-                            }
-                        }
+                    if (defined(category) && category !== null) {
+                        var categoryIx = categoryAxis.totalIndex(category);
+                        result[categoryIx] = result[categoryIx] || {
+                            items: [],
+                            category: category
+                        };
+                        result[categoryIx].items.push(idx);
                     }
                 }
-                var aggregator = new SeriesAggregator(aggregatorSeries, SeriesBinder.current, DefaultAggregates.current);
+                this._currentPointsCache[key] = result;
+                return result;
+            },
+            aggregateSeries: function (series, categoryAxis) {
+                var srcData = series.data;
+                if (!srcData.length) {
+                    return series;
+                }
+                var srcPoints = this.seriesSourcePoints(series, categoryAxis);
+                var result = deepExtend({}, series);
+                var aggregator = new SeriesAggregator(deepExtend({}, series), SeriesBinder.current, DefaultAggregates.current);
                 var data = result.data = [];
-                for (var i$1 = 0; i$1 < categories.length; i$1++) {
-                    data[i$1] = aggregator.aggregatePoints(srcPoints[i$1], categories[i$1]);
-                    if (srcPoints[i$1]) {
-                        dataItems[i$1] = data[i$1];
+                var dataItems = categoryAxis.options.dataItems || [];
+                var range = categoryAxis.currentRangeIndices();
+                var categoryItem = function (idx) {
+                    var categoryIdx = idx - range.min;
+                    var point = srcPoints[idx];
+                    if (!point) {
+                        point = srcPoints[idx] = {};
+                    }
+                    point.categoryIx = categoryIdx;
+                    if (!point.item) {
+                        var category = categoryAxis.categoryAt(idx, true);
+                        point.category = category;
+                        point.item = aggregator.aggregatePoints(point.items, category);
+                    }
+                    return point;
+                };
+                for (var idx = range.min; idx <= range.max; idx++) {
+                    var point = categoryItem(idx);
+                    data[point.categoryIx] = point.item;
+                    if (point.items && point.items.length) {
+                        dataItems[point.categoryIx] = point.item;
                     }
                 }
-                if (outOfRangeMinCategory && data.length) {
-                    result._outOfRangeMinPoint = {
-                        item: aggregator.aggregatePoints(outOfRangeMinCategory.points, outOfRangeMinCategory.category),
-                        categoryIx: outOfRangeMinIdx,
-                        category: outOfRangeMinCategory.category
-                    };
-                }
-                if (outOfRangeMaxCategory && data.length) {
-                    result._outOfRangeMaxPoint = {
-                        item: aggregator.aggregatePoints(outOfRangeMaxCategory.points, outOfRangeMaxCategory.category),
-                        categoryIx: outOfRangeMaxIdx,
-                        category: outOfRangeMaxCategory.category
-                    };
+                if (inArray(result.type, OUT_OF_RANGE_SERIES)) {
+                    createOutOfRangePoints(result, range, categoryAxis.totalCount(), categoryItem, function (idx) {
+                        return srcPoints[idx];
+                    });
                 }
                 categoryAxis.options.dataItems = dataItems;
                 return result;
@@ -6439,8 +6649,11 @@
                 var categoryAxis = this.seriesCategoryAxis(series[0]);
                 var categories = categoryAxis.options.categories;
                 var categoriesToAdd = Math.max(0, categoriesCount(series) - categories.length);
-                while (categoriesToAdd--) {
-                    categories.push('');
+                if (categoriesToAdd > 0) {
+                    categories = categoryAxis.options.categories = categoryAxis.options.categories.slice(0);
+                    while (categoriesToAdd--) {
+                        categories.push('');
+                    }
                 }
                 this.valueAxisRangeTracker.update(chart.valueAxisRanges);
                 PlotAreaBase.fn.appendChart.call(this, chart, pane);
@@ -6687,10 +6900,11 @@
                         }
                         var categoryAxis = void 0;
                         if (isDateAxis(axisOptions, categories[0])) {
-                            categoryAxis = new DateCategoryAxis(axisOptions, this$1.chartService);
+                            categoryAxis = new dataviz.DateCategoryAxis(axisOptions, this$1.chartService);
                         } else {
                             categoryAxis = new CategoryAxis(axisOptions, this$1.chartService);
                         }
+                        definitions[i].categories = categoryAxis.options.srcCategories;
                         if (name) {
                             if (this$1.namedCategoryAxes[name]) {
                                 throw new Error('Category axis with name ' + name + ' is already defined');
@@ -6832,7 +7046,7 @@
             });
         }
         setDefaultOptions(CategoricalPlotArea, {
-            categoryAxis: { categories: [] },
+            categoryAxis: {},
             valueAxis: {}
         });
         deepExtend(CategoricalPlotArea.prototype, PlotAreaEventsMixin);
@@ -7277,20 +7491,20 @@
             },
             click: function (widget, e) {
                 var args = this.eventArgs(e);
-                if (!widget.trigger(LEGEND_ITEM_CLICK, args)) {
+                if (!widget.trigger(LEGEND_ITEM_CLICK, args) && e && e.type === 'contextmenu') {
                     e.preventDefault();
                 }
             },
-            hover: function (widget, e) {
+            over: function (widget, e) {
                 var args = this.eventArgs(e);
                 if (!widget.trigger(LEGEND_ITEM_HOVER, args)) {
-                    e.preventDefault();
                     widget._legendItemHover(args.seriesIndex, args.pointIndex);
                 }
                 return true;
             },
-            leave: function (widget) {
+            out: function (widget, e) {
                 widget._unsetActivePoint();
+                widget.trigger(LEGEND_ITEM_LEAVE, this.eventArgs(e));
             },
             eventArgs: function (e) {
                 var options = this.options;
@@ -7578,13 +7792,16 @@
                 this.observer = observer;
                 this.chartElement = chartElement;
                 this.categoryAxis = categoryAxis;
-                this._dateAxis = this.categoryAxis instanceof DateCategoryAxis;
+                this._dateAxis = this.categoryAxis instanceof dataviz.DateCategoryAxis;
                 this.initOptions();
                 if (this.options.visible) {
                     this.createElements();
                     this.set(this._index(this.options.from), this._index(this.options.to));
                     this.bindEvents();
                 }
+            },
+            onPane: function (pane) {
+                return this.categoryAxis.pane === pane;
             },
             createElements: function () {
                 var options = this.options;
@@ -7628,9 +7845,11 @@
                 wrapper.style.cssText = wrapper.style.cssText;
             },
             bindEvents: function () {
-                this._mousewheelHandler = this.options.mousewheel !== false ? this._mousewheel.bind(this) : stopPropagation;
-                var obj;
-                bindEvents(this.wrapper, (obj = {}, obj[MOUSEWHEEL] = this._mousewheelHandler, obj));
+                if (this.options.mousewheel !== false) {
+                    this._mousewheelHandler = this._mousewheel.bind(this);
+                    var obj;
+                    bindEvents(this.wrapper, (obj = {}, obj[MOUSEWHEEL] = this._mousewheelHandler, obj));
+                }
                 this._domEvents = services.DomEventsBuilder.create(this.wrapper, {
                     start: this._start.bind(this),
                     move: this._move.bind(this),
@@ -7685,9 +7904,13 @@
                 clearTimeout(this._mwTimeout);
                 this._state = null;
                 if (this.wrapper) {
-                    var obj;
-                    unbindEvents(this.wrapper, (obj = {}, obj[MOUSEWHEEL] = this._mousewheelHandler, obj));
+                    if (this._mousewheelHandler) {
+                        var obj;
+                        unbindEvents(this.wrapper, (obj = {}, obj[MOUSEWHEEL] = this._mousewheelHandler, obj));
+                        this._mousewheelHandler = null;
+                    }
                     this.chartElement.removeChild(this.wrapper);
+                    this.wrapper = null;
                 }
             },
             _rangeEventArgs: function (range) {
@@ -7738,10 +7961,10 @@
                 var ref = this;
                 var state = ref._state;
                 var options = ref.options;
-                var axisOptions = ref.categoryAxis.options;
+                var categoryAxis = ref.categoryAxis;
                 var range = state.range;
                 var target = state.moveTarget;
-                var reverse = axisOptions.reverse;
+                var reverse = categoryAxis.options.reverse;
                 var from = this._index(options.from);
                 var to = this._index(options.to);
                 var min = this._index(options.min);
@@ -7752,7 +7975,7 @@
                     to: range.to
                 };
                 var span = range.to - range.from;
-                var scale = elementStyles(this.wrapper, 'width').width / (axisOptions.categories.length - 1);
+                var scale = elementStyles(this.wrapper, 'width').width / (categoryAxis.categoriesCount() - 1);
                 var offset = Math.round(delta / scale) * (reverse ? -1 : 1);
                 if (!target) {
                     return;
@@ -7894,13 +8117,11 @@
                 return index;
             },
             _value: function (index) {
-                var categories = this.categoryAxis.options.categories;
                 var value = index;
                 if (this._dateAxis) {
-                    if (index > categories.length - 1) {
+                    value = this.categoryAxis.categoryAt(index);
+                    if (value > this.options.max) {
                         value = this.options.max;
-                    } else {
-                        value = categories[Math.ceil(index)];
                     }
                 }
                 return value;
@@ -7975,9 +8196,6 @@
                 return (this.observer || this.chart).trigger(name, args);
             }
         });
-        function stopPropagation(e) {
-            e.stopPropagation();
-        }
         setDefaultOptions(Selection, {
             visible: true,
             mousewheel: { zoom: 'both' },
@@ -8397,14 +8615,9 @@
                 }
                 this._rendered = true;
                 var labelTemplate = getTemplate(labels);
+                var pointData = this.pointData();
                 if (labelTemplate) {
-                    labelText = labelTemplate({
-                        dataItem: this.dataItem,
-                        category: this.category,
-                        value: this.value,
-                        series: this.series,
-                        percentage: this.percentage
-                    });
+                    labelText = labelTemplate(pointData);
                 } else if (labels.format) {
                     labelText = chartService.format.auto(labels.format, labelText);
                 }
@@ -8433,7 +8646,7 @@
                             type: FADEIN,
                             delay: this.animationDelay
                         }
-                    }));
+                    }), pointData);
                     this.append(this.label);
                 }
             },
@@ -8612,6 +8825,15 @@
             },
             formatValue: function (format) {
                 return this.owner.formatPointValue(this, format);
+            },
+            pointData: function () {
+                return {
+                    dataItem: this.dataItem,
+                    category: this.category,
+                    value: this.value,
+                    series: this.series,
+                    percentage: this.percentage
+                };
             }
         });
         var RAD_30 = round(dataviz.rad(30), DEFAULT_PRECISION);
@@ -8694,6 +8916,7 @@
                     }
                     if (hasValue(text) && text !== '') {
                         this.legendItems.push({
+                            active: pointVisible,
                             pointIndex: options.index,
                             text: text,
                             series: options.series,
@@ -9312,6 +9535,8 @@
             },
             backgroundBox: function () {
                 return this.box;
+            },
+            detachLabels: function () {
             }
         });
         var PolarScatterChart = ScatterChart.extend({
@@ -9736,7 +9961,8 @@
         });
         deepExtend(RadarPlotArea.prototype, PlotAreaEventsMixin, {
             appendChart: CategoricalPlotArea.prototype.appendChart,
-            aggregateSeries: CategoricalPlotArea.prototype.aggregateSeries
+            aggregateSeries: CategoricalPlotArea.prototype.aggregateSeries,
+            seriesSourcePoints: CategoricalPlotArea.prototype.seriesSourcePoints
         });
         setDefaultOptions(RadarPlotArea, {
             categoryAxis: { categories: [] },
@@ -9920,14 +10146,15 @@
                 var text = value;
                 if (labels.visible) {
                     var labelTemplate = getTemplate(labels);
+                    var data = {
+                        dataItem: dataItem,
+                        value: value,
+                        percentage: fields.percentage,
+                        category: fields.category,
+                        series: series
+                    };
                     if (labelTemplate) {
-                        text = labelTemplate({
-                            dataItem: dataItem,
-                            value: value,
-                            percentage: fields.percentage,
-                            category: fields.category,
-                            series: series
-                        });
+                        text = labelTemplate(data);
                     } else if (labels.format) {
                         text = this.plotArea.chartService.format.auto(labels.format, text);
                     }
@@ -9943,7 +10170,7 @@
                         }
                     }
                     this.evalSegmentOptions(labels, value, fields);
-                    var textBox = new TextBox(text, deepExtend({ vAlign: labels.position }, labels));
+                    var textBox = new TextBox(text, deepExtend({ vAlign: labels.position }, labels), data);
                     this.labels.push(textBox);
                     return textBox;
                 }
@@ -10340,6 +10567,7 @@
         ];
         var MOUSEMOVE = 'mousemove';
         var CONTEXTMENU = 'contextmenu';
+        var MOUSELEAVE = 'mouseleave';
         var MOUSEMOVE_DELAY = 20;
         var Chart = Class.extend({
             init: function (element, userOptions, themeOptions, context) {
@@ -10356,8 +10584,8 @@
                 this._originalOptions = deepExtend({}, options);
                 this._theme = themeOptions;
                 this._initTheme(options, themeOptions);
-                this._initSurface();
                 this._initHandlers();
+                this._initSurface();
                 this.bindCategories();
                 dataviz.FontLoader.preloadFonts(userOptions, function () {
                     if (!this$1._destroyed) {
@@ -10394,9 +10622,12 @@
                 this.applySeriesColors();
             },
             getSize: function () {
+                var chartArea = this.options.chartArea || {};
+                var width = chartArea.width ? parseInt(chartArea.width, 10) : Math.floor(this.element.offsetWidth);
+                var height = chartArea.height ? parseInt(chartArea.height, 10) : Math.floor(this.element.offsetHeight);
                 return {
-                    width: this.element.offsetWidth,
-                    height: this.element.offsetHeight
+                    width: width,
+                    height: height
                 };
             },
             resize: function (force) {
@@ -10423,12 +10654,7 @@
                 }
             },
             getAxis: function (name) {
-                var axes = this._plotArea.axes;
-                for (var idx = 0; idx < axes.length; idx++) {
-                    if (axes[idx].options.name === name) {
-                        return new ChartAxis(axes[idx]);
-                    }
-                }
+                return findAxisByName(name, this._plotArea.axes);
             },
             findAxisByName: function (name) {
                 return this.getAxis(name);
@@ -10519,10 +10745,10 @@
                     dataviz.elementSize(wrap, { height: chartArea.height });
                 }
                 if (!surface || surface.options.type !== this.options.renderAs) {
-                    if (surface) {
-                        surface.destroy();
-                    }
+                    this._destroySurface();
                     this.surface = drawing.Surface.create(wrap, { type: this.options.renderAs });
+                    this.surface.bind('mouseenter', this._surfaceMouseenterHandler);
+                    this.surface.bind('mouseleave', this._surfaceMouseleaveHandler);
                 } else {
                     this.surface.clear();
                     this.surface.resize();
@@ -10533,6 +10759,10 @@
             },
             _redraw: function () {
                 var model = this._getModel();
+                this._size = {
+                    width: model.options.width,
+                    height: model.options.height
+                };
                 this._destroyView();
                 this._model = model;
                 this._plotArea = model._plotArea;
@@ -10560,6 +10790,7 @@
                 this._createZoomSelection();
                 this._createMousewheelZoom();
                 this.trigger(RENDER);
+                triggerPaneRender(this._plotArea.panes);
                 if (!this._navState) {
                     this._cancelDomEvents();
                 }
@@ -10580,6 +10811,7 @@
                     this.bindCategories();
                     var model = this._getModel();
                     model.renderVisual();
+                    triggerPaneRender(model._plotArea.panes);
                     visual = model.visual;
                     this.options = currentOptions;
                 } else {
@@ -10690,24 +10922,18 @@
                 return model;
             },
             _modelOptions: function () {
-                var ref = this;
-                var options = ref.options;
-                var element = ref.element;
-                var size = dataviz.elementSize(element);
-                this._size = null;
+                var options = this.options;
+                var size = this.getSize();
                 return deepExtend({
-                    width: Math.floor(size.width) || datavizConstants.DEFAULT_WIDTH,
-                    height: Math.floor(size.height) || datavizConstants.DEFAULT_HEIGHT,
-                    transitions: options.transitions
+                    transitions: options.transitions,
+                    width: size.width || datavizConstants.DEFAULT_WIDTH,
+                    height: size.height || datavizConstants.DEFAULT_HEIGHT
                 }, options.chartArea);
             },
             _createPlotArea: function (skipSeries) {
                 var options = this.options;
                 var plotArea = PlotAreaFactory.current.create(skipSeries ? [] : options.series, options, this.chartService);
                 return plotArea;
-            },
-            _hasSelection: function () {
-                return this._selections && this._selections.length;
             },
             _setupSelection: function () {
                 var this$1 = this;
@@ -10718,22 +10944,10 @@
                     var axis = axes[i];
                     var options = axis.options;
                     if (axis instanceof CategoryAxis && options.select && !options.vertical) {
-                        var min = 0;
-                        var max = options.categories.length - 1;
-                        if (axis instanceof DateCategoryAxis) {
-                            min = options.categories[min];
-                            max = options.categories[max];
-                        }
-                        if (!options.justified) {
-                            if (axis instanceof DateCategoryAxis) {
-                                max = dataviz.addDuration(max, 1, options.baseUnit, options.weekStartDay);
-                            } else {
-                                max++;
-                            }
-                        }
+                        var range = axis.range();
                         var selection = new Selection(this$1, axis, deepExtend({
-                            min: min,
-                            max: max
+                            min: range.min,
+                            max: range.max
                         }, options.select));
                         selections.push(selection);
                     }
@@ -10751,6 +10965,7 @@
             _initHandlers: function () {
                 this._clickHandler = this._click.bind(this);
                 this._mousewheelHandler = this._mousewheel.bind(this);
+                this._mouseleaveHandler = this._mouseleave.bind(this);
                 this._surfaceMouseenterHandler = this._mouseover.bind(this);
                 this._surfaceMouseleaveHandler = this._mouseout.bind(this);
                 this._mousemove = kendo.throttle(this._mousemove.bind(this), MOUSEMOVE_DELAY);
@@ -10792,13 +11007,9 @@
                 return isDefaultPrevented;
             },
             _attachEvents: function () {
-                var ref = this;
-                var element = ref.element;
-                var surface = ref.surface;
-                surface.bind('mouseenter', this._surfaceMouseenterHandler);
-                surface.bind('mouseleave', this._surfaceMouseleaveHandler);
+                var element = this.element;
                 var obj;
-                bindEvents(element, (obj = {}, obj[CONTEXTMENU] = this._clickHandler, obj[MOUSEWHEEL] = this._mousewheelHandler, obj));
+                bindEvents(element, (obj = {}, obj[CONTEXTMENU] = this._clickHandler, obj[MOUSEWHEEL] = this._mousewheelHandler, obj[MOUSELEAVE] = this._mouseleaveHandler, obj));
                 if (this._shouldAttachMouseMove()) {
                     var obj$1;
                     bindEvents(element, (obj$1 = {}, obj$1[MOUSEMOVE] = this._mousemove, obj$1));
@@ -10815,20 +11026,30 @@
                 this._toggleDomDrag();
                 this._toggleDomZoom();
             },
+            _mouseleave: function (e) {
+                if (this._hoveredPoint) {
+                    this._hoveredPoint.out(this, e);
+                    this._hoveredPoint = null;
+                }
+                if (this._plotArea.hovered) {
+                    this.trigger(PLOT_AREA_LEAVE);
+                    this._plotArea.hovered = false;
+                }
+            },
             _cancelDomEvents: function () {
                 if (this.domEvents && this.domEvents.cancel) {
                     this.domEvents.cancel();
                 }
             },
             _gesturestart: function (e) {
-                if (this._mousewheelZoom && !this._stopDragEvent(e)) {
+                if (this._mousewheelZoom && !this._stopChartHandlers(e)) {
                     this._gestureDistance = e.distance;
                     this._unsetActivePoint();
                     this.surface.suspendTracking();
                 }
             },
             _gestureend: function (e) {
-                if (this._zooming && !this._stopDragEvent(e)) {
+                if (this._zooming && !this._stopChartHandlers(e)) {
                     if (this.surface) {
                         this.surface.resumeTracking();
                     }
@@ -10838,7 +11059,7 @@
             },
             _gesturechange: function (e) {
                 var mousewheelZoom = this._mousewheelZoom;
-                if (mousewheelZoom && !this._stopDragEvent(e)) {
+                if (mousewheelZoom && !this._stopChartHandlers(e)) {
                     e.preventDefault();
                     var previousGestureDistance = this._gestureDistance;
                     var scaleDelta = -e.distance / previousGestureDistance + 1;
@@ -10872,7 +11093,7 @@
             },
             _start: function (e) {
                 var coords = this._eventCoordinates(e);
-                if (this._stopDragEvent(e) || !this._plotArea.backgroundContainsPoint(coords)) {
+                if (this._stopChartHandlers(e) || !this._plotArea.backgroundContainsPoint(coords)) {
                     return;
                 }
                 if (this.requiresHandlers([
@@ -10886,6 +11107,7 @@
                     this.surface.suspendTracking();
                     this._unsetActivePoint();
                     this._suppressHover = true;
+                    this.chartService.panning = true;
                 }
                 if (this._zoomSelection) {
                     if (this._zoomSelection.start(e)) {
@@ -10900,7 +11122,7 @@
                 var ref = this;
                 var state = ref._navState;
                 var pannable = ref._pannable;
-                if (this._stopDragEvent(e)) {
+                if (this._stopChartHandlers(e)) {
                     return;
                 }
                 if (pannable) {
@@ -10936,7 +11158,7 @@
                 }
             },
             _end: function (e) {
-                if (this._stopDragEvent(e)) {
+                if (this._stopChartHandlers(e)) {
                     return;
                 }
                 var pannable = this._pannable;
@@ -10947,6 +11169,7 @@
                         originalEvent: e
                     });
                     this._suppressHover = false;
+                    this.chartService.panning = false;
                 } else {
                     this._endNavigation(e, DRAG_END);
                 }
@@ -10964,15 +11187,27 @@
                     }
                 }
             },
-            _stopDragEvent: function () {
-                return this._hasSelection();
+            _stopChartHandlers: function (e) {
+                var selections = this._selections || [];
+                if (!selections.length) {
+                    return false;
+                }
+                var coords = this._eventCoordinates(e);
+                var pane = this._plotArea.paneByPoint(coords);
+                if (pane) {
+                    for (var idx = 0; idx < selections.length; idx++) {
+                        if (selections[idx].onPane(pane)) {
+                            return true;
+                        }
+                    }
+                }
             },
             _mousewheel: function (e) {
                 var this$1 = this;
                 var delta = dataviz.mousewheelDelta(e);
                 var mousewheelZoom = this._mousewheelZoom;
                 var coords = this._eventCoordinates(e);
-                if (!this._plotArea.backgroundContainsPoint(coords)) {
+                if (this._stopChartHandlers(e) || !this._plotArea.backgroundContainsPoint(coords)) {
                     return;
                 }
                 if (mousewheelZoom) {
@@ -11134,14 +11369,14 @@
                 var this$1 = this;
                 var drawingElement = this.surface.eventTarget(e);
                 var element = this._drawingChartElement(drawingElement, e);
-                if (this._activePoint === element) {
-                    this._propagateClick(element, e);
-                } else {
-                    if (!this._startHover(drawingElement, e)) {
-                        this._unsetActivePoint();
-                    }
-                    this._propagateClick(element, e);
+                var sharedTooltip = this._sharedTooltip();
+                if (!this._startHover(drawingElement, e) && !sharedTooltip) {
+                    this._unsetActivePoint();
                 }
+                if (sharedTooltip) {
+                    this._trackSharedTooltip(this._eventCoordinates(e), e, true);
+                }
+                this._propagateClick(element, e);
                 this.handlingTap = true;
                 setTimeout(function () {
                     this$1.handlingTap = false;
@@ -11162,30 +11397,38 @@
                 }
             },
             _startHover: function (element, e) {
-                var chartElement = this._drawingChartElement(element, e);
-                var ref = this;
-                var tooltip = ref._tooltip;
-                var highlight = ref._highlight;
-                if (this._suppressHover || !highlight || highlight.isHighlighted(chartElement) || this._sharedTooltip()) {
+                if (this._suppressHover) {
                     return false;
                 }
                 var point = this._drawingChartElement(element, e, function (element) {
-                    return element.hover && !(element instanceof PlotAreaBase);
+                    return (element.hover || element.over) && !(element instanceof PlotAreaBase);
                 });
-                if (point && !point.hover(this, e)) {
-                    this._activePoint = point;
-                    var tooltipOptions = deepExtend({}, tooltipOptions, point.options.tooltip);
-                    if (tooltipOptions.visible) {
-                        tooltip.show(point);
-                    }
-                    highlight.show(point);
-                    return point;
+                var activePoint = this._activePoint;
+                var hoveredPoint = this._hoveredPoint;
+                if (hoveredPoint && hoveredPoint !== point) {
+                    hoveredPoint.out(this, e);
+                    this._hoveredPoint = null;
                 }
+                if (point && hoveredPoint !== point && point.over) {
+                    this._hoveredPoint = point;
+                    point.over(this, e);
+                }
+                if (point && activePoint !== point && point.hover) {
+                    this._activePoint = point;
+                    if (!this._sharedTooltip() && !point.hover(this, e)) {
+                        var tooltipOptions = deepExtend({}, this.options.tooltip, point.options.tooltip);
+                        if (tooltipOptions.visible) {
+                            this._tooltip.show(point);
+                        }
+                        this._highlight.show(point);
+                    }
+                }
+                return point;
             },
             _mouseover: function (e) {
                 var point = this._startHover(e.element, e.originalEvent);
-                if (point && point.tooltipTracking) {
-                    this._mouseMoveTrackHandler = this._mouseMoveTrackHandler || this._mouseMoveTracking.bind(this);
+                if (point && point.tooltipTracking && !this._mouseMoveTrackHandler && !this._sharedTooltip()) {
+                    this._mouseMoveTrackHandler = this._mouseMoveTracking.bind(this);
                     var obj;
                     bindEvents(document, (obj = {}, obj[MOUSEMOVE] = this._mouseMoveTrackHandler, obj));
                 }
@@ -11201,26 +11444,36 @@
                     if (point && point.tooltipTracking && point.series && point.parent.getNearestPoint) {
                         var seriesPoint = point.parent.getNearestPoint(coords.x, coords.y, point.seriesIx);
                         if (seriesPoint && seriesPoint !== point) {
-                            seriesPoint.hover(this, e);
                             this._activePoint = seriesPoint;
-                            var tooltipOptions = deepExtend({}, options.tooltip, point.options.tooltip);
-                            if (tooltipOptions.visible) {
-                                tooltip.show(seriesPoint);
+                            if (!seriesPoint.hover(this, e)) {
+                                var tooltipOptions = deepExtend({}, options.tooltip, seriesPoint.options.tooltip);
+                                if (tooltipOptions.visible) {
+                                    tooltip.show(seriesPoint);
+                                }
+                                highlight.show(seriesPoint);
                             }
-                            highlight.show(seriesPoint);
                         }
                     }
                 } else {
                     var obj;
                     unbindEvents(document, (obj = {}, obj[MOUSEMOVE] = this._mouseMoveTrackHandler, obj));
                     this._unsetActivePoint();
+                    this._mouseMoveTrackHandler = null;
                 }
             },
             _mousemove: function (e) {
                 var coords = this._eventCoordinates(e);
+                var plotArea = this._plotArea;
                 this._trackCrosshairs(coords);
-                if (this._plotArea.hover) {
-                    this._plotArea.hover(this, e);
+                if (plotArea.hover) {
+                    var overPlotArea = plotArea.backgroundContainsPoint(coords);
+                    if (overPlotArea) {
+                        plotArea.hovered = true;
+                        this._plotArea.hover(this, e);
+                    } else if (plotArea.hovered && !overPlotArea) {
+                        this.trigger(PLOT_AREA_LEAVE);
+                        plotArea.hovered = false;
+                    }
                 }
                 if (this._sharedTooltip()) {
                     this._trackSharedTooltip(coords, e);
@@ -11237,16 +11490,19 @@
                     }
                 }
             },
-            _trackSharedTooltip: function (coords, e) {
+            _trackSharedTooltip: function (coords, e, toggle) {
+                if (this._suppressHover) {
+                    return;
+                }
                 var ref = this;
                 var tooltipOptions = ref.options.tooltip;
                 var plotArea = ref._plotArea;
                 var categoryAxis = ref._plotArea.categoryAxis;
                 var tooltip = ref._tooltip;
                 var highlight = ref._highlight;
-                if (plotArea.box.containsPoint(coords)) {
+                if (plotArea.backgroundContainsPoint(coords)) {
                     var index = categoryAxis.pointCategoryIndex(coords);
-                    if (index !== this._tooltipCategoryIx) {
+                    if (index !== this._tooltipCategoryIx || !this._sharedHighlight && toggle) {
                         var points = plotArea.pointsByCategoryIndex(index);
                         var pointArgs = points.map(function (point) {
                             return point.eventArgs(e);
@@ -11258,32 +11514,40 @@
                                 tooltip.showAt(points, coords);
                             }
                             highlight.show(points);
+                            this._sharedHighlight = true;
                         } else {
                             tooltip.hide();
                         }
                         this._tooltipCategoryIx = index;
+                    } else if (toggle && this._sharedHighlight) {
+                        highlight.hide();
+                        tooltip.hide();
+                        this._sharedHighlight = false;
                     }
+                } else if (this._sharedHighlight) {
+                    highlight.hide();
+                    tooltip.hide();
+                    this._tooltipCategoryIx = null;
+                    this._sharedHighlight = false;
                 }
             },
             hideElements: function () {
-                var ref = this;
-                var plotArea = ref._plotArea;
-                var tooltip = ref._tooltip;
-                var highlight = ref._highlight;
+                var plotArea = this._plotArea;
                 this._mousemove.cancel();
                 plotArea.hideCrosshairs();
-                highlight.hide();
-                tooltip.hide();
-                delete this._tooltipCategoryIx;
+                this._unsetActivePoint();
             },
             _unsetActivePoint: function () {
                 var ref = this;
                 var tooltip = ref._tooltip;
                 var highlight = ref._highlight;
                 this._activePoint = null;
+                this._hoveredPoint = null;
                 if (tooltip) {
                     tooltip.hide();
                 }
+                this._tooltipCategoryIx = null;
+                this._sharedHighlight = false;
                 if (highlight) {
                     highlight.hide();
                 }
@@ -11312,27 +11576,30 @@
                 var this$1 = this;
                 var series = this.options.series;
                 var seriesLength = series.length;
-                var uniqueCategories = {};
+                var uniqueCategories = new dataviz.HashMap();
                 var items = [];
+                var bindable = false;
                 var dateAxis;
                 for (var seriesIx = 0; seriesIx < seriesLength; seriesIx++) {
                     var s = series[seriesIx];
                     var onAxis = s.categoryAxis === axis.name || !s.categoryAxis && axisIx === 0;
                     var data = s.data;
                     var dataLength = data.length;
-                    if (s.categoryField && onAxis && dataLength > 0) {
+                    var bind = s.categoryField && onAxis;
+                    bindable = bind || bindable;
+                    if (bind && dataLength > 0) {
                         dateAxis = isDateAxis(axis, getField(s.categoryField, data[0]));
                         var getFn = dateAxis ? getDateField : getField;
                         for (var dataIx = 0; dataIx < dataLength; dataIx++) {
                             var dataRow = data[dataIx];
                             var category = getFn(s.categoryField, dataRow, this$1.chartService.intl);
-                            if (dateAxis || !uniqueCategories[category]) {
+                            if (dateAxis || !uniqueCategories.get(category)) {
                                 items.push([
                                     category,
                                     dataRow
                                 ]);
                                 if (!dateAxis) {
-                                    uniqueCategories[category] = true;
+                                    uniqueCategories.set(category, true);
                                 }
                             }
                         }
@@ -11346,6 +11613,8 @@
                     }
                     var result = transpose(items);
                     axis.categories = result[0];
+                } else if (bindable) {
+                    axis.categories = [];
                 }
             },
             _isBindable: function (series) {
@@ -11397,7 +11666,10 @@
                 highlight.show(items);
             },
             _shouldAttachMouseMove: function () {
-                return this._plotArea.crosshairs.length || this._tooltip && this._sharedTooltip() || this.requiresHandlers([PLOT_AREA_HOVER]);
+                return this._plotArea.crosshairs.length || this._tooltip && this._sharedTooltip() || this.requiresHandlers([
+                    PLOT_AREA_HOVER,
+                    PLOT_AREA_LEAVE
+                ]);
             },
             updateMouseMoveHandler: function () {
                 var obj;
@@ -11425,22 +11697,42 @@
                 this._toggleDomDrag();
                 this._toggleDomZoom();
             },
+            setDirection: function (rtl) {
+                this.chartService.rtl = Boolean(rtl);
+                if (this.surface && this.surface.type === 'svg') {
+                    this._destroySurface();
+                }
+            },
+            setIntlService: function (intl) {
+                this.chartService.intl = intl;
+            },
+            noTransitionsRedraw: function () {
+                this._noTransitionsRedraw();
+            },
             destroy: function () {
                 this._destroyed = true;
                 var obj;
-                unbindEvents(this.element, (obj = {}, obj[CONTEXTMENU] = this._clickHandler, obj[MOUSEWHEEL] = this._mousewheelHandler, obj[MOUSEMOVE] = this._mousemove, obj));
+                unbindEvents(this.element, (obj = {}, obj[CONTEXTMENU] = this._clickHandler, obj[MOUSEWHEEL] = this._mousewheelHandler, obj[MOUSEMOVE] = this._mousemove, obj[MOUSELEAVE] = this._mouseleaveHandler, obj));
                 if (this.domEvents) {
                     this.domEvents.destroy();
                     delete this.domEvents;
                 }
-                var obj$1;
-                unbindEvents(document, (obj$1 = {}, obj$1[MOUSEMOVE] = this._mouseMoveTrackHandler, obj$1));
+                if (this._mouseMoveTrackHandler) {
+                    var obj$1;
+                    unbindEvents(document, (obj$1 = {}, obj$1[MOUSEMOVE] = this._mouseMoveTrackHandler, obj$1));
+                }
                 this._destroyView();
-                if (this.surface) {
-                    this.surface.destroy();
+                this._destroySurface();
+                this._clearRedrawTimeout();
+            },
+            _destroySurface: function () {
+                var surface = this.surface;
+                if (surface) {
+                    surface.unbind('mouseenter', this._surfaceMouseenterHandler);
+                    surface.unbind('mouseleave', this._surfaceMouseleaveHandler);
+                    surface.destroy();
                     this.surface = null;
                 }
-                this._clearRedrawTimeout();
             },
             _destroyView: function () {
                 var ref = this;
@@ -11606,23 +11898,34 @@
             }
             return result;
         }
+        var DATA_FIELDS = [
+            'data',
+            'categories'
+        ];
         function clearMissingValues(originalOptions, options) {
             for (var field in options) {
-                var fieldValue = options[field];
-                var originalValue = originalOptions[field];
-                if (defined(originalValue)) {
-                    var nullValue = fieldValue === null;
-                    if (nullValue || !defined(fieldValue)) {
-                        delete originalOptions[field];
-                        if (nullValue) {
-                            delete options[field];
-                        }
-                    } else if (originalValue && isObject(fieldValue)) {
-                        if (isObject(originalValue)) {
-                            clearMissingValues(originalValue, fieldValue);
+                if (!inArray(field, DATA_FIELDS) && options.hasOwnProperty(field)) {
+                    var fieldValue = options[field];
+                    var originalValue = originalOptions[field];
+                    if (defined(originalValue)) {
+                        var nullValue = fieldValue === null;
+                        if (nullValue || !defined(fieldValue)) {
+                            delete originalOptions[field];
+                            if (nullValue) {
+                                delete options[field];
+                            }
+                        } else if (originalValue && isObject(fieldValue)) {
+                            if (isObject(originalValue)) {
+                                clearMissingValues(originalValue, fieldValue);
+                            }
                         }
                     }
                 }
+            }
+        }
+        function triggerPaneRender(panes) {
+            for (var idx = 0; idx < panes.length; idx++) {
+                panes[idx].notifyRender();
             }
         }
         setDefaultOptions(Chart, {
@@ -11727,8 +12030,9 @@
             ChartAxis: ChartAxis,
             ChartPane: ChartPane,
             ChartPlotArea: ChartPlotArea,
+            findAxisByName: findAxisByName,
             anyHasZIndex: anyHasZIndex,
-            appendIfNotNull: areNumbers,
+            appendIfNotNull: appendIfNotNull,
             areNumbers: areNumbers,
             bindSegments: bindSegments,
             categoriesCount: categoriesCount,
@@ -11742,7 +12046,8 @@
             hasValue: hasValue,
             isDateAxis: isDateAxis,
             segmentVisible: segmentVisible,
-            singleItemOrArray: singleItemOrArray
+            singleItemOrArray: singleItemOrArray,
+            createOutOfRangePoints: createOutOfRangePoints
         });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -11784,10 +12089,15 @@
         var AXIS_LABEL_CLICK = constants.AXIS_LABEL_CLICK;
         var LEGEND_ITEM_CLICK = constants.LEGEND_ITEM_CLICK;
         var LEGEND_ITEM_HOVER = constants.LEGEND_ITEM_HOVER;
+        var LEGEND_ITEM_LEAVE = constants.LEGEND_ITEM_LEAVE;
         var SERIES_CLICK = constants.SERIES_CLICK;
         var SERIES_HOVER = constants.SERIES_HOVER;
+        var SERIES_OVER = constants.SERIES_OVER;
+        var SERIES_LEAVE = constants.SERIES_LEAVE;
+        var PANE_RENDER = constants.PANE_RENDER;
         var PLOT_AREA_CLICK = constants.PLOT_AREA_CLICK;
         var PLOT_AREA_HOVER = constants.PLOT_AREA_HOVER;
+        var PLOT_AREA_LEAVE = constants.PLOT_AREA_LEAVE;
         var DRAG = constants.DRAG;
         var DRAG_END = constants.DRAG_END;
         var DRAG_START = constants.DRAG_START;
@@ -11800,6 +12110,7 @@
         var RENDER = constants.RENDER;
         var NOTE_CLICK = constants.NOTE_CLICK;
         var NOTE_HOVER = constants.NOTE_HOVER;
+        var NOTE_LEAVE = constants.NOTE_LEAVE;
         var CHANGE = 'change';
         var DATABOUND = 'dataBound';
         var LEAVE = 'leave';
@@ -11855,11 +12166,16 @@
                 DATABOUND,
                 SERIES_CLICK,
                 SERIES_HOVER,
+                SERIES_OVER,
+                SERIES_LEAVE,
                 AXIS_LABEL_CLICK,
                 LEGEND_ITEM_CLICK,
                 LEGEND_ITEM_HOVER,
+                LEGEND_ITEM_LEAVE,
+                PANE_RENDER,
                 PLOT_AREA_CLICK,
                 PLOT_AREA_HOVER,
+                PLOT_AREA_LEAVE,
                 DRAG_START,
                 DRAG,
                 DRAG_END,
@@ -11871,6 +12187,7 @@
                 SELECT_END,
                 NOTE_CLICK,
                 NOTE_HOVER,
+                NOTE_LEAVE,
                 RENDER
             ],
             options: {
@@ -12007,6 +12324,7 @@
                     chartArea.width = originalChartArea.width;
                     chartArea.height = originalChartArea.height;
                     model.renderVisual();
+                    triggerPaneRender(model._plotArea.panes);
                     visual = model.visual;
                 } else {
                     visual = instance.exportVisual();
@@ -12791,6 +13109,11 @@
                 delete this._series;
             }
         });
+        function triggerPaneRender(panes) {
+            for (var idx = 0; idx < panes.length; idx++) {
+                panes[idx].notifyRender();
+            }
+        }
         dataviz.Tooltip = Tooltip;
         dataviz.CrosshairTooltip = CrosshairTooltip;
         dataviz.ChartInstanceObserver = ChartInstanceObserver;

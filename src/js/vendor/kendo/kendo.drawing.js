@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2202,6 +2202,319 @@
                 max: max
             };
         }
+        function elementsBoundingBox(elements, applyTransform, transformation) {
+            var boundingBox;
+            for (var i = 0; i < elements.length; i++) {
+                var element = elements[i];
+                if (element.visible()) {
+                    var elementBoundingBox = applyTransform ? element.bbox(transformation) : element.rawBBox();
+                    if (elementBoundingBox) {
+                        if (boundingBox) {
+                            boundingBox = Rect.union(boundingBox, elementBoundingBox);
+                        } else {
+                            boundingBox = elementBoundingBox;
+                        }
+                    }
+                }
+            }
+            return boundingBox;
+        }
+        function elementsClippedBoundingBox(elements, transformation) {
+            var boundingBox;
+            for (var i = 0; i < elements.length; i++) {
+                var element = elements[i];
+                if (element.visible()) {
+                    var elementBoundingBox = element.clippedBBox(transformation);
+                    if (elementBoundingBox) {
+                        if (boundingBox) {
+                            boundingBox = Rect.union(boundingBox, elementBoundingBox);
+                        } else {
+                            boundingBox = elementBoundingBox;
+                        }
+                    }
+                }
+            }
+            return boundingBox;
+        }
+        var MultiPath = Element$1.extend({
+            init: function (options) {
+                Element$1.fn.init.call(this, options);
+                this.paths = new GeometryElementsArray();
+                this.paths.addObserver(this);
+                if (!defined(this.options.stroke)) {
+                    this.stroke('#000');
+                }
+            },
+            moveTo: function (x, y) {
+                var path = new Path();
+                path.moveTo(x, y);
+                this.paths.push(path);
+                return this;
+            },
+            lineTo: function (x, y) {
+                if (this.paths.length > 0) {
+                    last(this.paths).lineTo(x, y);
+                }
+                return this;
+            },
+            curveTo: function (controlOut, controlIn, point) {
+                if (this.paths.length > 0) {
+                    last(this.paths).curveTo(controlOut, controlIn, point);
+                }
+                return this;
+            },
+            arc: function (startAngle, endAngle, radiusX, radiusY, anticlockwise) {
+                if (this.paths.length > 0) {
+                    last(this.paths).arc(startAngle, endAngle, radiusX, radiusY, anticlockwise);
+                }
+                return this;
+            },
+            arcTo: function (end, rx, ry, largeArc, swipe, rotation) {
+                if (this.paths.length > 0) {
+                    last(this.paths).arcTo(end, rx, ry, largeArc, swipe, rotation);
+                }
+                return this;
+            },
+            close: function () {
+                if (this.paths.length > 0) {
+                    last(this.paths).close();
+                }
+                return this;
+            },
+            _bbox: function (matrix) {
+                return elementsBoundingBox(this.paths, true, matrix);
+            },
+            rawBBox: function () {
+                return elementsBoundingBox(this.paths, false);
+            },
+            _containsPoint: function (point) {
+                var paths = this.paths;
+                for (var idx = 0; idx < paths.length; idx++) {
+                    if (paths[idx]._containsPoint(point)) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            _isOnPath: function (point) {
+                var paths = this.paths;
+                var width = this.options.stroke.width;
+                for (var idx = 0; idx < paths.length; idx++) {
+                    if (paths[idx]._isOnPath(point, width)) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            _clippedBBox: function (transformation) {
+                return elementsClippedBoundingBox(this.paths, this.currentTransform(transformation));
+            }
+        });
+        MultiPath.prototype.nodeType = 'MultiPath';
+        Paintable.extend(MultiPath.prototype);
+        Measurable.extend(MultiPath.prototype);
+        var ShapeMap = {
+            l: function (path, options) {
+                var parameters = options.parameters;
+                var position = options.position;
+                for (var i = 0; i < parameters.length; i += 2) {
+                    var point = new Point(parameters[i], parameters[i + 1]);
+                    if (options.isRelative) {
+                        point.translateWith(position);
+                    }
+                    path.lineTo(point.x, point.y);
+                    position.x = point.x;
+                    position.y = point.y;
+                }
+            },
+            c: function (path, options) {
+                var parameters = options.parameters;
+                var position = options.position;
+                for (var i = 0; i < parameters.length; i += 6) {
+                    var controlOut = new Point(parameters[i], parameters[i + 1]);
+                    var controlIn = new Point(parameters[i + 2], parameters[i + 3]);
+                    var point = new Point(parameters[i + 4], parameters[i + 5]);
+                    if (options.isRelative) {
+                        controlIn.translateWith(position);
+                        controlOut.translateWith(position);
+                        point.translateWith(position);
+                    }
+                    path.curveTo(controlOut, controlIn, point);
+                    position.x = point.x;
+                    position.y = point.y;
+                }
+            },
+            v: function (path, options) {
+                var value = options.isRelative ? 0 : options.position.x;
+                toLineParamaters(options.parameters, true, value);
+                this.l(path, options);
+            },
+            h: function (path, options) {
+                var value = options.isRelative ? 0 : options.position.y;
+                toLineParamaters(options.parameters, false, value);
+                this.l(path, options);
+            },
+            a: function (path, options) {
+                var parameters = options.parameters;
+                var position = options.position;
+                for (var i = 0; i < parameters.length; i += 7) {
+                    var radiusX = parameters[i];
+                    var radiusY = parameters[i + 1];
+                    var rotation = parameters[i + 2];
+                    var largeArc = parameters[i + 3];
+                    var swipe = parameters[i + 4];
+                    var endPoint = new Point(parameters[i + 5], parameters[i + 6]);
+                    if (options.isRelative) {
+                        endPoint.translateWith(position);
+                    }
+                    if (position.x !== endPoint.x || position.y !== endPoint.y) {
+                        path.arcTo(endPoint, radiusX, radiusY, largeArc, swipe, rotation);
+                        position.x = endPoint.x;
+                        position.y = endPoint.y;
+                    }
+                }
+            },
+            s: function (path, options) {
+                var parameters = options.parameters;
+                var position = options.position;
+                var previousCommand = options.previousCommand;
+                var lastControlIn;
+                if (previousCommand === 's' || previousCommand === 'c') {
+                    lastControlIn = last(last(path.paths).segments).controlIn();
+                }
+                for (var i = 0; i < parameters.length; i += 4) {
+                    var controlIn = new Point(parameters[i], parameters[i + 1]);
+                    var endPoint = new Point(parameters[i + 2], parameters[i + 3]);
+                    var controlOut = void 0;
+                    if (options.isRelative) {
+                        controlIn.translateWith(position);
+                        endPoint.translateWith(position);
+                    }
+                    if (lastControlIn) {
+                        controlOut = reflectionPoint(lastControlIn, position);
+                    } else {
+                        controlOut = position.clone();
+                    }
+                    lastControlIn = controlIn;
+                    path.curveTo(controlOut, controlIn, endPoint);
+                    position.x = endPoint.x;
+                    position.y = endPoint.y;
+                }
+            },
+            q: function (path, options) {
+                var parameters = options.parameters;
+                var position = options.position;
+                for (var i = 0; i < parameters.length; i += 4) {
+                    var controlPoint = new Point(parameters[i], parameters[i + 1]);
+                    var endPoint = new Point(parameters[i + 2], parameters[i + 3]);
+                    if (options.isRelative) {
+                        controlPoint.translateWith(position);
+                        endPoint.translateWith(position);
+                    }
+                    var cubicControlPoints = quadraticToCubicControlPoints(position, controlPoint, endPoint);
+                    path.curveTo(cubicControlPoints.controlOut, cubicControlPoints.controlIn, endPoint);
+                    position.x = endPoint.x;
+                    position.y = endPoint.y;
+                }
+            },
+            t: function (path, options) {
+                var parameters = options.parameters;
+                var position = options.position;
+                var previousCommand = options.previousCommand;
+                var controlPoint;
+                if (previousCommand === 'q' || previousCommand === 't') {
+                    var lastSegment = last(last(path.paths).segments);
+                    controlPoint = lastSegment.controlIn().clone().translateWith(position.scaleCopy(-1 / 3)).scale(3 / 2);
+                }
+                for (var i = 0; i < parameters.length; i += 2) {
+                    var endPoint = new Point(parameters[i], parameters[i + 1]);
+                    if (options.isRelative) {
+                        endPoint.translateWith(position);
+                    }
+                    if (controlPoint) {
+                        controlPoint = reflectionPoint(controlPoint, position);
+                    } else {
+                        controlPoint = position.clone();
+                    }
+                    var cubicControlPoints = quadraticToCubicControlPoints(position, controlPoint, endPoint);
+                    path.curveTo(cubicControlPoints.controlOut, cubicControlPoints.controlIn, endPoint);
+                    position.x = endPoint.x;
+                    position.y = endPoint.y;
+                }
+            }
+        };
+        function toLineParamaters(parameters, isVertical, value) {
+            var insertPosition = isVertical ? 0 : 1;
+            for (var i = 0; i < parameters.length; i += 2) {
+                parameters.splice(i + insertPosition, 0, value);
+            }
+        }
+        function reflectionPoint(point, center) {
+            if (point && center) {
+                return center.scaleCopy(2).translate(-point.x, -point.y);
+            }
+        }
+        var third = 1 / 3;
+        function quadraticToCubicControlPoints(position, controlPoint, endPoint) {
+            var scaledPoint = controlPoint.clone().scale(2 / 3);
+            return {
+                controlOut: scaledPoint.clone().translateWith(position.scaleCopy(third)),
+                controlIn: scaledPoint.translateWith(endPoint.scaleCopy(third))
+            };
+        }
+        var SEGMENT_REGEX = /([a-df-z]{1})([^a-df-z]*)(z)?/gi;
+        var SPLIT_REGEX = /[,\s]?([+\-]?(?:\d*\.\d+|\d+)(?:[eE][+\-]?\d+)?)/g;
+        var MOVE = 'm';
+        var CLOSE = 'z';
+        function parseParameters(str) {
+            var parameters = [];
+            str.replace(SPLIT_REGEX, function (match, number) {
+                parameters.push(parseFloat(number));
+            });
+            return parameters;
+        }
+        var PathParser = Class.extend({
+            parse: function (str, options) {
+                var multiPath = new MultiPath(options);
+                var position = new Point();
+                var previousCommand;
+                str.replace(SEGMENT_REGEX, function (match, element, params, closePath) {
+                    var command = element.toLowerCase();
+                    var isRelative = command === element;
+                    var parameters = parseParameters(params.trim());
+                    if (command === MOVE) {
+                        if (isRelative) {
+                            position.x += parameters[0];
+                            position.y += parameters[1];
+                        } else {
+                            position.x = parameters[0];
+                            position.y = parameters[1];
+                        }
+                        multiPath.moveTo(position.x, position.y);
+                        if (parameters.length > 2) {
+                            command = 'l';
+                            parameters.splice(0, 2);
+                        }
+                    }
+                    if (ShapeMap[command]) {
+                        ShapeMap[command](multiPath, {
+                            parameters: parameters,
+                            position: position,
+                            isRelative: isRelative,
+                            previousCommand: previousCommand
+                        });
+                        if (closePath && closePath.toLowerCase() === CLOSE) {
+                            multiPath.close();
+                        }
+                    } else if (command !== MOVE) {
+                        throw new Error('Error while parsing SVG path. Unsupported command: ' + command);
+                    }
+                    previousCommand = command;
+                });
+                return multiPath;
+            }
+        });
+        PathParser.current = new PathParser();
         var Path = Element$1.extend({
             init: function (options) {
                 Element$1.fn.init.call(this, options);
@@ -2366,6 +2679,9 @@
         Path.prototype.nodeType = 'Path';
         Paintable.extend(Path.prototype);
         Measurable.extend(Path.prototype);
+        Path.parse = function (str, options) {
+            return PathParser.current.parse(str, options);
+        };
         var DEFAULT_STROKE$1 = '#000';
         var Arc = Element$1.extend({
             init: function (geometry, options) {
@@ -2409,117 +2725,6 @@
         Paintable.extend(Arc.prototype);
         Measurable.extend(Arc.prototype);
         defineGeometryAccessors(Arc.prototype, ['geometry']);
-        function elementsBoundingBox(elements, applyTransform, transformation) {
-            var boundingBox;
-            for (var i = 0; i < elements.length; i++) {
-                var element = elements[i];
-                if (element.visible()) {
-                    var elementBoundingBox = applyTransform ? element.bbox(transformation) : element.rawBBox();
-                    if (elementBoundingBox) {
-                        if (boundingBox) {
-                            boundingBox = Rect.union(boundingBox, elementBoundingBox);
-                        } else {
-                            boundingBox = elementBoundingBox;
-                        }
-                    }
-                }
-            }
-            return boundingBox;
-        }
-        function elementsClippedBoundingBox(elements, transformation) {
-            var boundingBox;
-            for (var i = 0; i < elements.length; i++) {
-                var element = elements[i];
-                if (element.visible()) {
-                    var elementBoundingBox = element.clippedBBox(transformation);
-                    if (elementBoundingBox) {
-                        if (boundingBox) {
-                            boundingBox = Rect.union(boundingBox, elementBoundingBox);
-                        } else {
-                            boundingBox = elementBoundingBox;
-                        }
-                    }
-                }
-            }
-            return boundingBox;
-        }
-        var MultiPath = Element$1.extend({
-            init: function (options) {
-                Element$1.fn.init.call(this, options);
-                this.paths = new GeometryElementsArray();
-                this.paths.addObserver(this);
-                if (!defined(this.options.stroke)) {
-                    this.stroke('#000');
-                }
-            },
-            moveTo: function (x, y) {
-                var path = new Path();
-                path.moveTo(x, y);
-                this.paths.push(path);
-                return this;
-            },
-            lineTo: function (x, y) {
-                if (this.paths.length > 0) {
-                    last(this.paths).lineTo(x, y);
-                }
-                return this;
-            },
-            curveTo: function (controlOut, controlIn, point) {
-                if (this.paths.length > 0) {
-                    last(this.paths).curveTo(controlOut, controlIn, point);
-                }
-                return this;
-            },
-            arc: function (startAngle, endAngle, radiusX, radiusY, anticlockwise) {
-                if (this.paths.length > 0) {
-                    last(this.paths).arc(startAngle, endAngle, radiusX, radiusY, anticlockwise);
-                }
-                return this;
-            },
-            arcTo: function (end, rx, ry, largeArc, swipe, rotation) {
-                if (this.paths.length > 0) {
-                    last(this.paths).arcTo(end, rx, ry, largeArc, swipe, rotation);
-                }
-                return this;
-            },
-            close: function () {
-                if (this.paths.length > 0) {
-                    last(this.paths).close();
-                }
-                return this;
-            },
-            _bbox: function (matrix) {
-                return elementsBoundingBox(this.paths, true, matrix);
-            },
-            rawBBox: function () {
-                return elementsBoundingBox(this.paths, false);
-            },
-            _containsPoint: function (point) {
-                var paths = this.paths;
-                for (var idx = 0; idx < paths.length; idx++) {
-                    if (paths[idx]._containsPoint(point)) {
-                        return true;
-                    }
-                }
-                return false;
-            },
-            _isOnPath: function (point) {
-                var paths = this.paths;
-                var width = this.options.stroke.width;
-                for (var idx = 0; idx < paths.length; idx++) {
-                    if (paths[idx]._isOnPath(point, width)) {
-                        return true;
-                    }
-                }
-                return false;
-            },
-            _clippedBBox: function (transformation) {
-                return elementsClippedBoundingBox(this.paths, this.currentTransform(transformation));
-            }
-        });
-        MultiPath.prototype.nodeType = 'MultiPath';
-        Paintable.extend(MultiPath.prototype);
-        Measurable.extend(MultiPath.prototype);
         var DEFAULT_FONT = '12px sans-serif';
         var DEFAULT_FILL = '#000';
         var Text = Element$1.extend({
@@ -3242,6 +3447,34 @@
             linear: linear,
             easeOutElastic: easeOutElastic
         };
+        var AnimationFactory = Class.extend({
+            init: function () {
+                this._items = [];
+            },
+            register: function (name, type) {
+                this._items.push({
+                    name: name,
+                    type: type
+                });
+            },
+            create: function (element, options) {
+                var items = this._items;
+                var match;
+                if (options && options.type) {
+                    var type = options.type.toLowerCase();
+                    for (var i = 0; i < items.length; i++) {
+                        if (items[i].name.toLowerCase() === type) {
+                            match = items[i];
+                            break;
+                        }
+                    }
+                }
+                if (match) {
+                    return new match.type(element, options);
+                }
+            }
+        });
+        AnimationFactory.current = new AnimationFactory();
         var now = Date.now || function () {
             return new Date().getTime();
         };
@@ -3300,241 +3533,8 @@
             duration: 500,
             easing: 'swing'
         };
-        var AnimationFactory = Class.extend({
-            init: function () {
-                this._items = [];
-            },
-            register: function (name, type) {
-                this._items.push({
-                    name: name,
-                    type: type
-                });
-            },
-            create: function (element, options) {
-                var items = this._items;
-                var match;
-                if (options && options.type) {
-                    var type = options.type.toLowerCase();
-                    for (var i = 0; i < items.length; i++) {
-                        if (items[i].name.toLowerCase() === type) {
-                            match = items[i];
-                            break;
-                        }
-                    }
-                }
-                if (match) {
-                    return new match.type(element, options);
-                }
-            }
-        });
-        AnimationFactory.current = new AnimationFactory();
         Animation.create = function (type, element, options) {
             return AnimationFactory.current.create(type, element, options);
-        };
-        var ShapeMap = {
-            l: function (path, options) {
-                var parameters = options.parameters;
-                var position = options.position;
-                for (var i = 0; i < parameters.length; i += 2) {
-                    var point = new Point(parameters[i], parameters[i + 1]);
-                    if (options.isRelative) {
-                        point.translateWith(position);
-                    }
-                    path.lineTo(point.x, point.y);
-                    position.x = point.x;
-                    position.y = point.y;
-                }
-            },
-            c: function (path, options) {
-                var parameters = options.parameters;
-                var position = options.position;
-                for (var i = 0; i < parameters.length; i += 6) {
-                    var controlOut = new Point(parameters[i], parameters[i + 1]);
-                    var controlIn = new Point(parameters[i + 2], parameters[i + 3]);
-                    var point = new Point(parameters[i + 4], parameters[i + 5]);
-                    if (options.isRelative) {
-                        controlIn.translateWith(position);
-                        controlOut.translateWith(position);
-                        point.translateWith(position);
-                    }
-                    path.curveTo(controlOut, controlIn, point);
-                    position.x = point.x;
-                    position.y = point.y;
-                }
-            },
-            v: function (path, options) {
-                var value = options.isRelative ? 0 : options.position.x;
-                toLineParamaters(options.parameters, true, value);
-                this.l(path, options);
-            },
-            h: function (path, options) {
-                var value = options.isRelative ? 0 : options.position.y;
-                toLineParamaters(options.parameters, false, value);
-                this.l(path, options);
-            },
-            a: function (path, options) {
-                var parameters = options.parameters;
-                var position = options.position;
-                for (var i = 0; i < parameters.length; i += 7) {
-                    var radiusX = parameters[i];
-                    var radiusY = parameters[i + 1];
-                    var rotation = parameters[i + 2];
-                    var largeArc = parameters[i + 3];
-                    var swipe = parameters[i + 4];
-                    var endPoint = new Point(parameters[i + 5], parameters[i + 6]);
-                    if (options.isRelative) {
-                        endPoint.translateWith(position);
-                    }
-                    if (position.x !== endPoint.x || position.y !== endPoint.y) {
-                        path.arcTo(endPoint, radiusX, radiusY, largeArc, swipe, rotation);
-                        position.x = endPoint.x;
-                        position.y = endPoint.y;
-                    }
-                }
-            },
-            s: function (path, options) {
-                var parameters = options.parameters;
-                var position = options.position;
-                var previousCommand = options.previousCommand;
-                var lastControlIn;
-                if (previousCommand === 's' || previousCommand === 'c') {
-                    lastControlIn = last(last(path.paths).segments).controlIn();
-                }
-                for (var i = 0; i < parameters.length; i += 4) {
-                    var controlIn = new Point(parameters[i], parameters[i + 1]);
-                    var endPoint = new Point(parameters[i + 2], parameters[i + 3]);
-                    var controlOut = void 0;
-                    if (options.isRelative) {
-                        controlIn.translateWith(position);
-                        endPoint.translateWith(position);
-                    }
-                    if (lastControlIn) {
-                        controlOut = reflectionPoint(lastControlIn, position);
-                    } else {
-                        controlOut = position.clone();
-                    }
-                    lastControlIn = controlIn;
-                    path.curveTo(controlOut, controlIn, endPoint);
-                    position.x = endPoint.x;
-                    position.y = endPoint.y;
-                }
-            },
-            q: function (path, options) {
-                var parameters = options.parameters;
-                var position = options.position;
-                for (var i = 0; i < parameters.length; i += 4) {
-                    var controlPoint = new Point(parameters[i], parameters[i + 1]);
-                    var endPoint = new Point(parameters[i + 2], parameters[i + 3]);
-                    if (options.isRelative) {
-                        controlPoint.translateWith(position);
-                        endPoint.translateWith(position);
-                    }
-                    var cubicControlPoints = quadraticToCubicControlPoints(position, controlPoint, endPoint);
-                    path.curveTo(cubicControlPoints.controlOut, cubicControlPoints.controlIn, endPoint);
-                    position.x = endPoint.x;
-                    position.y = endPoint.y;
-                }
-            },
-            t: function (path, options) {
-                var parameters = options.parameters;
-                var position = options.position;
-                var previousCommand = options.previousCommand;
-                var controlPoint;
-                if (previousCommand === 'q' || previousCommand === 't') {
-                    var lastSegment = last(last(path.paths).segments);
-                    controlPoint = lastSegment.controlIn().clone().translateWith(position.scaleCopy(-1 / 3)).scale(3 / 2);
-                }
-                for (var i = 0; i < parameters.length; i += 2) {
-                    var endPoint = new Point(parameters[i], parameters[i + 1]);
-                    if (options.isRelative) {
-                        endPoint.translateWith(position);
-                    }
-                    if (controlPoint) {
-                        controlPoint = reflectionPoint(controlPoint, position);
-                    } else {
-                        controlPoint = position.clone();
-                    }
-                    var cubicControlPoints = quadraticToCubicControlPoints(position, controlPoint, endPoint);
-                    path.curveTo(cubicControlPoints.controlOut, cubicControlPoints.controlIn, endPoint);
-                    position.x = endPoint.x;
-                    position.y = endPoint.y;
-                }
-            }
-        };
-        function toLineParamaters(parameters, isVertical, value) {
-            var insertPosition = isVertical ? 0 : 1;
-            for (var i = 0; i < parameters.length; i += 2) {
-                parameters.splice(i + insertPosition, 0, value);
-            }
-        }
-        function reflectionPoint(point, center) {
-            if (point && center) {
-                return center.scaleCopy(2).translate(-point.x, -point.y);
-            }
-        }
-        var third = 1 / 3;
-        function quadraticToCubicControlPoints(position, controlPoint, endPoint) {
-            var scaledPoint = controlPoint.clone().scale(2 / 3);
-            return {
-                controlOut: scaledPoint.clone().translateWith(position.scaleCopy(third)),
-                controlIn: scaledPoint.translateWith(endPoint.scaleCopy(third))
-            };
-        }
-        var SEGMENT_REGEX = /([a-df-z]{1})([^a-df-z]*)(z)?/gi;
-        var SPLIT_REGEX = /[,\s]?([+\-]?(?:\d*\.\d+|\d+)(?:[eE][+\-]?\d+)?)/g;
-        var MOVE = 'm';
-        var CLOSE = 'z';
-        function parseParameters(str) {
-            var parameters = [];
-            str.replace(SPLIT_REGEX, function (match, number) {
-                parameters.push(parseFloat(number));
-            });
-            return parameters;
-        }
-        var PathParser = Class.extend({
-            parse: function (str, options) {
-                var multiPath = new MultiPath(options);
-                var position = new Point();
-                var previousCommand;
-                str.replace(SEGMENT_REGEX, function (match, element, params, closePath) {
-                    var command = element.toLowerCase();
-                    var isRelative = command === element;
-                    var parameters = parseParameters(params.trim());
-                    if (command === MOVE) {
-                        if (isRelative) {
-                            position.x += parameters[0];
-                            position.y += parameters[1];
-                        } else {
-                            position.x = parameters[0];
-                            position.y = parameters[1];
-                        }
-                        multiPath.moveTo(position.x, position.y);
-                        if (parameters.length > 2) {
-                            command = 'l';
-                            parameters.splice(0, 2);
-                        }
-                    }
-                    if (ShapeMap[command]) {
-                        ShapeMap[command](multiPath, {
-                            parameters: parameters,
-                            position: position,
-                            isRelative: isRelative,
-                            previousCommand: previousCommand
-                        });
-                        if (closePath && closePath.toLowerCase() === CLOSE) {
-                            multiPath.close();
-                        }
-                    } else if (command !== MOVE) {
-                        throw new Error('Error while parsing SVG path. Unsupported command: ' + command);
-                    }
-                    previousCommand = command;
-                });
-                return multiPath;
-            }
-        });
-        PathParser.current = new PathParser();
-        Path.parse = function (str, options) {
-            return PathParser.current.parse(str, options);
         };
         var SurfaceFactory = Class.extend({
             init: function () {

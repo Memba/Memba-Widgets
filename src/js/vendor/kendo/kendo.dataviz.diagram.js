@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -10371,7 +10371,9 @@
                     end: proxy(that._dragEnd, that),
                     gesturestart: proxy(that._gestureStart, that),
                     gesturechange: proxy(that._gestureChange, that),
-                    gestureend: proxy(that._gestureEnd, that)
+                    gestureend: proxy(that._gestureEnd, that),
+                    doubleTap: proxy(that._doubleTap, that),
+                    supportDoubleTap: true
                 });
                 that.toolService = new ToolService(that);
                 this.scrollable.on('mouseover' + NS, proxy(that._mouseover, that)).on('mouseout' + NS, proxy(that._mouseout, that)).on('mousemove' + NS, proxy(that._mouseMove, that)).on('mousedown' + NS, proxy(that._mouseDown, that)).on('mouseup' + NS, proxy(that._mouseUp, that));
@@ -10517,6 +10519,26 @@
                     this._updateAdorners();
                 }
                 e.preventDefault();
+            },
+            _doubleTap: function (e) {
+                var diagram = this;
+                var pointPosition = this._eventPositions(e);
+                var options = diagram.options;
+                var zoomRate = options.zoomRate;
+                var zoom = diagram.zoom() + zoomRate;
+                var meta = this._meta(e);
+                var zoomOptions = {
+                    point: pointPosition,
+                    meta: meta,
+                    zoom: zoom
+                };
+                if (diagram.trigger(ZOOM_START, zoomOptions)) {
+                    return;
+                }
+                zoom = kendo.dataviz.round(Math.max(options.zoomMin, Math.min(options.zoomMax, zoom)), 2);
+                zoomOptions.zoom = zoom;
+                diagram.zoom(zoom, zoomOptions);
+                diagram.trigger(ZOOM_END, zoomOptions);
             },
             _gestureEnd: function () {
                 if (this.options.pannable !== false) {

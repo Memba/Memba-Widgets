@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -220,6 +220,26 @@ $.extend(true, kendo.ui.Pager.prototype.options.messages,{
 });
 }
 
+/* TreeListPager messages */
+
+if (kendo.ui.TreeListPager) {
+kendo.ui.TreeListPager.prototype.options.messages =
+$.extend(true, kendo.ui.TreeListPager.prototype.options.messages,{
+  "allPages": "All",
+  "page": "Strona",
+  "display": "Wyświetlanie elementów {0} - {1} z {2}",
+  "of": "z {0}",
+  "empty": "Brak danych",
+  "refresh": "Odśwież",
+  "first": "Idź do pierwszej strony",
+  "itemsPerPage": "na stronę",
+  "last": "Przejdź do ostatniej strony",
+  "next": "Przejdź do następnej strony",
+  "previous": "Przejdź do poprzedniej strony",
+  "morePages": "Więcej stron"
+});
+}
+
 /* FilterCell messages */
 
 if (kendo.ui.FilterCell) {
@@ -242,6 +262,7 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "and": "Oraz",
   "clear": "Wyczyść filtr",
   "info": "Pokaż wiersze o wartościach które",
+  "title": "Pokaż wiersze o wartościach które",
   "selectValue": "-Wybierz wartość-",
   "isFalse": "fałsz",
   "isTrue": "prawda",

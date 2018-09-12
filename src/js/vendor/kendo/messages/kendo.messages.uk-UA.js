@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -219,6 +219,26 @@ $.extend(true, kendo.ui.Pager.prototype.options.messages,{
 });
 }
 
+/* TreeListPager messages */
+
+if (kendo.ui.TreeListPager) {
+kendo.ui.TreeListPager.prototype.options.messages =
+$.extend(true, kendo.ui.TreeListPager.prototype.options.messages,{
+  "allPages": "All",
+  "page": "Сторінка",
+  "display": "Зображено записи {0} - {1} з {2}",
+  "of": "з {0}",
+  "empty": "немає записів",
+  "refresh": "Оновити",
+  "first": "Повернутися на першу сторінку",
+  "itemsPerPage": "елементів на сторінці",
+  "last": "До останньої сторінки",
+  "next": "Перейдіть на наступну сторінку",
+  "previous": "Перейти на попередню сторінку",
+  "morePages": "Більше сторінок"
+});
+}
+
 /* FilterCell messages */
 
 if (kendo.ui.FilterCell) {
@@ -241,6 +261,7 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "and": "І",
   "clear": "очистити",
   "info": "Рядки із записами",
+  "title": "Рядки із записами",
   "selectValue": "-виберіть-",
   "isFalse": "хиба",
   "isTrue": "істина",

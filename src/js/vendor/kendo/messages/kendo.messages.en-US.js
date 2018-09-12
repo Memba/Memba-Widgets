@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -264,6 +264,7 @@ if (kendo.ui.FilterMenu) {
 kendo.ui.FilterMenu.prototype.options.messages =
 $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "info": "Show items with value that:",
+  "title": "Show items with value that",
   "isTrue": "is true",
   "isFalse": "is false",
   "filter": "Filter",
@@ -479,6 +480,26 @@ $.extend(true, kendo.ui.Pager.prototype.options.messages,{
 });
 }
 
+/* TreeListPager messages */
+
+if (kendo.ui.TreeListPager) {
+kendo.ui.TreeListPager.prototype.options.messages =
+$.extend(true, kendo.ui.TreeListPager.prototype.options.messages,{
+  "allPages": "All",
+  "display": "{0} - {1} of {2} items",
+  "empty": "No items to display",
+  "page": "Page",
+  "of": "of {0}",
+  "itemsPerPage": "items per page",
+  "first": "Go to the first page",
+  "previous": "Go to the previous page",
+  "next": "Go to the next page",
+  "last": "Go to the last page",
+  "refresh": "Refresh",
+  "morePages": "More pages"
+});
+}
+
 /* PivotGrid messages */
 
 if (kendo.ui.PivotGrid) {
@@ -607,6 +628,8 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "deleteWindowTitle": "Delete Recurring Item",
     "deleteWindowOccurrence": "Delete current occurrence",
     "deleteWindowSeries": "Delete the series",
+    "deleteRecurringConfirmation": "Are you sure you want to delete this event occurrence?",
+    "deleteSeriesConfirmation": "Are you sure you want to delete the whole series?",
     "editWindowTitle": "Edit Recurring Item",
     "editWindowOccurrence": "Edit current occurrence",
     "editWindowSeries": "Edit the series",

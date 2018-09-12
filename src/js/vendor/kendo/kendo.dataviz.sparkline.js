@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -269,7 +269,9 @@
                 });
                 stage.removeChild(space);
                 show(stage.childNodes, displayState);
-                this.surface.resize();
+                if (this.surface) {
+                    this.surface.resize();
+                }
                 return options;
             },
             _surfaceWrap: function () {
@@ -307,7 +309,7 @@
                     }
                     var categoryAxis = currentChart.categoryAxis;
                     if (categoryAxis) {
-                        var pointsCount = categoryAxis.options.categories.length * (!currentChart.options.isStacked && dataviz.inArray(firstSeries.type, [
+                        var pointsCount = categoryAxis.categoriesCount() * (!currentChart.options.isStacked && dataviz.inArray(firstSeries.type, [
                             constants.COLUMN,
                             constants.VERTICAL_BULLET
                         ]) ? currentChart.seriesOptions.length : 1);

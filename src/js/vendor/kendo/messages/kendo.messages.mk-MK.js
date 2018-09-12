@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -287,6 +287,7 @@ if (kendo.ui.FilterMenu) {
 kendo.ui.FilterMenu.prototype.options.messages =
 $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "info": "Прикажи ставки со вредност што:",
+  "title": "Прикажи ставки со вредност што",
   "isTrue": "е точна",
   "isFalse": "не е точна",
   "filter": "Филтер",
@@ -485,6 +486,26 @@ $.extend(true, kendo.ui.MediaPlayer.prototype.options.messages,{
 if (kendo.ui.Pager) {
 kendo.ui.Pager.prototype.options.messages =
 $.extend(true, kendo.ui.Pager.prototype.options.messages,{
+  "allPages": "Сите",
+  "display": "{0} - {1} од {2} ставки",
+  "empty": "Нема ставки за прикажување",
+  "page": "Страна",
+  "of": "од {0}",
+  "itemsPerPage": "ставки по страна",
+  "first": "Оди на прва страна",
+  "previous": "Оди на претходна страна",
+  "next": "Оди на следна страна",
+  "last": "Оди на последна страна",
+  "refresh": "Освежи",
+  "morePages": "Повеќе страни"
+});
+}
+
+/* TreeListPager messages */
+
+if (kendo.ui.TreeListPager) {
+kendo.ui.TreeListPager.prototype.options.messages =
+$.extend(true, kendo.ui.TreeListPager.prototype.options.messages,{
   "allPages": "Сите",
   "display": "{0} - {1} од {2} ставки",
   "empty": "Нема ставки за прикажување",

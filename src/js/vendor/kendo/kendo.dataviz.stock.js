@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -343,19 +343,22 @@
             parseDate: function (value) {
                 return dataviz.parseDate(this.chart.chartService.intl, value);
             },
+            clean: function () {
+                if (this.selection) {
+                    this.selection.destroy();
+                    this.selection = null;
+                }
+                if (this.hint) {
+                    this.hint.destroy();
+                    this.hint = null;
+                }
+            },
             destroy: function () {
                 if (this.chart) {
                     this.chart.removeObserver(this.chartObserver);
                     delete this.chart;
                 }
-                if (this.selection) {
-                    this.selection.destroy();
-                    delete this.selection;
-                }
-                if (this.hint) {
-                    this.hint.destroy();
-                    delete this.hint;
-                }
+                this.clean();
             },
             redraw: function () {
                 this._redrawSelf();
@@ -366,7 +369,7 @@
                 var chart = ref.chart;
                 var options = ref.options;
                 var axis = this.mainAxis();
-                var ref$1 = axis.range();
+                var ref$1 = axis.roundedRange();
                 var min = ref$1.min;
                 var max = ref$1.max;
                 var ref$2 = options.select;
@@ -374,16 +377,12 @@
                 var to = ref$2.to;
                 var mousewheel = ref$2.mousewheel;
                 var axisClone = clone(axis);
-                var groups = axis.options.categories;
-                var selection = this.selection;
-                if (groups.length === 0) {
+                if (axis.categoriesCount() === 0) {
                     return;
                 }
-                if (selection) {
-                    selection.destroy();
-                }
+                this.clean();
                 axisClone.box = axis.box;
-                selection = this.selection = new dataviz.Selection(chart, axisClone, {
+                this.selection = new dataviz.Selection(chart, axisClone, {
                     min: min,
                     max: max,
                     from: from || min,
@@ -395,9 +394,6 @@
                     select: '_select',
                     selectEnd: '_selectEnd'
                 }));
-                if (this.hint) {
-                    this.hint.destroy();
-                }
                 if (options.hint.visible) {
                     this.hint = new NavigatorHint(chart.element, chart.chartService, {
                         min: min,
@@ -410,7 +406,7 @@
             setRange: function () {
                 var plotArea = this.chart._createPlotArea(true);
                 var axis = plotArea.namedCategoryAxes[NAVIGATOR_AXIS];
-                var ref = axis.range();
+                var ref = axis.roundedRange();
                 var min = ref.min;
                 var max = ref.max;
                 var select = this.options.select || {};
@@ -440,6 +436,7 @@
                 var slavePanes = plotArea.panes.slice(0, -1);
                 plotArea.srcSeries = chart.options.series;
                 plotArea.options.categoryAxis = chart.options.categoryAxis;
+                plotArea.clearSeriesPointsCache();
                 plotArea.redraw(slavePanes);
             },
             _drag: function (e) {
@@ -448,7 +445,7 @@
                 var selection = ref.selection;
                 var coords = chart._eventCoordinates(e.originalEvent);
                 var navigatorAxis = this.mainAxis();
-                var naviRange = navigatorAxis.datesRange();
+                var naviRange = navigatorAxis.roundedRange();
                 var inNavigator = navigatorAxis.pane.box.containsPoint(coords);
                 var axis = chart._plotArea.categoryAxis;
                 var range = e.axisRanges[axis.options.name];
@@ -534,13 +531,13 @@
                 var ref_options = ref.options;
                 var select = ref_options.select;
                 var liveDrag = ref_options.liveDrag;
-                var categories = this.mainAxis().options.categories;
+                var mainAxis = this.mainAxis();
                 var delta = e.delta;
                 if (!selection) {
                     return;
                 }
-                var fromIx = dataviz.lteDateIndex(selection.options.from, categories);
-                var toIx = dataviz.lteDateIndex(selection.options.to, categories);
+                var fromIx = mainAxis.categoryIndex(selection.options.from);
+                var toIx = mainAxis.categoryIndex(selection.options.to);
                 e.originalEvent.preventDefault();
                 if (Math.abs(delta) > 1) {
                     delta *= ZOOM_ACCELERATION;
@@ -672,6 +669,7 @@
                 name: NAVIGATOR_AXIS + '_labels',
                 maxDateGroups: 20,
                 baseUnitStep: 'auto',
+                labels: { position: '' },
                 plotBands: [],
                 autoBaseUnitSteps: { minutes: [] },
                 _overlap: true
@@ -748,11 +746,14 @@
                 this.destroyNavigator();
                 Chart.fn.setOptions.call(this, options);
             },
-            _resize: function () {
+            noTransitionsRedraw: function () {
                 var transitions = this.options.transitions;
                 this.options.transitions = false;
                 this._fullRedraw();
                 this.options.transitions = transitions;
+            },
+            _resize: function () {
+                this.noTransitionsRedraw();
             },
             _redraw: function () {
                 var navigator = this.navigator;
@@ -778,6 +779,7 @@
                     navigator = this.navigator = new Navigator(this);
                     this.trigger('navigatorCreated', { navigator: navigator });
                 }
+                navigator.clean();
                 navigator.setRange();
                 Chart.fn._redraw.call(this);
                 navigator.initSelection();
@@ -817,10 +819,10 @@
                 this.destroyNavigator();
                 Chart.fn.destroy.call(this);
             },
-            _stopDragEvent: function (e) {
+            _stopChartHandlers: function (e) {
                 var coords = this._eventCoordinates(e);
                 var pane = this._plotArea.paneByPoint(coords);
-                return Chart.fn._stopDragEvent.call(this, e) || pane && pane.options.name === NAVIGATOR_PANE;
+                return Chart.fn._stopChartHandlers.call(this, e) || pane && pane.options.name === NAVIGATOR_PANE;
             }
         });
         dataviz.setDefaultOptions(StockChart, {

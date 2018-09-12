@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1009,15 +1009,20 @@
                             range = ranges[0];
                             start = range.start.start;
                             end = range.end.end;
-                            var rangeStart = new Date(Math.max(event.start.getTime(), kendo.timezone.toLocalDate(range.start.start)));
-                            var rangeEnd = new Date(Math.min(event.end.getTime(), kendo.timezone.toLocalDate(ranges[ranges.length - 1].end.end))).getTime();
-                            var newStart = new Date(start);
-                            var newEnd = new Date(start);
-                            while (rangeStart.getTime() < rangeEnd) {
-                                var dateRange = group.daySlotRanges(newStart, newEnd, true)[0];
+                            var rangeStart = new Date(range.start.start);
+                            var rangeEnd = ranges[ranges.length - 1].end.end;
+                            var newStart = new Date(rangeStart);
+                            var newEnd = new Date(end);
+                            while (rangeStart.getTime() <= rangeEnd && event.end >= kendo.timezone.toLocalDate(rangeStart) && event.start <= kendo.timezone.toLocalDate(rangeEnd)) {
+                                var dateRange = group.daySlotRanges(newStart.getTime(), newEnd.getTime(), true)[0];
                                 newEnd.setDate(newEnd.getDate() + 1);
                                 newStart.setDate(newStart.getDate() + 1);
-                                this._groupedView._positionEvent(event, group, dateRange, 1, start, end, 0);
+                                if (dateRange) {
+                                    dateRange.head = null;
+                                    dateRange.middle = null;
+                                    dateRange.tail = null;
+                                    this._groupedView._positionEvent(event, group, dateRange, 1, start, end, 0);
+                                }
                                 rangeStart = kendo.date.addDays(rangeStart, 1);
                             }
                         } else {

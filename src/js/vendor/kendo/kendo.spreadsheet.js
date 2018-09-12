@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -830,16 +830,16 @@
                     type: 'validationError'
                 };
             },
-            editRange: function () {
-                var range = this.range();
-                return this.options.arrayFormula ? range : range.sheet().activeCellSelection();
+            _setRange: function (range) {
+                PropertyChangeCommand.prototype._setRange.apply(this, arguments);
+                this._editRange = this.options.arrayFormula ? range : range.sheet().activeCellSelection();
             },
             getState: function () {
                 this._state = this.range().getState();
             },
             exec: function () {
                 var arrayFormula = this.options.arrayFormula;
-                var editRange = this.editRange();
+                var editRange = this._editRange;
                 if (!editRange.enable()) {
                     return {
                         reason: 'error',
@@ -1076,15 +1076,15 @@
             init: function (options) {
                 Command.fn.init.call(this, options);
                 this._clipboard = options.workbook.clipboard();
+                this._clipboard.parse();
                 this._event = options.event;
-            },
-            getState: function () {
-                this._range = this._workbook.activeSheet().range(this._clipboard.pasteRef());
+                this._clipboardContent = this._clipboard._content;
+                this._clipboardPasteRef = this._clipboard.pasteRef();
+                this._sheet = this._workbook.activeSheet();
+                this._range = this._sheet.range(this._clipboard.pasteRef());
                 this._state = this._range.getState();
             },
             exec: function () {
-                this.getState();
-                this._clipboard.parse();
                 var status = this._clipboard.canPaste();
                 if (!status.canPaste) {
                     if (status.menuInvoked) {
@@ -1119,7 +1119,11 @@
                 if (preventDefault) {
                     this._event.preventDefault();
                 } else {
-                    this._clipboard.paste();
+                    this._sheet.range(this._clipboardPasteRef).setState(this._clipboardContent, this._clipboard);
+                    this._sheet.triggerChange({
+                        recalc: true,
+                        ref: this._clipboardPasteRef
+                    });
                     range._adjustRowHeight();
                 }
             }
@@ -3287,7 +3291,7 @@
         return (letter >= 0 ? columnName(letter) : '') + String.fromCharCode(65 + colIndex % 26);
     }
     function displaySheet(sheet) {
-        if (/^[a-z0-9_]*$/i.test(sheet)) {
+        if (/^[a-z_][a-z0-9_]*$/i.test(sheet)) {
             return sheet;
         }
         return '\'' + sheet.replace(/\x27/g, '\\\'') + '\'';
@@ -3695,27 +3699,29 @@
             var rr1 = a.rel & 2, rc1 = a.rel & 1;
             var rr2 = b.rel & 2, rc2 = b.rel & 1;
             var tmp, changes = false;
-            if (r1 > r2) {
-                changes = true;
-                tmp = r1;
-                r1 = r2;
-                r2 = tmp;
-                tmp = rr1;
-                rr1 = rr2;
-                rr2 = tmp;
-            }
-            if (c1 > c2) {
-                changes = true;
-                tmp = c1;
-                c1 = c2;
-                c2 = tmp;
-                tmp = rc1;
-                rc1 = rc2;
-                rc2 = tmp;
-            }
-            if (changes) {
-                this.topLeft = new CellRef(r1, c1, rc1 | rr1);
-                this.bottomRight = new CellRef(r2, c2, rc2 | rr2);
+            if (rr1 === rr2 && rc1 === rc2) {
+                if (r1 > r2) {
+                    changes = true;
+                    tmp = r1;
+                    r1 = r2;
+                    r2 = tmp;
+                    tmp = rr1;
+                    rr1 = rr2;
+                    rr2 = tmp;
+                }
+                if (c1 > c2) {
+                    changes = true;
+                    tmp = c1;
+                    c1 = c2;
+                    c2 = tmp;
+                    tmp = rc1;
+                    rc1 = rc2;
+                    rc2 = tmp;
+                }
+                if (changes) {
+                    this.topLeft = new CellRef(r1, c1, rc1 | rr1);
+                    this.bottomRight = new CellRef(r2, c2, rc2 | rr2);
+                }
             }
             return this;
         },
@@ -4443,64 +4449,88 @@
                 var columns = sheet._grid._columns;
                 var row = cell.row;
                 var column = cell.col;
-                var selection = sheet.currentNavigationRange();
-                var selTopLeft = selection.topLeft;
-                var selBottomRight = selection.bottomRight;
-                var done = false;
+                var selTopLeft, selBottomRight;
                 var topLeftCol = topLeft.col;
                 var topLeftRow = topLeft.row;
+                var tmp;
+                function setSelection(sel) {
+                    selTopLeft = sel.topLeft;
+                    selBottomRight = sel.bottomRight;
+                }
+                setSelection(sheet.currentNavigationRange());
+                var done = false;
                 while (!done) {
                     var current = new CellRef(row, column);
                     switch (direction) {
                     case 'next':
                         if (selBottomRight.eq(current)) {
-                            selection = sheet.nextNavigationRange();
-                            row = selection.topLeft.row;
-                            column = selection.topLeft.col;
+                            setSelection(sheet.nextNavigationRange());
+                            row = selTopLeft.row;
+                            column = selTopLeft.col;
                         } else {
-                            column = columns.nextVisible(topLeftCol, true);
-                            if (column > selBottomRight.col) {
+                            column = columns.nextVisible(topLeftCol);
+                            if (column == topLeftCol || column > selBottomRight.col) {
                                 column = selTopLeft.col;
-                                row = rows.nextVisible(row, true);
+                                tmp = rows.nextVisible(row);
+                                if (tmp == row || tmp > selBottomRight.row) {
+                                    row = selTopLeft.row;
+                                } else {
+                                    row = tmp;
+                                }
                             }
                         }
                         break;
                     case 'previous':
                         if (selTopLeft.eq(current)) {
-                            selection = sheet.previousNavigationRange();
-                            row = selection.bottomRight.row;
-                            column = selection.bottomRight.col;
+                            setSelection(sheet.previousNavigationRange());
+                            row = selBottomRight.row;
+                            column = selBottomRight.col;
                         } else {
-                            column = columns.prevVisible(topLeftCol, true);
-                            if (column < selTopLeft.col) {
+                            column = columns.prevVisible(topLeftCol);
+                            if (column == topLeftCol || column < selTopLeft.col) {
                                 column = selBottomRight.col;
-                                row = rows.prevVisible(row, true);
+                                tmp = rows.prevVisible(row);
+                                if (tmp == row || tmp < selTopLeft.row) {
+                                    row = selBottomRight.row;
+                                } else {
+                                    row = tmp;
+                                }
                             }
                         }
                         break;
                     case 'lower':
                         if (selBottomRight.eq(current)) {
-                            selection = sheet.nextNavigationRange();
-                            row = selection.topLeft.row;
-                            column = selection.topLeft.col;
+                            setSelection(sheet.nextNavigationRange());
+                            row = selTopLeft.row;
+                            column = selTopLeft.col;
                         } else {
-                            row = rows.nextVisible(topLeftRow, true);
-                            if (row > selBottomRight.row) {
+                            row = rows.nextVisible(topLeftRow);
+                            if (row == topLeftRow || row > selBottomRight.row) {
                                 row = selTopLeft.row;
-                                column = columns.nextVisible(column, true);
+                                tmp = columns.nextVisible(column);
+                                if (tmp == column || tmp > selBottomRight.col) {
+                                    column = selTopLeft.col;
+                                } else {
+                                    column = tmp;
+                                }
                             }
                         }
                         break;
                     case 'upper':
                         if (selTopLeft.eq(current)) {
-                            selection = sheet.previousNavigationRange();
-                            row = selection.bottomRight.row;
-                            column = selection.bottomRight.col;
+                            setSelection(sheet.previousNavigationRange());
+                            row = selBottomRight.row;
+                            column = selBottomRight.col;
                         } else {
-                            row = rows.prevVisible(topLeftRow, true);
-                            if (row < selTopLeft.row) {
+                            row = rows.prevVisible(topLeftRow);
+                            if (row == topLeftRow || row < selTopLeft.row) {
                                 row = selBottomRight.row;
-                                column = columns.prevVisible(column, true);
+                                tmp = columns.prevVisible(column);
+                                if (tmp == column || tmp < selTopLeft.col) {
+                                    column = selBottomRight.col;
+                                } else {
+                                    column = tmp;
+                                }
                             }
                         }
                         break;
@@ -4535,6 +4565,9 @@
                 this.updateCurrentSelectionRange(new RangeRef(activeCell.topLeft, ref));
             },
             shouldSkip: function (row, col) {
+                if (this._sheet.isHiddenRow(row) || this._sheet.isHiddenColumn(col)) {
+                    return true;
+                }
                 var ref = new CellRef(row, col);
                 var isMerged = false;
                 this._sheet.forEachMergedCell(function (merged) {
@@ -5549,6 +5582,8 @@
                                 this[x](null);
                             }
                         }.bind(this));
+                        this.fontSize(null);
+                        this.wrap(null);
                         this.unmerge();
                     }
                 }.bind(this), reason);
@@ -5655,7 +5690,7 @@
                 var spec = [];
                 if (filter) {
                     for (var i = 0; i < filter.columns.length; i++) {
-                        spec.push(i);
+                        spec.push(filter.columns[i].index);
                     }
                     this._sheet.batch(function () {
                         this.clearFilter(spec);
@@ -5719,7 +5754,8 @@
                 var state = {
                     ref: topLeft,
                     data: [],
-                    origRef: this._ref
+                    origRef: this._ref,
+                    rows: this._sheet._rows.getState()
                 };
                 var properties;
                 if (!propertyName) {
@@ -5769,6 +5805,9 @@
                 sheet.batch(function () {
                     if (state.mergedCells) {
                         this.unmerge();
+                    }
+                    if (!clipboard) {
+                        this._sheet._rows.setState(state.rows);
                     }
                     var row = origin.row;
                     var hasFilter = this.hasFilter();
@@ -5823,29 +5862,32 @@
             },
             _adjustRowHeight: function () {
                 var sheet = this._sheet;
-                var state = this.getState();
-                var mergedCells = [];
-                for (var i = 0; i < state.mergedCells.length; i++) {
-                    mergedCells.push(sheet.range(state.mergedCells[i]));
-                }
-                this.forEachRow(function (row) {
-                    if (row.topLeft().row >= row.sheet()._rows._count) {
-                        return;
-                    }
-                    var maxHeight = row.sheet().rowHeight(row.topLeft().row);
-                    row.forEachCell(function (rowIndex, colIndex, cell) {
-                        var cellRange = sheet.range(rowIndex, colIndex);
-                        var totalWidth = 0;
-                        for (var i = 0; i < mergedCells.length; i++) {
-                            if (cellRange._ref.intersects(mergedCells[i]._ref)) {
-                                totalWidth += cell.width;
-                                break;
-                            }
+                var mc = sheet._getMergedCells(this._ref.toRangeRef());
+                var primary = mc.primary;
+                var secondary = mc.secondary;
+                this.forEachRow(function (rowRange) {
+                    var row = rowRange._ref.topLeft.row;
+                    var height = sheet.rowHeight(row);
+                    rowRange.forEachCell(function (row, col, cell) {
+                        var id = new CellRef(row, col).print();
+                        if (secondary[id]) {
+                            return;
                         }
-                        var width = Math.max(sheet.columnWidth(colIndex), totalWidth);
-                        maxHeight = Math.max(maxHeight, kendo.spreadsheet.util.getTextHeight(cell.value, width, cell.fontSize, cell.wrap));
+                        var merged = primary[id];
+                        var width;
+                        if (merged) {
+                            width = sheet._columns.sum(merged.topLeft.col, merged.bottomRight.col);
+                        } else {
+                            width = sheet.columnWidth(col);
+                        }
+                        var data = cell.value;
+                        if (cell.format && data != null) {
+                            data = kendo.spreadsheet.formatting.format(data, cell.format);
+                        }
+                        var textHeight = kendo.spreadsheet.util.getTextHeight(data, width, cell.fontFamily, cell.fontSize, cell.wrap);
+                        height = Math.max(height, textHeight);
                     });
-                    sheet.rowHeight(row.topLeft().row, Math.max(sheet.rowHeight(row.topLeft().row), maxHeight));
+                    sheet.rowHeight(row, height);
                 });
             },
             forEachCell: function (callback) {
@@ -5870,34 +5912,20 @@
                 if (flag === undefined) {
                     return !!this._property('wrap');
                 }
-                this.forEachRow(function (range) {
-                    var maxHeight = range.sheet().rowHeight(range.topLeft().row);
-                    range.forEachCell(function (row, col, cell) {
-                        var width = this._sheet.columnWidth(col);
-                        if (cell.value !== null && cell.value !== undefined) {
-                            maxHeight = Math.max(maxHeight, kendo.spreadsheet.util.getTextHeight(cell.value, width, cell.fontSize, true));
-                        }
-                    });
-                    range.sheet().rowHeight(range.topLeft().row, maxHeight);
-                }.bind(this));
                 this._property('wrap', flag);
+                if (flag !== null) {
+                    this._adjustRowHeight();
+                }
                 return this;
             },
             fontSize: function (size) {
                 if (size === undefined) {
                     return this._property('fontSize');
                 }
-                this.forEachRow(function (range) {
-                    var maxHeight = range.sheet().rowHeight(range.topLeft().row);
-                    range.forEachCell(function (row, col, cell) {
-                        var width = this._sheet.columnWidth(col);
-                        if (cell.value !== null && cell.value !== undefined) {
-                            maxHeight = Math.max(maxHeight, kendo.spreadsheet.util.getTextHeight(cell.value, width, size, cell.wrap));
-                        }
-                    });
-                    range.sheet().rowHeight(range.topLeft().row, maxHeight);
-                }.bind(this));
                 this._property('fontSize', size);
+                if (size !== null) {
+                    this._adjustRowHeight();
+                }
                 return this;
             },
             draw: function (options, callback) {
@@ -5958,14 +5986,16 @@
         function looksLikeANumber(str) {
             return !/^=/.test(str) && /number|percent/.test(kendo.spreadsheet.calc.parse(null, 0, 0, str).type);
         }
-        var measureBox = $('<div style="position: absolute !important; top: -4000px !important; height: auto !important;' + 'padding: 1px !important; margin: 0 !important; border: 1px solid black !important;' + 'line-height: normal !important; visibility: hidden !important;' + 'white-space: pre-wrap; word-break: break-all;" />')[0];
-        function getTextHeight(text, width, fontSize, wrap) {
+        var measureBox = $('<div style="position: absolute !important; top: -4000px !important; height: auto !important;' + 'padding: 1px 3px !important; box-sizing: border-box; margin: 0 !important; border: 1px solid black !important;' + 'line-height: normal !important; visibility: hidden !important;' + 'white-space: pre-wrap;" />')[0];
+        function getTextHeight(text, width, fontFamily, fontSize, wrap) {
             var styles = {
                 'baselineMarkerSize': 0,
                 'width': wrap === true ? width + 'px' : 'auto',
                 'font-size': (fontSize || 12) + 'px',
-                'word-break': wrap === true ? 'break-all' : 'normal',
-                'white-space': wrap === true ? 'pre-wrap' : 'pre'
+                'font-family': fontFamily || 'Arial',
+                'white-space': wrap === true ? 'pre-wrap' : 'pre',
+                'overflow-wrap': wrap === true ? 'break-word' : 'normal',
+                'word-wrap': wrap === true ? 'break-word' : 'normal'
             };
             return kendo.util.measureText(text, styles, {
                 box: measureBox,
@@ -7148,6 +7178,9 @@
     function daysInMonth(yr, mo) {
         return isLeapYear(yr) && mo == 1 ? 29 : DAYS_IN_MONTH[mo];
     }
+    function validDate(yr, mo, da) {
+        return mo >= 1 && mo <= 12 && da >= 1 && da <= daysInMonth(yr, mo - 1);
+    }
     function unpackDate(serial) {
         return julianDaysToDate((serial | 0) + BASE_DATE);
     }
@@ -7194,9 +7227,9 @@
     }
     function parseDate(str, format) {
         if (format) {
-            return kendo.parseExactDate(str, format) || kendo.parseExactDate(str, format.replace(/h/g, 'H')) || kendo.parseExactDate(str);
+            format = kendo.spreadsheet.formatting.makeDateFormat(format);
         }
-        return kendo.parseExactDate(str) || kendo.parseExactDate(str, [
+        return kendo.parseExactDate(str, format) || kendo.parseExactDate(str) || kendo.parseExactDate(str, [
             'MMMM dd yyyy',
             'MMMM dd yy',
             'MMM dd yyyy',
@@ -7227,6 +7260,7 @@
     exports.serialToDate = serialToDate;
     exports.dateToSerial = dateToSerial;
     exports.daysInMonth = daysInMonth;
+    exports.validDate = validDate;
     exports.isLeapYear = isLeapYear;
     exports.daysInYear = daysInYear;
     exports.parseDate = parseDate;
@@ -8930,7 +8964,7 @@
                     if (json.activeCell) {
                         var activeCellRef = this._ref(json.activeCell);
                         this._viewSelection._activeCell = activeCellRef.toRangeRef();
-                        this._viewSelection.originalActiveCell = activeCellRef;
+                        this._viewSelection.originalActiveCell = activeCellRef.first();
                     }
                     if (json.mergedCells) {
                         json.mergedCells.forEach(function (ref) {
@@ -10858,14 +10892,54 @@
     exports.ParseError = ParseError;
     exports.tokenize = tokenize;
     registerFormatParser(function (input) {
-        var m;
+        var m, date = 0, format = '';
+        if (m = /^(\d+)([-\/.])(\d+)\2(\d{2}(?:\d{2})?)(\s*)/.exec(input)) {
+            var mo = parseInt(m[1], 10);
+            var sep = m[2];
+            var da = parseInt(m[3], 10);
+            var yr = parseInt(m[4], 10);
+            if (yr < 30) {
+                yr += 2000;
+            } else if (yr < 100) {
+                yr += 1900;
+            }
+            var monthFirst = true;
+            if (mo > 12) {
+                var tmp = mo;
+                mo = da;
+                da = tmp;
+                monthFirst = false;
+            }
+            if (!runtime.validDate(yr, mo, da)) {
+                return null;
+            }
+            date = runtime.packDate(yr, mo - 1, da);
+            if (date < 0) {
+                date--;
+            }
+            if (monthFirst) {
+                format = [
+                    'mm',
+                    'dd',
+                    'yyyy'
+                ].join(sep);
+            } else {
+                format = [
+                    'dd',
+                    'mm',
+                    'yyyy'
+                ].join(sep);
+            }
+            format += m[5];
+            input = input.substr(m[0].length);
+        }
         if (m = /^(\d+):(\d+)$/.exec(input)) {
             var hh = parseInt(m[1], 10);
             var mm = parseInt(m[2], 10);
             return {
                 type: 'date',
-                format: 'hh:mm',
-                value: runtime.packTime(hh, mm, 0, 0)
+                format: format + 'hh:mm',
+                value: date + runtime.packTime(hh, mm, 0, 0)
             };
         }
         if (m = /^(\d+):(\d+)(\.\d+)$/.exec(input)) {
@@ -10874,8 +10948,8 @@
             var ms = parseFloat(m[3]) * 1000;
             return {
                 type: 'date',
-                format: 'mm:ss.00',
-                value: runtime.packTime(0, mm, ss, ms)
+                format: format + 'mm:ss.00',
+                value: date + runtime.packTime(0, mm, ss, ms)
             };
         }
         if (m = /^(\d+):(\d+):(\d+)$/.exec(input)) {
@@ -10884,8 +10958,8 @@
             var ss = parseInt(m[3], 10);
             return {
                 type: 'date',
-                format: 'hh:mm:ss',
-                value: runtime.packTime(hh, mm, ss, 0)
+                format: format + 'hh:mm:ss',
+                value: date + runtime.packTime(hh, mm, ss, 0)
             };
         }
         if (m = /^(\d+):(\d+):(\d+)(\.\d+)$/.exec(input)) {
@@ -10895,8 +10969,8 @@
             var ms = parseFloat(m[4]) * 1000;
             return {
                 type: 'date',
-                format: 'hh:mm:ss.00',
-                value: runtime.packTime(hh, mm, ss, ms)
+                format: format + 'hh:mm:ss.00',
+                value: date + runtime.packTime(hh, mm, ss, ms)
             };
         }
     });
@@ -12867,6 +12941,7 @@
             'delete': 'clearContents',
             'backspace': 'clearContents',
             'shift+:alphanum': 'edit',
+            'alt+:alphanum': 'edit',
             ':alphanum': 'edit',
             'ctrl+:alphanum': 'ctrl',
             'alt+ctrl+:alphanum': 'edit',
@@ -13932,6 +14007,10 @@
                 style.whiteSpace = 'pre-wrap';
                 style.overflowWrap = 'break-word';
                 style.wordWrap = 'break-word';
+            } else {
+                style.whiteSpace = 'pre';
+                style.overflowWrap = 'normal';
+                style.wordWrap = 'normal';
             }
             style.left = cell.left + 1 + 'px';
             style.top = cell.top + 1 + 'px';
@@ -14019,7 +14098,6 @@
             }
             if (cell.wrap === true) {
                 style.whiteSpace = 'pre-wrap';
-                style.wordBreak = 'break-all';
             }
             if (cell.borderRight) {
                 style.borderRight = cellBorder(cell.borderRight);
@@ -14257,6 +14335,7 @@
             },
             workbook: function (workbook) {
                 this._workbook = workbook;
+                workbook._view = this;
                 this.nameEditor._workbook = workbook;
             },
             sheet: function (sheet) {
@@ -14268,19 +14347,25 @@
             _rectangle: function (pane, ref) {
                 return pane._grid.boundingRectangle(ref.toRangeRef());
             },
-            isColumnResizer: function (x, pane, ref) {
-                var rectangle = this._rectangle(pane, ref);
+            isColumnResizer: function (x, pane, col) {
                 x -= this._sheet._grid._headerWidth;
-                var handleWidth = RESIZE_HANDLE_WIDTH / 2;
-                var right = rectangle.right - this.scroller.scrollLeft;
-                return right - handleWidth <= x && x <= right + handleWidth;
+                if (!pane._grid.columns.frozen) {
+                    x += this.scroller.scrollLeft;
+                }
+                col = this._sheet._grid._columns.locate(0, col, function (w) {
+                    return Math.abs(x - w) <= RESIZE_HANDLE_WIDTH / 2;
+                });
+                return col !== null && !this._sheet.isHiddenColumn(col) ? col : null;
             },
-            isRowResizer: function (y, pane, ref) {
-                var rectangle = this._rectangle(pane, ref);
+            isRowResizer: function (y, pane, row) {
                 y -= this._sheet._grid._headerHeight;
-                var handleWidth = RESIZE_HANDLE_WIDTH / 2;
-                var bottom = rectangle.bottom - this.scroller.scrollTop;
-                return bottom - handleWidth <= y && y <= bottom + handleWidth;
+                if (!pane._grid.rows.frozen) {
+                    y += this.scroller.scrollTop;
+                }
+                row = this._sheet._grid._rows.locate(0, row, function (h) {
+                    return Math.abs(y - h) <= RESIZE_HANDLE_WIDTH / 2;
+                });
+                return row !== null && !this._sheet.isHiddenRow(row) ? row : null;
             },
             isFilterIcon: function (x, y, pane, ref) {
                 var self = this;
@@ -14345,11 +14430,17 @@
                         } else if (this.isFilterIcon(x, y, pane, ref)) {
                             type = 'filtericon';
                         } else if (!selecting && x < grid._headerWidth) {
-                            ref = new CellRef(row, -Infinity);
-                            type = this.isRowResizer(y, pane, ref) ? 'rowresizehandle' : 'rowheader';
+                            type = 'rowheader';
+                            if ((row = this.isRowResizer(y, pane, row)) !== null) {
+                                ref = new CellRef(row, -Infinity);
+                                type = 'rowresizehandle';
+                            }
                         } else if (!selecting && y < grid._headerHeight) {
-                            ref = new CellRef(-Infinity, column);
-                            type = this.isColumnResizer(x, pane, ref) ? 'columnresizehandle' : 'columnheader';
+                            type = 'columnheader';
+                            if ((column = this.isColumnResizer(x, pane, column)) !== null) {
+                                ref = new CellRef(-Infinity, column);
+                                type = 'columnresizehandle';
+                            }
                         } else if (this.isEditButton(x, y, pane)) {
                             type = 'editor';
                         }
@@ -14640,7 +14731,7 @@
             renderClipboardContents: function () {
                 var sheet = this._sheet;
                 var grid = sheet._grid;
-                var selection = sheet.select().toRangeRef();
+                var selection = grid.normalize(sheet.select().toRangeRef());
                 var status = this._workbook.clipboard().canCopy();
                 if (status.canCopy === false && status.multiSelection) {
                     this.clipboardContents.render([]);
@@ -14798,11 +14889,8 @@
                     }.bind(this));
                 }
                 if (sheet.resizeHandlePosition() && (grid.hasColumnHeader || grid.hasRowHeader)) {
-                    var ref = sheet._grid.normalize(sheet.resizeHandlePosition());
-                    if (view.ref.intersects(ref)) {
-                        if (!sheet.resizeHintPosition()) {
-                            children.push(this.renderResizeHandle());
-                        }
+                    if (!sheet.resizeHintPosition()) {
+                        this.renderResizeHandle(children);
                     }
                 }
                 var paneClasses = [classNames.pane];
@@ -14879,10 +14967,20 @@
                     });
                 }
                 var borders = kendo.spreadsheet.draw.Borders();
+                var activeCellRange = sheet.activeCell().toRangeRef();
+                var activeCell = activeCellRange.topLeft;
                 layout.cells.forEach(function (cell) {
+                    var cls = null;
+                    if (cell.row + view.ref.topLeft.row == activeCell.row && cell.col + view.ref.topLeft.col == activeCell.col) {
+                        cls = [Pane.classNames.activeCell].concat(this._activeFormulaColor(), this._directionClasses(activeCellRange));
+                        if (sheet.singleCellSelection()) {
+                            cls.push(Pane.classNames.single);
+                        }
+                        cls = cls.join(' ');
+                    }
                     borders.add(cell);
-                    drawCell(cont.children, cell, null, showGridLines);
-                });
+                    drawCell(cont.children, cell, cls, showGridLines);
+                }, this);
                 borders.vert.forEach(function (a) {
                     a.forEach(function (b) {
                         if (!b.rendered) {
@@ -14927,13 +15025,16 @@
                 });
                 return cont;
             },
-            renderResizeHandle: function () {
+            renderResizeHandle: function (container) {
                 var sheet = this._sheet;
                 var ref = sheet.resizeHandlePosition();
                 var rectangle = this._rectangle(ref);
                 var classNames = [Pane.classNames.resizeHandle];
                 var style;
                 if (ref.col !== -Infinity) {
+                    if (this._grid.rows._start > 0) {
+                        return;
+                    }
                     style = {
                         height: this._grid.headerHeight + 'px',
                         width: RESIZE_HANDLE_WIDTH + 'px',
@@ -14942,6 +15043,9 @@
                     };
                     classNames.push(viewClassNames.horizontalResize);
                 } else {
+                    if (this._grid.columns._start > 0) {
+                        return;
+                    }
                     style = {
                         height: RESIZE_HANDLE_WIDTH + 'px',
                         width: this._grid.headerWidth + 'px',
@@ -14950,10 +15054,10 @@
                     };
                     classNames.push(viewClassNames.verticalResize);
                 }
-                return kendo.dom.element('div', {
+                container.push(kendo.dom.element('div', {
                     className: classNames.join(' '),
                     style: style
-                });
+                }));
             },
             filterIconRect: function (rect) {
                 var BUTTON_SIZE = 16;
@@ -15014,17 +15118,11 @@
             renderSelection: function () {
                 var classNames = Pane.classNames;
                 var selections = [];
-                var activeCellClasses = [classNames.activeCell];
                 var selectionClasses = [classNames.selection];
                 var sheet = this._sheet;
                 var activeCell = sheet.activeCell().toRangeRef();
-                var activeFormulaColor = this._activeFormulaColor();
                 var selection = sheet.select();
-                activeCellClasses = activeCellClasses.concat(activeFormulaColor, this._directionClasses(activeCell));
-                selectionClasses = selectionClasses.concat(activeFormulaColor);
-                if (sheet.singleCellSelection()) {
-                    activeCellClasses.push(classNames.single);
-                }
+                selectionClasses = selectionClasses.concat(this._activeFormulaColor());
                 if (selection.size() === 1) {
                     selectionClasses.push('k-single-selection');
                 }
@@ -15036,7 +15134,7 @@
                         this._addDiv(selections, ref, selectionClasses.join(' '));
                     }
                 }.bind(this));
-                this._addTable(selections, activeCell, activeCellClasses.join(' '));
+                this._renderCustomEditorButton(selections, activeCell);
                 return kendo.dom.element('div', { className: classNames.selectionWrapper }, selections);
             },
             renderAutoFill: function () {
@@ -15085,40 +15183,37 @@
                 }
                 return div;
             },
-            _addTable: function (collection, ref, className) {
+            _renderCustomEditorButton: function (collection, ref) {
                 var self = this;
                 var sheet = self._sheet;
                 var view = self._currentView;
                 var columnCount = self._grid.columns._axis._count;
-                if (view.ref.intersects(ref)) {
+                var ed = sheet.activeCellCustomEditor();
+                if (ed && view.ref.intersects(ref)) {
                     var rectangle = self._rectangle(ref);
-                    var ed = self._sheet.activeCellCustomEditor();
                     sheet.forEach(ref.collapse(), function (row, col, cell) {
                         cell.left = rectangle.left;
                         cell.top = rectangle.top;
                         cell.width = rectangle.width;
                         cell.height = rectangle.height;
-                        drawCell(collection, cell, className, true);
-                        if (ed) {
-                            var btnClass = 'k-button k-spreadsheet-editor-button';
-                            var isLastColumn = col == columnCount - 1;
-                            if (isLastColumn) {
-                                btnClass += ' k-spreadsheet-last-column';
-                            }
-                            self._editorInLastColumn = isLastColumn;
-                            var btn = kendo.dom.element('div', {
-                                className: btnClass,
-                                style: {
-                                    left: cell.left + (isLastColumn ? 0 : cell.width) + 'px',
-                                    top: cell.top + 'px',
-                                    height: cell.height + 'px'
-                                }
-                            });
-                            if (ed.icon) {
-                                btn.children.push(kendo.dom.element('span', { className: 'k-icon ' + ed.icon }));
-                            }
-                            collection.push(btn);
+                        var btnClass = 'k-button k-spreadsheet-editor-button';
+                        var isLastColumn = col == columnCount - 1;
+                        if (isLastColumn) {
+                            btnClass += ' k-spreadsheet-last-column';
                         }
+                        self._editorInLastColumn = isLastColumn;
+                        var btn = kendo.dom.element('div', {
+                            className: btnClass,
+                            style: {
+                                left: cell.left + (isLastColumn ? 0 : cell.width) + 'px',
+                                top: cell.top + 'px',
+                                height: cell.height + 'px'
+                            }
+                        });
+                        if (ed.icon) {
+                            btn.children.push(kendo.dom.element('span', { className: 'k-icon ' + ed.icon }));
+                        }
+                        collection.push(btn);
                     });
                 }
             },
@@ -15295,12 +15390,14 @@
             }
             function open() {
                 create();
-                var matrix = context.validation.from.value;
-                var data = [];
-                if (matrix) {
-                    matrix.each(function (el) {
+                var items = context.validation.from.value;
+                var data = [], add = function (el) {
                         data.push({ value: el });
-                    });
+                    };
+                if (items instanceof kendo.spreadsheet.calc.runtime.Matrix) {
+                    items.each(add);
+                } else {
+                    (items + '').split(/\s*,\s*/).forEach(add);
                 }
                 var dataSource = new kendo.data.DataSource({ data: data });
                 list.setDataSource(dataSource);
@@ -15444,8 +15541,8 @@
                 }
             },
             trim: function (ref, property) {
-                var topLeft = ref.topLeft;
-                var bottomRight = ref.bottomRight;
+                var topLeft = this.normalize(ref.topLeft);
+                var bottomRight = this.normalize(ref.bottomRight);
                 var bottomRightRow = topLeft.row;
                 var bottomRightCol = topLeft.col;
                 for (var ci = topLeft.col; ci <= bottomRight.col; ci++) {
@@ -15618,12 +15715,9 @@
             includesHidden: function (start, end) {
                 return this._hidden.intersecting(start, end).length > 1;
             },
-            nextVisible: function (index, overflow) {
-                var end = this._count - 1;
-                if (index === end) {
-                    return overflow ? index + 1 : index;
-                }
-                for (var i = index + 1; i <= end; ++i) {
+            nextVisible: function (index) {
+                var end = this._count - 1, i = index;
+                while (++i <= end) {
                     if (!this.hidden(i)) {
                         return i;
                     }
@@ -15652,11 +15746,9 @@
                     return lastHidden.start - 1;
                 }
             },
-            prevVisible: function (index, overflow) {
-                if (index === 0) {
-                    return overflow ? -1 : 0;
-                }
-                for (var i = index - 1; i >= 0; --i) {
+            prevVisible: function (index) {
+                var i = index;
+                while (--i >= 0) {
                     if (!this.hidden(i)) {
                         return i;
                     }
@@ -15685,6 +15777,18 @@
                     sum += values.at(idx);
                 }
                 return sum;
+            },
+            locate: function (start, end, predicate) {
+                var values = this.values.iterator(start, end);
+                var sum = 0;
+                for (var idx = start; idx <= end; idx++) {
+                    sum += values.at(idx);
+                    var val = predicate(sum);
+                    if (val) {
+                        return idx;
+                    }
+                }
+                return null;
             },
             visible: function (start, end) {
                 var startSegment = null;
@@ -16317,13 +16421,15 @@
 (function (f, define) {
     define('spreadsheet/numformat', [
         'spreadsheet/calc',
-        'kendo.dom'
+        'kendo.dom',
+        'util/main'
     ], f);
 }(function () {
     'use strict';
     if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
         return;
     }
+    var util = kendo.util;
     var calc = kendo.spreadsheet.calc;
     var dom = kendo.dom;
     var RX_COLORS = /^\[(black|green|white|blue|magenta|yellow|cyan|red)\]/i;
@@ -16453,12 +16559,11 @@
                 });
             }
             if (m = input.skip(/^(hh?|ss?)/i)) {
-                m = m[1];
+                m = m[1].toLowerCase();
                 return maybeFraction({
                     type: 'time',
-                    part: m.toLowerCase().charAt(0),
-                    format: m.length,
-                    ampm: m == 'hh'
+                    part: m.charAt(0),
+                    format: m.length
                 });
             }
             if (m = input.skip(/^\[(hh?|mm?|ss?)\]/i)) {
@@ -16469,7 +16574,7 @@
                     format: m.length
                 });
             }
-            if (m = input.skip(/^(am\/pm|a\/p)/i)) {
+            if (m = input.skip(/^(a[.]?m[.]?\/p[.]?m[.]?|a\/p)/i)) {
                 m = m[1].split('/');
                 return {
                     type: 'ampm',
@@ -16707,7 +16812,6 @@
                     }
                 }
             } else if (tok.type == 'time') {
-                hasAmpm = hasAmpm || !!tok.ampm;
                 hasTime = true;
             } else if (tok.type == 'date') {
                 hasDate = true;
@@ -16792,23 +16896,81 @@
         }
         return code;
     }
-    var CACHE = Object.create(null);
     var TEXT = compileFormatPart({
         cond: 'text',
         body: [{ type: 'text' }]
     });
-    function compile(format) {
-        var f = CACHE[format];
-        if (!f) {
-            var tree = parse(format);
-            var code = tree.map(compileFormatPart);
-            code.push(TEXT);
-            code = code.join('\n');
-            code = '\'use strict\'; return function(value, culture){ ' + 'if (!culture) culture = kendo.culture(); ' + 'var output = \'\', type = null, result = { body: [] }; ' + code + '; return result; };';
-            f = CACHE[format] = new Function('runtime', code)(runtime);
+    var compile = util.memoize(function (format) {
+        var tree = parse(format);
+        var code = tree.map(compileFormatPart);
+        code.push(TEXT);
+        code = code.join('\n');
+        code = '\'use strict\'; return function(value, culture){ ' + 'if (!culture) culture = kendo.culture(); ' + 'var output = \'\', type = null, result = { body: [] }; ' + code + '; return result; };';
+        return new Function('runtime', code)(runtime);
+    });
+    var makeDateFormat = util.memoize(function (format) {
+        var tree = parse(format);
+        var section, found = false, hasAmpm = false;
+        for (var i = 0; i < tree.length; ++i) {
+            section = tree[i];
+            for (var j = 0; j < section.body.length; ++j) {
+                if (/^(?:date|time|ampm)$/.test(section.body[i].type)) {
+                    found = true;
+                    if (section.body[i].type == 'ampm') {
+                        hasAmpm = true;
+                    }
+                }
+            }
+            if (found) {
+                break;
+            }
         }
-        return f;
-    }
+        if (!found) {
+            return null;
+        }
+        return section.body.map(printToken).join('');
+        function maybeFraction(fmt, tok) {
+            if (tok.fraction) {
+                fmt += padLeft('', Math.max(tok.fraction, 3), 'f');
+            }
+            return fmt;
+        }
+        function printToken(tok) {
+            if (tok.type == 'digit') {
+                if (tok.sep) {
+                    return tok.format.charAt(0) + ',' + tok.format.substr(1);
+                } else {
+                    return tok.format;
+                }
+            } else if (tok.type == 'exp') {
+                return tok.ch + tok.sign;
+            } else if (tok.type == 'date' || tok.type == 'time') {
+                var part = tok.part;
+                if (tok.type == 'date' && /^m/.test(part)) {
+                    part = 'M';
+                } else if (tok.type == 'time' && /^h/.test(part)) {
+                    if (!hasAmpm) {
+                        part = part.toUpperCase();
+                    }
+                }
+                return maybeFraction(padLeft('', tok.format, part), tok);
+            } else if (tok.type == 'ampm') {
+                return 'tt';
+            } else if (tok.type == 'str') {
+                return tok.value;
+            } else if (tok.type == 'space') {
+                return ' ';
+            } else if (tok.type == 'dec') {
+                return '.';
+            } else if (tok.type == 'percent') {
+                return '%';
+            } else if (tok.type == 'comma') {
+                return ',';
+            } else {
+                return '';
+            }
+        }
+    });
     var runtime = {
         unpackDate: calc.runtime.unpackDate,
         unpackTime: calc.runtime.unpackTime,
@@ -16979,24 +17141,42 @@
             return result;
         },
         toFixed: function toFixed(value, decimals) {
+            if (decimals === 0) {
+                return String(Math.round(value));
+            }
             var str = String(value);
             var pos = str.indexOf('.');
             if (pos >= 0) {
-                var intpart = str.substr(0, pos) || 0;
+                var intpart = str.substr(0, pos);
                 var decpart = str.substr(pos + 1);
-                if (decpart.length > 14) {
-                    decpart = String(Math.round(decpart / Math.pow(10, decpart.length - 14)));
-                    while (decpart.length < 14) {
-                        decpart = '0' + decpart;
-                    }
-                }
                 if (decpart.length < decimals) {
                     while (decpart.length < decimals) {
-                        decpart += '0';
+                        decpart = decpart + '0';
                     }
                     return intpart + '.' + decpart;
                 }
-                value = parseFloat(intpart + '.' + decpart);
+                var zeros = /^0*/.exec(decpart)[0];
+                if (decpart.length > 14) {
+                    var prec = Math.pow(10, decpart.length - 14);
+                    decpart = Math.round(+decpart / prec) * prec;
+                    decpart = zeros + decpart;
+                }
+                var part = +decpart.substr(0, decimals);
+                var next = +decpart.charAt(decimals);
+                if (next >= 5) {
+                    var len1 = String(part).length;
+                    part++;
+                    var len2 = String(part).length;
+                    if (len2 > len1) {
+                        if (zeros) {
+                            zeros = zeros.substr(1);
+                        } else {
+                            intpart++;
+                            part = String(part).substr(1);
+                        }
+                    }
+                }
+                return intpart + '.' + zeros + part;
             }
             return value.toFixed(decimals);
         }
@@ -17061,7 +17241,8 @@
             var ast = parse(format);
             adjustDecimals(ast, diff);
             return print(ast);
-        }
+        },
+        makeDateFormat: makeDateFormat
     };
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
@@ -22093,13 +22274,6 @@
                     'null',
                     0
                 ]
-            ]
-        ],
-        [
-            '?',
-            [
-                'assert',
-                '$pmt || $fv'
             ]
         ]
     ]);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -205,7 +205,7 @@
         var drawing = kendo.drawing;
         var util = drawing.util;
         var kendoGeometry = kendo.geometry;
-        var HAS_TYPED_ARRAYS = typeof Uint8Array !== 'undefined' && (!kendo.support.browser.msie || kendo.support.browser.version > 9);
+        var HAS_TYPED_ARRAYS = typeof Uint8Array !== 'undefined' && kendo.support.browser && (!kendo.support.browser.msie || kendo.support.browser.version > 9);
         var BASE64 = function () {
             var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
             return {

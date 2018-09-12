@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -270,24 +270,31 @@
                 };
             },
             _footer: function (dataItem) {
-                var this$1 = this;
                 var rows = [];
-                var footer = false;
+                var footer = this.columns.some(function (column) {
+                    return column.groupFooterTemplate;
+                });
+                var templateData, group;
+                if (footer) {
+                    group = {
+                        group: {
+                            items: dataItem.items,
+                            field: dataItem.field,
+                            value: dataItem.value
+                        }
+                    };
+                    templateData = {};
+                    Object.keys(dataItem.aggregates).forEach(function (key) {
+                        templateData[key] = $.extend({}, dataItem.aggregates[key], group);
+                    });
+                }
                 var cells = this.columns.map(function (column) {
                     if (column.groupFooterTemplate) {
-                        var templateData = $.extend({}, this$1.aggregates, dataItem.aggregates, dataItem.aggregates[column.field], {
-                            group: {
-                                items: dataItem.items,
-                                field: dataItem.field,
-                                value: dataItem.value
-                            }
-                        });
-                        templateData[dataItem.field] = templateData;
-                        footer = true;
+                        var data = $.extend({}, templateData, dataItem.aggregates[column.field], group);
                         return $.extend({
                             background: '#dfdfdf',
                             color: '#333',
-                            value: column.groupFooterTemplate(templateData)
+                            value: column.groupFooterTemplate(data)
                         }, column.groupFooterCellOptions);
                     }
                     return $.extend({

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -208,6 +208,7 @@ if (kendo.ui.FilterMenu) {
 kendo.ui.FilterMenu.prototype.options.messages =
 $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "info": "次の値がある項目を表示:",
+  "title": "次の値がある項目を表示",
   "isTrue": "真である",
   "isFalse": "偽である",
   "filter": "フィルタ",
@@ -355,6 +356,26 @@ $.extend(true, kendo.ui.NumericTextBox.prototype.options,{
 if (kendo.ui.Pager) {
 kendo.ui.Pager.prototype.options.messages =
 $.extend(true, kendo.ui.Pager.prototype.options.messages,{
+  "allPages": "All",
+  "display": "{0} - {1} ({2} 項目中)",
+  "empty": "表示する項目がありません",
+  "page": "ページ",
+  "of": "/ {0}",
+  "itemsPerPage": "項目 (1 ページあたり)",
+  "first": "最初のページに移動",
+  "previous": "前のページに移動",
+  "next": "次のページに移動",
+  "last": "最後のページに移動",
+  "refresh": "更新",
+  "morePages": "その他のページ"
+});
+}
+
+/* TreeListPager messages */
+
+if (kendo.ui.TreeListPager) {
+kendo.ui.TreeListPager.prototype.options.messages =
+$.extend(true, kendo.ui.TreeListPager.prototype.options.messages,{
   "allPages": "All",
   "display": "{0} - {1} ({2} 項目中)",
   "empty": "表示する項目がありません",

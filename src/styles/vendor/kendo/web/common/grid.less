@@ -22,7 +22,7 @@
                                                                                                                                                                                                        
 
 */
-/* Grid */
+// Grid
 
 .k-grid,
 .k-listview
@@ -34,7 +34,7 @@
 .k-grid table
 {
     width: 100%;
-    margin: 0; /* override CSS libraries */
+    margin: 0; // override CSS libraries
     max-width: none;
     border-collapse: separate;
     border-spacing: 0;
@@ -119,14 +119,14 @@
 
 .k-ie10 .k-grid-header a:active
 {
-    background-color: transparent; /*remove gray background*/
+    background-color: transparent; // remove gray background
 }
 
 .k-grid-header th.k-header > .k-link
 {
     display: block;
     min-height: 18px;
-    line-height: 18px; /* due to sorting icons*/
+    line-height: 18px; // due to sorting icons
     margin: -.5em -.6em -.4em 0;
     padding: .5em .6em .4em 0;
     overflow: hidden;
@@ -184,7 +184,7 @@
 .k-grid-edit-row .k-textbox,
 .k-grid-edit-row .text-box
 {
-    /*reset default webkit styles*/
+    // reset default webkit styles
     margin-top:0;
     margin-bottom:0;
 }
@@ -203,7 +203,7 @@
 div.k-grid-header,
 div.k-grid-footer
 {
-    padding-right: 17px; /* scrollbar width; may vary; can be calculated */
+    padding-right: 17px; // scrollbar width; may vary; can be calculated
     border-bottom-style: solid;
     border-bottom-width: 1px;
     zoom: 1;
@@ -223,7 +223,7 @@ div.k-grid-footer
     overflow-x: auto;
     overflow-y: scroll;
     zoom: 1;
-    min-height: 0%; /* IE9 bug workaround - expanding Grid on hover */
+    min-height: 0%; // IE9 bug workaround - expanding Grid on hover
 }
 
 .k-mobile .k-grid tbody
@@ -306,7 +306,7 @@ div.k-grid-footer
     table-layout: fixed;
 }
 
-/* Grid :: locked columns */
+// Grid :: locked columns
 
 .k-grid-lockedcolumns
 {
@@ -326,7 +326,7 @@ div.k-grid-footer
 {
     display: inline-block;
     vertical-align: top;
-    overflow: hidden;  /* generally uneeded */
+    overflow: hidden;  // generally uneeded
     position: relative;
     border-style: solid;
     border-width: 0 1px 0 0;
@@ -365,7 +365,7 @@ div.k-grid-footer
     border-width: 0 0 1px;
 }
 
-/* Grid :: footer */
+// Grid :: footer
 
 .k-footer-template td
 {
@@ -400,7 +400,7 @@ div.k-grid-footer
     border-top-width: 1px;
 }
 
-/* Grid :: paging */
+// Grid :: paging
 .k-grid-pager
 {
     border-width: 1px 0 0;
@@ -419,7 +419,7 @@ div.k-grid-footer
     position: relative;
 }
 
-/* Grid :: filtering */
+// Grid :: filtering
 
 .k-header > .k-grid-filter,
 .k-header > .k-header-column-menu
@@ -428,7 +428,7 @@ div.k-grid-footer
     margin: -.5em -.6em -.4em 0;
     padding: .5em .2em .4em;
     position: relative;
-    z-index: 1; /*mvc site.css*/
+    z-index: 1; // mvc site.css
     color: inherit;
 }
 
@@ -499,7 +499,7 @@ form.k-filter-menu .k-textbox
     line-height: 2.2em;
 }
 
-/* Grid :: grouping */
+// Grid :: grouping
 
 .k-grouping-row .k-icon
 {
@@ -632,7 +632,7 @@ form.k-filter-menu .k-textbox
     vertical-align: middle;
 }
 
-/* Grid :: editing */
+// Grid :: editing
 
 .k-dirty-cell:before
 {
@@ -719,7 +719,7 @@ form.k-filter-menu .k-textbox
 
 .k-grid tbody button.k-button
 {
-    min-width: (@grid-button-min-width + 14); /* for all except IE8 */
+    min-width: (@grid-button-min-width + 14); // for all except IE8
 }
 
 html body .k-grid tbody .k-button-icon
@@ -776,7 +776,7 @@ html .k-grid-edit-row .k-tooltip
     margin-bottom: -.2em;
 }
 
-/* Grid :: resizing */
+// Grid :: resizing
 
 .k-grid-resize-indicator
 {
@@ -818,7 +818,7 @@ html .k-grid-edit-row .k-tooltip
 
 .k-ie9 .k-column-menu
 {
-    width: 160px; /*fix flicker on item hover*/
+    width: 160px; // fix flicker on item hover
 }
 
 .k-column-menu
@@ -846,13 +846,13 @@ html .k-grid-edit-row .k-tooltip
     overflow: auto;
 }
 
-/* Remove Grid scrollbar during built-in export */
+// Remove Grid scrollbar during built-in export
 .k-pdf-export-shadow .k-grid {
     float: left;
     width: auto !important;
 }
 
-/* Remove all sizes and scrolling */
+// Remove all sizes and scrolling
 .k-pdf-export-shadow .k-grid,
 .k-pdf-export-shadow .k-grid-content,
 .k-pdf-export-shadow .k-grid-content-locked {
@@ -866,7 +866,7 @@ html .k-grid-edit-row .k-tooltip
     width: auto !important;
 }
 
-/* Remove empty space reserved above the scrollbar */
+// Remove empty space reserved above the scrollbar
 .k-pdf-export-shadow .k-grid-header,
 .k-pdf-export-shadow .k-grid-footer {
     padding: 0 !important;
@@ -899,7 +899,7 @@ html .k-grid-edit-row .k-tooltip
     display: none;
 }
 
-/* responsive styles  */
+// responsive styles
 
 .k-autofitting
 {

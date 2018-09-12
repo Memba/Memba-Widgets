@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, DataBoundWidget = ui.DataBoundWidget, proxy = $.proxy, WRAPPER = 'k-virtual-wrap', VIRTUALLIST = 'k-virtual-list', CONTENT = 'k-virtual-content', LIST = 'k-list', HEADER = 'k-group-header', VIRTUALITEM = 'k-virtual-item', ITEM = 'k-item', HEIGHTCONTAINER = 'k-height-container', GROUPITEM = 'k-group', SELECTED = 'k-state-selected', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', CHANGE = 'change', CLICK = 'click', LISTBOUND = 'listBound', ITEMCHANGE = 'itemChange', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', VIRTUAL_LIST_NS = '.VirtualList';
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, DataBoundWidget = ui.DataBoundWidget, proxy = $.proxy, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, WRAPPER = 'k-virtual-wrap', VIRTUALLIST = 'k-virtual-list', CONTENT = 'k-virtual-content', LIST = 'k-list', HEADER = 'k-group-header', VIRTUALITEM = 'k-virtual-item', ITEM = 'k-item', HEIGHTCONTAINER = 'k-height-container', GROUPITEM = 'k-group', SELECTED = 'k-state-selected', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', CHANGE = 'change', CLICK = 'click', LISTBOUND = 'listBound', ITEMCHANGE = 'itemChange', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', VIRTUAL_LIST_NS = '.VirtualList';
         function lastFrom(array) {
             return array[array.length - 1];
         }
@@ -139,10 +139,16 @@
             this.angular('cleanup', function () {
                 return { elements: [element] };
             });
-            element.attr('data-uid', data.item ? data.item.uid : '').attr('data-offset-index', data.index).html(itemTemplate(data.item || {}));
+            element.attr('data-uid', data.item ? data.item.uid : '').attr('data-offset-index', data.index);
+            if (this.options.columns && this.options.columns.length && data.item) {
+                element.html(renderColumns(this.options, data.item, templates));
+            } else {
+                element.html(itemTemplate(data.item || {}));
+            }
             element.toggleClass(FOCUSED, data.current);
             element.toggleClass(SELECTED, data.selected);
             element.toggleClass('k-first', data.newGroup);
+            element.toggleClass('k-last', data.isLastGroupedItem);
             element.toggleClass('k-loading-item', !data.item);
             if (data.index !== 0 && data.newGroup) {
                 $('<div class=' + GROUPITEM + '></div>').appendTo(element).html(templates.groupTemplate(data.group));
@@ -160,6 +166,24 @@
                         }]
                 };
             });
+        }
+        function renderColumns(options, dataItem, templates) {
+            var item = '';
+            for (var i = 0; i < options.columns.length; i++) {
+                var currentWidth = options.columns[i].width;
+                var currentWidthInt = parseInt(currentWidth, 10);
+                var widthStyle = '';
+                if (currentWidth) {
+                    widthStyle += 'style=\'width:';
+                    widthStyle += currentWidthInt;
+                    widthStyle += percentageUnitsRegex.test(currentWidth) ? '%' : 'px';
+                    widthStyle += ';\'';
+                }
+                item += '<span class=\'k-cell\' ' + widthStyle + '>';
+                item += templates['column' + i](dataItem);
+                item += '</span>';
+            }
+            return item;
         }
         function mapChangedItems(selected, itemsToMatch) {
             var itemsLength = itemsToMatch.length;
@@ -210,6 +234,9 @@
                 that.content = that.element.wrap('<div unselectable=\'on\' class=\'' + CONTENT + '\'></div>').parent();
                 that.wrapper = that.content.wrap('<div class=\'' + WRAPPER + '\'></div>').parent();
                 that.header = that.content.before('<div class=\'' + HEADER + '\'></div>').prev();
+                if (options.columns && options.columns.length) {
+                    that.element.removeClass(LIST);
+                }
                 that.element.on('mouseenter' + VIRTUAL_LIST_NS, 'li:not(.k-loading-item)', function () {
                     $(this).addClass(HOVER);
                 }).on('mouseleave' + VIRTUAL_LIST_NS, 'li', function () {
@@ -342,7 +369,7 @@
                         that.focus(0);
                     }
                     that._createList();
-                    if (!action && that._values.length && !filtered && !that.options.skipUpdateOnBind) {
+                    if (!action && that._values.length && !filtered && !that.options.skipUpdateOnBind && !that._emptySearch) {
                         that._selectingValue = true;
                         that.bound(true);
                         that.value(that._values, true).done(function () {
@@ -404,6 +431,14 @@
                     that._prefetchByValue(value);
                 }
                 return that._valueDeferred;
+            },
+            _checkValuesOrder: function (value) {
+                if (this._removedAddedIndexes && this._removedAddedIndexes.length === value.length) {
+                    var newValue = this._removedAddedIndexes.slice();
+                    this._removedAddedIndexes = null;
+                    return newValue;
+                }
+                return value;
             },
             _prefetchByValue: function (value) {
                 var that = this, dataView = that._dataView, valueGetter = that._valueGetter, mapValueTo = that.options.mapValueTo, item, match = false, forSelection = [];
@@ -843,6 +878,13 @@
                     groupTemplate: options.groupTemplate,
                     fixedGroupTemplate: options.fixedGroupTemplate
                 };
+                if (options.columns) {
+                    for (var i = 0; i < options.columns.length; i++) {
+                        var currentColumn = options.columns[i];
+                        var templateText = currentColumn.field ? currentColumn.field.toString() : 'text';
+                        templates['column' + i] = currentColumn.template || '#: ' + templateText + '#';
+                    }
+                }
                 for (var key in templates) {
                     if (typeof templates[key] !== 'function') {
                         templates[key] = kendo.template(templates[key] || '');
@@ -906,6 +948,7 @@
                 that._renderItems = that._whenChanged(scrollCallback(content, that._onScroll), syncList(that._reorderList(that._items, $.proxy(render, that))));
                 that._renderItems();
                 that._calculateGroupPadding(that._screenHeight);
+                that._calculateColumnsHeaderPadding();
             },
             _setHeight: function (height) {
                 var currentHeight, heightContainer = this.heightContainer;
@@ -1002,11 +1045,19 @@
                     group = item ? item.group : null;
                     item = item ? item.item : null;
                 }
-                if (!this.isFiltered() && value.length && item) {
-                    for (var i = 0; i < value.length; i++) {
-                        match = isPrimitive(item) ? value[i] === item : value[i] === valueGetter(item);
+                if (this.options.mapValueTo === 'dataItem' && this._selectedDataItems.length && item) {
+                    for (var i = 0; i < this._selectedDataItems.length; i++) {
+                        match = valueGetter(this._selectedDataItems[i]) === valueGetter(item);
                         if (match) {
-                            value.splice(i, 1);
+                            selected = true;
+                            break;
+                        }
+                    }
+                } else if (!this.isFiltered() && value.length && item) {
+                    for (var j = 0; j < value.length; j++) {
+                        match = isPrimitive(item) ? value[j] === item : value[j] === valueGetter(item);
+                        if (match) {
+                            value.splice(j, 1);
                             selected = true;
                             break;
                         }
@@ -1031,6 +1082,9 @@
                 this._currentGroup = null;
                 for (var i = index, length = index + itemCount; i < length; i++) {
                     item = this._itemMapper(this.getter(i, index), i, value);
+                    if (items[items.length - 1]) {
+                        items[items.length - 1].isLastGroupedItem = item.newGroup;
+                    }
                     items.push(item);
                     this._view[item.index] = item;
                 }
@@ -1272,6 +1326,7 @@
                         dataSource.range(oldSkip, take);
                     });
                 });
+                that._values = that._checkValuesOrder(that._values);
                 return added;
             },
             _clickHandler: function (e) {
@@ -1291,6 +1346,15 @@
                     }
                     padding += parseFloat(firstItem.css('border-right-width'), 10) + parseFloat(firstItem.children('.k-group').css('right'), 10);
                     groupHeader.css('padding-right', padding);
+                }
+            },
+            _calculateColumnsHeaderPadding: function () {
+                if (this.options.columns && this.options.columns.length) {
+                    var isRtl = kendo.support.isRtl(this.wrapper);
+                    var scrollbar = kendo.support.scrollbar();
+                    var columnsHeader = this.content.parent().parent().find('.k-grid-header');
+                    var total = this.dataSource.total();
+                    columnsHeader.css(isRtl ? 'padding-left' : 'padding-right', total ? scrollbar : 0);
                 }
             }
         });

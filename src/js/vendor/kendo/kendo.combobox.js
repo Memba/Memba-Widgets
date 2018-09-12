@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -228,7 +228,7 @@
                     arrow.on(CLICK, proxy(that._arrowClick, that)).on(MOUSEDOWN, function (e) {
                         e.preventDefault();
                     });
-                    clear.on(CLICK, proxy(that._clearValue, that)).on(MOUSEDOWN, function (e) {
+                    clear.on(CLICK + ' touchend' + ns, proxy(that._clearValue, that)).on(MOUSEDOWN, function (e) {
                         e.preventDefault();
                     });
                     that.input.on('keydown' + ns, proxy(that._keydown, that)).on('input' + ns, proxy(that._search, that)).on('paste' + ns, proxy(that._inputPaste, that));
@@ -242,6 +242,7 @@
                 var that = this;
                 var state = that._state;
                 var isFiltered = that.dataSource.filter() ? that.dataSource.filter().filters.length > 0 : false;
+                var reinitialized = !that.ul.find(that.listView.focus()).length;
                 if (that.popup.visible()) {
                     return;
                 }
@@ -262,6 +263,8 @@
                     that._openPopup();
                     if (that.options.virtual) {
                         that._focusItem();
+                    } else if (reinitialized && that.options.highlightFirst) {
+                        that.listView.focus(0);
                     }
                 }
             },
@@ -302,7 +305,7 @@
                 }
                 that._customOption = undefined;
                 that._options(data, '', that.value());
-                if (custom && custom[0].selected) {
+                if (custom && custom[0].selected && !that.listView._emptySearch) {
                     that._custom(custom.val());
                 }
             },
@@ -333,6 +336,8 @@
                 }
                 if (that._value(dataItem) !== that.value()) {
                     that._custom(that._value(dataItem));
+                } else if (that._value(dataItem) !== that.element[0].value) {
+                    that._accessor(that._value(dataItem));
                 }
                 if (that.text() && that.text() !== that._text(dataItem)) {
                     that._selectValue(dataItem);
@@ -567,6 +572,7 @@
                     }
                     that._prev = input.value;
                 });
+                that._toggleCloseVisibility();
             },
             toggle: function (toggle) {
                 this._toggle(toggle, true);
@@ -591,7 +597,7 @@
                     that._fetchData();
                 }
                 listView.value(value).done(function () {
-                    if (that.selectedIndex === -1) {
+                    if (that.selectedIndex === -1 && (!listView._selectedDataItems || !listView._selectedDataItems.length)) {
                         that._accessor(value);
                         that.input.val(value);
                         that._placeholder(true);
@@ -769,7 +775,7 @@
                     }
                 } else if (key != keys.TAB && !that._move(e)) {
                     that._search();
-                } else if (key === keys.ESC && !that.popup.visible()) {
+                } else if (key === keys.ESC && !that.popup.visible() && that.text()) {
                     that._clearValue();
                 }
             },
@@ -803,7 +809,7 @@
                     var value = that.text();
                     if (that._prev !== value) {
                         that._prev = value;
-                        if (that.options.filter === 'none' && that.options.virtual) {
+                        if (that.options.filter === 'none') {
                             that.listView.select(-1);
                         }
                         that.search(value);

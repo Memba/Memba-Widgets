@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -476,7 +476,7 @@
             return cache;
         }
         var theme = { chart: kendo.dataviz.chartBaseTheme() };
-        var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '</div>').appendTo(document.body);
+        var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '  <div class="k-var--gauge-pointer"></div>' + '  <div class="k-var--gauge-track"></div>' + '</div>').appendTo(document.body);
         function mapColor(key, varName) {
             set(key, queryStyle(varName, 'backgroundColor'));
         }
@@ -546,6 +546,12 @@
             mapColor('diagram.connectionDefaults.selection.handles.fill.color', 'accent-contrast');
             mapColor('diagram.connectionDefaults.selection.handles.stroke.color', 'normal-text-color');
             mapColor('diagram.connectionDefaults.selection.stroke.color', 'normal-text-color');
+            mapColor('gauge.pointer.color', 'gauge-pointer');
+            mapColor('gauge.scale.labels.color', 'normal-text-color');
+            mapColor('gauge.scale.minorTicks.color', 'normal-text-color');
+            mapColor('gauge.scale.majorTicks.color', 'normal-text-color');
+            mapColor('gauge.scale.line.color', 'normal-text-color');
+            mapColor('gauge.scale.rangePlaceholderColor', 'gauge-track');
         }());
         (function setFonts() {
             function font(varName) {
@@ -2960,8 +2966,6 @@
             });
         }());
         (function () {
-            var TEXT = '#656565';
-            var AXIS = 'rgba(0, 0, 0, .04)';
             var SERIES = [
                 '#ff6358',
                 '#ffd246',
@@ -2978,19 +2982,9 @@
                 '#fff2da',
                 '#fff7e8'
             ];
-            var PRIMARY = SERIES[0];
             registerTheme('default-v2', {
                 chart: {},
-                gauge: {
-                    pointer: { color: PRIMARY },
-                    scale: {
-                        rangePlaceholderColor: AXIS,
-                        labels: { color: TEXT },
-                        minorTicks: { color: TEXT },
-                        majorTicks: { color: TEXT },
-                        line: { color: TEXT }
-                    }
-                },
+                gauge: {},
                 diagram: {},
                 treeMap: { colors: fuse(SERIES, SERIES_LIGHT) }
             });

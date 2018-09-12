@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -365,6 +365,26 @@ $.extend(true, kendo.ui.Pager.prototype.options.messages,{
 });
 }
 
+/* TreeListPager messages */
+
+if (kendo.ui.TreeListPager) {
+kendo.ui.TreeListPager.prototype.options.messages =
+$.extend(true, kendo.ui.TreeListPager.prototype.options.messages,{
+  "allPages": "All",
+  "page": "עמוד",
+  "display": "{0} - {1} מתוך {2} פריטים",
+  "of": "מתוך {0}",
+  "empty": "אין פריטים להצגה",
+  "refresh": "רענן",
+  "first": "לעמוד הראשון",
+  "itemsPerPage": "פריטים בעמוד",
+  "last": "לעמוד האחרון",
+  "next": "לעמוד הבא",
+  "previous": "לעמוד הקודם",
+  "morePages": "עמודים נוספים"
+});
+}
+
 /* FilterMenu messages */
 
 if (kendo.ui.FilterMenu) {
@@ -374,6 +394,7 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "and": "וגם",
   "clear": "נקה",
   "info": "הראה פריטים עם ערך ש",
+  "title": "הראה פריטים עם ערך ש",
   "selectValue": "-בחר ערך-",
   "isFalse":"לא",
   "isTrue": "כן",

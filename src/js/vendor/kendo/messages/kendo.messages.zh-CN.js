@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -457,6 +457,25 @@
     if (kendo.ui.Pager) {
         kendo.ui.Pager.prototype.options.messages =
             $.extend(true, kendo.ui.Pager.prototype.options.messages,{
+                "allPages": "全部",
+                "display": "{0} - {1} 条　共 {2} 条数据",
+                "empty": "无相关数据",
+                "page": "转到第",
+                "of": "页　共 {0} 页",
+                "itemsPerPage": "条每页",
+                "first": "首页",
+                "previous": "上一页",
+                "next": "下一页",
+                "last": "末页",
+                "refresh": "刷新",
+                "morePages": "更多..."
+            });
+    }
+
+    /* TreeListPager messages */
+    if (kendo.ui.TreeListPager) {
+        kendo.ui.TreeListPager.prototype.options.messages =
+            $.extend(true, kendo.ui.TreeListPager.prototype.options.messages,{
                 "allPages": "全部",
                 "display": "{0} - {1} 条　共 {2} 条数据",
                 "empty": "无相关数据",
@@ -1240,7 +1259,7 @@
                 "dayperiod": "上午/下午"
             });
     }
-    
+
     /* DropDownTree messages */
     if (kendo.ui.DropDownTree) {
         kendo.ui.DropDownTree.prototype.options.messages =
@@ -1250,7 +1269,7 @@
                 singleTag: "项已选择"
             });
     }
-    
+
     /* Chat messages */
     if (kendo.ui.Chat) {
         kendo.ui.Chat.prototype.options.messages =

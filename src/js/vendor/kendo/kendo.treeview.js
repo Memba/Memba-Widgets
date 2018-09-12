@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -636,6 +636,9 @@
                 var isChecked = checkbox.prop(CHECKED);
                 var node = checkbox.closest(NODE);
                 var dataItem = this.dataItem(node);
+                if (this._preventChange) {
+                    return;
+                }
                 if (dataItem.checked != isChecked) {
                     dataItem.set(CHECKED, isChecked);
                     this._trigger(CHECK, node);
@@ -649,12 +652,29 @@
                 this.toggle(node);
             },
             _mousedown: function (e) {
+                var that = this;
+                var currentTarget = $(e.currentTarget);
                 var node = $(e.currentTarget).closest(NODE);
+                var browser = kendo.support.browser;
                 if (node.is('[aria-disabled=\'true\']')) {
                     return;
                 }
-                this._clickTarget = node;
-                this.current(node);
+                if ((browser.msie || browser.edge) && currentTarget.is(':checkbox')) {
+                    if (currentTarget.prop(INDETERMINATE)) {
+                        that._preventChange = false;
+                        currentTarget.prop(CHECKED, !currentTarget.prop(CHECKED));
+                        currentTarget.trigger(CHANGE);
+                        currentTarget.on(CLICK + NS, function (e) {
+                            e.preventDefault();
+                        });
+                        that._preventChange = true;
+                    } else {
+                        currentTarget.off(CLICK + NS);
+                        that._preventChange = false;
+                    }
+                }
+                that._clickTarget = node;
+                that.current(node);
             },
             _focusable: function (node) {
                 return node && node.length && node.is(':visible') && !node.find('.k-in:first').hasClass(DISABLED);
@@ -1083,7 +1103,10 @@
                 var children = group.children();
                 var collapsed = !this._expanded(parentNode);
                 if (this.element === parentNode) {
-                    index = this.dataSource.view().indexOf(items[0]);
+                    var dataItems = this.dataSource.data();
+                    var viewItems = this.dataSource.view();
+                    var rootItems = viewItems.length < dataItems.length ? viewItems : dataItems;
+                    index = rootItems.indexOf(items[0]);
                 } else if (items.length) {
                     index = items[0].parent().indexOf(items[0]);
                 }
@@ -1337,6 +1360,7 @@
                 var that = this;
                 Widget.fn.destroy.call(that);
                 that.wrapper.off(NS);
+                that.wrapper.find('.k-checkbox-wrapper :checkbox').off(NS);
                 that._unbindDataSource();
                 if (that.dragging) {
                     that.dragging.destroy();
@@ -1344,7 +1368,7 @@
                 kendo.destroy(that.element);
                 that.root = that.wrapper = that.element = null;
             },
-            _expanded: function (node, value) {
+            _expanded: function (node, value, force) {
                 var expandedAttr = kendo.attr('expanded');
                 var dataItem = this.dataItem(node);
                 var expanded = value;
@@ -1355,7 +1379,7 @@
                 if (nodeContents(node).data('animating')) {
                     return;
                 }
-                if (!this._trigger(direction, node)) {
+                if (force || !this._trigger(direction, node)) {
                     if (dataItem) {
                         dataItem.set('expanded', expanded);
                         expanded = dataItem.expanded;
@@ -1462,7 +1486,7 @@
                     var that = this;
                     function add() {
                         if (parentNode) {
-                            that._expanded(parentNode, true);
+                            that._expanded(parentNode, true, true);
                         }
                         var data = dataSource.data(), index = Math.max(data.length, 0);
                         return that._insert(data, model, index);

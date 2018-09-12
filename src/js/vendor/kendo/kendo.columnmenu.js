@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -165,7 +165,10 @@
                 }).data(POPUP);
                 that.menu = that.wrapper.children()[MENU]({
                     orientation: 'vertical',
-                    closeOnClick: false
+                    closeOnClick: false,
+                    open: function () {
+                        that._updateMenuItems();
+                    }
                 }).data(MENU);
             },
             _createMobileMenu: function () {
@@ -263,7 +266,7 @@
                 if (!this.popup && !this.pane) {
                     this._init();
                 } else {
-                    that._reorderColumnList();
+                    that._updateMenuItems();
                 }
                 if (this._isMobile) {
                     this.pane.navigate(this.view, this.options.animations.left);
@@ -271,17 +274,37 @@
                     this.popup.toggle();
                 }
             },
-            _reorderColumnList: function () {
+            _updateMenuItems: function () {
                 var that = this;
-                var i;
-                var listElement;
-                var columns = that._ownerColumns() || [];
-                var columnList = that._isMobile && that.view ? $(that.view.element).find('.k-columns-item').children('ul') : $(that.wrapper).find('.k-menu-group').first();
-                for (i = 0; i < columns.length; i++) {
-                    listElement = columnList.find(attrEquals('field', columns[i].originalField)).closest('li');
-                    if (listElement[0] && listElement.index() !== i) {
-                        insertElementAt(i, listElement, columnList);
+                that._setMenuItemsVisibility();
+                that._reorderMenuItems();
+            },
+            _setMenuItemsVisibility: function () {
+                var that = this;
+                that._eachRenderedMenuItem(function (index, column, renderedListElement) {
+                    if (column.matchesMedia === false) {
+                        renderedListElement.hide();
+                    } else {
+                        renderedListElement.show();
                     }
+                });
+            },
+            _reorderMenuItems: function () {
+                var that = this;
+                that._eachRenderedMenuItem(function (index, column, renderedListElement, renderedList) {
+                    if (renderedListElement[0] && renderedListElement.index() !== index) {
+                        insertElementAt(index, renderedListElement, renderedList);
+                    }
+                });
+            },
+            _eachRenderedMenuItem: function (callback) {
+                var that = this;
+                var renderedListElement;
+                var columns = that._ownerColumns() || [];
+                var renderedList = that._isMobile && that.view ? $(that.view.element).find('.k-columns-item').children('ul') : $(that.wrapper).find('.k-menu-group').first();
+                for (var i = 0; i < columns.length; i++) {
+                    renderedListElement = renderedList.find(attrEquals('field', columns[i].originalField)).closest('li');
+                    callback(i, columns[i], renderedListElement, renderedList);
                 }
             },
             _open: function () {
@@ -319,6 +342,7 @@
                         field: col.field || col.title,
                         title: col.title || col.field,
                         hidden: col.hidden,
+                        matchesMedia: col.matchesMedia,
                         index: inArray(col, columns),
                         locked: !!col.locked,
                         _originalObject: col
@@ -424,9 +448,9 @@
             },
             _updateColumnsMenu: function () {
                 var idx, length, current, checked, locked;
-                var fieldAttr = kendo.attr('field'), lockedAttr = kendo.attr('locked'), visible = grep(this._ownerColumns(), function (field) {
-                        return !field.hidden;
-                    }), visibleDataFields = grep(visible, function (field) {
+                var fieldAttr = kendo.attr('field'), lockedAttr = kendo.attr('locked'), visibleFields = grep(this._ownerColumns(), function (field) {
+                        return !field.hidden && field.matchesMedia !== false;
+                    }), visibleDataFields = grep(visibleFields, function (field) {
                         return field.originalField;
                     }), lockedCount = grep(visibleDataFields, function (col) {
                         return col.locked === true;
@@ -435,7 +459,7 @@
                     }).length, columnNotInMenuCount = grep(this.owner.columns, function (col) {
                         return col.menu === false;
                     }).length;
-                visible = map(visible, function (col) {
+                var visible = map(visibleFields, function (col) {
                     return col.field;
                 });
                 this.wrapper.find('[role=\'menuitemcheckbox\']').attr('aria-checked', false);
@@ -574,7 +598,7 @@
                 return found;
             }
         });
-        var template = '<ul id="#=uid#">' + '#if(sortable){#' + '<li class="k-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}</span></li>' + '<li class="k-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}</span></li>' + '#if(showColumns || filterable){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(showColumns){#' + '<li class="k-item k-columns-item" aria-haspopup="true"><span class="k-link"><span class="k-icon k-i-columns"></span>${messages.columns}</span><ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li role="menuitemcheckbox" aria-checked="false"><input type="checkbox" data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#"/>#=columns[idx].title#</li>' + '#}#' + '</ul></li>' + '#if(filterable || lockedColumns){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(filterable){#' + '<li class="k-item k-filter-item" aria-haspopup="true"><span class="k-link"><span class="k-icon k-i-filter"></span>${messages.filter}</span><ul>' + '<li><div class="k-filterable"></div></li>' + '</ul></li>' + '#if(lockedColumns){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(lockedColumns){#' + '<li class="k-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span>${messages.lock}</span></li>' + '<li class="k-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span>${messages.unlock}</span></li>' + '#}#' + '</ul>';
+        var template = '<ul id="#=uid#">' + '#if(sortable){#' + '<li class="k-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}</span></li>' + '<li class="k-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}</span></li>' + '#if(showColumns || filterable){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(showColumns){#' + '<li class="k-item k-columns-item" aria-haspopup="true"><span class="k-link"><span class="k-icon k-i-columns"></span>${messages.columns}</span><ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input type="checkbox" data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#"/>#=columns[idx].title#</li>' + '#}#' + '</ul></li>' + '#if(filterable || lockedColumns){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(filterable){#' + '<li class="k-item k-filter-item" aria-haspopup="true"><span class="k-link"><span class="k-icon k-i-filter"></span>${messages.filter}</span><ul>' + '<li><div class="k-filterable"></div></li>' + '</ul></li>' + '#if(lockedColumns){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(lockedColumns){#' + '<li class="k-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span>${messages.lock}</span></li>' + '<li class="k-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span>${messages.unlock}</span></li>' + '#}#' + '</ul>';
         var mobileTemplate = '<div data-#=ns#role="view" data-#=ns#init-widgets="false" data-#=ns#use-native-scrolling="true" class="k-grid-column-menu">' + '<div data-#=ns#role="header" class="k-header">' + '${messages.settings}' + '<button class="k-button k-done">#=messages.done#</button>' + '</div>' + '<div class="k-column-menu k-mobile-list"><ul><li>' + '<span class="k-link">${title}</span><ul>' + '#if(sortable){#' + '<li class="k-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}</span></li>' + '<li class="k-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}</span></li>' + '#}#' + '#if(lockedColumns){#' + '<li class="k-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span>${messages.lock}</span></li>' + '<li class="k-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span>${messages.unlock}</span></li>' + '#}#' + '#if(filterable){#' + '<li class="k-item k-filter-item">' + '<span class="k-link k-filterable">' + '<span class="k-icon k-i-filter"></span>' + '${messages.filter}</span>' + '</li>' + '#}#' + '</ul></li>' + '#if(showColumns){#' + '<li class="k-columns-item"><span class="k-link">${messages.columns}</span><ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li class="k-item"><label class="k-label"><input type="checkbox" class="k-check" data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#"/>#=columns[idx].title#</label></li>' + '#}#' + '</ul></li>' + '#}#' + '</ul></div>' + '</div>';
         var MobileMenu = Widget.extend({
             init: function (element, options) {

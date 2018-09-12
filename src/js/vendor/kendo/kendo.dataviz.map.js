@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2155,7 +2155,7 @@
 }(function () {
     (function ($, undefined) {
         var doc = document, math = Math, min = math.min, pow = math.pow, proxy = $.proxy, kendo = window.kendo, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, dataviz = kendo.dataviz, ui = dataviz.ui, g = kendo.geometry, Point = g.Point, map = dataviz.map, Extent = map.Extent, Location = map.Location, EPSG3857 = map.crs.EPSG3857, util = kendo.util, renderPos = util.renderPos, drawingUtil = kendo.drawing.util, defined = drawingUtil.defined, limit = drawingUtil.limitValue, valueOrDefault = drawingUtil.valueOrDefault;
-        var CSS_PREFIX = 'k-', FRICTION = 0.9, FRICTION_MOBILE = 0.93, MOUSEWHEEL = 'DOMMouseScroll mousewheel', VELOCITY_MULTIPLIER = 5;
+        var CSS_PREFIX = 'k-', FRICTION = 0.9, FRICTION_MOBILE = 0.93, MOUSEWHEEL = 'DOMMouseScroll mousewheel', VELOCITY_MULTIPLIER = 5, DEFAULT_ZOOM_RATE = 1;
         var Map = Widget.extend({
             init: function (element, options) {
                 kendo.destroy(element);
@@ -2171,7 +2171,6 @@
                 this._initLayers();
                 this._reset();
                 this._mousewheel = proxy(this._mousewheel, this);
-                this.element.bind('click', proxy(this._click, this));
                 this.element.bind(MOUSEWHEEL, this._mousewheel);
             },
             options: {
@@ -2315,11 +2314,18 @@
                 return this.layerToLocation(point, zoom);
             },
             eventOffset: function (e) {
-                var offset = this.element.offset();
-                var event = e.originalEvent || e;
-                var x = valueOrDefault(event.pageX, event.clientX) - offset.left;
-                var y = valueOrDefault(event.pageY, event.clientY) - offset.top;
-                return new g.Point(x, y);
+                var point;
+                if (e.touch) {
+                    var field = 'location';
+                    point = new g.Point(e.x[field], e.y[field]);
+                } else {
+                    var offset = this.element.offset();
+                    var event = e.originalEvent || e;
+                    var x = valueOrDefault(event.pageX, event.clientX) - offset.left;
+                    var y = valueOrDefault(event.pageY, event.clientY) - offset.top;
+                    point = new g.Point(x, y);
+                }
+                return point;
             },
             eventToView: function (e) {
                 var cursor = this.eventOffset(e);
@@ -2473,12 +2479,15 @@
                     friction: friction,
                     velocityMultiplier: VELOCITY_MULTIPLIER,
                     zoom: zoomable,
-                    mousewheelScrolling: false
+                    mousewheelScrolling: false,
+                    supportDoubleTap: true
                 });
                 scroller.bind('scroll', proxy(this._scroll, this));
                 scroller.bind('scrollEnd', proxy(this._scrollEnd, this));
                 scroller.userEvents.bind('gesturestart', proxy(this._scaleStart, this));
                 scroller.userEvents.bind('gestureend', proxy(this._scale, this));
+                scroller.userEvents.bind('doubleTap', proxy(this._doubleTap, this));
+                scroller.userEvents.bind('tap', proxy(this._tap, this));
                 this.scrollElement = scroller.scrollElement;
             },
             _initLayers: function () {
@@ -2612,7 +2621,7 @@
                 zoom = valueOrDefault(zoom, this.options.zoom);
                 return this.options.minSize * pow(2, zoom);
             },
-            _click: function (e) {
+            _tap: function (e) {
                 if (!this._panComplete()) {
                     return;
                 }
@@ -2621,6 +2630,20 @@
                     originalEvent: e,
                     location: this.viewToLocation(cursor)
                 });
+            },
+            _doubleTap: function (e) {
+                var options = this.options;
+                if (options.zoomable !== false) {
+                    if (!this.trigger('zoomStart', { originalEvent: e })) {
+                        var toZoom = this.zoom() + DEFAULT_ZOOM_RATE;
+                        var cursor = this.eventOffset(e);
+                        var location = this.viewToLocation(cursor);
+                        var postZoom = this.locationToLayer(location, toZoom);
+                        var origin = postZoom.translate(-cursor.x, -cursor.y);
+                        this._zoomAround(origin, toZoom);
+                        this.trigger('zoomEnd', { originalEvent: e });
+                    }
+                }
             },
             _mousewheel: function (e) {
                 e.preventDefault();

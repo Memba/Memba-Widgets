@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -742,6 +742,14 @@
                 $(el).removeData('$scope').removeData('$$kendoScope').removeData('$isolateScope').removeData('$isolateScopeNoTemplate').removeClass('ng-scope');
             }
         }
+        var encode = kendo.htmlEncode;
+        var open = /{{/g;
+        var close = /}}/g;
+        var encOpen = '{&#8203;{';
+        var encClose = '}&#8203;}';
+        kendo.htmlEncode = function (str) {
+            return encode(str).replace(open, encOpen).replace(close, encClose);
+        };
         var pendingPatches = [];
         function defadvice(klass, methodName, func) {
             if ($.isArray(klass)) {

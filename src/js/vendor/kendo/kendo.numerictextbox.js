@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -332,7 +332,8 @@
                 that._text = text.addClass(element.className).attr({
                     'role': 'spinbutton',
                     'aria-valuemin': options.min !== NULL ? options.min * options.factor : options.min,
-                    'aria-valuemax': options.max !== NULL ? options.max * options.factor : options.max
+                    'aria-valuemax': options.max !== NULL ? options.max * options.factor : options.max,
+                    'autocomplete': 'off'
                 });
             },
             _keydown: function (e) {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.2.620 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -60,14 +60,27 @@
         IntlService.toString = function (value, format) {
             return current.toString(value, format);
         };
+        function dateToJulianDays(y, m, d) {
+            return (1461 * (y + 4800 + ((m - 13) / 12 | 0)) / 4 | 0) + (367 * (m - 1 - 12 * ((m - 13) / 12 | 0)) / 12 | 0) - (3 * ((y + 4900 + ((m - 13) / 12 | 0)) / 100 | 0) / 4 | 0) + d - 32075;
+        }
+        var BASE_DATE = dateToJulianDays(1900, 0, -1);
+        function packDate(year, month, date) {
+            return dateToJulianDays(year, month, date) - BASE_DATE;
+        }
+        function packTime(hh, mm, ss, ms) {
+            return (hh + (mm + (ss + ms / 1000) / 60) / 60) / 24;
+        }
+        function dateToSerial(date) {
+            var time = packTime(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+            var serial = packDate(date.getFullYear(), date.getMonth(), date.getDate());
+            return serial < 0 ? serial - 1 + time : serial + time;
+        }
         var DATA_URL_PREFIX = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,';
         var DATA_URL_OPTIONS = {
             compression: 'DEFLATE',
             type: 'base64'
         };
-        var MS_PER_MINUTE = 60000;
-        var MS_PER_DAY = 86400000;
-        function toDataURL(content) {
+        function toDataURI(content) {
             return DATA_URL_PREFIX + content;
         }
         function indexOf(thing, array) {
@@ -223,9 +236,8 @@
             return px * 0.75;
         }
         function stripFunnyChars(value) {
-            return String(value).replace(/[\x00-\x1F]/g, '').replace(/\n/g, '\r\n');
+            return String(value).replace(/[\x00-\x09\x0B\x0C\x0E-\x1F]/g, '').replace(/\r?\n/g, '\r\n');
         }
-        var DATE_EPOCH = new Date(1900, 0, 0);
         var Worksheet = kendo.Class.extend({
             init: function (options, sharedStrings, styles, borders) {
                 this.options = options;
@@ -406,8 +418,7 @@
                     value = Number(value);
                 } else if (value && value.getTime) {
                     type = null;
-                    var offset = (value.getTimezoneOffset() - DATE_EPOCH.getTimezoneOffset()) * MS_PER_MINUTE;
-                    value = (value - DATE_EPOCH - offset) / MS_PER_DAY + 1;
+                    value = dateToSerial(value);
                     if (!style.format) {
                         style.format = 'mm-dd-yy';
                     }
@@ -645,7 +656,7 @@
             },
             toDataURL: function () {
                 var zip = this.toZIP();
-                return zip.generateAsync ? zip.generateAsync(DATA_URL_OPTIONS).then(toDataURL) : toDataURL(zip.generate(DATA_URL_OPTIONS));
+                return zip.generateAsync ? zip.generateAsync(DATA_URL_OPTIONS).then(toDataURI) : toDataURI(zip.generate(DATA_URL_OPTIONS));
             }
         });
         function borderStyle(width) {

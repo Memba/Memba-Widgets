@@ -1,2 +1,0 @@
-Handle timezones as calculated properties
-The question is how to we make the timezone available globally???

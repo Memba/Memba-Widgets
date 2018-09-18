@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: This is another case of open dialog adapter
+
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';

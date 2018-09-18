@@ -7,7 +7,6 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseTool from './tools.base.es6';
 import tools from './tools.es6';
 
-
 /**
  * Label
  * @class
@@ -60,7 +59,7 @@ export default class Label extends BaseTool {
      * @param mode
      * @returns {*}
      */
-    getHtmlContent: function (component, mode) {
+    getHtmlContent(component, mode) {
         var that = this;
         assert.instanceof(Label, that, assert.format(assert.messages.instanceof.default, 'this', 'Label'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
@@ -75,7 +74,7 @@ export default class Label extends BaseTool {
             return (component.properties.behavior !== 'none' && $.type(component.id) === STRING && component.id.length) ? component.id : '';
         };
         return template($.extend(component, { ns: kendo.ns }));
-    },
+    }
 
     /**
      * onResize Event Handler
@@ -83,7 +82,7 @@ export default class Label extends BaseTool {
      * @param e
      * @param component
      */
-    onResize: function (e, component) {
+    onResize(e, component) {
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
@@ -123,14 +122,14 @@ export default class Label extends BaseTool {
         e.preventDefault();
         // prevent event to bubble on stage
         e.stopPropagation();
-    },
+    }
 
     /**
      * Component validation
      * @param component
      * @param pageIdx
      */
-    validate: function (component, pageIdx) {
+    validate(component, pageIdx) {
         var ret = Tool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;

@@ -3,6 +3,13 @@
  * Sources at https://github.com/Memba
  */
 
+
+// TODO it is in fact an adapters.textarea
+// TODO try to make an adapter by type of widget instead of type of data and add the necessary options
+
+// Especially the library algorithms depend on the data, not the widget
+// which makes it difficult to reuse adapters across data
+
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';

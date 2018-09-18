@@ -8,6 +8,7 @@ REM Copy common files from Kidoju-Server
 XCOPY ..\Kidoju.Server\src\js\common .\src\js\common /C /E /I /R /Y
 ATTRIB +R .\src\js\common\pongodb.*.es6
 ATTRIB +R .\src\js\common\window.assert.es6
+ATTRIB +R .\src\js\common\window.cache.es6
 ATTRIB +R .\src\js\common\window.constants.es6
 ATTRIB +R .\src\js\common\window.logger.es6
 ATTRIB +R .\src\js\common\window.util.es6

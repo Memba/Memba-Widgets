@@ -180,7 +180,7 @@ assert.isFunction = function _isFunction(value, message) {
 };
 
 /**
- * Assert optional object (can be undefined but mot an empty object, i.e. {})
+ * Assert optional object (can be undefined but not an empty object, i.e. {})
  * @param value
  * @param message
  */
@@ -310,7 +310,7 @@ assert.messages = {
 };
 
 /**
- * Assert crud
+ * Assert data source transport options
  * @param options
  */
 assert.crud = function _crud(options) {
@@ -331,6 +331,33 @@ assert.crud = function _crud(options) {
     assert.isFunction(
         options.error,
         assert.format(assert.messages.isFunction.default, 'options.error')
+    );
+};
+
+/**
+ * Assert rapi interface
+ * @param rapi
+ */
+assert.rapi = function _rapi(rapi) {
+    assert.isFunction(
+        rapi.create,
+        assert.format(assert.messages.isFunction.default, 'rapi.create')
+    );
+    assert.isFunction(
+        rapi.destroy,
+        assert.format(assert.messages.isFunction.default, 'rapi.destroy')
+    );
+    assert.isFunction(
+        rapi.get,
+        assert.format(assert.messages.isFunction.default, 'rapi.get')
+    );
+    assert.isFunction(
+        rapi.read,
+        assert.format(assert.messages.isFunction.default, 'rapi.read')
+    );
+    assert.isFunction(
+        rapi.update,
+        assert.format(assert.messages.isFunction.default, 'rapi.update')
     );
 };
 

@@ -484,18 +484,3 @@ export function convertSort(options) {
     });
     return ret;
 }
-
-/**
- * Maintain compatibility with legacy code
- */
-window.pongodb = window.pongodb || {};
-window.pongodb.util = window.pongodb.util || {};
-window.pongodb.util.compareVersions = compareVersions;
-window.pongodb.util.convertFilter = convertFilter;
-window.pongodb.util.convertSort = convertSort;
-window.pongodb.util.getter = getter;
-window.pongodb.util.listFields = listFields;
-window.pongodb.util.match = match;
-window.pongodb.util.search = search;
-window.pongodb.util.normalizeFilter = normalizeFilter;
-window.pongodb.util.setter = setter;

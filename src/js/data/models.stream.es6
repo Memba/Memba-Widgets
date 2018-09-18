@@ -9,6 +9,8 @@
 
 // TODO Add preloading of assets here too
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
 import { BaseModel, BaseDataSource } from './kidoju.data.core.es6.tmp';

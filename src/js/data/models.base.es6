@@ -3,6 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
@@ -270,11 +271,3 @@ const BaseModel = Model.define({
  * Default export
  */
 export default BaseModel;
-
-/**
- * Maintain compatibility with legacy code
- * @type {assert}
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.data = window.kidoju.data || {};
-window.kidoju.data.Model = BaseModel;

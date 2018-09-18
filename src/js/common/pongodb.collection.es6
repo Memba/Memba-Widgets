@@ -33,7 +33,7 @@ function deepClone(obj) {
             let key = _key;
             if (key !== '__v') {
                 // Strip _id from _
-                if (key.indexOf('_') === 0) {
+                if (CONSTANTS.RX_MONGODB_KEY.test(key)) {
                     key = key.substr(1);
                 }
                 // Flatten $oid
@@ -112,7 +112,7 @@ export default class Collection {
         this._name = options.name;
 
         // Keep localForage as an internal reference
-        this._localForage = localForage.createInstance({
+        this._store = localForage.createInstance({
             name: this._db._name, // Database name
             storeName: this._name // Collection name
         });
@@ -122,7 +122,7 @@ export default class Collection {
     }
 
     /**
-     * Reset text fields sand triggers
+     * Reset text fields and triggers
      * @private
      */
     _reset() {
@@ -143,6 +143,22 @@ export default class Collection {
      */
     static get triggers() {
         return TRIGGERS;
+    }
+
+    /**
+     * Database
+     * @returns {*}
+     */
+    get db() {
+        return this._db;
+    }
+
+    /**
+     * id field
+     * @returns {*}
+     */
+    get idField() {
+        return this._db._idField;
     }
 
     /**
@@ -190,12 +206,12 @@ export default class Collection {
             )
         );
         const that = this;
-        const idField = that._db._idField;
+        const { idField } = that;
         const dfd = $.Deferred();
         if ($.type(query[idField]) !== CONSTANTS.UNDEFINED) {
             // We have an id to get straight to the document
             // https://localforage.github.io/localForage/#data-api-getitem
-            that._localForage.getItem(query[idField], (err, item) => {
+            that._store.getItem(query[idField], (err, item) => {
                 if (err) {
                     dfd.reject(err);
                 } else if (item) {
@@ -211,7 +227,7 @@ export default class Collection {
         } else {
             // Without an id, we need to iterate
             // https://localforage.github.io/localForage/#data-api-length
-            that._localForage.length((err, length) => {
+            that._store.length((err, length) => {
                 if (err) {
                     dfd.reject(err);
                 } else if (!length) {
@@ -220,7 +236,7 @@ export default class Collection {
                 } else {
                     const found = [];
                     // https://localforage.github.io/localForage/#data-api-iterate
-                    that._localForage.iterate(
+                    that._store.iterate(
                         (item, key, index) => {
                             let ret;
                             if (match(query, item, that._textFields)) {
@@ -291,13 +307,13 @@ export default class Collection {
             )
         );
         const that = this;
-        const idField = that._db._idField;
+        const { idField } = that;
         let count = 0;
         const dfd = $.Deferred();
         if ($.type(query[idField]) !== CONSTANTS.UNDEFINED) {
             // We have an id to get straight to the document
             // https://localforage.github.io/localForage/#data-api-getitem
-            that._localForage.getItem(query[idField], (err, item) => {
+            that._store.getItem(query[idField], (err, item) => {
                 if (err) {
                     dfd.reject(err);
                 } else if (item) {
@@ -313,7 +329,7 @@ export default class Collection {
         } else {
             // Without an id, we need to iterate
             // https://localforage.github.io/localForage/#data-api-length
-            that._localForage.length((err, length) => {
+            that._store.length((err, length) => {
                 if (err) {
                     dfd.reject(err);
                 } else if (!length) {
@@ -321,7 +337,7 @@ export default class Collection {
                     dfd.resolve(count); // 0
                 } else {
                     // https://localforage.github.io/localForage/#data-api-iterate
-                    that._localForage.iterate(
+                    that._store.iterate(
                         (item, key, index) => {
                             if (match(query, item, that._textFields)) {
                                 count += 1;
@@ -354,7 +370,7 @@ export default class Collection {
             assert.format(assert.messages.type.default, 'doc', CONSTANTS.OBJECT)
         );
         const that = this;
-        const idField = that._db._idField;
+        const { idField } = that;
         const dfd = $.Deferred();
         if (!doc[idField]) {
             // Insertion without an id requires that we create one
@@ -362,27 +378,21 @@ export default class Collection {
             docWithId[idField] = new ObjectId().toString();
             Object.assign(docWithId, doc);
             // https://localforage.github.io/localForage/#data-api-setitem
-            that._localForage.setItem(
-                docWithId[idField],
-                docWithId,
-                (err, item) => {
-                    if (err) {
-                        dfd.reject(err);
-                    } else {
-                        $.when(
-                            ...that.triggers(Collection.triggers.insert, item)
-                        )
-                            .done(() => {
-                                dfd.resolve(item);
-                            })
-                            .fail(dfd.reject);
-                    }
+            that._store.setItem(docWithId[idField], docWithId, (err, item) => {
+                if (err) {
+                    dfd.reject(err);
+                } else {
+                    $.when(...that.triggers(Collection.triggers.insert, item))
+                        .done(() => {
+                            dfd.resolve(item);
+                        })
+                        .fail(dfd.reject);
                 }
-            );
+            });
         } else {
             // Insertion with an id requires that we check it does not already exist
             // https://localforage.github.io/localForage/#data-api-getitem
-            that._localForage.getItem(doc[idField], (err, item) => {
+            that._store.getItem(doc[idField], (err, item) => {
                 if (err) {
                     dfd.reject(err);
                 } else if (item) {
@@ -391,26 +401,22 @@ export default class Collection {
                     );
                 } else {
                     // https://localforage.github.io/localForage/#data-api-setitem
-                    that._localForage.setItem(
-                        doc[idField],
-                        doc,
-                        (error, result) => {
-                            if (error) {
-                                dfd.reject(error);
-                            } else {
-                                $.when(
-                                    ...that.triggers(
-                                        Collection.triggers.insert,
-                                        result
-                                    )
+                    that._store.setItem(doc[idField], doc, (error, result) => {
+                        if (error) {
+                            dfd.reject(error);
+                        } else {
+                            $.when(
+                                ...that.triggers(
+                                    Collection.triggers.insert,
+                                    result
                                 )
-                                    .done(() => {
-                                        dfd.resolve(result);
-                                    })
-                                    .fail(dfd.reject);
-                            }
+                            )
+                                .done(() => {
+                                    dfd.resolve(result);
+                                })
+                                .fail(dfd.reject);
                         }
-                    );
+                    });
                 }
             });
         }
@@ -440,7 +446,7 @@ export default class Collection {
             assert.format(assert.messages.type.default, 'doc', CONSTANTS.OBJECT)
         );
         const that = this;
-        const idField = that._db._idField;
+        const { idField } = that;
         const upsert = !!(options && options.upsert);
         const dfd = $.Deferred();
         if (
@@ -451,7 +457,7 @@ export default class Collection {
         } else if ($.type(query[idField]) !== CONSTANTS.UNDEFINED) {
             // We have an id to get straight to the document
             // https://localforage.github.io/localForage/#data-api-getitem
-            that._localForage.getItem(query[idField], (err, item) => {
+            that._store.getItem(query[idField], (err, item) => {
                 if (err) {
                     dfd.reject(err);
                 } else if (item) {
@@ -459,7 +465,7 @@ export default class Collection {
                     if (match(query, item, that._textFields)) {
                         // https://localforage.github.io/localForage/#data-api-setitem
                         // TODO: consider what to do with update fields explicitly set to undefined, which $.extend ignores
-                        that._localForage.setItem(
+                        that._store.setItem(
                             item[idField],
                             $.extend(true, item, doc),
                             (error, result) => {
@@ -496,7 +502,7 @@ export default class Collection {
                     $.type(query[idField]) !== CONSTANTS.UNDEFINED
                 ) {
                     // The document does not exist, insert it with query[idField]
-                    that._localForage.setItem(
+                    that._store.setItem(
                         query[idField],
                         $.extend(true, doc, query),
                         (error, result) => {
@@ -528,7 +534,7 @@ export default class Collection {
         } else {
             // Without an id, we need to iterate but we do not upsert
             // https://localforage.github.io/localForage/#data-api-length
-            that._localForage.length((err, length) => {
+            that._store.length((err, length) => {
                 if (err) {
                     dfd.reject(err);
                 } else if (!length) {
@@ -537,14 +543,14 @@ export default class Collection {
                 } else {
                     const promises = [];
                     // https://localforage.github.io/localForage/#data-api-iterate
-                    that._localForage.iterate(
+                    that._store.iterate(
                         (item, key, index) => {
                             if (match(query, item, that._textFields)) {
                                 promises.push(
                                     (function fn(obj) {
                                         const def = $.Deferred();
                                         // https://localforage.github.io/localForage/#data-api-setitem
-                                        that._localForage.setItem(
+                                        that._store.setItem(
                                             obj[idField],
                                             $.extend(true, obj, doc),
                                             error => {
@@ -616,17 +622,17 @@ export default class Collection {
             )
         );
         const that = this;
-        const idField = that._db._idField;
+        const { idField } = that;
         const dfd = $.Deferred();
         if ($.type(query[idField]) !== CONSTANTS.UNDEFINED) {
             // We have an id to get straight to the document
             // RemoveItem is always successful even if the key is missing
-            that._localForage.getItem(query[idField], (err, item) => {
+            that._store.getItem(query[idField], (err, item) => {
                 if (err) {
                     dfd.reject(err);
                 } else if (item) {
                     // https://localforage.github.io/localForage/#data-api-removeitem
-                    that._localForage.removeItem(query[idField], error => {
+                    that._store.removeItem(query[idField], error => {
                         if (error) {
                             dfd.reject(error);
                         } else {
@@ -649,7 +655,7 @@ export default class Collection {
         } else {
             // Without an id, we need to iterate
             // https://localforage.github.io/localForage/#data-api-length
-            that._localForage.length((err, length) => {
+            that._store.length((err, length) => {
                 if (err) {
                     dfd.reject(err);
                 } else if (!length) {
@@ -658,30 +664,27 @@ export default class Collection {
                 } else {
                     const removals = {};
                     // https://localforage.github.io/localForage/#data-api-iterate
-                    that._localForage.iterate(
+                    that._store.iterate(
                         (item, key, index) => {
                             if (match(query, item, that._textFields)) {
                                 removals[key] = $.Deferred();
                                 // https://localforage.github.io/localForage/#data-api-removeitem
-                                that._localForage.removeItem(
-                                    item[idField],
-                                    error => {
-                                        let ret;
-                                        if (error) {
-                                            ret = removals[key].reject(error); // return something to stop iterating
-                                        } else {
-                                            $.when(
-                                                ...that.triggers(
-                                                    Collection.triggers.remove,
-                                                    item
-                                                )
+                                that._store.removeItem(item[idField], error => {
+                                    let ret;
+                                    if (error) {
+                                        ret = removals[key].reject(error); // return something to stop iterating
+                                    } else {
+                                        $.when(
+                                            ...that.triggers(
+                                                Collection.triggers.remove,
+                                                item
                                             )
-                                                .done(removals[key].resolve)
-                                                .fail(removals[key].reject);
-                                        }
-                                        return ret;
+                                        )
+                                            .done(removals[key].resolve)
+                                            .fail(removals[key].reject);
                                     }
-                                );
+                                    return ret;
+                                });
                             }
                             dfd.notify({ index: index - 1, total: length }); // index starts at 1
                         },
@@ -755,9 +758,10 @@ export default class Collection {
             data,
             assert.format(assert.messages.isArray.default, 'data')
         );
+        const that = this;
         const promises = data.map(item => {
             const doc = deepClone(item);
-            return this.insert(doc);
+            return that.insert(doc);
         });
         return $.when(...promises);
     }
@@ -770,7 +774,7 @@ export default class Collection {
     clear() {
         const dfd = $.Deferred();
         // https://localforage.github.io/localForage/#data-api-clear
-        this._localForage.clear(err => {
+        this._store.clear(err => {
             if (err) {
                 dfd.reject(err);
             } else {
@@ -787,7 +791,7 @@ export default class Collection {
      */
     drop() {
         const dfd = $.Deferred();
-        this._localForage = localForage.dropInstance(
+        this._store = localForage.dropInstance(
             {
                 name: this._db._name, // Database name
                 storeName: this._name // Collection name
@@ -806,9 +810,3 @@ export default class Collection {
         return dfd.promise();
     }
 }
-
-/**
- * Maintain compatibility with legacy code
- */
-window.pongodb = window.pongodb || {};
-window.pongodb.Collection = Collection;

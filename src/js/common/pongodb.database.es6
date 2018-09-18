@@ -98,6 +98,14 @@ export default class Database {
     }
 
     /**
+     * id field
+     * @returns {*|string}
+     */
+    get idField() {
+        return this._idField;
+    }
+
+    /**
      * Database name
      * @returns {*|string}
      */
@@ -325,9 +333,3 @@ export default class Database {
         return dfd.promise();
     }
 }
-
-/**
- * Maintain compatibility with legacy code
- */
-window.pongodb = window.pongodb || {};
-window.pongodb.Database = Database;

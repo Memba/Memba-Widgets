@@ -93,13 +93,3 @@ export default class ObjectId {
         return this._id;
     }
 }
-
-/**
- * Maintain compatibility with legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.util = window.kidoju.util || {};
-window.kidoju.util.ObjectId = ObjectId;
-
-window.pongodb = window.pongodb || {};
-window.pongodb.ObjectId = ObjectId;

@@ -5,6 +5,8 @@
 
 /* eslint-disable no-unused-expressions */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.data';
@@ -20,7 +22,7 @@ const { describe, it, kendo, xit } = window;
 const { DataSource } = kendo.data;
 const { expect } = chai;
 
-describe('models.base', () => {
+describe('models.page', () => {
     describe('Legacy export', () => {
         it('Check kidoju.data.Page', () => {
             expect(window.kidoju.data.Page).to.equal(Page);

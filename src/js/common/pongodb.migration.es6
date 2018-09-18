@@ -58,9 +58,3 @@ export default class Migration {
         return dfd.promise();
     }
 }
-
-/**
- * Maintain compatibility with legacy code
- */
-window.pongodb = window.pongodb || {};
-window.pongodb.Migration = Migration;

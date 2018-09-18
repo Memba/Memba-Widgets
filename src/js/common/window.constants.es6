@@ -55,6 +55,7 @@ const CONSTANTS = {
     RX_ISODATE: /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/,
     RX_LANGUAGE: /^[a-z]{2}$/,
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
+    RX_MONGODB_KEY: /^_(i|[a-z]*I)d$/,
     RX_URL: /^https?:\/\//, // TODO Review
     // Characters
     DOT: '.',

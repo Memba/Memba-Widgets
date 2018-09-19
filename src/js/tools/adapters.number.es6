@@ -21,10 +21,11 @@ const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
 const NumberAdapter = BaseAdapter.extend({
     /**
      * Constructor
+     * @constructor
      * @param options
      * @param attributes
      */
-    init: function (options, attributes) {
+    init(options, attributes) {
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.NUMBER;
         this.defaultValue = this.defaultValue || (this.nullable ? null : 0);
@@ -40,23 +41,38 @@ const NumberAdapter = BaseAdapter.extend({
         {
             name: 'equal',
             // TODO: parsing raises a culture issue with 5.3 in english and 5,3 in french
-            formula: format(VALIDATION_CUSTOM, 'return Number(value) === Number(solution);')
+            formula: format(
+                VALIDATION_CUSTOM,
+                'return Number(value) === Number(solution);'
+            )
         },
         {
             name: 'greaterThan',
-            formula: format(VALIDATION_CUSTOM, 'return Number(value) > Number(solution);')
+            formula: format(
+                VALIDATION_CUSTOM,
+                'return Number(value) > Number(solution);'
+            )
         },
         {
             name: 'greaterThanOrEqual',
-            formula: format(VALIDATION_CUSTOM, 'return Number(value) >= Number(solution);')
+            formula: format(
+                VALIDATION_CUSTOM,
+                'return Number(value) >= Number(solution);'
+            )
         },
         {
             name: 'lowerThan',
-            formula: format(VALIDATION_CUSTOM, 'return Number(value) < Number(solution);')
+            formula: format(
+                VALIDATION_CUSTOM,
+                'return Number(value) < Number(solution);'
+            )
         },
         {
             name: 'lowerThanOrEqual',
-            formula: format(VALIDATION_CUSTOM, 'return Number(value) <= Number(solution);')
+            formula: format(
+                VALIDATION_CUSTOM,
+                'return Number(value) <= Number(solution);'
+            )
         }
     ],
     libraryDefault: 'equal'

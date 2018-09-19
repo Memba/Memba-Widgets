@@ -16,45 +16,58 @@ import BaseAdapter from './adapters.base.es6';
  * @class ChartAdapter
  */
 const ChartAdapter = BaseAdapter.extend({
-    init: function (options) {
-        var that = this;
+    /**
+     * Constructor
+     * @constructor
+     * @param options
+     * @param attributes
+     */
+    init(options, attributes) {
+        const that = this;
         BaseAdapter.fn.init.call(that, options);
         that.type = undefined;
         // This is the inline editor with a [...] button which triggers this.showDialog
-        that.editor = function (container, settings) {
+        that.editor = function(container, settings) {
             $('<button/>')
-            .text('...')
-            .addClass('k-button')
-            .css({ margin: 0, width: '100%' })
-            .appendTo(container)
-            .on(CLICK, $.proxy(that.showDialog, that, settings));
+                .text('...')
+                .addClass('k-button')
+                .css({ margin: 0, width: '100%' })
+                .appendTo(container)
+                .on(CONSTANTS.CLICK, $.proxy(that.showDialog, that, settings));
         };
     },
-    showDialog: function (options/*, e*/) {
-        var model = options.model;
-        var columns = model.get('attributes.categories') + 1;
-        var rows = model.get('attributes.values') + 1;
-        var data = util.resizeSpreadsheetData(model.get('attributes.data'), rows, columns);
+    showDialog(options /* , e */) {
+        const model = options.model;
+        const columns = model.get('attributes.categories') + 1;
+        const rows = model.get('attributes.values') + 1;
+        const data = util.resizeSpreadsheetData(
+            model.get('attributes.data'),
+            rows,
+            columns
+        );
         // TODO wrap in import('./dialogs/kidoju.dialogs.spreadsheet.es6').then(function () {...});
-        kidoju.dialogs.openSpreadsheet({
-            title: options.title,
-            data: Object.assign(data, {
-                columns: columns,
-                rows: rows,
-                sheetsbar: false,
-                toolbar: false
+        kidoju.dialogs
+            .openSpreadsheet({
+                title: options.title,
+                data: Object.assign(data, {
+                    columns,
+                    rows,
+                    sheetsbar: false,
+                    toolbar: false
+                })
             })
-        })
-        .done(function (result) {
-            if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
-                // TODO test result.data???
-                options.model.set(options.field, result.data);
-            }
-        })
-        .fail(function (err) {
-            // TODO
-        });
-
+            .done(result => {
+                if (
+                    result.action ===
+                    kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
+                ) {
+                    // TODO test result.data???
+                    options.model.set(options.field, result.data);
+                }
+            })
+            .fail(err => {
+                // TODO
+            });
     }
 });
 

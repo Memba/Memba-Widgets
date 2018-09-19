@@ -7,14 +7,16 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import assert from '../common/window.assert';
-import CONSTANTS from '../common/window.constants';
-import { randomVal } from '../common/window.util';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import { randomVal } from '../common/window.util.es6';
+import BaseModel from '../data/models.base.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
 import BaseAdapter from './adapters.base.es6';
 import NumberAdapter from './adapters.number.es6';
-import BaseModel from '../data/models.base.es6';
+import ValidationAdapter from './adapters.validation.es6';
 
-const { Class } = window.kendo;
+const { attr, Class } = window.kendo;
 
 // TODO Add markdown help
 
@@ -104,7 +106,7 @@ const BaseTool = Class.extend({
         $.extend(this, options);
 
         // Pass solution adapter library to validation adapter, especially for the code editor
-        if (this.properties && this.properties.solution instanceof BaseAdapter && this.properties.validation instanceof adapters.ValidationAdapter) {
+        if (this.properties && this.properties.solution instanceof BaseAdapter && this.properties.validation instanceof ValidationAdapter) {
             this.properties.validation.library = this.properties.solution.library;
             this.properties.validation.defaultValue = LIB_COMMENT + this.properties.solution.libraryDefault;
         }
@@ -140,14 +142,14 @@ const BaseTool = Class.extend({
     _getAttributeRows: function () {
         var rows = [];
         var data = {};
-        data[kendo.attr('decimals')] = 0;
-        data[kendo.attr('format')] = 'n0';
+        data[attr('decimals')] = 0;
+        data[attr('format')] = 'n0';
         // Add top, left, height, width, rotation
-        rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.title }, data).getRow('top'));
-        rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.left.title }, data).getRow('left'));
-        rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.height.title }, data).getRow('height'));
-        rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.width.title }, data).getRow('width'));
-        rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.rotate.title }, data).getRow('rotate'));
+        rows.push(new NumberAdapter({ title: this.i18n.tool.top.title }, data).getRow('top'));
+        rows.push(new NumberAdapter({ title: this.i18n.tool.left.title }, data).getRow('left'));
+        rows.push(new NumberAdapter({ title: this.i18n.tool.height.title }, data).getRow('height'));
+        rows.push(new NumberAdapter({ title: this.i18n.tool.width.title }, data).getRow('width'));
+        rows.push(new NumberAdapter({ title: this.i18n.tool.rotate.title }, data).getRow('rotate'));
 
         // Add other attributes
         for (var attr in this.attributes) {
@@ -176,7 +178,7 @@ const BaseTool = Class.extend({
                     model.fields[prop] = properties[prop].getField();
                     if (prop === 'name') {
                         // This cannot be set as a default value on the  adapter because each instance should have a different name
-                        model.fields.name.defaultValue = 'val_' + randomString(6);
+                        model.fields.name.defaultValue = randomVal();
                     } else if (prop === 'validation') {
                         // We need the code library otherwise we won't have code to execute when validation === '// equal' or any other library value
                         model._library = properties.validation.library;

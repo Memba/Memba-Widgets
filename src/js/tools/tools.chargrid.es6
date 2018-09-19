@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -41,27 +43,27 @@ var CharGrid = BaseTool.extend({
     height: 400,
     width: 400,
     attributes: {
-        columns: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-        rows: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-        blank: new adapters.StringAdapter({ title: i18n.chargrid.attributes.blank.title, defaultValue: '.' }),
-        whitelist: new adapters.StringAdapter({ title: i18n.chargrid.attributes.whitelist.title, defaultValue: '1-9' }),
-        layout: new adapters.CharGridAdapter({ title: i18n.chargrid.attributes.layout.title, defaultValue: null }),
-        gridFill: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.gridFill.title, defaultValue: '#ffffff' }),
-        gridStroke: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.gridStroke.title, defaultValue: '#000000' }),
+        columns: new NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+        rows: new NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+        blank: new StringAdapter({ title: i18n.chargrid.attributes.blank.title, defaultValue: '.' }),
+        whitelist: new StringAdapter({ title: i18n.chargrid.attributes.whitelist.title, defaultValue: '1-9' }),
+        layout: new CharGridAdapter({ title: i18n.chargrid.attributes.layout.title, defaultValue: null }),
+        gridFill: new ColorAdapter({ title: i18n.chargrid.attributes.gridFill.title, defaultValue: '#ffffff' }),
+        gridStroke: new ColorAdapter({ title: i18n.chargrid.attributes.gridStroke.title, defaultValue: '#000000' }),
         // blankFill = gridStroke
-        selectedFill: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.selectedFill.title, defaultValue: '#ffffcc' }),
-        lockedFill: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.lockedFill.title, defaultValue: '#e6e6e6' }),
+        selectedFill: new ColorAdapter({ title: i18n.chargrid.attributes.selectedFill.title, defaultValue: '#ffffcc' }),
+        lockedFill: new ColorAdapter({ title: i18n.chargrid.attributes.lockedFill.title, defaultValue: '#e6e6e6' }),
         // lockedColor = valueColor = fontColor
-        fontColor: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.fontColor.title, defaultValue: '#9999b6' })
+        fontColor: new ColorAdapter({ title: i18n.chargrid.attributes.fontColor.title, defaultValue: '#9999b6' })
     },
     properties: {
-        name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
-        question: new adapters.QuestionAdapter({ title: i18n.chargrid.properties.question.title }),
-        solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
-        validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
-        success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
-        failure: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
-        omit: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.omit.title, defaultValue: 0 })
+        name: new NameAdapter({ title: i18n.chargrid.properties.name.title }),
+        question: new QuestionAdapter({ title: i18n.chargrid.properties.question.title }),
+        solution: new CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
+        validation: new ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
+        success: new ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
+        failure: new ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
+        omit: new ScoreAdapter({ title: i18n.chargrid.properties.omit.title, defaultValue: 0 })
     },
 
     /**

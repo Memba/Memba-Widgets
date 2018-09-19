@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -42,24 +44,24 @@ var Selector = BaseTool.extend({
     height: 50,
     width: 50,
     attributes: {
-        color: new adapters.ColorAdapter({ title: i18n.selector.attributes.color.title, defaultValue: '#FF0000' }),
-        empty: new adapters.StringAdapter({ title: i18n.selector.attributes.empty.title }),
-        hitRadius: new adapters.NumberAdapter({ title: i18n.selector.attributes.hitRadius.title, defaultValue: 15 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 15, 'data-max': 999 }),
-        shape: new adapters.EnumAdapter(
+        color: new ColorAdapter({ title: i18n.selector.attributes.color.title, defaultValue: '#FF0000' }),
+        empty: new StringAdapter({ title: i18n.selector.attributes.empty.title }),
+        hitRadius: new NumberAdapter({ title: i18n.selector.attributes.hitRadius.title, defaultValue: 15 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 15, 'data-max': 999 }),
+        shape: new EnumAdapter(
             { title: i18n.selector.attributes.shape.title, defaultValue: 'circle', enum: ['circle', 'cross', 'rect'] },
             { style: 'width: 100%;' }
         ),
-        strokeWidth: new adapters.NumberAdapter({ title: i18n.selector.attributes.strokeWidth.title, defaultValue: 12 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 50 })
+        strokeWidth: new NumberAdapter({ title: i18n.selector.attributes.strokeWidth.title, defaultValue: 12 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 50 })
     },
     properties: {
-        name: new adapters.NameAdapter({ title: i18n.selector.properties.name.title }),
-        question: new adapters.QuestionAdapter({ title: i18n.selector.properties.question.title }),
-        solution: new adapters.StringArrayAdapter({ title: i18n.selector.properties.solution.title }),
-        validation: new adapters.ValidationAdapter({ title: i18n.selector.properties.validation.title }),
-        success: new adapters.ScoreAdapter({ title: i18n.selector.properties.success.title, defaultValue: 1 }),
-        failure: new adapters.ScoreAdapter({ title: i18n.selector.properties.failure.title, defaultValue: 0 }),
-        omit: new adapters.ScoreAdapter({ title: i18n.selector.properties.omit.title, defaultValue: 0 }),
-        disabled: new adapters.DisabledAdapter({ title: i18n.selector.properties.disabled.title, defaultValue: false })
+        name: new NameAdapter({ title: i18n.selector.properties.name.title }),
+        question: new QuestionAdapter({ title: i18n.selector.properties.question.title }),
+        solution: new StringArrayAdapter({ title: i18n.selector.properties.solution.title }),
+        validation: new ValidationAdapter({ title: i18n.selector.properties.validation.title }),
+        success: new ScoreAdapter({ title: i18n.selector.properties.success.title, defaultValue: 1 }),
+        failure: new ScoreAdapter({ title: i18n.selector.properties.failure.title, defaultValue: 0 }),
+        omit: new ScoreAdapter({ title: i18n.selector.properties.omit.title, defaultValue: 0 }),
+        disabled: new DisabledAdapter({ title: i18n.selector.properties.disabled.title, defaultValue: false })
     },
 
     /**

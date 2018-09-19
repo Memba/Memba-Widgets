@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -41,17 +43,17 @@ var Connector = BaseTool.extend({
     height: 70,
     width: 70,
     attributes: {
-        color: new adapters.ColorAdapter({ title: i18n.connector.attributes.color.title, defaultValue: '#FF0000' })
+        color: new ColorAdapter({ title: i18n.connector.attributes.color.title, defaultValue: '#FF0000' })
     },
     properties: {
-        name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }),
-        question: new adapters.QuestionAdapter({ title: i18n.connector.properties.question.title }),
-        solution: new adapters.ConnectorAdapter({ title: i18n.connector.properties.solution.title }),
-        validation: new adapters.ValidationAdapter({ title: i18n.connector.properties.validation.title }),
-        success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 1 }),
-        failure: new adapters.ScoreAdapter({ title: i18n.connector.properties.failure.title, defaultValue: 0 }),
-        omit: new adapters.ScoreAdapter({ title: i18n.connector.properties.omit.title, defaultValue: 0 }),
-        disabled: new adapters.DisabledAdapter({ title: i18n.connector.properties.disabled.title, defaultValue: false })
+        name: new NameAdapter({ title: i18n.connector.properties.name.title }),
+        question: new QuestionAdapter({ title: i18n.connector.properties.question.title }),
+        solution: new ConnectorAdapter({ title: i18n.connector.properties.solution.title }),
+        validation: new ValidationAdapter({ title: i18n.connector.properties.validation.title }),
+        success: new ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 1 }),
+        failure: new ScoreAdapter({ title: i18n.connector.properties.failure.title, defaultValue: 0 }),
+        omit: new ScoreAdapter({ title: i18n.connector.properties.omit.title, defaultValue: 0 }),
+        disabled: new DisabledAdapter({ title: i18n.connector.properties.disabled.title, defaultValue: false })
     },
 
     /**

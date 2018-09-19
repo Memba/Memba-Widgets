@@ -18,7 +18,13 @@ const { attr } = window.kendo;
  * @class ScoreAdapter
  */
 const ScoreAdapter = BaseAdapter.extend({
-    init: function (options, attributes) {
+    /**
+     * Constructor
+     * @constructor
+     * @param options
+     * @param attributes
+     */
+    init(options, attributes) {
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.NUMBER;
         this.defaultValue = this.defaultValue || (this.nullable ? null : 0);

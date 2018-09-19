@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -42,24 +44,24 @@ var Quiz = BaseTool.extend({
     height: 120,
     width: 490,
     attributes: {
-        mode: new adapters.EnumAdapter(
+        mode: new EnumAdapter(
             { title: i18n.quiz.attributes.mode.title, defaultValue: 'button', enum: ['button', 'dropdown', 'image', 'link', 'radio'] },
             { style: 'width: 100%;' }
         ),
-        shuffle: new adapters.BooleanAdapter({ title: i18n.quiz.attributes.shuffle.title }),
-        groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title, defaultValue: 'font-size:60px;' }),
-        itemStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.itemStyle.title }),
-        selectedStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.selectedStyle.title }),
-        data: new adapters.ImageListBuilderAdapter({ title: i18n.quiz.attributes.data.title, defaultValue: i18n.quiz.attributes.data.defaultValue })
+        shuffle: new BooleanAdapter({ title: i18n.quiz.attributes.shuffle.title }),
+        groupStyle: new StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title, defaultValue: 'font-size:60px;' }),
+        itemStyle: new StyleAdapter({ title: i18n.quiz.attributes.itemStyle.title }),
+        selectedStyle: new StyleAdapter({ title: i18n.quiz.attributes.selectedStyle.title }),
+        data: new ImageListBuilderAdapter({ title: i18n.quiz.attributes.data.title, defaultValue: i18n.quiz.attributes.data.defaultValue })
     },
     properties: {
-        name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),
-        question: new adapters.QuestionAdapter({ title: i18n.quiz.properties.question.title }),
-        solution: new adapters.QuizSolutionAdapter({ title: i18n.quiz.properties.solution.title }),
-        validation: new adapters.ValidationAdapter({ title: i18n.quiz.properties.validation.title }),
-        success: new adapters.ScoreAdapter({ title: i18n.quiz.properties.success.title, defaultValue: 1 }),
-        failure: new adapters.ScoreAdapter({ title: i18n.quiz.properties.failure.title, defaultValue: 0 }),
-        omit: new adapters.ScoreAdapter({ title: i18n.quiz.properties.omit.title, defaultValue: 0 })
+        name: new NameAdapter({ title: i18n.quiz.properties.name.title }),
+        question: new QuestionAdapter({ title: i18n.quiz.properties.question.title }),
+        solution: new QuizSolutionAdapter({ title: i18n.quiz.properties.solution.title }),
+        validation: new ValidationAdapter({ title: i18n.quiz.properties.validation.title }),
+        success: new ScoreAdapter({ title: i18n.quiz.properties.success.title, defaultValue: 1 }),
+        failure: new ScoreAdapter({ title: i18n.quiz.properties.failure.title, defaultValue: 0 }),
+        omit: new ScoreAdapter({ title: i18n.quiz.properties.omit.title, defaultValue: 0 })
     },
 
     /**
@@ -74,13 +76,13 @@ var Quiz = BaseTool.extend({
         assert.instanceof(Quiz, that, assert.format(assert.messages.instanceof.default, 'this', 'Quiz'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-        assert.instanceof(ToolAssets, utilAssets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+        assert.instanceof(ToolAssets, assets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
         var template = kendo.template(that.templates[mode]);
         // The data$ function resolves urls with schemes like cdn://sample.jpg
         component.data$ = function () {
             var data = component.attributes.get('data');
             var clone = [];
-            var schemes = utilAssets.image.schemes;
+            var schemes = assets.image.schemes;
             for (var i = 0, length = data.length; i < length; i++) {
                 var item = {
                     text: data[i].text,

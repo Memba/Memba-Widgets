@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -42,20 +44,20 @@ var DropZone = BaseTool.extend({
     height: 250,
     width: 250,
     attributes: {
-        center: new adapters.BooleanAdapter({ title: i18n.dropzone.attributes.center.title, defaultValue: i18n.dropzone.attributes.center.defaultValue }),
-        empty: new adapters.StringAdapter({ title: i18n.dropzone.attributes.empty.title }),
-        text: new adapters.StringAdapter({ title: i18n.dropzone.attributes.text.title, defaultValue: i18n.dropzone.attributes.text.defaultValue }),
-        style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title, defaultValue: 'font-size:30px;border:dashed 3px #e1e1e1;' })
+        center: new BooleanAdapter({ title: i18n.dropzone.attributes.center.title, defaultValue: i18n.dropzone.attributes.center.defaultValue }),
+        empty: new StringAdapter({ title: i18n.dropzone.attributes.empty.title }),
+        text: new StringAdapter({ title: i18n.dropzone.attributes.text.title, defaultValue: i18n.dropzone.attributes.text.defaultValue }),
+        style: new StyleAdapter({ title: i18n.dropzone.attributes.style.title, defaultValue: 'font-size:30px;border:dashed 3px #e1e1e1;' })
     },
     properties: {
-        name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }),
-        question: new adapters.QuestionAdapter({ title: i18n.dropzone.properties.question.title }),
-        solution: new adapters.StringArrayAdapter({ title: i18n.dropzone.properties.solution.title }),
-        validation: new adapters.ValidationAdapter({ title: i18n.dropzone.properties.validation.title }),
-        success: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.success.title, defaultValue: 1 }),
-        failure: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.failure.title, defaultValue: 0 }),
-        omit: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.omit.title, defaultValue: 0 }),
-        disabled: new adapters.DisabledAdapter({ title: i18n.dropzone.properties.disabled.title, defaultValue: false })
+        name: new NameAdapter({ title: i18n.dropzone.properties.name.title }),
+        question: new QuestionAdapter({ title: i18n.dropzone.properties.question.title }),
+        solution: new StringArrayAdapter({ title: i18n.dropzone.properties.solution.title }),
+        validation: new ValidationAdapter({ title: i18n.dropzone.properties.validation.title }),
+        success: new ScoreAdapter({ title: i18n.dropzone.properties.success.title, defaultValue: 1 }),
+        failure: new ScoreAdapter({ title: i18n.dropzone.properties.failure.title, defaultValue: 0 }),
+        omit: new ScoreAdapter({ title: i18n.dropzone.properties.omit.title, defaultValue: 0 }),
+        disabled: new DisabledAdapter({ title: i18n.dropzone.properties.disabled.title, defaultValue: false })
     },
 
     /**

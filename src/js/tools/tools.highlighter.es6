@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -41,19 +43,19 @@ var HighLighter = BaseTool.extend({
     height: 250,
     width: 250,
     attributes: {
-        highlightStyle: new adapters.StyleAdapter({ title: i18n.highlighter.attributes.highlightStyle.title }),
-        style: new adapters.StyleAdapter({ title: i18n.highlighter.attributes.style.title, defaultValue: 'font-size:32px;' }),
-        text: new adapters.TextAdapter({ title: i18n.highlighter.attributes.text.title, defaultValue: i18n.highlighter.attributes.text.defaultValue }),
-        split: new adapters.StringAdapter({ title: i18n.highlighter.attributes.split.title, defaultValue: '([\\s\\.,;:\\?¿!<>\\(\\)&"`«»\\[\\]{}])' })
+        highlightStyle: new StyleAdapter({ title: i18n.highlighter.attributes.highlightStyle.title }),
+        style: new StyleAdapter({ title: i18n.highlighter.attributes.style.title, defaultValue: 'font-size:32px;' }),
+        text: new TextAdapter({ title: i18n.highlighter.attributes.text.title, defaultValue: i18n.highlighter.attributes.text.defaultValue }),
+        split: new StringAdapter({ title: i18n.highlighter.attributes.split.title, defaultValue: '([\\s\\.,;:\\?¿!<>\\(\\)&"`«»\\[\\]{}])' })
     },
     properties: {
-        name: new adapters.NameAdapter({ title: i18n.highlighter.properties.name.title }),
-        question: new adapters.QuestionAdapter({ title: i18n.highlighter.properties.question.title }),
-        solution: new adapters.HighLighterAdapter({ title: i18n.highlighter.properties.solution.title }),
-        validation: new adapters.ValidationAdapter({ title: i18n.highlighter.properties.validation.title }),
-        success: new adapters.ScoreAdapter({ title: i18n.highlighter.properties.success.title, defaultValue: 1 }),
-        failure: new adapters.ScoreAdapter({ title: i18n.highlighter.properties.failure.title, defaultValue: 0 }),
-        omit: new adapters.ScoreAdapter({ title: i18n.highlighter.properties.omit.title, defaultValue: 0 })
+        name: new NameAdapter({ title: i18n.highlighter.properties.name.title }),
+        question: new QuestionAdapter({ title: i18n.highlighter.properties.question.title }),
+        solution: new HighLighterAdapter({ title: i18n.highlighter.properties.solution.title }),
+        validation: new ValidationAdapter({ title: i18n.highlighter.properties.validation.title }),
+        success: new ScoreAdapter({ title: i18n.highlighter.properties.success.title, defaultValue: 1 }),
+        failure: new ScoreAdapter({ title: i18n.highlighter.properties.failure.title, defaultValue: 0 }),
+        omit: new ScoreAdapter({ title: i18n.highlighter.properties.omit.title, defaultValue: 0 })
     },
 
     /**

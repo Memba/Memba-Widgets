@@ -9,18 +9,29 @@ import $ from 'jquery';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
+const { attr, format } = window.kendo;
 // TODO rename as readonly adapter
 
 /**
  * @class NameAdapter
  */
 const NameAdapter = BaseAdapter.extend({
-    init: function (options, attributes) {
+    /**
+     * Constructor
+     * @constructor
+     * @param options
+     * @param attributes
+     */
+    init(options, attributes) {
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'input';
-        this.attributes = $.extend({}, this.attributes, attributes, { type: 'text', class: 'k-textbox k-state-disabled',  disabled: true });
+        this.attributes = $.extend({}, this.attributes, attributes, {
+            type: 'text',
+            class: 'k-textbox k-state-disabled',
+            disabled: true
+        });
     }
 });
 

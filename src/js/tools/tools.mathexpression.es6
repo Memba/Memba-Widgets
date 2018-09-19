@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -36,16 +38,16 @@ var MathExpression = BaseTool.extend({
     height: 180,
     width: 370,
     attributes: {
-        formula: new adapters.MathAdapter(
+        formula: new MathAdapter(
             { title: i18n.mathexpression.attributes.formula.title, defaultValue: i18n.mathexpression.attributes.formula.defaultValue }
         ),
-        inline: new adapters.BooleanAdapter (
+        inline: new BooleanAdapter (
             { title: i18n.mathexpression.attributes.inline.title, defaultValue: i18n.mathexpression.attributes.inline.defaultValue }
         ),
-        style: new adapters.StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size:50px;' })
+        style: new StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size:50px;' })
     },
     properties: {
-        behavior: new adapters.EnumAdapter(
+        behavior: new EnumAdapter(
             {
                 title: i18n.mathexpression.properties.behavior.title,
                 defaultValue: 'none',
@@ -55,7 +57,7 @@ var MathExpression = BaseTool.extend({
                 style: 'width: 100%;'
             }
         ),
-        constant: new adapters.StringAdapter({ title: i18n.image.properties.constant.title })
+        constant: new StringAdapter({ title: i18n.image.properties.constant.title })
     },
 
     /**

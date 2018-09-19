@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -90,13 +92,13 @@ var Chart = BaseTool.extend({
     height: 400,
     width: 400,
     attributes: {
-        type: new adapters.EnumAdapter({ title: i18n.chart.attributes.type.title, defaultValue: 'column', enum: ['area', 'bar', 'column', 'line', 'radarArea', 'radarColumn', 'radarLine', 'smoothLine', 'stackBar', 'waterfall', 'verticalArea', 'verticalLine'] }, { style: 'width: 100%;' }),
-        title: new adapters.StringAdapter({ title: i18n.chart.attributes.title.title }),
-        categories: new adapters.NumberAdapter({ title: i18n.chart.attributes.categories.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
-        values: new adapters.NumberAdapter({ title: i18n.chart.attributes.values.title, defaultValue: 2 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
-        legend: new adapters.EnumAdapter({ title: i18n.chart.attributes.legend.title, defaultValue: 'none', enum: ['none', 'top', 'bottom', 'left', 'right'] }, { style: 'width: 100%;' }),
-        data: new adapters.ChartAdapter({ title: i18n.chart.attributes.data.title, defaultValue: util.defaultChartData(4, 2) }),
-        style: new adapters.StyleAdapter({ title: i18n.chart.attributes.style.title })
+        type: new EnumAdapter({ title: i18n.chart.attributes.type.title, defaultValue: 'column', enum: ['area', 'bar', 'column', 'line', 'radarArea', 'radarColumn', 'radarLine', 'smoothLine', 'stackBar', 'waterfall', 'verticalArea', 'verticalLine'] }, { style: 'width: 100%;' }),
+        title: new StringAdapter({ title: i18n.chart.attributes.title.title }),
+        categories: new NumberAdapter({ title: i18n.chart.attributes.categories.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
+        values: new NumberAdapter({ title: i18n.chart.attributes.values.title, defaultValue: 2 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
+        legend: new EnumAdapter({ title: i18n.chart.attributes.legend.title, defaultValue: 'none', enum: ['none', 'top', 'bottom', 'left', 'right'] }, { style: 'width: 100%;' }),
+        data: new ChartAdapter({ title: i18n.chart.attributes.data.title, defaultValue: util.defaultChartData(4, 2) }),
+        style: new StyleAdapter({ title: i18n.chart.attributes.style.title })
     },
 
     /* This function's cyclomatic complexity is too high. */

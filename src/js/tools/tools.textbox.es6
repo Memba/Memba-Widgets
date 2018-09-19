@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -44,17 +46,17 @@ var Textbox = BaseTool.extend({
     height: 80,
     width: 300,
     attributes: {
-        mask: new adapters.StringAdapter({ title: i18n.textbox.attributes.mask.title }),
-        style: new adapters.StyleAdapter({ title: i18n.textbox.attributes.style.title })
+        mask: new StringAdapter({ title: i18n.textbox.attributes.mask.title }),
+        style: new StyleAdapter({ title: i18n.textbox.attributes.style.title })
     },
     properties: {
-        name: new adapters.NameAdapter({ title: i18n.textbox.properties.name.title }),
-        question: new adapters.QuestionAdapter({ title: i18n.textbox.properties.question.title }),
-        solution: new adapters.StringAdapter({ title: i18n.textbox.properties.solution.title }),
-        validation: new adapters.ValidationAdapter({ title: i18n.textbox.properties.validation.title }),
-        success: new adapters.ScoreAdapter({ title: i18n.textbox.properties.success.title, defaultValue: 1 }),
-        failure: new adapters.ScoreAdapter({ title: i18n.textbox.properties.failure.title, defaultValue: 0 }),
-        omit: new adapters.ScoreAdapter({ title: i18n.textbox.properties.omit.title, defaultValue: 0 })
+        name: new NameAdapter({ title: i18n.textbox.properties.name.title }),
+        question: new QuestionAdapter({ title: i18n.textbox.properties.question.title }),
+        solution: new StringAdapter({ title: i18n.textbox.properties.solution.title }),
+        validation: new ValidationAdapter({ title: i18n.textbox.properties.validation.title }),
+        success: new ScoreAdapter({ title: i18n.textbox.properties.success.title, defaultValue: 1 }),
+        failure: new ScoreAdapter({ title: i18n.textbox.properties.failure.title, defaultValue: 0 }),
+        omit: new ScoreAdapter({ title: i18n.textbox.properties.omit.title, defaultValue: 0 })
     },
 
     /**

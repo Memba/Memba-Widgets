@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -37,9 +39,9 @@ var Table = BaseTool.extend({
     height: 350,
     width: 600,
     attributes: {
-        columns: new adapters.NumberAdapter({ title: i18n.table.attributes.columns.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-        rows: new adapters.NumberAdapter({ title: i18n.table.attributes.rows.title, defaultValue: 6 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-        data: new adapters.TableAdapter({ title: i18n.table.attributes.data.title, defaultValue: { sheets: [{ rows: [{ index:0, cells: [{ index:0, value: 'Table', fontSize: 48 }] }] }] } })
+        columns: new NumberAdapter({ title: i18n.table.attributes.columns.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+        rows: new NumberAdapter({ title: i18n.table.attributes.rows.title, defaultValue: 6 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+        data: new TableAdapter({ title: i18n.table.attributes.data.title, defaultValue: { sheets: [{ rows: [{ index:0, cells: [{ index:0, value: 'Table', fontSize: 48 }] }] }] } })
     },
 
     /**

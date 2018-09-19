@@ -9,12 +9,21 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants';
-import tools from './tools.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
 import AssetAdapter from './adapters.assets.es6';
 import EnumAdapter from './adapters.enum.es6';
 import StringAdapter from './adapters.string.es6';
 import StyleAdapter from './adapters.style.es6';
+import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+import { ToolAssets, assets } from './util.assets.es6';
+
+const {
+    format,
+    ns,
+    template,
+    ui: { Stage }
+} = window.kendo;
 
 /**
  * i18n
@@ -45,7 +54,7 @@ function i18n() {
  * @class Image tool
  * @type {void|*}
  */
-var Image = BaseTool.extend({
+const Image = BaseTool.extend({
     id: 'image',
     icon: 'painting_landscape',
     description: i18n().description,
@@ -88,8 +97,8 @@ var Image = BaseTool.extend({
      * @param mode
      * @returns {*}
      */
-    getHtmlContent: function(component, mode) {
-        var that = this;
+    getHtmlContent(component, mode) {
+        const that = this;
         assert.instanceof(
             Image,
             that,
@@ -105,57 +114,56 @@ var Image = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.keys(kendo.ui.Stage.fn.modes),
+            Object.keys(Stage.fn.modes),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(kendo.ui.Stage.fn.modes)
+                Object.keys(Stage.fn.modes)
             )
         );
         assert.instanceof(
             ToolAssets,
-            utilAssets.image,
+            assets.image,
             assert.format(
                 assert.messages.instanceof.default,
                 'assets.image',
                 'kidoju.ToolAssets'
             )
         );
-        var template = kendo.template(that.templates.default);
+        const tmpl = template(that.templates.default);
         // The class$ function adds the kj-interactive class to draggable components
         component.class$ = function() {
-            return (
-                'kj-image' +
-                (component.properties.behavior === 'draggable'
-                    ? ' ' + INTERACTIVE_CLASS
-                    : '')
-            );
+            return `kj-image${
+                component.properties.behavior === 'draggable'
+                    ? ` ${CONSTANTS.INTERACTIVE_CLASS}`
+                    : ''
+            }`;
         };
         // The id$ function returns the component id for components that have a behavior
         component.id$ = function() {
             return component.properties.behavior !== 'none' &&
-                $.type(component.id) === STRING &&
+                $.type(component.id) === CONSTANTS.STRING &&
                 component.id.length
                 ? component.id
                 : '';
         };
         // The src$ function resolves urls with schemes like cdn://sample.jpg
         component.src$ = function() {
-            var src = component.attributes.get('src');
-            var schemes = utilAssets.image.schemes;
-            for (var scheme in schemes) {
+            let src = component.attributes.get('src');
+            const schemes = assets.image.schemes;
+            for (const scheme in schemes) {
                 if (
                     Object.prototype.hasOwnProperty.call(schemes, scheme) &&
-                    new RegExp('^' + scheme + '://').test(src)
+                    new RegExp(`^${scheme}://`).test(src)
                 ) {
-                    src = src.replace(scheme + '://', schemes[scheme]);
+                    src = src.replace(`${scheme}://`, schemes[scheme]);
                     break;
                 }
             }
             return src;
         };
-        return template($.extend(component, { ns: kendo.ns }));
+        return tmpl($.extend(component, { ns }));
     },
 
     /**
@@ -164,11 +172,11 @@ var Image = BaseTool.extend({
      * @param e
      * @param component
      */
-    onResize: function(e, component) {
-        var stageElement = $(e.currentTarget);
+    onResize(e, component) {
+        const stageElement = $(e.currentTarget);
         assert.ok(
             stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            kendo.format('e.currentTarget is expected to be a stage element')
+            format('e.currentTarget is expected to be a stage element')
         );
         assert.instanceof(
             PageComponent,
@@ -179,14 +187,13 @@ var Image = BaseTool.extend({
                 'kidoju.data.PageComponent'
             )
         );
-        var content = stageElement.children('img');
+        const content = stageElement.children('img');
         // Assuming we can get the natural size of the image, we shall keep proportions
-        var naturalHeight = content[0].naturalHeight;
-        var naturalWidth = content[0].naturalWidth;
+        const { naturalHeight, naturalWidth } = content[0];
         if (naturalHeight && naturalWidth) {
-            var height = component.get('height');
-            var width = component.get('width');
-            var rectLimitedByHeight = {
+            const height = component.get('height');
+            const width = component.get('width');
+            const rectLimitedByHeight = {
                 height: Math.round(height),
                 width: Math.round((height * naturalWidth) / naturalHeight)
             };
@@ -243,9 +250,9 @@ var Image = BaseTool.extend({
      * @param pageIdx
      */
     validate(component, pageIdx) {
-        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        var description = this.description; // tool description
-        var messages = this.i18n.messages;
+        const ret = BaseTool.fn.validate.call(this, component, pageIdx);
+        const description = this.description; // tool description
+        const messages = this.i18n.messages;
         if (
             !component.attributes ||
             !component.attributes.alt ||
@@ -253,9 +260,9 @@ var Image = BaseTool.extend({
             !RX_TEXT.test(component.attributes.alt)
         ) {
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(
+                message: format(
                     messages.invalidAltText,
                     description,
                     pageIdx + 1
@@ -272,10 +279,10 @@ var Image = BaseTool.extend({
                 type:
                     component.attributes.src ===
                     i18n().attributes.src.defaultValue
-                        ? WARNING
-                        : ERROR,
+                        ? CONSTANTS.WARNING
+                        : CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(
+                message: format(
                     messages.invalidImageFile,
                     description,
                     pageIdx + 1
@@ -289,9 +296,9 @@ var Image = BaseTool.extend({
                 !RX_STYLE.test(component.attributes.style))
         ) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(
+                message: format(
                     messages.invalidStyle,
                     description,
                     pageIdx + 1

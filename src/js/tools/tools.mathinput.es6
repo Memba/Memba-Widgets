@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -42,27 +44,27 @@ var MathInput = BaseTool.extend({
     width: 370,
     attributes: {
         // The formula is intended to set several MathQuillMathFields, which requires to make the solution an array of mathinputs
-        // formula: new adapters.MathAdapter({ title: i18n.mathinput.attributes.formula.title }),
-        // backspace: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.backspace.title, defaultValue: false }),
-        // field: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.field.title, defaultValue: false }),
-        keypad: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.keypad.title, defaultValue: true }),
-        basic: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.basic.title, defaultValue: true }),
-        greek: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.greek.title, defaultValue: false }),
-        operators: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.operators.title, defaultValue: false }),
-        expressions: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.expressions.title, defaultValue: false }),
-        sets: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.sets.title, defaultValue: false }),
-        matrices: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.matrices.title, defaultValue: false }),
-        statistics: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.statistics.title, defaultValue: false }),
-        style: new adapters.StyleAdapter({ title: i18n.mathinput.attributes.style.title, defaultValue: 'font-size:50px;' })
+        // formula: new MathAdapter({ title: i18n.mathinput.attributes.formula.title }),
+        // backspace: new BooleanAdapter({ title: i18n.mathinput.attributes.backspace.title, defaultValue: false }),
+        // field: new BooleanAdapter({ title: i18n.mathinput.attributes.field.title, defaultValue: false }),
+        keypad: new BooleanAdapter({ title: i18n.mathinput.attributes.keypad.title, defaultValue: true }),
+        basic: new BooleanAdapter({ title: i18n.mathinput.attributes.basic.title, defaultValue: true }),
+        greek: new BooleanAdapter({ title: i18n.mathinput.attributes.greek.title, defaultValue: false }),
+        operators: new BooleanAdapter({ title: i18n.mathinput.attributes.operators.title, defaultValue: false }),
+        expressions: new BooleanAdapter({ title: i18n.mathinput.attributes.expressions.title, defaultValue: false }),
+        sets: new BooleanAdapter({ title: i18n.mathinput.attributes.sets.title, defaultValue: false }),
+        matrices: new BooleanAdapter({ title: i18n.mathinput.attributes.matrices.title, defaultValue: false }),
+        statistics: new BooleanAdapter({ title: i18n.mathinput.attributes.statistics.title, defaultValue: false }),
+        style: new StyleAdapter({ title: i18n.mathinput.attributes.style.title, defaultValue: 'font-size:50px;' })
     },
     properties: {
-        name: new adapters.NameAdapter({ title: i18n.mathinput.properties.name.title }),
-        question: new adapters.QuestionAdapter({ title: i18n.mathinput.properties.question.title }),
-        solution: new adapters.MathAdapter({ title: i18n.mathinput.properties.solution.title, defaultValue: '' }),
-        validation: new adapters.ValidationAdapter({ title: i18n.mathinput.properties.validation.title }),
-        success: new adapters.ScoreAdapter({ title: i18n.mathinput.properties.success.title, defaultValue: 1 }),
-        failure: new adapters.ScoreAdapter({ title: i18n.mathinput.properties.failure.title, defaultValue: 0 }),
-        omit: new adapters.ScoreAdapter({ title: i18n.mathinput.properties.omit.title, defaultValue: 0 })
+        name: new NameAdapter({ title: i18n.mathinput.properties.name.title }),
+        question: new QuestionAdapter({ title: i18n.mathinput.properties.question.title }),
+        solution: new MathAdapter({ title: i18n.mathinput.properties.solution.title, defaultValue: '' }),
+        validation: new ValidationAdapter({ title: i18n.mathinput.properties.validation.title }),
+        success: new ScoreAdapter({ title: i18n.mathinput.properties.success.title, defaultValue: 1 }),
+        failure: new ScoreAdapter({ title: i18n.mathinput.properties.failure.title, defaultValue: 0 }),
+        omit: new ScoreAdapter({ title: i18n.mathinput.properties.omit.title, defaultValue: 0 })
     },
 
     /**

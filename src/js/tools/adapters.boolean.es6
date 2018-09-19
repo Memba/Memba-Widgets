@@ -10,22 +10,34 @@ import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
+const { attr, format } = window.kendo;
+const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
+
 /**
  * @class BooleanAdapter
  */
 const BooleanAdapter = BaseAdapter.extend({
-    init: function (options, attributes) {
+    /**
+     * Constructor
+     * @constructor
+     * @param options
+     * @param attributes
+     */
+    init(options, attributes) {
         BaseAdapter.fn.init.call(this, options);
-        this.type = BOOLEAN;
+        this.type = CONSTANTS.BOOLEAN;
         this.defaultValue = this.defaultValue || (this.nullable ? null : false);
         this.editor = 'input';
         this.attributes = $.extend({}, this.attributes, attributes);
-        this.attributes[kendo.attr('role')] = 'switch';
+        this.attributes[attr('role')] = 'switch';
     },
     library: [
         {
             name: 'equal',
-            formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).toLowerCase() === String(solution).toLowerCase();')
+            formula: format(
+                VALIDATION_CUSTOM,
+                'return String(value).toLowerCase() === String(solution).toLowerCase();'
+            )
         }
     ],
     libraryDefault: 'equal'

@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -17,7 +19,21 @@ import CONSTANTS from '../common/window.constants.es6';
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).textgaps || {
-            // TODO
+            description: 'Text gaps',
+            attributes: {
+                inputStyle: { title: 'Input Style' },
+                style: { title: 'Style' },
+                text: { title: 'Text', defaultValue: 'Some text with gaps like [] or [] to fill.' }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: { title: 'Question' },
+                solution: { title: 'Solution' },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' }
+            }
         }
     );
 }
@@ -28,7 +44,7 @@ var TEXTGAPS = '<div data-#= ns #role="textgaps" data-#= ns #text="#: attributes
  * @class MultiQuiz
  * @type {void|*}
  */
-var TextGaps = BaseTool.extend({
+const TextGaps = BaseTool.extend({
     id: 'textgaps',
     icon: 'text_gaps',
     description: i18n.textgaps.description,
@@ -42,18 +58,18 @@ var TextGaps = BaseTool.extend({
     height: 150,
     width: 420,
     attributes: {
-        inputStyle: new adapters.StyleAdapter({ title: i18n.textgaps.attributes.inputStyle.title }),
-        style: new adapters.StyleAdapter({ title: i18n.textgaps.attributes.style.title, defaultValue: 'font-size:32px;' }),
-        text: new adapters.StringAdapter({ title: i18n.textgaps.attributes.text.title, defaultValue: i18n.textgaps.attributes.text.defaultValue })
+        inputStyle: new StyleAdapter({ title: i18n.textgaps.attributes.inputStyle.title }),
+        style: new StyleAdapter({ title: i18n.textgaps.attributes.style.title, defaultValue: 'font-size:32px;' }),
+        text: new StringAdapter({ title: i18n.textgaps.attributes.text.title, defaultValue: i18n.textgaps.attributes.text.defaultValue })
     },
     properties: {
-        name: new adapters.NameAdapter({ title: i18n.textgaps.properties.name.title }),
-        question: new adapters.QuestionAdapter({ title: i18n.textgaps.properties.question.title }),
-        solution: new adapters.StringArrayAdapter({ title: i18n.textgaps.properties.solution.title, defaultValue: [] }),
-        validation: new adapters.ValidationAdapter({ title: i18n.textgaps.properties.validation.title }),
-        success: new adapters.ScoreAdapter({ title: i18n.textgaps.properties.success.title, defaultValue: 1 }),
-        failure: new adapters.ScoreAdapter({ title: i18n.textgaps.properties.failure.title, defaultValue: 0 }),
-        omit: new adapters.ScoreAdapter({ title: i18n.textgaps.properties.omit.title, defaultValue: 0 })
+        name: new NameAdapter({ title: i18n.textgaps.properties.name.title }),
+        question: new QuestionAdapter({ title: i18n.textgaps.properties.question.title }),
+        solution: new StringArrayAdapter({ title: i18n.textgaps.properties.solution.title, defaultValue: [] }),
+        validation: new ValidationAdapter({ title: i18n.textgaps.properties.validation.title }),
+        success: new ScoreAdapter({ title: i18n.textgaps.properties.success.title, defaultValue: 1 }),
+        failure: new ScoreAdapter({ title: i18n.textgaps.properties.failure.title, defaultValue: 0 }),
+        omit: new ScoreAdapter({ title: i18n.textgaps.properties.omit.title, defaultValue: 0 })
     },
 
     /**

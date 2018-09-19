@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
+import BaseTool from './tools.base.es6';
 
 /**
  * i18n
@@ -42,16 +44,16 @@ var Textarea = BaseTool.extend({
     height: 300,
     width: 500,
     attributes: {
-        style: new adapters.StyleAdapter({ title: i18n.textarea.attributes.style.title, defaultValue: 'font-size:40px;resize:none;' })
+        style: new StyleAdapter({ title: i18n.textarea.attributes.style.title, defaultValue: 'font-size:40px;resize:none;' })
     },
     properties: {
-        name: new adapters.NameAdapter({ title: i18n.textarea.properties.name.title }),
-        question: new adapters.QuestionAdapter({ title: i18n.textarea.properties.question.title }),
-        solution: new adapters.TextAdapter({ title: i18n.textarea.properties.solution.title }),
-        validation: new adapters.ValidationAdapter({ title: i18n.textarea.properties.validation.title }),
-        success: new adapters.ScoreAdapter({ title: i18n.textarea.properties.success.title, defaultValue: 1 }),
-        failure: new adapters.ScoreAdapter({ title: i18n.textarea.properties.failure.title, defaultValue: 0 }),
-        omit: new adapters.ScoreAdapter({ title: i18n.textarea.properties.omit.title, defaultValue: 0 })
+        name: new NameAdapter({ title: i18n.textarea.properties.name.title }),
+        question: new QuestionAdapter({ title: i18n.textarea.properties.question.title }),
+        solution: new TextAdapter({ title: i18n.textarea.properties.solution.title }),
+        validation: new ValidationAdapter({ title: i18n.textarea.properties.validation.title }),
+        success: new ScoreAdapter({ title: i18n.textarea.properties.success.title, defaultValue: 1 }),
+        failure: new ScoreAdapter({ title: i18n.textarea.properties.failure.title, defaultValue: 0 }),
+        omit: new ScoreAdapter({ title: i18n.textarea.properties.omit.title, defaultValue: 0 })
     },
 
     /**

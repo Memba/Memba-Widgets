@@ -11,81 +11,108 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
 // TODO consider a generic OpenDialogAdapter????
+const { attr, format } = window.kendo;
+const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
 
 /**
  * @class CharGridAdapter
  */
 const CharGridAdapter = BaseAdapter.extend({
-    init: function (options) {
-        var that = this;
+    /**
+     * Constructor
+     * @constructor
+     * @param options
+     * @param attributes
+     */
+    init(options, attributes) {
+        const that = this;
         BaseAdapter.fn.init.call(that, options);
         that.type = undefined;
-        that.editor = function (container, settings) {
+        that.editor = function(container, settings) {
             $('<button/>')
-            .text('...')
-            .addClass('k-button')
-            .css({ margin: 0, width: '100%' })
-            .appendTo(container)
-            .on(CLICK, $.proxy(that.showDialog, that, settings));
+                .text('...')
+                .addClass('k-button')
+                .css({ margin: 0, width: '100%' })
+                .appendTo(container)
+                .on(CONSTANTS.CLICK, $.proxy(that.showDialog, that, settings));
         };
     },
-    showDialog: function (options, evt) {
-        var that = this;
-        var model = options.model;
+    showDialog(options, evt) {
+        const that = this;
+        const model = options.model;
         // Build data (resize array especially after changing rows and columns)
-        var columns = model.get('attributes.columns');
-        var rows = model.get('attributes.rows');
-        var whitelist = model.get('attributes.whitelist');
-        var layout = model.get('attributes.layout');
-        var data = model.get(options.field);
-        var value = kendo.ui.CharGrid._getCharGridArray(rows, columns, whitelist, layout, data);
+        const columns = model.get('attributes.columns');
+        const rows = model.get('attributes.rows');
+        const whitelist = model.get('attributes.whitelist');
+        const layout = model.get('attributes.layout');
+        const data = model.get(options.field);
+        const value = kendo.ui.CharGrid._getCharGridArray(
+            rows,
+            columns,
+            whitelist,
+            layout,
+            data
+        );
         // TODO wrap in import('./dialogs/kidoju.dialogs.chargrid.es6').then(function () {...});
-        kidoju.dialogs.openCharGrid({
-            title: options.title,
-            message: options.field === 'properties.solution' ?
-                kendo.format(this.messages.solution, model.get('attributes.whitelist')) :
-                kendo.format(this.messages.layout, model.get('attributes.blank')),
-            charGrid: {
-                container: '.kj-dialog',
-                scaler: '.kj-dialog',
-                height: model.get('height'),
-                width: model.get('width'),
-                columns: columns,
-                rows: rows,
-                blank: model.get('attributes.blank'),
-                locked: options.field === 'properties.solution' ?
-                    layout :
-                    [],// Do not lock when designing layout, but lock when designing solution
-                whitelist: options.field === 'properties.solution' ?
-                    model.get('attributes.whitelist') :
-                    '\\S',// Do not whitelist when designing layout, but whitelist when designing solution
-                blankFill: model.get('attributes.blankFill'),
-                gridFill: model.get('attributes.gridFill'),
-                gridStroke: model.get('attributes.gridStroke'),
-                lockedFill: model.get('attributes.lockedFill'),
-                lockedColor: model.get('attributes.lockedColor'),
-                selectedFill: model.get('attributes.selectedFill'),
-                valueColor: model.get('attributes.valueColor')
-            },
-            data: {
-                value: value
-            }
-        })
-        .done(function (result) {
-            if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
-            // $.type(result.data.url) === STRING
-            ) {
-                options.model.set(options.field, result.data.value);
-            }
-        })
-        .fail(function (err) {
-            // TODO
-        });
+        kidoju.dialogs
+            .openCharGrid({
+                title: options.title,
+                message:
+                    options.field === 'properties.solution'
+                        ? kendo.format(
+                              this.messages.solution,
+                              model.get('attributes.whitelist')
+                          )
+                        : kendo.format(
+                              this.messages.layout,
+                              model.get('attributes.blank')
+                          ),
+                charGrid: {
+                    container: '.kj-dialog',
+                    scaler: '.kj-dialog',
+                    height: model.get('height'),
+                    width: model.get('width'),
+                    columns,
+                    rows,
+                    blank: model.get('attributes.blank'),
+                    locked:
+                        options.field === 'properties.solution' ? layout : [], // Do not lock when designing layout, but lock when designing solution
+                    whitelist:
+                        options.field === 'properties.solution'
+                            ? model.get('attributes.whitelist')
+                            : '\\S', // Do not whitelist when designing layout, but whitelist when designing solution
+                    blankFill: model.get('attributes.blankFill'),
+                    gridFill: model.get('attributes.gridFill'),
+                    gridStroke: model.get('attributes.gridStroke'),
+                    lockedFill: model.get('attributes.lockedFill'),
+                    lockedColor: model.get('attributes.lockedColor'),
+                    selectedFill: model.get('attributes.selectedFill'),
+                    valueColor: model.get('attributes.valueColor')
+                },
+                data: {
+                    value
+                }
+            })
+            .done(result => {
+                if (
+                    result.action ===
+                    kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
+                    // $.type(result.data.url) === STRING
+                ) {
+                    options.model.set(options.field, result.data.value);
+                }
+            })
+            .fail(err => {
+                // TODO
+            });
     },
     library: [
         {
             name: 'equal',
-            formula: kendo.format(VALIDATION_CUSTOM, 'return value && typeof value.equals === "function" && value.equals(solution);')
+            formula: kendo.format(
+                VALIDATION_CUSTOM,
+                'return value && typeof value.equals === "function" && value.equals(solution);'
+            )
         }
     ],
     libraryDefault: 'equal',

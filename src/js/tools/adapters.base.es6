@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-// import assert from '../common/window.assert.es6';
+import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const { Class } = window.kendo;
@@ -20,19 +20,20 @@ const { Class } = window.kendo;
  * @class BaseAdapter (abstract)
  */
 const BaseAdapter = Class.extend({
-
-    /**
-     * Data type: string, number, boolean or date
-     */
-    type: undefined,
-
     /**
      * Constructor
+     * @constructor
      * @param options
+     * @param attributes
      */
-    init: function (options) {
-        options = options || {};
-        // this.value = options.value;
+    init(options = {}) {
+        assert.isPlainOrEmptyObject(
+            options,
+            assert.format(
+                assert.messages.isPlainOrEmptyObject.default,
+                'options'
+            )
+        );
 
         // See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
         this.defaultValue = options.defaultValue;
@@ -53,17 +54,32 @@ const BaseAdapter = Class.extend({
     },
 
     /**
+     * Data type: string, number, boolean or date
+     */
+    type: undefined,
+
+    /**
      * Get a kendo.data.Model field
      * See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
      * @returns {{}}
      */
-    getField: function () {
-        var field = {};
-        if ([CONSTANTS.STRING, CONSTANTS.NUMBER, CONSTANTS.BOOLEAN, CONSTANTS.DATE].indexOf(this.type) > -1) {
+    getField() {
+        const field = {};
+        if (
+            [
+                CONSTANTS.STRING,
+                CONSTANTS.NUMBER,
+                CONSTANTS.BOOLEAN,
+                CONSTANTS.DATE
+            ].indexOf(this.type) > -1
+        ) {
             field.type = this.type;
         }
-        if ($.type(this.defaultValue) === this.type ||
-            this.type === undefined) { // TODO: test that defaultValue is null or an object
+        if (
+            $.type(this.defaultValue) === this.type ||
+            this.type === undefined
+        ) {
+            // TODO: test that defaultValue is null or an object
             field.defaultValue = this.defaultValue;
         }
         if ($.type(this.editable) === CONSTANTS.BOOLEAN) {
@@ -90,11 +106,11 @@ const BaseAdapter = Class.extend({
      * @param field - This is the MVVM path to the field the data is bound to
      * @returns {{}}
      */
-    getRow: function (field) {
+    getRow(field) {
         if ($.type(field) !== CONSTANTS.STRING || field.length === 0) {
             throw new TypeError();
         }
-        var row = {};
+        const row = {};
         row.field = field; // Mandatory
         if ($.type(this.title) === CONSTANTS.STRING) {
             row.title = this.title;
@@ -105,8 +121,12 @@ const BaseAdapter = Class.extend({
         if ($.type(this.template) === CONSTANTS.STRING) {
             row.template = this.template;
         }
-        if ($.isFunction(this.editor) ||
-            ($.type(this.editor) === CONSTANTS.STRING && (kidoju.editors === undefined || $.isFunction(kidoju.editors[this.editor])))) {
+        if (
+            $.isFunction(this.editor) ||
+            ($.type(this.editor) === CONSTANTS.STRING &&
+                (kidoju.editors === undefined ||
+                    $.isFunction(kidoju.editors[this.editor])))
+        ) {
             row.editor = this.editor;
         }
         // TODO: HTML encode????

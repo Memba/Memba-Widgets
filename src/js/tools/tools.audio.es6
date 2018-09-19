@@ -7,9 +7,22 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import assert from '../common/window.assert';
-import CONSTANTS from '../common/window.constants';
-import tools from './tools';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
+import AssetAdapter from './adapters.assets.es6';
+import BooleanAdapter from './adapters.boolean.es6';
+import tools from './tools.es6';
+import BaseTool from './tools.base.es6';
+import { ToolAssets, assets } from './util.assets.es6';
+
+const {
+    format,
+    ns,
+    roleSelector,
+    template,
+    ui: { Stage }
+} = window.kendo;
 
 /**
  * i18n
@@ -18,29 +31,37 @@ import tools from './tools';
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).audio || {
-            // TODO
+            description: 'Audio Player',
+            attributes: {
+                autoplay: { title: 'Autoplay' },
+                mp3: { title: 'MP3 File' },
+                ogg: { title: 'OGG File' }
+            }
         }
     );
 }
 
 /**
- * Audio tool
  * @class Audio
  */
-var Audio = BaseTool.extend({
+const Audio = BaseTool.extend({
     id: 'audio',
     icon: 'loudspeaker3',
-    description: i18n.audio.description,
+    description: i18n().description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default: '<div data-#= ns #role="mediaplayer" data-#= ns #mode="audio" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: files$() #"></div>'
+        default:
+            '<div data-#= ns #role="mediaplayer" data-#= ns #mode="audio" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: files$() #"></div>'
     },
     height: 100,
     width: 400,
     attributes: {
-        autoplay: new adapters.BooleanAdapter({ title: i18n.audio.attributes.autoplay.title, defaultValue: false }),
-        mp3: new adapters.AssetAdapter({ title: i18n.audio.attributes.mp3.title }),
-        ogg: new adapters.AssetAdapter({ title: i18n.audio.attributes.ogg.title })
+        autoplay: new BooleanAdapter({
+            title: i18n().attributes.autoplay.title,
+            defaultValue: false
+        }),
+        mp3: new AssetAdapter({ title: i18n().attributes.mp3.title }),
+        ogg: new AssetAdapter({ title: i18n().attributes.ogg.title })
     },
 
     /**
@@ -50,30 +71,58 @@ var Audio = BaseTool.extend({
      * @param mode
      * @returns {*}
      */
-    getHtmlContent: function (component, mode) {
-        var that = this;
-        assert.instanceof(Audio, that, assert.format(assert.messages.instanceof.default, 'this', 'Audio'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-        assert.instanceof(ToolAssets, utilAssets.audio, assert.format(assert.messages.instanceof.default, 'assets.audio', 'kidoju.ToolAssets'));
-        var template = kendo.template(that.templates.default);
+    getHtmlContent(component, mode) {
+        const that = this;
+        assert.instanceof(
+            Audio,
+            that,
+            assert.format(assert.messages.instanceof.default, 'this', 'Audio')
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        assert.enum(
+            Object.keys(Stage.fn.modes),
+            mode,
+            assert.format(
+                assert.messages.enum.default,
+                'mode',
+                Object.keys(Stage.fn.modes)
+            )
+        );
+        assert.instanceof(
+            ToolAssets,
+            assets.audio,
+            assert.format(
+                assert.messages.instanceof.default,
+                'assets.audio',
+                'kidoju.ToolAssets'
+            )
+        );
+        const tmpl = template(that.templates.default);
         // The files$ function resolves urls with schemes like cdn://audio.mp3 and returns a stringified array
-        component.files$ = function () {
-            var mp3 = component.attributes.get('mp3');
-            var ogg = component.attributes.get('ogg');
-            var schemes = utilAssets.audio.schemes;
-            for (var scheme in schemes) {
+        component.files$ = function() {
+            let mp3 = component.attributes.get('mp3');
+            let ogg = component.attributes.get('ogg');
+            const schemes = assets.audio.schemes;
+            for (const scheme in schemes) {
                 if (Object.prototype.hasOwnProperty.call(schemes, scheme)) {
-                    var schemeRx = new RegExp('^' + scheme + '://');
+                    const schemeRx = new RegExp(`^${scheme}://`);
                     if (schemeRx.test(mp3)) {
-                        mp3 = mp3.replace(scheme + '://', schemes[scheme]);
+                        mp3 = mp3.replace(`${scheme}://`, schemes[scheme]);
                     }
                     if (schemeRx.test(ogg)) {
-                        ogg = ogg.replace(scheme + '://', schemes[scheme]);
+                        ogg = ogg.replace(`${scheme}://`, schemes[scheme]);
                     }
                 }
             }
-            var files = [];
+            const files = [];
             if (RX_HTTP_S.test(mp3)) {
                 files.push(mp3);
             }
@@ -81,9 +130,9 @@ var Audio = BaseTool.extend({
                 files.push(ogg);
             }
             // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
-            return ' ' + JSON.stringify(files);
+            return ` ${JSON.stringify(files)}`;
         };
-        return template($.extend(component, { ns: kendo.ns }));
+        return tmpl($.extend(component, { ns }));
     },
 
     /**
@@ -92,17 +141,38 @@ var Audio = BaseTool.extend({
      * @param e
      * @param component
      */
-    onResize: function (e, component) {
-        var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
-        var widget = content.data('kendoMediaPlayer');
-        if ($.type(component.width) === NUMBER) {
-            content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+    onResize(e, component) {
+        const stageElement = $(e.currentTarget);
+        assert.ok(
+            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
+            format('e.currentTarget is expected to be a stage element')
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        const content = stageElement.children(
+            `div${roleSelector('mediaplayer')}`
+        );
+        const widget = content.data('kendoMediaPlayer');
+        if ($.type(component.width) === CONSTANTS.NUMBER) {
+            content.outerWidth(
+                component.get('width') -
+                    content.outerWidth(true) +
+                    content.outerWidth()
+            );
         }
-        if ($.type(component.height) === NUMBER) {
-            content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+        if ($.type(component.height) === CONSTANTS.NUMBER) {
+            content.outerHeight(
+                component.get('height') -
+                    content.outerHeight(true) +
+                    content.outerHeight()
+            );
         }
         widget.resize();
         // prevent any side effect
@@ -116,22 +186,24 @@ var Audio = BaseTool.extend({
      * @param component
      * @param pageIdx
      */
-    validate: function (component, pageIdx) {
-        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        var description = this.description; // tool description
-        var messages = this.i18n.messages;
-        if (!component.attributes ||
-            !RX_AUDIO.test(component.attributes.mp3)) {
+    validate(component, pageIdx) {
+        const ret = BaseTool.fn.validate.call(this, component, pageIdx);
+        const description = this.description; // tool description
+        const messages = this.i18n.messages;
+        if (!component.attributes || !RX_AUDIO.test(component.attributes.mp3)) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidAudioFile, description, pageIdx + 1)
+                message: format(
+                    messages.invalidAudioFile,
+                    description,
+                    pageIdx + 1
+                )
             });
         }
         // Note: we are not testing for an ogg file
         return ret;
     }
-
 });
 
 /**

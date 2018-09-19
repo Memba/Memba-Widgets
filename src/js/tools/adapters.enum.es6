@@ -18,14 +18,22 @@ const { attr } = window.kendo;
  * @class EnumAdapter
  */
 const EnumAdapter = BaseAdapter.extend({
-    init: function (options, attributes) {
+    /**
+     * Constructor
+     * @constructor
+     * @param options
+     * @param attributes
+     */
+    init(options, attributes) {
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'input';
         this.attributes = $.extend({}, this.attributes, attributes);
         this.attributes[attr('role')] = 'dropdownlist';
-        this.attributes[attr('source')] = JSON.stringify(options && options.enum ? options.enum : []); // kendo.htmlEncode??
+        this.attributes[attr('source')] = JSON.stringify(
+            options && options.enum ? options.enum : []
+        ); // kendo.htmlEncode??
     }
 });
 
@@ -33,4 +41,3 @@ const EnumAdapter = BaseAdapter.extend({
  * Default export
  */
 export default EnumAdapter;
-

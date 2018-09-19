@@ -3,16 +3,35 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert';
+import CONSTANTS from '../common/window.constants';
+import tools from './tools';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).audio || {
+            // TODO
+        }
+    );
+}
 
 /**
  * Audio tool
  * @class Audio
  */
-var Audio = Tool.extend({
+var Audio = BaseTool.extend({
     id: 'audio',
     icon: 'loudspeaker3',
     description: i18n.audio.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
         default: '<div data-#= ns #role="mediaplayer" data-#= ns #mode="audio" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: files$() #"></div>'
     },
@@ -36,13 +55,13 @@ var Audio = Tool.extend({
         assert.instanceof(Audio, that, assert.format(assert.messages.instanceof.default, 'this', 'Audio'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-        assert.instanceof(ToolAssets, assets.audio, assert.format(assert.messages.instanceof.default, 'assets.audio', 'kidoju.ToolAssets'));
+        assert.instanceof(ToolAssets, utilAssets.audio, assert.format(assert.messages.instanceof.default, 'assets.audio', 'kidoju.ToolAssets'));
         var template = kendo.template(that.templates.default);
         // The files$ function resolves urls with schemes like cdn://audio.mp3 and returns a stringified array
         component.files$ = function () {
             var mp3 = component.attributes.get('mp3');
             var ogg = component.attributes.get('ogg');
-            var schemes = assets.audio.schemes;
+            var schemes = utilAssets.audio.schemes;
             for (var scheme in schemes) {
                 if (Object.prototype.hasOwnProperty.call(schemes, scheme)) {
                     var schemeRx = new RegExp('^' + scheme + '://');
@@ -75,7 +94,7 @@ var Audio = Tool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
         var widget = content.data('kendoMediaPlayer');
@@ -98,7 +117,7 @@ var Audio = Tool.extend({
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
@@ -114,4 +133,8 @@ var Audio = Tool.extend({
     }
 
 });
+
+/**
+ * Registration
+ */
 tools.register(Audio);

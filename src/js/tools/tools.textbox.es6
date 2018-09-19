@@ -3,6 +3,26 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).textbox || {
+            // TODO
+        }
+    );
+}
+
+
 
     // Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
 var TEXTBOX = '<input type="text" id="#: properties.name #" class="kj-interactive" data-#= ns #role="maskedtextbox" data-#= ns #prompt-char="\u25CA" style="#: attributes.style #" {0}>';
@@ -10,16 +30,16 @@ var TEXTBOX = '<input type="text" id="#: properties.name #" class="kj-interactiv
  * @class Textbox tool
  * @type {void|*}
  */
-var Textbox = Tool.extend({
+var Textbox = BaseTool.extend({
     id: 'textbox',
     icon: 'text_field',
     description: i18n.textbox.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
         design: kendo.format(TEXTBOX, ''),
         play: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
-        review: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"') + Tool.fn.showResult()
+        review: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"') + BaseTool.fn.showResult()
     },
     height: 80,
     width: 300,
@@ -47,7 +67,7 @@ var Textbox = Tool.extend({
      */
     onEnable: function (e, component, enabled) {
         var stageElement = $(e.currentTarget);
-        if (stageElement.is(ELEMENT_SELECTOR) && component instanceof PageComponent) {
+        if (stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`) && component instanceof PageComponent) {
             stageElement.find('input')
             .prop({
                 // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
@@ -64,7 +84,7 @@ var Textbox = Tool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.find('input'); // span > input
         if ($.type(component.width) === NUMBER) {
@@ -96,7 +116,7 @@ var Textbox = Tool.extend({
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         // TODO: validate mask
@@ -113,4 +133,9 @@ var Textbox = Tool.extend({
     }
 
 });
+
+/**
+ * Registration
+ */
 tools.register(Textbox);
+

@@ -3,12 +3,19 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseAdapter from './adapters.base.es6';
+
 // TODO COnside genric opendialog adapter with/without value
 
 /**
- * Asset Adapter
+ * @class AssetAdapter
  */
-adapters.AssetAdapter = BaseAdapter.extend({
+const AssetAdapter = BaseAdapter.extend({
     init: function (options) {
         var that = this;
         BaseAdapter.fn.init.call(that, options);
@@ -44,14 +51,14 @@ adapters.AssetAdapter = BaseAdapter.extend({
     },
     showDialog: function (options/*, e*/) {
         assert.instanceof(PageComponent, options.model, assert.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
-        assert.instanceof(ToolAssets, assets[options.model.tool], assert.format(assert.messages.instanceof.default, 'assets[options.model.tool]', 'kidoju.ToolAssets'));
+        assert.instanceof(ToolAssets, utilAssets[options.model.tool], assert.format(assert.messages.instanceof.default, 'assets[options.model.tool]', 'kidoju.ToolAssets'));
         // TODO wrap in import('./dialogs/kidoju.dialogs.assetmanager.es6').then(function () {...});
         kidoju.dialogs.openAssetManager({
             title: options.title,
             data: {
                 value: options.model.get(options.field)
             },
-            assets: assets[options.model.tool]
+            assets: utilAssets[options.model.tool]
         })
         .done(function (result) {
             if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
@@ -63,3 +70,8 @@ adapters.AssetAdapter = BaseAdapter.extend({
         });
     }
 });
+
+/**
+ * Default export
+ */
+export default AssetAdapter;

@@ -317,7 +317,7 @@ export default class WorkerPool {
 }
 
 /**
- * Maintain compatibility with legacy code
+ * Legacy code
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.models = window.kidoju.models || {};

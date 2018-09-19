@@ -205,6 +205,17 @@ assert.isPlainObject = function _isPlainObject(value, message) {
 };
 
 /**
+ * Assert a plain or empty object
+ * @param value
+ * @param message
+ */
+assert.isPlainOrEmptyObject = function _isPlainOrEmptyObject(value, message) {
+    if (!$.isPlainObject(value)) {
+        throw new TypeError(message);
+    }
+};
+
+/**
  * Assert undefined
  * @param value
  * @param message
@@ -290,7 +301,10 @@ assert.messages = {
         default: '`{0}` is expected to be undefined or a plain object'
     },
     isPlainObject: {
-        default: '`{0}` is expected to be a plain object'
+        default: '`{0}` is expected to be a plain non empty object'
+    },
+    isPlainOrEmptyObject: {
+        default: '`{0}` is expected to be a plain or empty object'
     },
     isUndefined: {
         default: '`{0}` is expected to be undefined'
@@ -314,15 +328,16 @@ assert.messages = {
  * @param options
  */
 assert.crud = function _crud(options) {
-    assert.type(
-        'object',
+    assert.isPlainObject(
         options,
-        assert.format(assert.messages.type.default, 'options', 'object')
+        assert.format(assert.messages.isPlainObject.default, 'options')
     );
     assert.type(
-        'object',
         options.data,
-        assert.format(assert.messages.type.default, 'options.data', 'object')
+        assert.format(
+            assert.messages.isPlainOrEmptyObject.default,
+            'options.data'
+        )
     );
     assert.isFunction(
         options.success,
@@ -362,7 +377,7 @@ assert.rapi = function _rapi(rapi) {
 };
 
 /**
- * Maintain compatibility with legacy code
+ * Legacy code
  * @type {assert}
  */
 window.assert = assert;

@@ -3,21 +3,40 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert';
+import CONSTANTS from '../common/window.constants';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).imageset || {
+            // TODO
+        }
+    );
+}
+
 /**
  * @class ImageSet tool
  * @type {void|*}
  */
 var IMAGESET = '<div data-#= ns #role="imageset" data-#= ns #images="#: data$() #" style="#: attributes.style #" {0}></div>';
-var ImageSet = Tool.extend({
+var ImageSet = BaseTool.extend({
     id: 'imageset',
     icon: 'photos',
     description: i18n.imageset.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
         design: kendo.format(IMAGESET, 'data-#= ns #enabled="false"'),
         play: kendo.format(IMAGESET, 'data-#= ns #bind="value: #: properties.name #.value"'),
-        review: kendo.format(IMAGESET, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enabled="false"') + Tool.fn.showResult()
+        review: kendo.format(IMAGESET, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enabled="false"') + BaseTool.fn.showResult()
     },
     height: 250,
     width: 250,
@@ -48,13 +67,13 @@ var ImageSet = Tool.extend({
         assert.instanceof(ImageSet, that, assert.format(assert.messages.instanceof.default, 'this', 'ImageSet'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-        assert.instanceof(ToolAssets, assets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+        assert.instanceof(ToolAssets, utilAssets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
         var template = kendo.template(that.templates[mode]);
         // The data$ function resolves urls with schemes like cdn://sample.jpg
         component.data$ = function () {
             var data = component.attributes.get('data');
             var clone = [];
-            var schemes = assets.image.schemes;
+            var schemes = utilAssets.image.schemes;
             for (var i = 0, length = data.length; i < length; i++) {
                 var item = {
                     text: data[i].text,
@@ -83,7 +102,7 @@ var ImageSet = Tool.extend({
     onResize: function (e, component) {
         /* jshint maxcomplexity: 8 */
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div' + kendo.roleSelector('imageset'));
         if ($.type(component.width) === NUMBER) {
@@ -108,7 +127,7 @@ var ImageSet = Tool.extend({
      */
     validate: function (component, pageIdx) {
         /* jshint maxcomplexity: 8 */
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
@@ -136,4 +155,8 @@ var ImageSet = Tool.extend({
     /* jshint +W074 */
 
 });
+
+/**
+ * Registration
+ */
 tools.register(ImageSet);

@@ -3,21 +3,40 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert';
+import CONSTANTS from '../common/window.constants';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).highlighter || {
+            // TODO
+        }
+    );
+}
+
 var HIGHLIGHTER = '<div class="kj-interactive" data-#= ns #role="highlighter" data-#= ns #text="#: attributes.text #" data-#= ns #split="#: attributes.split #"  data-#= ns #highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>';
 /**
  * @class HighLighter tool
  * @type {void|*}
  */
-var HighLighter = Tool.extend({
+var HighLighter = BaseTool.extend({
     id: 'highlighter',
     icon: 'marker',
     description: i18n.highlighter.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
         design: kendo.format(HIGHLIGHTER, 'data-#= ns #enable="false"'),
         play: kendo.format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
-        review: kendo.format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
+        review: kendo.format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 250,
     width: 250,
@@ -61,7 +80,7 @@ var HighLighter = Tool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div');
         if ($.type(component.width) === NUMBER) {
@@ -86,7 +105,7 @@ var HighLighter = Tool.extend({
      */
     validate: function (component, pageIdx) {
         /* jshint maxcomplexity: 12 */
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
@@ -126,4 +145,8 @@ var HighLighter = Tool.extend({
     /* jshint +W074 */
 
 });
+
+/**
+ * Registration
+ */
 tools.register(HighLighter);

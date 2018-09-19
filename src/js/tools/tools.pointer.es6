@@ -4,37 +4,35 @@
  */
 
 import CONSTANTS from '../common/window.constants.es6';
-import BaseTool from './tools.base.es6';
 import tools from './tools.es6';
+import BaseTool from './tools.base.es6';
 
 /**
- * Pointer
- * @class
+ * i18n
+ * @returns {*|{}}
  */
-class Pointer extends BaseTool {
-    /**
-     * Constructor
-     * @constructor
-     */
-    constructor() {
-        super({
-            id: CONSTANTS.POINTER,
-            icon: 'mouse_pointer',
-            description: 'Pointer',
-            cursor: CONSTANTS.DEFAULT_CURSOR,
-            height: 0,
-            width: 0
-        });
-    }
-
-    /**
-     * getHtmlContent
-     */
-    // eslint-disable-next-line class-methods-use-this, getter-return, no-empty-function
-    get getHtmlContent() {}
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).pointer || {
+            description: 'Pointer'
+        }
+    );
 }
 
 /**
- * Register tool
+ * @class Pointer
+ */
+const Pointer = BaseTool.extend({
+    id: CONSTANTS.POINTER,
+    icon: 'mouse_pointer',
+    description: i18n().description,
+    cursor: CONSTANTS.DEFAULT_CURSOR,
+    height: 0,
+    width: 0,
+    getHtmlContent: undefined
+});
+
+/**
+ * Registration
  */
 tools.register(Pointer);

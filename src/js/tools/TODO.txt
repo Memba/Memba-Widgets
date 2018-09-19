@@ -1,0 +1,6 @@
+- Relate adapters to grid editors
+- Enum adapters should be localized
+- Add setter to convert data
+- Disconnect libraries from adapters: String => various libraries
+- Consdider generic opendialog adapter + options
+- chane events redisplay adpaters => hghlighter

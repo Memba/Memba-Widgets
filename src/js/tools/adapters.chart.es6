@@ -3,12 +3,19 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseAdapter from './adapters.base.es6';
+
 // TODO consider a generic OpenDialogAdapter????
 
 /**
- * Chart adapter
+ * @class ChartAdapter
  */
-adapters.ChartAdapter = BaseAdapter.extend({
+const ChartAdapter = BaseAdapter.extend({
     init: function (options) {
         var that = this;
         BaseAdapter.fn.init.call(that, options);
@@ -50,3 +57,8 @@ adapters.ChartAdapter = BaseAdapter.extend({
 
     }
 });
+
+/**
+ * Default export
+ */
+export default ChartAdapter;

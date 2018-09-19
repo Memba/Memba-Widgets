@@ -3,22 +3,41 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert';
+import CONSTANTS from '../common/window.constants';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).dropzone || {
+            // TODO
+        }
+    );
+}
+
 var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #center="#: attributes.center #"  data-#= ns #empty="#: attributes.empty #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
 // TODO: Check whether DROPZONE requires class="kj-interactive"
 /**
  * @class DropZone tool
  * @type {void|*}
  */
-var DropZone = Tool.extend({
+var DropZone = BaseTool.extend({
     id: 'dropzone',
     icon: 'elements_selection',
     description: i18n.dropzone.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
         design: kendo.format(DROPZONE, 'data-#= ns #enable="false"'),
         play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
-        review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
+        review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 250,
     width: 250,
@@ -71,7 +90,7 @@ var DropZone = Tool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div');
         if ($.type(component.width) === NUMBER) {
@@ -92,7 +111,7 @@ var DropZone = Tool.extend({
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         // Note: any text is acceptable
@@ -111,4 +130,8 @@ var DropZone = Tool.extend({
     }
 
 });
+
+/**
+ * Registration
+ */
 tools.register(DropZone);

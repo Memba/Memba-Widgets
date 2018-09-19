@@ -3,21 +3,40 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert';
+import CONSTANTS from '../common/window.constants';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).connector || {
+            // TODO
+        }
+    );
+}
+
 var CONNECTOR = '<div data-#= ns #role="connector" data-#= ns #id="#: properties.name #" data-#= ns #target-value="#: properties.solution #" data-#= ns #color="#: attributes.color #" {0}></div>';
 /**
  * @class Connector tool
  * @type {void|*}
  */
-var Connector = Tool.extend({
+var Connector = BaseTool.extend({
     id: 'connector',
     icon: 'target',
     description: i18n.connector.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 0.25,
     templates: {
         design: kendo.format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #create-surface="false"'),
         play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
-        review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
+        review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 70,
     width: 70,
@@ -43,7 +62,7 @@ var Connector = Tool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div[' + kendo.attr('role') + '="connector"]');
         if ($.type(component.width) === NUMBER) {
@@ -69,7 +88,7 @@ var Connector = Tool.extend({
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
@@ -81,7 +100,7 @@ var Connector = Tool.extend({
             });
         }
         if (component.properties && component.properties.disabled && !RX_SOLUTION.test(component.properties.solution)) {
-            // component.properties.disabled === false is already tested in Tool.fn.validate.call(this, component, pageIdx)
+            // component.properties.disabled === false is already tested in BaseTool.fn.validate.call(this, component, pageIdx)
             ret.push({
                 type: ERROR,
                 index: pageIdx,
@@ -94,4 +113,8 @@ var Connector = Tool.extend({
     }
 
 });
+
+/**
+ * Registration
+ */
 tools.register(Connector);

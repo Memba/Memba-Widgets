@@ -3,20 +3,40 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).mathinput || {
+            // TODO
+        }
+    );
+}
+
+
 var MATHINPUT = '<div data-#= ns #role="mathinput" data-#= ns #toolbar="#: JSON.stringify(toolbar$()) #" style="#: attributes.style #" {0}>#: attributes.formula #</div>';
 /**
  * @class MathInput tool
  * @type {void|*}
  */
-var MathInput = Tool.extend({
+var MathInput = BaseTool.extend({
     id: 'mathinput',
     icon: 'formula_input',
     description: i18n.mathinput.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
         design: kendo.format(MATHINPUT, 'data-#= ns #enable="false"'),
         play: kendo.format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value"'),
-        review: kendo.format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+        review: kendo.format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 120,
     width: 370,
@@ -109,7 +129,7 @@ var MathInput = Tool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div');
         if ($.type(component.width) === NUMBER) {
@@ -130,7 +150,7 @@ var MathInput = Tool.extend({
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         /*
@@ -159,4 +179,8 @@ var MathInput = Tool.extend({
     }
 
 });
+
+/**
+ * Registration
+ */
 tools.register(MathInput);

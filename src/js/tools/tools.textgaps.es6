@@ -3,22 +3,41 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).textgaps || {
+            // TODO
+        }
+    );
+}
+
 var TEXTGAPS = '<div data-#= ns #role="textgaps" data-#= ns #text="#: attributes.text #" data-#= ns #input-style="#: attributes.inputStyle #" style="#: attributes.style #" {0}></div>';
 /**
  * TextGaps tool
  * @class MultiQuiz
  * @type {void|*}
  */
-var TextGaps = Tool.extend({
+var TextGaps = BaseTool.extend({
     id: 'textgaps',
     icon: 'text_gaps',
     description: i18n.textgaps.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
         design: kendo.format(TEXTGAPS, 'data-#= ns #enable="false"'),
         play: kendo.format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
-        review: kendo.format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+        review: kendo.format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 150,
     width: 420,
@@ -86,7 +105,7 @@ var TextGaps = Tool.extend({
     onResize: function (e, component) {
         /* jshint maxcomplexity: 8 */
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div' + kendo.roleSelector('textgaps'));
         if ($.type(component.width) === NUMBER) {
@@ -111,7 +130,7 @@ var TextGaps = Tool.extend({
      */
     validate: function (component, pageIdx) {
         /* jshint maxcomplexity: 12 */
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
@@ -151,4 +170,8 @@ var TextGaps = Tool.extend({
     /* jshint +W074 */
 
 });
+
+/**
+ * Registration
+ */
 tools.register(TextGaps);

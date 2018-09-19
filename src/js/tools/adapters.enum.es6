@@ -3,6 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
@@ -14,32 +15,22 @@ const { attr } = window.kendo;
 // TODO EnumAdapter should be localized (i18n)
 
 /**
- * EnumAdapter
- * @class
+ * @class EnumAdapter
  */
-export default class EnumAdapter extends BaseAdapter {
-    /**
-     * Constructor
-     * @constructor
-     * @param options
-     * @param attributes
-     */
-    constructor(options, attributes) {
-        super(options); // TODO super(Object.assign())
+const EnumAdapter = BaseAdapter.extend({
+    init: function (options, attributes) {
+        BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'input';
-        this.attributes = $.extend(this.attributes, attributes);
+        this.attributes = $.extend({}, this.attributes, attributes);
         this.attributes[attr('role')] = 'dropdownlist';
-        this.attributes[attr('source')] = JSON.stringify(
-            options && options.enum ? options.enum : []
-        ); // kendo.htmlEncode??
+        this.attributes[attr('source')] = JSON.stringify(options && options.enum ? options.enum : []); // kendo.htmlEncode??
     }
-}
+});
 
 /**
- * Maintain compatibility with legacy code
+ * Default export
  */
-window.kidoju = window.kidoju || {};
-window.kidoju.adapters = window.kidoju.adapters || {};
-window.kidoju.adapters.EnumAdapter = EnumAdapter;
+export default EnumAdapter;
+

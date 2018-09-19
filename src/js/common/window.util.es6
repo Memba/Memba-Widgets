@@ -62,10 +62,9 @@ export function randomId() {
 }
 
 /**
- * Maintain compatibility with legacy code
+ * Get a 6 char random val
+ * @returns {string}
  */
-window.kidoju = window.kidoju || {};
-window.kidoju.util = window.kidoju.util || {};
-window.kidoju.util.escapeRegExp = escapeRegExp;
-window.kidoju.util.randomId = randomId;
-window.kidoju.util.randomString = randomHexString;
+export function randomVal() {
+    return `val_${randomHexString(6)}`;
+}

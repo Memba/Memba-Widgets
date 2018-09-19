@@ -3,11 +3,17 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseAdapter from './adapters.base.es6';
 
 /**
- * Date adapter
+ * @class DateAdapter
  */
-adapters.DateAdapter = BaseAdapter.extend({
+const DateAdapter = BaseAdapter.extend({
     init: function (options, attributes) {
         BaseAdapter.fn.init.call(this, options);
         this.type = DATE;
@@ -26,3 +32,8 @@ adapters.DateAdapter = BaseAdapter.extend({
     ],
     libraryDefault: 'equal'
 });
+
+/**
+ * Default export
+ */
+export default DateAdapter;

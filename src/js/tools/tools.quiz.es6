@@ -3,22 +3,41 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).quiz || {
+            // TODO
+        }
+    );
+}
+
 var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" data-#= ns #source="#: data$() #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #" {0}></div>';
 /**
  * Quiz tool
  * @class Quiz
  * @type {void|*}
  */
-var Quiz = Tool.extend({
+var Quiz = BaseTool.extend({
     id: 'quiz',
     icon: 'radio_button_group',
     description: i18n.quiz.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
         design: kendo.format(QUIZ, 'data-#= ns #enable="false"'),
         play: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
-        review: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+        review: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 120,
     width: 490,
@@ -55,13 +74,13 @@ var Quiz = Tool.extend({
         assert.instanceof(Quiz, that, assert.format(assert.messages.instanceof.default, 'this', 'Quiz'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-        assert.instanceof(ToolAssets, assets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+        assert.instanceof(ToolAssets, utilAssets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
         var template = kendo.template(that.templates[mode]);
         // The data$ function resolves urls with schemes like cdn://sample.jpg
         component.data$ = function () {
             var data = component.attributes.get('data');
             var clone = [];
-            var schemes = assets.image.schemes;
+            var schemes = utilAssets.image.schemes;
             for (var i = 0, length = data.length; i < length; i++) {
                 var item = {
                     text: data[i].text,
@@ -90,7 +109,7 @@ var Quiz = Tool.extend({
     onResize: function (e, component) {
         /* jshint maxcomplexity: 8 */
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div' + kendo.roleSelector('quiz'));
         if ($.type(component.width) === NUMBER) {
@@ -135,7 +154,7 @@ var Quiz = Tool.extend({
      */
     validate: function (component, pageIdx) {
         /* jshint maxcomplexity: 8 */
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
@@ -165,4 +184,8 @@ var Quiz = Tool.extend({
     /* jshint +W074 */
 
 });
+
+/**
+ * Registration
+ */
 tools.register(Quiz);

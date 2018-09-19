@@ -7,9 +7,14 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import assert from '../common/window.assert.es6';
-import CONSTANTS from '../common/window.constants.es6';
+import assert from './window.assert.es6';
+import CONSTANTS from './window.constants.es6';
 
-// TODO Add calculated solutions : What day is it today?
-// Add random number generation
+/**
+ * Number editor
+ * @param container
+ * @param options
+ */
+export default function editor(container, options = {}) {
 
+}

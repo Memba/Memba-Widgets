@@ -3,12 +3,19 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseAdapter from './adapters.base.es6';
+
 // TODO consider a generic OpenDialogAdapter????
 
 /**
- * CharGrid adapter
+ * @class CharGridAdapter
  */
-adapters.CharGridAdapter = BaseAdapter.extend({
+const CharGridAdapter = BaseAdapter.extend({
     init: function (options) {
         var that = this;
         BaseAdapter.fn.init.call(that, options);
@@ -87,3 +94,8 @@ adapters.CharGridAdapter = BaseAdapter.extend({
         solution: i18n.chargridadapter.messages.solution
     }
 });
+
+/**
+ * Default export
+ */
+export default CharGridAdapter;

@@ -3,54 +3,81 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants.es6';
-import BaseTool from './tools.base.es6';
+import EnumAdapter from './adapters.enum.es6';
+import StringAdapter from './adapters.string.es6';
+import StyleAdapter from './adapters.style.es6';
+import TextAdapter from './adapters.text.es6';
 import tools from './tools.es6';
+import BaseTool from './tools.base.es6';
+
+const {
+    format,
+    htmlEncode,
+    ns,
+    // template,
+    ui: { Stage }
+} = window.kendo;
 
 /**
- * Label
- * @class
- * @type {void|*}
+ * i18n
+ * @returns {*|{}}
  */
-export default class Label extends BaseTool {
-    /**
-     * Constructor
-     * constructor
-     */
-    constructor() {
-        super({
-            id: 'label',
-            icon: 'font',
-            description: i18n.label.description,
-            cursor: CONSTANTS.CROSSHAIR_CURSOR,
-            templates: {
-                default: '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'
-            },
-            height: 80,
-            width: 300,
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).label || {
+            description: 'Label',
             attributes: {
-                // text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue }),
-                text: new adapters.TextAdapter(
-                    {title: i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue},
-                    {rows: 2, style: 'resize:vertical; width: 100%;'}
-                ),
-                style: new adapters.StyleAdapter({title: i18n.label.attributes.style.title, defaultValue: 'font-size:60px;'})
+                style: { title: 'Style' },
+                text: { title: 'Text', defaultValue: 'Label' }
             },
             properties: {
-                behavior: new adapters.EnumAdapter(
-                    {
-                        title: i18n.label.properties.behavior.title,
-                        defaultValue: 'none',
-                        enum: ['none', 'draggable', 'selectable'] // TODO i18n
-                    },
-                    {
-                        style: 'width: 100%;'
-                    }
-                ),
-                constant: new adapters.StringAdapter({title: i18n.label.properties.constant.title})
+                behavior: { title: 'Behaviour' },
+                constant: { title: 'Constant' }
             }
-        });
-    }
+        }
+    );
+}
+
+/**
+ * @class Label
+ */
+const Label = BaseTool.extend({
+    id: 'label',
+    icon: 'font',
+    description: i18n.label.description,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    templates: {
+        default: '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'
+    },
+    height: 80,
+    width: 300,
+    attributes: {
+        // text: new StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue }),
+        text: new TextAdapter(
+            { title:i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue },
+            { rows: 2, style: 'resize:vertical; width: 100%;' }
+        ),
+        style: new StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size:60px;' })
+    },
+    properties: {
+        behavior: new EnumAdapter(
+            {
+                title: i18n.label.properties.behavior.title,
+                defaultValue: 'none',
+                enum: ['none', 'draggable', 'selectable']
+            },
+            {
+                style: 'width: 100%;'
+            }
+        ),
+        constant: new StringAdapter({ title: i18n.label.properties.constant.title })
+    },
 
     /**
      * Get Html or jQuery content
@@ -59,7 +86,7 @@ export default class Label extends BaseTool {
      * @param mode
      * @returns {*}
      */
-    getHtmlContent(component, mode) {
+    getHtmlContent: function (component, mode) {
         var that = this;
         assert.instanceof(Label, that, assert.format(assert.messages.instanceof.default, 'this', 'Label'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
@@ -74,7 +101,7 @@ export default class Label extends BaseTool {
             return (component.properties.behavior !== 'none' && $.type(component.id) === STRING && component.id.length) ? component.id : '';
         };
         return template($.extend(component, { ns: kendo.ns }));
-    }
+    },
 
     /**
      * onResize Event Handler
@@ -82,15 +109,15 @@ export default class Label extends BaseTool {
      * @param e
      * @param component
      */
-    onResize(e, component) {
+    onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div');
-        if ($.type(component.width) === NUMBER) {
+        if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
         }
-        if ($.type(component.height) === NUMBER) {
+        if ($.type(component.height) === CONSTANTS.NUMBER) {
             content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
             // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
             /*
@@ -122,15 +149,15 @@ export default class Label extends BaseTool {
         e.preventDefault();
         // prevent event to bubble on stage
         e.stopPropagation();
-    }
+    },
 
     /**
      * Component validation
      * @param component
      * @param pageIdx
      */
-    validate(component, pageIdx) {
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+    validate: function (component, pageIdx) {
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
@@ -157,9 +184,11 @@ export default class Label extends BaseTool {
         return ret;
     }
 
-}
+});
 
 /**
- * Register tool
+ * Registration
  */
 tools.register(Label);
+
+

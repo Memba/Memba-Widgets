@@ -3,21 +3,41 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).textarea || {
+            // TODO
+        }
+    );
+}
+
+
 var TEXTAREA = '<textarea id="#: properties.name #" class="k-textbox kj-interactive" style="#: attributes.style #" {0}></textarea>';
 /**
  * @class Textarea tool
  * @type {void|*}
  */
-var Textarea = Tool.extend({
+var Textarea = BaseTool.extend({
     id: 'textarea',
     icon: 'text_area',
     description: i18n.textarea.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 2,
     templates: {
         design: kendo.format(TEXTAREA, ''),
         play: kendo.format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"'),
-        review: kendo.format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"') + Tool.fn.showResult()
+        review: kendo.format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"') + BaseTool.fn.showResult()
     },
     height: 300,
     width: 500,
@@ -44,7 +64,7 @@ var Textarea = Tool.extend({
      */
     onEnable: function (e, component, enabled) {
         var stageElement = $(e.currentTarget);
-        if (stageElement.is(ELEMENT_SELECTOR) && component instanceof PageComponent) {
+        if (stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`) && component instanceof PageComponent) {
             stageElement.children('textarea')
             .prop({
                 // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
@@ -61,7 +81,7 @@ var Textarea = Tool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('textarea');
         if ($.type(component.width) === NUMBER) {
@@ -82,7 +102,7 @@ var Textarea = Tool.extend({
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
@@ -98,4 +118,8 @@ var Textarea = Tool.extend({
     }
 
 });
+
+/**
+ * Registration
+ */
 tools.register(Textarea);

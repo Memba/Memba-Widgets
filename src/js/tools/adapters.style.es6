@@ -3,10 +3,19 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseAdapter from './adapters.base.es6';
+
+const { format } = window.kendo;
+
 /**
- * Style adapter
+ * @class StyleAdapter
  */
-adapters.StyleAdapter = BaseAdapter.extend({
+const StyleAdapter = BaseAdapter.extend({
     init: function (options) {
         var that = this;
         BaseAdapter.fn.init.call(that, options);
@@ -58,3 +67,8 @@ adapters.StyleAdapter = BaseAdapter.extend({
         });
     }
 });
+
+/**
+ * Default export
+ */
+export default StyleAdapter;

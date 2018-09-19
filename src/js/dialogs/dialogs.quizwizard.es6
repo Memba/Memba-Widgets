@@ -268,7 +268,7 @@ export default function openQuizWizard(options = {}) {
 }
 
 /**
- * Maintain compatibility with legacy code
+ * Legacy code
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.dialogs = window.kidoju.dialogs || {};

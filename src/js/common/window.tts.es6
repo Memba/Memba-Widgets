@@ -394,7 +394,7 @@ export function cancelSpeak() {
 }
 
 /**
- * Maintain compatibility with legacy code
+ * Legacy code
  * @type {assert}
  */
 window.app = window.app || {};

@@ -3,6 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
@@ -12,107 +13,64 @@ import BaseAdapter from './adapters.base.es6';
 const { format } = window.kendo;
 
 /**
- * StringAdapter
- * @class
+ * @class StringAdapter
  */
-export default class StringAdapter extends BaseAdapter {
+const StringAdapter = BaseAdapter.extend({
     /**
      * Constructor
      * @constructor
      * @param options
      * @param attributes
      */
-    constructor(options, attributes) {
-        super({
-            // TODO review attributies
-            attributes: $.extend({}, options.attributes, attributes, {
-                type: 'text',
-                class: 'k-textbox'
-            }),
-            defaultValue:
-                options.defaultValue || (options.nullable ? null : ''),
-            editor: 'input',
-            type: CONSTANTS.STRING
-        });
-    }
+    init: function (options, attributes) {
+        BaseAdapter.fn.init.call(this, options);
+        this.type = CONSTANTS.STRING;
+        this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+        this.editor = 'input';
+        this.attributes = $.extend({}, this.attributes, attributes, { type: 'text', class: 'k-textbox' });
+    },
 
     /**
-     * library getter
-     * @returns {*[]}
+     * Library
      */
-    // eslint-disable-next-line class-methods-use-this
-    get library() {
-        return [
-            {
-                name: 'equal',
-                // TODO Add i18n description
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return String(value).trim() === String(solution).trim();'
-                )
-            },
-            {
-                name: 'ignoreCaseEqual',
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return String(value).trim().toUpperCase() === String(solution).trim().toUpperCase();'
-                )
-            },
-            {
-                name: 'ignoreCaseMatch',
-                // Do not use RegExp constructor because escaping backslashes is a nightmare
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return /{0}/i.test(String(value).trim());'
-                ),
-                param: 'Regular Expression' // TODO Review to add
-            },
-            {
-                name: 'ignoreDiacriticsEqual',
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return removeDiacritics(String(value).trim().toUpperCase()) === removeDiacritics(String(solution).trim().toUpperCase());'
-                )
-            },
-            {
-                name: 'match',
-                // Do not use RegExp constructor because escaping backslashes is a nightmare
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return /{0}/.test(String(value).trim());'
-                ),
-                param: 'Regular Expression'
-            },
-            {
-                name: 'metaphone',
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return metaphone(removeDiacritics(String(value).trim().toUpperCase())) === metaphone(removeDiacritics(String(solution).trim().toUpperCase()));'
-                )
-            },
-            {
-                name: 'soundex',
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return soundex(removeDiacritics(String(value).trim().toUpperCase())) === soundex(removeDiacritics(String(solution).trim().toUpperCase()));'
-                )
-            }
-        ];
-    }
-
-    /**
-     * default getter
-     * @returns {string}
-     */
-    // eslint-disable-next-line class-methods-use-this
-    get libraryDefault() {
-        return 'equal';
-    }
-}
+    library: [
+        {
+            name: 'equal',
+            formula: format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')
+        },
+        {
+            name: 'ignoreCaseEqual',
+            formula: format(VALIDATION_CUSTOM, 'return String(value).trim().toUpperCase() === String(solution).trim().toUpperCase();')
+        },
+        {
+            name: 'ignoreCaseMatch',
+            // Do not use RegExp constructor because escaping backslashes is a nightmare
+            formula: format(VALIDATION_CUSTOM, 'return /{0}/i.test(String(value).trim());'),
+            param: 'Regular Expression'
+        },
+        {
+            name: 'ignoreDiacriticsEqual',
+            formula: format(VALIDATION_CUSTOM, 'return removeDiacritics(String(value).trim().toUpperCase()) === removeDiacritics(String(solution).trim().toUpperCase());')
+        },
+        {
+            name: 'match',
+            // Do not use RegExp constructor because escaping backslashes is a nightmare
+            formula: format(VALIDATION_CUSTOM, 'return /{0}/.test(String(value).trim());'),
+            param: 'Regular Expression'
+        },
+        {
+            name: 'metaphone',
+            formula: format(VALIDATION_CUSTOM, 'return metaphone(removeDiacritics(String(value).trim().toUpperCase())) === metaphone(removeDiacritics(String(solution).trim().toUpperCase()));')
+        },
+        {
+            name: 'soundex',
+            formula: format(VALIDATION_CUSTOM, 'return soundex(removeDiacritics(String(value).trim().toUpperCase())) === soundex(removeDiacritics(String(solution).trim().toUpperCase()));')
+        }
+    ],
+    libraryDefault: 'equal'
+});
 
 /**
- * Maintain compatibility with legacy code
+ * Default export
  */
-window.kidoju = window.kidoju || {};
-window.kidoju.adapters = window.kidoju.adapters || {};
-window.kidoju.adapters.StringAdapter = StringAdapter;
+export default StringAdapter;

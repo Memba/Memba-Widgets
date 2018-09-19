@@ -3,6 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
@@ -10,89 +11,58 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
 const { attr, format } = window.kendo;
+const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
+
+// TODO add a setter for parsing function
 
 /**
- * NumberAdapter
- * @class
+ * @class NumberAdapter
  */
-export default class NumberAdapter extends BaseAdapter {
+const NumberAdapter = BaseAdapter.extend({
     /**
-     * Costructor
-     * @constructor
+     * Constructor
      * @param options
-     * @param attributes // Why not options.attributes???
+     * @param attributes
      */
-    constructor(options, attributes) {
-        super({
-            // TODO super(Object.assign()) of below values (remove $.extend too)
-        });
+    init: function (options, attributes) {
+        BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.NUMBER;
         this.defaultValue = this.defaultValue || (this.nullable ? null : 0);
         this.editor = 'input';
         this.attributes = $.extend({}, this.attributes, attributes);
         this.attributes[attr('role')] = 'numerictextbox';
-    }
+    },
 
     /**
-     * library getter
-     * @returns {*[]}
+     * Library
      */
-    // eslint-disable-next-line class-methods-use-this
-    get library() {
-        return [
-            {
-                name: 'equal',
-                // TODO Add i18n text
-                // TODO: parsing raises a culture issue with 5.3 in english and 5,3 in french
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return Number(value) === Number(solution);'
-                )
-            },
-            {
-                name: 'greaterThan',
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return Number(value) > Number(solution);'
-                )
-            },
-            {
-                name: 'greaterThanOrEqual',
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return Number(value) >= Number(solution);'
-                )
-            },
-            {
-                name: 'lowerThan',
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return Number(value) < Number(solution);'
-                )
-            },
-            {
-                name: 'lowerThanOrEqual',
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return Number(value) <= Number(solution);'
-                )
-            }
-        ];
-    }
-
-    /**
-     * default getter
-     * @returns {string}
-     */
-    // eslint-disable-next-line class-methods-use-this
-    get libraryDefault() {
-        return 'equal';
-    }
-}
+    library: [
+        {
+            name: 'equal',
+            // TODO: parsing raises a culture issue with 5.3 in english and 5,3 in french
+            formula: format(VALIDATION_CUSTOM, 'return Number(value) === Number(solution);')
+        },
+        {
+            name: 'greaterThan',
+            formula: format(VALIDATION_CUSTOM, 'return Number(value) > Number(solution);')
+        },
+        {
+            name: 'greaterThanOrEqual',
+            formula: format(VALIDATION_CUSTOM, 'return Number(value) >= Number(solution);')
+        },
+        {
+            name: 'lowerThan',
+            formula: format(VALIDATION_CUSTOM, 'return Number(value) < Number(solution);')
+        },
+        {
+            name: 'lowerThanOrEqual',
+            formula: format(VALIDATION_CUSTOM, 'return Number(value) <= Number(solution);')
+        }
+    ],
+    libraryDefault: 'equal'
+});
 
 /**
- * Maintain compatibility with legacy code
+ * Default export
  */
-window.kidoju = window.kidoju || {};
-window.kidoju.adapters = window.kidoju.adapters || {};
-window.kidoju.adapters.NumberAdapter = NumberAdapter;
+export default NumberAdapter;

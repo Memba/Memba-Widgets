@@ -550,7 +550,7 @@ export default class FileSystem {
 }
 
 /**
- * Maintain compatibility with legacy code
+ * Legacy code
  */
 window.app = window.app || {};
 window.app.FileSystem = FileSystem;

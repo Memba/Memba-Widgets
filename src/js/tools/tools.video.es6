@@ -3,15 +3,35 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).video || {
+            // TODO
+        }
+    );
+}
+
+
 /**
  * Video tool
  * @class Video
  */
-var Video = Tool.extend({
+var Video = BaseTool.extend({
     id: 'video',
     icon: 'movie',
     description: i18n.video.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
         default: '<div data-#= ns #role="mediaplayer" data-#= ns #mode="video" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: files$() #" data-#= ns #toolbar-height="#: attributes.toolbarHeight #"></div>'
     },
@@ -37,7 +57,7 @@ var Video = Tool.extend({
         assert.instanceof(Video, that, assert.format(assert.messages.instanceof.default, 'this', 'Video'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-        assert.instanceof(ToolAssets, assets.video, assert.format(assert.messages.instanceof.default, 'assets.video', 'kidoju.ToolAssets'));
+        assert.instanceof(ToolAssets, utilAssets.video, assert.format(assert.messages.instanceof.default, 'assets.video', 'kidoju.ToolAssets'));
         var template = kendo.template(this.templates.default);
 
         /* This function's cyclomatic complexity is too high. */
@@ -48,7 +68,7 @@ var Video = Tool.extend({
             var mp4 = component.attributes.get('mp4');
             var ogv = component.attributes.get('ogv');
             var wbem = component.attributes.get('wbem');
-            var schemes = assets.video.schemes;
+            var schemes = utilAssets.video.schemes;
             for (var scheme in schemes) {
                 if (Object.prototype.hasOwnProperty.call(schemes, scheme)) {
                     var schemeRx = new RegExp('^' + scheme + '://');
@@ -91,7 +111,7 @@ var Video = Tool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
         if ($.type(component.width) === NUMBER) {
@@ -116,7 +136,7 @@ var Video = Tool.extend({
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
@@ -132,5 +152,9 @@ var Video = Tool.extend({
     }
 
 });
+
+/**
+ * Registration
+ */
 tools.register(Video);
 

@@ -3,15 +3,33 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+
 /**
- * @class MathExpression tool
- * @type {void|*}
+ * i18n
+ * @returns {*|{}}
  */
-var MathExpression = Tool.extend({
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).mathexpression || {
+            // TODO
+        }
+    );
+}
+
+/**
+ * @class MathExpression
+ */
+var MathExpression = BaseTool.extend({
     id: 'mathexpression',
     icon: 'formula',
     description: i18n.mathexpression.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
         default: '<div data-#= ns #role="mathexpression" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #" data-#= ns #inline="#: attributes.inline #" data-#= ns #value="#: attributes.formula #" ></div>'
     },
@@ -72,7 +90,7 @@ var MathExpression = Tool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div');
         if ($.type(component.width) === NUMBER) {
@@ -93,7 +111,7 @@ var MathExpression = Tool.extend({
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
@@ -121,4 +139,8 @@ var MathExpression = Tool.extend({
     }
 
 });
+
+/**
+ * Registration
+ */
 tools.register(MathExpression);

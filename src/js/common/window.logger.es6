@@ -344,7 +344,7 @@ window.onerror = function onerror(message, source, lineno, colno, error) {
 };
 
 /**
- * Maintain compatibility with legacy code
+ * Legacy code
  * @type {Logger}
  */
 window.Logger = Logger;

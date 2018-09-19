@@ -31,7 +31,7 @@ const PageComponentCollectionDataSource = BaseDataSource.extend({
 export default PageComponentCollectionDataSource;
 
 /**
- * Maintain compatibility with legacy code
+ * Legacy code
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.data = window.kidoju.data || {};

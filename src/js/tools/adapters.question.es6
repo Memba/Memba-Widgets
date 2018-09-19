@@ -3,12 +3,19 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO make itr a generic combobox adapter with a generic fill callback
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseAdapter from './adapters.base.es6';
+
+// TODO make it a generic combobox adapter with a generic fill callback
 
 /**
- * Question Adapter
+ * @class QuestionAdapter
  */
-adapters.QuestionAdapter = BaseAdapter.extend({
+const QuestionAdapter = BaseAdapter.extend({
     init: function (options) {
         BaseAdapter.fn.init.call(this, options);
         this.type = STRING;
@@ -48,3 +55,8 @@ adapters.QuestionAdapter = BaseAdapter.extend({
         };
     }
 });
+
+/**
+ * Default export
+ */
+export default QuestionAdapter;

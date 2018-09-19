@@ -80,7 +80,7 @@ const tools = observable({
 export default tools;
 
 /**
- * Maintain compatibility with legacy code
+ * Legacy code
  */
 window.kidoju = window.kidoju || {};
 window.kidoju.tools = tools;

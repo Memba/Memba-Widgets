@@ -3,13 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-
-// TODO it is in fact an adapters.textarea
-// TODO try to make an adapter by type of widget instead of type of data and add the necessary options
-
-// Especially the library algorithms depend on the data, not the widget
-// which makes it difficult to reuse adapters across data
-
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
@@ -18,69 +12,41 @@ import BaseAdapter from './adapters.base.es6';
 
 const { format } = window.kendo;
 
+// TODO it is in fact an adapters.textarea
+// TODO try to make an adapter by type of widget instead of type of data and add the necessary options
+
+// Especially the library algorithms depend on the data, not the widget
+// which makes it difficult to reuse adapters across data
+
 /**
- * TextAdapter (multiline)
- * @class
+ * @class TextAdapter (multiline)
  */
-export default class TextAdapter extends BaseAdapter {
-    /**
-     * Constructor
-     * @constructor
-     * @param options
-     * @param attributes
-     */
-    constructor(options, attributes) {
-        super(options); // TODO super(Object.assign())
-        this.type = CONSTANTS.STRING;
+const TextAdapter = BaseAdapter.extend({
+    init: function (options, attributes) {
+        BaseAdapter.fn.init.call(this, options);
+        this.type = STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'textarea';
         this.attributes = $.extend({}, this.attributes, attributes);
-    }
-
-    /**
-     * library getter
-     * @returns {*[]}
-     */
-    // eslint-disable-next-line class-methods-use-this
-    get library() {
-        return [
-            {
-                name: 'equal',
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return String(value).trim() === String(solution).trim();'
-                )
-            },
-            {
-                name: 'ignoreSpacesEqual',
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return String(value).replace(/\\s+/g, " ").trim() === String(solution).replace(/\\s+/g, " ").trim();'
-                )
-            },
-            {
-                name: 'ignorePunctuationEqual',
-                formula: format(
-                    BaseAdapter.validationDeclaration,
-                    'return String(value).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim() === String(solution).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim();'
-                )
-            }
-        ];
-    }
-
-    /**
-     * default getter
-     * @returns {string}
-     */
-    // eslint-disable-next-line class-methods-use-this
-    get libraryDefault() {
-        return 'equal';
-    }
-}
+    },
+    library: [
+        {
+            name: 'equal',
+            formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')
+        },
+        {
+            name: 'ignoreSpacesEqual',
+            formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).replace(/\\s+/g, " ").trim() === String(solution).replace(/\\s+/g, " ").trim();')
+        },
+        {
+            name: 'ignorePunctuationEqual',
+            formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim() === String(solution).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim();')
+        }
+    ],
+    libraryDefault: 'equal'
+});
 
 /**
- * Maintain compatibility with legacy code
+ * Default export
  */
-window.kidoju = window.kidoju || {};
-window.kidoju.adapters = window.kidoju.adapters || {};
-window.kidoju.adapters.TextAdapter = TextAdapter;
+export default TextAdapter;

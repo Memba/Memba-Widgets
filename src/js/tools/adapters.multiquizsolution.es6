@@ -3,12 +3,19 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseAdapter from './adapters.base.es6';
+
 // TODO Rename into checkboxes
 
 /**
- * MultiQuiz Solution adapter
+ * @class MultiQuizSolutionAdapter
  */
-adapters.MultiQuizSolutionAdapter = BaseAdapter.extend({
+const MultiQuizSolutionAdapter = BaseAdapter.extend({
     init: function (options, attributes) {
         BaseAdapter.fn.init.call(this, options);
         this.type = undefined;
@@ -36,7 +43,7 @@ adapters.MultiQuizSolutionAdapter = BaseAdapter.extend({
                             },
                             image$: function () {
                                 var image = this.get('image');
-                                var schemes = assets.image.schemes;
+                                var schemes = utilAssets.image.schemes;
                                 for (var scheme in schemes) {
                                     if (Object.prototype.hasOwnProperty.call(schemes, scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
                                         image = image.replace(scheme + '://', schemes[scheme]);
@@ -60,3 +67,8 @@ adapters.MultiQuizSolutionAdapter = BaseAdapter.extend({
     ],
     libraryDefault: 'equal'
 });
+
+/**
+ * Default export
+ */
+export default MultiQuizSolutionAdapter;

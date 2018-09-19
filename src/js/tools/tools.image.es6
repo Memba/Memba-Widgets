@@ -3,30 +3,74 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert';
+import CONSTANTS from '../common/window.constants';
+import tools from './tools.es6';
+import AssetAdapter from './adapters.assets.es6';
+import EnumAdapter from './adapters.enum.es6';
+import StringAdapter from './adapters.string.es6';
+import StyleAdapter from './adapters.style.es6';
+import BaseTool from './tools.base.es6';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).image || {
+            description: 'Image',
+            attributes: {
+                alt: { title: 'Text', defaultValue: 'Image' },
+                src: {
+                    title: 'Source',
+                    defaultValue:
+                        'cdn://images/o_collection/svg/office/painting_landscape.svg'
+                },
+                style: { title: 'Style' }
+            },
+            properties: {
+                behavior: { title: 'Behaviour' },
+                constant: { title: 'Constant' }
+            }
+        }
+    );
+}
 
 /**
  * @class Image tool
  * @type {void|*}
  */
-var Image = Tool.extend({
+var Image = BaseTool.extend({
     id: 'image',
     icon: 'painting_landscape',
-    description: i18n.image.description,
-    cursor: CURSOR_CROSSHAIR,
+    description: i18n().description,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default: '<img src="#: src$() #" alt="#: attributes.alt #" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">'
+        default:
+            '<img src="#: src$() #" alt="#: attributes.alt #" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">'
     },
     height: 250,
     width: 250,
     attributes: {
-        alt: new adapters.StringAdapter({ title: i18n.image.attributes.alt.title, defaultValue: i18n.image.attributes.alt.defaultValue }),
-        src: new adapters.AssetAdapter({ title: i18n.image.attributes.src.title, defaultValue: i18n.image.attributes.src.defaultValue }),
-        style: new adapters.StyleAdapter({ title: i18n.image.attributes.style.title })
+        alt: new StringAdapter({
+            title: i18n().attributes.alt.title,
+            defaultValue: i18n().attributes.alt.defaultValue
+        }),
+        src: new AssetAdapter({
+            title: i18n().attributes.src.title,
+            defaultValue: i18n().attributes.src.defaultValue
+        }),
+        style: new StyleAdapter({ title: i18n().attributes.style.title })
     },
     properties: {
-        behavior: new adapters.EnumAdapter(
+        behavior: new EnumAdapter(
             {
-                title: i18n.image.properties.behavior.title,
+                title: i18n().properties.behavior.title,
                 defaultValue: 'none',
                 enum: ['none', 'draggable', 'selectable']
             },
@@ -34,7 +78,7 @@ var Image = Tool.extend({
                 style: 'width: 100%;'
             }
         ),
-        constant: new adapters.StringAdapter({ title: i18n.image.properties.constant.title })
+        constant: new StringAdapter({ title: i18n().properties.constant.title })
     },
 
     /**
@@ -44,27 +88,67 @@ var Image = Tool.extend({
      * @param mode
      * @returns {*}
      */
-    getHtmlContent: function (component, mode) {
+    getHtmlContent: function(component, mode) {
         var that = this;
-        assert.instanceof(Image, that, assert.format(assert.messages.instanceof.default, 'this', 'Image'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-        assert.instanceof(ToolAssets, assets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+        assert.instanceof(
+            Image,
+            that,
+            assert.format(assert.messages.instanceof.default, 'this', 'Image')
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        assert.enum(
+            Object.keys(kendo.ui.Stage.fn.modes),
+            mode,
+            assert.format(
+                assert.messages.enum.default,
+                'mode',
+                Object.keys(kendo.ui.Stage.fn.modes)
+            )
+        );
+        assert.instanceof(
+            ToolAssets,
+            utilAssets.image,
+            assert.format(
+                assert.messages.instanceof.default,
+                'assets.image',
+                'kidoju.ToolAssets'
+            )
+        );
         var template = kendo.template(that.templates.default);
         // The class$ function adds the kj-interactive class to draggable components
-        component.class$ = function () {
-            return 'kj-image' + (component.properties.behavior === 'draggable' ? ' ' + INTERACTIVE_CLASS : '');
+        component.class$ = function() {
+            return (
+                'kj-image' +
+                (component.properties.behavior === 'draggable'
+                    ? ' ' + INTERACTIVE_CLASS
+                    : '')
+            );
         };
         // The id$ function returns the component id for components that have a behavior
-        component.id$ = function () {
-            return (component.properties.behavior !== 'none' && $.type(component.id) === STRING && component.id.length) ? component.id : '';
+        component.id$ = function() {
+            return component.properties.behavior !== 'none' &&
+                $.type(component.id) === STRING &&
+                component.id.length
+                ? component.id
+                : '';
         };
         // The src$ function resolves urls with schemes like cdn://sample.jpg
-        component.src$ = function () {
+        component.src$ = function() {
             var src = component.attributes.get('src');
-            var schemes = assets.image.schemes;
+            var schemes = utilAssets.image.schemes;
             for (var scheme in schemes) {
-                if (Object.prototype.hasOwnProperty.call(schemes, scheme) && (new RegExp('^' + scheme + '://')).test(src)) {
+                if (
+                    Object.prototype.hasOwnProperty.call(schemes, scheme) &&
+                    new RegExp('^' + scheme + '://').test(src)
+                ) {
                     src = src.replace(scheme + '://', schemes[scheme]);
                     break;
                 }
@@ -80,10 +164,21 @@ var Image = Tool.extend({
      * @param e
      * @param component
      */
-    onResize: function (e, component) {
+    onResize: function(e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.ok(
+            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
+            kendo.format('e.currentTarget is expected to be a stage element')
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
         var content = stageElement.children('img');
         // Assuming we can get the natural size of the image, we shall keep proportions
         var naturalHeight = content[0].naturalHeight;
@@ -93,7 +188,7 @@ var Image = Tool.extend({
             var width = component.get('width');
             var rectLimitedByHeight = {
                 height: Math.round(height),
-                width: Math.round(height * naturalWidth / naturalHeight)
+                width: Math.round((height * naturalWidth) / naturalHeight)
             };
             /*
              // Note: comparing rectLimitedByHeight and rectLimitedByWidth does not work because
@@ -106,10 +201,12 @@ var Image = Tool.extend({
              // if (rectLimitedByHeight.height * rectLimitedByHeight.width <= rectLimitedByWidth.height * rectLimitedByWidth.width) {
              if (rectLimitedByHeight.width <= width) {
              */
-            if (height !== rectLimitedByHeight.height) { // avoids a stack overflow
+            if (height !== rectLimitedByHeight.height) {
+                // avoids a stack overflow
                 component.set('height', rectLimitedByHeight.height);
             }
-            if (width !== rectLimitedByHeight.width) { // avoids a stack overflow
+            if (width !== rectLimitedByHeight.width) {
+                // avoids a stack overflow
                 component.set('width', rectLimitedByHeight.width);
             }
             /*
@@ -124,61 +221,89 @@ var Image = Tool.extend({
              */
         }
         // Set content size
-        content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
-        content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+        content.outerHeight(
+            component.get('height') -
+                content.outerHeight(true) +
+                content.outerHeight()
+        );
+        content.outerWidth(
+            component.get('width') -
+                content.outerWidth(true) +
+                content.outerWidth()
+        );
         // prevent any side effect
         e.preventDefault();
         // prevent event to bubble on stage
         e.stopPropagation();
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Component validation
      * @param component
      * @param pageIdx
      */
-    validate: function (component, pageIdx) {
-        /* jshint maxcomplexity: 12 */
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+    validate(component, pageIdx) {
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
-        if (!component.attributes ||
+        if (
+            !component.attributes ||
             !component.attributes.alt ||
-            (component.attributes.alt === i18n.image.attributes.alt.defaultValue) ||
-            !RX_TEXT.test(component.attributes.alt)) {
+            component.attributes.alt === i18n().attributes.alt.defaultValue ||
+            !RX_TEXT.test(component.attributes.alt)
+        ) {
             ret.push({
                 type: WARNING,
                 index: pageIdx,
-                message: kendo.format(messages.invalidAltText, description, pageIdx + 1)
+                message: kendo.format(
+                    messages.invalidAltText,
+                    description,
+                    pageIdx + 1
+                )
             });
         }
-        if (!component.attributes ||
+        if (
+            !component.attributes ||
             !component.attributes.src ||
-            (component.attributes.src === i18n.image.attributes.src.defaultValue) ||
-            !RX_IMAGE.test(component.attributes.src)) {
+            component.attributes.src === i18n().attributes.src.defaultValue ||
+            !RX_IMAGE.test(component.attributes.src)
+        ) {
             ret.push({
-                type: (component.attributes.src === i18n.image.attributes.src.defaultValue) ? WARNING : ERROR,
+                type:
+                    component.attributes.src ===
+                    i18n().attributes.src.defaultValue
+                        ? WARNING
+                        : ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidImageFile, description, pageIdx + 1)
+                message: kendo.format(
+                    messages.invalidImageFile,
+                    description,
+                    pageIdx + 1
+                )
             });
         }
-        if (!component.attributes ||
+        if (
+            !component.attributes ||
             // Styles are only checked if there is any (optional)
-            (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+            (component.attributes.style &&
+                !RX_STYLE.test(component.attributes.style))
+        ) {
             ret.push({
                 type: ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                message: kendo.format(
+                    messages.invalidStyle,
+                    description,
+                    pageIdx + 1
+                )
             });
         }
         // TODO: We should also check that there is a dropZone/Selector on the page if draggable/selectable
         return ret;
     }
-
-    /* jshint +W074 */
-
 });
+
+/**
+ * Registration
+ */
 tools.register(Image);

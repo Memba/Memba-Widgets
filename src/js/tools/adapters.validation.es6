@@ -3,8 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO: This is another case of open dialog adapter
-
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
@@ -13,6 +12,9 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
 const { attr, format, htmlEncode, ns, ui } = window.kendo;
+
+
+// TODO: This is another case of open dialog adapter
 
 // TODO Review where to store that
 const LIB_COMMENT = '// ';
@@ -26,85 +28,63 @@ const CUSTOM = {
 };
 
 /**
- * ValidationAdapter
+ * @class ValidationAdapter
  */
-export default class ValidationAdapter extends BaseAdapter {
-    /**
-     * Constructor
-     * @constructor
-     * @param options
-     */
-    constructor(options) {
-        super(options); // TODO Supper of OBject.Assign of all
-        this.type = CONSTANTS.STRING;
+const ValidationAdapter = BaseAdapter.extend({
+    init: function (options) {
+        var that = this;
+        BaseAdapter.fn.init.call(that, options);
+        that.type = STRING;
         // this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-        this.editor = function editor(container, settings) {
-            const binding = {};
+        that.editor = function (container, settings) {
+            var binding = {};
             // Note: _library is added to the data bound PageComponent in its init method
-            binding[attr('bind')] = `value: ${
-                settings.field
-            }, source: _library`;
+            binding[kendo.attr('bind')] = 'value: ' + settings.field + ', source: _library';
             // We need a wrapper because container has { display: table-cell; }
-            const wrapper = $('<div/>')
-                .css({ display: 'flex' })
-                .appendTo(container);
-            $(
-                `<div data-${ns}role="codeinput" data-${ns}default="${
-                    settings.model.properties.defaults.validation
-                }" />`
-            )
-                .attr($.extend({}, settings.attributes, binding))
-                .css({ flex: 'auto' })
-                .appendTo(wrapper);
+            var wrapper = $('<div/>')
+            .css({ display: 'flex' })
+            .appendTo(container);
+            var codeInput = $('<div ' +
+                'data-' + kendo.ns + 'role="codeinput" ' +
+                'data-' + kendo.ns + 'default="' + settings.model.properties.defaults.validation + '" />')
+            .attr($.extend({}, settings.attributes, binding))
+            .css({ flex: 'auto' })
+            .appendTo(wrapper);
             $('<button/>')
-                .text('...')
-                .addClass('k-button')
-                .css({
-                    flex: 'none',
-                    marginRight: 0
-                })
-                .appendTo(wrapper)
-                .on(CONSTANTS.CLICK, $.proxy(this.showDialog, this, settings));
-        };
-    }
-
-    /**
-     * Show dialog
-     * @param options
-     */
-    showDialog(options /* , e */) {
-        const that = this;
-        import('../dialogs/dialogs.codeeditor.es6').then(openCodeEditor => {
-            // TODO Check that we get openCodeEditor
-            openCodeEditor({
-                title: options.title,
-                data: {
-                    value: options.model.get(options.field),
-                    library: [CUSTOM].concat(that.library),
-                    defaultValue: that.defaultValue, // ????????????????????????
-                    solution: htmlEncode(
-                        JSON.stringify(options.model.get('properties.solution'))
-                    )
-                }
+            .text('...')
+            .addClass('k-button')
+            .css({
+                flex: 'none',
+                marginRight: 0
             })
-                .then(result => {
-                    if (
-                        result.action ===
-                        ui.BaseDialog.fn.options.messages.actions.ok.action
-                    ) {
-                        options.model.set(options.field, result.data.value);
-                    }
-                })
-                .fail(err => {
-                    // TODO
-                });
+            .appendTo(wrapper)
+            .on(CLICK, $.proxy(that.showDialog, that, settings));
+        };
+    },
+    showDialog: function (options/*, e*/) {
+        var that = this;
+        // TODO import('./dialogs/kidoju.dialogs.codeeditor.es6').then(function () {...});
+        kidoju.dialogs.openCodeEditor({
+            title: options.title,
+            data: {
+                value: options.model.get(options.field),
+                library: [CUSTOM].concat(that.library),
+                defaultValue: that.defaultValue, // ????????????????????????
+                solution: kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution')))
+            }
+        })
+        .then(function (result) {
+            if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                options.model.set(options.field, result.data.value);
+            }
+        })
+        .fail(function (err) {
+            // TODO
         });
     }
-}
+});
 
 /**
- * Maintain compatibility with legacy code
+ * Default export
  */
-window.kidoju = window.kidoju || {};
-window.kidoju.adapters = window.kidoju.adapters || {};
-window.kidoju.adapters.ValidationAdapter = ValidationAdapter;
+export default ValidationAdapter;

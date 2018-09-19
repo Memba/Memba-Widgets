@@ -3,23 +3,41 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).selector || {
+            // TODO
+        }
+    );
+}
 
 var SELECTOR = '<div data-#= ns #role="selector" data-#= ns #id="#: properties.name #" data-#= ns #shape="#: attributes.shape #" data-#= ns #stroke="{ color: \'#: attributes.color #\', dashType: \'solid\', opacity: 1, width: \'#: attributes.strokeWidth #\' }" data-#= ns #empty="#: attributes.empty #" data-#= ns #hit-radius="#: attributes.hitRadius #" {0}></div>';
 /**
  * @class Selector tool
  * @type {void|*}
  */
-var Selector = Tool.extend({
+var Selector = BaseTool.extend({
     id: 'selector',
     icon: 'selector',
     description: i18n.selector.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
         design: '<img src="https://cdn.kidoju.com/images/o_collection/svg/office/selector.svg" alt="selector">',
         // design: '<img src="#: icon$() #" alt="#: description$() #">',
         play: kendo.format(SELECTOR, 'data-#= ns #toolbar="\\#floating .kj-floating-content" data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
-        review: kendo.format(SELECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
+        review: kendo.format(SELECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 50,
     width: 50,
@@ -52,7 +70,7 @@ var Selector = Tool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div[' + kendo.attr('role') + '="selector"]');
         if ($.type(component.width) === NUMBER) {
@@ -100,7 +118,7 @@ var Selector = Tool.extend({
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
@@ -124,4 +142,8 @@ var Selector = Tool.extend({
     }
 
 });
+
+/**
+ * Registration
+ */
 tools.register(Selector);

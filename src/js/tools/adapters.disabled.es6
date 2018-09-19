@@ -4,14 +4,21 @@
  */
 
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseAdapter from './adapters.base.es6';
+
 // TODO There should be a more generic way to make sure it updates other stuff
 // It is a boolean adapter with a callback that does stuff (make other adapters readonly)
 
 var ATTR_CONTAIN_SELECTOR = '[{0}*="{1}"]';
 /**
- * Disabled adapter
+ * @class DisabledAdapter
  */
-adapters.DisabledAdapter = BaseAdapter.extend({
+const DisabledAdapter = BaseAdapter.extend({
     init: function (options, attributes) {
         BaseAdapter.fn.init.call(this, options);
         this.type = BOOLEAN;
@@ -75,3 +82,8 @@ adapters.DisabledAdapter = BaseAdapter.extend({
         };
     }
 });
+
+/**
+ * Default export
+ */
+export default DisabledAdapter;

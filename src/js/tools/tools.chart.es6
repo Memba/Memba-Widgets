@@ -3,6 +3,25 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert';
+import CONSTANTS from '../common/window.constants';
+
+/**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).chart || {
+            // TODO
+        }
+    );
+}
+
 /**
  * Build default chart data
  * @param categories
@@ -60,11 +79,11 @@ util.resizeSpreadsheetData = function (json, rowMax, columnMax) {
  * Chart tool
  * @class Chart
  */
-var Chart = Tool.extend({
+var Chart = BaseTool.extend({
     id: 'chart',
     icon: 'chart_area',
     description: i18n.chart.description,
-    cursor: CURSOR_CROSSHAIR,
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
         default: '<div data-#= ns #role="chart" data-#= ns #chart-area="#: chartArea$() #" data-#= ns #series-defaults="#: seriesDefaults$() #" data-#= ns #title="#: title$() #" data-#= ns #legend="#: legend$() #" data-#= ns #series="#: series$() #" data-#= ns #category-axis="#: categoryAxis$() #" data-#= ns #value-axis="#: valueAxis$() #" style="#: attributes.style #"></div>'
     },
@@ -275,7 +294,7 @@ var Chart = Tool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div' + kendo.roleSelector('chart'));
         var widget = content.data('kendoChart');
@@ -299,7 +318,7 @@ var Chart = Tool.extend({
      */
     /*
     validate: function (component, pageIdx) {
-        var ret = Tool.fn.validate.call(this, component, pageIdx);
+        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (component.attributes) {
@@ -310,4 +329,8 @@ var Chart = Tool.extend({
     */
 
 });
+
+/**
+ * Registration
+ */
 tools.register(Chart);

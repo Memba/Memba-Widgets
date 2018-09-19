@@ -4,10 +4,19 @@
  */
 
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseAdapter from './adapters.base.es6';
+
+// TODO Review with imageset
+
 /**
- * Image List Adapter (combines image and text)
+ * @class ImageListBuilderAdapter
  */
-adapters.ImageListBuilderAdapter = BaseAdapter.extend({
+const ImageListBuilderAdapter = BaseAdapter.extend({
     init: function (options) {
         var that = this;
         BaseAdapter.fn.init.call(that, options);
@@ -19,7 +28,7 @@ adapters.ImageListBuilderAdapter = BaseAdapter.extend({
             binding[kendo.attr('bind')] = 'source: ' + settings.field;
             var imageList = $('<div/>').attr(binding).appendTo(container);
             var imageListWidget = imageList.kendoImageList({
-                schemes: assets.image.schemes,
+                schemes: utilAssets.image.schemes,
                 click: $.proxy(that.showDialog, that, settings)
             }).data('kendoImageList');
             assert.instanceof(kendo.ui.ImageList, imageListWidget, assert.format(assert.messages.instanceof.default, 'imageListWidget', 'kendo.ui.ImageList'));
@@ -41,7 +50,7 @@ adapters.ImageListBuilderAdapter = BaseAdapter.extend({
                 data: {
                     value: e.item.get('image')
                 },
-                assets: assets.image
+                assets: utilAssets.image
             })
             .done(function (result) {
                 if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
@@ -54,3 +63,8 @@ adapters.ImageListBuilderAdapter = BaseAdapter.extend({
         }
     }
 });
+
+/**
+ * Default export
+ */
+export default ImageListBuilderAdapter;

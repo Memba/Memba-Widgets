@@ -1,0 +1,11 @@
+errorShots/
+graphics/
+js/vendor/
+logs/
+node_modules/
+styles/
+temp/
+test/vendor/
+webapp/public/
+**/*.js
+!*.js

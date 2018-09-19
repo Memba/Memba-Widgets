@@ -8,9 +8,3 @@ temp/
 test/vendor/
 **/*.js
 !*.js
-
-# Temporarily
-src/js/data/
-src/js/tools/
-test/browser/data/
-test/browser/tools/

@@ -4,3 +4,10 @@
 - Disconnect libraries from adapters: String => various libraries
 - Consdider generic opendialog adapter + options
 - chane events redisplay adpaters => hghlighter
+- review schemes for player (CDN) and editor (AWS S3 direct)
+- review localization: numbers and timezones
+
+
+- remove onMove and onRotate
+- add context menu
+- prevent rotation with certain tools

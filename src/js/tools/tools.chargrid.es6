@@ -7,10 +7,28 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import assert from '../common/window.assert';
-import CONSTANTS from '../common/window.constants';
+import 'kendo.data';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
+import '../widgets/widgets.chargrid.es6';
+import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+import CharGridAdapter from './adapters.chargrid.es6';
+import ColorAdapter from './adapters.color.es6';
+import NameAdapter from './adapters.name.es6';
+import NumberAdapter from './adapters.number.es6';
+import QuestionAdapter from './adapters.question.es6';
+import ScoreAdapter from './adapters.score.es6';
+import StringAdapter from './adapters.string.es6';
+import ValidationAdapter from './adapters.validation.es6';
+
+const {
+    data: { ObservableArray },
+    format,
+    htmlEncode,
+    ui: { CharGrid }
+} = window.kendo;
 
 /**
  * i18n
@@ -18,52 +36,119 @@ import BaseTool from './tools.base.es6';
  */
 function i18n() {
     return (
-        (((window.app || {}).i18n || {}).tools || {}).chargrid || {
+        (((window.app || {}).i18n || {}).tools || {}).chargrid ||
+        {
             // TODO
         }
     );
 }
 
-var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" data-#= ns #grid-fill="#: attributes.gridFill #" data-#= ns #grid-stroke="#: attributes.gridStroke #" data-#= ns #blank-fill="#: attributes.gridStroke #" data-#= ns #selected-fill="#: attributes.selectedFill #" data-#= ns #locked-fill="#: attributes.lockedFill #" data-#= ns #locked-color="#: attributes.fontColor #" data-#= ns #value-color="#: attributes.fontColor #" {0}></div>';
+const CHARGRID =
+    '<div data-#= ns #role="chargrid" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" data-#= ns #grid-fill="#: attributes.gridFill #" data-#= ns #grid-stroke="#: attributes.gridStroke #" data-#= ns #blank-fill="#: attributes.gridStroke #" data-#= ns #selected-fill="#: attributes.selectedFill #" data-#= ns #locked-fill="#: attributes.lockedFill #" data-#= ns #locked-color="#: attributes.fontColor #" data-#= ns #value-color="#: attributes.fontColor #" {0}></div>';
+
 /**
- * @class CharGrid tool
- * @type {void|*}
+ * @class CharGridTool
  */
-var CharGrid = BaseTool.extend({
+const CharGridTool = BaseTool.extend({
     id: 'chargrid',
     icon: 'dot_matrix',
-    description: i18n.chargrid.description,
+    description: i18n().description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 8,
     templates: {
-        design: kendo.format(CHARGRID, 'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'),
-        play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'),
-        review: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"') + BaseTool.fn.showResult()
+        design: format(
+            CHARGRID,
+            'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'
+        ),
+        play: format(
+            CHARGRID,
+            'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'
+        ),
+        review:
+            format(
+                CHARGRID,
+                'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'
+            ) + BaseTool.fn.showResult()
     },
     height: 400,
     width: 400,
     attributes: {
-        columns: new NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-        rows: new NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-        blank: new StringAdapter({ title: i18n.chargrid.attributes.blank.title, defaultValue: '.' }),
-        whitelist: new StringAdapter({ title: i18n.chargrid.attributes.whitelist.title, defaultValue: '1-9' }),
-        layout: new CharGridAdapter({ title: i18n.chargrid.attributes.layout.title, defaultValue: null }),
-        gridFill: new ColorAdapter({ title: i18n.chargrid.attributes.gridFill.title, defaultValue: '#ffffff' }),
-        gridStroke: new ColorAdapter({ title: i18n.chargrid.attributes.gridStroke.title, defaultValue: '#000000' }),
+        columns: new NumberAdapter(
+            { title: i18n().attributes.columns.title, defaultValue: 9 },
+            {
+                'data-decimals': 0,
+                'data-format': 'n0',
+                'data-min': 1,
+                'data-max': 20
+            }
+        ),
+        rows: new NumberAdapter(
+            { title: i18n().attributes.rows.title, defaultValue: 9 },
+            {
+                'data-decimals': 0,
+                'data-format': 'n0',
+                'data-min': 1,
+                'data-max': 20
+            }
+        ),
+        blank: new StringAdapter({
+            title: i18n().attributes.blank.title,
+            defaultValue: '.'
+        }),
+        whitelist: new StringAdapter({
+            title: i18n().attributes.whitelist.title,
+            defaultValue: '1-9'
+        }),
+        layout: new CharGridAdapter({
+            title: i18n().attributes.layout.title,
+            defaultValue: null
+        }),
+        gridFill: new ColorAdapter({
+            title: i18n().attributes.gridFill.title,
+            defaultValue: '#ffffff'
+        }),
+        gridStroke: new ColorAdapter({
+            title: i18n().attributes.gridStroke.title,
+            defaultValue: '#000000'
+        }),
         // blankFill = gridStroke
-        selectedFill: new ColorAdapter({ title: i18n.chargrid.attributes.selectedFill.title, defaultValue: '#ffffcc' }),
-        lockedFill: new ColorAdapter({ title: i18n.chargrid.attributes.lockedFill.title, defaultValue: '#e6e6e6' }),
+        selectedFill: new ColorAdapter({
+            title: i18n().attributes.selectedFill.title,
+            defaultValue: '#ffffcc'
+        }),
+        lockedFill: new ColorAdapter({
+            title: i18n().attributes.lockedFill.title,
+            defaultValue: '#e6e6e6'
+        }),
         // lockedColor = valueColor = fontColor
-        fontColor: new ColorAdapter({ title: i18n.chargrid.attributes.fontColor.title, defaultValue: '#9999b6' })
+        fontColor: new ColorAdapter({
+            title: i18n().attributes.fontColor.title,
+            defaultValue: '#9999b6'
+        })
     },
     properties: {
-        name: new NameAdapter({ title: i18n.chargrid.properties.name.title }),
-        question: new QuestionAdapter({ title: i18n.chargrid.properties.question.title }),
-        solution: new CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
-        validation: new ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
-        success: new ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
-        failure: new ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
-        omit: new ScoreAdapter({ title: i18n.chargrid.properties.omit.title, defaultValue: 0 })
+        name: new NameAdapter({ title: i18n().properties.name.title }),
+        question: new QuestionAdapter({
+            title: i18n().properties.question.title
+        }),
+        solution: new CharGridAdapter({
+            title: i18n().properties.solution.title
+        }),
+        validation: new ValidationAdapter({
+            title: i18n().properties.validation.title
+        }),
+        success: new ScoreAdapter({
+            title: i18n().properties.success.title,
+            defaultValue: 1
+        }),
+        failure: new ScoreAdapter({
+            title: i18n().properties.failure.title,
+            defaultValue: 0
+        }),
+        omit: new ScoreAdapter({
+            title: i18n().properties.omit.title,
+            defaultValue: 0
+        })
     },
 
     /**
@@ -71,16 +156,18 @@ var CharGrid = BaseTool.extend({
      * @param arr
      * @private
      */
-    _prettify: function (arr) {
+    _prettify(arr) {
         // var ret = '<table>';
-        var ret = '';
+        let ret = '';
         if ($.isArray(arr) || arr instanceof ObservableArray) {
-            for (var r = 0, rowTotal = arr.length; r < rowTotal; r++) {
-                var row = arr[r];
+            for (let r = 0, rowTotal = arr.length; r < rowTotal; r++) {
+                const row = arr[r];
                 // ret += '<tr>';
-                for (var c = 0, colTotal = row.length; c < colTotal; c++) {
-                    // ret += '<td>' + kendo.htmlEncode(row[c] || '') + '</td>';
-                    ret += kendo.htmlEncode(row[c] || '') + (c === colTotal - 1 ? '' : ',');
+                for (let c = 0, colTotal = row.length; c < colTotal; c++) {
+                    // ret += '<td>' + htmlEncode(row[c] || '') + '</td>';
+                    ret +=
+                        htmlEncode(row[c] || '') +
+                        (c === colTotal - 1 ? '' : ',');
                 }
                 // ret += '</tr>';
                 ret += '<br/>';
@@ -94,7 +181,7 @@ var CharGrid = BaseTool.extend({
      * Improved display of value in score grid
      * @param testItem
      */
-    value$: function (testItem) {
+    value$(testItem) {
         return this._prettify(testItem.value);
     },
 
@@ -102,7 +189,7 @@ var CharGrid = BaseTool.extend({
      * Improved display of solution in score grid
      * @param testItem
      */
-    solution$: function (testItem) {
+    solution$(testItem) {
         return this._prettify(testItem.solution);
     },
 
@@ -112,20 +199,47 @@ var CharGrid = BaseTool.extend({
      * @param e
      * @param component
      */
-    onResize: function (e, component) {
-        var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        var content = stageElement.children('div.kj-chargrid');
-        if ($.type(component.width) === NUMBER) {
-            content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+    onResize(e, component) {
+        const stageElement = $(e.currentTarget);
+        assert.ok(
+            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
+            format('e.currentTarget is expected to be a stage element')
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        const content = stageElement.children('div.kj-chargrid');
+        if ($.type(component.width) === CONSTANTS.NUMBER) {
+            content.outerWidth(
+                component.get('width') -
+                    content.outerWidth(true) +
+                    content.outerWidth()
+            );
         }
-        if ($.type(component.height) === NUMBER) {
-            content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+        if ($.type(component.height) === CONSTANTS.NUMBER) {
+            content.outerHeight(
+                component.get('height') -
+                    content.outerHeight(true) +
+                    content.outerHeight()
+            );
         }
         // Redraw the charGrid widget
-        var charGridWidget = content.data('kendoCharGrid');
-        assert.instanceof(kendo.ui.CharGrid, charGridWidget, assert.format(assert.messages.instanceof.default, 'charGridWidget', 'kendo.ui.CharGrid'));
+        const charGridWidget = content.data('kendoCharGrid');
+        assert.instanceof(
+            CharGrid,
+            charGridWidget,
+            assert.format(
+                assert.messages.instanceof.default,
+                'charGridWidget',
+                'kendo.ui.CharGrid'
+            )
+        );
         charGridWidget.refresh();
         // prevent any side effect
         e.preventDefault();
@@ -149,10 +263,9 @@ var CharGrid = BaseTool.extend({
         return ret;
      }
      */
-
 });
 
 /**
  * Registration
  */
-tools.register(CharGrid);
+tools.register(CharGridTool);

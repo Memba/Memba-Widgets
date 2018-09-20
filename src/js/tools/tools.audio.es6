@@ -10,7 +10,7 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
-import AssetAdapter from './adapters.assets.es6';
+import AssetAdapter from './adapters.asset.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
@@ -42,9 +42,9 @@ function i18n() {
 }
 
 /**
- * @class Audio
+ * @class AudioTool
  */
-const Audio = BaseTool.extend({
+const AudioTool = BaseTool.extend({
     id: 'audio',
     icon: 'loudspeaker3',
     description: i18n().description,
@@ -209,4 +209,4 @@ const Audio = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Audio);
+tools.register(AudioTool);

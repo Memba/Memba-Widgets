@@ -58,7 +58,7 @@ var MultiQuiz = BaseTool.extend({
     properties: {
         name: new NameAdapter({ title: i18n.multiquiz.properties.name.title }),
         question: new QuestionAdapter({ title: i18n.multiquiz.properties.question.title }),
-        solution: new MultiQuizSolutionAdapter({ title: i18n.multiquiz.properties.solution.title, defaultValue: [] }),
+        solution: new MultiQuizAdapter({ title: i18n.multiquiz.properties.solution.title, defaultValue: [] }),
         validation: new ValidationAdapter({ title: i18n.multiquiz.properties.validation.title }),
         success: new ScoreAdapter({ title: i18n.multiquiz.properties.success.title, defaultValue: 1 }),
         failure: new ScoreAdapter({ title: i18n.multiquiz.properties.failure.title, defaultValue: 0 }),

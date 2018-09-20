@@ -20,9 +20,9 @@ function i18n() {
 }
 
 /**
- * @class Pointer
+ * @class PointerTool
  */
-const Pointer = BaseTool.extend({
+const PointerTool = BaseTool.extend({
     id: CONSTANTS.POINTER,
     icon: 'mouse_pointer',
     description: i18n().description,
@@ -35,4 +35,4 @@ const Pointer = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Pointer);
+tools.register(PointerTool);

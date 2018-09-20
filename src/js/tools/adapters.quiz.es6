@@ -10,14 +10,18 @@ import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
+// TODO Make it a generic DropDownAdapter with a source ofr valkues (see enum also)
 const { attr, format } = window.kendo;
 const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
-// TODO Rename into checkboxes
+
+// Important: kj-quiz-item kj-quiz-dropdown defines background-position:vover;background-position:center,display:inline-block;height:1.1em;width:1.1em;
+const QUIZSOLUTION_TMPL =
+    '<span class="kj-quiz-item kj-quiz-dropdown"># if (data.image) { #<span class="k-image" style="background-image:url(#: data.image$() #);"></span># } #<span class="k-text">#: data.text #</span></span>';
 
 /**
- * @class MultiQuizSolutionAdapter
+ * @class QuizAdapter
  */
-const MultiQuizSolutionAdapter = BaseAdapter.extend({
+const QuizAdapter = BaseAdapter.extend({
     /**
      * Constructor
      * @constructor
@@ -26,22 +30,19 @@ const MultiQuizSolutionAdapter = BaseAdapter.extend({
      */
     init(options, attributes) {
         BaseAdapter.fn.init.call(this, options);
-        this.type = undefined;
-        this.defaultValue = this.defaultValue || [];
+        this.type = CONSTANTS.STRING;
+        this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         // this.editor = 'input';
         // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
             const binding = {};
             binding[kendo.attr('bind')] = `value: ${settings.field}`;
-            const input = $('<div/>')
-                .attr(binding)
+            const input = $('<input/>')
+                .css({ width: '100%' })
+                .attr($.extend({}, settings.attributes, binding))
                 .appendTo(container);
-            input.kendoMultiQuiz({
-                mode: 'checkbox',
-                // checkboxTemplate: '<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-' + kendo.ns + 'uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>',
-                checkboxTemplate: `<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-${
-                    kendo.ns
-                }uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1}$() #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>`,
+            input.kendoDropDownList({
+                autoWidth: true,
                 dataSource: new kendo.data.DataSource({
                     data: settings.model.get('attributes.data'),
                     schema: {
@@ -73,7 +74,12 @@ const MultiQuizSolutionAdapter = BaseAdapter.extend({
                             }
                         })
                     }
-                })
+                }),
+                dataTextField: 'text',
+                dataValueField: 'text',
+                optionLabel: kendo.ui.Quiz.fn.options.messages.optionLabel,
+                template: QUIZSOLUTION_TMPL,
+                valueTemplate: QUIZSOLUTION_TMPL
             });
         };
     },
@@ -82,8 +88,7 @@ const MultiQuizSolutionAdapter = BaseAdapter.extend({
             name: 'equal',
             formula: kendo.format(
                 VALIDATION_CUSTOM,
-                '// Note: both value and solution are arrays of strings\n\t' +
-                    'return String(value.sort()) === String(solution.sort());'
+                'return String(value).trim() === String(solution).trim();'
             )
         }
     ],
@@ -93,4 +98,4 @@ const MultiQuizSolutionAdapter = BaseAdapter.extend({
 /**
  * Default export
  */
-export default MultiQuizSolutionAdapter;
+export default QuizAdapter;

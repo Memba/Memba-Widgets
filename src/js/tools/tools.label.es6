@@ -19,9 +19,8 @@ import BaseTool from './tools.base.es6';
 
 const {
     format,
-    htmlEncode,
     ns,
-    // template,
+    template,
     ui: { Stage }
 } = window.kendo;
 
@@ -51,25 +50,32 @@ function i18n() {
 const Label = BaseTool.extend({
     id: 'label',
     icon: 'font',
-    description: i18n.label.description,
+    description: i18n().description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default: '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'
+        default:
+            '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'
     },
     height: 80,
     width: 300,
     attributes: {
-        // text: new StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue }),
+        // text: new StringAdapter({ title: i18n().attributes.text.title, defaultValue: i18n().attributes.text.defaultValue }),
         text: new TextAdapter(
-            { title:i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue },
+            {
+                title: i18n().attributes.text.title,
+                defaultValue: i18n().attributes.text.defaultValue
+            },
             { rows: 2, style: 'resize:vertical; width: 100%;' }
         ),
-        style: new StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size:60px;' })
+        style: new StyleAdapter({
+            title: i18n().attributes.style.title,
+            defaultValue: 'font-size:60px;'
+        })
     },
     properties: {
         behavior: new EnumAdapter(
             {
-                title: i18n.label.properties.behavior.title,
+                title: i18n().properties.behavior.title,
                 defaultValue: 'none',
                 enum: ['none', 'draggable', 'selectable']
             },
@@ -77,7 +83,9 @@ const Label = BaseTool.extend({
                 style: 'width: 100%;'
             }
         ),
-        constant: new StringAdapter({ title: i18n.label.properties.constant.title })
+        constant: new StringAdapter({
+            title: i18n().properties.constant.title
+        })
     },
 
     /**
@@ -87,21 +95,49 @@ const Label = BaseTool.extend({
      * @param mode
      * @returns {*}
      */
-    getHtmlContent: function (component, mode) {
-        var that = this;
-        assert.instanceof(Label, that, assert.format(assert.messages.instanceof.default, 'this', 'Label'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-        var template = kendo.template(that.templates.default);
+    getHtmlContent(component, mode) {
+        const that = this;
+        assert.instanceof(
+            Label,
+            that,
+            assert.format(assert.messages.instanceof.default, 'this', 'Label')
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        assert.enum(
+            Object.keys(Stage.fn.modes),
+            mode,
+            assert.format(
+                assert.messages.enum.default,
+                'mode',
+                Object.keys(Stage.fn.modes)
+            )
+        );
+        const tmpl = template(that.templates.default);
         // The class$ function adds the kj-interactive class to draggable components
-        component.class$ = function () {
-            return 'kj-label' + (component.properties.behavior === 'draggable' ? ' ' + INTERACTIVE_CLASS : '');
+        component.class$ = function() {
+            return `kj-label${
+                component.properties.behavior === 'draggable'
+                    ? ` ${CONSTANTS.INTERACTIVE_CLASS}`
+                    : ''
+            }`;
         };
         // The id$ function returns the component id for components that have a behavior
-        component.id$ = function () {
-            return (component.properties.behavior !== 'none' && $.type(component.id) === STRING && component.id.length) ? component.id : '';
+        component.id$ = function() {
+            return component.properties.behavior !== 'none' &&
+                $.type(component.id) === CONSTANTS.STRING &&
+                component.id.length
+                ? component.id
+                : '';
         };
-        return template($.extend(component, { ns: kendo.ns }));
+        return tmpl($.extend(component, { ns }));
     },
 
     /**
@@ -110,16 +146,35 @@ const Label = BaseTool.extend({
      * @param e
      * @param component
      */
-    onResize: function (e, component) {
-        var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        var content = stageElement.children('div');
+    onResize(e, component) {
+        const stageElement = $(e.currentTarget);
+        assert.ok(
+            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
+            assert.format('e.currentTarget is expected to be a stage element')
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        const content = stageElement.children('div');
         if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+            content.outerWidth(
+                component.get('width') -
+                    content.outerWidth(true) +
+                    content.outerWidth()
+            );
         }
         if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+            content.outerHeight(
+                component.get('height') -
+                    content.outerHeight(true) +
+                    content.outerHeight()
+            );
             // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
             /*
              * We make a best guess for the number of lines as follows
@@ -157,39 +212,51 @@ const Label = BaseTool.extend({
      * @param component
      * @param pageIdx
      */
-    validate: function (component, pageIdx) {
-        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        var description = this.description; // tool description
-        var messages = this.i18n.messages;
-        if (!component.attributes ||
+    validate(component, pageIdx) {
+        const ret = BaseTool.fn.validate.call(this, component, pageIdx);
+        const description = this.description; // tool description
+        const messages = this.i18n.messages;
+        if (
+            !component.attributes ||
             !component.attributes.text ||
-            (component.attributes.text === i18n.label.attributes.text.defaultValue) ||
-            !RX_TEXT.test(component.attributes.text)) {
+            component.attributes.text ===
+                i18n().attributes.text.defaultValue ||
+            !RX_TEXT.test(component.attributes.text)
+        ) {
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(messages.invalidText, description, pageIdx + 1)
+                message: format(
+                    messages.invalidText,
+                    description,
+                    pageIdx + 1
+                )
             });
         }
-        if (!component.attributes ||
+        if (
+            !component.attributes ||
             // Styles are only checked if there is any (optional)
-            (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+            (component.attributes.style &&
+                !RX_STYLE.test(component.attributes.style))
+        ) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(
+                    messages.invalidStyle,
+                    description,
+                    pageIdx + 1
+                )
             });
         }
         // TODO: We should also check that there is a dropZone on the page if draggable
+        // TODO check selectable too
         return ret;
     }
-
 });
 
 /**
  * Registration
  */
 tools.register(Label);
-
-

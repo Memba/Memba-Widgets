@@ -50,7 +50,7 @@ var ImageSet = BaseTool.extend({
     properties: {
         name: new NameAdapter({ title: i18n.imageset.properties.name.title }),
         question: new QuestionAdapter({ title: i18n.imageset.properties.question.title }),
-        solution: new QuizSolutionAdapter({ title: i18n.imageset.properties.solution.title }),
+        solution: new QuizAdapter({ title: i18n.imageset.properties.solution.title }),
         validation: new ValidationAdapter({ title: i18n.imageset.properties.validation.title }),
         success: new ScoreAdapter({ title: i18n.imageset.properties.success.title, defaultValue: 1 }),
         failure: new ScoreAdapter({ title: i18n.imageset.properties.failure.title, defaultValue: 0 }),

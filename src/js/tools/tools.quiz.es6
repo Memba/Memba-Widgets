@@ -57,7 +57,7 @@ var Quiz = BaseTool.extend({
     properties: {
         name: new NameAdapter({ title: i18n.quiz.properties.name.title }),
         question: new QuestionAdapter({ title: i18n.quiz.properties.question.title }),
-        solution: new QuizSolutionAdapter({ title: i18n.quiz.properties.solution.title }),
+        solution: new QuizAdapter({ title: i18n.quiz.properties.solution.title }),
         validation: new ValidationAdapter({ title: i18n.quiz.properties.validation.title }),
         success: new ScoreAdapter({ title: i18n.quiz.properties.success.title, defaultValue: 1 }),
         failure: new ScoreAdapter({ title: i18n.quiz.properties.failure.title, defaultValue: 0 }),

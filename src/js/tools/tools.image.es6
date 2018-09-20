@@ -10,7 +10,7 @@ import 'kendo.core';
 import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants';
 import PageComponent from '../data/models.pagecomponent.es6';
-import AssetAdapter from './adapters.assets.es6';
+import AssetAdapter from './adapters.asset.es6';
 import EnumAdapter from './adapters.enum.es6';
 import StringAdapter from './adapters.string.es6';
 import StyleAdapter from './adapters.style.es6';

@@ -24,8 +24,6 @@ function i18n() {
     );
 }
 
-
-
     // Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
 var TEXTBOX = '<input type="text" id="#: properties.name #" class="kj-interactive" data-#= ns #role="maskedtextbox" data-#= ns #prompt-char="\u25CA" style="#: attributes.style #" {0}>';
 /**

@@ -3,17 +3,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>dialogs.styleeditor</title>
+    <title>widgets.basedialog</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- dialogs.basedialog stylesheet -->
+    <!-- widgets.basedialog stylesheet -->
     <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
-    <!-- widgets.styleeditor stylesheet -->
-    <link href="../../styles/kidoju.widgets.styleeditor.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -22,6 +20,7 @@
             SystemJS.config({
                 baseURL: '../../../',
                 bundles: {
+                    'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
                     'kendodatavizbarcode': ['kendo.dataviz.barcode'],
                     'kendodatavizchart': ['kendo.dataviz.chart'],
@@ -37,7 +36,6 @@
                     'kendodrawing': ['kendo.drawing'],
                     'kendoeditor': ['kendo.editor'],
                     'kendogantt': ['kendo.gantt'],
-                    'kendogrid': ['kendo.grid'],
                     'kendopdf': ['kendo.pdf'],
                     'kendoscheduler': ['kendo.scheduler'],
                     'kendospreadsheet': ['kendo.spreadsheet']
@@ -188,32 +186,45 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            // We need to load kendo.grid here because SystemJS does not load it as a bundle
-            // from the import reference in dialogs.styleeditor.es6
-            // See https://github.com/systemjs/systemjs/issues/1818
-            SystemJS.import('kendo.grid')
-                .then(function () {
-                    return SystemJS.import('./dialogs.styleeditor.es6')
-                })
-                .then(function (module) {
-                    var kendo = window.kendo;
-                    var openStyleEditor = module.default;
-                    $(function () {
-                        $('#button1').click(function (e) {
-                            openStyleEditor({
-                                title: 'My Style'
-                            }).done(function(result) {
-                                $("#console1").append(
-                                    kendo.format(
-                                        '<div>action `{0}` with data `{1}` at {2}</div>',
-                                        result.action,
-                                        JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
-                                    )
-                                );
-                            });
+            Promise.all([
+                SystemJS.import('./widgets.basedialog.es6'),
+                SystemJS.import('./dialogs.alert.es6'),
+                SystemJS.import('./dialogs.prompt.es6')
+            ]).then(function () {
+                var kendo = window.kendo;
+                var openAlert = window.kidoju.dialogs.openAlert;
+                var openPrompt = window.kidoju.dialogs.openPrompt;
+                $(function () {
+                    kendo.init('body');
+                    // At this stage, there should only be one
+                    var messageBox = $(kendo.roleSelector('basedialog')).data('kendoBaseDialog');
+                    messageBox.bind('click', function (e) {
+                        $("#console1").append(kendo.format("<div>action `{0}` at {1}</div>", e.action, new Date().toLocaleTimeString()));
+                        e.preventDefault(); // Prevents closing
+                    });
+                    $('#button1').click(function (e) {
+                        messageBox.open();
+                    });
+
+                    $('#button2').click(function (e) {
+                        openAlert({
+                            type: 'error',
+                            message: 'Hey Houston, we\'ve got a problem!'
+                        }).done(function(result) {
+                            $("#console2").append(kendo.format("<div>action `{0}` at {1}</div>", result.action, new Date().toLocaleTimeString()));
+                        });
+                    });
+
+                    $('#button3').click(function (e) {
+                        openPrompt({
+                            title: 'Your name',
+                            message: 'Please enter tour name:'
+                        }).done(function(result) {
+                            $("#console3").append(kendo.format("<div>action `{0}` with input `{1}` at {2}</div>", result.action, result.data.input, new Date().toLocaleTimeString()));
                         });
                     });
                 });
+            });
         }());
     </script>
     <style type="text/css">
@@ -228,11 +239,20 @@
 
 <body>
 
-<h1>dialogs.styleeditor</h1>
+<h1>widgets.basedialog</h1>
 
-<h2>using openStyleEditor</h2>
+<h2>html declaration</h2>
 <button id="button1" class="k-button">Show Me!</button>
+<div data-role="basedialog" data-title="Oops!" data-content="Hi! John Doe" data-actions="[{&quot;action&quot;:&quot;close&quot;,&quot;text&quot;:&quot;Close&quot;,&quot;primary&quot;:true}]"></div>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
+
+<h2>using openAlert</h2>
+<button id="button2" class="k-button">Show Me!</button>
+<div id="console2" class="highlight-section k-block" style="margin-top:20px;"></div>
+
+<h2>using openPrompt</h2>
+<button id="button3" class="k-button">Show Me!</button>
+<div id="console3" class="highlight-section k-block" style="margin-top:20px;"></div>
 
 </body>
 </html>

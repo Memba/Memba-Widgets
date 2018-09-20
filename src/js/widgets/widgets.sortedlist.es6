@@ -10,9 +10,13 @@ const {
     ui: { ListView, plugin }
 } = window.kendo;
 
+/**
+ * SortedList
+ * @class
+ */
 const SortedList = ListView.extend({
     /**
-     * COnstructor
+     * Constructor
      * @constructot
      * @param element
      * @param options
@@ -70,5 +74,7 @@ const SortedList = ListView.extend({
     }
 });
 
-// Register widget
+/**
+ * Registration
+ */
 plugin(SortedList);

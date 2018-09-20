@@ -41,6 +41,7 @@ const MIC_ERROR =
 const SpeechRecognizer = Widget.extend({
     /**
      * Constructor
+     * @constructor
      * @param element
      * @param options
      */
@@ -55,11 +56,13 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * Events
+     * @field
      */
     events: [CONSTANTS.CHANGE],
 
     /**
      * Options
+     * @field
      */
     options: {
         name: 'SpeechRecognizer',
@@ -82,6 +85,7 @@ const SpeechRecognizer = Widget.extend({
     /**
      * Value
      * Note: get/set won't work
+     * @method
      * @param value
      */
     value() {
@@ -90,6 +94,7 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * Initialize speech recognition
+     * @method
      * @private
      */
     _initSpeechRecognition() {
@@ -110,6 +115,7 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * Render the widget
+     * @method
      * @private
      */
     _render() {
@@ -148,6 +154,7 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * Enable/disable the widget
+     * @method
      * @param enable
      */
     enable(enable) {
@@ -166,6 +173,7 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * Refresh
+     * @method
      */
     refresh() {
         this.textarea.val(this._value || '');
@@ -173,6 +181,7 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * Display tooltip
+     * @method
      * @param text
      */
     showInfo(text) {
@@ -182,6 +191,7 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * Click event handler
+     * @method
      * @private
      */
     _onClick() {
@@ -211,6 +221,7 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * Start event handler
+     * @method
      * @private
      */
     _onStart() {
@@ -223,6 +234,7 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * Error event handler
+     * @method
      * @param e
      * @private
      */
@@ -251,6 +263,7 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * Result event handler
+     * @method
      * @param e
      * @private
      */
@@ -271,6 +284,7 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * End event handler
+     * @method
      * @private
      */
     _onEnd() {
@@ -284,6 +298,7 @@ const SpeechRecognizer = Widget.extend({
 
     /**
      * Destroy
+     * @method
      */
     destroy() {
         Widget.fn.destroy.call(this);
@@ -291,5 +306,7 @@ const SpeechRecognizer = Widget.extend({
     }
 });
 
-// Create a jQuery plugin, this calls SpeechRecognizer.fn.options.name
+/**
+ * Registration
+ */
 plugin(SpeechRecognizer);

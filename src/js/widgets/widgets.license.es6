@@ -39,10 +39,12 @@ const LICENSES = [0, 1, 13];
 
 /**
  * License
+ * @class
  */
 const License = Widget.extend({
     /**
      * Constructor
+     * @constructor
      * @param element
      * @param options
      */
@@ -57,11 +59,13 @@ const License = Widget.extend({
 
     /**
      * Events
+     * @field
      */
     events: [],
 
     /**
      * Options
+     * @field
      */
     options: {
         name: 'License',
@@ -72,6 +76,7 @@ const License = Widget.extend({
     /**
      * Value
      * Note: get/set won't work
+     * @method
      * @param value
      */
     value(value) {
@@ -93,6 +98,7 @@ const License = Widget.extend({
 
     /**
      * Enable/disable the widget
+     * @method
      * @param enabled
      */
     enable(enabled) {
@@ -112,6 +118,7 @@ const License = Widget.extend({
 
     /**
      * Refresh
+     * @method
      */
     refresh() {
         /* eslint-disable no-bitwise */
@@ -162,6 +169,7 @@ const License = Widget.extend({
 
     /**
      * Destroy
+     * @method
      */
     destroy() {
         this.element.off(NS);
@@ -169,5 +177,7 @@ const License = Widget.extend({
     }
 });
 
-// Register License
+/**
+ * Registration
+ */
 plugin(License);

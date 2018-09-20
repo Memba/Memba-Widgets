@@ -91,10 +91,12 @@ Path.prototype.toSegments = function toSegments() {
 
 /**
  * ScratchPad
+ * @class
  */
 const ScratchPad = Widget.extend({
     /**
      * Constructor
+     * @constructor
      * @param element
      * @param options
      */
@@ -109,11 +111,13 @@ const ScratchPad = Widget.extend({
 
     /**
      * Events
+     * @field
      */
     events: [CONSTANTS.CHANGE],
 
     /**
      * Options
+     * @field
      */
     options: {
         name: 'ScratchPad',
@@ -126,6 +130,7 @@ const ScratchPad = Widget.extend({
     /**
      * Value
      * Note: get/set won't work
+     * @method
      * @param value
      */
     value(value) {
@@ -145,6 +150,7 @@ const ScratchPad = Widget.extend({
 
     /**
      * Render the widget
+     * @method
      * @private
      */
     _render() {
@@ -157,6 +163,7 @@ const ScratchPad = Widget.extend({
 
     /**
      * Enable/disable the widget
+     * @method
      * @param enable
      */
     enable(enable) {
@@ -183,6 +190,7 @@ const ScratchPad = Widget.extend({
 
     /**
      * Refresh
+     * @method
      */
     refresh() {
         this.surface.clear();
@@ -194,6 +202,7 @@ const ScratchPad = Widget.extend({
 
     /**
      * Destroy
+     * @method
      */
     destroy() {
         Widget.fn.destroy.call(this);
@@ -201,7 +210,9 @@ const ScratchPad = Widget.extend({
     }
 });
 
-// Register ScratchPad
+/**
+ * Registration
+ */
 plugin(ScratchPad);
 
 /** *****************************************************************************

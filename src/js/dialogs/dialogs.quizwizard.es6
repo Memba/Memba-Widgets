@@ -10,7 +10,7 @@ import 'kendo.core';
 import 'kendo.data';
 import 'kendo.grid';
 import 'kendo.validator';
-import './widgets.basedialog.es6';
+import './dialogs.base.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {

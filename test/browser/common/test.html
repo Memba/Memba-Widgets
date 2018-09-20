@@ -2,16 +2,16 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>window.media</title>
+    <title>Add test to query string</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../../src/styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../../src/styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../../src/styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <link href="../../vendor/mocha.css" rel="stylesheet" />
+    <link href="../../../test/vendor/mocha.css" rel="stylesheet" />
     <!-- SystemJS loader -->
-    <script src="../../vendor/system.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
@@ -98,6 +98,7 @@
                     'kendo.mobile.switch': 'src/js/vendor/kendo/kendo.mobile.switch.js',
                     'kendo.mobile.tabstrip': 'src/js/vendor/kendo/kendo.mobile.tabstrip.js',
                     'kendo.mobile.view': 'src/js/vendor/kendo/kendo.mobile.view.js',
+                    'kendo.multicolumncombobox': 'src/js/vendor/kendo/kendo.multicolumncombobox.js',
                     'kendo.multiselect': 'src/js/vendor/kendo/kendo.multiselect.js',
                     'kendo.notification': 'src/js/vendor/kendo/kendo.notification.js',
                     'kendo.numerictextbox': 'src/js/vendor/kendo/kendo.numerictextbox.js',
@@ -158,21 +159,20 @@
                     'kendopdf': 'src/js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'src/js/vendor/kendo/kendo.scheduler.js',
                     'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
-                    // tests
+                    // Test frameworks
                     'chai': 'test/vendor/chai.js',
                     'chai-jquery': 'test/vendor/chai-jquery.js',
                     'jquery.mockjax': 'test/vendor/jquery.mockjax.js',
+                    'jscheck': 'test/vendor/jscheck.js',
                     'mocha': 'test/vendor/mocha.js',
                     'sinon': 'test/vendor/sinon.js',
                     'sinon-chai': 'test/vendor/sinon-chai.js'
                 },
                 meta: {
-                    'test/vendor/chai.js': { format: 'global' },
-                    'test/vendor/chai-jquery.js': { format: 'global' },
                     'test/vendor/jquery.mockjax.js': { format: 'global' },
+                    'test/vendor/jscheck.js': { format: 'global' },
                     'test/vendor/mocha.js': { format: 'global' },
-                    'test/vendor/sinon.js': { format: 'global' },
-                    'test/vendor/sinon-chai.js': { format: 'global' }
+                    'test/vendor/sinon-chai.js': { format: 'cjs' }
                 },
                 packages: {
                     'src/js': {
@@ -217,15 +217,20 @@
                     exports.teardown = context.teardown || context.afterEach;
                     exports.test = context.test || context.it;
                     exports.run = context.run;
-                    // now use SystemJS to load all test files
-                    SystemJS.import('./window.media.test.es6').then(function () {
-                        // mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'jQuery*', 'kendo', 'kidoju', 'chai', 'sinon']);
-                        mocha.checkLeaks().globals(['jQuery']);
-                        if (!window.blanket && !window.PHANTOMJS) {
-                            mocha.run();
-                        }
-                    });
-
+                    const params = new URLSearchParams(window.location.search);
+                    const test = params.get('t');
+                    if (test) {
+                        document.title = test;
+                        document.getElementsByTagName('h1')[0].innerHTML = test;
+                        // now use SystemJS to load all test files
+                        SystemJS.import('./' + test + '.test.es6').then(function() {
+                            // mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'jQuery*', 'kendo', 'kidoju', 'chai', 'sinon']);
+                            mocha.checkLeaks().globals(['jQuery']);
+                            if (!window.blanket && !window.PHANTOMJS) {
+                                mocha.run();
+                            }
+                        });
+                    }
                 });
                 mocha.setup('bdd');
                 mocha.timeout(10000);
@@ -234,7 +239,7 @@
     </script>
 </head>
 <body>
-<h1>window.media</h1>
+<h1>Add test to query string ?t=[name] (from name.test.es6)</h1>
 <div id="mocha"></div>
 <div id="fixtures"></div>
 </body>

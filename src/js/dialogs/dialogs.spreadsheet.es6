@@ -8,7 +8,7 @@
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.spreadsheet';
-import './dialogs.base.es6';
+import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {

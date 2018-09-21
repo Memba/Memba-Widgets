@@ -38,7 +38,7 @@
         /**
          * Template (kendoTemplate)
          * @class Template
-         * @extend Widget
+         * @extends Widget
          */
         var Template = Widget.extend({
 

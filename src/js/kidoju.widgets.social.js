@@ -92,7 +92,7 @@
         /**
          * Social (kendoSocial)
          * @class Social
-         * @extend Widget
+         * @extends Widget
          */
         var Social = Widget.extend({
 

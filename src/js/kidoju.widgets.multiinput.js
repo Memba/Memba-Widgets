@@ -101,7 +101,7 @@
         /**
          * MultiInput (kendoMultiInput)
          * @class MultiInput
-         * @extend Widget
+         * @extends Widget
          */
         var MultiInput = Widget.extend({
 

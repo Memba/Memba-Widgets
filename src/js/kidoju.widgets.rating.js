@@ -78,7 +78,7 @@
         /**
          * Rating (kendoRating)
          * @class Rating
-         * @extend Widget
+         * @extends Widget
          */
         var Rating = Widget.extend({
 

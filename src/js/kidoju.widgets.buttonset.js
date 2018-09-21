@@ -45,7 +45,7 @@
         /**
          * ButtonSet (kendoButtonSet)
          * @class ButtonSet
-         * @extend Widget
+         * @extends Widget
          */
         var ButtonSet = Widget.extend({
 

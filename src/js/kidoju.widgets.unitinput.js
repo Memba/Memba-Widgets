@@ -45,7 +45,7 @@
         /**
          * UnitInput (kendoUnitInput)
          * @class UnitInput
-         * @extend Widget
+         * @extends Widget
          */
         var UnitInput = Widget.extend({
 

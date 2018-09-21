@@ -64,7 +64,7 @@
         /**
          * MarkEditor (kendoTemplate)
          * @class MarkEditor
-         * @extend Widget
+         * @extends Widget
          */
         var MarkEditor = Widget.extend({
 

@@ -111,7 +111,7 @@
         /**
          * SplitButton (kendoSplitButton)
          * @class SplitButton
-         * @extend Widget
+         * @extends Widget
          */
         var SplitButton = Widget.extend({
 

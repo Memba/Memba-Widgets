@@ -51,7 +51,7 @@
         /**
          * ImageSet (kendoImageSet)
          * @class ImageSet
-         * @extend Widget
+         * @extends Widget
          */
         var ImageSet = Widget.extend({
 

@@ -212,7 +212,7 @@
         /**
          * FormatBar (kendoFormatBar)
          * @class FormatBar
-         * @extend Widget
+         * @extends Widget
          */
         var FormatBar = ToolBar.extend({
 
@@ -643,7 +643,7 @@
         /**
          * FormatStrip (kendoFormatStrip)
          * @class FormatStrip
-         * @extend Widget
+         * @extends Widget
          */
         var FormatStrip = Widget.extend({
 

@@ -56,7 +56,7 @@
         /**
          * PropertyGrid widget
          * @class PropertyGrid
-         * @extend Widget
+         * @extends Widget
          */
         var PropertyGrid = Widget.extend({
 

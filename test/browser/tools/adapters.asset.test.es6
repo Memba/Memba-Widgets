@@ -26,7 +26,7 @@ describe('adapters.asset', () => {
     });
 
     it('Validate AssetAdapter', function () {
-        var adapter = new adapters.AssetAdapter();
+        var adapter = new AssetAdapter();
         var field = adapter.getField();
         var row = adapter.getRow('test');
         expect(field).to.have.property('type', adapter.type);

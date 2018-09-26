@@ -12,7 +12,7 @@ import 'kendo.binder';
 import 'kendo.data';
 import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import BaseAdapterl from '../../../src/js/tools/adapters.base.es6';
+import BaseAdapter from '../../../src/js/tools/adapters.base.es6';
 
 const { describe, it, kendo, xit } = window;
 const { expect } = chai;

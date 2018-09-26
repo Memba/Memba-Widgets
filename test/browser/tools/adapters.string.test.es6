@@ -12,22 +12,25 @@ import 'kendo.binder';
 import 'kendo.data';
 import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import BaseAdapterl from '../../../src/js/tools/adapters.base.es6';
+import BaseAdapter from '../../../src/js/tools/adapters.readonly.es6';
 
 const { describe, it, kendo, xit } = window;
 const { expect } = chai;
 
-describe('adapters.string', () => {
-    describe('StringAdapter', () => {
-        it('It should ...', () => {
-
+describe('adapters.readonly', () => {
+    describe('adapters.readonly', () => {
+        it('getField', function() {
+            var adapter = new adapters.StringAdapter();
+            var field = adapter.getField();
+            var row = adapter.getRow('test');
+            expect(field).to.have.property('type', adapter.type);
         });
-    });
 
-    it('Validate StringAdapter', function () {
-        var adapter = new adapters.StringAdapter();
-        var field = adapter.getField();
-        var row = adapter.getRow('test');
-        expect(field).to.have.property('type', adapter.type);
+        it('getRow', function() {
+            var adapter = new adapters.StringAdapter();
+            var field = adapter.getField();
+            var row = adapter.getRow('test');
+            expect(field).to.have.property('type', adapter.type);
+        });
     });
 });

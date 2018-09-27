@@ -226,11 +226,10 @@
                         document.getElementById('menu').style.display = 'none';
                         // now use SystemJS to load all test files
                         SystemJS.import('./' + test + '.test.es6').then(function() {
-                            // mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'jQuery*', 'kendo', 'kidoju', 'chai', 'sinon']);
-                            mocha.checkLeaks().globals(['jQuery']);
-                            if (!window.blanket && !window.PHANTOMJS) {
-                                mocha.run();
-                            }
+                            mocha.checkLeaks().globals([]);
+                            // if (!window.blanket && !window.PHANTOMJS) {
+                            mocha.run();
+                            // }
                         });
                     }
                 });
@@ -267,10 +266,32 @@
     <li><a href="?t=adapters.textarea">adapters.textarea</a></li>
     <li><a href="?t=adapters.textbox">adapters.textbox</a></li>
     <li><a href="?t=adapters.validation">adapters.validation</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools">tools</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.audio">tools.audi</a><span style="color:red;">*</span></li>
     <li><a href="?t=tools.base">tools.base</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.chargrid">tools.chargrid</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.chart">tools.chart</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.connector">tools.connector</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.dropzone">tools.dropzone</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.highlighter">tools.highlighter</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.image">tools.image</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.imageset">tools.imageset</a><span style="color:red;">*</span></li>
     <li><a href="?t=tools.label">tools.label</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.mathexpression">tools.mathexpression</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.mathinput">tools.mathinput</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.multiquiz">tools.multiquiz</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.pointer">tools.pointer</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.quiz">tools.quiz</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.selector">tools.selector</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.table">tools.table</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.textarea">tools.textarea</a><span style="color:red;">*</span></li>
     <li><a href="?t=tools.textbox">tools.textbox</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.textgaps">tools.textgaps</a><span style="color:red;">*</span></li>
+    <li><a href="?t=tools.video">tools.video</a><span style="color:red;">*</span></li>
+    <li><a href="?t=util.assets">util.assets</a><span style="color:red;">*</span></li>
     <li><a href="?t=util.editors">util.editors</a></li>
+    <li><a href="?t=util.library">util.library</a><span style="color:red;">*</span></li>
+    <li><a href="?t=util.validators">util.validators</a><span style="color:red;">*</span></li>
 </ul>
 <div id="mocha"></div>
 <div id="fixtures"></div>

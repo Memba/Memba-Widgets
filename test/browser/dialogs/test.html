@@ -223,13 +223,13 @@
                     if (test) {
                         document.title = test;
                         document.getElementsByTagName('h1')[0].innerHTML = test;
+                        document.getElementById('menu').style.display = 'none';
                         // now use SystemJS to load all test files
                         SystemJS.import('./' + test + '.test.es6').then(function() {
-                            // mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'jQuery*', 'kendo', 'kidoju', 'chai', 'sinon']);
-                            mocha.checkLeaks().globals(['jQuery']);
-                            if (!window.blanket && !window.PHANTOMJS) {
-                                mocha.run();
-                            }
+                            mocha.checkLeaks().globals([]);
+                            // if (!window.blanket && !window.PHANTOMJS) {
+                            mocha.run();
+                            // }
                         });
                     }
                 });
@@ -241,6 +241,9 @@
 </head>
 <body>
 <h1>Add test to query string ?t=[name] (from name.test.es6)</h1>
+<ul id="menu">
+    <li><a href="?t=dialogs.base">dialogs.base</a><span style="color:red;">*</span></li>
+</ul>
 <div id="mocha"></div>
 <div id="fixtures"></div>
 </body>

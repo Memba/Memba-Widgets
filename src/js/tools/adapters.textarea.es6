@@ -6,19 +6,19 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
-const { attr, format } = window.kendo;
-// TODO rename as readonly adapter
-
 /**
- * @class NameAdapter
+ * TextAreaAdapter (multiline)
+ * @class TextAreaAdapter
+ * @extends BaseAdapter
  */
-const NameAdapter = BaseAdapter.extend({
+const TextAreaAdapter = BaseAdapter.extend({
     /**
      * Constructor
-     * @constructor
+     * @constructor init
      * @param options
      * @param attributes
      */
@@ -26,11 +26,9 @@ const NameAdapter = BaseAdapter.extend({
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-        this.editor = 'input';
-        this.attributes = $.extend({}, this.attributes, attributes, {
-            type: 'text',
-            class: 'k-textbox k-state-disabled',
-            disabled: true
+        this.editor = 'textarea';
+        $.extend(this.attributes, attributes, {
+            class: 'k-textbox'
         });
     }
 });
@@ -38,4 +36,4 @@ const NameAdapter = BaseAdapter.extend({
 /**
  * Default export
  */
-export default NameAdapter;
+export default TextAreaAdapter;

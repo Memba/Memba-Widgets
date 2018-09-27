@@ -9,15 +9,14 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import editors from './util.editors.es6';
 
 const { Class } = window.kendo;
 
-// IMPORTANT TODO Consider pub sub mechanism especially to refresh or disable dependant properties
-// TODO: Review HTML encode, especially in property grid????
-// TODO Also consider a registry of editors kidoju.editors[editor] = function (container, settings) {}
-
 /**
- * @class BaseAdapter (abstract)
+ * BaseAdapter (abstract)
+ * @class BaseAdapter
+ * @extends Class
  */
 const BaseAdapter = Class.extend({
     /**
@@ -35,11 +34,12 @@ const BaseAdapter = Class.extend({
             )
         );
 
-        // See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
+        // See https://docs.telerik.com/kendo-ui/api/javascript/data/model/methods/define
         this.defaultValue = options.defaultValue;
         this.editable = options.editable;
         this.nullable = options.nullable;
         this.parse = options.parse;
+        this.type = options.type;
         this.from = options.from;
         this.validation = options.validation;
 
@@ -49,37 +49,33 @@ const BaseAdapter = Class.extend({
         this.format = options.format;
         this.template = options.template;
         this.editor = options.editor;
-        // TODO: HTML encode????
         this.attributes = options.attributes;
     },
 
     /**
-     * Data type: string, number, boolean or date
-     */
-    type: undefined,
-
-    /**
      * Get a kendo.data.Model field
-     * See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
+     * @see https://docs.telerik.com/kendo-ui/api/javascript/data/model/methods/define
+     * @method getField
      * @returns {{}}
      */
     getField() {
         const field = {};
         if (
             [
-                CONSTANTS.STRING,
-                CONSTANTS.NUMBER,
                 CONSTANTS.BOOLEAN,
-                CONSTANTS.DATE
+                CONSTANTS.DATE,
+                CONSTANTS.NUMBER,
+                CONSTANTS.OBJECT,
+                CONSTANTS.STRING
             ].indexOf(this.type) > -1
         ) {
             field.type = this.type;
         }
         if (
             $.type(this.defaultValue) === this.type ||
-            this.type === undefined
+            $.isFunction(this.defaultValue) ||
+            $.type(this.type) === CONSTANTS.UNDEFINED
         ) {
-            // TODO: test that defaultValue is null or an object
             field.defaultValue = this.defaultValue;
         }
         if ($.type(this.editable) === CONSTANTS.BOOLEAN) {
@@ -102,14 +98,25 @@ const BaseAdapter = Class.extend({
 
     /**
      * Get a property grid row
-     * See http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns
+     * @see http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns
+     * @method getRow
      * @param field - This is the MVVM path to the field the data is bound to
      * @returns {{}}
      */
     getRow(field) {
-        if ($.type(field) !== CONSTANTS.STRING || field.length === 0) {
-            throw new TypeError();
-        }
+        assert.type(
+            CONSTANTS.STRING,
+            field,
+            assert.format(
+                assert.messages.type.default,
+                'field',
+                CONSTANTS.STRING
+            )
+        );
+        assert.hasLength(
+            field,
+            assert.format(assert.messages.hasLength.default, 'field')
+        );
         const row = {};
         row.field = field; // Mandatory
         if ($.type(this.title) === CONSTANTS.STRING) {
@@ -124,12 +131,12 @@ const BaseAdapter = Class.extend({
         if (
             $.isFunction(this.editor) ||
             ($.type(this.editor) === CONSTANTS.STRING &&
-                (kidoju.editors === undefined ||
-                    $.isFunction(kidoju.editors[this.editor])))
+                $.isFunction(editors[this.editor]))
         ) {
             row.editor = this.editor;
         }
         // TODO: HTML encode????
+        // TODO Validation????
         if ($.isPlainObject(this.attributes)) {
             row.attributes = this.attributes;
         }

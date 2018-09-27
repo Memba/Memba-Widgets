@@ -10,14 +10,11 @@ import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
-// TODO this is teh number adapter with options
-
-const { attr } = window.kendo;
-
 /**
- * @class ScoreAdapter
+ * TextBoxAdapter
+ * @class
  */
-const ScoreAdapter = BaseAdapter.extend({
+const TextBoxAdapter = BaseAdapter.extend({
     /**
      * Constructor
      * @constructor
@@ -26,15 +23,17 @@ const ScoreAdapter = BaseAdapter.extend({
      */
     init(options, attributes) {
         BaseAdapter.fn.init.call(this, options);
-        this.type = CONSTANTS.NUMBER;
-        this.defaultValue = this.defaultValue || (this.nullable ? null : 0);
+        this.type = CONSTANTS.STRING;
+        this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'input';
-        this.attributes = $.extend({}, this.attributes, attributes);
-        this.attributes[attr('role')] = 'numerictextbox';
+        $.extend(this.attributes, attributes, {
+            type: 'text',
+            class: 'k-textbox'
+        });
     }
 });
 
 /**
  * Default export
  */
-export default ScoreAdapter;
+export default TextBoxAdapter;

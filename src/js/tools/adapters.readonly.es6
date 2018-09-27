@@ -7,17 +7,15 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import 'kendo.datepicker';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
-const { attr } = window.kendo;
-
 /**
- * DateAdapter
+ * ReadOnlyAdapter
+ * Note: We could have used TextBoxAdapter with attributes
  * @class
  */
-const DateAdapter = BaseAdapter.extend({
+const ReadOnlyAdapter = BaseAdapter.extend({
     /**
      * Constructor
      * @constructor
@@ -26,16 +24,21 @@ const DateAdapter = BaseAdapter.extend({
      */
     init(options, attributes) {
         BaseAdapter.fn.init.call(this, options);
-        this.type = CONSTANTS.DATE;
-        this.defaultValue =
-            this.defaultValue || (this.nullable ? null : () => new Date());
+        this.type = CONSTANTS.STRING;
+        this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'input';
-        this.attributes = $.extend({}, this.attributes, attributes);
-        this.attributes[attr('role')] = 'datepicker';
+        $.extend(this.attributes, attributes, {
+            type: 'text',
+            class: 'k-input',
+            readonly: true
+            // TODO check and compare both
+            // class: `k-textbox ${CONSTANTS.DISABLED_CLASS}`,
+            // disabled: true
+        });
     }
 });
 
 /**
  * Default export
  */
-export default DateAdapter;
+export default ReadOnlyAdapter;

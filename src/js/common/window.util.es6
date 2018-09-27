@@ -68,3 +68,16 @@ export function randomId() {
 export function randomVal() {
     return `val_${randomHexString(6)}`;
 }
+
+/**
+ * Rounding numbers with precision
+ * @method round
+ * @param value
+ * @param precision
+ * @return {Number}
+ */
+export function round(value, precision = 2) {
+    const val = parseFloat(value);
+    const p = Math.trunc(10 ** Math.trunc(precision));
+    return Math.round(val * p) / p;
+}

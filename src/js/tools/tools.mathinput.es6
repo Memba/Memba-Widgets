@@ -10,7 +10,19 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
+import ReadOnlyAdapter from './adapters.readonly.es6';
+import NumberAdapter from './adapters.number.es6';
+import QuestionAdapter from './adapters.question.es6';
+import ValidationAdapter from './adapters.validation.es6';
+import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+import { LIB_COMMENT, mathLibrary } from './util.library';
+
+const {
+    attr,
+    format
+} = window.kendo;
+const ScoreAdapter = NumberAdapter;
 
 /**
  * i18n
@@ -36,9 +48,9 @@ var MathInput = BaseTool.extend({
     description: i18n.mathinput.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        design: kendo.format(MATHINPUT, 'data-#= ns #enable="false"'),
-        play: kendo.format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value"'),
-        review: kendo.format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
+        design: format(MATHINPUT, 'data-#= ns #enable="false"'),
+        play: format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value"'),
+        review: format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 120,
     width: 370,
@@ -58,10 +70,14 @@ var MathInput = BaseTool.extend({
         style: new StyleAdapter({ title: i18n.mathinput.attributes.style.title, defaultValue: 'font-size:50px;' })
     },
     properties: {
-        name: new NameAdapter({ title: i18n.mathinput.properties.name.title }),
+        name: new ReadOnlyAdapter({ title: i18n.mathinput.properties.name.title }),
         question: new QuestionAdapter({ title: i18n.mathinput.properties.question.title }),
         solution: new MathAdapter({ title: i18n.mathinput.properties.solution.title, defaultValue: '' }),
-        validation: new ValidationAdapter({ title: i18n.mathinput.properties.validation.title }),
+        validation: new ValidationAdapter({
+            defaultValue: LIB_COMMENT + mathLibrary.defaultValue,
+            library: mathLibrary.library,
+            title: i18n.mathinput.properties.validation.title
+        }),
         success: new ScoreAdapter({ title: i18n.mathinput.properties.success.title, defaultValue: 1 }),
         failure: new ScoreAdapter({ title: i18n.mathinput.properties.failure.title, defaultValue: 0 }),
         omit: new ScoreAdapter({ title: i18n.mathinput.properties.omit.title, defaultValue: 0 })
@@ -131,13 +147,13 @@ var MathInput = BaseTool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div');
-        if ($.type(component.width) === NUMBER) {
+        if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
         }
-        if ($.type(component.height) === NUMBER) {
+        if ($.type(component.height) === CONSTANTS.NUMBER) {
             content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
         }
         // prevent any side effect
@@ -162,9 +178,9 @@ var MathInput = BaseTool.extend({
             !RX_FORMULA.test(component.attributes.formula)) {
             // TODO: replace RX_FORMULA with a LaTeX synthax checker
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(messages.invalidFormula, description, pageIdx + 1)
+                message: format(messages.invalidFormula, description, pageIdx + 1)
             });
         }
         */
@@ -172,9 +188,9 @@ var MathInput = BaseTool.extend({
             // Styles are only checked if there is any (optional)
             (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
         return ret;

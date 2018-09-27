@@ -10,10 +10,10 @@ import 'kendo.core';
 import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
-import EnumAdapter from './adapters.enum.es6';
-import StringAdapter from './adapters.string.es6';
+import DropDownListAdapter from './adapters.dropdownlist.es6';
 import StyleAdapter from './adapters.style.es6';
-import TextAdapter from './adapters.text.es6';
+import TextAreaAdapter from './adapters.textarea.es6';
+import TextBoxAdapter from './adapters.textbox.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 
@@ -59,8 +59,8 @@ const Label = BaseTool.extend({
     height: 80,
     width: 300,
     attributes: {
-        // text: new StringAdapter({ title: i18n().attributes.text.title, defaultValue: i18n().attributes.text.defaultValue }),
-        text: new TextAdapter(
+        // text: new TextBoxAdapter({ title: i18n().attributes.text.title, defaultValue: i18n().attributes.text.defaultValue }),
+        text: new TextAreaAdapter(
             {
                 title: i18n().attributes.text.title,
                 defaultValue: i18n().attributes.text.defaultValue
@@ -73,7 +73,7 @@ const Label = BaseTool.extend({
         })
     },
     properties: {
-        behavior: new EnumAdapter(
+        behavior: new DropDownListAdapter(
             {
                 title: i18n().properties.behavior.title,
                 defaultValue: 'none',
@@ -83,7 +83,7 @@ const Label = BaseTool.extend({
                 style: 'width: 100%;'
             }
         ),
-        constant: new StringAdapter({
+        constant: new TextBoxAdapter({
             title: i18n().properties.constant.title
         })
     },
@@ -122,6 +122,7 @@ const Label = BaseTool.extend({
         );
         const tmpl = template(that.templates.default);
         // The class$ function adds the kj-interactive class to draggable components
+        // eslint-disable-next-line no-param-reassign
         component.class$ = function() {
             return `kj-label${
                 component.properties.behavior === 'draggable'
@@ -130,6 +131,7 @@ const Label = BaseTool.extend({
             }`;
         };
         // The id$ function returns the component id for components that have a behavior
+        // eslint-disable-next-line no-param-reassign
         component.id$ = function() {
             return component.properties.behavior !== 'none' &&
                 $.type(component.id) === CONSTANTS.STRING &&

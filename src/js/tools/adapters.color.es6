@@ -10,16 +10,17 @@ import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
-const { attr, format } = window.kendo;
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
+const { attr } = window.kendo;
 
 /**
+ * ColorAdapter
  * @class ColorAdapter
+ * @extends BaseAdapter
  */
 const ColorAdapter = BaseAdapter.extend({
     /**
      * Constructor
-     * @constructor
+     * @constructor init
      * @param options
      * @param attributes
      */
@@ -31,17 +32,7 @@ const ColorAdapter = BaseAdapter.extend({
         this.editor = 'input';
         this.attributes = $.extend({}, this.attributes, attributes);
         this.attributes[attr('role')] = 'colorpicker';
-    },
-    library: [
-        {
-            name: 'equal',
-            formula: format(
-                VALIDATION_CUSTOM,
-                'return String(value).trim() === String(solution).trim();'
-            )
-        }
-    ],
-    libraryDefault: 'equal'
+    }
 });
 
 /**

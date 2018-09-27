@@ -10,7 +10,19 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
+import ReadOnlyAdapter from './adapters.readonly.es6';
+import NumberAdapter from './adapters.number.es6';
+import QuestionAdapter from './adapters.question.es6';
+import ValidationAdapter from './adapters.validation.es6';
+import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+import { LIB_COMMENT, textLibrary } from './util.library.es6';
+
+const {
+    attr,
+    format
+} = window.kendo;
+const ScoreAdapter = NumberAdapter;
 
 /**
  * i18n
@@ -37,9 +49,9 @@ var Textarea = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 2,
     templates: {
-        design: kendo.format(TEXTAREA, ''),
-        play: kendo.format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"'),
-        review: kendo.format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"') + BaseTool.fn.showResult()
+        design: format(TEXTAREA, ''),
+        play: format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"'),
+        review: format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"') + BaseTool.fn.showResult()
     },
     height: 300,
     width: 500,
@@ -47,10 +59,14 @@ var Textarea = BaseTool.extend({
         style: new StyleAdapter({ title: i18n.textarea.attributes.style.title, defaultValue: 'font-size:40px;resize:none;' })
     },
     properties: {
-        name: new NameAdapter({ title: i18n.textarea.properties.name.title }),
+        name: new ReadOnlyAdapter({ title: i18n.textarea.properties.name.title }),
         question: new QuestionAdapter({ title: i18n.textarea.properties.question.title }),
-        solution: new TextAdapter({ title: i18n.textarea.properties.solution.title }),
-        validation: new ValidationAdapter({ title: i18n.textarea.properties.validation.title }),
+        solution: new TextAreaAdapter({ title: i18n.textarea.properties.solution.title }),
+        validation: new ValidationAdapter({
+            defaultValue: LIB_COMMENT + textLibrary.defaultValue,
+            library: textLibrary.library,
+            title: i18n.textarea.properties.validation.title
+        }),
         success: new ScoreAdapter({ title: i18n.textarea.properties.success.title, defaultValue: 1 }),
         failure: new ScoreAdapter({ title: i18n.textarea.properties.failure.title, defaultValue: 0 }),
         omit: new ScoreAdapter({ title: i18n.textarea.properties.omit.title, defaultValue: 0 })
@@ -83,13 +99,13 @@ var Textarea = BaseTool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('textarea');
-        if ($.type(component.width) === NUMBER) {
+        if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
         }
-        if ($.type(component.height) === NUMBER) {
+        if ($.type(component.height) === CONSTANTS.NUMBER) {
             content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
         }
         // prevent any side effect
@@ -111,9 +127,9 @@ var Textarea = BaseTool.extend({
             // Styles are only checked if there is any (optional)
             (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
         return ret;

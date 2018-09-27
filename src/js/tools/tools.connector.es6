@@ -10,7 +10,19 @@ import 'kendo.core';
 import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants';
 import PageComponent from '../data/models.pagecomponent.es6';
+import ReadOnlyAdapter from './adapters.readonly.es6';
+import NumberAdapter from './adapters.number.es6';
+import QuestionAdapter from './adapters.question.es6';
+import ValidationAdapter from './adapters.validation.es6';
+import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+import { LIB_COMMENT, genericLibrary } from './util.library.es6';
+
+const {
+    attr,
+    format
+} = window.kendo;
+const ScoreAdapter = NumberAdapter;
 
 /**
  * i18n
@@ -36,9 +48,9 @@ var Connector = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 0.25,
     templates: {
-        design: kendo.format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #create-surface="false"'),
-        play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
-        review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.showResult()
+        design: format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #create-surface="false"'),
+        play: format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
+        review: format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 70,
     width: 70,
@@ -46,10 +58,14 @@ var Connector = BaseTool.extend({
         color: new ColorAdapter({ title: i18n.connector.attributes.color.title, defaultValue: '#FF0000' })
     },
     properties: {
-        name: new NameAdapter({ title: i18n.connector.properties.name.title }),
+        name: new ReadOnlyAdapter({ title: i18n.connector.properties.name.title }),
         question: new QuestionAdapter({ title: i18n.connector.properties.question.title }),
         solution: new ConnectorAdapter({ title: i18n.connector.properties.solution.title }),
-        validation: new ValidationAdapter({ title: i18n.connector.properties.validation.title }),
+        validation: new ValidationAdapter({
+            defaultValue: LIB_COMMENT + genericLibrary.defaultValue,
+            library: genericLibrary.library,
+            title: i18n.connector.properties.validation.title
+        }),
         success: new ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 1 }),
         failure: new ScoreAdapter({ title: i18n.connector.properties.failure.title, defaultValue: 0 }),
         omit: new ScoreAdapter({ title: i18n.connector.properties.omit.title, defaultValue: 0 }),
@@ -64,13 +80,13 @@ var Connector = BaseTool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        var content = stageElement.children('div[' + kendo.attr('role') + '="connector"]');
-        if ($.type(component.width) === NUMBER) {
+        var content = stageElement.children('div[' + attr('role') + '="connector"]');
+        if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
         }
-        if ($.type(component.height) === NUMBER) {
+        if ($.type(component.height) === CONSTANTS.NUMBER) {
             content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
         }
         // Redraw the connector widget
@@ -96,17 +112,17 @@ var Connector = BaseTool.extend({
         if (!component.attributes ||
             !RX_COLOR.test(component.attributes.color)) {
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(messages.invalidColor, description, pageIdx + 1)
+                message: format(messages.invalidColor, description, pageIdx + 1)
             });
         }
         if (component.properties && component.properties.disabled && !RX_SOLUTION.test(component.properties.solution)) {
             // component.properties.disabled === false is already tested in BaseTool.fn.validate.call(this, component, pageIdx)
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidSolution, description, component.properties.name, pageIdx + 1)
+                message: format(messages.invalidSolution, description, component.properties.name, pageIdx + 1)
             });
         }
         // TODO: We should also check that there is a matching connector on the page

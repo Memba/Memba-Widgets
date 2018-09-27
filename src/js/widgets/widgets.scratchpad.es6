@@ -14,8 +14,12 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // TODO: import Logger from '../window.logger.es6';
 
-const { destroy, getTouches, roleSelector } = window.kendo;
-const { plugin, Widget } = window.kendo.ui;
+const {
+    destroy,
+    getTouches,
+    roleSelector,
+    ui: { plugin, Widget }
+} = window.kendo;
 const { Path, Segment, Surface } = window.kendo.drawing;
 const { ObservableArray } = window.kendo.data;
 const WIDGET_CLASS = 'k-widget kj-scratchpad';
@@ -91,7 +95,8 @@ Path.prototype.toSegments = function toSegments() {
 
 /**
  * ScratchPad
- * @class
+ * @class ScratchPad
+ * @extends Widget
  */
 const ScratchPad = Widget.extend({
     /**

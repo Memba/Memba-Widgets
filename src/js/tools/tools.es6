@@ -25,14 +25,9 @@ const tools = observable({
      * @param Class
      */
     register(Class) {
-        assert.type(
-            CONSTANTS.FUNCTION,
+        assert.isFunction(
             Class,
-            assert.format(
-                assert.messages.type.default,
-                'Class',
-                CONSTANTS.FUNCTION
-            )
+            assert.format(assert.messages.isFunction.default, 'Class')
         );
         assert.type(
             CONSTANTS.OBJECT,

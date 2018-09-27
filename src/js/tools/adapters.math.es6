@@ -29,7 +29,7 @@ const MathAdapter = BaseAdapter.extend({
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = function(container, settings) {
             const binding = {};
-            binding[kendo.attr('bind')] = `value: ${settings.field}`;
+            binding[attr('bind')] = `value: ${settings.field}`;
             const input = $('<div/>')
                 .css({
                     width: '100%',
@@ -59,23 +59,7 @@ const MathAdapter = BaseAdapter.extend({
                 }
             });
         };
-    },
-    library: [
-        {
-            name: 'equal',
-            formula: kendo.format(
-                VALIDATION_CUSTOM,
-                'return String(value).trim() === String(solution).trim();'
-            ) // TODO several MathQuillMathField
-        } /* ,
-                {
-                    // TODO permutations
-                    name: 'anyCommutations',
-                    formula: kendo.format(VALIDATION_CUSTOM, 'return shuntingYard(value).equals(solution);')
-                }
-                */
-    ],
-    libraryDefault: 'equal'
+    }
 });
 
 /**

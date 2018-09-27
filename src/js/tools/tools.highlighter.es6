@@ -10,7 +10,19 @@ import 'kendo.core';
 import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants';
 import PageComponent from '../data/models.pagecomponent.es6';
+import ReadOnlyAdapter from './adapters.readonly.es6';
+import NumberAdapter from './adapters.number.es6';
+import QuestionAdapter from './adapters.question.es6';
+import ValidationAdapter from './adapters.validation.es6';
+import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+import { LIB_COMMENT, genericLibrary } from './util.library.es6';
+
+const {
+    attr,
+    format
+} = window.kendo;
+const ScoreAdapter = NumberAdapter;
 
 /**
  * i18n
@@ -36,23 +48,27 @@ var HighLighter = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: kendo.format(HIGHLIGHTER, 'data-#= ns #enable="false"'),
-        play: kendo.format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
-        review: kendo.format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.showResult()
+        design: format(HIGHLIGHTER, 'data-#= ns #enable="false"'),
+        play: format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
+        review: format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 250,
     width: 250,
     attributes: {
         highlightStyle: new StyleAdapter({ title: i18n.highlighter.attributes.highlightStyle.title }),
         style: new StyleAdapter({ title: i18n.highlighter.attributes.style.title, defaultValue: 'font-size:32px;' }),
-        text: new TextAdapter({ title: i18n.highlighter.attributes.text.title, defaultValue: i18n.highlighter.attributes.text.defaultValue }),
-        split: new StringAdapter({ title: i18n.highlighter.attributes.split.title, defaultValue: '([\\s\\.,;:\\?¿!<>\\(\\)&"`«»\\[\\]{}])' })
+        text: new TextAreaAdapter({ title: i18n.highlighter.attributes.text.title, defaultValue: i18n.highlighter.attributes.text.defaultValue }),
+        split: new TextBoxAdapter({ title: i18n.highlighter.attributes.split.title, defaultValue: '([\\s\\.,;:\\?¿!<>\\(\\)&"`«»\\[\\]{}])' })
     },
     properties: {
-        name: new NameAdapter({ title: i18n.highlighter.properties.name.title }),
+        name: new ReadOnlyAdapter({ title: i18n.highlighter.properties.name.title }),
         question: new QuestionAdapter({ title: i18n.highlighter.properties.question.title }),
         solution: new HighLighterAdapter({ title: i18n.highlighter.properties.solution.title }),
-        validation: new ValidationAdapter({ title: i18n.highlighter.properties.validation.title }),
+        validation: new ValidationAdapter({
+            defaultValue: LIB_COMMENT + genericLibrary.defaultValue,
+            library: genericLibrary.library,
+            title: i18n.highlighter.properties.validation.title
+        }),
         success: new ScoreAdapter({ title: i18n.highlighter.properties.success.title, defaultValue: 1 }),
         failure: new ScoreAdapter({ title: i18n.highlighter.properties.failure.title, defaultValue: 0 }),
         omit: new ScoreAdapter({ title: i18n.highlighter.properties.omit.title, defaultValue: 0 })
@@ -82,13 +98,13 @@ var HighLighter = BaseTool.extend({
      */
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div');
-        if ($.type(component.width) === NUMBER) {
+        if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
         }
-        if ($.type(component.height) === NUMBER) {
+        if ($.type(component.height) === CONSTANTS.NUMBER) {
             content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
         }
         // prevent any side effect
@@ -97,16 +113,12 @@ var HighLighter = BaseTool.extend({
         e.stopPropagation();
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Component validation
      * @param component
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        /* jshint maxcomplexity: 12 */
         var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
@@ -115,9 +127,9 @@ var HighLighter = BaseTool.extend({
             (component.attributes.text === i18n.highlighter.attributes.text.defaultValue) ||
             !RX_TEXT.test(component.attributes.text)) {
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(messages.invalidText, description, pageIdx + 1)
+                message: format(messages.invalidText, description, pageIdx + 1)
             });
         }
         if (!component.attributes ||
@@ -125,9 +137,9 @@ var HighLighter = BaseTool.extend({
             (component.attributes.highlightStyle && !RX_STYLE.test(component.attributes.highlightStyle))) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
         if (!component.attributes ||
@@ -135,17 +147,14 @@ var HighLighter = BaseTool.extend({
             (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
         // TODO also check that split regex is safe
         return ret;
     }
-
-    /* jshint +W074 */
-
 });
 
 /**

@@ -11,9 +11,9 @@ import assert from '../common/window.assert';
 import CONSTANTS from '../common/window.constants';
 import PageComponent from '../data/models.pagecomponent.es6';
 import AssetAdapter from './adapters.asset.es6';
-import EnumAdapter from './adapters.enum.es6';
-import StringAdapter from './adapters.string.es6';
+import DropDownListAdapter from './adapters.dropdownlist.es6';
 import StyleAdapter from './adapters.style.es6';
+import TextBoxAdapter from './adapters.textbox.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import { ToolAssets, assets } from './util.assets.es6';
@@ -66,7 +66,7 @@ const Image = BaseTool.extend({
     height: 250,
     width: 250,
     attributes: {
-        alt: new StringAdapter({
+        alt: new TextBoxAdapter({
             title: i18n().attributes.alt.title,
             defaultValue: i18n().attributes.alt.defaultValue
         }),
@@ -77,7 +77,7 @@ const Image = BaseTool.extend({
         style: new StyleAdapter({ title: i18n().attributes.style.title })
     },
     properties: {
-        behavior: new EnumAdapter(
+        behavior: new DropDownListAdapter(
             {
                 title: i18n().properties.behavior.title,
                 defaultValue: 'none',
@@ -87,7 +87,7 @@ const Image = BaseTool.extend({
                 style: 'width: 100%;'
             }
         ),
-        constant: new StringAdapter({ title: i18n().properties.constant.title })
+        constant: new TextBoxAdapter({ title: i18n().properties.constant.title })
     },
 
     /**

@@ -11,3 +11,23 @@
 - remove onMove and onRotate
 - add context menu
 - prevent rotation with certain tools
+
+// TODO Add markdown help
+
+// TODO Modify for lazy loading of dependency modules
+// See http://blog.avenuecode.com/lazy-loading-es2015-modules-in-the-browser
+
+// TODO solution$ for the list might be calculated depending on validation algorithm
+// see dropZone with sumEqual should make the sum
+
+// Add localization to textboxes with numbers and masked input
+// Add localization to Worker functions to parse numbers and dates
+
+// IMPORTANT TODO Consider pub sub mechanism especially to refresh or disable dependant properties in grid
+// TODO: Review HTML encode, especially in property grid????
+// TODO Also consider a registry of editors editors[name] = function (container, settings) {}
+
+
+// TODO There should be a more generic way to make sure DisabledAdapter disables other properties
+// Maybe a readonly property on fields and
+// It is a boolean adapter with a callback that does stuff (make other adapters readonly)

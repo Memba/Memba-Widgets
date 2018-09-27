@@ -39,12 +39,13 @@ const ValidationAdapter = BaseAdapter.extend({
     init(options, attributes) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
-        that.type = STRING;
+        // TODO Assert library
+        that.type = CONSTANTS.STRING;
         // this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         that.editor = function(container, settings) {
             const binding = {};
             // Note: _library is added to the data bound PageComponent in its init method
-            binding[kendo.attr('bind')] = `value: ${
+            binding[attr('bind')] = `value: ${
                 settings.field
             }, source: _library`;
             // We need a wrapper because container has { display: table-cell; }
@@ -71,6 +72,11 @@ const ValidationAdapter = BaseAdapter.extend({
                 .on(CONSTANTS.CLICK, $.proxy(that.showDialog, that, settings));
         };
     },
+
+    /**
+     * Show dialog
+     * @param options
+     */
     showDialog(options /* , e */) {
         const that = this;
         // TODO import('./dialogs/kidoju.dialogs.codeeditor.es6').then(function () {...});

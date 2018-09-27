@@ -10,7 +10,19 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
+import ReadOnlyAdapter from './adapters.readonly.es6';
+import NumberAdapter from './adapters.number.es6';
+import QuestionAdapter from './adapters.question.es6';
+import ValidationAdapter from './adapters.validation.es6';
+import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+import { LIB_COMMENT, arrayLibrary } from './util.library.es6';
+
+const {
+    attr,
+    format
+} = window.kendo;
+const ScoreAdapter = NumberAdapter;
 
 /**
  * i18n
@@ -51,22 +63,26 @@ const TextGaps = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: kendo.format(TEXTGAPS, 'data-#= ns #enable="false"'),
-        play: kendo.format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
-        review: kendo.format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
+        design: format(TEXTGAPS, 'data-#= ns #enable="false"'),
+        play: format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
+        review: format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 150,
     width: 420,
     attributes: {
         inputStyle: new StyleAdapter({ title: i18n.textgaps.attributes.inputStyle.title }),
         style: new StyleAdapter({ title: i18n.textgaps.attributes.style.title, defaultValue: 'font-size:32px;' }),
-        text: new StringAdapter({ title: i18n.textgaps.attributes.text.title, defaultValue: i18n.textgaps.attributes.text.defaultValue })
+        text: new TextBoxAdapter({ title: i18n.textgaps.attributes.text.title, defaultValue: i18n.textgaps.attributes.text.defaultValue })
     },
     properties: {
-        name: new NameAdapter({ title: i18n.textgaps.properties.name.title }),
+        name: new ReadOnlyAdapter({ title: i18n.textgaps.properties.name.title }),
         question: new QuestionAdapter({ title: i18n.textgaps.properties.question.title }),
         solution: new StringArrayAdapter({ title: i18n.textgaps.properties.solution.title, defaultValue: [] }),
-        validation: new ValidationAdapter({ title: i18n.textgaps.properties.validation.title }),
+        validation: new ValidationAdapter({
+            defaultValue: LIB_COMMENT + arrayLibrary.defaultValue,
+            library: arrayLibrary.library,
+            title: i18n.textgaps.properties.validation.title
+        }),
         success: new ScoreAdapter({ title: i18n.textgaps.properties.success.title, defaultValue: 1 }),
         failure: new ScoreAdapter({ title: i18n.textgaps.properties.failure.title, defaultValue: 0 }),
         omit: new ScoreAdapter({ title: i18n.textgaps.properties.omit.title, defaultValue: 0 })
@@ -119,15 +135,14 @@ const TextGaps = BaseTool.extend({
      * @param component
      */
     onResize: function (e, component) {
-        /* jshint maxcomplexity: 8 */
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div' + kendo.roleSelector('textgaps'));
-        if ($.type(component.width) === NUMBER) {
+        if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
         }
-        if ($.type(component.height) === NUMBER) {
+        if ($.type(component.height) === CONSTANTS.NUMBER) {
             content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
         }
         // prevent any side effect
@@ -136,16 +151,12 @@ const TextGaps = BaseTool.extend({
         e.stopPropagation();
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Component validation
      * @param component
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        /* jshint maxcomplexity: 12 */
         var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
@@ -154,9 +165,9 @@ const TextGaps = BaseTool.extend({
             (component.attributes.text === i18n.textgaps.attributes.text.defaultValue) ||
             !RX_TEXT.test(component.attributes.text)) {
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(messages.invalidText, description, pageIdx + 1)
+                message: format(messages.invalidText, description, pageIdx + 1)
             });
         }
         if (!component.attributes ||
@@ -164,9 +175,9 @@ const TextGaps = BaseTool.extend({
             (component.attributes.inputStyle && !RX_STYLE.test(component.attributes.inputStyle))) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
         if (!component.attributes ||
@@ -174,16 +185,14 @@ const TextGaps = BaseTool.extend({
             (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
         // TODO also check that split regex is safe
         return ret;
     }
-
-    /* jshint +W074 */
 
 });
 

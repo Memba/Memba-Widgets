@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: Consider redesigning ToolBase to only import adapters in designe mode,
+// using import('./adapters.*.es6').then(function () {...});
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -14,103 +17,131 @@ import BaseModel from '../data/models.base.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
 import BaseAdapter from './adapters.base.es6';
 import NumberAdapter from './adapters.number.es6';
-import ValidationAdapter from './adapters.validation.es6';
 
-const { attr, Class } = window.kendo;
-
-// TODO Add markdown help
-
-// TODO Modify for lazy loading of dependency modules
-// See http://blog.avenuecode.com/lazy-loading-es2015-modules-in-the-browser
-
-// TODO solution$ for the list might be calculated depending on validation algorithm
-// see dropZone with sumEqual should make the sum
-
-// Add localization to textboxes with numbers and masked input
-// Add localization to Worker functions to parse numbers and dates
+const {
+    attr,
+    format,
+    Class,
+    htmlEncode,
+    ns,
+    template,
+    ui: { Stage }
+} = window.kendo;
 
 /**
  * Incors images
  */
+
 // Incors O-Collection check.svg
-// var SVG_SUCCESS = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#76A797" d="M3840 5760l3934 -3934c124,-124 328,-124 452,0l1148 1148c124,124 124,328 0,452l-5308 5308c-124,124 -328,124 -452,0l-2748 -2748c-124,-124 -124,-328 0,-452l1148 -1148c124,-124 328,-124 452,0l1374 1374z"/></svg>';
+// const SVG_SUCCESS = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#76A797" d="M3840 5760l3934 -3934c124,-124 328,-124 452,0l1148 1148c124,124 124,328 0,452l-5308 5308c-124,124 -328,124 -452,0l-2748 -2748c-124,-124 -124,-328 0,-452l1148 -1148c124,-124 328,-124 452,0l1374 1374z"/></svg>';
 const SVG_SUCCESS =
     'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iIzc2QTc5NyIgZD0iTTM4NDAgNTc2MGwzOTM0IC0zOTM0YzEyNCwtMTI0IDMyOCwtMTI0IDQ1MiwwbDExNDggMTE0OGMxMjQsMTI0IDEyNCwzMjggMCw0NTJsLTUzMDggNTMwOGMtMTI0LDEyNCAtMzI4LDEyNCAtNDUyLDBsLTI3NDggLTI3NDhjLTEyNCwtMTI0IC0xMjQsLTMyOCAwLC00NTJsMTE0OCAtMTE0OGMxMjQsLTEyNCAzMjgsLTEyNCA0NTIsMGwxMzc0IDEzNzR6Ii8+PC9zdmc+';
+
 // Incors O-Collection delete.svg
-// var SVG_FAILURE = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#E68497" d="M1273 7156l2037 -2036 -2037 -2036c-124,-125 -124,-328 0,-453l1358 -1358c125,-124 328,-124 453,0l2036 2037 2036 -2037c125,-124 328,-124 453,0l1358 1358c124,125 124,328 0,453l-2037 2036 2037 2036c124,125 124,328 0,453l-1358 1358c-125,124 -328,124 -453,0l-2036 -2037 -2036 2037c-125,124 -328,124 -453,0l-1358 -1358c-124,-125 -124,-328 0,-453z"/></svg>';
+// const SVG_FAILURE = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#E68497" d="M1273 7156l2037 -2036 -2037 -2036c-124,-125 -124,-328 0,-453l1358 -1358c125,-124 328,-124 453,0l2036 2037 2036 -2037c125,-124 328,-124 453,0l1358 1358c124,125 124,328 0,453l-2037 2036 2037 2036c124,125 124,328 0,453l-1358 1358c-125,124 -328,124 -453,0l-2036 -2037 -2036 2037c-125,124 -328,124 -453,0l-1358 -1358c-124,-125 -124,-328 0,-453z"/></svg>';
 const SVG_FAILURE =
     'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iI0U2ODQ5NyIgZD0iTTEyNzMgNzE1NmwyMDM3IC0yMDM2IC0yMDM3IC0yMDM2Yy0xMjQsLTEyNSAtMTI0LC0zMjggMCwtNDUzbDEzNTggLTEzNThjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMjAzNiAyMDM3IDIwMzYgLTIwMzdjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMTM1OCAxMzU4YzEyNCwxMjUgMTI0LDMyOCAwLDQ1M2wtMjAzNyAyMDM2IDIwMzcgMjAzNmMxMjQsMTI1IDEyNCwzMjggMCw0NTNsLTEzNTggMTM1OGMtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTIwMzYgLTIwMzcgLTIwMzYgMjAzN2MtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTEzNTggLTEzNThjLTEyNCwtMTI1IC0xMjQsLTMyOCAwLC00NTN6Ii8+PC9zdmc+';
 
-// TODO Add warning
+// Incors O-Collection sign_warning.svg
+// const SVG_WARNING = '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" clip-rule="evenodd" viewBox="0 0 10240 10240"><path fill="#EDC87E" d="M5680 1282l3846 6712c117 205 117 439 0 644s-319 322-554 322H1281c-234 0-436-117-553-322s-117-439 0-644l3846-6712c117-205 318-322 553-322s436 117 553 322zm-560 318L1280 8320h7680L5120 1600z"/><path fill="gray" d="M5120 6720c353 0 640 287 640 640s-287 640-640 640-640-287-640-640 287-640 640-640zm-320-2880h640c176 0 320 144 320 320v802c0 110-12 204-38 311l-252 1006c-18 72-81 121-155 121h-390c-74 0-137-49-155-121l-252-1006c-26-107-38-201-38-311v-802c0-176 144-320 320-320z"/></svg>';
+const SVG_WARNING =
+    'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY2xpcC1ydWxlPSJldmVub2RkIiB2aWV3Qm94PSIwIDAgMTAyNDAgMTAyNDAiPjxwYXRoIGZpbGw9IiNFREM4N0UiIGQ9Ik01NjgwIDEyODJsMzg0NiA2NzEyYzExNyAyMDUgMTE3IDQzOSAwIDY0NHMtMzE5IDMyMi01NTQgMzIySDEyODFjLTIzNCAwLTQzNi0xMTctNTUzLTMyMnMtMTE3LTQzOSAwLTY0NGwzODQ2LTY3MTJjMTE3LTIwNSAzMTgtMzIyIDU1My0zMjJzNDM2IDExNyA1NTMgMzIyem0tNTYwIDMxOEwxMjgwIDgzMjBoNzY4MEw1MTIwIDE2MDB6Ii8+PHBhdGggZmlsbD0iZ3JheSIgZD0iTTUxMjAgNjcyMGMzNTMgMCA2NDAgMjg3IDY0MCA2NDBzLTI4NyA2NDAtNjQwIDY0MC02NDAtMjg3LTY0MC02NDAgMjg3LTY0MCA2NDAtNjQwem0tMzIwLTI4ODBoNjQwYzE3NiAwIDMyMCAxNDQgMzIwIDMyMHY4MDJjMCAxMTAtMTIgMjA0LTM4IDMxMWwtMjUyIDEwMDZjLTE4IDcyLTgxIDEyMS0xNTUgMTIxaC0zOTBjLTc0IDAtMTM3LTQ5LTE1NS0xMjFsLTI1Mi0xMDA2Yy0yNi0xMDctMzgtMjAxLTM4LTMxMXYtODAyYzAtMTc2IDE0NC0zMjAgMzIwLTMyMHoiLz48L3N2Zz4=';
 
 /**
+ * i18n
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).chargrid || {
+            tool: {
+                top: { title: 'Top' },
+                left: { title: 'Left' },
+                height: { title: 'Height' },
+                width: { title: 'Width' },
+                rotate: { title: 'Rotate' }
+            },
+
+            dialogs: {
+                ok: {
+                    text:
+                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
+                },
+                cancel: {
+                    text:
+                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel'
+                }
+            },
+
+            messages: {
+                invalidAltText:
+                    'A(n) {0} on page {1} requires some alternate text in display attributes.',
+                invalidAudioFile:
+                    'A(n) {0} on page {1} requires an mp3 file in display attributes.',
+                invalidColor:
+                    'A(n) {0} on page {1} has an invalid color in display attributes.',
+                invalidData:
+                    'A(n) {0} on page {1} requires values in display attributes.',
+                invalidDescription:
+                    'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
+                invalidConstant:
+                    'A(n) {0} on page {1} requires a constant in test logic.',
+                invalidFailure:
+                    'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
+                invalidFormula:
+                    'A(n) {0} on page {1} requires a formula in display attributes.',
+                invalidImageFile:
+                    'A(n) {0} on page {1} requires an image file in display attributes.',
+                invalidName:
+                    'A(n) {0} named `{1}` on page {2} has an invalid name.',
+                invalidShape:
+                    'A(n) {0} named `{1}` on page {2} requires a shape in display attributes.',
+                invalidSolution:
+                    'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
+                invalidStyle:
+                    'A(n) {0} on page {1} has an invalid style in display attributes.',
+                invalidSuccess:
+                    'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
+                invalidText:
+                    'A(n) {0} on page {1} requires some text in display attributes.',
+                invalidValidation:
+                    'A(n) {0} named `{1}` on page {2} requires a validation formula in test logic.',
+                invalidVideoFile:
+                    'A(n) {0} on page {1} requires an mp4 file in display attributes.'
+            }
+        }
+    );
+}
+
+/**
+ * BaseTool
  * @class BaseTool
+ * @extends Class
  */
 const BaseTool = Class.extend({
+    attributes: {},
+    cursor: null,
+    description: null,
+    height: 250,
     id: null,
     icon: null,
-    description: null,
-    cursor: null,
-    weight: 0,
-    height: 250,
-    width: 250,
-    attributes: {},
     properties: {},
+    weight: 0,
+    width: 250,
     svg: {
-        success: SVG_SUCCESS,
-        failure: SVG_FAILURE
+        success: SVG_SUCCESS, // --> TODO Move to i18n
+        failure: SVG_FAILURE,
+        warning: SVG_WARNING
     },
-    i18n: {
-        // They are here to be translated in kidoju.messages.[locale].js
-        tool: {
-            top: { title: i18n.tool.top.title },
-            left: { title: i18n.tool.left.title },
-            height: { title: i18n.tool.height.title },
-            width: { title: i18n.tool.width.title },
-            rotate: { title: i18n.tool.rotate.title }
-        },
-        dialogs: {
-            ok: { text: i18n.dialogs.ok.text },
-            cancel: { text: i18n.dialogs.cancel.text }
-        },
-        messages: {
-            invalidAltText: i18n.messages.invalidAltText,
-            invalidAudioFile: i18n.messages.invalidAudioFile,
-            invalidColor: i18n.messages.invalidColor,
-            invalidData: i18n.messages.invalidData,
-            invalidDescription: i18n.messages.invalidDescription,
-            invalidConstant: i18n.messages.invalidConstant,
-            invalidFailure: i18n.messages.invalidFailure,
-            invalidFormula: i18n.messages.invalidFormula,
-            invalidImageFile: i18n.messages.invalidImageFile,
-            invalidName: i18n.messages.invalidName,
-            invalidShape: i18n.messages.invalidShape,
-            invalidSolution: i18n.messages.invalidSolution,
-            invalidStyle: i18n.messages.invalidStyle,
-            invalidSuccess: i18n.messages.invalidSuccess,
-            invalidText: i18n.messages.invalidText,
-            invalidValidation: i18n.messages.invalidValidation,
-            invalidVideoFile: i18n.messages.invalidVideoFile
-        }
-    },
+    i18n: i18n(),
 
     /**
      * Constructor
-     * @class kidoju.Tool
-     * @constructor
+     * @constructor init
      * @param options
      */
-    init: function (options) {
-
+    init(options = {}) {
         // Extend tool with init options
         $.extend(this, options);
-
-        // Pass solution adapter library to validation adapter, especially for the code editor
-        if (this.properties && this.properties.solution instanceof BaseAdapter && this.properties.validation instanceof ValidationAdapter) {
-            this.properties.validation.library = this.properties.solution.library;
-            this.properties.validation.defaultValue = LIB_COMMENT + this.properties.solution.libraryDefault;
-        }
-
     },
 
     /**
@@ -120,16 +151,14 @@ const BaseTool = Class.extend({
      * @returns {kidoju.data.Model}
      * @private
      */
-    _getAttributeModel: function () {
-        var model = { fields: {} };
-        for (var attr in this.attributes) {
-            if (Object.prototype.hasOwnProperty.call(this.attributes, attr)) {
-                if (this.attributes[attr] instanceof BaseAdapter) {
-                    model.fields[attr] = this.attributes[attr].getField();
-                }
+    _getAttributeModel() {
+        const model = { fields: {} };
+        this.attributes.forEach(key => {
+            if (this.attributes[key] instanceof BaseAdapter) {
+                model.fields[key] = this.attributes[key].getField();
             }
-        }
-        return Model.define(model);
+        });
+        return BaseModel.define(model);
     },
 
     /**
@@ -139,26 +168,48 @@ const BaseTool = Class.extend({
      * @returns {Array}
      * @private
      */
-    _getAttributeRows: function () {
-        var rows = [];
-        var data = {};
+    _getAttributeRows() {
+        const rows = [];
+        const data = {};
         data[attr('decimals')] = 0;
         data[attr('format')] = 'n0';
         // Add top, left, height, width, rotation
-        rows.push(new NumberAdapter({ title: this.i18n.tool.top.title }, data).getRow('top'));
-        rows.push(new NumberAdapter({ title: this.i18n.tool.left.title }, data).getRow('left'));
-        rows.push(new NumberAdapter({ title: this.i18n.tool.height.title }, data).getRow('height'));
-        rows.push(new NumberAdapter({ title: this.i18n.tool.width.title }, data).getRow('width'));
-        rows.push(new NumberAdapter({ title: this.i18n.tool.rotate.title }, data).getRow('rotate'));
+        rows.push(
+            new NumberAdapter({ title: this.i18n.tool.top.title }, data).getRow(
+                'top'
+            )
+        );
+        rows.push(
+            new NumberAdapter(
+                { title: this.i18n.tool.left.title },
+                data
+            ).getRow('left')
+        );
+        rows.push(
+            new NumberAdapter(
+                { title: this.i18n.tool.height.title },
+                data
+            ).getRow('height')
+        );
+        rows.push(
+            new NumberAdapter(
+                { title: this.i18n.tool.width.title },
+                data
+            ).getRow('width')
+        );
+        rows.push(
+            new NumberAdapter(
+                { title: this.i18n.tool.rotate.title },
+                data
+            ).getRow('rotate')
+        );
 
         // Add other attributes
-        for (var attr in this.attributes) {
-            if (Object.prototype.hasOwnProperty.call(this.attributes, attr)) {
-                if (this.attributes[attr] instanceof BaseAdapter) {
-                    rows.push(this.attributes[attr].getRow('attributes.' + attr));
-                }
+        this.attributes.forEach(key => {
+            if (this.attributes[key] instanceof BaseAdapter) {
+                rows.push(this.attributes[key].getRow(`attributes.${key}`));
             }
-        }
+        });
         return rows;
     },
 
@@ -169,24 +220,23 @@ const BaseTool = Class.extend({
      * @returns {kidoju.data.Model}
      * @private
      */
-    _getPropertyModel: function () {
-        var properties = this.properties;
-        var model = { fields: {} };
-        for (var prop in properties) {
-            if (properties.hasOwnProperty(prop)) {
-                if (properties[prop] instanceof BaseAdapter) {
-                    model.fields[prop] = properties[prop].getField();
-                    if (prop === 'name') {
-                        // This cannot be set as a default value on the  adapter because each instance should have a different name
-                        model.fields.name.defaultValue = randomVal();
-                    } else if (prop === 'validation') {
-                        // We need the code library otherwise we won't have code to execute when validation === '// equal' or any other library value
-                        model._library = properties.validation.library;
-                    }
+    _getPropertyModel() {
+        const model = { fields: {} };
+        this.properties.forEach(key => {
+            if (this.properties[key] instanceof BaseAdapter) {
+                model.fields[key] = this.properties[key].getField();
+                if (key === 'name') {
+                    // This cannot be set as a default value on the adapter
+                    // because each instance should have a different name
+                    model.fields.name.defaultValue = randomVal();
+                } else if (key === 'validation') {
+                    // We need the code library otherwise we won't have code
+                    // to execute when validation === '// equal' or any other library value
+                    model._library = this.properties.validation.library;
                 }
             }
-        }
-        return Model.define(model);
+        });
+        return BaseModel.define(model);
     },
 
     /**
@@ -196,16 +246,13 @@ const BaseTool = Class.extend({
      * @returns {Array}
      * @private
      */
-    _getPropertyRows: function () {
-        var rows = [];
-
-        for (var prop in this.properties) {
-            if (this.properties.hasOwnProperty(prop)) {
-                if (this.properties[prop] instanceof BaseAdapter) {
-                    rows.push(this.properties[prop].getRow('properties.' + prop));
-                }
+    _getPropertyRows() {
+        const rows = [];
+        this.properties.forEach(key => {
+            if (this.properties[key] instanceof BaseAdapter) {
+                rows.push(this.properties[key].getRow(`properties.${key}`));
             }
-        }
+        });
         return rows;
     },
 
@@ -217,32 +264,63 @@ const BaseTool = Class.extend({
      * @param mode
      * @returns {*}
      */
-    getHtmlContent: function (component, mode) {
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-        var template = kendo.template(this.templates[mode] || this.templates.default);
-        return template($.extend(component, { ns: kendo.ns }));
+    getHtmlContent(component, mode) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        assert.enum(
+            Object.keys(Stage.fn.modes),
+            mode,
+            assert.format(
+                assert.messages.enum.default,
+                'mode',
+                Object.keys(Stage.fn.modes)
+            )
+        );
+        const templates = this.templates || {};
+        const t = templates[mode] || templates.default;
+        assert.type(
+            CONSTANTS.STRING,
+            t,
+            assert.format(
+                assert.messages.default.type,
+                `this.templates[${mode}]`,
+                CONSTANTS.STRING
+            )
+        );
+        return template(t)($.extend(component, { ns }));
     },
 
     /**
      * Return the default value when playing the component as part of a test
      * @param component
      */
-    getTestDefaultValue: function (component) {
+    getTestDefaultValue(component) {
         // TODO: consider removing as it seems useless
-        return;
     },
 
     /**
      * Add the display of a success or failure icon to the corresponding stage element
      * @returns {string}
      */
-    showResult: function () {
+    showResult() {
         // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
-        return '<div class=".kj-element-result" data-#= ns #bind="visible: #: properties.name #">' +
-            '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + BaseTool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
-            '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + BaseTool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
-            '</div>';
+        return (
+            `${'<div class=".kj-element-result" data-#= ns #bind="visible: #: properties.name #">' +
+                '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,'}${
+                BaseTool.fn.svg.success
+            }); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>` +
+            `<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${
+                BaseTool.fn.svg.failure
+            }); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>` +
+            `</div>`
+        );
     },
 
     /**
@@ -250,8 +328,8 @@ const BaseTool = Class.extend({
      * Note: search for getScoreArray in kidoju.data
      * @param testItem
      */
-    value$: function (testItem) {
-        return kendo.htmlEncode(testItem.value || '');
+    value$(testItem) {
+        return htmlEncode(testItem.value || '');
     },
 
     /**
@@ -259,64 +337,160 @@ const BaseTool = Class.extend({
      * Note: search for getScoreArray in kidoju.data
      * @param testItem
      */
-    solution$: function (testItem) {
-        return kendo.htmlEncode(testItem.solution || '');
+    solution$(testItem) {
+        return htmlEncode(testItem.solution || '');
     },
-
-    // onEnable: function (e, component, enabled) {},
-    // onMove: function (e, component) {},
-    // onResize: function (e, component) {},
-    // onRotate: function (e, component) {},
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
 
     /**
      * Component validation
      * @param component
      * @param pageIdx
      */
-    validate: function (component, pageIdx) {
-        /* jshint maxcomplexity: 14 */
-        assert.instanceof (PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        assert.type(NUMBER, pageIdx, assert.format(assert.messages.type.default, 'pageIdx', NUMBER));
-        var ret = [];
-        if (component.properties && !component.properties.disabled) {
-            var properties = component.properties;
-            var messages = this.i18n.messages;
-            var description = this.description; // tool description
-            if ($.type(properties.behavior) === STRING && properties.behavior !== 'none') {
+    validate(component, pageIdx) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        assert.type(
+            CONSTANTS.NUMBER,
+            pageIdx,
+            assert.format(
+                assert.messages.type.default,
+                'pageIdx',
+                CONSTANTS.NUMBER
+            )
+        );
+        const ret = [];
+        const { properties } = component;
+        const {
+            description,
+            i18n: { messages }
+        } = this;
+        if (properties && !properties.disabled) {
+            const RX_DESCRIPTION = /\S+/i; // question
+            const RX_CONSTANT = /\S+/i;
+            const RX_NAME = /val_[0-9a-f]{6}/;
+            const RX_SOLUTION = /\S+/i;
+            const RX_VALIDATION_LIBRARY = /^\/\/ ([^\s\[\n]+)( (\[[^\n]+\]))?$/;
+            const RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
+
+            if (
+                $.type(properties.behavior) === CONSTANTS.STRING &&
+                properties.behavior !== 'none'
+            ) {
                 // Note: This test might be better suited to inherited tools (labels, images and math expressions)
                 if (!RX_CONSTANT.test(properties.constant)) {
-                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidConstant, description, /*name,*/ pageIdx + 1) });
+                    ret.push({
+                        type: CONSTANTS.ERROR,
+                        index: pageIdx,
+                        message: format(
+                            messages.invalidConstant,
+                            description,
+                            /* name, */ pageIdx + 1
+                        )
+                    });
                 }
-            } else if ($.type(component.properties.name) === STRING) {
-                var name = properties.name;
+            } else if ($.type(component.properties.name) === CONSTANTS.STRING) {
+                const name = properties.name;
                 if (!RX_NAME.test(name)) {
-                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidName, description, name, pageIdx + 1) });
+                    ret.push({
+                        type: CONSTANTS.ERROR,
+                        index: pageIdx,
+                        message: format(
+                            messages.invalidName,
+                            description,
+                            name,
+                            pageIdx + 1
+                        )
+                    });
                 }
-                if (!properties.question || !RX_DESCRIPTION.test(properties.question)) {
-                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDescription, description, name, pageIdx + 1) });
+                if (
+                    !properties.question ||
+                    !RX_DESCRIPTION.test(properties.question)
+                ) {
+                    ret.push({
+                        type: CONSTANTS.ERROR,
+                        index: pageIdx,
+                        message: format(
+                            messages.invalidDescription,
+                            description,
+                            name,
+                            pageIdx + 1
+                        )
+                    });
                 }
-                if (!properties.solution || !RX_SOLUTION.test(properties.solution)) { // What if properties.solution is a number or a date?
-                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidSolution, description, name, pageIdx + 1) });
+                if (
+                    !properties.solution ||
+                    !RX_SOLUTION.test(properties.solution)
+                ) {
+                    // What if properties.solution is a number or a date?
+                    ret.push({
+                        type: CONSTANTS.ERROR,
+                        index: pageIdx,
+                        message: format(
+                            messages.invalidSolution,
+                            description,
+                            name,
+                            pageIdx + 1
+                        )
+                    });
                 }
-                if (!RX_VALIDATION_LIBRARY.test(properties.validation) && !RX_VALIDATION_CUSTOM.test(properties.validation)) {
-                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidValidation, description, name, pageIdx + 1) });
+                if (
+                    !RX_VALIDATION_LIBRARY.test(properties.validation) &&
+                    !RX_VALIDATION_CUSTOM.test(properties.validation)
+                ) {
+                    ret.push({
+                        type: CONSTANTS.ERROR,
+                        index: pageIdx,
+                        message: format(
+                            messages.invalidValidation,
+                            description,
+                            name,
+                            pageIdx + 1
+                        )
+                    });
                 }
-                if ($.type(properties.failure) === NUMBER && $.type(properties.omit) === NUMBER && properties.failure > Math.min(properties.omit, 0)) {
-                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidFailure, description, name, pageIdx + 1) });
+                if (
+                    $.type(properties.failure) === CONSTANTS.NUMBER &&
+                    $.type(properties.omit) === CONSTANTS.NUMBER &&
+                    properties.failure > Math.min(properties.omit, 0)
+                ) {
+                    ret.push({
+                        type: CONSTANTS.WARNING,
+                        index: pageIdx,
+                        message: format(
+                            messages.invalidFailure,
+                            description,
+                            name,
+                            pageIdx + 1
+                        )
+                    });
                 }
-                if ($.type(properties.success) === NUMBER && $.type(properties.omit) === NUMBER && properties.success < Math.max(properties.omit, 0)) {
-                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidSuccess, description, name, pageIdx + 1) });
+                if (
+                    $.type(properties.success) === CONSTANTS.NUMBER &&
+                    $.type(properties.omit) === CONSTANTS.NUMBER &&
+                    properties.success < Math.max(properties.omit, 0)
+                ) {
+                    ret.push({
+                        type: CONSTANTS.WARNING,
+                        index: pageIdx,
+                        message: format(
+                            messages.invalidSuccess,
+                            description,
+                            name,
+                            pageIdx + 1
+                        )
+                    });
                 }
             }
         }
         return ret;
     }
-
-    /* jshint +W074 */
-
 });
 
 /**

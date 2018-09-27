@@ -24,7 +24,7 @@ const ImageListBuilderAdapter = BaseAdapter.extend({
      * @param options
      * @param attributes
      */
-    init(options, attributes) {
+    init(options /* , attributes */) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
         that.type = undefined;
@@ -32,7 +32,7 @@ const ImageListBuilderAdapter = BaseAdapter.extend({
         // that.editor is the list editor where the insert image button triggers this.showDialog
         that.editor = function(container, settings) {
             const binding = {};
-            binding[kendo.attr('bind')] = `source: ${settings.field}`;
+            binding[attr('bind')] = `source: ${settings.field}`;
             const imageList = $('<div/>')
                 .attr(binding)
                 .appendTo(container);
@@ -54,7 +54,7 @@ const ImageListBuilderAdapter = BaseAdapter.extend({
             imageListWidget.dataSource.bind('change', e => {
                 // When the dataSource raises a change event on any of the quiz data items that is added, changed or removed
                 // We need to trigger a change event on the model field to ensure the stage element (which is not databound) is redrawn
-                if ($.type(e.action) === STRING) {
+                if ($.type(e.action) === CONSTANTS.STRING) {
                     settings.model.trigger('change', { field: settings.field });
                 }
             });

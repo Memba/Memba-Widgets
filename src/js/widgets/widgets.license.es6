@@ -7,13 +7,14 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
-// import assert from '../common/window.assert.es6';
+import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-// TODO: import Logger from '../window.logger.es6';
+import Logger from '../common/window.logger.es6';
 
 const {
     ui: { plugin, Widget }
 } = window.kendo;
+const logger = new Logger('widgets.license');
 const NS = '.kendoLicense';
 const WIDGET_CLASS = 'kj-license'; // 'k-widget kj-license';
 
@@ -49,8 +50,9 @@ const License = Widget.extend({
      * @param options
      */
     init(element, options) {
+        // TODO: We need an input to post a form and a wrapper: see rating!!!
         Widget.fn.init.call(this, element, options);
-        // logger.debug({ method: 'init', message: 'widget initialized' });
+        logger.debug({ method: 'init', message: 'widget initialized' });
         this.wrapper = this.element;
         this.element.addClass(WIDGET_CLASS);
         this.value(this.options.value);
@@ -80,6 +82,15 @@ const License = Widget.extend({
      * @param value
      */
     value(value) {
+        assert.typeOrUndef(
+            CONSTANTS.NUMBER,
+            value,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'value',
+                CONSTANTS.NUMBER
+            )
+        );
         let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
             ret = this._value;
@@ -88,23 +99,19 @@ const License = Widget.extend({
             this.refresh();
         } else if ($.type(value) === CONSTANTS.NUMBER) {
             throw new RangeError('`value` is expected to be 0, 1 or 13');
-        } else {
-            throw new TypeError(
-                '`value` is expected to be a number or undefined'
-            );
         }
         return ret;
     },
 
     /**
      * Enable/disable the widget
-     * @method
-     * @param enabled
+     * @method enable
+     * @param enable
      */
-    enable(enabled) {
-        this._enabled =
-            $.type(enabled) === CONSTANTS.UNDEFINED ? true : !!enabled;
-        if (this._enabled) {
+    enable(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        if (enabled) {
             this.element.removeClass(CONSTANTS.DISABLED_CLASS);
             this.element.off(NS);
         } else {
@@ -112,13 +119,14 @@ const License = Widget.extend({
             this.element.on(CONSTANTS.CLICK + NS, 'a', e => {
                 e.preventDefault();
                 e.stopPropagation();
+                // TODO set the value
             });
         }
     },
 
     /**
      * Refresh
-     * @method
+     * @method refresh
      */
     refresh() {
         /* eslint-disable no-bitwise */
@@ -169,7 +177,7 @@ const License = Widget.extend({
 
     /**
      * Destroy
-     * @method
+     * @method destroy
      */
     destroy() {
         this.element.off(NS);

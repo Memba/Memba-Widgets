@@ -33,10 +33,10 @@ const QuizAdapter = BaseAdapter.extend({
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         // this.editor = 'input';
-        // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+        // $.extend(this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
             const binding = {};
-            binding[kendo.attr('bind')] = `value: ${settings.field}`;
+            binding[attr('bind')] = `value: ${settings.field}`;
             const input = $('<input/>')
                 .css({ width: '100%' })
                 .attr($.extend({}, settings.attributes, binding))
@@ -82,17 +82,7 @@ const QuizAdapter = BaseAdapter.extend({
                 valueTemplate: QUIZSOLUTION_TMPL
             });
         };
-    },
-    library: [
-        {
-            name: 'equal',
-            formula: kendo.format(
-                VALIDATION_CUSTOM,
-                'return String(value).trim() === String(solution).trim();'
-            )
-        }
-    ],
-    libraryDefault: 'equal'
+    }
 });
 
 /**

@@ -10,9 +10,6 @@ import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
-const { format } = window.kendo;
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
-
 /**
  * @class StringArrayAdapter
  */
@@ -29,40 +26,7 @@ const StringArrayAdapter = BaseAdapter.extend({
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'textarea';
         this.attributes = $.extend({}, this.attributes, attributes);
-    },
-    library: [
-        {
-            name: 'equal',
-            // formula: format(VALIDATION_CUSTOM, 'return String(value.sort()) === String(solution.trim().split("\\n").sort());')
-            // With the formula here above, each string in the array cannot be trimmed properly
-            // because String(arr) is the same as join(',') and each value might contain commas
-            // So we use }-{ because there is little chance any value would contain this sequence
-            formula: format(
-                VALIDATION_CUSTOM,
-                '// Note: value is an array and solution is a multiline string\n\t' +
-                    'return (value || []).sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{") === String(solution).trim().split("\\n").sort().join("}-{").replace(/\\s*}-{\\s*/g, "}-{");'
-            )
-        },
-        {
-            name: 'ignoreCaseEqual',
-            formula: format(
-                VALIDATION_CUSTOM,
-                '// Note: value is an array and solution is a multiline string\n\t' +
-                    'return (value || []).sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{").toLowerCase() === String(solution).trim().split("\\n").sort().join("}-{").replace(/\\s*}-{\\s*/g, "}-{").toLowerCase();'
-            )
-        },
-        {
-            name: 'sumEqual',
-            formula: format(
-                VALIDATION_CUSTOM,
-                '// Note: value is an array and solution is a multiline string\n\t' +
-                    'var ret = 0;\t' +
-                    '(value || []).forEach(function(val){ ret += parseFloat((val || "").trim() || 0); });\t' +
-                    'return ret === parseFloat(String(solution).trim());'
-            )
-        }
-    ],
-    libraryDefault: 'equal'
+    }
 });
 
 /**

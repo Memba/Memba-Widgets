@@ -104,9 +104,6 @@ var Video = BaseTool.extend({
         );
         const template = kendo.template(this.templates.default);
 
-        /* This function's cyclomatic complexity is too high. */
-        /* jshint -W074 */
-
         // The files$ function resolves urls with schemes like cdn://video.mp4 and returns a stringified array
         component.files$ = function() {
             let mp4 = component.attributes.get('mp4');
@@ -142,8 +139,6 @@ var Video = BaseTool.extend({
             return ` ${JSON.stringify(files)}`;
         };
 
-        /* jshint +W074 */
-
         return template($.extend(component, { ns: kendo.ns }));
     },
 
@@ -157,7 +152,7 @@ var Video = BaseTool.extend({
         const stageElement = $(e.currentTarget);
         assert.ok(
             stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            kendo.format('e.currentTarget is expected to be a stage element')
+            format('e.currentTarget is expected to be a stage element')
         );
         assert.instanceof(
             PageComponent,
@@ -171,14 +166,14 @@ var Video = BaseTool.extend({
         const content = stageElement.children(
             `div${kendo.roleSelector('mediaplayer')}`
         );
-        if ($.type(component.width) === NUMBER) {
+        if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(
                 component.get('width') -
                     content.outerWidth(true) +
                     content.outerWidth()
             );
         }
-        if ($.type(component.height) === NUMBER) {
+        if ($.type(component.height) === CONSTANTS.NUMBER) {
             content.outerHeight(
                 component.get('height') -
                     content.outerHeight(true) +
@@ -206,9 +201,9 @@ var Video = BaseTool.extend({
         const messages = this.i18n.messages;
         if (!component.attributes || !RX_VIDEO.test(component.attributes.mp4)) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(
+                message: format(
                     messages.invalidVideoFile,
                     description,
                     pageIdx + 1

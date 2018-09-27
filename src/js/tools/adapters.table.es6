@@ -45,7 +45,6 @@ const TableAdapter = BaseAdapter.extend({
             rows,
             columns
         );
-        // TODO wrap in import('./dialogs/kidoju.dialogs.spreadsheet.es6').then(function () {...});
         kidoju.dialogs
             .openSpreadsheet({
                 title: options.title,

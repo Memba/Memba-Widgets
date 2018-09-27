@@ -1,8 +1,12 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 .kj-mediarecorder .k-toolbar {
   border-top: 0;
   border-left: 0;
   border-right: 0;
 }
 .kj-mediarecorder .k-toolbar .kj-mediarecorder-meter {
-  margin: 0 .2em;
+  margin: 0 0.2em;
 }

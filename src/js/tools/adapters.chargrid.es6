@@ -10,21 +10,20 @@ import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
-// TODO consider a generic OpenDialogAdapter????
 const { attr, format } = window.kendo;
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
 
 /**
+ * CharGridAdapter
  * @class CharGridAdapter
+ * @extends BaseAdapter
  */
 const CharGridAdapter = BaseAdapter.extend({
     /**
      * Constructor
      * @constructor
      * @param options
-     * @param attributes
      */
-    init(options, attributes) {
+    init(options /* , attributes */) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
         that.type = undefined;
@@ -59,11 +58,11 @@ const CharGridAdapter = BaseAdapter.extend({
                 title: options.title,
                 message:
                     options.field === 'properties.solution'
-                        ? kendo.format(
+                        ? format(
                               this.messages.solution,
                               model.get('attributes.whitelist')
                           )
-                        : kendo.format(
+                        : format(
                               this.messages.layout,
                               model.get('attributes.blank')
                           ),
@@ -97,7 +96,7 @@ const CharGridAdapter = BaseAdapter.extend({
                 if (
                     result.action ===
                     kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
-                    // $.type(result.data.url) === STRING
+                    // $.type(result.data.url) === CONSTANTS.STRING
                 ) {
                     options.model.set(options.field, result.data.value);
                 }
@@ -106,16 +105,6 @@ const CharGridAdapter = BaseAdapter.extend({
                 // TODO
             });
     },
-    library: [
-        {
-            name: 'equal',
-            formula: kendo.format(
-                VALIDATION_CUSTOM,
-                'return value && typeof value.equals === "function" && value.equals(solution);'
-            )
-        }
-    ],
-    libraryDefault: 'equal',
     messages: {
         layout: i18n.chargridadapter.messages.layout,
         solution: i18n.chargridadapter.messages.solution

@@ -34,7 +34,7 @@ const HighLighterAdapter = BaseAdapter.extend({
         // And not reset when changing teh value of split => might require a window like chargrid
         this.editor = function(container, settings) {
             const binding = {};
-            binding[kendo.attr('bind')] = `value: ${settings.field}`;
+            binding[attr('bind')] = `value: ${settings.field}`;
             const highLighter = $('<div/>')
                 .css({
                     width: '100%',
@@ -48,17 +48,7 @@ const HighLighterAdapter = BaseAdapter.extend({
                 split: settings.model.get('attributes.split')
             });
         };
-    },
-    library: [
-        {
-            name: 'equal',
-            formula: kendo.format(
-                VALIDATION_CUSTOM,
-                'return String(value).trim() === String(solution).trim();'
-            )
-        }
-    ],
-    libraryDefault: 'equal'
+    }
 });
 
 /**

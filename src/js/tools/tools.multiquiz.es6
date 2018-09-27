@@ -10,7 +10,19 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
+import ReadOnlyAdapter from './adapters.readonly.es6';
+import NumberAdapter from './adapters.number.es6';
+import QuestionAdapter from './adapters.question.es6';
+import ValidationAdapter from './adapters.validation.es6';
+import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+import { LIB_COMMENT, multiQuizLibrary } from './util.library.es6';
+
+const {
+    attr,
+    format
+} = window.kendo;
+const ScoreAdapter = NumberAdapter;
 
 /**
  * i18n
@@ -38,14 +50,14 @@ var MultiQuiz = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: kendo.format(MULTIQUIZ, 'data-#= ns #enable="false"'),
-        play: kendo.format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
-        review: kendo.format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
+        design: format(MULTIQUIZ, 'data-#= ns #enable="false"'),
+        play: format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
+        review: format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
     },
     height: 150,
     width: 420,
     attributes: {
-        mode: new EnumAdapter(
+        mode: new DropDownListAdapter(
             { title: i18n.multiquiz.attributes.mode.title, defaultValue: 'checkbox', enum: ['button', 'checkbox', 'image', 'link', 'multiselect'] },
             { style: 'width: 100%;' }
         ),
@@ -56,10 +68,14 @@ var MultiQuiz = BaseTool.extend({
         data: new ImageListBuilderAdapter({ title: i18n.multiquiz.attributes.data.title, defaultValue: i18n.multiquiz.attributes.data.defaultValue })
     },
     properties: {
-        name: new NameAdapter({ title: i18n.multiquiz.properties.name.title }),
+        name: new ReadOnlyAdapter({ title: i18n.multiquiz.properties.name.title }),
         question: new QuestionAdapter({ title: i18n.multiquiz.properties.question.title }),
         solution: new MultiQuizAdapter({ title: i18n.multiquiz.properties.solution.title, defaultValue: [] }),
-        validation: new ValidationAdapter({ title: i18n.multiquiz.properties.validation.title }),
+        validation: new ValidationAdapter({
+            defaultValue: LIB_COMMENT + multiQuizLibrary.defaultValue,
+            library: multiQuizLibrary.library,
+            title: i18n.multiquiz.properties.validation.title
+        }),
         success: new ScoreAdapter({ title: i18n.multiquiz.properties.success.title, defaultValue: 1 }),
         failure: new ScoreAdapter({ title: i18n.multiquiz.properties.failure.title, defaultValue: 0 }),
         omit: new ScoreAdapter({ title: i18n.multiquiz.properties.omit.title, defaultValue: 0 })
@@ -134,15 +150,14 @@ var MultiQuiz = BaseTool.extend({
      * @param component
      */
     onResize: function (e, component) {
-        /* jshint maxcomplexity: 8 */
         var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
+        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
         var content = stageElement.children('div' + kendo.roleSelector('quiz'));
-        if ($.type(component.width) === NUMBER) {
+        if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
         }
-        if ($.type(component.height) === NUMBER) {
+        if ($.type(component.height) === CONSTANTS.NUMBER) {
             content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
         }
         /*
@@ -171,16 +186,12 @@ var MultiQuiz = BaseTool.extend({
         e.stopPropagation();
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Component validation
      * @param component
      * @param pageIdx
      */
     validate: function (component, pageIdx) {
-        /* jshint maxcomplexity: 8 */
         var ret = BaseTool.fn.validate.call(this, component, pageIdx);
         var description = this.description; // tool description
         var messages = this.i18n.messages;
@@ -190,25 +201,22 @@ var MultiQuiz = BaseTool.extend({
             (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
             (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
         if (!component.attributes ||
             !component.attributes.data ||
             !RX_DATA.test(component.attributes.data)) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                message: format(messages.invalidData, description, pageIdx + 1)
             });
         }
         return ret;
     }
-
-    /* jshint +W074 */
-
 });
 
 /**

@@ -1,0 +1,23 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+.kj-explorer .k-list .kj-placeholder {
+  opacity: 0.2;
+  filter: alpha(opacity=20);
+}
+.kj-item {
+  height: 32px;
+  cursor: pointer;
+  user-select: none;
+}
+.kj-item .k-in {
+  line-height: 30px;
+}
+.kj-item .k-in .kj-image {
+  height: 24px;
+  width: 24px;
+  vertical-align: middle;
+  margin-left: 5px;
+  margin-right: 10px;
+}

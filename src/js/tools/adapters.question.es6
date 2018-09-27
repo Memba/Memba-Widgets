@@ -28,10 +28,10 @@ const QuestionAdapter = BaseAdapter.extend({
         this.type = STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         // this.editor = 'input';
-        // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+        // $.extend(this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
             const binding = {};
-            binding[kendo.attr('bind')] = `value: ${settings.field}`;
+            binding[attr('bind')] = `value: ${settings.field}`;
             const input = $('<input/>')
                 .css({ width: '100%' })
                 .attr($.extend({}, settings.attributes, binding))
@@ -47,19 +47,19 @@ const QuestionAdapter = BaseAdapter.extend({
                     const texts = [];
                     // find the design (mode) stage, avoiding navigation
                     const stage = $(
-                        `[${kendo.attr('role')}="stage"][${kendo.attr(
+                        `[${attr('role')}="stage"][${attr(
                             'mode'
                         }="design"]`
                     );
                     // find all labels
                     const labels = stage.find(
-                        `.kj-element[${kendo.attr('tool')}="label"]>div`
+                        `.kj-element[${attr('tool')}="label"]>div`
                     );
                     labels.each((index, label) => {
                         const text = $(label)
                             .html()
                             .replace(/<br\/?>/g, ' ');
-                        if ($.type(text) === STRING && text.length) {
+                        if ($.type(text) === CONSTANTS.STRING && text.length) {
                             texts.push(text);
                         }
                     });

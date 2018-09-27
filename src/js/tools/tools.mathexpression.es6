@@ -10,7 +10,19 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
+import BooleanAdapter from './adapters.boolean.es6';
+import DropDownListAdapter from './adapters.dropdownlist.es6';
+import MathAdapter from './adapters.math.es6';
+import StyleAdapter from './adapters.style.es6';
+import TextBoxAdapter from './adapters.textbox.es6';
+import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+
+const {
+    format,
+    ns,
+    template
+} = window.kendo;
 
 /**
  * i18n
@@ -18,7 +30,8 @@ import BaseTool from './tools.base.es6';
  */
 function i18n() {
     return (
-        (((window.app || {}).i18n || {}).tools || {}).mathexpression || {
+        (((window.app || {}).i18n || {}).tools || {}).mathexpression ||
+        {
             // TODO
         }
     );
@@ -27,27 +40,33 @@ function i18n() {
 /**
  * @class MathExpression
  */
-var MathExpression = BaseTool.extend({
+const MathExpression = BaseTool.extend({
     id: 'mathexpression',
     icon: 'formula',
     description: i18n.mathexpression.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default: '<div data-#= ns #role="mathexpression" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #" data-#= ns #inline="#: attributes.inline #" data-#= ns #value="#: attributes.formula #" ></div>'
+        default:
+            '<div data-#= ns #role="mathexpression" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #" data-#= ns #inline="#: attributes.inline #" data-#= ns #value="#: attributes.formula #" ></div>'
     },
     height: 180,
     width: 370,
     attributes: {
-        formula: new MathAdapter(
-            { title: i18n.mathexpression.attributes.formula.title, defaultValue: i18n.mathexpression.attributes.formula.defaultValue }
-        ),
-        inline: new BooleanAdapter (
-            { title: i18n.mathexpression.attributes.inline.title, defaultValue: i18n.mathexpression.attributes.inline.defaultValue }
-        ),
-        style: new StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size:50px;' })
+        formula: new MathAdapter({
+            title: i18n.mathexpression.attributes.formula.title,
+            defaultValue: i18n.mathexpression.attributes.formula.defaultValue
+        }),
+        inline: new BooleanAdapter({
+            title: i18n.mathexpression.attributes.inline.title,
+            defaultValue: i18n.mathexpression.attributes.inline.defaultValue
+        }),
+        style: new StyleAdapter({
+            title: i18n.mathexpression.attributes.style.title,
+            defaultValue: 'font-size:50px;'
+        })
     },
     properties: {
-        behavior: new EnumAdapter(
+        behavior: new DropDownListAdapter(
             {
                 title: i18n.mathexpression.properties.behavior.title,
                 defaultValue: 'none',
@@ -57,7 +76,9 @@ var MathExpression = BaseTool.extend({
                 style: 'width: 100%;'
             }
         ),
-        constant: new StringAdapter({ title: i18n.image.properties.constant.title })
+        constant: new TextBoxAdapter({
+            title: i18n.image.properties.constant.title
+        })
     },
 
     /**
@@ -67,21 +88,51 @@ var MathExpression = BaseTool.extend({
      * @param mode
      * @returns {*}
      */
-    getHtmlContent: function (component, mode) {
-        var that = this;
-        assert.instanceof(MathExpression, that, assert.format(assert.messages.instanceof.default, 'this', 'MathExpression'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-        var template = kendo.template(that.templates.default);
+    getHtmlContent(component, mode) {
+        const that = this;
+        assert.instanceof(
+            MathExpression,
+            that,
+            assert.format(
+                assert.messages.instanceof.default,
+                'this',
+                'MathExpression'
+            )
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        assert.enum(
+            Object.keys(kendo.ui.Stage.fn.modes),
+            mode,
+            assert.format(
+                assert.messages.enum.default,
+                'mode',
+                Object.keys(kendo.ui.Stage.fn.modes)
+            )
+        );
+        const tmpl = template(that.templates.default);
         // The class$ function adds the kj-interactive class to draggable components
-        component.class$ = function () {
-            return component.properties.behavior === 'draggable' ? INTERACTIVE_CLASS : '';
+        component.class$ = function() {
+            return component.properties.behavior === 'draggable'
+                ? CONSTANTS.INTERACTIVE_CLASS
+                : '';
         };
         // The id$ function returns the component id for components that have a behavior
-        component.id$ = function () {
-            return (component.properties.behavior !== 'none' && $.type(component.id) === STRING && component.id.length) ? component.id : '';
+        component.id$ = function() {
+            return component.properties.behavior !== 'none' &&
+                $.type(component.id) === CONSTANTS.STRING &&
+                component.id.length
+                ? component.id
+                : '';
         };
-        return template($.extend(component, { ns: kendo.ns }));
+        return tmpl($.extend(component, { ns }));
     },
 
     /**
@@ -90,16 +141,35 @@ var MathExpression = BaseTool.extend({
      * @param e
      * @param component
      */
-    onResize: function (e, component) {
-        var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), kendo.format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        var content = stageElement.children('div');
-        if ($.type(component.width) === NUMBER) {
-            content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+    onResize(e, component) {
+        const stageElement = $(e.currentTarget);
+        assert.ok(
+            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
+            assert.format('e.currentTarget is expected to be a stage element')
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        const content = stageElement.children('div');
+        if ($.type(component.width) === CONSTANTS.NUMBER) {
+            content.outerWidth(
+                component.get('width') -
+                    content.outerWidth(true) +
+                    content.outerWidth()
+            );
         }
-        if ($.type(component.height) === NUMBER) {
-            content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+        if ($.type(component.height) === CONSTANTS.NUMBER) {
+            content.outerHeight(
+                component.get('height') -
+                    content.outerHeight(true) +
+                    content.outerHeight()
+            );
         }
         // prevent any side effect
         e.preventDefault();
@@ -112,34 +182,43 @@ var MathExpression = BaseTool.extend({
      * @param component
      * @param pageIdx
      */
-    validate: function (component, pageIdx) {
-        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        var description = this.description; // tool description
-        var messages = this.i18n.messages;
-        if (!component.attributes ||
+    validate(component, pageIdx) {
+        const ret = BaseTool.fn.validate.call(this, component, pageIdx);
+        const description = this.description; // tool description
+        const messages = this.i18n.messages;
+        if (
+            !component.attributes ||
             !component.attributes.formula ||
-            (component.attributes.formula === i18n.mathexpression.attributes.formula.defaultValue) ||
-            !RX_FORMULA.test(component.attributes.formula)) {
+            component.attributes.formula ===
+                i18n.mathexpression.attributes.formula.defaultValue ||
+            !RX_FORMULA.test(component.attributes.formula)
+        ) {
             // TODO: replace RX_FORMULA with a LaTeX synthax checker
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(messages.invalidFormula, description, pageIdx + 1)
+                message: format(
+                    messages.invalidFormula,
+                    description,
+                    pageIdx + 1
+                )
             });
         }
-        if (!component.attributes ||
+        if (
+            !component.attributes ||
             // Styles are only checked if there is any (optional)
-            (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+            (component.attributes.style &&
+                !RX_STYLE.test(component.attributes.style))
+        ) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
         // TODO: We should also check that there is a dropZone on the page if draggable
         return ret;
     }
-
 });
 
 /**

@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.combobox';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
@@ -28,10 +29,10 @@ const ConnectorAdapter = BaseAdapter.extend({
         this.type = STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         // this.editor = 'input';
-        // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+        // $.extend(this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
             const binding = {};
-            binding[kendo.attr('bind')] = `value: ${settings.field}`;
+            binding[attr('bind')] = `value: ${settings.field}`;
             const input = $('<input/>')
                 .css({ width: '100%' })
                 .attr($.extend({}, settings.attributes, binding))
@@ -47,13 +48,13 @@ const ConnectorAdapter = BaseAdapter.extend({
                     const solutions = [];
                     // find the design (mode) stage, avoiding navigation
                     const stage = $(
-                        `[${kendo.attr('role')}="stage"][${kendo.attr(
+                        `[${attr('role')}="stage"][${attr(
                             'mode'
                         }="design"]`
                     );
                     // find the handle box and the selected uid which should be a connector
                     const handleBox = stage.parent().children('.kj-handle-box');
-                    const uid = handleBox.attr(kendo.attr('uid'));
+                    const uid = handleBox.attr(attr('uid'));
                     // find all unselected connectors
                     assert.instanceof(
                         PageComponent,
@@ -77,7 +78,7 @@ const ConnectorAdapter = BaseAdapter.extend({
                             ) {
                                 const solution = component.get(settings.field);
                                 if (
-                                    $.type(solution) === STRING &&
+                                    $.type(solution) === CONSTANTS.STRING &&
                                     solution.length &&
                                     solutions.indexOf(solution) === -1
                                 ) {
@@ -91,17 +92,7 @@ const ConnectorAdapter = BaseAdapter.extend({
                 }
             });
         };
-    },
-    library: [
-        {
-            name: 'equal',
-            formula: kendo.format(
-                VALIDATION_CUSTOM,
-                'return String(value).trim() === String(solution).trim();'
-            )
-        }
-    ],
-    libraryDefault: 'equal'
+    }
 });
 
 /**

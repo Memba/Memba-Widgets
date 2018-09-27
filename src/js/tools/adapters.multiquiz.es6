@@ -29,10 +29,10 @@ const MultiQuizAdapter = BaseAdapter.extend({
         this.type = undefined;
         this.defaultValue = this.defaultValue || [];
         // this.editor = 'input';
-        // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+        // $.extend(this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
             const binding = {};
-            binding[kendo.attr('bind')] = `value: ${settings.field}`;
+            binding[attr('bind')] = `value: ${settings.field}`;
             const input = $('<div/>')
                 .attr(binding)
                 .appendTo(container);
@@ -76,18 +76,7 @@ const MultiQuizAdapter = BaseAdapter.extend({
                 })
             });
         };
-    },
-    library: [
-        {
-            name: 'equal',
-            formula: kendo.format(
-                VALIDATION_CUSTOM,
-                '// Note: both value and solution are arrays of strings\n\t' +
-                    'return String(value.sort()) === String(solution.sort());'
-            )
-        }
-    ],
-    libraryDefault: 'equal'
+    }
 });
 
 /**

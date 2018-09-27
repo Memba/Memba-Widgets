@@ -11,17 +11,17 @@ import 'kendo.data';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
-import '../widgets/widgets.chargrid.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+// TODO import '../widgets/widgets.chargrid.es6';
 import CharGridAdapter from './adapters.chargrid.es6';
 import ColorAdapter from './adapters.color.es6';
-import NameAdapter from './adapters.name.es6';
+import ReadOnlyAdapter from './adapters.readonly.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
-import ScoreAdapter from './adapters.score.es6';
-import StringAdapter from './adapters.string.es6';
+import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
+import tools from './tools.es6';
+import BaseTool from './tools.base.es6';
+import { LIB_COMMENT, charGridLibrary } from './util.library.es6';
 
 const {
     data: { ObservableArray },
@@ -29,6 +29,7 @@ const {
     htmlEncode,
     ui: { CharGrid }
 } = window.kendo;
+const ScoreAdapter = NumberAdapter;
 
 /**
  * i18n
@@ -91,11 +92,11 @@ const CharGridTool = BaseTool.extend({
                 'data-max': 20
             }
         ),
-        blank: new StringAdapter({
+        blank: new TextBoxAdapter({
             title: i18n().attributes.blank.title,
             defaultValue: '.'
         }),
-        whitelist: new StringAdapter({
+        whitelist: new TextBoxAdapter({
             title: i18n().attributes.whitelist.title,
             defaultValue: '1-9'
         }),
@@ -127,7 +128,7 @@ const CharGridTool = BaseTool.extend({
         })
     },
     properties: {
-        name: new NameAdapter({ title: i18n().properties.name.title }),
+        name: new ReadOnlyAdapter({ title: i18n().properties.name.title }),
         question: new QuestionAdapter({
             title: i18n().properties.question.title
         }),
@@ -135,6 +136,8 @@ const CharGridTool = BaseTool.extend({
             title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
+            defaultValue: LIB_COMMENT + charGridLibrary.defaultValue,
+            library: charGridLibrary.library,
             title: i18n().properties.validation.title
         }),
         success: new ScoreAdapter({

@@ -6,51 +6,48 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-// import 'kendo.core';
 
+// No need to import 'kendo.core';
+const { markeditor, mathinput, ui } = window.kendo || {};
 const {
-    ui: {
-        AssetManager,
-        BaseDialog,
-        // ButtonSet
-        // CharGrid
-        CodeEditor,
-        // CodeInput,
-        // Connector
-        // DropZone
-        Explorer,
-        // Floating
-        // FormatStrip
-        // Highlighter
-        ImageList,
-        // ImageSet
-        // MarkDown
-        MarkEditor,
-        // MathExpression
-        // MathInput,
-        MediaPlayer,
-        MultiInput,
-        MultiQuiz,
-        Navigation,
-        PlayBar,
-        PropertyGrid,
-        Quiz,
-        // Rating
-        // Selector
-        Social,
-        // SplitButton
-        Stage,
-        StyleEditor
-        // Table
-        // Template
-        // TextGaps
-        // ToolBox
-        // UnitInput
-        // VectorDrawing
-    },
-    markeditor,
-    mathinput
-} = window.kendo;
+    AssetManager,
+    BaseDialog,
+    // ButtonSet
+    // CharGrid
+    CodeEditor,
+    // CodeInput,
+    // Connector
+    // DropZone
+    Explorer,
+    // Floating
+    // FormatStrip
+    // Highlighter
+    ImageList,
+    // ImageSet
+    // MarkDown
+    MarkEditor,
+    // MathExpression
+    // MathInput,
+    MediaPlayer,
+    MultiInput,
+    MultiQuiz,
+    Navigation,
+    PlayBar,
+    PropertyGrid,
+    Quiz,
+    // Rating
+    // Selector
+    Social,
+    // SplitButton
+    Stage,
+    StyleEditor
+    // Table
+    // Template
+    // TextGaps
+    // ToolBox
+    // UnitInput
+    // VectorDrawing
+} = ui;
 
 /* kidoju.widgets.assetmanager */
 if (AssetManager) {

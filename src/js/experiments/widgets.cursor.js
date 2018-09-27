@@ -35,7 +35,7 @@
         /**
          * Cursor (kendoCursor)
          * @class Cursor
-         * @extend Widget
+         * @extends Widget
          */
         var Cursor = Widget.extend({
 

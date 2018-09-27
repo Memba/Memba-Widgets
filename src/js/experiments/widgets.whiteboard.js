@@ -121,7 +121,7 @@
          * @see https://rawgit.com/Miguelao/demos/master/mediarecorder.html
          * @see https://github.com/mattdiamond/Recorderjs
          * @class Whiteboard
-         * @extend Widget
+         * @extends Widget
          */
         var Whiteboard = Widget.extend({
 

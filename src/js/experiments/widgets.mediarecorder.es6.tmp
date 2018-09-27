@@ -53,7 +53,7 @@ var BUTTON_TMPL = '<a class="k-button" data-' + kendo.ns + 'command="{0}" title=
  * @see https://github.com/mattdiamond/Recorderjs
  * @see http://air.ghost.io/recording-to-an-audio-file-using-html5-and-js/
  * @class MediaRecorder
- * @extend Widget
+ * @extends Widget
  */
 const MediaRecorder = Widget.extend({
     /**

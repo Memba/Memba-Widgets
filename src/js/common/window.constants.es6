@@ -26,6 +26,8 @@ const CONSTANTS = {
     KEYPRESS: 'keypress',
     KEYUP: 'keyup',
     MOUSEDOWN: 'mousedown',
+    MOUSEENTER: 'mouseenter',
+    MOUSELEAVE: 'mouseleave',
     MOUSEMOVE: 'mousemove',
     MOUSEOUT: 'mouseout',
     MOUSEUP: 'mouseup',
@@ -48,7 +50,9 @@ const CONSTANTS = {
     // Well-known classes
     ACTIVE_CLASS: 'k-state-active',
     DISABLED_CLASS: 'k-state-disabled',
-    FOCUS_CLASS: 'k-state-focus',
+    FOCUSED_CLASS: 'k-state-focused',
+    HOVER_CLASS: 'k-state-hover',
+    SELECTED_CLASS: 'k-state-selected',
     INTERACTIVE_CLASS: 'kj-interactive',
     ELEMENT_CLASS: 'kj-element',
     // CSS Properties

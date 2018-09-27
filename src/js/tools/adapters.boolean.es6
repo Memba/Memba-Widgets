@@ -7,19 +7,21 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.mobile.switch';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
-const { attr, format } = window.kendo;
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
+const { attr } = window.kendo;
 
 /**
+ * BooleanAdapter
  * @class BooleanAdapter
+ * @extends BaseAdapter
  */
 const BooleanAdapter = BaseAdapter.extend({
     /**
      * Constructor
-     * @constructor
+     * @constructor init
      * @param options
      * @param attributes
      */
@@ -30,17 +32,7 @@ const BooleanAdapter = BaseAdapter.extend({
         this.editor = 'input';
         this.attributes = $.extend({}, this.attributes, attributes);
         this.attributes[attr('role')] = 'switch';
-    },
-    library: [
-        {
-            name: 'equal',
-            formula: format(
-                VALIDATION_CUSTOM,
-                'return String(value).toLowerCase() === String(solution).toLowerCase();'
-            )
-        }
-    ],
-    libraryDefault: 'equal'
+    }
 });
 
 /**

@@ -17,7 +17,7 @@ const { expect } = chai;
 describe('kidoju.widgets.basedialog', () => {
     describe('Test', () => {
         it('It should', () => {
-            expect(true).to.be.true;
+            expect(true).to.be.false;
         });
     });
 });

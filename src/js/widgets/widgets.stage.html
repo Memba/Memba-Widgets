@@ -2,15 +2,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>widgets.codeinput</title>
+    <title>widgets.stage</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="../../styles/vendor/kendo/web/kendo.mobile.all.min.css" rel="stylesheet">
-    <!-- widgets.codeinput stylesheet -->
-    <!-- link href="../../styles/widgets/widgets.codeinput.css" rel="stylesheet" -->
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- widgets.stage stylesheet -->
+    <link href="../../styles/widgets/widgets.stage.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -189,79 +189,254 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.codeinput.es6').then(function () {
+            Promise.all([
+                SystemJS.import('./js/vendor/kendo/kendo.slider'),
+                SystemJS.import('./js/vendor/kendo/kendo.grid.js'),
+                SystemJS.import('./js/widgets.toolbox.es6'),
+                SystemJS.import('./js/widgets.stage.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
-                var library = [
-                    {
-                        name: 'custom',
-                        formula: 'function validate(value, solution) {\n\t// Your code should return true when value is validated against solution.\n}'
+                var kidoju = window.kidoju;
+                var tools = kidoju.tools;
+                var PageComponent = kidoju.data.PageComponent;
+                var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
+                kidoju.schemes = {
+                    cdn: 'https://cdn.kidoju.com/',
+                    data: window.location.protocol + '//' + window.location.host + '/Kidoju.Widgets/test/data/images/miscellaneous/'
+                };
+                /**
+                 * Add square tool for testing
+                 */
+                var Square = kidoju.Tool.extend({
+                    id: 'square',
+                    icon: 'shapes',
+                    cursor: 'progress',
+                    templates: {
+                        play: '<div style="background-color:#00FF00;">PLAY</div>',
+                        design: '<div style="background-color:#0000FF;">DESIGN</div>',
+                        review: '<div style="background-color:#FF0000;">REVIEW</div>'
                     },
-                    // { // Test another options.default
-                    //    name: 'equal',
-                    //    formula: 'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
-                    // },
-                    {
-                        name: 'intEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
+                    height: 300,
+                    width: 300,
+                    attributes: {
+                        // src: new adapters.AssetAdapter({ title: 'Image', defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
+                        // alt: new adapters.StringAdapter({ title: 'Text', defaultValue: 'Painting Landscape' })
                     },
-                    {
-                        name: 'floatEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
+
+                    /**
+                     * Get Html content
+                     * @method getHtmlContent
+                     * @param component
+                     * @param mode
+                     * @returns {*}
+                     */
+                    getHtmlContent: function (component, mode) {
+                        assert.instanceof(Square, this, assert.format(assert.messages.instanceof.default, 'this', 'Square'));
+                        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                        var modes = kendo.ui.Stage.fn.modes;
+                        assert.enum(Object.keys(modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(modes)));
+                        return $(this.templates[mode]);
                     },
-                    {
-                        name: 'round2DecimalsEqual',
-                        formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'greaterThan',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'greaterThanOrEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'lowerThan',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'lowerThanOrEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'withParam',
-                        formula: 'function validate(value, solution) {\n\treturn /{0}/i.test(value);\n}',
-                        param: 'Regular Expression'
-                        // TODO we need to add editors
-                    }
-                ];
-                var viewModel = kendo.observable({
-                    code: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === 5 + parseInt(solution, 10);\n}',
-                    library: library,
-                    param: '',
-                    names: library.map(function(item) {
-                        if (item.name === 'custom') {
-                            return item.formula;
-                        } else if (item.name === 'withParam') {
-                            return '// withParam ["^[a-z](\w+)$"]';
-                        } else {
-                            return '// ' + item.name;
+
+                    onEnable: function(e, component, enabled) {
+                        var stageElement = $(e.currentTarget);
+                        if (stageElement.is('.kj-element')) {
+                            var content = stageElement.children('div');
+                            assert.ok(content.length === 1, 'Square elements are expected to be constituted of a single div');
+                            content.off('click');
+                            if (enabled) {
+                                content.on('click', function () {
+                                    window.alert('Hello from ' + component.uid);
+                                });
+                            }
                         }
-                    })
+                    },
+
+
+                    /**
+                     * onResize Event Handler
+                     * @method onResize
+                     * @param e
+                     * @param component
+                     */
+                    onResize: function (e, component) {
+                        var stageElement = $(e.currentTarget);
+                        if (stageElement.is('.kj-element') && component instanceof PageComponent) {
+                            var content = stageElement.children('div');
+                            if ($.type(component.width) === 'number') {
+                                content.width(component.width);
+                            }
+                            if ($.type(component.height) === 'number') {
+                                content.height(component.height);
+                            }
+                            // prevent any side effect
+                            e.preventDefault();
+                            // prevent event to bubble on stage
+                            e.stopPropagation();
+                        }
+                    }
+
                 });
-                $(function(){
-                    kendo.bind('body', viewModel);
+                tools.register(Square);
+                /**
+                 * Page code
+                 */
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
+                    data: [
+                        { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
+                        { id: kendo.guid(), tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { src: 'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg' } },
+                        { id: kendo.guid(), tool : 'square', top: 500, left: 100, height: 200, width: 200, rotate: 25, attributes: {} },
+                        { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'World' } },
+                        { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
+                    ]
+                });
+                $(function() {
+
+                    var mode = window.location.hash.substr(1);
+                    mode = mode.length ? mode : 'design';
+
+                    var stage = $('#stage').kendoStage({
+                        dataSource: pageComponentCollectionDataSource,
+                        autoBind: false,
+                        mode: mode,
+                        select: function(e) {
+                            var grid = $('#grid').data('kendoGrid');
+                            if(e.value) {
+                                var uid = grid.dataSource.get(e.value.id).uid,
+                                    rows = grid.table.find('tr[data-uid="' + uid + '"]');
+                                if (!rows.hasClass('k-state-selected')) {
+                                    grid.select(rows);
+                                }
+                            } else {
+                                grid.clearSelection();
+                            }
+                        }
+                    }).data('kendoStage');
+
+                    $('#grid').kendoGrid({
+                        dataSource: pageComponentCollectionDataSource,
+                        autoBind: false,
+                        height: 300,
+                        selectable: true,
+                        editable: true,
+                        columns: [
+                            {
+                                field: "id",
+                                title: "Id",
+                                width: 320
+                            },
+                            {
+                                field: "tool",
+                                title: "Tool",
+                                width: 100
+                            },
+                            {
+                                field: "top",
+                                title: "Top",
+                                width: 60
+                            },
+                            {
+                                field: "left",
+                                title: "Left",
+                                width: 60
+                            },
+                            {
+                                field: "height",
+                                title: "Hei.",
+                                width: 60
+                            },
+                            {
+                                field: "width",
+                                title: "Wid.",
+                                width: 60
+                            },
+                            {
+                                field: "rotate",
+                                title: "Rot.",
+                                width: 60
+                            },
+                            //tag
+                            {
+                                field: "attributes",
+                                title: "Attributes"
+                            },
+                            {
+                                field: "properties",
+                                title: "Properties"
+                            },
+                            {
+                                command: "destroy",
+                                title: "&nbsp;",
+                                width: 120
+                            }
+                        ],
+                        change: function(e) {
+                            var rows = this.select(),
+                                component = this.dataItem(rows[0]);
+                            if(component) {
+                                stage.value(component);
+                            }
+                        }
+                    });
+
+                    $('#slider').kendoSlider({
+                        increaseButtonTitle: 'Zoom in',
+                        decreaseButtonTitle: 'Zoom out',
+                        min: 0,
+                        max: 100,
+                        smallStep: 1,
+                        largeStep: 10,
+                        change: function(e) {
+                            stage.scale(e.value/100);
+                        }
+                    });
+
+                    $('#toolbox').kendoToolBox();
+
+                    $('input#' + mode).prop('checked', true);
+
+                    $('input[type="radio"][name="mode"]')
+                    .on('change', function(e) {
+                        mode = e.currentTarget.value;
+                        window.location.hash = mode;
+                        stage.mode(mode);
+                    });
+
+                    $('input[type="checkbox"]')
+                    .on('change', function(e) {
+                        switch(e.currentTarget.id) {
+                            case "enabled":
+                                stage.enable(e.currentTarget.checked);
+                                break;
+                            case "readonly":
+                                stage.readonly(e.currentTarget.checked);
+                                break;
+                        }
+                    });
+
+                    //Note: we have autoBind = false
+                    pageComponentCollectionDataSource.read();
+
                 });
             });
         }());
     </script>
+    <style>
+        body { background-color: darkgrey; }
+    </style>
 </head>
 <body>
-<h1>widgets.codeinput</h1>
-<h2>Bound to observable</h2>
-<div data-role="codeinput" data-bind="value: code, source: library" data-default="// floatEqual"></div>
-<div data-role="dropdownlist" data-bind="value: code, source: names" data-auto-width="true"></div>
-<pre data-bind="text: code"></pre>
-<textarea data-bind="value: code" class="k-textbox" style="width:100%; height:10em;"></textarea>
+<h1>widgets.stage</h1>
+<div>
+    <input id="slider" value="100" />
+    <input id="design" type="radio" name="mode" value="design" checked=true /><label for="design">design</label>
+    <input id="play" type="radio" name="mode" value="play" /><label for="play">play</label>
+    <input id="review" type="radio" name="mode" value="review" /><label for="review">review</label>
+    <input id="enabled" type="checkbox" checked /><label for="enabled">enabled</label>
+    <input id="readonly" type="checkbox" /><label for="readonly">readonly</label>
+</div>
+<div id="toolbox"></div>
+<div id="stage"></div>
+<div id="grid"></div>
 </body>
 </html>

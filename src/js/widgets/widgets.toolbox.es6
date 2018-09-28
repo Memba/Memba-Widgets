@@ -141,7 +141,7 @@ const ToolBox = Widget.extend({
      * @private
      */
     _initTemplate() {
-        // @see kidoju.widgets.explorer
+        // @see widgets.explorer
         const { options } = this;
         this._iconPath = `${options.iconPath}${
             /\/$/.test(options.iconPath) ? '' : '/'

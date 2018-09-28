@@ -2,15 +2,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>widgets.codeinput</title>
+    <title>widgets.imageset</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="../../styles/vendor/kendo/web/kendo.mobile.all.min.css" rel="stylesheet">
-    <!-- widgets.codeinput stylesheet -->
-    <!-- link href="../../styles/widgets/widgets.codeinput.css" rel="stylesheet" -->
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- widgets.imageset stylesheet -->
+    <!--link href="../../styles/widgets/widgets.imageset.css" rel="stylesheet"-->
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -189,67 +189,25 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.codeinput.es6').then(function () {
+            SystemJS.import('./widgets.imageset.es6').then(function () {
                 var kendo = window.kendo;
-                var library = [
-                    {
-                        name: 'custom',
-                        formula: 'function validate(value, solution) {\n\t// Your code should return true when value is validated against solution.\n}'
-                    },
-                    // { // Test another options.default
-                    //    name: 'equal',
-                    //    formula: 'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
-                    // },
-                    {
-                        name: 'intEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
-                    },
-                    {
-                        name: 'floatEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'round2DecimalsEqual',
-                        formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'greaterThan',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'greaterThanOrEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'lowerThan',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'lowerThanOrEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'withParam',
-                        formula: 'function validate(value, solution) {\n\treturn /{0}/i.test(value);\n}',
-                        param: 'Regular Expression'
-                        // TODO we need to add editors
-                    }
-                ];
                 var viewModel = kendo.observable({
-                    code: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === 5 + parseInt(solution, 10);\n}',
-                    library: library,
-                    param: '',
-                    names: library.map(function(item) {
-                        if (item.name === 'custom') {
-                            return item.formula;
-                        } else if (item.name === 'withParam') {
-                            return '// withParam ["^[a-z](\w+)$"]';
-                        } else {
-                            return '// ' + item.name;
-                        }
-                    })
+                    visible: true,
+                    enabled: true,
+                    image: 'fire_engine'
                 });
-                $(function(){
+                $(function() {
+                    $('#imageset').kendoImageSet({
+                        value: 'cherries',
+                        images: [
+                            { text: 'aubergine', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/aubergine.svg' },
+                            { text: 'banana', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/banana.svg' },
+                            { text: 'cherries', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/cherries.svg' },
+                            { text: 'green_apple', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/green_apple.svg' },
+                            { text: 'pear', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/pear.svg' },
+                            { text: 'tomato', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/tomato.svg' }
+                        ]
+                    });
                     kendo.bind('body', viewModel);
                 });
             });
@@ -257,11 +215,19 @@
     </script>
 </head>
 <body>
-<h1>widgets.codeinput</h1>
-<h2>Bound to observable</h2>
-<div data-role="codeinput" data-bind="value: code, source: library" data-default="// floatEqual"></div>
-<div data-role="dropdownlist" data-bind="value: code, source: names" data-auto-width="true"></div>
-<pre data-bind="text: code"></pre>
-<textarea data-bind="value: code" class="k-textbox" style="width:100%; height:10em;"></textarea>
+<h1>widgets.imageset</h1>
+
+<h2>ImageSet with MVVM data-bound values</h2>
+<div data-role="imageset" data-bind="value: image, visible: visible, enabled: enabled" data-images="[{&quot;text&quot;:&quot;ambulance&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/ambulance.svg&quot;},{&quot;text&quot;:&quot;oncoming_police_car&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/oncoming_police_car.svg&quot;},{&quot;text&quot;:&quot;fire_engine&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/fire_engine.svg&quot;}]" style="height:100px; width:100px"></div>
+
+<div>
+    <input type="text" data-bind="value: image"><br/>
+    Visible: &nbsp;<input type="checkbox" data-bind="checked: visible">
+    Enabled: &nbsp;<input type="checkbox" data-bind="checked: enabled">
+</div>
+
+<h2>ImageSet initilalized in code</h2>
+<div id="imageset" style="height:100px; width:100px"></div>
+
 </body>
 </html>

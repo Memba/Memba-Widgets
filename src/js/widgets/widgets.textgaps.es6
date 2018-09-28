@@ -1,0 +1,235 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.binder';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
+import { compareStringArrays, getSelection, isAnyArray, setSelection } from '../common/window.util.es6';
+
+const {
+    attr,
+    destroy,
+    format,
+    htmlEncode,
+    ui: { plugin, Widget }
+} = window.kendo;
+const logger = new Logger('widgets.textgaps');
+const NS = '.kendoTextGaps';
+const WIDGET_CLASS = 'kj-textgaps'; // 'k-widget kj-textgaps';
+
+const INPUT = 'input';
+const PASTE = 'paste';
+const INPUT_SELECTOR = '.kj-textgaps-input';
+const INPUT_TEMPLATE = '<div class="{0}" style="{1}"></div>'; // we need a div to set a min-width
+
+/**
+ * TextGaps
+ * @class TextGaps
+ * @extends Widget
+ */
+const TextGaps = Widget.extend({
+    /**
+     * Constructor
+     * @constructor init
+     * @param element
+     * @param options
+     */
+    init(element, options) {
+        Widget.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', message: 'widget initialized' });
+        this._render();
+        this.value(this.options.value);
+        this.enable(this.options.enabled);
+    },
+
+    /**
+     * Widget options
+     * @property options
+     */
+    options: {
+        name: 'TextGaps',
+        value: [],
+        text: '',
+        input: '\\[\\]', // backslahes are required for regular expressions, but this should be read []
+        inputStyle: '',
+        enabled: true
+    },
+
+    /**
+     * Widget events
+     */
+    events: [CONSTANTS.CHANGE],
+
+    /**
+     * Value for MVVM binding
+     * @param value
+     */
+    value(value) {
+        const that = this;
+        if ($.type(value) === CONSTANTS.NULL) {
+            value = [];
+        }
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            return that._value;
+        }
+        if (isAnyArray(value)) {
+            if (!compareStringArrays(that._value, value)) {
+                that._value = value;
+                that.refresh();
+            }
+        } else {
+            throw new TypeError(
+                '`value` is expected to be an array if not null or undefined'
+            );
+        }
+    },
+
+    /**
+     * Builds the widget layout
+     * @private
+     */
+    _render() {
+        const { element, options } = this;
+        this.wrapper = element;
+        element.addClass(WIDGET_CLASS);
+        const input = format(
+            INPUT_TEMPLATE,
+            INPUT_SELECTOR.substr(1),
+            options.inputStyle
+        );
+        const html = htmlEncode(options.text).replace(
+            new RegExp(options.input, 'g'),
+            input
+        );
+        this.element.html(html);
+    },
+
+    /**
+     * enable function for bindings
+     * @param enable
+     */
+    enable(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        this.element.children(INPUT_SELECTOR).prop('contenteditable', enabled);
+        this.element.off(NS);
+        if (enabled) {
+            this.element
+                .on(PASTE + NS, INPUT_SELECTOR, this._onPaste.bind(this))
+                .on(INPUT + NS, INPUT_SELECTOR, this._onInput.bind(this));
+        }
+    },
+
+    /**
+     * Paste envent handler
+     * Used to sanitize HTML pasted content
+     * @see https://stackoverflow.com/questions/2176861/javascript-get-clipboard-data-on-paste-event-cross-browser/6804718#6804718
+     * @private
+     */
+    _onPaste(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        assert.instanceof(
+            HTMLDivElement,
+            e.target,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e.target',
+                'HTMLDivElement'
+            )
+        );
+
+        // Stop data actually being pasted into div
+        e.stopPropagation();
+        e.preventDefault();
+
+        // Get pasted data via clipboard API
+        const clipboardData =
+            e.originalEvent.clipboardData || window.clipboardData;
+        if (clipboardData && $.isFunction(clipboardData.getData)) {
+            let paste = clipboardData.getData('Text');
+            if ($.type(paste) === CONSTANTS.STRING) {
+                paste = htmlEncode(paste);
+                const selection = getSelection(e.target);
+                const text = $(e.target).text();
+                const start = text.substr(0, selection.start);
+                const end = text.substr(selection.end);
+                const pos = (start + paste).length;
+                $(e.target).text(start + paste + end);
+                setSelection(e.target, { start: pos, end: pos });
+            }
+        }
+    },
+
+    /**
+     * Input event hander
+     * @method _onInput
+     * @param e
+     * @private
+     */
+    _onInput(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        assert.instanceof(
+            HTMLDivElement,
+            e.target,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e.target',
+                'HTMLDivElement'
+            )
+        );
+        const input = $(e.target);
+        const index = this.element.children(INPUT_SELECTOR).index(input);
+        this._value[index] = input.text();
+        this.trigger(CONSTANTS.CHANGE);
+    },
+
+    /**
+     * Refresh the widget
+     * @method refresh
+     */
+    refresh() {
+        this.element.children(INPUT_SELECTOR).each((index, htmlElement) => {
+            if ($(htmlElement).text() !== this._value[index]) {
+                $(htmlElement).text(this._value[index]);
+            }
+        });
+        logger.debug({ method: 'refresh', message: 'widget refreshed' });
+    },
+
+    /**
+     * Destroy the widget
+     * @method destroy
+     */
+    destroy() {
+        this.enable(false);
+        Widget.fn.destroy.call(this);
+        destroy(this.element);
+    }
+});
+
+/**
+ * Registration
+ */
+plugin(TextGaps);

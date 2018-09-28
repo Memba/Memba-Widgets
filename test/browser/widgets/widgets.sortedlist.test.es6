@@ -14,10 +14,10 @@ import chai from 'chai';
 const { describe, it } = window;
 const { expect } = chai;
 
-describe('kidoju.widgets.sortedlist', () => {
+describe('widgets.sortedlist', () => {
     describe('Test', () => {
         it('It should', () => {
-            expect(true).to.be.true;
+            expect(true).to.be.false;
         });
     });
 });

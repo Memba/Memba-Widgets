@@ -222,25 +222,26 @@
         }());
     </script>
     <style>
-        body>div:first-of-type {
+        body > div:first-of-type {
             height: 22px;
         }
+
         button {
-            margin: 5px 0px;
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
 <h1>widgets.formatstrip</h1>
 <!--div data-role="formatbar" data-bind="value: style, visible: visible, enabled: enabled"></div-->
-<div style="padding:20px">
+<div style="padding:20px;">
     <input type="text" data-bind="value: style" class="k-textbox" style="width: 100%;">
     <div>
         <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
         <input type="checkbox" data-bind="checked: enabled" />Enabled
     </div>
 </div>
-<div style="padding:20px"><div data-bind="attr: { style: style }">Sample Text</div></div>
+<div style="padding:20px;"><div data-bind="attr: { style: style }">Sample Text</div></div>
 <h1>widgets.formatstrip</h1>
 <button data-bind="click: reset">Clear Selection</button><br/>
 <input data-role="dropdownlist" data-bind="source: components, value: selectedComponent" data-text-field="tool" data-value-field="id" style="width: 300px"></select>

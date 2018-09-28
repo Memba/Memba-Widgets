@@ -81,3 +81,159 @@ export function round(value, precision = 2) {
     const p = Math.trunc(10 ** Math.trunc(precision));
     return Math.round(val * p) / p;
 }
+
+/**
+ * Check an array or a Kendo UI ObservableArray
+ * @method  isAnyArray
+ * @param a
+ * @returns {boolean}
+ */
+export function isAnyArray(a) {
+    // return Array.isArray(a) || a instanceof kendo.data.ObservableArray;
+    return (
+        typeof a === 'object' && // an array is an object
+        typeof a.length === 'number' &&
+        typeof a.forEach === 'function' &&
+        typeof a.join === 'function'
+    );
+}
+
+/**
+ * Compare string arrays
+ * @method compareStringArrays
+ * @param a
+ * @param b
+ * @returns {boolean}
+ */
+export function compareStringArrays(a, b) {
+    return (
+        isAnyArray(a) &&
+        isAnyArray(b) &&
+        a.length === b.length &&
+        a.join(';') === b.join(';')
+    );
+}
+
+/**
+ * Gets a selection
+ * @method getSelection
+ * @param htmlElement
+ */
+export function getSelection(htmlElement) {
+    assert.instanceof(
+        HTMLDivElement,
+        htmlElement,
+        assert.format(
+            assert.messages.instanceof.default,
+            'htmlElement',
+            'HTMLDivElement'
+        )
+    );
+    assert.ok(
+        htmlElement.childNodes.length === 1 &&
+            htmlElement.childNodes[0].nodeType === 3,
+        '`htmlElement` should only have on child node of type #Text'
+    );
+    const cursor = {};
+    // document.selection && document.selection.createRange were used in IE < 9
+    // All modern browsers support the HTML Selection API, but Safari does not support selection events
+    // @see https://caniuse.com/#feat=selection-api
+    const selection = window.getSelection();
+    if (selection.rangeCount) {
+        const range = selection.getRangeAt(0);
+        if (range.commonAncestorContainer.parentNode === htmlElement) {
+            cursor.start = range.startOffset;
+            cursor.end = range.endOffset;
+        }
+    }
+    return cursor;
+}
+
+/**
+ * Sets a selection
+ * @method setSelection
+ * @param htmlElement
+ * @param cursor
+ */
+export function setSelection(htmlElement, cursor) {
+    assert.instanceof(
+        HTMLDivElement,
+        htmlElement,
+        assert.format(
+            assert.messages.instanceof.default,
+            'htmlElement',
+            'HTMLDivElement'
+        )
+    );
+    assert.ok(
+        htmlElement.childNodes.length === 1 &&
+            htmlElement.childNodes[0].nodeType === 3,
+        '`htmlElement` should only have on child node of type #Text'
+    );
+    assert.isPlainObject(
+        cursor,
+        assert.format(assert.messages.isPlainObject.default, 'cursor')
+    );
+    assert.type(
+        CONSTANTS.NUMBER,
+        cursor.start,
+        assert.format(
+            assert.messages.type.default,
+            'cursor.start',
+            CONSTANTS.NUMBER
+        )
+    );
+    assert.type(
+        CONSTANTS.NUMBER,
+        cursor.end,
+        assert.format(
+            assert.messages.type.default,
+            'cursor.end',
+            CONSTANTS.NUMBER
+        )
+    );
+    // document.selection && document.selection.createRange were used in IE < 9
+    // All modern browsers support the HTML Selection API, but Safari does not support selection events
+    // @see https://caniuse.com/#feat=selection-api
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.setStart(htmlElement.childNodes[0], cursor.start);
+    range.setEnd(htmlElement.childNodes[0], cursor.end);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+/**
+ * Replaces the selection with alternate text
+ * @method replaceSelection
+ * @param htmlElement
+ * @param text
+ */
+export function replaceSelection(htmlElement, text) {
+    assert.instanceof(
+        HTMLDivElement,
+        htmlElement,
+        assert.format(
+            assert.messages.instanceof.default,
+            'htmlElement',
+            'HTMLDivElement'
+        )
+    );
+    assert.ok(
+        htmlElement.childNodes.length === 1 &&
+            htmlElement.childNodes[0].nodeType === 3,
+        '`htmlElement` should only have one child node of type #Text'
+    );
+    assert.type(
+        CONSTANTS.STRING,
+        text,
+        assert.format(assert.messages.type.default, 'text', CONSTANTS.STRING)
+    );
+    const selection = window.getSelection();
+    const range = document.createRange();
+
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+}

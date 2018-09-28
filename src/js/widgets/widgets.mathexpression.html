@@ -2,15 +2,16 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>widgets.codeinput</title>
+    <title>widgets.mathexpression</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="../../styles/vendor/kendo/web/kendo.mobile.all.min.css" rel="stylesheet">
-    <!-- widgets.codeinput stylesheet -->
-    <!-- link href="../../styles/widgets/widgets.codeinput.css" rel="stylesheet" -->
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- widgets.mathexpression stylesheet -->
+    <link href="../../styles/vendor/khan/katex.css" rel="stylesheet">
+    <link href="../../styles/widgets/widgets.mathexpression.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -189,67 +190,18 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.codeinput.es6').then(function () {
+            SystemJS.import('./widgets.mathexpression.es6').then(function () {
                 var kendo = window.kendo;
-                var library = [
-                    {
-                        name: 'custom',
-                        formula: 'function validate(value, solution) {\n\t// Your code should return true when value is validated against solution.\n}'
-                    },
-                    // { // Test another options.default
-                    //    name: 'equal',
-                    //    formula: 'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
-                    // },
-                    {
-                        name: 'intEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
-                    },
-                    {
-                        name: 'floatEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'round2DecimalsEqual',
-                        formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'greaterThan',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'greaterThanOrEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'lowerThan',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'lowerThanOrEqual',
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'withParam',
-                        formula: 'function validate(value, solution) {\n\treturn /{0}/i.test(value);\n}',
-                        param: 'Regular Expression'
-                        // TODO we need to add editors
-                    }
-                ];
                 var viewModel = kendo.observable({
-                    code: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === 5 + parseInt(solution, 10);\n}',
-                    library: library,
-                    param: '',
-                    names: library.map(function(item) {
-                        if (item.name === 'custom') {
-                            return item.formula;
-                        } else if (item.name === 'withParam') {
-                            return '// withParam ["^[a-z](\w+)$"]';
-                        } else {
-                            return '// ' + item.name;
-                        }
-                    })
+                    formula: '\\int_{a}^{b}x^2dx',
+                    visible: true,
+                    enabled: true
                 });
-                $(function(){
+                $(function() {
+                    $('#math1').kendoMathExpression({
+                        value: '\\sum_{n=1}^{\\infty}2^{-n}=1',
+                        inlineMode: true
+                    });
                     kendo.bind('body', viewModel);
                 });
             });
@@ -257,11 +209,22 @@
     </script>
 </head>
 <body>
-<h1>widgets.codeinput</h1>
+<h1>widgets.mathexpression</h1>
+<h2>Javascript code</h2>
+<div id="math1"></div>
+<h2>HTML declaration</h2>
+<div id="math2" data-role="mathexpression" data-value="\prod_{i=a}^{b} f(i)" style="font-size:200%;color:red;"></div>
 <h2>Bound to observable</h2>
-<div data-role="codeinput" data-bind="value: code, source: library" data-default="// floatEqual"></div>
-<div data-role="dropdownlist" data-bind="value: code, source: names" data-auto-width="true"></div>
-<pre data-bind="text: code"></pre>
-<textarea data-bind="value: code" class="k-textbox" style="width:100%; height:10em;"></textarea>
+<div id="math3" data-role="mathexpression" data-bind="value: formula, visible: visible"></div>
+<pre>
+{
+    value: <span data-bind="text: formula"></span>,
+    visible: <span data-bind="text: visible"></span>>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible
+</div>
+<textarea data-bind="value: formula" class="k-textbox" rows="5" style="width:500px;"></textarea>
 </body>
 </html>

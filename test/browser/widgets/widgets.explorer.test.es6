@@ -18,8 +18,6 @@ import AssetAdapter from '../../../src/js/tools/adapters.asset.es6';
 const { describe, it, kendo, xit } = window;
 const { expect } = chai;
 
-
-
 var expect = window.chai.expect;
 var sinon = window.sinon;
 var kendo = window.kendo;

@@ -12,6 +12,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 
 const {
+    destroy,
     ui: { plugin, Widget }
 } = window.kendo;
 const logger = new Logger('widgets.license');
@@ -40,12 +41,13 @@ const LICENSES = [0, 1, 13];
 
 /**
  * License
- * @class
+ * @class License
+ * @extends Widget
  */
 const License = Widget.extend({
     /**
      * Constructor
-     * @constructor
+     * @constructor init
      * @param element
      * @param options
      */
@@ -97,7 +99,7 @@ const License = Widget.extend({
         } else if (LICENSES.indexOf(value) > -1) {
             this._value = value;
             this.refresh();
-        } else if ($.type(value) === CONSTANTS.NUMBER) {
+        } else {
             throw new RangeError('`value` is expected to be 0, 1 or 13');
         }
         return ret;
@@ -182,6 +184,7 @@ const License = Widget.extend({
     destroy() {
         this.element.off(NS);
         Widget.fn.destroy.call(this);
+        destroy(this.element);
     }
 });
 

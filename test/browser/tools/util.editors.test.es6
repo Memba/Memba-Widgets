@@ -14,15 +14,18 @@ import chaiJquery from 'chai-jquery';
 import { randomVal } from '../../../src/js/common/window.util.es6';
 import editors from '../../../src/js/tools/util.editors.es6';
 
-const { beforeEach, describe, it, kendo } = window;
+const { afterEach, before, describe, it } = window;
 const { expect } = chai;
+const { destroy } = window.kendo;
 const FIXTURES = '#fixtures';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 
 describe('util.editors', () => {
-    beforeEach(() => {
-        $(FIXTURES).empty();
+    before(() => {
+        if (window.__karma__ && $(FIXTURES).length === 0) {
+            $('body').append('<div id="fixtures"></div>');
+        }
     });
 
     it('input', () => {
@@ -56,5 +59,11 @@ describe('util.editors', () => {
         const textarea = $(FIXTURES).children('textarea');
         expect(textarea).to.exist;
         expect(textarea).to.have.attr('data-bind', `value: ${field}`);
+    });
+
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        destroy(fixtures);
+        fixtures.empty();
     });
 });

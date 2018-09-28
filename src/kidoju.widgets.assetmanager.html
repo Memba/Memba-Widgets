@@ -169,6 +169,10 @@
                     'js': {
                         defaultExtension: 'js',
                         meta: {
+                            // IMPORTANT! See https://github.com/jshint/jshint/issues/2840
+                            'vendor/codemirror/addon/lint/jshint.js': {
+                                format: 'global'
+                            },
                             '*.js': {
                                 babelOptions: {
                                     es2015: false,
@@ -225,20 +229,20 @@
                                 template: '<div data-role="vectordrawing" data-bind="events: { command: onCommand, dialog: onDialog }"></div>', // TODO remove new and open menu items (data-tools?)
                                 maximize: true,
                                 openImageDialog: function () {
-                                    assert.instanceof(kendo.ui.Window, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
+                                    assert.instanceof(kendo.ui.Window, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
                                     var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
                                     debugger;
 
                                 },
                                 openUrl: function (url) {
-                                    assert.instanceof(kendo.ui.Window, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
+                                    assert.instanceof(kendo.ui.Window, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
                                     var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
                                     url = $('<a/>').attr('href', url).get(0).href; // Note: a simple way to resolve a relative url
                                     return vectorDrawingWidget.open(url);
                                     // TODO promise????? app.notification of errors ????
                                 },
                                 resize: function (e) {
-                                    assert.instanceof(kendo.ui.Window, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
+                                    assert.instanceof(kendo.ui.Window, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
                                     var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
                                     var container = e.sender.element;
                                     vectorDrawingWidget.element

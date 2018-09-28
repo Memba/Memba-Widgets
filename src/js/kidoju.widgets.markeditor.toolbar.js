@@ -1129,24 +1129,24 @@
                 */
             },
             _resizeDialog: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kendo.ui.Window, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Window'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.Window, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Window'));
                 var element = e.sender.element;
                 var contentHeight = element.height();
                 element.children('.kj-markeditor.preview').height(contentHeight);
                 var toolBarContainer = element.find('#preview_toolbar_container');
-                assert.hasLength(toolBarContainer, kendo.format(assert.messages.hasLength.default, 'toolBarContainer'));
+                assert.hasLength(toolBarContainer, assert.format(assert.messages.hasLength.default, 'toolBarContainer'));
                 var toolBarHeight = toolBarContainer.outerHeight();
                 var footerHeight = element.find('.k-action-buttons').outerHeight();
                 var splitter = element.find('.k-splitter')
                     .outerHeight(contentHeight - toolBarHeight - footerHeight)
                     // Triggering resize is suggested at http://www.telerik.com/forums/splitter-not-resizing-along-with-window
                     .trigger('resize');
-                assert.hasLength(splitter, kendo.format(assert.messages.hasLength.default, 'splitter'));
+                assert.hasLength(splitter, assert.format(assert.messages.hasLength.default, 'splitter'));
                 var pane = splitter.children('.k-pane:first-child');
-                assert.hasLength(pane, kendo.format(assert.messages.hasLength.default, 'pane'));
+                assert.hasLength(pane, assert.format(assert.messages.hasLength.default, 'pane'));
                 var markEditorWidget = element.find(kendo.roleSelector('markeditor')).data('kendoMarkEditor');
-                assert.instanceof(kendo.ui.MarkEditor, markEditorWidget, kendo.format(assert.messages.instanceof.default, 'markEditorWidget', 'kendo.ui.MarkEditor'));
+                assert.instanceof(kendo.ui.MarkEditor, markEditorWidget, assert.format(assert.messages.instanceof.default, 'markEditorWidget', 'kendo.ui.MarkEditor'));
                 markEditorWidget.codeMirror.setSize('100%', pane.height());
                 kendo.resize(toolBarContainer);
             }

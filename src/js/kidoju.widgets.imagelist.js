@@ -147,11 +147,11 @@
 
                 // Add toolbar from template
                 that.toolbar = $(kendo.format(TOOLBAR, options.messages.toolbar.add)).appendTo(that.element);
-                assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
+                assert.instanceof($, that.toolbar, assert.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
 
                 // Add click event handler for the Add button
                 $('.k-button', that.toolbar).on(CLICK + NS, function (e) {
-                    assert.instanceof(ListView, that.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                    assert.instanceof(ListView, that.listView, assert.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                     // that.listView.add(); // insert at index = 0
                     that.listView.cancel();
                     // var item = {}; item[options.textField] = ''; item[options.imageField] = '';
@@ -266,7 +266,7 @@
                 }
 
                 // Set the dataSource on the listview
-                assert.instanceof(ListView, that.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(ListView, that.listView, assert.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                 that.listView.setDataSource(that.dataSource);
             },
 
@@ -287,7 +287,7 @@
              * @param e
              */
             _onItemButtonClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var button = $(e.currentTarget);
                 var action;
                 if (button.hasClass('k-edit-button')) {

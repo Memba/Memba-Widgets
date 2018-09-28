@@ -7,28 +7,29 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.combobox';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
-// TODO make it a generic combobox adapter with a generic fill callback
-const { attr, format } = window.kendo;
+// TODO make it a generic combobox adapter with a generic fill callback/open event  handler
+const { attr } = window.kendo;
 
 /**
+ * QuestionAdapter
  * @class QuestionAdapter
+ * @extends BaseAdapter
  */
 const QuestionAdapter = BaseAdapter.extend({
     /**
      * Constructor
-     * @constructor
+     * @constructor init
      * @param options
      * @param attributes
      */
-    init(options, atttributes) {
+    init(options /* , attributes */) {
         BaseAdapter.fn.init.call(this, options);
-        this.type = STRING;
+        this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-        // this.editor = 'input';
-        // $.extend(this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
             const binding = {};
             binding[attr('bind')] = `value: ${settings.field}`;
@@ -44,27 +45,27 @@ const QuestionAdapter = BaseAdapter.extend({
                  * @param e
                  */
                 open(e) {
-                    const texts = [];
+                    const data = [];
                     // find the design (mode) stage, avoiding navigation
                     const stage = $(
-                        `[${attr('role')}="stage"][${attr(
-                            'mode'
-                        }="design"]`
+                        `[${attr('role')}="stage"][${attr('mode')}="design"]`
                     );
                     // find all labels
                     const labels = stage.find(
-                        `.kj-element[${attr('tool')}="label"]>div`
+                        `.${CONSTANTS.ELEMENT_CLASS}[${attr(
+                            'tool'
+                        )}="label"]>div`
                     );
                     labels.each((index, label) => {
                         const text = $(label)
                             .html()
                             .replace(/<br\/?>/g, ' ');
                         if ($.type(text) === CONSTANTS.STRING && text.length) {
-                            texts.push(text);
+                            data.push(text);
                         }
                     });
-                    texts.sort();
-                    e.sender.setDataSource(texts);
+                    data.sort();
+                    e.sender.setDataSource(data);
                 }
             });
         };

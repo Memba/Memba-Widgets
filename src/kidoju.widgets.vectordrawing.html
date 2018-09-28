@@ -167,6 +167,10 @@
                     'js': {
                         defaultExtension: 'js',
                         meta: {
+                            // IMPORTANT! See https://github.com/jshint/jshint/issues/2840
+                            'vendor/codemirror/addon/lint/jshint.js': {
+                                format: 'global'
+                            },
                             '*.js': {
                                 babelOptions: {
                                     es2015: false,

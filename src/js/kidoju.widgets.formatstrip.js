@@ -263,7 +263,7 @@
              */
             value: function (value) {
                 if ($.type(value) === UNDEFINED) {
-                    assert.instanceof(Style, this._value, kendo.format(assert.messages.instanceof.default, 'this._value', 'Style'));
+                    assert.instanceof(Style, this._value, assert.format(assert.messages.instanceof.default, 'this._value', 'Style'));
                     return this._value.toString();
                 } else if ($.type(value) === STRING || $.type(value) === NULL) {
                     this._value = new Style(value);
@@ -340,7 +340,7 @@
              * @private
              */
             _BorderChangeCommand: function (options) {
-                assert.instanceof(Style, this._value, kendo.format(assert.messages.instanceof.default, 'this._value', 'Style'));
+                assert.instanceof(Style, this._value, assert.format(assert.messages.instanceof.default, 'this._value', 'Style'));
                 switch (options.border) {
                     case 'noBorders':
                         this._value.borderColor = null;
@@ -399,7 +399,7 @@
              * @private
              */
             _PropertyChangeCommand: function (options) {
-                assert.instanceof(Style, this._value, kendo.format(assert.messages.instanceof.default, 'this._value', 'Style'));
+                assert.instanceof(Style, this._value, assert.format(assert.messages.instanceof.default, 'this._value', 'Style'));
                 switch (options.property) {
                     case 'background':
                         this._value.backgroundColor = options.value ? options.value : null;
@@ -724,8 +724,8 @@
                 var tabs = [];
                 if (this._value instanceof PageComponent) {
                     var tool = that._value.tool;
-                    assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
-                    assert.instanceof(kidoju.Tool, kidoju.tools[tool], kendo.format(assert.messages.instanceof.default, 'kidoju.tools[tool]', 'kidoju.Tool'));
+                    assert.instanceof(kendo.Observable, kidoju.tools, assert.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                    assert.instanceof(kidoju.Tool, kidoju.tools[tool], assert.format(assert.messages.instanceof.default, 'kidoju.tools[tool]', 'kidoju.Tool'));
                     var attributes = kidoju.tools[tool].attributes;
                     for (var attr in attributes) {
                         if (attributes.hasOwnProperty(attr) && attributes[attr] instanceof adapters.StyleAdapter) {
@@ -751,7 +751,7 @@
              * @private
              */
             _clearTabs: function () {
-                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+                assert.instanceof(TabStrip, this.tabStrip, assert.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
                 var that = this;
                 while (that.tabStrip.contentElements.length > 0) {
                     kendo.destroy(that.tabStrip.contentHolder(0));

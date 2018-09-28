@@ -165,6 +165,10 @@
                     'src/js': {
                         defaultExtension: 'js',
                         meta: {
+                            // IMPORTANT! See https://github.com/jshint/jshint/issues/2840
+                            'vendor/codemirror/addon/lint/jshint.js': {
+                                format: 'global'
+                            },
                             '*.js': {
                                 babelOptions: {
                                     es2015: false,
@@ -187,9 +191,11 @@
             });
             Promise.all([
                 SystemJS.import('../tools/tools.es6'),
-                SystemJS.import('../tools/tools.base..es6'),
+                SystemJS.import('../tools/tools.base.es6'),
+                SystemJS.import('../tools/index.es6'),
                 SystemJS.import('./widgets.toolbox.es6')
             ]).then(function (res) {
+                debugger;
                 var kendo = window.kendo;
                 var tools = res[0].default;
                 var BaseTool = res[1].default;

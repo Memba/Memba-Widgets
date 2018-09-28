@@ -64,7 +64,7 @@
          * @param value
          */
         function normalizeValue(value) {
-            assert.type(STRING, value, kendo.format(assert.messages.type.default), 'value', STRING);
+            assert.type(STRING, value, assert.format(assert.messages.type.default), 'value', STRING);
             return value.replace(/[\s]*(\:|\;)[\s]*/g, '$1') + ((value.length && value.charAt(value.length - 1) === SEMICOLON) ? '' : SEMICOLON);
         }
 
@@ -448,8 +448,8 @@
              * @private
              */
             _onDataBound: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(Grid, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
                 var dataItem = e.sender.dataSource.at(0);
                 if (dataItem && dataItem.name === '' && dataItem.value === '') {
                     e.sender.editCell(e.sender.element.find('td:eq(0)'));
@@ -462,9 +462,9 @@
              * @private
              */
             _onGridEdit: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
-                assert.instanceof($, e.container, kendo.format(assert.messages.instanceof.default, 'e.container', 'jQuery'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(Grid, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
+                assert.instanceof($, e.container, assert.format(assert.messages.instanceof.default, 'e.container', 'jQuery'));
                 // Select the edited row
                 var row = e.container.closest('tr');
                 e.sender.select(e.container.closest('tr'));
@@ -567,8 +567,8 @@
              * @private
              */
             _onDeleteClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                assert.instanceof(Grid, this.grid, kendo.format(assert.messages.instanceof.default, 'this.grid', 'kendo.ui.Grid'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof(Grid, this.grid, assert.format(assert.messages.instanceof.default, 'this.grid', 'kendo.ui.Grid'));
                 e.preventDefault();
                 var grid = this.grid;
                 var selected = grid.select();

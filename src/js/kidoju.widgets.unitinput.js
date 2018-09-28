@@ -105,8 +105,8 @@
                     element.val(value);
                     var matches = value.match(RX_UNIT);
                     if ($.isArray(matches) && matches.length === 3) {
-                        assert.instanceof(kendo.ui.NumericTextBox, that.numericTextBox, kendo.format(assert.messages.instanceof.default, 'thist.numericTextBox', 'kendo.ui.NumericTextBox'));
-                        assert.instanceof(kendo.ui.DropDownList, that.unitDropDownList, kendo.format(assert.messages.instanceof.default, 'thist.unitDropDownList', 'kendo.ui.DropDownList'));
+                        assert.instanceof(kendo.ui.NumericTextBox, that.numericTextBox, assert.format(assert.messages.instanceof.default, 'thist.numericTextBox', 'kendo.ui.NumericTextBox'));
+                        assert.instanceof(kendo.ui.DropDownList, that.unitDropDownList, assert.format(assert.messages.instanceof.default, 'thist.unitDropDownList', 'kendo.ui.DropDownList'));
                         that.numericTextBox.value(matches[1]);
                         that.numericTextBox.enable(/* that._enabled && */options.nonUnits.indexOf(matches[2]) === -1); // TODO CHeck if widget is enabled
                         that.unitDropDownList.value(matches[2]);

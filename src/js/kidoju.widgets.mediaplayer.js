@@ -113,7 +113,7 @@
          * @returns {*}
          */
         function typeFormatter(url) {
-            assert.type(STRING, url, kendo.format(assert.messages.type.default, 'url', STRING));
+            assert.type(STRING, url, assert.format(assert.messages.type.default, 'url', STRING));
             var ext = url.split('.').pop();
             switch (ext) {
                 case 'mp3':
@@ -142,7 +142,7 @@
          * @param seconds
          */
         function toHMS(seconds) {
-            assert.type(NUMBER, seconds, kendo.format(assert.messages.type.default, 'seconds', NUMBER));
+            assert.type(NUMBER, seconds, assert.format(assert.messages.type.default, 'seconds', NUMBER));
             assert.ok(seconds >= 0 && seconds < 24 * 60 * 60, 'Cannot format negative numbers or days.');
             var s = Math.round(seconds);
             var m = Math.floor (s / 60);
@@ -241,7 +241,7 @@
                 // .css({ height: '100%', width: '100%' });
                 // Add source files
                 var files = $.type(that.options.files) === STRING ? [that.options.files] : that.options.files;
-                assert.type(ARRAY, files, kendo.format(assert.messages.type.default, 'options.files', ARRAY));
+                assert.type(ARRAY, files, assert.format(assert.messages.type.default, 'options.files', ARRAY));
                 $.each(files, function (index, url) {
                     if ($.type(url) === STRING && url.length) {
                         $('<source>')
@@ -273,10 +273,10 @@
              */
             _onLoadedMetadata: function (e) {
                 // This is where we initially set our toolbar values
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 if (this.toolbar instanceof $ && this.seekerSlider instanceof Slider && this.volumeSlider instanceof Slider) {
                     var mediaElement = e.target;
-                    assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
+                    assert.instanceof(window.HTMLMediaElement, mediaElement, assert.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
                     this._setSeekerSlider(mediaElement.duration);
                     this.seekerSlider.value(0);
                     this.toolbar.find(TIME_SELECTOR).text(toHMS(mediaElement.duration));
@@ -293,7 +293,7 @@
              */
             _onPlay: function (e) {
                 var mediaElement = this.media.get(0);
-                assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
+                assert.instanceof(window.HTMLMediaElement, mediaElement, assert.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
                 if (this.toolbar instanceof $) {
                     var oldSVG = this.toolbar.find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY)).children('svg');
                     // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attribute
@@ -310,10 +310,10 @@
              * @private
              */
             _onTimeUpdate: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 if (this.toolbar instanceof $) {
                     var mediaElement = e.target;
-                    assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
+                    assert.instanceof(window.HTMLMediaElement, mediaElement, assert.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
                     this.toolbar.find(TIME_SELECTOR).text(toHMS(mediaElement.duration - mediaElement.currentTime));
                     this.seekerSlider.value(mediaElement.currentTime);
                 }
@@ -326,7 +326,7 @@
              */
             _onPause: function (e) {
                 var mediaElement = this.media.get(0);
-                assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
+                assert.instanceof(window.HTMLMediaElement, mediaElement, assert.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
                 if (this.toolbar instanceof $) {
                     var oldSVG = this.toolbar.find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY)).children('svg');
                     // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attribute
@@ -343,10 +343,10 @@
              * @private
              */
             _onEnded: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 if (this.toolbar instanceof $ && this.seekerSlider instanceof Slider) {
                     var mediaElement = e.target;
-                    assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
+                    assert.instanceof(window.HTMLMediaElement, mediaElement, assert.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
                     mediaElement.currentTime = 0;
                     this.seekerSlider.value(mediaElement.currentTime);
                     var oldSVG = this.toolbar.find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY)).children('svg');
@@ -365,7 +365,7 @@
              */
             _onVolumeChange: function (e) {
                 var mediaElement = this.media.get(0);
-                assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
+                assert.instanceof(window.HTMLMediaElement, mediaElement, assert.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
                 if (this.toolbar instanceof $ && this.volumeSlider instanceof Slider) {
                     var oldSVG = this.toolbar.find(kendo.format(BUTTON_SELECTOR, COMMANDS.MUTE)).children('svg');
                     var newSVG;
@@ -541,7 +541,7 @@
              */
             togglePlayPause: function () {
                 var mediaElement = this.media.get(0);
-                assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
+                assert.instanceof(window.HTMLMediaElement, mediaElement, assert.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
                 if (mediaElement.paused && mediaElement.readyState >= 1) { // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
                     mediaElement.play();
                 } else {
@@ -554,7 +554,7 @@
              */
             toggleMute: function () {
                 var mediaElement = this.media.get(0);
-                assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
+                assert.instanceof(window.HTMLMediaElement, mediaElement, assert.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
                 mediaElement.muted = !mediaElement.muted;
             },
 
@@ -568,7 +568,7 @@
              */
             toggleFullScreen: function () {
                 var mediaElement = this.media.get(0);
-                assert.instanceof(window.HTMLVideoElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLVideoElement'));
+                assert.instanceof(window.HTMLVideoElement, mediaElement, assert.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLVideoElement'));
                 if (document.fullscreenElement === mediaElement ||
                     document.webkitFullscreenElement === mediaElement ||
                     document.msFullscreenElement === mediaElement ||
@@ -613,11 +613,11 @@
              */
             volume: function (value) {
                 var mediaElement = this.media.get(0);
-                assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
+                assert.instanceof(window.HTMLMediaElement, mediaElement, assert.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
                 if ($.type(value) === UNDEFINED) {
                     return mediaElement.volume;
                 } else {
-                    assert.type(NUMBER, value, kendo.format(assert.messages.type.default, 'value', NUMBER));
+                    assert.type(NUMBER, value, assert.format(assert.messages.type.default, 'value', NUMBER));
                     if (value < 0) {
                         value = 0;
                     } else if (value > 1) {
@@ -644,11 +644,11 @@
              */
             seek: function (value) {
                 var mediaElement = this.media.get(0);
-                assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
+                assert.instanceof(window.HTMLMediaElement, mediaElement, assert.format(assert.messages.instanceof.default, 'this.media.get(0)', 'HTMLMediaElement'));
                 if ($.type(value) === UNDEFINED) {
                     return mediaElement.currentTime;
                 } else {
-                    assert.type(NUMBER, value, kendo.format(assert.messages.type.default, 'value', NUMBER));
+                    assert.type(NUMBER, value, assert.format(assert.messages.type.default, 'value', NUMBER));
                     if (value < 0) {
                         value = 0;
                     } else if (value > mediaElement.duration) {

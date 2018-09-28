@@ -354,11 +354,11 @@
                         return element.clone().addClass(PLACEHOLDER_CLASS);
                     },
                     change: function (e) {
-                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                        assert.instanceof(kidoju.data.PageComponentCollectionDataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'that.dataSource', 'kidoju.data.PageComponentCollectionDataSource'));
+                        assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                        assert.instanceof(kidoju.data.PageComponentCollectionDataSource, that.dataSource, assert.format(assert.messages.instanceof.default, 'that.dataSource', 'kidoju.data.PageComponentCollectionDataSource'));
                         if (e.action === 'sort' && e.item instanceof $ && $.type(e.oldIndex) === NUMBER && $.type(e.newIndex) === NUMBER) {
                             var component = that.dataSource.at(e.oldIndex);
-                            assert.equal(e.item.attr(kendo.attr('uid')), component.uid, kendo.format(assert.messages.equal.default, 'component.uid', 'e.item.attr("data-uid")'));
+                            assert.equal(e.item.attr(kendo.attr('uid')), component.uid, assert.format(assert.messages.equal.default, 'component.uid', 'e.item.attr("data-uid")'));
                             that.dataSource.remove(component);
                             that.dataSource.insert(e.newIndex, component);
                         }
@@ -489,7 +489,7 @@
              * @private
              */
             _toggleHover: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 $(e.currentTarget).toggleClass(HOVER_CLASS, e.type === MOUSEENTER);
             },
 
@@ -500,7 +500,7 @@
              * @private
              */
             _toggleFocus: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 $(e.currentTarget).toggleClass(FOCUSED_CLASS, e.type === FOCUS);
             },
 
@@ -511,7 +511,7 @@
              * @private
              */
             _click: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 e.preventDefault();
                 var target = $(e.currentTarget);
                 if (!target.is('.' + SELECTED_CLASS)) {

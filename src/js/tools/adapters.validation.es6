@@ -9,6 +9,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import openCodeEditor from '../dialogs/dialogs.codeeditor.es6';
+import '../widgets/widgets.codeinput.es6';
 import BaseAdapter from './adapters.base.es6';
 
 const { attr, format, htmlEncode, ns, ui } = window.kendo;
@@ -53,8 +55,8 @@ const ValidationAdapter = BaseAdapter.extend({
                 .css({ display: 'flex' })
                 .appendTo(container);
             const codeInput = $(
-                `${'<div ' + 'data-'}${kendo.ns}role="codeinput" ` +
-                    `data-${kendo.ns}default="${
+                `${'<div ' + 'data-'}${ns}role="codeinput" ` +
+                    `data-${ns}default="${
                         settings.model.properties.defaults.validation
                     }" />`
             )
@@ -79,19 +81,18 @@ const ValidationAdapter = BaseAdapter.extend({
      */
     showDialog(options /* , e */) {
         const that = this;
-        // TODO import('./dialogs/kidoju.dialogs.codeeditor.es6').then(function () {...});
-        kidoju.dialogs
-            .openCodeEditor({
-                title: options.title,
-                data: {
-                    value: options.model.get(options.field),
-                    library: [CUSTOM].concat(that.library),
-                    defaultValue: that.defaultValue, // ????????????????????????
-                    solution: kendo.htmlEncode(
-                        JSON.stringify(options.model.get('properties.solution'))
-                    )
-                }
-            })
+        // TODO import('./dialogs/dialogs.codeeditor.es6').then(function () {...});
+        openCodeEditor({
+            title: options.title,
+            data: {
+                value: options.model.get(options.field),
+                library: [CUSTOM].concat(that.library),
+                defaultValue: that.defaultValue, // ????????????????????????
+                solution: htmlEncode(
+                    JSON.stringify(options.model.get('properties.solution'))
+                )
+            }
+        })
             .then(result => {
                 if (
                     result.action ===

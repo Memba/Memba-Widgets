@@ -131,7 +131,7 @@
              * @private
              */
             _isCustom: function (value) {
-                assert.type(STRING, value, kendo.format(assert.messages.type.default, value, STRING));
+                assert.type(STRING, value, assert.format(assert.messages.type.default, value, STRING));
                 var matches = value.match(RX_VALIDATION_CUSTOM);
                 if ($.isArray(matches) && matches.length === 2) {
                     return value;
@@ -145,9 +145,9 @@
              * @private
              */
             _parseLibraryValue: function (value) {
-                assert.type(STRING, value, kendo.format(assert.messages.type.default, value, STRING));
-                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
-                assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                assert.type(STRING, value, assert.format(assert.messages.type.default, value, STRING));
+                assert.instanceof(DropDownList, this.dropDownList, assert.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(DataSource, this.dataSource, assert.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 assert.equal(this.dropDownList.dataSource, this.dataSource, 'this.dropDownList.dataSource and this.dataSource are expected to be the same');
                 var options = this.options;
                 var ret = {};
@@ -173,9 +173,9 @@
              * @private
              */
             refresh: function () {
-                assert.instanceof($, this.customInput, kendo.format(assert.messages.instanceof.default, 'this.customInput', 'jQuery'));
-                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
-                assert.instanceof($, this.paramInput, kendo.format(assert.messages.instanceof.default, 'this.paramInput', 'jQuery'));
+                assert.instanceof($, this.customInput, assert.format(assert.messages.instanceof.default, 'this.customInput', 'jQuery'));
+                assert.instanceof(DropDownList, this.dropDownList, assert.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof($, this.paramInput, assert.format(assert.messages.instanceof.default, 'this.paramInput', 'jQuery'));
 
                 var that = this;
                 var options = that.options;
@@ -269,7 +269,7 @@
              * @private
              */
             _onUserInputChange: function () {
-                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(DropDownList, this.dropDownList, assert.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 var that = this;
                 var options = that.options;
                 var dataItem = that.dropDownList.dataItem();
@@ -293,7 +293,7 @@
              * @private
              */
             _dataSource: function () {
-                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(DropDownList, this.dropDownList, assert.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 var that = this;
 
                 // returns the datasource OR creates one if using array or configuration

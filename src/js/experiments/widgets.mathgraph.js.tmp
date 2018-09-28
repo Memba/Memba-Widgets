@@ -296,8 +296,8 @@
              * @private
              */
             _setTool: function (tool) {
-                assert.enum(TOOLS, tool, kendo.format(assert.messages.enum.default, 'tool', TOOLS));
-                window.assert(MathGraphToolBar, this.toolBar, kendo.format(assert.messages.instanceof.default, 'this.toolBar', 'kendo.ui.MathGraphToolBar'));
+                assert.enum(TOOLS, tool, assert.format(assert.messages.enum.default, 'tool', TOOLS));
+                window.assert(MathGraphToolBar, this.toolBar, assert.format(assert.messages.instanceof.default, 'this.toolBar', 'kendo.ui.MathGraphToolBar'));
                 var buttonElement = this.toolBar.element.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('tool'), tool));
                 this.toolBar.toggle(buttonElement, true);
                 if (tool === 'select') {
@@ -388,9 +388,9 @@
             _getMousePosition: function (e) {
                 var element = $(e.currentTarget);
                 var widget = element.data(WIDGET);
-                assert.instanceof(OldMathGraph, widget, kendo.format(assert.messages.instanceof.default, 'widget', 'kendo.ui.OldMathGraph'));
-                assert.equal(this, widget, kendo.format(assert.messages.equal.default, 'widget', 'this'));
-                assert.ok(this._enabled, kendo.format(assert.messages.ok.default, 'this._enabled'));
+                assert.instanceof(OldMathGraph, widget, assert.format(assert.messages.instanceof.default, 'widget', 'kendo.ui.OldMathGraph'));
+                assert.equal(this, widget, assert.format(assert.messages.equal.default, 'widget', 'this'));
+                assert.ok(this._enabled, assert.format(assert.messages.ok.default, 'this._enabled'));
                 var scaler = element.closest(widget.options.scaler);
                 var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                 var mouse = util.getMousePosition(e, element);
@@ -669,7 +669,7 @@
              */
             refresh: function (e) {
                 var that = this;
-                assert.instanceof(DataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                assert.instanceof(DataSource, that.dataSource, assert.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 if (that.surface instanceof Surface) {
                     var items = this.dataSource.data();
                     // Clear surface
@@ -1028,7 +1028,7 @@
              * @private
              */
             _drawMathFunction: function (dataItem) {
-                assert.type(STRING, dataItem.code, kendo.format(assert.messages.type.default, 'code', STRING));
+                assert.type(STRING, dataItem.code, assert.format(assert.messages.type.default, 'code', STRING));
                 var that = this;
                 var element = that.element;
                 var options = that.options;

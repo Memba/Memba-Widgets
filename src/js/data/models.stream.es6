@@ -150,7 +150,7 @@ const Stream = BaseModel.define({
      */
     validate() {
         /* jshint maxcomplexity: 20 */
-        assert.instanceof (Stream, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
+        assert.instanceof (Stream, this, assert.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
         var ret = [];
         var names = {};
         var values = { _total: 0, _weight: 0 };
@@ -175,7 +175,7 @@ const Stream = BaseModel.define({
                         names[properties.name].push(i);
                     }
                     if ($.type(properties.validation) === STRING) {
-                        assert.type(STRING, component.tool, kendo.format(assert.messages.type.default, 'component.tool', STRING));
+                        assert.type(STRING, component.tool, assert.format(assert.messages.type.default, 'component.tool', STRING));
                         var tool = component.tool;
                         if (tool !== 'connector' || !hasConnectors) {
                             hasConnectors = (tool === 'connector');
@@ -218,7 +218,7 @@ const Stream = BaseModel.define({
             if (values.hasOwnProperty(prop) && prop !== '_total' && prop !== '_weight') {
                 var proportion =  values[prop] / values._total;
                 if (proportion >= QTY_VARIETY) {
-                    assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                    assert.instanceof(kendo.Observable, kidoju.tools, assert.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                     ret.push({ type: WARNING, index: -1, message: kendo.format(this.messages.qtyVariety, proportion, kidoju.tools[prop].description) });
                 }
             }

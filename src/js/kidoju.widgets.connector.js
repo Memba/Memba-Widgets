@@ -154,7 +154,7 @@
                 var that = this;
                 var options = that.options;
                 var container = that.element.closest(options.container);
-                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
+                assert.hasLength(container, assert.format(assert.messages.hasLength.default, options.container));
                 // ensure surface
                 var surface = container.data(SURFACE);
                 if (options.createSurface && !(surface instanceof Surface)) {
@@ -162,7 +162,7 @@
                     if (surfaceElement.length === 0) {
                         // assert.ok(this.element.hasClass(WIDGET_CLASS), 'this._layout should be called before this._ensureSurface');
                         var firstElementWithDraggable = container.children().has(DOT + INTERACTIVE_CLASS).first();
-                        assert.hasLength(firstElementWithDraggable, kendo.format(assert.messages.hasLength.default, 'firstElementWithDraggable'));
+                        assert.hasLength(firstElementWithDraggable, assert.format(assert.messages.hasLength.default, 'firstElementWithDraggable'));
                         surfaceElement = $(DIV)
                             .addClass(SURFACE_CLASS)
                             .css({ position: 'absolute', top: 0, left: 0 })
@@ -181,7 +181,7 @@
              * @private
              */
             _drawConnector: function () {
-                assert.instanceof(Surface, this.surface, kendo.format(assert.messages.instanceof.default, 'this.surface', 'kendo.drawing.Surface'));
+                assert.instanceof(Surface, this.surface, assert.format(assert.messages.instanceof.default, 'this.surface', 'kendo.drawing.Surface'));
                 var that = this; // this is the connector widget
                 var options = that.options;
                 var color = options.color;
@@ -223,11 +223,11 @@
                             var scaler = element.closest(elementWidget.options.scaler);
                             var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                             var container = element.closest(elementWidget.options.container);
-                            assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
+                            assert.hasLength(container, assert.format(assert.messages.hasLength.default, elementWidget.options.container));
                             var mouse = util.getMousePosition(e, container);
                             var center = util.getElementCenter(element, container, scale);
                             var surface = container.data(SURFACE);
-                            assert.instanceof(Surface, surface, kendo.format(assert.messages.instanceof.default, 'surface', 'kendo.drawing.Surface'));
+                            assert.instanceof(Surface, surface, assert.format(assert.messages.instanceof.default, 'surface', 'kendo.drawing.Surface'));
                             path = new drawing.Path({
                                 stroke: {
                                     color: elementWidget.options.color,
@@ -243,11 +243,11 @@
                     .on(MOUSEMOVE, function (e) {
                         if (element instanceof $ && path instanceof kendo.drawing.Path) {
                             var elementWidget = element.data(WIDGET);
-                            assert.instanceof(Connector, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
+                            assert.instanceof(Connector, elementWidget, assert.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
                             var scaler = element.closest(elementWidget.options.scaler);
                             var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                             var container = element.closest(elementWidget.options.container);
-                            assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
+                            assert.hasLength(container, assert.format(assert.messages.hasLength.default, elementWidget.options.container));
                             var mouse = util.getMousePosition(e, container);
                             path.segments[1].anchor().move(mouse.x / scale, mouse.y / scale);
                         }
@@ -263,11 +263,11 @@
                             // BUG REPORT  here: https://github.com/jquery/jquery/issues/2987
                             if (element.attr(kendo.attr(ID)) !== target.attr(kendo.attr(ID)) && targetWidget instanceof Connector && targetWidget._enabled) {
                                 var elementWidget = element.data(WIDGET);
-                                assert.instanceof(Connector, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
+                                assert.instanceof(Connector, elementWidget, assert.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
                                 var container = element.closest(elementWidget.options.container);
-                                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
+                                assert.hasLength(container, assert.format(assert.messages.hasLength.default, elementWidget.options.container));
                                 var targetContainer = target.closest(targetWidget.options.container);
-                                assert.hasLength(targetContainer, kendo.format(assert.messages.hasLength.default, targetWidget.options.container));
+                                assert.hasLength(targetContainer, assert.format(assert.messages.hasLength.default, targetWidget.options.container));
                                 if (container[0] === targetContainer[0]) {
                                     elementWidget._addConnection(target);
                                 } else {
@@ -352,14 +352,14 @@
                 var element = that.element;
                 var id = element.attr(kendo.attr(ID));
                 var container = that.element.closest(options.container);
-                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
+                assert.hasLength(container, assert.format(assert.messages.hasLength.default, options.container));
                 var targetId = target.attr(kendo.attr(ID));
                 var targetWidget = target.data(WIDGET);
                 if (id !== targetId && targetWidget instanceof Connector) {
                     var targetContainer = target.closest(targetWidget.options.container);
-                    assert.hasLength(targetContainer, kendo.format(assert.messages.hasLength.default, targetWidget.options.container));
+                    assert.hasLength(targetContainer, assert.format(assert.messages.hasLength.default, targetWidget.options.container));
                     if (container[0] === targetContainer[0]) {
-                        assert.instanceof(DataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                        assert.instanceof(DataSource, that.dataSource, assert.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                         var originId = id < targetId ? id : targetId;
                         var destinationId = id < targetId ? targetId : id;
                         var originWidget = id < targetId ? that : targetWidget;
@@ -420,8 +420,8 @@
                 var element = that.element;
                 var id = element.attr(kendo.attr(ID));
                 var container = that.element.closest(options.container);
-                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
-                assert.instanceof(DataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                assert.hasLength(container, assert.format(assert.messages.hasLength.default, options.container));
+                assert.instanceof(DataSource, that.dataSource, assert.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 var found = that.dataSource.view().find(function (connection) {
                     return connection.type === DATA_TYPE && // The dataSource is already filtered, so this might be redundant
                         (connection.id === id || connection.data.target === id);
@@ -450,8 +450,8 @@
                 var that = this;
                 var options = that.options;
                 var container = that.element.closest(options.container);
-                assert.instanceof($, container, kendo.format(assert.messages.instanceof.default, 'container', 'jQuery'));
-                assert.instanceof(DataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                assert.instanceof($, container, assert.format(assert.messages.instanceof.default, 'container', 'jQuery'));
+                assert.instanceof(DataSource, that.dataSource, assert.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
 
                 var surface = container.data(SURFACE);
                 if (surface instanceof kendo.drawing.Surface) {

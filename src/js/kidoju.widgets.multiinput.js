@@ -375,7 +375,7 @@
              * @private
              */
             _removeTagElement: function (tagElement) {
-                assert.instanceof($, tagElement, kendo.format(assert.messages.instanceof.default, 'tagElement', 'jQuery'));
+                assert.instanceof($, tagElement, assert.format(assert.messages.instanceof.default, 'tagElement', 'jQuery'));
                 var that = this;
                 var index = tagElement.index();
                 tagElement.remove();
@@ -402,7 +402,7 @@
              * @private
              */
             _onTagClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var target = $(e.target);
                 var tagElement = target.closest(LI);
                 var index = this._removeTagElement(tagElement);
@@ -429,7 +429,7 @@
              * @private
              */
             _onInputKeyPress: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
                 var separators = that.options.separators || '';
                 var code = e.keyCode || e.which;
@@ -473,7 +473,7 @@
              * @private
              */
             _toggleHover: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 $(e.currentTarget).toggleClass(HOVERCLASS, e.type === 'mouseenter');
             },
 

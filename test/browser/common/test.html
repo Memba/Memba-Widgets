@@ -179,6 +179,10 @@
                     'src/js': {
                         defaultExtension: 'js',
                         meta: {
+                            // IMPORTANT! See https://github.com/jshint/jshint/issues/2840
+                            'vendor/codemirror/addon/lint/jshint.js': {
+                                format: 'global'
+                            },
                             '*.js': {
                                 babelOptions: {
                                     es2015: false,
@@ -242,9 +246,13 @@
 <body>
 <h1>Add test to query string ?t=[name] (from name.test.es6)</h1>
 <ul id="menu">
+    <li><a href="?t=window.assert">window.assert</a></li>
+    <li><a href="?t=window.cache">window.cache</a></li>
     <li><a href="?t=window.fs">window.fs</a><span style="color:red;">*</span></li>
+    <li><a href="?t=window.logger">window.logger</a></li>
     <li><a href="?t=window.media">window.media</a><span style="color:red;">*</span></li>
     <li><a href="?t=window.tts">window.tts</a><span style="color:red;">*</span></li>
+    <li><a href="?t=window.util">window.util</a></li>
     <li><a href="?t=window.workers">window.workers</a><span style="color:red;">*</span></li>
 </ul>
 <div id="mocha"></div>

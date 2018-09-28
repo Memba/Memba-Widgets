@@ -167,7 +167,7 @@
              * @private
              */
             _onButtonClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 e.preventDefault();
                 if (this.options.selection !== 'multiple') {
                     this._reset();
@@ -182,7 +182,7 @@
              * @private
              */
             _getStateAsBits: function () {
-                assert.instanceof($, this.ul, kendo.format(assert.messages.instanceof.default, 'this.ul', 'jQuery'));
+                assert.instanceof($, this.ul, assert.format(assert.messages.instanceof.default, 'this.ul', 'jQuery'));
                 var ret = 0;
                 this.ul.children('li').each(function (index, element) {
                     if ($(element).hasClass(STATE_ACTIVE)) {
@@ -198,8 +198,8 @@
              * @private
              */
             _setStateAsBits: function (value) {
-                assert.type(NUMBER, value, kendo.format(assert.messages.type.default, 'value', NUMBER));
-                assert.instanceof($, this.ul, kendo.format(assert.messages.instanceof.default, 'this.ul', 'jQuery'));
+                assert.type(NUMBER, value, assert.format(assert.messages.type.default, 'value', NUMBER));
+                assert.instanceof($, this.ul, assert.format(assert.messages.instanceof.default, 'this.ul', 'jQuery'));
                 this.ul.children('li').each(function (index, element) {
                     var pow2 = Math.pow(2, index);
                     $(element).toggleClass(STATE_ACTIVE, (value & pow2) === pow2);
@@ -220,7 +220,7 @@
              * @method refresh
              */
             refresh: function () {
-                assert.instanceof($, this.ul, kendo.format(assert.messages.instanceof.default, 'this.ul', 'jQuery'));
+                assert.instanceof($, this.ul, assert.format(assert.messages.instanceof.default, 'this.ul', 'jQuery'));
                 this._setStateAsBits(this.value());
                 logger.debug({ method: 'refresh', message: 'Widget refreshed' });
             },

@@ -161,10 +161,10 @@
             _layout: function () {
                 var that = this;
                 var wrapper = that.wrapper = that.element;
-                assert.instanceof($, wrapper, kendo.format(assert.messages.instanceof.default, 'wrapper', 'jQuery'));
+                assert.instanceof($, wrapper, assert.format(assert.messages.instanceof.default, 'wrapper', 'jQuery'));
                 wrapper.addClass(WIDGET_CLASS);
                 var options = that.options;
-                assert.type(NUMBER, options.size, kendo.format(assert.messages.type.default, 'options.size', NUMBER));
+                assert.type(NUMBER, options.size, assert.format(assert.messages.type.default, 'options.size', NUMBER));
                 for (var network in COMMAND) {
                     if (COMMAND.hasOwnProperty(network) && IMAGES.hasOwnProperty(network)) {
                         $(kendo.format(TEMPLATE, COMMAND[network], options.messages[network.toLowerCase()]))
@@ -263,24 +263,24 @@
             _onButtonClick: function (e) {
                 var that = this;
                 var options = that.options;
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', '$.Event'));
-                assert.instanceof(window.HTMLAnchorElement, e.currentTarget, kendo.format(assert.messages.instanceof.default, 'e.currentTarget', 'HTMLAnchorElement'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', '$.Event'));
+                assert.instanceof(window.HTMLAnchorElement, e.currentTarget, assert.format(assert.messages.instanceof.default, 'e.currentTarget', 'HTMLAnchorElement'));
                 e.preventDefault();
 
                 // Read open graph metadata
-                assert.type(STRING, options.facebookAppId, kendo.format(assert.messages.type.default, 'options.facebookAppId', STRING));
+                assert.type(STRING, options.facebookAppId, assert.format(assert.messages.type.default, 'options.facebookAppId', STRING));
                 var facebookAppId = window.encodeURIComponent(options.facebookAppId);
-                assert.type(STRING, options.twitterAccount, kendo.format(assert.messages.type.default, 'options.twitterAccount', STRING));
+                assert.type(STRING, options.twitterAccount, assert.format(assert.messages.type.default, 'options.twitterAccount', STRING));
                 var twitterAccount = window.encodeURIComponent(options.twitterAccount);
-                assert.type(STRING, options.url, kendo.format(assert.messages.type.default, 'options.url', STRING));
+                assert.type(STRING, options.url, assert.format(assert.messages.type.default, 'options.url', STRING));
                 var url = window.encodeURIComponent(options.url);
-                assert.type(STRING, options.source, kendo.format(assert.messages.type.default, 'options.source', STRING));
+                assert.type(STRING, options.source, assert.format(assert.messages.type.default, 'options.source', STRING));
                 var source = window.encodeURIComponent(options.source);
-                assert.type(STRING, options.title, kendo.format(assert.messages.type.default, 'options.title', STRING));
+                assert.type(STRING, options.title, assert.format(assert.messages.type.default, 'options.title', STRING));
                 var title = window.encodeURIComponent(options.title);
-                assert.type(STRING, options.description, kendo.format(assert.messages.type.default, 'options.description', STRING));
+                assert.type(STRING, options.description, assert.format(assert.messages.type.default, 'options.description', STRING));
                 var description = window.encodeURIComponent(options.description);
-                assert.type(STRING, options.image, kendo.format(assert.messages.type.default, 'options.image', STRING));
+                assert.type(STRING, options.image, assert.format(assert.messages.type.default, 'options.image', STRING));
                 var image = window.encodeURIComponent(options.image);
 
                 // Read command

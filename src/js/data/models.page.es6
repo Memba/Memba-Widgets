@@ -257,7 +257,7 @@ const Page = BaseModel.define({
         assert.type(
             NUMBER,
             pageIdx,
-            kendo.format(assert.messages.type.default, 'pageIdx', NUMBER)
+            assert.format(assert.messages.type.default, 'pageIdx', NUMBER)
         );
         // TODO also validate that formulas only use values available on the page
         let ret = [];

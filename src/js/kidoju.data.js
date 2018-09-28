@@ -187,7 +187,7 @@
              */
             shouldSerialize: function (field) {
 
-                assert.type(STRING, field, kendo.format(assert.messages.type.default, 'field', STRING));
+                assert.type(STRING, field, assert.format(assert.messages.type.default, 'field', STRING));
 
                 return this.fields.hasOwnProperty(field) && this.fields[field].serializable !== false &&
                     kendo.data.Model.fn.shouldSerialize.call(this, field);
@@ -491,7 +491,7 @@
 
                 // Note: Kendo UI requires that new PageComponent() works, i.e. component = undefined
                 if ($.type(component) === OBJECT /*&& !$.isEmptyObject(component)*/) {
-                    assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                    assert.instanceof(kendo.Observable, kidoju.tools, assert.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                     if ($.type(component.tool) !== STRING || component.tool.length === 0 || !(kidoju.tools[component.tool] instanceof kidoju.Tool)) {
                         throw new Error(kendo.format('`{0}` is not a valid Kidoju tool', component.tool));
                     }
@@ -556,7 +556,7 @@
              */
             clone: function () {
                 var component = this;
-                assert.type(STRING, component.tool, kendo.format(assert.messages.type.default, 'component.tool', STRING));
+                assert.type(STRING, component.tool, assert.format(assert.messages.type.default, 'component.tool', STRING));
                 var fields = component.fields;
                 var clone = {};
                 // Copy page component fields (tool, top, left, height, width, rotate, ...), but not attributes and properties
@@ -592,13 +592,13 @@
              * @param pageIdx (in PageCollection)
              */
             validate: function (pageIdx) {
-                assert.instanceof (PageComponent, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.PageComponent'));
-                assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
-                assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                assert.instanceof (PageComponent, this, assert.format(assert.messages.instanceof.default, 'this', 'kidoju.data.PageComponent'));
+                assert.type(NUMBER, pageIdx, assert.format(assert.messages.type.default, 'pageIdx', NUMBER));
+                assert.instanceof(kendo.Observable, kidoju.tools, assert.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                 var component = this;
                 var ret = [];
                 var tool = component.get('tool');
-                assert.type(STRING, tool, kendo.format(assert.messages.type.default, 'tool', STRING));
+                assert.type(STRING, tool, assert.format(assert.messages.type.default, 'tool', STRING));
                 if (kidoju.tools[tool] instanceof kidoju.Tool) {
                     ret = kidoju.tools[tool].validate(component, pageIdx);
                 }
@@ -892,8 +892,8 @@
              */
             validate: function (pageIdx) {
                 /* jshint maxcomplexity: 24 */
-                assert.instanceof (Page, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Page'));
-                assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
+                assert.instanceof (Page, this, assert.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Page'));
+                assert.type(NUMBER, pageIdx, assert.format(assert.messages.type.default, 'pageIdx', NUMBER));
                 // TODO also validate that formulas only use values available on the page
                 var ret = [];
                 var hasDraggable = false;
@@ -1315,7 +1315,7 @@
              * @returns {*}
              */
             getTestFromProperties: function () {
-                assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                assert.instanceof(kendo.Observable, kidoju.tools, assert.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                 var that = this;
                 var tools = kidoju.tools;
                 var test = {
@@ -1329,7 +1329,7 @@
                             $.type(properties.fields) === OBJECT && !$.isEmptyObject(properties.fields) &&
                             $.type(properties.name) === STRING && $.type(properties.validation) === STRING) {
                             var tool = kidoju.tools[component.tool];
-                            assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                            assert.instanceof(kidoju.Tool, tool, assert.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
                             test[properties.name] = { value: tool.getTestDefaultValue(component) };
                         }
                     });
@@ -1346,7 +1346,7 @@
             validateTestFromProperties: function (test) {
 
                 // Note: the model being created on the fly (no kendo.data.Model)), we only have an ObservableObject to test
-                assert.instanceof(kendo.data.ObservableObject, test, kendo.format(assert.messages.instanceof.default, 'test', 'kendo.data.ObservableObject'));
+                assert.instanceof(kendo.data.ObservableObject, test, assert.format(assert.messages.instanceof.default, 'test', 'kendo.data.ObservableObject'));
 
                 var pageCollectionDataSource = this; // don't use that which is used below
                 var deferred = $.Deferred();
@@ -1356,7 +1356,7 @@
                     interactions: test.interactions,
                     score: function () {
                         var score = 0;
-                        assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                        assert.instanceof(kendo.data.ObservableObject, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                         for (var name in this) {
                             if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !this.get(name + '.disabled')) {
                                 score += this.get(name + '.score');
@@ -1366,7 +1366,7 @@
                     },
                     max: function () {
                         var max = 0;
-                        assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                        assert.instanceof(kendo.data.ObservableObject, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                         for (var name in this) {
                             if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !this.get(name + '.disabled')) {
                                 max += this.get(name + '.success');
@@ -1375,13 +1375,13 @@
                         return max;
                     },
                     percent: function () {
-                        assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                        assert.instanceof(kendo.data.ObservableObject, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                         var max = this.max();
                         var score = this.score();
                         return score === 0 || max === 0 ?  0 : 100 * score / max;
                     },
                     getScoreArray: function () {
-                        assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                        assert.instanceof(kendo.data.ObservableObject, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                         var that = this; // this is variable `result`
                         var scoreArray = [];
                         for (var name in that) {
@@ -1398,7 +1398,7 @@
                     },
                     toJSON: function () {
                         var json = {};
-                        assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                        assert.instanceof(kendo.data.ObservableObject, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                         for (var name in this) {
                             if (this.hasOwnProperty(name)) {
                                 if (RX_VALID_NAME.test(name)) {
@@ -1450,12 +1450,12 @@
 
                                 // List component properties
                                 var properties = component.properties;
-                                assert.instanceof(kendo.data.Model, properties, kendo.format(assert.messages.instanceof.default, 'properties', 'kendo.data.Model'));
-                                assert.type(OBJECT, properties.fields, kendo.format(assert.messages.type.default, 'properties.fields', OBJECT));
+                                assert.instanceof(kendo.data.Model, properties, assert.format(assert.messages.instanceof.default, 'properties', 'kendo.data.Model'));
+                                assert.type(OBJECT, properties.fields, assert.format(assert.messages.type.default, 'properties.fields', OBJECT));
 
                                 // If our component has a name property to record the result of a test interaction
                                 // Note: some components like textboxes have properties, others likes labels and images don't
-                                // assert.type(STRING, properties.name, kendo.format(assert.messages.type.default, 'properties.name', STRING));
+                                // assert.type(STRING, properties.name, assert.format(assert.messages.type.default, 'properties.name', STRING));
                                 if ($.type(properties.name) === STRING && $.type(properties.validation) === STRING) {
                                     var code;
                                     var libraryMatches = properties.validation.match(RX_VALIDATION_LIBRARY);
@@ -1465,11 +1465,11 @@
                                         var found = properties._library.filter(function (item) {
                                             return item.name === libraryMatches[1];
                                         });
-                                        assert.isArray(found, kendo.format(assert.messages.isArray.default, 'found'));
-                                        assert.hasLength(found, kendo.format(assert.messages.hasLength.default, 'found'));
+                                        assert.isArray(found, assert.format(assert.messages.isArray.default, 'found'));
+                                        assert.hasLength(found, assert.format(assert.messages.hasLength.default, 'found'));
                                         found = found[0];
-                                        assert.isPlainObject(found, kendo.format(assert.messages.isPlainObject.default, 'found'));
-                                        assert.type(STRING, found.formula, kendo.format(assert.messages.type.default, 'found.formula', STRING));
+                                        assert.isPlainObject(found, assert.format(assert.messages.isPlainObject.default, 'found'));
+                                        assert.type(STRING, found.formula, assert.format(assert.messages.type.default, 'found.formula', STRING));
                                         // libraryMatches[3] is the param value beginning with ` ["` and ending with `"]`
                                         var paramValue = libraryMatches[3];
                                         if ($.type(found.param) === STRING && $.type(paramValue) === STRING  && paramValue.length > '[]'.length) {
@@ -1526,17 +1526,17 @@
                                             // disabled: properties.disabled,
                                             // Functions used by getScoreArray for improved display in score grid
                                             value$: function () {
-                                                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-                                                assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                                                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
+                                                assert.instanceof(kendo.Observable, kidoju.tools, assert.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                                                 var tool = kidoju.tools[component.tool]; // also this.tool
-                                                assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                                                assert.instanceof(kidoju.Tool, tool, assert.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
                                                 return tool.value$(this);
                                             },
                                             solution$: function () {
-                                                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-                                                assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                                                assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
+                                                assert.instanceof(kendo.Observable, kidoju.tools, assert.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                                                 var tool = kidoju.tools[component.tool]; // also this.tool
-                                                assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                                                assert.instanceof(kidoju.Tool, tool, assert.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
                                                 return tool.solution$(this);
                                             }
                                         };
@@ -1760,7 +1760,7 @@
              */
             validate: function () {
                 /* jshint maxcomplexity: 20 */
-                assert.instanceof (Stream, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
+                assert.instanceof (Stream, this, assert.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
                 var ret = [];
                 var names = {};
                 var values = { _total: 0, _weight: 0 };
@@ -1785,7 +1785,7 @@
                                 names[properties.name].push(i);
                             }
                             if ($.type(properties.validation) === STRING) {
-                                assert.type(STRING, component.tool, kendo.format(assert.messages.type.default, 'component.tool', STRING));
+                                assert.type(STRING, component.tool, assert.format(assert.messages.type.default, 'component.tool', STRING));
                                 var tool = component.tool;
                                 if (tool !== 'connector' || !hasConnectors) {
                                     hasConnectors = (tool === 'connector');
@@ -1828,7 +1828,7 @@
                     if (values.hasOwnProperty(prop) && prop !== '_total' && prop !== '_weight') {
                         var proportion =  values[prop] / values._total;
                         if (proportion >= QTY_VARIETY) {
-                            assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                            assert.instanceof(kendo.Observable, kidoju.tools, assert.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                             ret.push({ type: WARNING, index: -1, message: kendo.format(this.messages.qtyVariety, proportion, kidoju.tools[prop].description) });
                         }
                     }

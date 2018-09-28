@@ -556,7 +556,7 @@
              * @private
              */
             _onToolBarDialog: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
                 this._openDialog(e.name, e.options);
             },
 

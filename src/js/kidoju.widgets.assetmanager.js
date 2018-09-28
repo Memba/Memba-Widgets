@@ -101,7 +101,7 @@
          * @returns {*}
          */
         function nameFormatter(url) {
-            assert.type(STRING, url, kendo.format(assert.messages.type.default, 'url', STRING));
+            assert.type(STRING, url, assert.format(assert.messages.type.default, 'url', STRING));
             return url.split('\\').pop().split('/').pop();
         }
 
@@ -111,7 +111,7 @@
          * @returns {*}
          */
         function sizeFormatter(size) {
-            assert.type(NUMBER, size, kendo.format(assert.messages.type.default, 'size', NUMBER));
+            assert.type(NUMBER, size, assert.format(assert.messages.type.default, 'size', NUMBER));
             if (!size) { return ''; }
             var suffix = ' bytes';
             if (size >= 1073741824) {
@@ -138,7 +138,7 @@
          */
         function typeFormatter(url) {
             /* jshint maxcomplexity: 12 */
-            assert.type(STRING, url, kendo.format(assert.messages.type.default, 'url', STRING));
+            assert.type(STRING, url, assert.format(assert.messages.type.default, 'url', STRING));
             var ext = url.split('.').pop();
             switch (ext) {
                 case 'gif':
@@ -182,8 +182,8 @@
          * @param schemes
          */
         function urlFormatter(url, schemes) {
-            assert.type(STRING, url, kendo.format(assert.messages.type.default, 'url', STRING));
-            assert.type(OBJECT, schemes, kendo.format(assert.messages.type.default, 'schemes', OBJECT));
+            assert.type(STRING, url, assert.format(assert.messages.type.default, 'url', STRING));
+            assert.type(OBJECT, schemes, assert.format(assert.messages.type.default, 'schemes', OBJECT));
             var ret = url;
             for (var scheme in schemes) {
                 if (Object.prototype.hasOwnProperty.call(schemes, scheme) && (new RegExp('^' + scheme + '://')).test(url)) {
@@ -201,7 +201,7 @@
          */
         function getDataSourceFilter(extensions) {
             extensions = extensions || [];
-            assert.type(ARRAY, extensions, kendo.format(assert.messages.type.default, 'extensions', ARRAY));
+            assert.type(ARRAY, extensions, assert.format(assert.messages.type.default, 'extensions', ARRAY));
             var ret = null;
             if (extensions.length === 1) {
                 ret = { field: 'url', operator: 'endswith', value: extensions[0] };
@@ -494,8 +494,8 @@
              * @private
              */
             _tabStrip: function () {
-                assert.isArray(this._collections, kendo.format(assert.messages.isArray.default, 'this._collections'));
-                assert.hasLength(this._collections, kendo.format(assert.messages.hasLength.default, 'this._collections'));
+                assert.isArray(this._collections, assert.format(assert.messages.isArray.default, 'this._collections'));
+                assert.hasLength(this._collections, assert.format(assert.messages.hasLength.default, 'this._collections'));
                 var tabStrip = $('<div></div>');
                 var ul = $('<ul></ul>').appendTo(tabStrip);
 
@@ -512,7 +512,7 @@
                     animation: false, // { open: { effects: 'fadeIn' }, close: { effects: 'fadeOut' } },
                     select: this._onTabSelect.bind(this)
                 }).data('kendoTabStrip');
-                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+                assert.instanceof(TabStrip, this.tabStrip, assert.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
             },
 
             /**
@@ -521,7 +521,7 @@
              * @private
              */
             _tabContent: function () {
-                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+                assert.instanceof(TabStrip, this.tabStrip, assert.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
 
                 // Add the file browser wrapping div
                 this.fileBrowser = $('<div class="k-filebrowser k-dropzone"></div>')
@@ -549,7 +549,7 @@
                     accept: (options.extensions || []).join(','), // @see http://www.w3schools.com/tags/att_input_accept.asp
                     messages: options.messages
                 })).appendTo(that.fileBrowser);
-                assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
+                assert.instanceof($, that.toolbar, assert.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
 
                 // Collection drop down list
                 // that.dropDownList = that.toolbar.find('div.k-toolbar-wrap select')
@@ -561,7 +561,7 @@
                         change: that._onDropDownListChange.bind(that)
                     })
                     .data('kendoDropDownList');
-                assert.instanceof(DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(DropDownList, that.dropDownList, assert.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
 
                 // Progress bar
                 that.progressBar = that.toolbar.find('div.k-tiles-arrange .k-progressbar')
@@ -574,7 +574,7 @@
                         }
                     })
                     .data('kendoProgressBar');
-                assert.instanceof(ProgressBar, that.progressBar, kendo.format(assert.messages.instanceof.default, 'this.progressBar', 'kendo.ui.ProgressBar'));
+                assert.instanceof(ProgressBar, that.progressBar, assert.format(assert.messages.instanceof.default, 'this.progressBar', 'kendo.ui.ProgressBar'));
 
                 // Event handler used to report upload transport progress in app.assets.js
                 if (that.progressBar instanceof ProgressBar) {
@@ -591,7 +591,7 @@
 
                 // Search
                 that.searchInput = that.toolbar.find('input.k-input');
-                assert.instanceof($, that.searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'jQuery'));
+                assert.instanceof($, that.searchInput, assert.format(assert.messages.instanceof.default, 'this.searchInput', 'jQuery'));
 
                 // Other events
                 that.toolbar
@@ -607,11 +607,11 @@
              * @private
              */
             _onTabSelect: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(window.HTMLLIElement, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'HTMLLIElement'));
-                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
-                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
-                assert.isArray(this._collections, kendo.format(assert.messages.isArray.default, 'this._collections'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(window.HTMLLIElement, e.item, assert.format(assert.messages.instanceof.default, 'e.item', 'HTMLLIElement'));
+                assert.instanceof(TabStrip, this.tabStrip, assert.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+                assert.instanceof($, this.fileBrowser, assert.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
+                assert.isArray(this._collections, assert.format(assert.messages.isArray.default, 'this._collections'));
 
                 // var oldIndex = this.tabStrip.select().index();
                 var tabIndex = $(e.item).index();
@@ -641,8 +641,8 @@
              * @private
              */
             _updateTab: function () {
-                assert.isArray(this._collections, kendo.format(assert.messages.isArray.default, 'this._collections'));
-                assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
+                assert.isArray(this._collections, assert.format(assert.messages.isArray.default, 'this._collections'));
+                assert.isPlainObject(this.collection, assert.format(assert.messages.isPlainObject.default, 'this.collection'));
 
                 var collection = this.collection;
                 var tools = collection.tools || [];
@@ -671,15 +671,15 @@
              * @private
              */
             _onDropDownListChange: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
-                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(DropDownList, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
+                assert.instanceof(TabStrip, this.tabStrip, assert.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
 
                 var tabIndex = this.tabStrip.select().index();
 
                 // Set the current collection
                 var parent = this._collections[tabIndex];
-                assert.isArray(parent.collections, kendo.format(assert.messages.isArray.default, 'parent.collections'));
+                assert.isArray(parent.collections, assert.format(assert.messages.isArray.default, 'parent.collections'));
                 var found = parent.collections.filter(function (item) {
                     return item.name === e.sender.value();
                 });
@@ -694,8 +694,8 @@
              * @private
              */
             _onFileInputChange: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'HTMLInputElement'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof(window.HTMLInputElement, e.target, assert.format(assert.messages.instanceof.default, 'e.target', 'HTMLInputElement'));
                 // Note: Set multiple attribute onto html file input tag for multiple uploads
                 var fileList = e.target.files;
                 if (fileList instanceof window.FileList && fileList.length) {
@@ -709,7 +709,7 @@
              * @private
              */
             _uploadFileList: function (fileList) {
-                assert.instanceof(window.FileList, fileList, kendo.format(assert.messages.instanceof.default, 'fileList', 'FileList'));
+                assert.instanceof(window.FileList, fileList, assert.format(assert.messages.instanceof.default, 'fileList', 'FileList'));
 
                 function execUpload() {
                     var promises = [];
@@ -772,10 +772,10 @@
              * @private
              */
             _findDataItem: function (fileName) {
-                assert.type(STRING, fileName, kendo.format(assert.messages.type.default, 'fileName', STRING));
-                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
-                assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
+                assert.type(STRING, fileName, assert.format(assert.messages.type.default, 'fileName', STRING));
+                assert.instanceof(ListView, this.listView, assert.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.listView.dataSource, assert.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
+                assert.equal(this.collection.dataSource, this.listView.dataSource, assert.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
                 var data = this.listView.dataSource.data();
                 // Note the following matches compliant file renaming in app.rapi.js (but this is not very generic for a widget)
                 var pos = fileName.lastIndexOf('.');
@@ -796,13 +796,13 @@
              * @private
              */
             _createDataItem: function (file) {
-                assert.type(OBJECT, file, kendo.format(assert.messages.type.default, 'file', OBJECT));
-                assert.type(NUMBER, file.size, kendo.format(assert.messages.type.default, 'file.size', NUMBER));
-                assert.type(STRING, file.type, kendo.format(assert.messages.type.default, 'file.type', STRING));
-                assert.type(STRING, file.url, kendo.format(assert.messages.type.default, 'file.url', STRING));
-                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
-                assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
+                assert.type(OBJECT, file, assert.format(assert.messages.type.default, 'file', OBJECT));
+                assert.type(NUMBER, file.size, assert.format(assert.messages.type.default, 'file.size', NUMBER));
+                assert.type(STRING, file.type, assert.format(assert.messages.type.default, 'file.type', STRING));
+                assert.type(STRING, file.url, assert.format(assert.messages.type.default, 'file.url', STRING));
+                assert.instanceof(ListView, this.listView, assert.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.listView.dataSource, assert.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
+                assert.equal(this.collection.dataSource, this.listView.dataSource, assert.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
                 var that = this;
                 var ret = that._findDataItem(file.name);
                 if (ret) {
@@ -829,10 +829,10 @@
              * @private
              */
             _insertDataItem: function (model) {
-                assert.instanceof(kendo.data.Model, model, kendo.format(assert.messages.instanceof.default, 'model', 'kendo.data.Model'));
-                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
-                assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
+                assert.instanceof(kendo.data.Model, model, assert.format(assert.messages.instanceof.default, 'model', 'kendo.data.Model'));
+                assert.instanceof(ListView, this.listView, assert.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.listView.dataSource, assert.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
+                assert.equal(this.collection.dataSource, this.listView.dataSource, assert.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
                 var index;
                 if (model._override) {
                     return model;
@@ -855,11 +855,11 @@
              */
             _uploadFile: function (file) {
                 // Note a window.File is a sort of window.Blob with a name
-                // assert.instanceof(window.File, file, kendo.format(assert.messages.instanceof.default, 'file', 'File'));
-                assert.instanceof(window.Blob, file, kendo.format(assert.messages.instanceof.default, 'file', 'Blob'));
-                assert.type(STRING, file.name, kendo.format(assert.messages.type.default, 'file.name', STRING));
-                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
+                // assert.instanceof(window.File, file, assert.format(assert.messages.instanceof.default, 'file', 'File'));
+                assert.instanceof(window.Blob, file, assert.format(assert.messages.instanceof.default, 'file', 'Blob'));
+                assert.type(STRING, file.name, assert.format(assert.messages.type.default, 'file.name', STRING));
+                assert.instanceof(ListView, this.listView, assert.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.listView.dataSource, assert.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
                 assert.isPlainObject(this.listView.dataSource.transport, assert.format(assert.messages.isPlainObject.default, 'this.listView.dataSource.transport'));
                 assert.isFunction(this.listView.dataSource.transport.upload, assert.format(assert.messages.isFunction.default, 'this.listView.dataSource.transport.upload'));
                 var that = this;
@@ -874,12 +874,12 @@
                         file: file
                     },
                     success: function (response) {
-                        assert.type(OBJECT, response, kendo.format(assert.messages.type.default, 'response', OBJECT));
-                        assert.isArray(response.data, kendo.format(assert.messages.isArray.default, 'reponse.data'));
-                        assert.equal(1, response.data.length, kendo.format(assert.messages.equal.default, 'response.data.length', 1));
+                        assert.type(OBJECT, response, assert.format(assert.messages.type.default, 'response', OBJECT));
+                        assert.isArray(response.data, assert.format(assert.messages.isArray.default, 'reponse.data'));
+                        assert.equal(1, response.data.length, assert.format(assert.messages.equal.default, 'response.data.length', 1));
                         // Upon successful upload, add a new dataItem to the listview dataSource
                         var model = that._createDataItem(response.data[0]);
-                        assert.equal(model.name$(), response.data[0].name, kendo.format(assert.messages.equal.default, 'response.data[0].name', 'model.name$()'));
+                        assert.equal(model.name$(), response.data[0].name, assert.format(assert.messages.equal.default, 'response.data[0].name', 'model.name$()'));
                         that._insertDataItem(model);
                         dfd.resolve(model);
                     },
@@ -897,7 +897,7 @@
              * @private
              */
             _onButtonClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 if ($(e.currentTarget).has('.k-i-file-add').length) {
                     if (!this.trigger(CLICK, { action: ACTION.CREATE })) {
                         this._editNew();
@@ -919,7 +919,7 @@
              * @private
              */
             _editNew: function () {
-                assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
+                assert.isPlainObject(this.collection, assert.format(assert.messages.isPlainObject.default, 'this.collection'));
                 var that = this;
                 if (that.collection.editor) {
                     logger.debug({
@@ -951,9 +951,9 @@
              * @private
              */
             _editSelected: function () {
-                assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
-                assert.instanceof(kendo.ui.ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
+                assert.isPlainObject(this.collection, assert.format(assert.messages.isPlainObject.default, 'this.collection'));
+                assert.instanceof(kendo.ui.ListView, this.listView, assert.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.equal(this.collection.dataSource, this.listView.dataSource, assert.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
                 var that = this;
                 var dataItem = that.listView.dataItem(that.listView.select());
                 if (that.collection.editor && dataItem instanceof kendo.data.Model) {
@@ -990,9 +990,9 @@
              * @private
              */
             _deleteSelected: function () {
-                assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
-                assert.instanceof(kendo.ui.ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
+                assert.isPlainObject(this.collection, assert.format(assert.messages.isPlainObject.default, 'this.collection'));
+                assert.instanceof(kendo.ui.ListView, this.listView, assert.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.equal(this.collection.dataSource, this.listView.dataSource, assert.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
                 var dataItem = this.listView.dataItem(this.listView.select());
                 if (dataItem instanceof kendo.data.Model) {
                     logger.debug({ method: '_deleteSelected', message: 'Asset deletion', data: dataItem.toJSON() });
@@ -1009,8 +1009,8 @@
              */
             /*
             _onDropDownListDataBound: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(DropDownList, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
                 // A;ways select the first item in the list
                 e.sender.select(0);
             },
@@ -1022,10 +1022,10 @@
              * @private
              */
             _onSearchInputChange: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'HTMLInputElement'));
-                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.data.DataSource'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof(window.HTMLInputElement, e.target, assert.format(assert.messages.instanceof.default, 'e.target', 'HTMLInputElement'));
+                assert.instanceof(ListView, this.listView, assert.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.listView.dataSource, assert.format(assert.messages.instanceof.default, 'this.listView', 'kendo.data.DataSource'));
                 var filter = getDataSourceFilter(this.options.extensions);
                 var value =  $(e.target).val();
                 var search = { field: 'url', operator: 'contains', value: value };
@@ -1053,7 +1053,7 @@
              */
             _onSearchClearClick: function () {
                 var searchInput = this.searchInput;
-                assert.instanceof($, searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'jQuery'));
+                assert.instanceof($, searchInput, assert.format(assert.messages.instanceof.default, 'this.searchInput', 'jQuery'));
                 if (searchInput.val() !== '') {
                     searchInput.val('').trigger(CHANGE + NS);
                 }
@@ -1065,7 +1065,7 @@
              * @private
              */
             _listView: function () {
-                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
+                assert.instanceof($, this.fileBrowser, assert.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
 
                 // Initialize the listView and pager with an empty dataSource
                 var dataSource = new DataSource();
@@ -1083,7 +1083,7 @@
                         template: kendo.template(this.options.itemTemplate)
                     })
                     .data('kendoListView');
-                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(ListView, this.listView, assert.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
 
                 // Build the page
                 this.pager = $('<div class="k-pager-wrap"></div>')
@@ -1093,7 +1093,7 @@
                         dataSource: dataSource
                     })
                     .data('kendoPager');
-                assert.instanceof(Pager, this.pager, kendo.format(assert.messages.instanceof.default, 'this.pager', 'kendo.ui.Pager'));
+                assert.instanceof(Pager, this.pager, assert.format(assert.messages.instanceof.default, 'this.pager', 'kendo.ui.Pager'));
             },
 
             /**
@@ -1101,8 +1101,8 @@
              * @private
              */
             _onListViewChange: function () {
-                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
-                assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
+                assert.instanceof(TabStrip, this.tabStrip, assert.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+                assert.instanceof($, this.toolbar, assert.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 if (this._selectedItem() instanceof ObservableObject) {
                     this.toolbar.find('.k-i-track-changes-enable').parent().removeClass('k-state-disabled');
                     this.toolbar.find('.k-i-delete').parent().removeClass('k-state-disabled');
@@ -1132,8 +1132,8 @@
              * @private
              */
             _onListViewDataBound: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(ListView, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.ListView'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(ListView, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.ListView'));
                 var listView = e.sender; // Do not use this.listView because it might not yet have been assigned.
                 this._computeStorageSize();
                 if (e.action === 'add' && $.isArray(e.items) && e.items.length) {

@@ -179,7 +179,7 @@
              * @private
              */
             _onClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var images = this.options.images;
                 if (e.altKey || e.ctrlKey || e.shiftKey) {
                     this._index = (this._index === 0 ? images.length - 1 : this._index - 1);
@@ -199,7 +199,7 @@
              * @private
              */
             _onKeyDown: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var images = this.options.images;
                 switch (e.which) {
                     // TODO Consider handling numbers to display an image

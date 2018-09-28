@@ -5,12 +5,7 @@
 
 /* eslint-disable no-unused-expressions */
 
-// import $ from 'jquery';
 import chai from 'chai';
-// import sinon from 'sinon';
-// import 'sinon-chai';
-// import 'jquery.mockjax';
-import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';
 
 const { describe, it } = window;

@@ -8,11 +8,13 @@
 import $ from 'jquery';
 import chai from 'chai';
 import sinon from 'sinon';
-import 'sinon-chai';
+import sinonChai from 'sinon-chai';
 import FileSystem from '../../../src/js/common/window.fs.es6';
 
 const { before, describe, it, xdescribe, xit } = window;
 const { expect } = chai;
+
+chai.use(sinonChai);
 
 describe('window.fs', () => {
     describe('Legacy export', () => {

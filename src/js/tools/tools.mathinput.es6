@@ -16,7 +16,7 @@ import QuestionAdapter from './adapters.question.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, mathLibrary } from './util.library';
+import { LIB_COMMENT, mathLibrary } from './util.libraries';
 
 const {
     attr,

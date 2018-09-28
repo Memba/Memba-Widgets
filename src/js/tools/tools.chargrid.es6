@@ -21,7 +21,7 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, charGridLibrary } from './util.library.es6';
+import { LIB_COMMENT, charGridLibrary } from './util.libraries.es6';
 
 const {
     data: { ObservableArray },

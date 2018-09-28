@@ -6,10 +6,12 @@
 /* eslint-disable no-unused-expressions */
 import chai from 'chai';
 import sinon from 'sinon';
-import 'sinon-chai';
+import sinonChai from 'sinon-chai';
 
 const { describe, it } = window;
 const { expect } = chai;
+
+chai.use(sinonChai);
 
 describe('Sample Test', () => {
     it('expect should work', () => {

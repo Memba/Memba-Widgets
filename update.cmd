@@ -24,17 +24,6 @@ COPY ..\Kidoju.Server\src\js\data\models.pagecomponent.es6 .\src\js\data /Y
 COPY ..\Kidoju.Server\src\js\data\models.stream.es6 .\src\js\data /Y
 ATTRIB +R .\src\js\data\*.*
 
-REM Copy test files from Kidoju-Server
-ATTRIB -R .\test\browser\data\*.*
-REM COPY ..\Kidoju.Server\test\browser\data\datasources.base.test.* .\test\browser\data /Y
-REM COPY ..\Kidoju.Server\test\browser\data\datasources.page.test.* .\test\browser\data /Y
-REM COPY ..\Kidoju.Server\test\browser\data\datasources.pagecomponent.test.* .\test\browser\data /Y
-COPY ..\Kidoju.Server\test\browser\data\models.base.test.* .\test\browser\data /Y
-COPY ..\Kidoju.Server\test\browser\data\models.page.test.* .\test\browser\data /Y
-COPY ..\Kidoju.Server\test\browser\data\models.pagecomponent.test.* .\test\browser\data /Y
-COPY ..\Kidoju.Server\test\browser\data\models.stream.test.* .\test\browser\data /Y
-ATTRIB +R .\test\browser\data\*.*
-
 REM Copy Kidoju-WebFonts
 XCOPY ..\Kidoju.WebFonts\dist\fonts\*.* .\src\styles\fonts\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\fonts\*

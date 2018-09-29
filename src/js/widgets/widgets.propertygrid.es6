@@ -46,8 +46,8 @@ var HANDLE_CLASS = 'k-resize-handle';
 const PropertyGrid = Widget.extend({
 
     /**
-     * Initializes the widget
-     * @method init
+     * Init
+     * @constructor init
      * @param element
      * @param options
      */
@@ -74,7 +74,7 @@ const PropertyGrid = Widget.extend({
     },
 
     /**
-     * Widget options
+     * Options
      * @property options
      */
     options: {
@@ -176,7 +176,7 @@ const PropertyGrid = Widget.extend({
     /* jshint -W071 */
 
     /**
-     * Refresh rows
+     * Refresh
      * @method refresh
      */
     refresh: function () {
@@ -516,7 +516,7 @@ const PropertyGrid = Widget.extend({
     },
 
     /**
-     * Destroys the widget
+     * Destroy
      * @method destroy
      */
     destroy: function () {

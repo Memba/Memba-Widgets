@@ -67,7 +67,7 @@
         var Connector = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -87,7 +87,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -108,7 +108,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              * @property events
              */
             events: [
@@ -443,7 +443,7 @@
             },
 
             /**
-             * Refresh upon changing the dataSource
+             * Refresh
              * Redraw all connections
              */
             refresh: function () {
@@ -495,7 +495,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              * @method destroy
              */
             destroy: function () {

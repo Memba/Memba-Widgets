@@ -115,7 +115,7 @@
 
             /**
              * Widget constructor
-             * @method init
+             * @constructor init
              * @param element
              * @param options
              */
@@ -446,7 +446,7 @@
             /* jshint -W074 */
 
             /**
-             * Refresh the widget when dataSource changes
+             * Refresh
              * @method refresh
              * @param e
              */
@@ -609,7 +609,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              */
             destroy: function () {
                 var that = this;

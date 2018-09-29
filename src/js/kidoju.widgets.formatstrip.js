@@ -529,7 +529,7 @@
             },
 
             /**
-             * Refresh the toolbar when updating style value
+             * Refresh
              * @param e
              */
             refresh: function () {
@@ -648,8 +648,8 @@
         var FormatStrip = Widget.extend({
 
             /**
-             * Initializes the widget
-             * @method init
+             * Init
+             * @constructor init
              * @param element
              * @param options
              */
@@ -662,7 +662,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -800,7 +800,7 @@
             },
 
             /**
-             * Destroys the widget
+             * Destroy
              * @method destroy
              */
             destroy: function () {

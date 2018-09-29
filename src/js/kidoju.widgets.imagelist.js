@@ -80,7 +80,7 @@
         var ImageList = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */

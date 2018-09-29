@@ -40,7 +40,7 @@ const MathExpression = Widget.extend({
     },
 
     /**
-     * Widget options
+     * Options
      * @property options
      */
     options: {
@@ -85,7 +85,7 @@ const MathExpression = Widget.extend({
     },
 
     /**
-     * Refresh the widget
+     * Refresh
      * @method refresh
      */
     refresh() {
@@ -110,7 +110,7 @@ const MathExpression = Widget.extend({
     },
 
     /**
-     * Destroy the widget
+     * Destroy
      * @method destroy
      */
     destroy() {

@@ -72,7 +72,7 @@ const ToolBox = Widget.extend({
     },
 
     /**
-     * Widget options
+     * Options
      * @property options
      */
     options: {
@@ -85,7 +85,7 @@ const ToolBox = Widget.extend({
     },
 
     /**
-     * Widget events
+     * Events
      * @property events
      */
     events: [CONSTANTS.CHANGE],
@@ -190,7 +190,7 @@ const ToolBox = Widget.extend({
     },
 
     /**
-     * Refreshes the widget
+     * Refresh
      * @method refresh
      */
     refresh() {
@@ -239,7 +239,7 @@ const ToolBox = Widget.extend({
     },
 
     /**
-     * Destroys the widget including all DOM modifications
+     * Destroy
      * @method destroy
      */
     destroy() {

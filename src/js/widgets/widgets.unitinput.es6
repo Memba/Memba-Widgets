@@ -3,214 +3,227 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, jquery: true */
-/* globals define: false */
+// TODO IMPORTANT: unwrap in destroy
+// TODO Check keyboard use
+// TODO handle properly the case when you enter `1 auto` (what todo with the number?)
+// TODO Check in relation with styles
 
-(function (f, define) {
-    'use strict';
-    define([
-        './common/window.assert.es6',
-        './common/window.logger.es6',
-        './vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.dropdownlist',
-        './vendor/kendo/kendo.numerictextbox'
-    ], f);
-})(function () {
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.binder';
+import 'kendo.dropdownlist';
+import 'kendo.numerictextbox';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 
-    'use strict';
+const {
+    culture,
+    destroy,
+    ui: { plugin, Widget }
+} = window.kendo;
+const logger = new Logger('widgets.unitinput');
 
-    (function ($, undefined) {
+// const NS = '.kendoUnitInput';
+const WIDGET_CLASS = /* 'k-widget */ 'kj-unitinput';
+const RX_UNIT = /^([\d.,]*)\s*([^\d.,]+)$/;
 
-        var kendo = window.kendo;
-        var ui = kendo.ui;
-        var Widget = ui.Widget;
-        var assert = window.assert;
-        var logger = new window.Logger('widgets.unitinput');
-        var NUMBER = 'number';
-        var STRING = 'string';
-        var UNDEFINED = 'undefined';
-        // var NS = '.kendoUnitInput';
-        var CHANGE = 'change';
-        var WIDGET_CLASS = 'kj-unitinput';
-        var RX_UNIT = /^([\d\.,]*)\s*([^\d\.,]+)$/;
+/**
+ * UnitInput
+ * @class UnitInput
+ * @extends Widget
+ */
+const UnitInput = Widget.extend({
+    /**
+     * Init
+     * @constructor init
+     * @param element
+     * @param options
+     */
+    init(element, options) {
+        Widget.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', message: 'widget initialized' });
+        this._render();
+        this.enable(
+            this.element.prop('disabled') ? false : this.options.enabled
+        );
+        this.value(this.options.value);
+    },
 
-        /*********************************************************************************
-         * Helpers
-         *********************************************************************************/
+    /**
+     * Events
+     * @property events
+     */
+    events: [CONSTANTS.CHANGE],
 
-        /*******************************************************************************************
-         * UnitInput
-         *******************************************************************************************/
+    /**
+     * Options
+     * @property options
+     */
+    options: {
+        name: 'UnitInput',
+        decimals: 0,
+        default: 0,
+        enabled: true,
+        format: 'n0',
+        value: '',
+        max: 100,
+        min: 0,
+        nonUnits: [], // These choices in the drop down list disable the numeric entry
+        step: 1,
+        units: []
+    },
 
-        /**
-         * UnitInput (kendoUnitInput)
-         * @class UnitInput
-         * @extends Widget
-         */
-        var UnitInput = Widget.extend({
+    /**
+     * Value
+     * @method value
+     * @param value
+     * @return {*}
+     */
+    value(value) {
+        assert.typeOrUndef(
+            CONSTANTS.STRING,
+            value,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'value',
+                CONSTANTS.STRING
+            )
+        );
+        const { element, options } = this;
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = element.val();
+        } else if (element.val() !== value) {
+            const matches = value.match(RX_UNIT);
+            if (
+                $.isArray(matches) &&
+                matches.length === 3 // &&
+                // options.units.indexOf(matches[2]) !== -1
+            ) {
+                element.val(value);
+                this.numericTextBox.value(matches[1]);
+                this.dropDownList.value(matches[2]);
+                this.enable(this._enabled);
+            } /* else {
+                throw new RangeError(
+                    'Not a valid combination of number and unit'
+                );
+            } */
+        }
+        return ret;
+    },
 
-            /**
-             * Initializes the widget
-             * @method init
-             * @param element
-             * @param options
-             */
-            init: function (element, options) {
-                var that = this;
-                Widget.fn.init.call(that, element, options);
-                logger.debug({ method: 'init', message: 'widget initialized' });
-                that._layout();
-                that.enable(that.element.prop('disabled') ? false : that.options.enable);
-                that.value(that.options.value);
-                kendo.notify(that);
-            },
-
-            /**
-             * Widget events
-             * @property events
-             */
-            events: [
-                CHANGE // Changing the rating value by clicking a star raises the change event
-            ],
-
-            /**
-             * Widget options
-             * @property options
-             */
-            options: {
-                name: 'UnitInput',
-                default: 0,
-                decimals: 0,
-                enable: true,
-                format: 'n0',
-                value: '',
-                max: 100,
-                min: 0,
-                nonUnits: [], // These choices in the drop down list disable the numeric entry
-                step: 1,
-                units: []
-            },
-
-            /**
-             * Gets a sets the rating value
-             * @method value
-             * @param value
-             * @return {*}
-             */
-            value: function (value) {
-                var that = this;
-                var element = that.element;
-                var options = that.options;
-                if ($.type(value) === STRING) {
-                    element.val(value);
-                    var matches = value.match(RX_UNIT);
-                    if ($.isArray(matches) && matches.length === 3) {
-                        assert.instanceof(kendo.ui.NumericTextBox, that.numericTextBox, assert.format(assert.messages.instanceof.default, 'thist.numericTextBox', 'kendo.ui.NumericTextBox'));
-                        assert.instanceof(kendo.ui.DropDownList, that.unitDropDownList, assert.format(assert.messages.instanceof.default, 'thist.unitDropDownList', 'kendo.ui.DropDownList'));
-                        that.numericTextBox.value(matches[1]);
-                        that.numericTextBox.enable(/* that._enabled && */options.nonUnits.indexOf(matches[2]) === -1); // TODO CHeck if widget is enabled
-                        that.unitDropDownList.value(matches[2]);
-                    }
-                } else if ($.type(value) === UNDEFINED) {
-                    return element.val();
-                } else {
-                    throw new RangeError('`value` should be a string or undefined');
+    /**
+     * _render
+     * @method _render
+     * @private
+     */
+    _render() {
+        const { element, options } = this;
+        if (!element.is(CONSTANTS.INPUT)) {
+            throw new Error(
+                'A unit input should wrap an input for kendo validators to work.'
+            );
+        }
+        element.wrap(`<${CONSTANTS.SPAN}/>`);
+        this.wrapper = element.parent();
+        this.wrapper
+            .addClass(WIDGET_CLASS)
+            .css({ width: element.css(CONSTANTS.WIDTH) });
+        element.hide();
+        this.numericTextBox = $(`<${CONSTANTS.INPUT}>`)
+            .appendTo(this.wrapper)
+            .kendoNumericTextBox({
+                change: this._onNumericTextBoxChange.bind(this),
+                culture: culture(),
+                decimals: options.decimals,
+                format: options.format,
+                max: options.max,
+                min: options.min,
+                step: options.step
+            })
+            .data('kendoNumericTextBox');
+        this.dropDownList = $(`<${CONSTANTS.SELECT}/>`)
+            .appendTo(this.wrapper)
+            .kendoDropDownList({
+                change: this._onDropDownListChange.bind(this),
+                dataSource: {
+                    data: options.units.concat(options.nonUnits)
                 }
-            },
+            })
+            .data('kendoDropDownList');
+    },
 
-            /**
-             * Builds the widget layout
-             * @method _layout
-             * @private
-             */
-            _layout: function () {
-                var that = this;
-                var element = that.element;
-                var options = that.options;
-                if (element.is('input')) {
-                    element.wrap('<span/>');
-                    that.wrapper = element.parent();
-                    that.wrapper
-                        .addClass(WIDGET_CLASS)
-                        .css({ width: element.css('width') });
-                    element.hide();
-                    that.numericTextBox = $('<input>')
-                        .appendTo(that.wrapper)
-                        .kendoNumericTextBox({
-                            culture: kendo.culture(),
-                            decimals: options.decimals,
-                            format: options.format,
-                            max: options.max,
-                            min: options.min,
-                            step: options.step,
-                            change: function (e) {
-                                element.val((that.numericTextBox.value() || '') + that.unitDropDownList.value());
-                                that.trigger(CHANGE);
-                            }
-                        })
-                        .data('kendoNumericTextBox');
-                    that.unitDropDownList = $('<select/>')
-                        .appendTo(that.wrapper)
-                        .kendoDropDownList({
-                            dataSource: { data: options.units.concat(options.nonUnits) },
-                            change: function (e) {
-                                var num = that.numericTextBox.value();
-                                var unit = that.unitDropDownList.value();
-                                var isUnit = (options.units.indexOf(unit) >  -1) && (options.nonUnits.indexOf(unit) === -1);
-                                if (isUnit && $.type(num) === NUMBER) {
-                                    element.val(num + unit);
-                                } else if (isUnit) {
-                                    that.numericTextBox.value(options.default);
-                                    element.val(options.default + unit);
-                                } else {
-                                    element.val(unit);
-                                    that.numericTextBox.value('');
-                                }
-                                that.enable(that._enabled);
-                                that.trigger(CHANGE);
-                            }
-                        })
-                        .data('kendoDropDownList');
-                } else {
-                    throw new Error('A unit input should wrap an input for kendo validators to work.');
-                }
-            },
+    /**
+     * Event handler triggered when changing the value of the drop down list
+     * @method _onDropDownListChange
+     * @private
+     */
+    _onDropDownListChange() {
+        const { dropDownList, element, numericTextBox, options } = this;
+        const num = numericTextBox.value();
+        const unit = dropDownList.value();
+        const isUnit =
+            options.units.indexOf(unit) > -1 &&
+            options.nonUnits.indexOf(unit) === -1;
+        if (isUnit && $.type(num) === CONSTANTS.NUMBER) {
+            element.val(num + unit);
+        } else if (isUnit) {
+            numericTextBox.value(options.default);
+            element.val(options.default + unit);
+        } else {
+            element.val(unit);
+            numericTextBox.value('');
+        }
+        this.enable(this._enabled);
+        this.trigger(CONSTANTS.CHANGE);
+    },
 
-            /**
-             * Function called by the enabled/disabled bindings
-             * @param enabled
-             */
-            enable: function (enabled) {
-                var that = this;
-                var options = that.options;
-                that._enabled = ($.type(enabled) === UNDEFINED ? true : !!enabled);
-                this.numericTextBox.enable(that._enabled && (options.nonUnits.indexOf(that.unitDropDownList.value()) === -1));
-                this.unitDropDownList.enable(that._enabled);
-            },
+    /**
+     * Event handler triggered when changing the value of the numeric textbox
+     * @method _onNumericTextBoxChange
+     * @private
+     */
+    _onNumericTextBoxChange() {
+        this.element.val(
+            (this.numericTextBox.value() || '') + this.dropDownList.value()
+        );
+        this.trigger(CONSTANTS.CHANGE);
+    },
 
-            /**
-             * Destroys the widget
-             * @method destroy
-             */
-            destroy: function () {
-                var that = this;
-                var wrapper = this.wrapper;
-                // Unbind events
-                kendo.unbind(wrapper);
-                // Clear references
-                that.numericTextBox = undefined;
-                that.unitDropDownList = undefined;
-                // Destroy widget
-                Widget.fn.destroy.call(this);
-                kendo.destroy(wrapper);
-            }
-        });
+    /**
+     * Enable
+     * @method enable
+     * @param enable
+     */
+    enable(enable) {
+        const {
+            options: { nonUnits }
+        } = this;
+        this._enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        const hasNumber = Array.isArray(nonUnits)
+            ? nonUnits.indexOf(this.dropDownList.value()) === -1
+            : true;
+        this.numericTextBox.enable(this._enabled && hasNumber);
+        this.dropDownList.enable(this._enabled);
+    },
 
-        ui.plugin(UnitInput);
+    /**
+     * Destroy
+     * @method destroy
+     */
+    destroy() {
+        this.numericTextBox = undefined;
+        this.dropDownList = undefined;
+        Widget.fn.destroy.call(this);
+        destroy(this.element);
+    }
+});
 
-    } (window.jQuery));
-
-    return window.kendo;
-
-}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
-
+/**
+ * Registration
+ */
+plugin(UnitInput);

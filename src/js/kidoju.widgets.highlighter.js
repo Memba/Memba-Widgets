@@ -66,7 +66,7 @@
         var HighLighter = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -80,7 +80,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -110,7 +110,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              */
             events: [CHANGE],
 
@@ -555,7 +555,7 @@
             /* jshint +W074 */
 
             /**
-             * Refresh the widget
+             * Refresh
              */
             refresh: function () {
                 // Clear all highlights
@@ -569,7 +569,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              * @method destroy
              */
             destroy: function () {

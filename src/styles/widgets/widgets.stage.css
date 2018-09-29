@@ -38,8 +38,7 @@
   display: block;
   width: 36px;
   height: 36px;
-  /*TODO: replace png sprites with SVG icons*/
-  background: url('images/handler.png') no-repeat left top;
+  background: url('../images/handler.png') no-repeat left top;
   cursor: pointer;
   z-index: 0;
 }

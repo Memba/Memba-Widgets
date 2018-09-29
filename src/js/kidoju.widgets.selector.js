@@ -257,7 +257,7 @@
         var SelectorToolBar = ToolBar.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -271,7 +271,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              */
             options: {
                 name: 'SelectorToolBar',
@@ -355,7 +355,7 @@
             },
 
             /**
-             * Refresh toolbar
+             * Refresh
              * Note: Making selectorSurface.selectors an ObservableArray instead of a simple array raises a stack overflow
              */
             refresh: function () {
@@ -423,7 +423,7 @@
         var SelectorSurface = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -790,7 +790,7 @@
             },
 
             /**
-             * Refresh handler to redraw selections
+             * Refresh
              */
             refresh: function (e) {
                 assert.instanceof(SelectorSurface, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.SelectorSurface'));
@@ -823,7 +823,7 @@
             },
 
             /**
-             * Destroy the widget
+             * Destroy
              * @method destroy
              */
             destroy: function () {
@@ -860,7 +860,7 @@
         var Selector = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -876,7 +876,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -902,7 +902,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              * @property events
              */
             events: [
@@ -1106,7 +1106,7 @@
             },
 
             /**
-             * Refresh event handler for the dataSource
+             * Refresh
              * @param e
              */
             refresh: function (e) {
@@ -1120,7 +1120,7 @@
             },
 
             /**
-             * Destroys the widget
+             * Destroy
              * @method destroy
              */
             destroy: function () {

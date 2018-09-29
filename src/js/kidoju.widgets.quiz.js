@@ -99,7 +99,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              */
             options: {
                 name: 'Quiz',
@@ -144,7 +144,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              */
             events: [
                 CHANGE
@@ -511,7 +511,7 @@
             },
 
             /**
-             * Refresh method (called when dataSource is updated)
+             * Refresh
              * for example to add buttons or options
              * @param e
              */

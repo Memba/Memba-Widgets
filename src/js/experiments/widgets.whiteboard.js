@@ -126,8 +126,8 @@
         var Whiteboard = Widget.extend({
 
             /**
-             * Initializes the widget
-             * @method init
+             * Init
+             * @constructor init
              * @param element
              * @param options
              */
@@ -142,7 +142,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              * @property events
              */
             events: [
@@ -151,7 +151,7 @@
             ],
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -306,7 +306,7 @@
             },
 
             /**
-             * Destroys the widget
+             * Destroy
              * @method destroy
              */
             destroy: function () {

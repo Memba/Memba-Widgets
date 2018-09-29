@@ -68,7 +68,7 @@ const Rating = Widget.extend({
             assert.format(assert.messages.isPlainObject.default, 'options')
         );
         const input = $(element);
-        assert.ok(input.is('input'), '`element` should be an html input field');
+        assert.ok(input.is(CONSTANTS.INPUT), '`element` should be an html input field');
         const opts = $.extend(
             {
                 enabled: !(
@@ -100,7 +100,7 @@ const Rating = Widget.extend({
     },
 
     /**
-     * Widget events
+     * Events
      * @property events
      */
     events: [
@@ -108,7 +108,7 @@ const Rating = Widget.extend({
     ],
 
     /**
-     * Widget options
+     * Options
      * @property options
      */
     options: {
@@ -217,7 +217,7 @@ const Rating = Widget.extend({
     },
 
     /**
-     * Refreshes the widget
+     * Refresh
      * @method refresh
      */
     refresh() {
@@ -311,7 +311,7 @@ const Rating = Widget.extend({
     },
 
     /**
-     * Destroys the widget
+     * Destroy
      * @method destroy
      */
     destroy() {

@@ -2,14 +2,13 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Add test to query string</title>
+    <title>userevents</title>
     <script>
         window.app = { DEBUG: true };
     </script>
-    <link href="../../../src/styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="../../../src/styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="../../../src/styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <link href="../../../test/vendor/mocha.css" rel="stylesheet" />
+    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/system.js"></script>
     <script>
@@ -40,7 +39,7 @@
                 },
                 map: {
                     'jquery': 'src/js/vendor/jquery/jquery-3.3.1.js',
-                    // Kendo UI - http://docs.telerik.com/kendo-ui/third-party/systemjs
+                    // http://docs.telerik.com/kendo-ui/third-party/systemjs
                     'kendo.culture.en-GB': 'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',
                     'kendo.messages.en-GB': 'src/js/vendor/kendo/messages/kendo.messages.en-GB.js',
                     'kendo.autocomplete': 'src/js/vendor/kendo/kendo.autocomplete.js',
@@ -158,23 +157,7 @@
                     'kendogrid': 'src/js/vendor/kendo/kendo.grid.js',
                     'kendopdf': 'src/js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'src/js/vendor/kendo/kendo.scheduler.js',
-                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
-                    // Test frameworks
-                    'chai': 'test/vendor/chai.js',
-                    'chai-jquery': 'test/vendor/chai-jquery.js',
-                    'jquery.mockjax': 'test/vendor/jquery.mockjax.js',
-                    'jquery.simulate': 'test/vendor/jquery.simulate.js',
-                    'jscheck': 'test/vendor/jscheck.js',
-                    'mocha': 'test/vendor/mocha.js',
-                    'sinon': 'test/vendor/sinon.js',
-                    'sinon-chai': 'test/vendor/sinon-chai.js'
-                },
-                meta: {
-                    'test/vendor/chai-jquery.js': { format: 'cjs' },
-                    'test/vendor/jquery.mockjax.js': { format: 'global' },
-                    'test/vendor/jscheck.js': { format: 'global' },
-                    'test/vendor/mocha.js': { format: 'global' },
-                    'test/vendor/sinon-chai.js': { format: 'cjs' }
+                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js'
                 },
                 packages: {
                     'src/js': {
@@ -204,61 +187,34 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('mocha').then(function (args) {
-                var mocha = args.mocha;
-                // Help SystemJS export mocha globals
-                // https://staxmanade.com/2015/09/browser-only-mochajs-tests-using-systemjs/
-                mocha.suite.on('pre-require', function (context) {
-                    var exports = window;
-                    exports.afterEach = context.afterEach || context.teardown;
-                    exports.after = context.after || context.suiteTeardown;
-                    exports.beforeEach = context.beforeEach || context.setup;
-                    exports.before = context.before || context.suiteSetup;
-                    exports.describe = context.describe || context.suite;
-                    exports.it = context.it || context.test;
-                    exports.setup = context.setup || context.beforeEach;
-                    exports.suiteSetup = context.suiteSetup || context.before;
-                    exports.suiteTeardown = context.suiteTeardown || context.after;
-                    exports.suite = context.suite || context.describe;
-                    exports.teardown = context.teardown || context.afterEach;
-                    exports.test = context.test || context.it;
-                    exports.run = context.run;
-                    const params = new URLSearchParams(window.location.search);
-                    const test = params.get('t');
-                    if (test) {
-                        document.title = test;
-                        document.getElementsByTagName('h1')[0].innerHTML = test;
-                        document.getElementById('menu').style.display = 'none';
-                        // now use SystemJS to load all test files
-                        SystemJS.import('./' + test + '.test.es6').then(function() {
-                            mocha.checkLeaks().globals([]);
-                            // if (!window.blanket && !window.PHANTOMJS) {
-                            mocha.run();
-                            // }
-                        });
-                    }
+            SystemJS.import('./widgets.imageset.es6').then(function () {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    visible: true,
+                    enabled: true,
+                    image: 'fire_engine'
                 });
-                mocha.setup('bdd');
-                mocha.timeout(10000);
+                $(function() {
+                    $('#imageset').kendoImageSet({
+                        value: 'cherries',
+                        images: [
+                            { text: 'aubergine', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/aubergine.svg' },
+                            { text: 'banana', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/banana.svg' },
+                            { text: 'cherries', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/cherries.svg' },
+                            { text: 'green_apple', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/green_apple.svg' },
+                            { text: 'pear', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/pear.svg' },
+                            { text: 'tomato', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/tomato.svg' }
+                        ]
+                    });
+                    kendo.bind('body', viewModel);
+                });
             });
         }());
     </script>
 </head>
 <body>
-<h1>Add test to query string ?t=[name] (from name.test.es6)</h1>
-<ul id="menu">
-    <li><a href="?t=widgets.explorer">widgets.explorer</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.formatstrip">widgets.formatstrip</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.imageset">widgets.imageset</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.mathexpression">widgets.mathexpression</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.propertygrid">widgets.propertygrid</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.rating">widgets.rating</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.sortedlist">widgets.sortedlist</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.stage">widgets.stage</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.template">widgets.stage</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.toolbox">widgets.toolbox</a><span style="color:red;">*</span></li>
-</ul>
-<div id="mocha"></div>
-<div id="fixtures"></div>
+<h1></h1>
+
+
 </body>
 </html>

@@ -561,7 +561,7 @@ const MediaRecorder = Widget.extend({
     },
 
     /**
-     * Destroys the widget
+     * Destroy
      * @method destroy
      */
     destroy() {

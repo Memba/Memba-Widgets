@@ -207,7 +207,7 @@
         var StyleEditor = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -250,7 +250,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              * @property events
              */
             events: [
@@ -538,7 +538,7 @@
             },
 
             /**
-             * Refresh the grid
+             * Refresh
              */
             refresh: function () {
                 var that = this;
@@ -610,7 +610,7 @@
             /* jshint +W074 */
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              * @method destroy
              */
             destroy: function () {

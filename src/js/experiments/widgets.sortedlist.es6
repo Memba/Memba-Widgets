@@ -27,7 +27,7 @@ const SortedList = ListView.extend({
     },
 
     /**
-     * Widget options
+     * Options
      */
     options: {
         name: 'SortedList'

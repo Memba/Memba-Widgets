@@ -154,7 +154,7 @@
         var Stage = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -186,7 +186,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              */
             events: [
                 CHANGE,
@@ -198,7 +198,7 @@
             ],
 
             /**
-             * Widget options
+             * Options
              */
             options: {
                 name: 'Stage',
@@ -1360,7 +1360,7 @@
             },
 
             /**
-             * Refresh a stage widget
+             * Refresh
              * @param e
              */
             // This function's cyclomatic complexity is too high.
@@ -1537,7 +1537,7 @@
             },
 
             /**
-             * Destroys the widget
+             * Destroy
              */
             destroy: function () {
                 var that = this;

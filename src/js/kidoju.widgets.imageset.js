@@ -56,8 +56,8 @@
         var ImageSet = Widget.extend({
 
             /**
-             * Initializes the widget
-             * @method init
+             * Init
+             * @constructor init
              * @param element
              * @param options
              */
@@ -73,7 +73,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -228,7 +228,7 @@
             /* jshint +W074 */
 
             /**
-             * Refresh the widget
+             * Refresh
              * @method refresh
              */
             refresh: function () {
@@ -246,7 +246,7 @@
             },
 
             /**
-             * Destroy the widget
+             * Destroy
              * @method destroy
              */
             destroy: function () {

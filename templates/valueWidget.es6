@@ -35,13 +35,13 @@ const ValueWidget = Widget.extend({
     },
 
     /**
-     * Widget events
+     * Events
      * @property events
      */
     // events: [CHANGE],
 
     /**
-     * Widget options
+     * Options
      * @property options
      */
     options: {

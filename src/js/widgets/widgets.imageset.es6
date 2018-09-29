@@ -3,6 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO use Kendo UI Keyboard class and Kendo Keys (need a tabindex for focus???)
+// TODO Use ImageDataSource and DataBoundWidget
+// TODO use preload
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -20,7 +24,6 @@ const logger = new Logger('widgets.imageset');
 const NS = '.kendoImageSet';
 const WIDGET_CLASS = 'kj-imageset kj-interactive';
 
-// TODO use Kendo UI Keyboard class and Kendo Keys
 const KEYSTROKES = {
     ARROW_DOWN: 40,
     ARROW_LEFT: 37,
@@ -58,7 +61,7 @@ const ImageSet = Widget.extend({
     },
 
     /**
-     * Widget options
+     * Options
      * @property options
      */
     options: {
@@ -230,7 +233,7 @@ const ImageSet = Widget.extend({
     },
 
     /**
-     * Refresh the widget
+     * Refresh
      * @method refresh
      */
     refresh() {
@@ -252,7 +255,7 @@ const ImageSet = Widget.extend({
     },
 
     /**
-     * Destroy the widget
+     * Destroy
      * @method destroy
      */
     destroy() {

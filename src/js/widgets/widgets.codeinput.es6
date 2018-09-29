@@ -6,7 +6,7 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.data';
+import 'kendo.binder';
 import 'kendo.dropdownlist';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -58,7 +58,7 @@ const CodeInput = Widget.extend({
     },
 
     /**
-     * Widget options
+     * Options
      * @property options
      */
     options: {
@@ -74,7 +74,7 @@ const CodeInput = Widget.extend({
     },
 
     /**
-     * Widget events
+     * Events
      * @property events
      */
     events: [CONSTANTS.CHANGE],
@@ -413,7 +413,7 @@ const CodeInput = Widget.extend({
     },
 
     /**
-     * Destroys the widget
+     * Destroy
      * @method destroy
      */
     destroy() {

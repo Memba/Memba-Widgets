@@ -118,7 +118,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              */
             events: [
                 CHANGE,
@@ -463,7 +463,7 @@
             /* jshint -W074 */
 
             /**
-             * Refreshes the widget when dataSource changes
+             * Refresh
              * @param e
              */
             refresh: function (e) {
@@ -617,7 +617,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              */
             destroy: function () {
                 var that = this;

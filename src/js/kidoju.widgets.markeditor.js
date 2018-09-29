@@ -69,8 +69,8 @@
         var MarkEditor = Widget.extend({
 
             /**
-             * Initializes the widget
-             * @method init
+             * Init
+             * @constructor init
              * @param element
              * @param options
              */
@@ -88,7 +88,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -217,7 +217,7 @@
             },
 
             /**
-             * Refresh the toolbar when the selection has changed
+             * Refresh
              * @param selected
              * @param deselected
              * @private
@@ -464,7 +464,7 @@
             },
 
             /**
-             * Destroys the widget
+             * Destroy
              * @method destroy
              */
             destroy: function () {

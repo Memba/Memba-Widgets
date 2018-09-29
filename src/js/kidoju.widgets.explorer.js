@@ -538,7 +538,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              */
             destroy: function () {
                 var that = this;

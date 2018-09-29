@@ -47,7 +47,7 @@
         var TextGaps = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -64,7 +64,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -77,7 +77,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              */
             events: [
                 CHANGE
@@ -178,7 +178,7 @@
             },
 
             /**
-             * Refresh the widget
+             * Refresh
              */
             refresh: function () {
                 var that = this;
@@ -191,7 +191,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              * @method destroy
              */
             destroy: function () {

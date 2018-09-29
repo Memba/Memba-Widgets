@@ -301,7 +301,7 @@ describe('widgets.rating', () => {
             widget = element.kendoRating().data('kendoRating');
         });
 
-        it(CONSTANTS.MOUSEOVER, () => {
+        it('mouseover', () => {
             expect(widget).to.be.an.instanceof(Rating);
             const {
                 options: { min, max, step }

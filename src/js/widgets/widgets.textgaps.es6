@@ -13,7 +13,6 @@ import Logger from '../common/window.logger.es6';
 import { compareStringArrays, getSelection, isAnyArray, setSelection } from '../common/window.util.es6';
 
 const {
-    attr,
     destroy,
     format,
     htmlEncode,
@@ -23,7 +22,6 @@ const logger = new Logger('widgets.textgaps');
 const NS = '.kendoTextGaps';
 const WIDGET_CLASS = 'kj-textgaps'; // 'k-widget kj-textgaps';
 
-const INPUT = 'input';
 const PASTE = 'paste';
 const INPUT_SELECTOR = '.kj-textgaps-input';
 const INPUT_TEMPLATE = '<div class="{0}" style="{1}"></div>'; // we need a div to set a min-width
@@ -49,7 +47,7 @@ const TextGaps = Widget.extend({
     },
 
     /**
-     * Widget options
+     * Options
      * @property options
      */
     options: {
@@ -62,7 +60,7 @@ const TextGaps = Widget.extend({
     },
 
     /**
-     * Widget events
+     * Events
      */
     events: [CONSTANTS.CHANGE],
 
@@ -122,7 +120,7 @@ const TextGaps = Widget.extend({
         if (enabled) {
             this.element
                 .on(PASTE + NS, INPUT_SELECTOR, this._onPaste.bind(this))
-                .on(INPUT + NS, INPUT_SELECTOR, this._onInput.bind(this));
+                .on(CONSTANTS.INPUT + NS, INPUT_SELECTOR, this._onInput.bind(this));
         }
     },
 
@@ -206,7 +204,7 @@ const TextGaps = Widget.extend({
     },
 
     /**
-     * Refresh the widget
+     * Refresh
      * @method refresh
      */
     refresh() {
@@ -219,7 +217,7 @@ const TextGaps = Widget.extend({
     },
 
     /**
-     * Destroy the widget
+     * Destroy
      * @method destroy
      */
     destroy() {

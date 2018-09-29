@@ -106,8 +106,8 @@
         var MultiInput = Widget.extend({
 
             /**
-             * Initializes the widget
-             * @method init
+             * Init
+             * @constructor init
              * @param element
              * @param options
              */
@@ -126,7 +126,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -340,7 +340,7 @@
             },
 
             /**
-             * Refresh the widget
+             * Refresh
              * @method refresh
              */
             refresh: function () {
@@ -478,7 +478,7 @@
             },
 
             /**
-             * Destroys the widget
+             * Destroy
              * @method destroy
              */
             destroy: function () {

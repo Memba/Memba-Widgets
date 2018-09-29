@@ -3,244 +3,224 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, jquery: true */
-/* globals define: false */
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.binder';
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 
-(function (f, define) {
-    'use strict';
-    define([
-        './common/window.assert.es6',
-        './common/window.logger.es6',
-        './vendor/kendo/kendo.binder'
-    ], f);
-})(function () {
-    'use strict';
+const {
+    data: { DataSource },
+    destroy,
+    template,
+    ui: { plugin, DataBoundWidget }
+} = window.kendo;
+const logger = new Logger('widgets.template');
+const WIDGET_CLASS = 'kj-template'; // 'k-widget kj-template';
 
-    (function ($, undefined) {
+/**
+ * Template
+ * @class Template
+ * @extends DataBoundWidget
+ */
+const Template = DataBoundWidget.extend({
+    /**
+     * Constructor
+     * @constructor init
+     * @param element
+     * @param options
+     */
+    init(element, options) {
+        DataBoundWidget.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', message: 'Widget initialized' });
+        this._initTemplate();
+        this._render();
+        this._dataSource();
+        this.value(this.options.value);
+    },
 
-        var kendo = window.kendo;
-        var ui = kendo.ui;
-        var Widget = ui.Widget;
-        var DataSource = kendo.data.DataSource;
-        var assert = window.assert;
-        var logger = new window.Logger('widgets.template');
-        var STRING = 'string';
-        var UNDEFINED = 'undefined';
-        var CHANGE = 'change';
-        var DATABINDING = 'dataBinding';
-        var DATABOUND = 'dataBound';
-        var WIDGET_CLASS = 'kj-template'; // 'k-widget kj-template';
+    /**
+     * Options
+     * @property options
+     */
+    options: {
+        autoBind: true,
+        dataSource: [],
+        name: 'Template',
+        template: '',
+        value: {},
+        valueField: null
+    },
 
-        /*******************************************************************************************
-         * Template Widget
-         *******************************************************************************************/
+    /**
+     * Events
+     * @property events
+     */
+    events: [
+        // call before mutating DOM.
+        // mvvm will traverse DOM, unbind any bound elements or widgets
+        CONSTANTS.DATABINDING,
+        // call after mutating DOM
+        // traverses DOM and binds ALL THE THINGS
+        CONSTANTS.DATABOUND
+    ],
 
-        /**
-         * Template (kendoTemplate)
-         * @class Template
-         * @extends Widget
-         */
-        var Template = Widget.extend({
+    /**
+     * Value
+     * Data to be merged with the template
+     * @method value
+     * @param value
+     * @return {*}
+     */
+    value(value) {
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._value;
+        } else if (this._value !== value) {
+            this._value = value;
+            this.refresh();
+        }
+        return ret;
+    },
 
-            /**
-             * Initializes the widget
-             * @method init
-             * @param element
-             * @param options
-             */
-            init: function (element, options) {
-                var that = this;
-                Widget.fn.init.call(that, element, options);
-                logger.debug({ method: 'init', message: 'Widget initialized' });
-                that._initTemplate();
-                that._layout();
-                that._dataSource();
-                that.value(that.options.value);
-                kendo.notify(that);
-            },
+    /**
+     * UI items
+     * Note: required by MVVM
+     * @method items
+     */
+    items() {
+        return []; // this.element.children();
+    },
 
-            /**
-             * Widget options
-             * @property options
-             */
-            options: {
-                autoBind: true,
-                dataSource: [],
-                name: 'Template',
-                template: '',
-                value: {},
-                valueField: null
-            },
-
-            /**
-             * Events
-             */
-            events: [
-                // call before mutating DOM.
-                // mvvm will traverse DOM, unbind any bound elements or widgets
-                DATABINDING,
-                // call after mutating DOM
-                // traverses DOM and binds ALL THE THINGS
-                DATABOUND
-            ],
-
-            /**
-             * Data to be merged with the template
-             * @method value
-             * @param value
-             * @return {*}
-             */
-            value: function (value) {
-                var that = this;
-                if ($.type(value) === UNDEFINED) {
-                    return that._value;
-                } else {
-                    if (that._value !== value) {
-                        that._value = value;
-                        that.refresh();
-                    }
-                }
-            },
-
-            /**
-             * Return items
-             * mvvm expects an array of dom elements that represent each item of the datasource - should be the outermost element's children
-             */
-            items: function () {
-                return []; // this.element.children();
-            },
-
-            /**
-             * Initialize template
-             * TODO: also consider loading external templates designated by a URL
-             * @private
-             */
-            _initTemplate: function () {
-                var template = this.options.template;
-                if ($.type(template) === STRING && template.length) {
-                    // try to find a script tag on the page
-                    var script = $('#' + template);
-                    if (script.length > 0) {
-                        this._template = kendo.template(script.html());
-                    } else {
-                        this._template = kendo.template(template);
-                    }
-                } else if ($.isFunction(template)) {
-                    this._template = template;
-                }
-            },
-
-            /**
-             * Builds the widget layout
-             * @method _layout
-             * @private
-             */
-            _layout: function () {
-                var that = this;
-                that.wrapper = that.element;
-                that.element.addClass(WIDGET_CLASS);
-            },
-
-            /**
-             * Sets teh dataSOurce
-             * @private
-             */
-            _dataSource: function () {
-                var that = this;
-
-                // if the DataSource is defined and the _refreshHandler is wired up, unbind because
-                // we need to rebuild the DataSource
-                if (that.dataSource instanceof DataSource && $.isFunction(that._refreshHandler)) {
-                    that.dataSource.unbind(CHANGE, that._refreshHandler);
-                } else {
-                    that._refreshHandler = $.proxy(that.refresh, that);
-                }
-
-                // returns the datasource OR creates one if using array or configuration object
-                that.dataSource = DataSource.create(that.options.dataSource);
-                // bind to the change event to refresh the widget
-                that.dataSource.bind(CHANGE, that._refreshHandler);
-
-                if (that.options.autoBind) {
-                    that.dataSource.fetch();
-                }
-            },
-
-            /**
-             * For supporting changing the datasource via MVVM
-             * @param dataSource
-             */
-            setDataSource: function (dataSource) {
-                // set the internal datasource equal to the one passed in by MVVM
-                this.options.dataSource = dataSource;
-                // rebuild the datasource if necessary, or just reassign
-                this._dataSource();
-            },
-
-            /**
-             * Refreshes the widget
-             * @method refresh
-             */
-            refresh: function () {
-                var that = this;
-                var options = that.options;
-                // that.element.children().each(function () { kendo.destroy(this) });
-                // that.element.find('*').off();
-                that.element.empty();
-                if ($.isFunction(that._template)) {
-                    if ($.type(options.valueField) === STRING &&
-                        that.dataSource instanceof DataSource) {
-                        that.trigger(DATABINDING);
-                        /*
-                        var data = that.dataSource.data().find(function (item) {
-                            return item[options.valueField] === that.value();
-                        });
-                        */
-                        // TODO The following works with HierarchicalDataSource but supposes that that.value() is the idField
-                        var data = that.dataSource.get(that.value());
-                        if ($.type(data) !== UNDEFINED) {
-                            var html = that._template(data);
-                            that.element.html(html);
-                        }
-                        that.trigger(DATABOUND);
-                    } else {
-                        var value = that.value();
-                        if ($.type(value) !== UNDEFINED) {
-                            that.element.html(that._template(value));
-                        }
-                    }
-                }
-                logger.debug({ method: 'refresh', message: 'Widget refreshed' });
-            },
-
-            /**
-             * Destroys the widget
-             * @method destroy
-             */
-            destroy: function () {
-                var that = this;
-                var wrapper = that.wrapper;
-                // Unbind events
-                if (that.dataSource instanceof DataSource && $.isFunction(that._refreshHandler)) {
-                    that.dataSource.unbind(CHANGE, that._refreshHandler);
-                }
-                kendo.unbind(wrapper);
-                // Clear references
-                that.dataSource = undefined;
-                that._template = undefined;
-                // Destroy widget
-                Widget.fn.destroy.call(that);
-                kendo.destroy(wrapper);
-                // remove widget class
-                // wrapper.removeClass(WIDGET_CLASS);
+    /**
+     * Init template
+     * @method _initTemplate
+     * @private
+     */
+    _initTemplate() {
+        const t = this.options.template;
+        if ($.type(t) === CONSTANTS.STRING && t.length) {
+            // try to find a script tag on the page
+            // but Kendo UI should normally have found it
+            // and t should already be a function in this case
+            const script = $(`script#${t}[type="text/x-kendo-template"]`);
+            if (script.length) {
+                this._template = template(script.html());
+            } else {
+                this._template = template(t);
             }
+        } else if ($.isFunction(t)) {
+            // Hopefully, this is kendo.template function
+            this._template = t;
+        }
+    },
 
+    /**
+     * _render
+     * @method _render
+     * @private
+     */
+    _render() {
+        const { element } = this;
+        this.wrapper = element;
+        element.addClass(WIDGET_CLASS);
+    },
+
+    /**
+     * Set a dataSource
+     * @method _dataSource
+     * @private
+     */
+    _dataSource() {
+        // if the DataSource is defined and the _refreshHandler is wired up, unbind because
+        // we need to rebuild the DataSource
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
+            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+        } else {
+            this._refreshHandler = this.refresh.bind(this);
+        }
+
+        // returns the datasource OR creates one if using array or configuration object
+        this.dataSource = DataSource.create(this.options.dataSource);
+        // bind to the change event to refresh the widget
+        this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
+
+        if (this.options.autoBind) {
+            this.dataSource.fetch();
+        }
+    },
+
+    /**
+     * Set a data source
+     * @method setDataSource
+     * @param dataSource
+     */
+    setDataSource(dataSource) {
+        // set the internal datasource equal to the one passed in by MVVM
+        this.options.dataSource = dataSource;
+        // rebuild the datasource if necessary, or just reassign
+        this._dataSource();
+    },
+
+    /**
+     * Refresh
+     * @method refresh
+     */
+    refresh() {
+        const { element, options } = this;
+        element.children().each((index, item) => {
+            destroy(item);
         });
+        element.empty();
+        if ($.isFunction(this._template)) {
+            if (
+                $.type(options.valueField) === CONSTANTS.STRING &&
+                this.dataSource instanceof DataSource
+            ) {
+                this.trigger(CONSTANTS.DATABINDING);
+                // This requires that this.value() be the idField
+                // const data = this.dataSource.get(this.value());
+                // The following makes it possible to use any field
+                const data = this.dataSource
+                    .data()
+                    .find(item => item[options.valueField] === this.value());
+                if ($.type(data) !== CONSTANTS.UNDEFINED) {
+                    element.html(this._template(data));
+                }
+                this.trigger(CONSTANTS.DATABOUND);
+            } else {
+                const value = this.value();
+                if ($.type(value) !== CONSTANTS.UNDEFINED) {
+                    element.html(this._template(value));
+                }
+            }
+            logger.debug({ method: 'refresh', message: 'Widget refreshed' });
+        }
+    },
 
-        ui.plugin(Template);
+    /**
+     * Destroy
+     * @method destroy
+     */
+    destroy() {
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
+            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHander = undefined;
+        }
+        this._template = undefined;
+        DataBoundWidget.fn.destroy.call(this);
+        destroy(this.element);
+    }
+});
 
-    }(window.jQuery));
-
-    return window.kendo;
-
-}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
+/**
+ * Registration
+ */
+plugin(Template);

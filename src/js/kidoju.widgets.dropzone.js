@@ -308,7 +308,7 @@
         var DropZone = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -323,7 +323,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -340,7 +340,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              * @property events
              */
             events: [
@@ -486,7 +486,7 @@
             _initDraggables: $.noop,
 
             /**
-             * Refresh the display
+             * Refresh
              */
             refresh: function (e) {
                 var that = this;
@@ -514,7 +514,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              * @method destroy
              */
             destroy: function () {

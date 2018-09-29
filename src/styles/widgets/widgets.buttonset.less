@@ -1,26 +1,37 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
 .kj-buttonset {
     display: inline-block;
+
     .km-widget.km-buttongroup.k-widget.k-button-group {
         display: flex;
         flex-wrap: wrap;
         padding-left: 1px;
         border: none;
+
         .km-button.k-button {
             display: initial;
             border-width: 1px;
             margin-left: -1px;
-            padding: .25em .8em;
+            padding: 0.25em 0.8em;
         }
+
         &.k-state-disabled {
             opacity: 1;
+
             .km-button.k-button,
             .km-button.k-button:hover {
                 color: inherit;
                 background-color: inherit;
                 background-image: inherit;
             }
+
             .km-button.k-button:not(.k-state-active) {
-                span.k-text, span.k-icon {
+                span.k-text,
+                span.k-icon {
                     opacity: 0.5;
                 }
             }

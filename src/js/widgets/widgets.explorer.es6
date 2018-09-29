@@ -537,7 +537,7 @@ var Explorer = Widget.extend({
     },
 
     /**
-     * Destroys the widget including all DOM modifications
+     * Destroy
      */
     destroy: function () {
         var that = this;

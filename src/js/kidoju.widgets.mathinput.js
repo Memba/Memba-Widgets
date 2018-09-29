@@ -82,7 +82,7 @@
         var MathInput = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -103,7 +103,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -135,7 +135,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              * @property events
              */
             events: [
@@ -607,7 +607,7 @@
             },
 
             /**
-             * Refresh the widget
+             * Refresh
              */
             refresh: function () {
                 logger.debug({ method: 'refresh', message: 'Widget refreshed' });
@@ -626,7 +626,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              * @method destroy
              */
             destroy: function () {

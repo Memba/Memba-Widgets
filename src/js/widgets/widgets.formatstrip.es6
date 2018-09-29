@@ -527,7 +527,7 @@ var FormatBar = ToolBar.extend({
     },
 
     /**
-     * Refresh the toolbar when updating style value
+     * Refresh
      * @param e
      */
     refresh: function () {
@@ -646,8 +646,8 @@ ui.plugin(FormatBar);
 var FormatStrip = Widget.extend({
 
     /**
-     * Initializes the widget
-     * @method init
+     * Init
+     * @constructor init
      * @param element
      * @param options
      */
@@ -660,7 +660,7 @@ var FormatStrip = Widget.extend({
     },
 
     /**
-     * Widget options
+     * Options
      * @property options
      */
     options: {
@@ -798,7 +798,7 @@ var FormatStrip = Widget.extend({
     },
 
     /**
-     * Destroys the widget
+     * Destroy
      * @method destroy
      */
     destroy: function () {

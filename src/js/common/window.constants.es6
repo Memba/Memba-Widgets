@@ -78,7 +78,12 @@ const CONSTANTS = {
     // Miscellaneous
     ID: 'id',
     ME: 'me',
-    POINTER: 'pointer'
+    POINTER: 'pointer',
+    // HTML tags
+    DIV: 'div',
+    INPUT: 'input',
+    SELECT: 'select',
+    SPAN: 'span'
 };
 
 /**

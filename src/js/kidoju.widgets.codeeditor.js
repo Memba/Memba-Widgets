@@ -74,7 +74,7 @@
             // Quite complex, because we need to bring in kidoju.library.js + web workers execution (currently in kidoju.tools)
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -90,7 +90,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -123,7 +123,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              * @property events
              */
             events: [
@@ -630,7 +630,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              * @method destroy
              */
             destroy: function () {

@@ -2,16 +2,14 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Add test to query string</title>
-    <script>
-        window.app = { DEBUG: true };
-    </script>
-    <link href="../../../src/styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="../../../src/styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="../../../src/styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <link href="../../../test/vendor/mocha.css" rel="stylesheet" />
+    <title>widgets.splitbutton</title>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- widgets.splitbutton stylesheet -->
+    <link href="./styles/widgets/widgets.splitbutton.css" rel="stylesheet" />
     <!-- SystemJS loader -->
-    <script src="../../../test/vendor/system.js"></script>
+    <script src="../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
@@ -40,7 +38,7 @@
                 },
                 map: {
                     'jquery': 'src/js/vendor/jquery/jquery-3.3.1.js',
-                    // Kendo UI - http://docs.telerik.com/kendo-ui/third-party/systemjs
+                    // http://docs.telerik.com/kendo-ui/third-party/systemjs
                     'kendo.culture.en-GB': 'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',
                     'kendo.messages.en-GB': 'src/js/vendor/kendo/messages/kendo.messages.en-GB.js',
                     'kendo.autocomplete': 'src/js/vendor/kendo/kendo.autocomplete.js',
@@ -158,23 +156,7 @@
                     'kendogrid': 'src/js/vendor/kendo/kendo.grid.js',
                     'kendopdf': 'src/js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'src/js/vendor/kendo/kendo.scheduler.js',
-                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
-                    // Test frameworks
-                    'chai': 'test/vendor/chai.js',
-                    'chai-jquery': 'test/vendor/chai-jquery.js',
-                    'jquery.mockjax': 'test/vendor/jquery.mockjax.js',
-                    'jquery.simulate': 'test/vendor/jquery.simulate.js',
-                    'jscheck': 'test/vendor/jscheck.js',
-                    'mocha': 'test/vendor/mocha.js',
-                    'sinon': 'test/vendor/sinon.js',
-                    'sinon-chai': 'test/vendor/sinon-chai.js'
-                },
-                meta: {
-                    'test/vendor/chai-jquery.js': { format: 'cjs' },
-                    'test/vendor/jquery.mockjax.js': { format: 'global' },
-                    'test/vendor/jscheck.js': { format: 'global' },
-                    'test/vendor/mocha.js': { format: 'global' },
-                    'test/vendor/sinon-chai.js': { format: 'cjs' }
+                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js'
                 },
                 packages: {
                     'src/js': {
@@ -204,61 +186,54 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('mocha').then(function (args) {
-                var mocha = args.mocha;
-                // Help SystemJS export mocha globals
-                // https://staxmanade.com/2015/09/browser-only-mochajs-tests-using-systemjs/
-                mocha.suite.on('pre-require', function (context) {
-                    var exports = window;
-                    exports.afterEach = context.afterEach || context.teardown;
-                    exports.after = context.after || context.suiteTeardown;
-                    exports.beforeEach = context.beforeEach || context.setup;
-                    exports.before = context.before || context.suiteSetup;
-                    exports.describe = context.describe || context.suite;
-                    exports.it = context.it || context.test;
-                    exports.setup = context.setup || context.beforeEach;
-                    exports.suiteSetup = context.suiteSetup || context.before;
-                    exports.suiteTeardown = context.suiteTeardown || context.after;
-                    exports.suite = context.suite || context.describe;
-                    exports.teardown = context.teardown || context.afterEach;
-                    exports.test = context.test || context.it;
-                    exports.run = context.run;
-                    const params = new URLSearchParams(window.location.search);
-                    const test = params.get('t');
-                    if (test) {
-                        document.title = test;
-                        document.getElementsByTagName('h1')[0].innerHTML = test;
-                        document.getElementById('menu').style.display = 'none';
-                        // now use SystemJS to load all test files
-                        SystemJS.import('./' + test + '.test.es6').then(function() {
-                            mocha.checkLeaks().globals([]);
-                            // if (!window.blanket && !window.PHANTOMJS) {
-                            mocha.run();
-                            // }
-                        });
+            SystemJS.import('./widgets.splitbutton.es6').then(function () {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    visible: true,
+                    enabled: true,
+                    onClick: function (e) {
+                        window.alert('Bindings - Clicked with command: ' + e.command);
                     }
                 });
-                mocha.setup('bdd');
-                mocha.timeout(10000);
+                $(function () {
+                    $('#splitbutton').kendoSplitButton({
+                        command: 'antenna',
+                        imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/wlan_antenna.svg',
+                        text: 'Contact',
+                        menuButtons: [
+                            { command: 'computer', text: 'Computer', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_monitor.svg' },
+                            { command: 'smartphone', text: 'Smartphone', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_smartphone.svg' },
+                            { command: 'telephone', text: 'Telephone', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_telephone.svg' }
+                        ],
+                        click: function (e) {
+                            window.alert('From Code - Clicked with command: ' + e.command);
+                        }
+                    });
+                    kendo.bind('body', viewModel);
+                });
             });
         }());
     </script>
 </head>
 <body>
-<h1>Add test to query string ?t=[name] (from name.test.es6)</h1>
-<ul id="menu">
-    <li><a href="?t=widgets.explorer">widgets.explorer</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.formatstrip">widgets.formatstrip</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.imageset">widgets.imageset</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.mathexpression">widgets.mathexpression</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.propertygrid">widgets.propertygrid</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.rating">widgets.rating</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.sortedlist">widgets.sortedlist</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.stage">widgets.stage</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.template">widgets.stage</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.toolbox">widgets.toolbox</a><span style="color:red;">*</span></li>
-</ul>
-<div id="mocha"></div>
-<div id="fixtures"></div>
+<h1>widgets.splitbutton</h1>
+
+<h2>JavaScript code</h2>
+<div id="splitbutton"></div>
+
+<h2>Bound to observable</h2>
+<div data-role="splitbutton" data-bind="visible: visible, enabled: enabled, events: { click: onClick }" data-command="align" data-icon="align-justify" data-text="Align" data-menu-buttons="[{&quot;command&quot;:&quot;left&quot;,&quot;icon&quot;:&quot;align-left&quot;,&quot;text&quot;:&quot;Align Left&quot;},{&quot;command&quot;:&quot;center&quot;,&quot;icon&quot;:&quot;align-center&quot;,&quot;text&quot;:&quot;Align Center&quot;},{&quot;command&quot;:&quot;right&quot;,&quot;icon&quot;:&quot;align-right&quot;,&quot;text&quot;:&quot;Align Right&quot;}]"></div>
+
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+</div>
+
+<pre>
+    {
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>
+    }
+</pre>
 </body>
 </html>

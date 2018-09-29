@@ -687,7 +687,7 @@
             },
 
             /**
-             * Refresh the toolbar on a new selection
+             * Refresh
              * @param selected
              */
             refresh: function (selected) {

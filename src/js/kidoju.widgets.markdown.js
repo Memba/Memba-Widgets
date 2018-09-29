@@ -92,7 +92,7 @@
         var Markdown = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -107,7 +107,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -365,7 +365,7 @@
             },
 
             /**
-             * Refresh the display (especially after changing the value)
+             * Refresh
              */
             refresh: function () {
                 var that = this;
@@ -379,7 +379,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              * @method destroy
              */
             destroy: function () {

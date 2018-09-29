@@ -21,6 +21,8 @@ const CONSTANTS = {
     CHANGE: 'change',
     CLICK: 'click',
     CLOSE: 'close',
+    DATABINDING: 'dataBinding',
+    DATABOUND: 'dataBound',
     ERROR: 'error',
     KEYDOWN: 'keydown',
     KEYPRESS: 'keypress',

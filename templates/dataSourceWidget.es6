@@ -9,6 +9,7 @@ import 'kendo.data';
 
 const {
     data: { DataSource },
+    destroy,
     ui: { plugin, DataBoundWidget }
 } = window.kendo;
 const CHANGE = 'change';
@@ -26,7 +27,7 @@ const DataSourceWidget = DataBoundWidget.extend({
     init(element, options) {
         DataBoundWidget.fn.init.call(this, element, options);
         this.wrapper = this.element;
-        // this.render();
+        // this._render();
         // this.enable(this.options.enabled);
         this._dataSource();
     },
@@ -106,8 +107,10 @@ const DataSourceWidget = DataBoundWidget.extend({
             $.isFunction(this._refreshHandler)
         ) {
             this.dataSource.unbind(CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
         }
         DataBoundWidget.fn.destroy.call(this);
+        destroy(this.element);
     }
 });
 

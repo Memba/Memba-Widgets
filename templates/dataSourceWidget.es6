@@ -3,9 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
-import 'kendo.data';
 
 const {
     data: { DataSource },
@@ -16,11 +17,13 @@ const CHANGE = 'change';
 
 /**
  * DataSourceWidget
+ * @class DataSourceWidget
+ * @extends DataBoundWidget
  */
 const DataSourceWidget = DataBoundWidget.extend({
     /**
      * Constructor
-     * @constructor
+     * @constructor init
      * @param element
      * @param options
      */
@@ -33,12 +36,14 @@ const DataSourceWidget = DataBoundWidget.extend({
     },
 
     /**
-     * Widget events
+     * Events
+     * @property events
      */
     events: [CHANGE],
 
     /**
-     * Default options
+     * Options
+     * @property options
      */
     options: {
         name: 'DataSourceWidget',
@@ -49,6 +54,7 @@ const DataSourceWidget = DataBoundWidget.extend({
 
     /**
      * _dataSource
+     * @method _dataSource
      * @private
      */
     _dataSource() {
@@ -74,7 +80,8 @@ const DataSourceWidget = DataBoundWidget.extend({
     },
 
     /**
-     * setDataSource
+     * Set data source
+     * @method setDataSource
      * @param dataSource
      */
     setDataSource(dataSource) {
@@ -87,6 +94,7 @@ const DataSourceWidget = DataBoundWidget.extend({
     /**
      * Refresh
      * Note: we should be more clever and use e.action and e.items
+     * @method refresh
      */
     refresh() {
         let list = '<ul>';
@@ -100,6 +108,7 @@ const DataSourceWidget = DataBoundWidget.extend({
 
     /**
      * Destroy
+     * @method destriy
      */
     destroy() {
         if (

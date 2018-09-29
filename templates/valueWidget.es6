@@ -3,21 +3,26 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
 
 const {
+    destroy,
     ui: { plugin, Widget }
 } = window.kendo;
 // const CHANGE = 'change';
 
 /**
  * ValueWidget
+ * @class ValueWidget
+ * @extends Widget
  */
 const ValueWidget = Widget.extend({
     /**
      * Constructor
-     * @constructor
+     * @constructor init
      * @param element
      * @param options
      */
@@ -31,11 +36,13 @@ const ValueWidget = Widget.extend({
 
     /**
      * Widget events
+     * @property events
      */
     // events: [CHANGE],
 
     /**
      * Widget options
+     * @property options
      */
     options: {
         name: 'ValueWidget',
@@ -45,7 +52,8 @@ const ValueWidget = Widget.extend({
 
     /**
      * Value
-     * Note: get/set won't work
+     * Note: ES6 get/set won't work with MVVM
+     * @method value
      * @param value
      */
     value(value) {
@@ -61,6 +69,7 @@ const ValueWidget = Widget.extend({
 
     /**
      * Refresh
+     * @method refresh
      */
     refresh() {
         this.element.text(this._value);
@@ -68,9 +77,11 @@ const ValueWidget = Widget.extend({
 
     /**
      * Destroy
+     * @method destroy
      */
     destroy() {
         Widget.fn.destroy.call(this);
+        destroy(this.element);
     }
 });
 

@@ -25,6 +25,7 @@ const CONSTANTS = {
     KEYDOWN: 'keydown',
     KEYPRESS: 'keypress',
     KEYUP: 'keyup',
+    LOAD: 'load',
     MOUSEDOWN: 'mousedown',
     MOUSEENTER: 'mouseenter',
     MOUSELEAVE: 'mouseleave',

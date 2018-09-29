@@ -33,6 +33,7 @@ const CONSTANTS = {
     MOUSELEAVE: 'mouseleave',
     MOUSEMOVE: 'mousemove',
     MOUSEOUT: 'mouseout',
+    MOUSEOVER: 'mouseover',
     MOUSEUP: 'mouseup',
     TOUCHEND: 'touchend',
     TOUCHLEAVE: 'touchleave',

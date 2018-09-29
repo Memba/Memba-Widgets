@@ -72,7 +72,7 @@ const StyleAdapter = BaseAdapter.extend({
                     options.model.set(options.field, result.data.value);
                 }
             })
-            .fail(err => {
+            .catch(err => {
                 // TODO
             });
     }

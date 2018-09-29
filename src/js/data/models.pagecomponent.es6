@@ -280,7 +280,7 @@ const PageComponent = BaseModel.define({
 });
 
 /**
- * ES6 default export
+ * Default export
  */
 export default PageComponent;
 

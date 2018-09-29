@@ -129,7 +129,7 @@ export default class WorkerPool {
          * We have implemented the later because it makes one common blob with the library and all other blobs are very small which makes a smaller memory footprint.
          * If the library were merged, each worker blob would contain the library, potentially making a much larger memory footprint.
          */
-        return $.when(...promises).done((...responses) => {
+        return $.when(...promises).then((...responses) => {
             // Here library is loaded so as to be merged with script (see exec)
             // this._library = concat(responses);
 

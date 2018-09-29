@@ -66,7 +66,7 @@ describe('window.workers', () => {
         it('It should load a library', done => {
             const pool = new WorkerPool();
             pool.load(libraries)
-                .done(() => {
+                .then(() => {
                     try {
                         expect(pool)
                             .to.have.property('_library')
@@ -76,7 +76,7 @@ describe('window.workers', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         });
 
         it('It should resolve an echo task', done => {
@@ -86,7 +86,7 @@ describe('window.workers', () => {
                 'echo', // e.data
                 'dummy' // task name
             )
-                .done(result => {
+                .then(result => {
                     try {
                         expect(result).to.have.property('name', 'dummy');
                         expect(result).to.have.property('value', 'echo');
@@ -95,7 +95,7 @@ describe('window.workers', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         });
 
         it('It should report an error', done => {
@@ -109,8 +109,8 @@ describe('window.workers', () => {
                     true, // e.data
                     'Task' // task name
                 )
-                    .done(done)
-                    .fail(err => {
+                    .then(done)
+                    .catch(err => {
                         try {
                             expect(err).to.be.an.instanceof(Error);
                             expect(err).to.have.property('filename');
@@ -134,8 +134,8 @@ describe('window.workers', () => {
                 0, // e.data
                 'Task' // task name
             )
-                .done(done)
-                .fail(err => {
+                .then(done)
+                .catch(err => {
                     try {
                         expect(err).to.be.an.instanceof(Error);
                         expect(err).to.have.property('timeout');
@@ -159,7 +159,7 @@ describe('window.workers', () => {
                 );
             }
             $.when(...promises)
-                .done((...args) => {
+                .then((...args) => {
                     try {
                         for (let i = 0; i < 500; i++) {
                             expect(args[i]).to.have.property(
@@ -173,7 +173,7 @@ describe('window.workers', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         });
     });
 
@@ -181,7 +181,7 @@ describe('window.workers', () => {
         const pool = new WorkerPool();
 
         before(done => {
-            pool.load(libraries).done(() => {
+            pool.load(libraries).then(() => {
                 done();
             });
         });
@@ -224,7 +224,7 @@ describe('window.workers', () => {
                 promises.push(pool.exec(script, data, data));
             });
             $.when(...promises)
-                .done((...args) => {
+                .then((...args) => {
                     try {
                         expect(args.length).to.equal(DATA.length);
                         for (let i = 0; i < args.length; i++) {
@@ -236,7 +236,7 @@ describe('window.workers', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         });
 
         it('soundex', done => {
@@ -269,7 +269,7 @@ describe('window.workers', () => {
                 promises.push(pool.exec(script, data.name, data.name));
             });
             $.when(...promises)
-                .done((...args) => {
+                .then((...args) => {
                     try {
                         expect(args.length).to.equal(DATA.length);
                         for (let i = 0; i < args.length; i++) {
@@ -287,7 +287,7 @@ describe('window.workers', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         });
 
         it('metaphone', done => {
@@ -304,7 +304,7 @@ describe('window.workers', () => {
                 promises.push(pool.exec(script, data.name, data.name));
             });
             $.when(...promises)
-                .done((...args) => {
+                .then((...args) => {
                     try {
                         expect(args.length).to.equal(DATA.length);
                         for (let i = 0; i < args.length; i++) {
@@ -322,7 +322,7 @@ describe('window.workers', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         });
 
         it('removeDiacritics', done => {
@@ -345,7 +345,7 @@ describe('window.workers', () => {
                 promises.push(pool.exec(script, data.name, data.name));
             });
             $.when(...promises)
-                .done((...args) => {
+                .then((...args) => {
                     try {
                         expect(args.length).to.equal(DATA.length);
                         for (let i = 0; i < args.length; i++) {
@@ -363,7 +363,7 @@ describe('window.workers', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         });
 
         it('Array.equals', done => {
@@ -393,7 +393,7 @@ describe('window.workers', () => {
                 promises.push(pool.exec(script, data, `Task ${index}`));
             });
             $.when(...promises)
-                .done((...args) => {
+                .then((...args) => {
                     try {
                         expect(args.length).to.equal(DATA.length);
                         for (let i = 0; i < args.length; i++) {
@@ -411,7 +411,7 @@ describe('window.workers', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         });
 
         it('Formula.equals', done => {
@@ -437,7 +437,7 @@ describe('window.workers', () => {
                 promises.push(pool.exec(script, data, `Task ${index}`));
             });
             $.when(...promises)
-                .done((...args) => {
+                .then((...args) => {
                     try {
                         expect(args.length).to.equal(DATA.length);
                         for (let i = 0; i < args.length; i++) {
@@ -455,7 +455,7 @@ describe('window.workers', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         });
     });
 });

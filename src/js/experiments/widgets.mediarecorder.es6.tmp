@@ -252,7 +252,7 @@ const MediaRecorder = Widget.extend({
             /* jshint -W074 */
 
             // Display recording devices - see https://webrtc.github.io/samples/src/content/devices/input-output/
-            enumerateDevices().done(function (devices) {
+            enumerateDevices().then(function (devices) {
                 var cameras = [];
                 var microphones = [];
                 var speakers = [];
@@ -281,7 +281,7 @@ const MediaRecorder = Widget.extend({
                 }
                 // TODO feed toolbar Dropdownlists
                 // Implement change event to setSinkId as in https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js#L58
-            }).fail(this._onError);
+            }).catch(this._onError);
 
             /* jshint +W074 */
         }
@@ -379,7 +379,7 @@ const MediaRecorder = Widget.extend({
         var options = that.options;
         that._chunks = [];
         getUserMedia({ audio: options.audio, video: options.video })
-            .done(function (stream) {
+            .then(function (stream) {
                 that._preview(stream);
                 that._initVolumeMeter(stream);
                 var config = {
@@ -397,7 +397,7 @@ const MediaRecorder = Widget.extend({
                 recorder.onstop = that._onStop.bind(that);
                 recorder.start();
             })
-            .fail(that._onError.bind(that));
+            .catch(that._onError.bind(that));
     },
 
     /**

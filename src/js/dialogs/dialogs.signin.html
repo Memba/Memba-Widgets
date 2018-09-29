@@ -197,7 +197,7 @@
                     $('#button1').click(function (e) {
                         openSignIn({
                             title: 'Signin'
-                        }).done(function(result) {
+                        }).then(function(result) {
                             $("#console1").append(
                                 kendo.format(
                                     '<div>action `{0}` with data `{1}` at {2}</div>',

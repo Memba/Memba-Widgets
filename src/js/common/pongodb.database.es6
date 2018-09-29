@@ -261,7 +261,7 @@ export default class Database {
         const db = this;
         const dfd = $.Deferred();
         db.version() // Read from storage
-            .done(dbVersion => {
+            .then(dbVersion => {
                 // Sort migrations by version number
                 const migrations = db._migrations.sort(compareVersions);
                 // Find the next migration
@@ -277,10 +277,10 @@ export default class Database {
                         migration
                             .execute(db)
                             .progress(dfd.notify)
-                            .done(() => {
+                            .then(() => {
                                 // Bump version number
                                 db.version(migration._version)
-                                    .done(() => {
+                                    .then(() => {
                                         logger.info({
                                             method: 'upgrade',
                                             message: 'Completed migration',
@@ -291,14 +291,14 @@ export default class Database {
                                         // Use recursion to execute the following migration
                                         db.upgrade()
                                             .progress(dfd.notify)
-                                            .done(dfd.resolve)
-                                            .fail(dfd.reject);
+                                            .then(dfd.resolve)
+                                            .catch(dfd.reject);
                                     })
                                     // Note: migrations need to be idempotent
                                     // otherwise failing to bump the version could be a problem
-                                    .fail(dfd.reject);
+                                    .catch(dfd.reject);
                             })
-                            .fail(dfd.reject);
+                            .catch(dfd.reject);
                     }
                     // Returning true stops iterating through migrations
                     return found;
@@ -308,7 +308,7 @@ export default class Database {
                     dfd.resolve();
                 }
             })
-            .fail(dfd.reject);
+            .catch(dfd.reject);
         return dfd.promise();
     }
 

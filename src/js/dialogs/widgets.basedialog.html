@@ -214,7 +214,7 @@
                         openAlert({
                             type: 'error',
                             message: 'Hey Houston, we\'ve got a problem!'
-                        }).done(function(result) {
+                        }).then(function(result) {
                             $("#console2").append(kendo.format("<div>action `{0}` at {1}</div>", result.action, new Date().toLocaleTimeString()));
                         });
                     });
@@ -223,7 +223,7 @@
                         openPrompt({
                             title: 'Your name',
                             message: 'Please enter tour name:'
-                        }).done(function(result) {
+                        }).then(function(result) {
                             $("#console3").append(kendo.format("<div>action `{0}` with input `{1}` at {2}</div>", result.action, result.data.input, new Date().toLocaleTimeString()));
                         });
                     });

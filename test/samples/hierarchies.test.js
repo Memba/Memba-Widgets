@@ -148,7 +148,7 @@
                 data: new kendo.data.DataSource({ data: categorizedMovies[0].items }),
                 current: null
             });
-            viewModel.data.fetch().done(function () {
+            viewModel.data.fetch().then(function () {
                 var title  = 'Another title';
                 viewModel.set('current', viewModel.data.at(0));
                 viewModel.set('current.title', title);
@@ -168,7 +168,7 @@
                 var hierarchicalDataSource = new kendo.data.HierarchicalDataSource({ data: categorizedMovies });
                 hierarchicalDataSource.read().always(function () {
                     expect(hierarchicalDataSource.total()).to.equal(categorizedMovies.length);
-                    hierarchicalDataSource.at(0).load().done(function () {
+                    hierarchicalDataSource.at(0).load().then(function () {
                         // expect(hierarchicalDataSource.at(0).children.total()).to.equal(categorizedMovies[0].items.length);
                         expect(hierarchicalDataSource.at(0).children.data().length).to.equal(categorizedMovies[0].items.length);
                         done();
@@ -281,7 +281,7 @@
                 libraryDataSource.read().always(function () {
                     expect(libraryDataSource.total()).to.equal(categorizedMovies.length);
                     // expect (libraryDataSource.at(0)).to.be.an.instanceof(Author); <-------------------------------------------------------- Does not work
-                    libraryDataSource.at(0).load().done(function () {
+                    libraryDataSource.at(0).load().then(function () {
                         // expect(libraryDataSource.at(0).children.total()).to.equal(categorizedMovies[0].items.length); <------------------ Does not work
                         expect(libraryDataSource.at(0).children.data().length).to.equal(categorizedMovies[0].items.length); // <-------------- Works
                         // expect(libraryDataSource.at(0).children.at(0)).to.be.an.instanceof(Book); <---------------------------------------- Does not work
@@ -303,11 +303,11 @@
                     libraryDataSource.read(),
                     $.getJSON(libraryDataSource.options.transport.read.url)
                 )
-                    .done(function (response1, response2) {
+                    .then(function (response1, response2) {
                         expect(response2).to.be.an.instanceof(Array);
                         // expect(libraryDataSource.at(0)).to.be.an.instanceof(Author); //<------------------------------------------------ Does not work
                         expect(libraryDataSource.total()).to.equal(response2[0].length);
-                        libraryDataSource.at(0).load().done(function () {
+                        libraryDataSource.at(0).load().then(function () {
                             // expect(libraryDataSource.at(0).children.total()).to.equal(response2[0][0].items.length);   //<-------------- Does not work
                             done();
                         });

@@ -72,7 +72,7 @@ const ImageListBuilderAdapter = BaseAdapter.extend({
                     },
                     assets: assets.image
                 })
-                .done(result => {
+                .then(result => {
                     if (
                         result.action ===
                         kendo.ui.BaseDialog.fn.options.messages.actions.ok
@@ -81,7 +81,7 @@ const ImageListBuilderAdapter = BaseAdapter.extend({
                         e.item.set('image', result.data.value);
                     }
                 })
-                .fail(err => {
+                .catch(err => {
                     // TODO
                 });
         }

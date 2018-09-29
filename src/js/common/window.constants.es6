@@ -79,6 +79,6 @@ const CONSTANTS = {
 };
 
 /**
- * ES6 Default export
+ * Default export
  */
 export default CONSTANTS;

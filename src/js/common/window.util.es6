@@ -94,7 +94,8 @@ export function isAnyArray(a) {
         typeof a === 'object' && // an array is an object
         typeof a.length === 'number' &&
         typeof a.forEach === 'function' &&
-        typeof a.join === 'function'
+        typeof a.join === 'function' &&
+        typeof a.push === 'function'
     );
 }
 

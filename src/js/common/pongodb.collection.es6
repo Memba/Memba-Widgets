@@ -276,7 +276,7 @@ export default class Collection {
     findOne(query, projection) {
         const dfd = $.Deferred();
         this.find(query, projection, true)
-            .done(results => {
+            .then(results => {
                 assert.isArray(
                     results,
                     assert.format(assert.messages.isArray.default, 'results')
@@ -287,7 +287,7 @@ export default class Collection {
                     dfd.reject(new Error('Not found'));
                 }
             })
-            .fail(dfd.reject);
+            .catch(dfd.reject);
         return dfd.promise();
     }
 
@@ -383,10 +383,10 @@ export default class Collection {
                     dfd.reject(err);
                 } else {
                     $.when(...that.triggers(Collection.triggers.insert, item))
-                        .done(() => {
+                        .then(() => {
                             dfd.resolve(item);
                         })
-                        .fail(dfd.reject);
+                        .catch(dfd.reject);
                 }
             });
         } else {
@@ -411,10 +411,10 @@ export default class Collection {
                                     result
                                 )
                             )
-                                .done(() => {
+                                .then(() => {
                                     dfd.resolve(result);
                                 })
-                                .fail(dfd.reject);
+                                .catch(dfd.reject);
                         }
                     });
                 }
@@ -478,14 +478,14 @@ export default class Collection {
                                             result
                                         )
                                     )
-                                        .done(() => {
+                                        .then(() => {
                                             dfd.resolve({
                                                 nMatched: 1,
                                                 nUpserted: 0,
                                                 nModified: 1
                                             });
                                         })
-                                        .fail(dfd.reject);
+                                        .catch(dfd.reject);
                                 }
                             }
                         );
@@ -515,14 +515,14 @@ export default class Collection {
                                         result
                                     )
                                 )
-                                    .done(() => {
+                                    .then(() => {
                                         dfd.resolve({
                                             nMatched: 1,
                                             nUpserted: 1,
                                             nModified: 0
                                         });
                                     })
-                                    .fail(dfd.reject);
+                                    .catch(dfd.reject);
                             }
                         }
                     );
@@ -565,8 +565,8 @@ export default class Collection {
                                                             doc
                                                         )
                                                     )
-                                                        .done(def.resolve)
-                                                        .fail(def.reject);
+                                                        .then(def.resolve)
+                                                        .catch(def.reject);
                                                 }
                                             }
                                         );
@@ -582,7 +582,7 @@ export default class Collection {
                                 dfd.reject(error);
                             } else {
                                 $.when(...promises)
-                                    .done(() => {
+                                    .then(() => {
                                         dfd.notify({
                                             index: length - 1,
                                             total: length
@@ -594,7 +594,7 @@ export default class Collection {
                                             nModified: promises.length
                                         });
                                     })
-                                    .fail(dfd.reject);
+                                    .catch(dfd.reject);
                             }
                         }
                     );
@@ -642,10 +642,10 @@ export default class Collection {
                                     item
                                 )
                             )
-                                .done(() => {
+                                .then(() => {
                                     dfd.resolve({ nRemoved: 1 });
                                 })
-                                .fail(dfd.reject);
+                                .catch(dfd.reject);
                         }
                     });
                 } else {
@@ -680,8 +680,8 @@ export default class Collection {
                                                 item
                                             )
                                         )
-                                            .done(removals[key].resolve)
-                                            .fail(removals[key].reject);
+                                            .then(removals[key].resolve)
+                                            .catch(removals[key].reject);
                                     }
                                     return ret;
                                 });
@@ -705,10 +705,10 @@ export default class Collection {
                                 promises.push(removals[key].promise());
                             });
                             $.when(...promises)
-                                .done(() => {
+                                .then(() => {
                                     dfd.resolve({ nRemoved: count });
                                 })
-                                .fail(dfd.reject);
+                                .catch(dfd.reject);
                         }
                     );
                 }

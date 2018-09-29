@@ -86,7 +86,7 @@ const AssetAdapter = BaseAdapter.extend({
                 },
                 assets: Assets[options.model.tool]
             })
-            .done(result => {
+            .then(result => {
                 if (
                     result.action ===
                     kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
@@ -94,7 +94,7 @@ const AssetAdapter = BaseAdapter.extend({
                     options.model.set(options.field, result.data.value);
                 }
             })
-            .fail(err => {
+            .catch(err => {
                 // TODO
             });
     }

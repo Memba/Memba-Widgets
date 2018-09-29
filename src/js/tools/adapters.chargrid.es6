@@ -92,7 +92,7 @@ const CharGridAdapter = BaseAdapter.extend({
                     value
                 }
             })
-            .done(result => {
+            .then(result => {
                 if (
                     result.action ===
                     kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
@@ -101,7 +101,7 @@ const CharGridAdapter = BaseAdapter.extend({
                     options.model.set(options.field, result.data.value);
                 }
             })
-            .fail(err => {
+            .catch(err => {
                 // TODO
             });
     },

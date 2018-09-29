@@ -53,8 +53,8 @@ export default class Migration {
             promises.push(script(db).progress(dfd.notify));
         });
         $.when(...promises)
-            .done(dfd.resolve)
-            .fail(dfd.reject);
+            .then(dfd.resolve)
+            .catch(dfd.reject);
         return dfd.promise();
     }
 }

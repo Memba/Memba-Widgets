@@ -28,50 +28,50 @@ describe('window.fs', () => {
             const fileSystem = new FileSystem();
             fileSystem
                 ._initTemporary()
-                .done(temporary => {
+                .then(temporary => {
                     // expect(temporary).to.be.an('object');
                     expect(temporary).not.to.be.undefined;
                     fileSystem
                         ._initTemporary()
-                        .done(fs => {
+                        .then(fs => {
                             expect(fs).to.equal(temporary);
                             done();
                         })
-                        .fail(done);
+                        .catch(done);
                 })
-                .fail(done);
+                .catch(done);
         });
 
         it('it should init a window.PERSISTENT file system', done => {
             const fileSystem = new FileSystem();
             fileSystem
                 ._initPersistent()
-                .done(persistent => {
+                .then(persistent => {
                     // expect(persistent).to.be.an('object');
                     expect(persistent).not.to.be.undefined;
                     fileSystem
                         ._initPersistent()
-                        .done(fs => {
+                        .then(fs => {
                             expect(fs).to.equal(persistent);
                             done();
                         })
-                        .fail(done);
+                        .catch(done);
                 })
-                .fail(done);
+                .catch(done);
         });
 
         it('it should init a file system (temporary and persistent)', done => {
             const fileSystem = new FileSystem();
             fileSystem
                 .init()
-                .done((temporary, persistent) => {
+                .then((temporary, persistent) => {
                     // expect(temporary).to.be.an('object');
                     // expect(persistent).to.be.an('object');
                     expect(temporary).not.to.be.undefined;
                     expect(persistent).not.to.be.undefined;
                     done();
                 })
-                .fail(done);
+                .catch(done);
         });
     });
 
@@ -89,11 +89,11 @@ describe('window.fs', () => {
             const fileSystem = new FileSystem();
             fileSystem
                 .init()
-                .done(() => {
+                .then(() => {
                     const path = '/images';
                     fileSystem
                         .getDirectoryEntry(path, window.TEMPORARY)
-                        .done(directoryEntry => {
+                        .then(directoryEntry => {
                             try {
                                 expect(directoryEntry).not.to.be.undefined;
                                 expect(directoryEntry.isDirectory).to.be.true;
@@ -103,20 +103,20 @@ describe('window.fs', () => {
                                 done(ex);
                             }
                         })
-                        .fail(done);
+                        .catch(done);
                 })
-                .fail(done);
+                .catch(done);
         });
 
         it('it should get a directoryEntry in a persistent FileSystem', done => {
             const fileSystem = new FileSystem();
             fileSystem
                 .init()
-                .done(() => {
+                .then(() => {
                     const path = '/images/icons/office';
                     fileSystem
                         .getDirectoryEntry(path, window.PERSISTENT)
-                        .done(directoryEntry => {
+                        .then(directoryEntry => {
                             try {
                                 expect(directoryEntry).not.to.be.undefined;
                                 expect(directoryEntry.isDirectory).to.be.true;
@@ -126,9 +126,9 @@ describe('window.fs', () => {
                                 done(ex);
                             }
                         })
-                        .fail(done);
+                        .catch(done);
                 })
-                .fail(done);
+                .catch(done);
         });
     });
 
@@ -139,13 +139,13 @@ describe('window.fs', () => {
             const fileName = 'temp.jpg';
             fileSystem
                 .init()
-                .done(() => {
+                .then(() => {
                     fileSystem
                         .getDirectoryEntry(path, window.TEMPORARY)
-                        .done(directoryEntry => {
+                        .then(directoryEntry => {
                             fileSystem
                                 .getFileEntry(directoryEntry, fileName)
-                                .done(fileEntry => {
+                                .then(fileEntry => {
                                     try {
                                         expect(fileEntry).not.to.be.undefined;
                                         expect(fileEntry.isFile).to.be.true;
@@ -160,11 +160,11 @@ describe('window.fs', () => {
                                         done(ex);
                                     }
                                 })
-                                .fail(done);
+                                .catch(done);
                         })
-                        .fail(done);
+                        .catch(done);
                 })
-                .fail(done);
+                .catch(done);
         });
 
         it('it should get a fileEntry in a persistent FileSystem', done => {
@@ -173,13 +173,13 @@ describe('window.fs', () => {
             const fileName = 'temp.jpg';
             fileSystem
                 .init()
-                .done(() => {
+                .then(() => {
                     fileSystem
                         .getDirectoryEntry(path, window.PERSISTENT)
-                        .done(directoryEntry => {
+                        .then(directoryEntry => {
                             fileSystem
                                 .getFileEntry(directoryEntry, fileName)
-                                .done(fileEntry => {
+                                .then(fileEntry => {
                                     try {
                                         expect(fileEntry).not.to.be.undefined;
                                         expect(fileEntry.isFile).to.be.true;
@@ -194,11 +194,11 @@ describe('window.fs', () => {
                                         done(ex);
                                     }
                                 })
-                                .fail(done);
+                                .catch(done);
                         })
-                        .fail(done);
+                        .catch(done);
                 })
-                .fail(done);
+                .catch(done);
         });
     });
 
@@ -239,16 +239,16 @@ describe('window.fs', () => {
             const fileName = 'logo.png';
             fileSystem
                 .init()
-                .done(() => {
+                .then(() => {
                     fileSystem
                         .getDirectoryEntry(path, window.TEMPORARY)
-                        .done(directoryEntry => {
+                        .then(directoryEntry => {
                             fileSystem
                                 .getFileEntry(directoryEntry, fileName)
-                                .done(fileEntry => {
+                                .then(fileEntry => {
                                     fileSystem
                                         .download(remoteUrl, fileEntry)
-                                        .done(entry => {
+                                        .then(entry => {
                                             try {
                                                 expect(transfer).to.have.been
                                                     .calledOnce;
@@ -262,13 +262,13 @@ describe('window.fs', () => {
                                                 done(ex);
                                             }
                                         })
-                                        .fail(done);
+                                        .catch(done);
                                 })
-                                .fail(done);
+                                .catch(done);
                         })
-                        .fail(done);
+                        .catch(done);
                 })
-                .fail(done);
+                .catch(done);
         });
     });
 
@@ -279,33 +279,33 @@ describe('window.fs', () => {
             const path = '/images';
             fileSystem
                 .init()
-                .done(() => {
+                .then(() => {
                     fileSystem
                         .getDirectoryEntry(path, window.TEMPORARY)
-                        .done(directoryEntry => {
+                        .then(directoryEntry => {
                             expect(directoryEntry).not.to.be.undefined;
                             expect(directoryEntry.isDirectory).to.be.true;
                             fileSystem
                                 .getFileEntry(directoryEntry, fileName)
-                                .done(fileEntry => {
+                                .then(fileEntry => {
                                     expect(fileEntry).not.to.be.undefined;
                                     expect(fileEntry.isFile).to.be.true;
                                     fileSystem
                                         .download(remoteUrl, fileEntry)
-                                        .done(dfd.resolve)
-                                        .fail(dfd.reject);
+                                        .then(dfd.resolve)
+                                        .catch(dfd.reject);
                                 })
-                                .fail(dfd.reject);
+                                .catch(dfd.reject);
                         })
-                        .fail(dfd.reject);
+                        .catch(dfd.reject);
                 })
-                .fail(dfd.reject);
+                .catch(dfd.reject);
             return dfd.promise();
         }
 
         function test(remoteUrl, fileName, done) {
             download(remoteUrl, fileName)
-                .done(e => {
+                .then(e => {
                     try {
                         if (
                             /Chrome/.test(navigator.userAgent) &&
@@ -325,7 +325,7 @@ describe('window.fs', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         }
 
         it('it should download a remote url to a temporary FileSystem', done => {
@@ -379,10 +379,10 @@ describe('window.fs', () => {
             const remoteUrl = 'https://cdn.kidoju.com/foo/bar';
             const fileName = 'bar.png';
             download(remoteUrl, fileName)
-                .done(() => {
+                .then(() => {
                     done(new Error('Should have caught a status error'));
                 })
-                .fail(err => {
+                .catch(err => {
                     try {
                         expect(err.message).to.equal(
                             'XMLHttpRequest status 403'
@@ -398,10 +398,10 @@ describe('window.fs', () => {
             const remoteUrl = 'https://www.memba.com/foo.png';
             const fileName = 'foo.png';
             download(remoteUrl, fileName)
-                .done(() => {
+                .then(() => {
                     done(new Error('Should have caught a status error'));
                 })
-                .fail(err => {
+                .catch(err => {
                     try {
                         // expect(err.message).to.equal('XMLHttpRequest status 404');
                         expect(err.message).to.equal('XMLHttpRequest error');
@@ -431,7 +431,7 @@ describe('window.fs', () => {
                 type: 'GET',
                 url: remoteUrl
             })
-                .done((response, status, xhr) => {
+                .then((response, status, xhr) => {
                     if (xhr.status === 200) {
                         const blob = new window.Blob([response], {
                             type: xhr.getResponseHeader('content-type')
@@ -442,13 +442,13 @@ describe('window.fs', () => {
                         dfd.reject(xhr, status, 'error');
                     }
                 })
-                .fail(dfd.reject); // Note: cross domain $.get from localhost is not allowed in Google Chrome and will end up here
+                .catch(dfd.reject); // Note: cross domain $.get from localhost is not allowed in Google Chrome and will end up here
             return dfd.promise();
         }
 
         function test(remoteUrl, done) {
             downloadFile(remoteUrl)
-                .done(blob => {
+                .then(blob => {
                     try {
                         expect(blob).to.have.property('name'); // , 'picture');
                         expect(blob)
@@ -461,7 +461,7 @@ describe('window.fs', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         }
 
         it('it should grab a profile picture from Facebook', done => {

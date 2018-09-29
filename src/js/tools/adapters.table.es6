@@ -80,7 +80,7 @@ const TableAdapter = BaseAdapter.extend({
                     data
                 )
             })
-            .done(result => {
+            .then(result => {
                 if (
                     result.action ===
                     kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
@@ -88,7 +88,7 @@ const TableAdapter = BaseAdapter.extend({
                     options.model.set(options.field, result.data);
                 }
             })
-            .fail(err => {
+            .catch(err => {
                 // TODO
             });
     }

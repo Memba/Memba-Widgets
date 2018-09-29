@@ -16,10 +16,18 @@ const { expect } = chai;
 
 chai.use(sinonChai);
 
-describe('window.image', () => {
-    describe('TODO', () => {
-        it('TODO', () => {
+const JPG_IMAGE = '';
+const PNG_IMAGE = '';
+const SVG_IMAGE = 'https://cdn.kidoju.com/images/o_collection/svg/office/sign_warning.svg';
 
+const ERROR_404 = '';
+const ERROR_400 = '';
+const ERROR_ = '';
+
+describe('window.image', () => {
+    describe('preload', () => {
+        it('It should preload an existing image url', () => {
+            test()
         });
     });
 });

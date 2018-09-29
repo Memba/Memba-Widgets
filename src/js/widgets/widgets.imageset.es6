@@ -9,6 +9,7 @@ import $ from 'jquery';
 import 'kendo.binder';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { preload } from '../common/window.image.es6';
 import Logger from '../common/window.logger.es6';
 
 const {
@@ -186,9 +187,6 @@ const ImageSet = Widget.extend({
         this.trigger(CONSTANTS.CHANGE);
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Event handler for the keydown event (which is enabled by tabindex=0)
      * @param e
@@ -231,17 +229,17 @@ const ImageSet = Widget.extend({
         this.trigger(CONSTANTS.CHANGE);
     },
 
-    /* jshint +W074 */
-
     /**
      * Refresh the widget
      * @method refresh
      */
     refresh() {
-        const element = this.element;
-        const images = this.options.images;
+        const {
+            element,
+            options: { images }
+        } = this;
         this._index = Math.round(Math.abs(this._index)) % images.length || 0;
-        if ($.isArray(images) && images[this._index]) {
+        if (Array.isArray(images) && images[this._index]) {
             // element.attr('alt', kendo.htmlEncode(images[this._index].text));
             // element.attr('src', kendo.htmlEncode(images[this._index].image));
             element.css({
@@ -266,9 +264,7 @@ const ImageSet = Widget.extend({
         // Clear references
         // Destroy widget
         Widget.fn.destroy.call(that);
-        kendo.destroy(wrapper);
-        // Remove widget class
-        // wrapper.removeClass(WIDGET_CLASS);
+        destroy(wrapper);
     }
 });
 

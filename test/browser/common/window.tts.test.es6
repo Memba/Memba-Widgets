@@ -126,11 +126,11 @@ describe('window.tts', () => {
 
         it('doSpeak should speak english', done => {
             doSpeak(DATA.EN, 'en-GB', false)
-                .done(evt => {
+                .then(evt => {
                     expect(evt).to.be.an.instanceof(SpeechSynthesisEvent);
                     done();
                 })
-                .fail(done);
+                .catch(done);
             setTimeout(() => {
                 cancelSpeak();
             }, 3000);
@@ -138,11 +138,11 @@ describe('window.tts', () => {
 
         it('doSpeak should speak french', done => {
             doSpeak(DATA.FR, 'fr', false)
-                .done(evt => {
+                .then(evt => {
                     expect(evt).to.be.an.instanceof(SpeechSynthesisEvent);
                     done();
                 })
-                .fail(done);
+                .catch(done);
             setTimeout(() => {
                 cancelSpeak();
             }, 3000);

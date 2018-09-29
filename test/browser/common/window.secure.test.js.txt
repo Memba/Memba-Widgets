@@ -26,10 +26,10 @@
 
         it('it should write', function (done) {
             secureStorage.setItem(KEY1, VALUE1)
-                .done(function (key) {
+                .then(function (key) {
                     expect(key).to.equal(KEY1);
                 })
-                .fail(function (err) {
+                .catch(function (err) {
                     expect(err).to.be.null;
                 })
                 .always(function () {
@@ -39,10 +39,10 @@
 
         it('it should read', function (done) {
             secureStorage.getItem(KEY1)
-                .done(function (value) {
+                .then(function (value) {
                     expect(value).to.equal(VALUE1);
                 })
-                .fail(function (err) {
+                .catch(function (err) {
                     expect(err).to.be.null;
                 })
                 .always(function () {
@@ -52,10 +52,10 @@
 
         it('it should clear', function (done) {
             secureStorage.removeItem(KEY1)
-                .done(function (key) {
+                .then(function (key) {
                     expect(key).to.equal(KEY1);
                 })
-                .fail(function (err) {
+                .catch(function (err) {
                     expect(err).to.be.null;
                 })
                 .always(function () {

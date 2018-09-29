@@ -26,7 +26,7 @@ describe('window.media', () => {
     describe('enumerateDevices', () => {
         it('It should enumerate devices', done => {
             enumerateDevices()
-                .done(devices => {
+                .then(devices => {
                     try {
                         expect(devices)
                             .to.be.an('array')
@@ -42,14 +42,14 @@ describe('window.media', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         });
     });
 
     describe('getUserMedia', () => {
         it('It should get user media', done => {
             getUserMedia()
-                .done(stream => {
+                .then(stream => {
                     try {
                         expect(stream).to.be.an.instanceof(MediaStream);
                         done();
@@ -57,7 +57,7 @@ describe('window.media', () => {
                         done(ex);
                     }
                 })
-                .fail(done);
+                .catch(done);
         });
     });
 

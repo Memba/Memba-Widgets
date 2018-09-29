@@ -228,7 +228,7 @@ const Stream = BaseModel.define({
 });
 
 /**
- * ES6 default export
+ * Default export
  */
 export default Stream;
 

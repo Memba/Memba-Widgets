@@ -354,8 +354,8 @@ export function doSpeak(text, language, clear) {
             promises.push(speechSynthesisPromise(chunk, language));
         });
         $.when(...promises)
-            .done(dfd.resolve)
-            .fail(dfd.reject);
+            .then(dfd.resolve)
+            .catch(dfd.reject);
         logger.debug({
             method: 'tts.doSpeak',
             message: 'Text spoken with W3C Speech API'

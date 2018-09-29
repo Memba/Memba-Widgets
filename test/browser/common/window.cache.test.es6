@@ -18,12 +18,12 @@ const { before, describe, it } = window;
 const { expect } = chai;
 
 const INVALID = [
-    { key: 1, value: 'oops!' },
-    { key: true, value: 'oops!' },
-    { key: { id: 1 }, value: 'oops!' }
+    { key: JSC.number(1000)(), value: JSC.string()() },
+    { key: JSC.falsy()(), value: JSC.string()() },
+    { key: JSC.object()(), value: JSC.string()() }
 ];
 
-const VALUES = JSC.array(
+const DATA = JSC.array(
     10, // array of 10 values
     JSC.object(
         // of type object
@@ -81,9 +81,9 @@ describe('window.cache', () => {
                 expect(item).to.have.property('ttl');
                 expect(item)
                     .to.have.property('value')
-                    .that.eql(VALUES[index]);
+                    .that.eql(DATA[index]);
             }
-            VALUES.forEach(test);
+            DATA.forEach(test);
         });
 
         it('It should fail to getItem with an invalid key', () => {
@@ -102,7 +102,7 @@ describe('window.cache', () => {
                 const item = cache.getItem(key);
                 expect(item).to.eql(value);
             }
-            VALUES.forEach(test);
+            DATA.forEach(test);
         });
 
         it('It should fail to removeItems with an invalid key', () => {
@@ -122,7 +122,7 @@ describe('window.cache', () => {
                 const item = storage.getItem(key);
                 expect(item).to.be.null;
             }
-            VALUES.forEach(test);
+            DATA.forEach(test);
         });
 
         it('It should discard expired items', () => {
@@ -133,7 +133,7 @@ describe('window.cache', () => {
                 JSON.stringify({
                     ttl: lag,
                     ts: Date.now() - 1000 * lag - 1,
-                    value: VALUES[0]
+                    value: DATA[0]
                 })
             );
             const item = cache.getItem(key);
@@ -147,7 +147,7 @@ describe('window.cache', () => {
                 sig: md5(JSC.string()()),
                 ttl: 24 * 60 * 60,
                 ts: Date.now(),
-                value: VALUES[0]
+                value: DATA[0]
             };
             storage.setItem(key, JSON.stringify(data));
             const item = cache.getItem(key);
@@ -183,9 +183,9 @@ describe('window.cache', () => {
                 expect(item).to.have.property('ttl');
                 expect(item)
                     .to.have.property('value')
-                    .that.eql(VALUES[index]);
+                    .that.eql(DATA[index]);
             }
-            VALUES.forEach(test);
+            DATA.forEach(test);
         });
 
         it('It should fail to getItem with an invalid key', () => {
@@ -204,7 +204,7 @@ describe('window.cache', () => {
                 const item = cache.getItem(key);
                 expect(item).to.eql(value);
             }
-            VALUES.forEach(test);
+            DATA.forEach(test);
         });
 
         it('It should fail to removeItems with an invalid key', () => {
@@ -224,7 +224,7 @@ describe('window.cache', () => {
                 const item = storage.getItem(key);
                 expect(item).to.be.null;
             }
-            VALUES.forEach(test);
+            DATA.forEach(test);
         });
 
         it('It should discard expired items', () => {
@@ -235,7 +235,7 @@ describe('window.cache', () => {
                 JSON.stringify({
                     ttl: lag,
                     ts: Date.now() - 1000 * lag - 1,
-                    value: VALUES[0]
+                    value: DATA[0]
                 })
             );
             const item = cache.getItem(key);
@@ -249,7 +249,7 @@ describe('window.cache', () => {
                 sig: md5(JSC.string()()),
                 ttl: 24 * 60 * 60,
                 ts: Date.now(),
-                value: VALUES[0]
+                value: DATA[0]
             };
             storage.setItem(key, JSON.stringify(data));
             const item = cache.getItem(key);

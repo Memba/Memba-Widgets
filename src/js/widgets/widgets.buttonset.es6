@@ -115,11 +115,11 @@ const ButtonSet = Widget.extend({
             element,
             options: { buttons }
         } = this;
-        if (!element.is(CONSTANTS.INPUT)) {
-            throw new Error(
-                'A button set should wrap an input for kendo validators to work.'
-            );
-        }
+        assert.ok(
+            element.is(CONSTANTS.INPUT),
+            'Please use an input tag to instantiate a ButtonSet widget.'
+            // otherwise kendo ui validators won't work
+        );
         const id = element.attr(CONSTANTS.ID);
         element.attr('aria-owns', id ? `${id}_buttonset` : '').hide();
         this.wrapper = element

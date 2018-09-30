@@ -7,31 +7,23 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
-import 'kendo.dropdownlist';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import tools from '../tools/tools.es6';
-import BaseTool from '../tools/tools.base.es6';
 
 const {
+    _outerWidth,
     attr,
-    data: { DataSource },
     format,
-    ui: { plugin, Widget }
+    keys,
+    ui: { plugin, Widget },
+    wrap
 } = window.kendo;
 const logger = new Logger('widgets.splitbutton');
 
 const NS = '.kendoSplitButton';
 const WIDGET_CLASS = /* 'k-widget */ 'kj-splitbutton';
 
-const keys = kendo.keys;
-const outerWidth = kendo._outerWidth;
-
-const UNDEFINED = 'undefined';
-const CLICK = 'click';
-const KEYDOWN = 'keydown';
-const DISABLED_CLASS = 'k-state-disabled';
 const BUTTON_TMPL = '<a class="k-button">{0}</a>';
 // var ARROW_BUTTON_TMPL = '<a class="k-button kj-splitbutton-arrow"><span class="' + (options.mobile ? 'km-icon km-arrowdown' : 'k-icon k-i-arrow-60-down') + '"></span></a>';
 const ARROW_BUTTON_TMPL =
@@ -46,32 +38,29 @@ const ARROW_BUTTON_SELECTOR = '.kj-splitbutton-arrow';
  * Helpers
  ******************************************************************************** */
 
-/* If a strict mode function is executed using function invocation, its 'this' value will be undefined. */
-/* jshint -W040 */
-
 /**
  * adjustPopupWidth can be found in kendo.toolbar.js
  * Note: It does not make sense to add it as a widget method, because
  * this actually refers to this.popup
  */
 function adjustPopupWidth() {
-    const anchor = this.options.anchor;
-    const computedWidth = outerWidth(anchor);
+    const {
+        element,
+        options: { anchor }
+    } = this;
+    const computedWidth = _outerWidth(anchor);
     let width;
-    kendo.wrap(this.element).addClass('k-split-wrapper');
+    wrap(element).addClass('k-split-wrapper');
     if (this.element.css('box-sizing') !== 'border-box') {
-        width =
-            computedWidth - (outerWidth(this.element) - this.element.width());
+        width = computedWidth - (_outerWidth(element) - element.width());
     } else {
         width = computedWidth;
     }
-    this.element.css({
+    element.css({
         fontFamily: anchor.css('font-family'),
         'min-width': width
     });
 }
-
-/* jshint +W040 */
 
 /**
 function toggleActive(e) {
@@ -118,10 +107,9 @@ const SplitButton = Widget.extend({
      * @param options
      */
     init(element, options) {
-        this.ns = NS;
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
-        this._layout();
+        this._render();
         this.enable(
             this.element.prop('disabled') ? false : !!this.options.enabled
         );
@@ -145,28 +133,28 @@ const SplitButton = Widget.extend({
      * Events
      * @property events
      */
-    events: [CLICK],
+    events: [CONSTANTS.CLICK],
 
     /**
-     * Builds the widget layout
-     * @method _layout
+     * _render
+     * @method _render
      * @private
      */
-    _layout() {
-        const element = this.element;
-        const options = this.options;
-        if (!element.is('div')) {
-            throw new Error('Please instantiate a split button with a div');
-        }
+    _render() {
+        const { element, options } = this;
+        assert.ok(
+            element.is(CONSTANTS.DIV),
+            'Please use a div tag to instantiate a SplitButton widget.'
+        );
         this.wrapper = element;
         element.addClass(WIDGET_CLASS).prop('tabIndex', 0);
         const icon = options.icon
-            ? kendo.format(ICON_TMPL, options.icon)
+            ? format(ICON_TMPL, options.icon)
             : options.imageUrl
-                ? kendo.format(IMAGE_TMPL, options.imageUrl)
+                ? format(IMAGE_TMPL, options.imageUrl)
                 : '';
-        this.mainButton = $(kendo.format(BUTTON_TMPL, icon + options.text))
-            .attr(kendo.attr('command'), options.command || '')
+        this.mainButton = $(format(BUTTON_TMPL, icon + options.text))
+            .attr(attr('command'), options.command || '')
             .appendTo(element);
         this.arrowButton = $(ARROW_BUTTON_TMPL).appendTo(element);
         this._createPopup();
@@ -193,12 +181,12 @@ const SplitButton = Widget.extend({
         ) {
             item = items[i];
             icon = item.icon
-                ? kendo.format(ICON_TMPL, item.icon)
+                ? format(ICON_TMPL, item.icon)
                 : item.imageUrl
-                    ? kendo.format(IMAGE_TMPL, item.imageUrl)
+                    ? format(IMAGE_TMPL, item.imageUrl)
                     : '';
-            $(kendo.format(BUTTON_TMPL, icon + item.text))
-                .attr(kendo.attr('command'), item.command || '')
+            $(format(BUTTON_TMPL, icon + item.text))
+                .attr(attr('command'), item.command || '')
                 .prop('tabIndex', 0)
                 .wrap('<li></li>')
                 .parent()
@@ -233,12 +221,12 @@ const SplitButton = Widget.extend({
     _navigatable(enabled) {
         const that = this;
 
-        that.element.off(KEYDOWN + NS);
-        that.popupElement.off(KEYDOWN + NS);
+        that.element.off(CONSTANTS.KEYDOWN + NS);
+        that.popupElement.off(CONSTANTS.KEYDOWN + NS);
 
         if (enabled) {
-            // that.element.on(KEYDOWN + NS, BUTTON_SELECTOR, function (e) {
-            that.element.on(KEYDOWN + NS, e => {
+            // that.element.on(CONSTANTS.KEYDOWN + NS, BUTTON_SELECTOR, function (e) {
+            that.element.on(CONSTANTS.KEYDOWN + NS, e => {
                 if (e.keyCode === keys.DOWN) {
                     that.toggle();
                 } else if (
@@ -254,10 +242,7 @@ const SplitButton = Widget.extend({
                 }
             });
 
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
-
-            that.popupElement.on(KEYDOWN + NS, BUTTON_SELECTOR, e => {
+            that.popupElement.on(CONSTANTS.KEYDOWN + NS, BUTTON_SELECTOR, e => {
                 const li = $(e.target).parent();
                 e.preventDefault();
                 if (
@@ -282,8 +267,6 @@ const SplitButton = Widget.extend({
                     });
                 }
             });
-
-            /* jshint +W074 */
         }
     },
 
@@ -308,18 +291,18 @@ const SplitButton = Widget.extend({
     enable(enabled) {
         const that = this;
         const element = that.element;
-        enabled = $.type(enabled) === UNDEFINED ? true : !!enabled;
-        element.toggleClass(DISABLED_CLASS, !enabled);
-        element.off(CLICK + NS);
-        this.popupElement.off(CLICK + NS);
+        enabled = $.type(enabled) === CONSTANTS.UNDEFINED ? true : !!enabled;
+        element.toggleClass(CONSTANTS.DISABLED_CLASS, !enabled);
+        element.off(CONSTANTS.CLICK + NS);
+        this.popupElement.off(CONSTANTS.CLICK + NS);
         if (enabled) {
             element.on(
-                CLICK + NS,
+                CONSTANTS.CLICK + NS,
                 BUTTON_SELECTOR,
                 this._onButtonClick.bind(this)
             );
             this.popupElement.on(
-                CLICK + NS,
+                CONSTANTS.CLICK + NS,
                 BUTTON_SELECTOR,
                 this._onButtonClick.bind(this)
             );
@@ -342,8 +325,8 @@ const SplitButton = Widget.extend({
                 this.toggle();
             }
             // Trigger click event
-            this.trigger(CLICK, {
-                command: $(e.currentTarget).attr(kendo.attr('command'))
+            this.trigger(CONSTANTS.CLICK, {
+                command: $(e.currentTarget).attr(attr('command'))
             });
         }
     },

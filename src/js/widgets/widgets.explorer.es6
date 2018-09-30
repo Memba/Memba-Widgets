@@ -134,9 +134,6 @@ var Explorer = Widget.extend({
         SELECT
     ],
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * IMPORTANT: index is 0 based
      * @method index
@@ -144,7 +141,6 @@ var Explorer = Widget.extend({
      * @returns {*}
      */
     index: function (index) {
-        /* jshint maxcomplexity: 8 */
         var that = this;
         var component;
         if ($.type(index) === NUMBER) {
@@ -168,8 +164,6 @@ var Explorer = Widget.extend({
             throw new TypeError();
         }
     },
-
-    /* jshint +W074 */
 
     /**
      * @method id
@@ -195,9 +189,6 @@ var Explorer = Widget.extend({
             throw new TypeError();
         }
     },
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
 
     /**
      * Gets/Sets the value of the selected component in the explorer
@@ -231,8 +222,6 @@ var Explorer = Widget.extend({
             throw new TypeError();
         }
     },
-
-    /* jshint +W074 */
 
     /**
      * @method total()
@@ -415,9 +404,6 @@ var Explorer = Widget.extend({
         }
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * @method refresh
      * @param e
@@ -464,8 +450,6 @@ var Explorer = Widget.extend({
             that.trigger(DATABOUND);
         }
     },
-
-    /* jshint +W074 */
 
     /**
      * Toggles class on selected item determined by value of widget

@@ -91,7 +91,7 @@ const UnitInput = Widget.extend({
                 CONSTANTS.STRING
             )
         );
-        const { element, options } = this;
+        const { element /* , options */ } = this;
         let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
             ret = element.val();
@@ -122,11 +122,11 @@ const UnitInput = Widget.extend({
      */
     _render() {
         const { element, options } = this;
-        if (!element.is(CONSTANTS.INPUT)) {
-            throw new Error(
-                'A unit input should wrap an input for kendo validators to work.'
-            );
-        }
+        assert.ok(
+            element.is(CONSTANTS.INPUT),
+            'Please use an input tag to instantiate a UnitInput widget.'
+            // otherwise kendo ui validators won't work
+        );
         element.wrap(`<${CONSTANTS.SPAN}/>`);
         this.wrapper = element.parent();
         this.wrapper

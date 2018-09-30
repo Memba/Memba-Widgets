@@ -370,9 +370,6 @@ var Stage = Widget.extend({
         }
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Gets/Sets the value of the selected component in the explorer
      * @method value
@@ -421,8 +418,6 @@ var Stage = Widget.extend({
             }
         }
     },
-
-    /* jshint +W074 */
 
     /**
      * @method total()
@@ -1077,8 +1072,6 @@ var Stage = Widget.extend({
      * @param e
      * @private
      */
-    // This function's cyclomatic complexity is too high.
-    /* jshint -W074 */
     _onMouseDown: function (e) {
         assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
         assert.instanceof(kendo.ui.Stage, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
@@ -1180,7 +1173,6 @@ var Stage = Widget.extend({
 
         // Otherwise, let the event propagate
     },
-    /* jshint +W074 */
 
     /**
      * While dragging an element on stage
@@ -1343,8 +1335,6 @@ var Stage = Widget.extend({
      * Refresh
      * @param e
      */
-    // This function's cyclomatic complexity is too high.
-    /* jshint -W074 */
     refresh: function (e) {
         var that = this;
         if (e === undefined || e.action === undefined) {
@@ -1455,7 +1445,6 @@ var Stage = Widget.extend({
         */
         logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
-    /* jshint +W074 */
 
     /**
      * Toggle the selection

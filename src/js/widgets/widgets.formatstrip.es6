@@ -64,13 +64,6 @@ var VERTICAL_ALIGN_DEFAULT = 'top';
  *********************************************************************************/
 
 var Style = kendo.Class.extend({
-
-    /* Blocks are nested too deeply. */
-    /* jshint -W073 */
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Converts an HTML style attribute into a Style class
      * @param style
@@ -107,10 +100,6 @@ var Style = kendo.Class.extend({
             }
         }
     },
-
-    /* jshint +W073 */
-
-    /* jshint +W074 */
 
     /**
      * Default values
@@ -329,9 +318,6 @@ var FormatBar = ToolBar.extend({
         this._dialogs.pop();
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Action triggered when clicking a border button
      * @param options
@@ -386,11 +372,6 @@ var FormatBar = ToolBar.extend({
         // this._enableBorderButtons();
     },
 
-    /* jshint +W074 */
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * PropertyChangeCommand
      * @param options
@@ -429,8 +410,6 @@ var FormatBar = ToolBar.extend({
         }
     },
 
-    /* jshint +W074 */
-
     /**
      * TextWrapCommand
      * @param options
@@ -442,9 +421,6 @@ var FormatBar = ToolBar.extend({
         // this._value.wordBreak = options.value ? null : 'nowrap';
         // this._value.textOverflow = options.value ? null : 'ellipsis';
     },
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
 
     /**
      * Get the tool value from its property
@@ -514,8 +490,6 @@ var FormatBar = ToolBar.extend({
         }
     },
 
-    /* jshint +W074 */
-
     _tools: function () {
         return this.element.find('[data-property]').toArray().map(function (element) {
             element = $(element);
@@ -572,9 +546,6 @@ var FormatBar = ToolBar.extend({
         }
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Enable/disable the toolbar
      * @param item
@@ -621,8 +592,6 @@ var FormatBar = ToolBar.extend({
             }
         }
     },
-
-    /* jshint +W074 */
 
     /**
      * Destroy

@@ -3,6 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO consider using an INPUT Tag for validators to work
 // TODO use Kendo UI Keyboard class and Kendo Keys (need a tabindex for focus???)
 // TODO Use ImageDataSource and DataBoundWidget
 // TODO use preload
@@ -132,9 +133,10 @@ const ImageSet = Widget.extend({
     _render() {
         const that = this;
         const element = that.element;
-        if (!element.is('div')) {
-            throw new Error('Use a div tag to instantiate an ImageSet widget.');
-        }
+        assert.ok(
+            element.is(CONSTANTS.DIV),
+            'Please use an div tag to instantiate an ImageSet widget.'
+        );
         that.wrapper = element
             .css({
                 cursor: 'pointer',

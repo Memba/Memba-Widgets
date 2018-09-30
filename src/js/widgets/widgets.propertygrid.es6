@@ -172,15 +172,11 @@ const PropertyGrid = Widget.extend({
         that._addColumnResizing();
     },
 
-    /* This function has too many statements. */
-    /* jshint -W071 */
-
     /**
      * Refresh
      * @method refresh
      */
     refresh: function () {
-        /* jshint maxstatements: 26 */
         var that = this;
         var element = that.element;
         var options = that.options;
@@ -227,11 +223,6 @@ const PropertyGrid = Widget.extend({
 
         logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
-
-    /* jshint +W071 */
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
 
     /**
      * Build rows
@@ -315,8 +306,6 @@ const PropertyGrid = Widget.extend({
 
                         util.optimizeEditor(row);
 
-                        /* Blocks are nested too deeply. */
-                        /* jshint -W073 */
                         // TODO: the following line has been modified to care for complex values like CharGrid, which have a type of undefined
                         // if (row.type) {
                         if (hasRows) {
@@ -327,7 +316,6 @@ const PropertyGrid = Widget.extend({
                             rows.push(row);
                         }
                         // }
-                        /* jshint +W073 */
 
                     }
                 }
@@ -337,8 +325,6 @@ const PropertyGrid = Widget.extend({
         buildRows(that.value(), util.hash(options.rows), '');
         return rows;
     },
-
-    /* jshint +W074 */
 
     /**
      * _resize is called by Widget.resize and kendo.resize to reposition the handle used to resize columns

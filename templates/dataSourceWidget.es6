@@ -14,6 +14,9 @@ const {
     ui: { plugin, DataBoundWidget }
 } = window.kendo;
 const CHANGE = 'change';
+const UNDEFINED = 'undefined';
+// const NS = '.kendoDataSourceWidget';
+const WIDGET_CLASS = 'k-widget kj-data-source-widget';
 
 /**
  * DataSourceWidget
@@ -29,10 +32,14 @@ const DataSourceWidget = DataBoundWidget.extend({
      */
     init(element, options) {
         DataBoundWidget.fn.init.call(this, element, options);
-        this.wrapper = this.element;
-        // this._render();
-        // this.enable(this.options.enabled);
-        this._dataSource();
+        this._render();
+        this.setOptions({
+            autoBind: this.options.autoBind,
+            enabled: this.element.prop('disabled')
+                ? false
+                : this.options.enabled,
+            dataSource: this.options.dataSource
+        });
     },
 
     /**
@@ -48,8 +55,28 @@ const DataSourceWidget = DataBoundWidget.extend({
     options: {
         name: 'DataSourceWidget',
         autoBind: true,
-        // enabled: true,
+        enabled: true,
         dataSource: []
+    },
+
+    /**
+     * setOptions
+     * @param options
+     */
+    setOptions(options) {
+        this.options.autoBind = options.autoBind;
+        this.enable(options.enabled);
+        this.setDataSource(options.dataSource);
+    },
+
+    /**
+     * _render
+     * @method
+     * @private
+     */
+    _render() {
+        this.wrapper = this.element;
+        this.element.addClass(WIDGET_CLASS);
     },
 
     /**
@@ -107,6 +134,17 @@ const DataSourceWidget = DataBoundWidget.extend({
     },
 
     /**
+     * Enable
+     * @method enable
+     * @param enable
+     */
+    enable(enable) {
+        const enabled = $.type(enable) === UNDEFINED ? true : !!enable;
+        // Do something with enabled
+        this._enabled = enabled;
+    },
+
+    /**
      * Destroy
      * @method destriy
      */
@@ -123,5 +161,7 @@ const DataSourceWidget = DataBoundWidget.extend({
     }
 });
 
-// Register widget
+/**
+ * Registration
+ */
 plugin(DataSourceWidget);

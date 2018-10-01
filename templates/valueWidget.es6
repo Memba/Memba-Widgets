@@ -12,7 +12,11 @@ const {
     destroy,
     ui: { plugin, Widget }
 } = window.kendo;
-// const CHANGE = 'change';
+const CHANGE = 'change';
+const CLICK = 'click';
+const NS = '.kendoValueWidget';
+const UNDEFINED = 'undefined';
+const WIDGET_CLASS = 'k-widget kj-value-widget';
 
 /**
  * ValueWidget
@@ -28,17 +32,20 @@ const ValueWidget = Widget.extend({
      */
     init(element, options) {
         Widget.fn.init.call(this, element, options);
-        this.wrapper = this.element;
-        // this._render();
-        // this.enable(this.options.enabled);
-        this.value(this.options.value);
+        this._render();
+        this.setOptions({
+            enabled: this.element.prop('disabled')
+                ? false
+                : this.options.enabled,
+            value: this.options.value
+        });
     },
 
     /**
      * Events
      * @property events
      */
-    // events: [CHANGE],
+    events: [CHANGE],
 
     /**
      * Options
@@ -46,8 +53,18 @@ const ValueWidget = Widget.extend({
      */
     options: {
         name: 'ValueWidget',
-        // enabled: true,
+        enabled: true,
         value: ''
+    },
+
+    /**
+     * setOptions
+     * @method setOptions
+     * @param options
+     */
+    setOptions(options) {
+        this.enable(options.enabled);
+        this.value(options.value);
     },
 
     /**
@@ -58,7 +75,7 @@ const ValueWidget = Widget.extend({
      */
     value(value) {
         let ret;
-        if ($.type(value) === 'undefined') {
+        if ($.type(value) === UNDEFINED) {
             ret = this._value;
         } else if (this._value !== value) {
             this._value = value;
@@ -68,11 +85,46 @@ const ValueWidget = Widget.extend({
     },
 
     /**
+     * _render
+     * @private
+     */
+    _render() {
+        this.wrapper = this.element;
+        this.element.addClass(WIDGET_CLASS);
+    },
+
+    /**
      * Refresh
      * @method refresh
      */
     refresh() {
         this.element.text(this._value);
+    },
+
+    /**
+     * Enable
+     * @method enable
+     * @param enable
+     */
+    enable(enable) {
+        const enabled = $.type(enable) === UNDEFINED ? true : !!enable;
+        const { element } = this;
+        element.off(NS);
+        element.css('cursor', 'default');
+        if (enabled) {
+            element.on(CLICK + NS, this._onClick.bind(this));
+            element.css('cursor', 'pointer');
+        }
+    },
+
+    /**
+     * _onClick
+     * @method _onClick
+     * @private
+     */
+    _onClick() {
+        this.value('');
+        this.trigger(CHANGE);
     },
 
     /**
@@ -85,5 +137,7 @@ const ValueWidget = Widget.extend({
     }
 });
 
-// Register widget
+/**
+ * Registration
+ */
 plugin(ValueWidget);

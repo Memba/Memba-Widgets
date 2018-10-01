@@ -7,9 +7,9 @@
     <script src="../test/vendor/system.js"></script>
 </head>
 <body>
-<h2>Imperative</h2>
-<div id="unbound"></div>
-<h2>Declarative</h2>
+<h2>JavaScript code</h2>
+<div id="valuewidget1"></div>
+<h2>Bound to observable</h2>
 <div id="bound">
     <input data-bind="value: data">
     <div data-role="valuewidget" data-bind="value: data"></div>
@@ -45,11 +45,11 @@
             data: 'Hey!'
         });
         $(function () {
-            // Imperative
-            $('#unbound').kendoValueWidget({
+            // JavaScript code
+            $('#valuewidget1').kendoValueWidget({
                 value: 'Hello World'
             });
-            // Declarative
+            // Bound to observable
             kendo.bind('#bound', viewModel);
         });
     });

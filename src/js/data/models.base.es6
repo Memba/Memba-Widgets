@@ -3,6 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Consider a function that populates validation rules on forms
+// See http://docs.telerik.com/kendo-ui/framework/validator/overview
+// TODO Consider an LRUCache for history
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -37,11 +41,53 @@ const BaseModel = Model.define({
             Array.isArray(data.items)
         ) {
             // This is called from flattenGroups in kendo.data.js when there are aggregates
-            Model.fn.init.call(this, data); // TODO Review
+            Model.fn.init.call(this, data); // TODO Check when grouping and aggregating
         } else {
             // Call the base init method after parsing data
             Model.fn.init.call(this, this._parseData(data));
         }
+    },
+
+    /**
+     * _parse
+     * Note: assigns the field defaultValue when the value is undefined
+     * @method _parse
+     * @param name (field name)
+     * @param value
+     * @returns {*}
+     * @private
+     */
+    _parse(name, value) {
+        assert.type(
+            CONSTANTS.STRING,
+            name,
+            assert.format(
+                assert.messages.type.default,
+                'name',
+                CONSTANTS.STRING
+            )
+        );
+        const field = this.fields[name];
+        /*
+        // The original _parse function calls getFieldName which seems to traverse a hierarchy
+        // Which might make sense with grouping and aggregating
+        if (!field) {
+            field = getFieldByName(this.fields, name);
+        }
+        */
+        if (field && $.type(value) === CONSTANTS.UNDEFINED) {
+            const { _initializers } = this;
+            let defaultValue = this.defaults[name];
+            if (
+                Array.isArray(_initializers) &&
+                _initializers.indexOf(name) > -1
+            ) {
+                defaultValue = defaultValue();
+            }
+            // eslint-disable-next-line no-param-reassign
+            value = defaultValue;
+        }
+        return Model.fn._parse.call(this, name, value);
     },
 
     /**
@@ -65,28 +111,17 @@ const BaseModel = Model.define({
                 CONSTANTS.OBJECT
             )
         );
-        // Build a set of defaults considering some default values are initializer functions
-        const defaults = $.extend({}, this.defaults);
-        if (this._initializers) {
-            // when defaultValue is am initializer function
-            for (let idx = 0; idx < this._initializers.length; idx++) {
-                const name = this._initializers[idx];
-                defaults[name] = this.defaults[name]();
-            }
-        }
         // Build our parsed data, discarding any fields that does not belong to our model
         const parsed = {};
-        Object.keys(this.fields).forEach(key => {
-            const field = this.fields[key];
+        Object.keys(this.fields).forEach(name => {
+            const field = this.fields[name];
             // Some fields get their data from another field
-            const from = field.from || key;
-            // If from is `metrics.comments.count` we need `data`, `data.metrics` and `data.metrics.comments` to not be undefined
-            // which `true` provides as the safe option of kendo.getter
-            let value = data ? getter(from, true)(data) : undefined;
-            if ($.type(value) === CONSTANTS.UNDEFINED) {
-                value = defaults[key];
-            }
-            parsed[key] = this._parse(key, value);
+            const from = field.from || name;
+            // `true` provides a safe option for kendo.getter
+            // in order to ensure that we are not calling a nested property
+            // on an undefined field
+            const value = data ? getter(from, true)(data) : undefined;
+            parsed[name] = this._parse(name, value);
         });
         return parsed;
     },
@@ -260,11 +295,6 @@ const BaseModel = Model.define({
         return validated; // Should we return an array of errors instead
     }
     */
-
-    // TODO Consider a function that populates validation rules on forms
-    // See http://docs.telerik.com/kendo-ui/framework/validator/overview
-
-    // TODO Consider an LRUCache for history
 });
 
 /**

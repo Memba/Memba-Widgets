@@ -7,13 +7,16 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import BaseModel from './models.base.es6';
-import PageComponent from './models.pagecomponent.es6';
-import CONSTANTS from '../common/window.constants.es6';
 import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import PageDataSource from './datasources.page.es6';
+import PageComponentDataSource from './datasources.pagecomponent.es6';
+import BaseModel from './models.base.es6';
 
-const { DataSource } = window.kendo.data;
-const PageComponentCollectionDataSource = DataSource; // TODO Review
+const {
+    data: { DataSource, ObservableArray },
+    format
+} = window.kendo;
 
 // TODO List assets (requires access to tools)
 
@@ -21,46 +24,45 @@ const PageComponentCollectionDataSource = DataSource; // TODO Review
  * Page
  * @see kendo.data.HierarchicalDataSource and kendo.data.Node for implementation details
  * @class Page
- * @type {void|*}
+ * @extends BaseModel
  */
 const Page = BaseModel.define({
     id: CONSTANTS.ID,
     fields: {
         id: {
             type: CONSTANTS.STRING,
-            nullable: true,
-            editable: false
+            editable: false,
+            nullable: true
         },
         components: {
+            type: CONSTANTS.OBJECT,
             // We cannot assign a data source as default value of a model
             // because otherwise it might be reused amongst instances.
             // The only way to ensure that a new instance gets a new default value is to initialize with []
-            // and have kidoju.data.Model._parseData initialize the instance data source from [].
-            // defaultValue: new kidoju.data.PageComponentCollectionDataSource({ data: [] }),
+            // and have BaseModel._parseData initialize the instance data source from [].
+            // defaultValue: new PageComponentDataSource({ data: [] }),
             defaultValue: [],
             parse(value) {
-                if (value instanceof PageComponentCollectionDataSource) {
+                if (value instanceof PageComponentDataSource) {
                     return value;
-                } else if (Array.isArray(value)) { // TODO: ObservableArray?
-                    return new PageComponentCollectionDataSource({
+                }
+                if (Array.isArray(value) || value instanceof ObservableArray) {
+                    return new PageComponentDataSource({
                         data: value
                     });
                 }
-                return new PageComponentCollectionDataSource(value);
+                return new PageComponentDataSource(value);
             }
         },
         explanations: {
-            // displayed in review mode
             type: CONSTANTS.STRING
         },
         instructions: {
-            // displayed in play mode
             type: CONSTANTS.STRING
         },
         style: {
             type: CONSTANTS.STRING
         },
-        // New properties
         time: {
             type: CONSTANTS.NUMBER
         }
@@ -74,16 +76,15 @@ const Page = BaseModel.define({
         // Call the base init method
         BaseModel.fn.init.call(this, value);
 
-
-        if (that.model && that.model.components) {
-            // Reset PageCollectionDataSource with model.pages dataSource options
+        if (this.model && this.model.components) {
+            // Reset PageDataSource with model.pages dataSource options
             // especially for the case where we have defined CRUD transports
-            that.components = new PageComponentCollectionDataSource(
-                that.model.components
+            this.components = new PageComponentDataSource(
+                this.model.components
             );
         }
 
-        const components = that.components;
+        const { components } = this;
 
         /*
          var transport = components.transport,
@@ -97,8 +98,9 @@ const Page = BaseModel.define({
          };
          */
 
-        if (components instanceof PageComponentCollectionDataSource) {
+        if (components instanceof PageComponentDataSource) {
             // Add parent function
+            const that = this;
             components.parent = function() {
                 return that;
             };
@@ -111,17 +113,17 @@ const Page = BaseModel.define({
              e.page = e.page || that;
              that.trigger(CHANGE, e);
              })
-             .bind(ERROR, function (e) {
+             .bind(CONSTANTS.ERROR, function (e) {
              var pageCollection = that.parent();
              if (pageCollection) {
              e.page = e.page || that;
-             pageCollection.trigger(ERROR, e);
+             pageCollection.trigger(CONSTANTS.ERROR, e);
              }
              });
              */
         }
 
-        that._loaded = !!(value && (value.components || value._loaded));
+        this._loaded = !!(value && (value.components || value._loaded));
     },
 
     /**
@@ -149,7 +151,7 @@ const Page = BaseModel.define({
             method = 'read';
         }
         components.one(
-            CHANGE,
+            CONSTANTS.CHANGE,
             $.proxy(function() {
                 this.loaded(true);
             }, this)
@@ -158,14 +160,33 @@ const Page = BaseModel.define({
     },
 
     /**
+     * Get the component index
+     * @method index
+     */
+    index() {
+        let index;
+        if ($.isFunction(this.parent)) {
+            const collection = this.parent();
+            if (collection instanceof PageDataSource) {
+                index = collection.indexOf(this);
+            }
+        }
+        return index;
+    },
+
+    /**
      * Get the parent stream if any
      * @returns {*}
      */
     stream() {
         let stream;
-        if ($.type(this.parent) === CONSTANTS.FUNCTION) {
+        if ($.isFunction(this.parent)) {
             const collection = this.parent();
-            if ($.type(collection.parent) === CONSTANTS.FUNCTION) {
+            if (
+                collection instanceof PageDataSource &&
+                $.isFunction(collection.parent)
+                // We do not check instanceof Stream to avoid a circular dependency
+            ) {
                 stream = collection.parent();
             }
         }
@@ -187,8 +208,10 @@ const Page = BaseModel.define({
 
     /**
      * Clone a page
+     * @method clone
      */
     clone() {
+        // TODO: why not use toJSON() - beware serializable
         const page = this;
         const fields = page.fields;
         let clone = {};
@@ -204,7 +227,7 @@ const Page = BaseModel.define({
         }
         clone = new Page(clone);
         // Copy components
-        const components = page.components;
+        const { components } = page;
         for (let i = 0, total = components.total(); i < total; i++) {
             clone.components.add(components.at(i).clone());
         }
@@ -216,6 +239,15 @@ const Page = BaseModel.define({
      * i18n Messages
      */
     messages: {
+        createMultiQuizExplanations: 'The correct answers are:\n\n- **{0}**.',
+        createMultiQuizInstructions:
+            'Please select the options which correspond to your answers to the question: _{0}_.',
+        createTextBoxExplanations: 'The correct answer is **{0}**.',
+        createTextBoxInstructions:
+            'Please fill in the text box with your answer to the question: _{0}_.',
+        createQuizExplanations: 'The correct answer is **{0}**.',
+        createQuizInstructions:
+            'Please select the option which corresponds to your answer to the question: _{0}_.',
         emptyPage: 'Page {0} cannot be empty.',
         minConnectors:
             'At least {0} Connectors are required to make a question on page {1}.',
@@ -244,20 +276,23 @@ const Page = BaseModel.define({
      * @returns {Array}
      */
     validate(pageIdx) {
-        /* jshint maxcomplexity: 24 */
         assert.instanceof(
             Page,
             this,
-            kendo.format(
+            assert.format(
                 assert.messages.instanceof.default,
                 'this',
                 'kidoju.data.Page'
             )
         );
         assert.type(
-            NUMBER,
+            CONSTANTS.NUMBER,
             pageIdx,
-            assert.format(assert.messages.type.default, 'pageIdx', NUMBER)
+            assert.format(
+                assert.messages.type.default,
+                'pageIdx',
+                CONSTANTS.NUMBER
+            )
         );
         // TODO also validate that formulas only use values available on the page
         let ret = [];
@@ -272,9 +307,9 @@ const Page = BaseModel.define({
         const componentTotal = this.components.total();
         if (componentTotal === 0) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(this.messages.emptyPage, pageIdx + 1)
+                message: format(this.messages.emptyPage, pageIdx + 1)
             });
         }
         for (let i = 0; i < componentTotal; i++) {
@@ -284,7 +319,7 @@ const Page = BaseModel.define({
             }
             hasDraggable =
                 hasDraggable ||
-                ($.type(component.properties) === OBJECT &&
+                ($.type(component.properties) === CONSTANTS.OBJECT &&
                     component.properties.behavior === 'draggable');
             hasDropZone = hasDropZone || component.tool === 'dropzone';
             hasLabel = hasLabel || component.tool === 'label';
@@ -295,12 +330,12 @@ const Page = BaseModel.define({
                     component.tool === 'video');
             hasSelectable =
                 hasSelectable ||
-                ($.type(component.properties) === OBJECT &&
+                ($.type(component.properties) === CONSTANTS.OBJECT &&
                     component.properties.behavior === 'selectable');
             hasSelector = hasSelector || component.tool === 'selector';
             hasQuestion =
                 hasQuestion ||
-                ($.type(component.properties) === OBJECT &&
+                ($.type(component.properties) === CONSTANTS.OBJECT &&
                     $.type(component.properties.validation) ===
                         CONSTANTS.STRING &&
                     component.properties.validation.length);
@@ -309,35 +344,32 @@ const Page = BaseModel.define({
         // Check a label
         if (componentTotal > 0 && !hasLabel) {
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(this.messages.missingLabel, pageIdx + 1)
+                message: format(this.messages.missingLabel, pageIdx + 1)
             });
         }
         // Check a multimedia element
         /*
         if (componentTotal > 0 && !hasMultimedia) {
-            ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingMultimedia, pageIdx + 1) });
+            ret.push({ type: CONSTANTS.WARNING, index: pageIdx, message: format(this.messages.missingMultimedia, pageIdx + 1) });
         }
         */
         // Check a question
         if (componentTotal > 0 && !hasQuestion) {
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(
-                    this.messages.missingQuestion,
-                    pageIdx + 1
-                )
+                message: format(this.messages.missingQuestion, pageIdx + 1)
             });
         }
         // Check connectors
         const MIN_CONNECTORS = 4;
         if (connectorCount > 0 && connectorCount < MIN_CONNECTORS) {
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(
+                message: format(
                     this.messages.minConnectors,
                     MIN_CONNECTORS,
                     pageIdx + 1
@@ -347,65 +379,47 @@ const Page = BaseModel.define({
         // Check drop zone and draggable
         if (hasDropZone && !hasDraggable) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(
-                    this.messages.missingDraggable,
-                    pageIdx + 1
-                )
+                message: format(this.messages.missingDraggable, pageIdx + 1)
             });
         } else if (!hasDropZone && hasDraggable) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(
-                    this.messages.missingDropZone,
-                    pageIdx + 1
-                )
+                message: format(this.messages.missingDropZone, pageIdx + 1)
             });
         }
         // Check selectors and selectable
         if (hasSelector && !hasSelectable) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(
-                    this.messages.missingSelectable,
-                    pageIdx + 1
-                )
+                message: format(this.messages.missingSelectable, pageIdx + 1)
             });
         } else if (!hasSelector && hasSelectable) {
             ret.push({
-                type: ERROR,
+                type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: kendo.format(
-                    this.messages.missingSelector,
-                    pageIdx + 1
-                )
+                message: format(this.messages.missingSelector, pageIdx + 1)
             });
         }
         // Check instructions
         const instructions = (this.get('instructions') || '').trim();
         if (!instructions) {
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(
-                    this.messages.missingInstructions,
-                    pageIdx + 1
-                )
+                message: format(this.messages.missingInstructions, pageIdx + 1)
             });
         }
         // Check explanations
         const explanations = (this.get('explanations') || '').trim();
         if (!explanations) {
             ret.push({
-                type: WARNING,
+                type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: kendo.format(
-                    this.messages.missingExplanations,
-                    pageIdx + 1
-                )
+                message: format(this.messages.missingExplanations, pageIdx + 1)
             });
         }
         return ret;
@@ -415,17 +429,244 @@ const Page = BaseModel.define({
 });
 
 /**
- * TODO add createTetBoxPage, createQuizPage, createMultiQuizPage
+ * createTextBoxPage
  */
+Page.createTextBoxPage = function(options) {
+    assert.isPlainObject(
+        options,
+        assert.format(assert.messages.isPlainObject.default, 'options')
+    );
+    assert.type(
+        CONSTANTS.STRING,
+        options.question,
+        assert.format(
+            assert.messages.type.default,
+            options.question,
+            CONSTANTS.STRING
+        )
+    );
+    assert.type(
+        CONSTANTS.STRING,
+        options.solution,
+        assert.format(
+            assert.messages.type.default,
+            options.solution,
+            CONSTANTS.STRING
+        )
+    );
+    const solutions = options.solution
+        .split('\n')
+        .filter(item => item.trim() !== '');
+    const escaped = solutions.map(kidoju.util.escapeRegExp);
+    return new Page({
+        components: [
+            new PageComponent({
+                tool: 'label',
+                top: 40,
+                left: 40,
+                width: 940,
+                height: 160,
+                attributes: {
+                    text: options.question
+                }
+            }),
+            new PageComponent({
+                tool: 'image',
+                top: 250,
+                left: 580,
+                width: 360,
+                height: 360,
+                attributes: {
+                    alt: options.question
+                }
+            }),
+            new PageComponent({
+                tool: 'textbox',
+                top: 380,
+                left: 80,
+                width: 380,
+                height: 100,
+                properties: {
+                    question: options.question,
+                    solution: solutions[0],
+                    validation:
+                        solutions.length > 1
+                            ? `// ignoreCaseMatch ${JSON.stringify([
+                                `^(?:${escaped.join('|')})$`
+                              ])}`
+                            : '// ignoreCaseEqual'
+                }
+            })
+        ],
+        instructions: format(
+            Page.prototype.messages.createTextBoxInstructions,
+            options.question
+        ),
+        explanations: format(
+            Page.prototype.messages.createTextBoxExplanations,
+            solutions[0]
+        )
+    });
+};
+
+/**
+ * createQuizPage
+ */
+Page.createQuizPage = function(options) {
+    assert.isPlainObject(
+        options,
+        assert.format(assert.messages.isPlainObject.default, 'options')
+    );
+    assert.type(
+        CONSTANTS.STRING,
+        options.question,
+        assert.format(
+            assert.messages.type.default,
+            options.question,
+            CONSTANTS.STRING
+        )
+    );
+    assert.isArray(
+        options.data,
+        assert.format(assert.messages.isArray.default, options.data)
+    );
+    assert.type(
+        CONSTANTS.STRING,
+        options.solution,
+        assert.format(
+            assert.messages.type.default,
+            options.solution,
+            CONSTANTS.STRING
+        )
+    );
+    // TODO Check that options.data has text and image
+    return new Page({
+        components: [
+            new PageComponent({
+                tool: 'label',
+                top: 40,
+                left: 40,
+                width: 940,
+                height: 160,
+                attributes: {
+                    text: options.question
+                }
+            }),
+            new PageComponent({
+                tool: 'image',
+                top: 250,
+                left: 580,
+                width: 360,
+                height: 360,
+                attributes: {
+                    alt: options.question
+                }
+            }),
+            new PageComponent({
+                tool: 'quiz',
+                top: 250,
+                left: 80,
+                width: 440,
+                height: 360,
+                attributes: {
+                    mode: 'radio',
+                    data: options.data
+                },
+                properties: {
+                    question: options.question,
+                    solution: options.solution,
+                    validation: '// equal'
+                }
+            })
+        ],
+        instructions: format(
+            Page.prototype.messages.createQuizInstructions,
+            options.question
+        ),
+        explanations: format(
+            Page.prototype.messages.createQuizExplanations,
+            options.solution
+        )
+    });
+};
+
+/**
+ * createMultiQuizPage
+ */
+Page.createMultiQuizPage = function(options) {
+    assert.isPlainObject(
+        options,
+        assert.format(assert.messages.isPlainObject.default, 'options')
+    );
+    assert.type(
+        CONSTANTS.STRING,
+        options.question,
+        assert.format(
+            assert.messages.type.default,
+            options.question,
+            CONSTANTS.STRING
+        )
+    );
+    assert.isArray(
+        options.data,
+        assert.format(assert.messages.isArray.default, options.data)
+    );
+    // TODO Check that options.data has text and image
+    assert.isArray(
+        options.solution,
+        assert.format(assert.messages.isArray.default, options.solution)
+    );
+    return new Page({
+        components: [
+            new PageComponent({
+                tool: 'label',
+                top: 40,
+                left: 40,
+                width: 940,
+                height: 160,
+                attributes: {
+                    text: options.question
+                }
+            }),
+            new PageComponent({
+                tool: 'image',
+                top: 250,
+                left: 580,
+                width: 360,
+                height: 360,
+                attributes: {
+                    alt: options.question
+                }
+            }),
+            new PageComponent({
+                tool: 'multiquiz',
+                top: 250,
+                left: 80,
+                width: 440,
+                height: 360,
+                attributes: {
+                    mode: 'checkbox',
+                    data: options.data
+                },
+                properties: {
+                    question: options.question,
+                    solution: options.solution,
+                    validation: '// equal'
+                }
+            })
+        ],
+        instructions: format(
+            Page.prototype.messages.createQuizInstructions,
+            options.question
+        ),
+        explanations: format(
+            Page.prototype.messages.createMultiQuizExplanations,
+            options.solution.join('**,\n- **')
+        )
+    });
+};
 
 /**
  * Default export
  */
 export default Page;
-
-/**
- * Legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.data = window.kidoju.data || {};
-window.kidoju.data.Page = Page;

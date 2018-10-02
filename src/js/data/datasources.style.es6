@@ -3,6 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO add CSS style parser
 // TODO: error
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
@@ -10,18 +11,18 @@
 import $ from 'jquery';
 import 'kendo.data';
 import BaseDataSource from './datasources.base.es6';
-import Image from './models.image.es6';
+import Style from './models.style.es6';
 
 const {
     data: { DataSource, ObservableArray }
 } = window.kendo;
 
 /**
- * ImageDataSource
- * @class ImageDataSource
+ * StyleDataSource
+ * @class StyleDataSource
  * @extends BaseDataSource
  */
-const ImageDataSource = BaseDataSource.extend({
+const StyleDataSource = BaseDataSource.extend({
     /**
      * Init
      * @constructor init
@@ -32,8 +33,8 @@ const ImageDataSource = BaseDataSource.extend({
             this,
             $.extend(true, {}, options, {
                 schema: {
-                    modelBase: Image,
-                    model: Image
+                    modelBase: Style,
+                    model: Style
                 }
             })
         );
@@ -45,26 +46,26 @@ const ImageDataSource = BaseDataSource.extend({
  * @method create
  * @param options
  */
-ImageDataSource.create = options => {
+StyleDataSource.create = options => {
     // Note: this code is vey similar to SchedulerDataSource.create
     const dataSource =
         Array.isArray(options) || options instanceof ObservableArray
             ? { data: options }
             : options || {};
     if (
-        !(dataSource instanceof ImageDataSource) &&
+        !(dataSource instanceof StyleDataSource) &&
         dataSource instanceof DataSource
     ) {
         throw new Error(
-            'Incorrect DataSource type. Only ImageDataSource instances are supported'
+            'Incorrect DataSource type. Only StyleDataSource instances are supported'
         );
     }
-    return dataSource instanceof ImageDataSource
+    return dataSource instanceof StyleDataSource
         ? dataSource
-        : new ImageDataSource(dataSource);
+        : new StyleDataSource(dataSource);
 };
 
 /**
  * Default export
  */
-export default ImageDataSource;
+export default StyleDataSource;

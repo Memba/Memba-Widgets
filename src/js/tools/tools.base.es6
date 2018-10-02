@@ -147,13 +147,13 @@ const BaseTool = Class.extend({
     /**
      * Get a kidoju.data.Model for attributes
      * @class kidoju.Tool
-     * @method _getAttributeModel
+     * @method getAttributeModel
      * @returns {kidoju.data.Model}
      * @private
      */
-    _getAttributeModel() {
+    getAttributeModel() {
         const model = { fields: {} };
-        this.attributes.forEach(key => {
+        Object.keys(this.attributes).forEach(key => {
             if (this.attributes[key] instanceof BaseAdapter) {
                 model.fields[key] = this.attributes[key].getField();
             }
@@ -164,11 +164,11 @@ const BaseTool = Class.extend({
     /**
      * Gets property grid row specifications for attributes
      * @class kidoju.Tool
-     * @method _getAttributeRows
+     * @method getAttributeRows
      * @returns {Array}
      * @private
      */
-    _getAttributeRows() {
+    getAttributeRows() {
         const rows = [];
         const data = {};
         data[attr('decimals')] = 0;
@@ -205,7 +205,7 @@ const BaseTool = Class.extend({
         );
 
         // Add other attributes
-        this.attributes.forEach(key => {
+        Object.keys(this.attributes).forEach(key => {
             if (this.attributes[key] instanceof BaseAdapter) {
                 rows.push(this.attributes[key].getRow(`attributes.${key}`));
             }
@@ -216,13 +216,13 @@ const BaseTool = Class.extend({
     /**
      * Get a kidoju.data.Model for properties
      * @class kidoju.Tool
-     * @method _getPropertyModel
+     * @method getPropertyModel
      * @returns {kidoju.data.Model}
      * @private
      */
-    _getPropertyModel() {
+    getPropertyModel() {
         const model = { fields: {} };
-        this.properties.forEach(key => {
+        Object.keys(this.properties).forEach(key => {
             if (this.properties[key] instanceof BaseAdapter) {
                 model.fields[key] = this.properties[key].getField();
                 if (key === 'name') {
@@ -246,9 +246,9 @@ const BaseTool = Class.extend({
      * @returns {Array}
      * @private
      */
-    _getPropertyRows() {
+    getPropertyRows() {
         const rows = [];
-        this.properties.forEach(key => {
+        Object.keys(this.properties).forEach(key => {
             if (this.properties[key] instanceof BaseAdapter) {
                 rows.push(this.properties[key].getRow(`properties.${key}`));
             }

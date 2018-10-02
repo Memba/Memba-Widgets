@@ -14,6 +14,7 @@ import Logger from '../common/window.logger.es6';
 const {
     _outerWidth,
     attr,
+    destroy,
     format,
     keys,
     ui: { plugin, Widget },
@@ -288,10 +289,10 @@ const SplitButton = Widget.extend({
      * Function called by the enabled/disabled bindings
      * @param enable
      */
-    enable(enabled) {
-        const that = this;
-        const element = that.element;
-        enabled = $.type(enabled) === CONSTANTS.UNDEFINED ? true : !!enabled;
+    enable(enable) {
+        const { element } = this;
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         element.toggleClass(CONSTANTS.DISABLED_CLASS, !enabled);
         element.off(CONSTANTS.CLICK + NS);
         this.popupElement.off(CONSTANTS.CLICK + NS);
@@ -336,20 +337,16 @@ const SplitButton = Widget.extend({
      * @method destroy
      */
     destroy() {
-        const that = this;
-        const element = that.element;
-        // Unbind events
-        that.enable(false);
-        // Clear references
-        that.popup.destroy();
-        that.popup.wrapper.remove();
-        that.popup = undefined;
-        that.popupElement = undefined;
-        that.mainButton = undefined;
-        that.arrowButton = undefined;
+        this.enable(false);
+        this.popup.destroy();
+        this.popup.wrapper.remove();
+        this.popup = undefined;
+        this.popupElement = undefined;
+        this.mainButton = undefined;
+        this.arrowButton = undefined;
         // Destroy widget
-        Widget.fn.destroy.call(that);
-        kendo.destroy(element);
+        Widget.fn.destroy.call(this);
+        destroy(this.element);
     }
 });
 

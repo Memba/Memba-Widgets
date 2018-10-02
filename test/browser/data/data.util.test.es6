@@ -16,12 +16,6 @@ const { describe, it, xit } = window;
 const { expect } = chai;
 
 describe('data.util', () => {
-    describe('Legacy export', () => {
-        it('Check data.util.*', () => {
-            expect(true).to.be.false;
-        });
-    });
-
     describe('error2xhr', () => {
         it('It should convert an error into an $.ajax failure', () => {
             const message = 'Oops!';
@@ -107,7 +101,8 @@ describe('data.util', () => {
                     value: 'memba'
                 },
                 sort: {}
-            }
+            };
+            expect(true).to.be.false;
         });
     });
 });

@@ -5,7 +5,7 @@
 
 // TODO review templates to match new buttongroup - seee https://demos.telerik.com/kendo-ui/buttongroup/index
 // TODO: Add keyboard events to check buttons with Tab + Space or Tab + Enter
-// TODO add imageUrl (we already have icons)
+// TODO add imageUrl (we already have icons) - see splitButton
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -100,7 +100,7 @@ const ButtonSet = Widget.extend({
             ret = parseInt(element.val(), 10);
         } else if (parseInt(element.val(), 10) !== value) {
             element.val(value);
-            this._setStateAsBits(Math.strict(value));
+            this._setStateAsBits(Math.trunc(value));
         }
         return ret;
     },

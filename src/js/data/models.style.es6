@@ -7,18 +7,18 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './models.base.es6';
 
 /**
- * Image
- * @class Image
+ * Style
+ * @class Style
  * @extends BaseModel
  */
-const Image = BaseModel.define({
-    id: 'text', // `text` is used for component validation
+const Style = BaseModel.define({
+    id: 'name',
     fields: {
-        text: {
+        name: {
             type: CONSTANTS.STRING,
             nullable: false
         },
-        url: {
+        value: {
             type: CONSTANTS.STRING,
             nullable: false
         }
@@ -28,4 +28,4 @@ const Image = BaseModel.define({
 /**
  * Default export
  */
-export default Image;
+export default Style;

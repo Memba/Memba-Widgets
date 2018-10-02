@@ -3,74 +3,56 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: validators
+// TODO: highlight selection from API
+// TODO: help tooltips - row.help
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
+import 'kendo.validator';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import { round } from '../common/window.util.es6';
 import editors from '../tools/util.editors.es6';
 
 const {
     attr,
+    destroy,
     format,
+    template,
+    toHyphens,
+    ui,
     ui: { plugin, Widget }
 } = window.kendo;
 const logger = new Logger('widgets.propertygrid');
-
-var NS = '.kendoPropertyGrid';
-var OBJECT = 'object';
-var STRING = 'string';
-var NUMBER = 'number';
-var BOOLEAN = 'boolean';
-var NULL = 'null';
-var UNDEFINED = 'undefined';
-var DATE = 'date';
-var RX_PRIVATE = /^_/;
-var TBODY = 'tbody';
-var TCELL = 'td[role="gridcell"]';
-var WIDGET_CLASS = 'k-grid k-widget kj-propertygrid';
-var HANDLE_CLASS = 'k-resize-handle';
-
-/*********************************************************************************
- * Widget
- *********************************************************************************/
+const NS = '.kendoPropertyGrid';
+const RX_PRIVATE = /^_/;
+const TBODY = 'tbody';
+const TCELL = 'td[role="gridcell"]';
+const WIDGET_CLASS = 'k-grid k-widget kj-propertygrid';
+const HANDLE_CLASS = 'k-resize-handle';
 
 /**
- * PropertyGrid widget
+ * PropertyGrid
  * @class PropertyGrid
  * @extends Widget
  */
 const PropertyGrid = Widget.extend({
-
     /**
      * Init
      * @constructor init
      * @param element
      * @param options
      */
-    init: function (element, options) {
-        var that = this;
-
+    init(element, options) {
         // base call to widget initialization
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
-
-        // Add property grid frame
-        that.wrapper = that.element;
-        that._layout();
-
-        // Add validator
-        that._addValidator();
-
-        // Refresh if we have an object to display
-        that.refresh();
-
-        // Restore declarative bindings
-        kendo.notify(that);
-
+        this._render();
+        this._addValidator();
+        this.refresh();
     },
 
     /**
@@ -80,11 +62,13 @@ const PropertyGrid = Widget.extend({
     options: {
         name: 'PropertyGrid',
         value: null, // Cannot be undefined
-        rows: null,  // Cannot be undefined and [] means no row to display
+        rows: null, // Cannot be undefined and [] means no row to display
         validation: null, // Cannot be undefined
         templates: {
-            row: '<tr role="row"><td role="gridcell">#: title #</td><td role="gridcell"></td></tr>',
-            altRow: '<tr class="k-alt" role="row"><td role="gridcell">#: title #</td><td role="gridcell"></td></tr>'
+            row:
+                '<tr role="row"><td role="gridcell">#: title #</td><td role="gridcell"></td></tr>',
+            altRow:
+                '<tr class="k-alt" role="row"><td role="gridcell">#: title #</td><td role="gridcell"></td></tr>'
         },
         messages: {
             property: 'Property',
@@ -97,76 +81,83 @@ const PropertyGrid = Widget.extend({
      * @param value
      * @returns {*}
      */
-    value: function (value) {
-        var that = this;
-        if ($.type(value) === OBJECT || $.type(value) === NULL) {
+    value(value) {
+        const that = this;
+        if ($.type(value) === CONSTANTS.OBJECT || $.type(value) === CONSTANTS.NULL) {
             if (that.options.value !== value) {
                 that.options.value = value;
                 that.refresh();
             }
-        } else if ($.type(value) === UNDEFINED) {
+        } else if ($.type(value) === CONSTANTS.UNDEFINED) {
             return that.options.value;
         } else {
-            throw new TypeError('`value` is expected to be an object if not null or undefined');
+            throw new TypeError(
+                '`value` is expected to be an object if not null or undefined'
+            );
         }
     },
 
     /**
-     * Rows setter/getter
+     * Rows setter/getter (TODO: Do we really need/use this?? Seems to be someting for setOptions)
      * @param rows
      * @returns {*}
      */
-    rows: function (rows) {
-        var that = this;
-        if ($.isArray(rows) || $.type(rows) === NULL) {
-            if (rows !== that.options.rows) {
-                that.options.rows = rows;
-                // that.refresh();
-            }
-        } else if ($.type(rows) === UNDEFINED) {
-            return that.options.rows;
-        } else {
-            throw new TypeError('`rows` is expected to be an array if not null or undefined');
+    rows(rows) {
+        assert.isArray(rows, assert.format(assert.messages.isArray.default));
+        let ret;
+        if ($.type(rows) === CONSTANTS.UNDEFINED) {
+            ret = this.options.rows;
+        } else if (rows !== this.options.rows) {
+            this.options.rows = rows;
+            // that.refresh();
         }
+        return ret;
     },
 
     /**
      * Builds the widget layout
-     * @method _layout
+     * @method _render
      * @private
      */
-    _layout: function () {
-        var that = this;
-        var element = that.element;
-        var messages = that.options.messages;
+    _render() {
+        const that = this;
+        const element = that.element;
+        const messages = that.options.messages;
         that.wrapper = element;
-        element.addClass(WIDGET_CLASS);  // the kendo.ui.Grid has style="height:..."
+        element.addClass(WIDGET_CLASS); // the kendo.ui.Grid has style="height:..."
         // add column headers (matches markup generated by kendo.ui.Grid)
-        if ($.type(messages.property) === STRING && $.type(messages.value) === STRING) {
+        if (
+            $.type(messages.property) === CONSTANTS.STRING &&
+            $.type(messages.value) === CONSTANTS.STRING
+        ) {
             element.append(
-                '<div class="k-grid-header" style="padding-right:17px;">' +
-                '<div class="k-grid-header-wrap">' +
-                '<table role="grid">' +
-                '<colgroup><col style="width:35%;"><col style="width:65%;"></colgroup>' +
-                '<thead role="rowgroup"><tr role="row">' +
-                '<th role="columnheader" class="k-header">' + messages.property + '</th>' +
-                '<th role="columnheader" class="k-header">' + messages.value + '</th>' +
-                '</tr></thead>' +
-                '</table>' +
-                '</div>' +
-                '</div>'
+                `${'<div class="k-grid-header" style="padding-right:17px;">' +
+                    '<div class="k-grid-header-wrap">' +
+                    '<table role="grid">' +
+                    '<colgroup><col style="width:35%;"><col style="width:65%;"></colgroup>' +
+                    '<thead role="rowgroup"><tr role="row">' +
+                    '<th role="columnheader" class="k-header">'}${
+                    messages.property
+                }</th>` +
+                    `<th role="columnheader" class="k-header">${
+                        messages.value
+                    }</th>` +
+                    `</tr></thead>` +
+                    `</table>` +
+                    `</div>` +
+                    `</div>`
             );
         }
         // Add property grid content (matches markup generated by kendo.ui.Grid)
         element.append(
             '<div class="k-grid-content">' + // the kendo.ui.Grid has style="height:..."
-            '<table role="grid" style="height: auto;">' +
-            '<colgroup><col style="width:35%;"><col style="width:65%;"></colgroup>' +
-            '<tbody role="rowgroup">' +
+                '<table role="grid" style="height: auto;">' +
+                '<colgroup><col style="width:35%;"><col style="width:65%;"></colgroup>' +
+                '<tbody role="rowgroup">' +
                 // ------------------------------ This is where rows are added
-            '</tbody>' +
-            '</table>' +
-            '</div>'
+                '</tbody>' +
+                '</table>' +
+                '</div>'
         );
         // Add column resizing
         that._addColumnResizing();
@@ -176,40 +167,40 @@ const PropertyGrid = Widget.extend({
      * Refresh
      * @method refresh
      */
-    refresh: function () {
-        var that = this;
-        var element = that.element;
-        var options = that.options;
-        var properties = that.value();
-        var tbody = element.find(TBODY).first();
+    refresh() {
+        const that = this;
+        const element = that.element;
+        const options = that.options;
+        const properties = that.value();
+        const tbody = element.find(TBODY).first();
 
         // kendo.unbind(tbody);
         kendo.destroy(tbody);
         tbody.find('*').off();
         tbody.empty();
 
-        if ($.type(properties) !== OBJECT) {
+        if ($.type(properties) !== CONSTANTS.OBJECT) {
             return;
         }
 
-        var rowTemplate = kendo.template(options.templates.row);
-        var altRowTemplate = kendo.template(options.templates.altRow);
-        var rows = that._buildRows();
-        var discarded = 0;
+        const rowTemplate = kendo.template(options.templates.row);
+        const altRowTemplate = kendo.template(options.templates.altRow);
+        const rows = that._buildRows();
+        let discarded = 0;
 
-        for (var idx = 0; idx < rows.length; idx++) {
-            var row = rows[idx];
+        for (let idx = 0; idx < rows.length; idx++) {
+            const row = rows[idx];
             if (row) {
-                var template = ((idx - discarded) % 2 === 1) ? altRowTemplate : rowTemplate;
+                const template =
+                    (idx - discarded) % 2 === 1 ? altRowTemplate : rowTemplate;
 
                 // Append the HTML table cells with the title in the left cell
                 tbody.append(template({ title: row.title }));
 
                 // Add the editor to the right cell
-                var container = tbody.find(TCELL).last();
-                var settings = $.extend({}, row, { model: properties });
+                const container = tbody.find(TCELL).last();
+                const settings = $.extend({}, row, { model: properties });
                 row.editor(container, settings);
-
             } else {
                 discarded++;
             }
@@ -229,11 +220,11 @@ const PropertyGrid = Widget.extend({
      * @returns {Array}
      * @private
      */
-    _buildRows: function () {
-        var that = this;
-        var options = that.options;
-        var rows = [];
-        var hasRows = $.isArray(options.rows); // && options.rows.length > 0;
+    _buildRows() {
+        const that = this;
+        const options = that.options;
+        const rows = [];
+        const hasRows = $.isArray(options.rows); // && options.rows.length > 0;
 
         // options.rows gives:
         // - field (name) - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.field
@@ -257,43 +248,83 @@ const PropertyGrid = Widget.extend({
         // - value (for data-binding)
 
         function buildRows(properties, hashedOptionRows, path) {
+            const fields = properties.fields;
+            const defaults = properties.defaults;
 
-            var fields = properties.fields;
-            var defaults = properties.defaults;
-
-            for (var prop in properties) {
-
+            for (const prop in properties) {
                 // Select only public properties that are not functions (discards _events)
-                if (properties.hasOwnProperty(prop) && !RX_PRIVATE.test(prop) && !$.isFunction(properties[prop]) &&
+                if (
+                    properties.hasOwnProperty(prop) &&
+                    !RX_PRIVATE.test(prop) &&
+                    !$.isFunction(properties[prop]) &&
                     // if rows are designated in this.options.rows, only select these rows
-                    (!hasRows || hashedOptionRows.hasOwnProperty(prop))) {
-
+                    (!hasRows || hashedOptionRows.hasOwnProperty(prop))
+                ) {
                     // TODO: the following line has been modified to care for complex values like CharGrid, which should be edited as a whole in a specific editor
-                    // if ($.type(properties[prop]) === OBJECT) {
-                    if ($.type(properties[prop]) === OBJECT && properties[prop].fields) {
-
-                        buildRows(properties[prop], hashedOptionRows[prop] || {}, path.length === 0 ? prop : path + '.' + prop);
-
+                    // if ($.type(properties[prop]) === CONSTANTS.OBJECT) {
+                    if (
+                        $.type(properties[prop]) === CONSTANTS.OBJECT &&
+                        properties[prop].fields
+                    ) {
+                        buildRows(
+                            properties[prop],
+                            hashedOptionRows[prop] || {},
+                            path.length === 0 ? prop : `${path}.${prop}`
+                        );
                     } else {
-
-                        var row = {
-                            attributes: hasRows && hashedOptionRows[prop] && hashedOptionRows[prop].attributes ? hashedOptionRows[prop].attributes : undefined,
+                        const row = {
+                            attributes:
+                                hasRows &&
+                                hashedOptionRows[prop] &&
+                                hashedOptionRows[prop].attributes
+                                    ? hashedOptionRows[prop].attributes
+                                    : undefined,
                             // defaultValue
-                            editable: fields && fields[prop] && (fields[prop].editable === false) ? false : true,
-                            editor: hasRows && hashedOptionRows[prop] && hashedOptionRows[prop].editor ? hashedOptionRows[prop].editor : undefined,
-                            field: path.length === 0 ? prop : path + '.' + prop,
-                            format: hasRows && hashedOptionRows[prop] && hashedOptionRows[prop].format ? hashedOptionRows[prop].format : undefined,
+                            editable: !(
+                                fields &&
+                                fields[prop] &&
+                                fields[prop].editable === false
+                            ),
+                            editor:
+                                hasRows &&
+                                hashedOptionRows[prop] &&
+                                hashedOptionRows[prop].editor
+                                    ? hashedOptionRows[prop].editor
+                                    : undefined,
+                            field: path.length === 0 ? prop : `${path}.${prop}`,
+                            format:
+                                hasRows &&
+                                hashedOptionRows[prop] &&
+                                hashedOptionRows[prop].format
+                                    ? hashedOptionRows[prop].format
+                                    : undefined,
                             // nullable
-                            template: hasRows && hashedOptionRows[prop] && hashedOptionRows[prop].template ? hashedOptionRows[prop].template : undefined,
-                            title: hasRows && hashedOptionRows[prop] && hashedOptionRows[prop].title ? hashedOptionRows[prop].title : util.formatTitle(prop),
-                            type: util.getType(fields && fields[prop], defaults && defaults[prop], properties[prop])
+                            template:
+                                hasRows &&
+                                hashedOptionRows[prop] &&
+                                hashedOptionRows[prop].template
+                                    ? hashedOptionRows[prop].template
+                                    : undefined,
+                            title:
+                                hasRows &&
+                                hashedOptionRows[prop] &&
+                                hashedOptionRows[prop].title
+                                    ? hashedOptionRows[prop].title
+                                    : util.formatTitle(prop),
+                            type: util.getType(
+                                fields && fields[prop],
+                                defaults && defaults[prop],
+                                properties[prop]
+                            )
                         };
 
                         // Add validation rules to attributes
                         // See https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5/Constraint_validation
                         if (fields && fields[prop] && fields[prop].validation) {
-                            var attributes = {
-                                required: fields[prop].validation.required ? true : undefined,
+                            const attributes = {
+                                required: fields[prop].validation.required
+                                    ? true
+                                    : undefined,
                                 min: fields[prop].validation.min,
                                 max: fields[prop].validation.max,
                                 maxlength: fields[prop].validation.maxlength, // See http://docs.telerik.com/kendo-ui/aspnet-mvc/helpers/editor/how-to/add-max-length-validation
@@ -301,7 +332,11 @@ const PropertyGrid = Widget.extend({
                                 pattern: fields[prop].validation.pattern,
                                 type: fields[prop].validation.type
                             };
-                            row.attributes = $.extend({}, row.attributes, attributes);
+                            row.attributes = $.extend(
+                                {},
+                                row.attributes,
+                                attributes
+                            );
                         }
 
                         util.optimizeEditor(row);
@@ -316,7 +351,6 @@ const PropertyGrid = Widget.extend({
                             rows.push(row);
                         }
                         // }
-
                     }
                 }
             }
@@ -332,13 +366,17 @@ const PropertyGrid = Widget.extend({
      * because the PropertyGrid widget is created withng a PanelBar which is initially collapsed (hidden)
      * @private
      */
-    _resize: function (/*size, force*/) {
-        var element = this.element;
+    _resize(/* size, force */) {
+        const element = this.element;
         // reposition the resize handle
-        var handle = element.children('.' + HANDLE_CLASS + ':visible');
-        var propertyColumn = element.find('.k-grid-content>table>tbody>tr>td:first-child');
+        const handle = element.children(`.${HANDLE_CLASS}:visible`);
+        const propertyColumn = element.find(
+            '.k-grid-content>table>tbody>tr>td:first-child'
+        );
         if (handle.length && propertyColumn.length) {
-            handle.css({ left: propertyColumn.outerWidth() - handle.outerWidth() / 2 });
+            handle.css({
+                left: propertyColumn.outerWidth() - handle.outerWidth() / 2
+            });
         }
     },
 
@@ -346,65 +384,86 @@ const PropertyGrid = Widget.extend({
      * Add column resizing
      * @private
      */
-    _addColumnResizing: function () {
-        var that = this;
-        var element = that.element;
-        var headerColGroup = element.find('.k-grid-header>.k-grid-header-wrap>table>colgroup');
-        var contentColGroup = element.find('.k-grid-content>table>colgroup');
-        var tbody = element.find('.k-grid-content>table>tbody');
-        var propertyCell;
-        var valueCell;
+    _addColumnResizing() {
+        const that = this;
+        const element = that.element;
+        const headerColGroup = element.find(
+            '.k-grid-header>.k-grid-header-wrap>table>colgroup'
+        );
+        const contentColGroup = element.find('.k-grid-content>table>colgroup');
+        const tbody = element.find('.k-grid-content>table>tbody');
+        let propertyCell;
+        let valueCell;
         // var call;
-        if (!element.children('.' + HANDLE_CLASS).length) {
+        if (!element.children(`.${HANDLE_CLASS}`).length) {
             $('<div />')
                 .addClass(HANDLE_CLASS)
                 .appendTo(element);
         }
-        var resizableWidget = element.data('kendoResisable');
+        const resizableWidget = element.data('kendoResisable');
         if (!(resizableWidget instanceof ui.Resizable)) {
             element.kendoResizable({
-                handle: '.' + HANDLE_CLASS,
-                hint: function (handle) {
-                    var clone = handle.clone();
+                handle: `.${HANDLE_CLASS}`,
+                hint(handle) {
+                    const clone = handle.clone();
                     handle.hide();
                     return clone;
                 },
-                start: function (e) {
+                start(e) {
                     // Property and value cells do not exist when initializing element.kendoResizable
                     propertyCell = tbody.find('tr>td:first-child');
                     valueCell = tbody.find('tr>td:last-child');
                     // call = Date.now();
                 },
-                resize: function (e) {
+                resize(e) {
                     // if (Date.now() - call > 25) { // throttle
-                    setTimeout(function () {
-                        var hint = $(e.elementUnderCursor);
+                    setTimeout(() => {
+                        const hint = $(e.elementUnderCursor);
                         // td cell do not exist when
-                        var propertyWidth = propertyCell.outerWidth();
-                        var valueWidth = valueCell.outerWidth();
-                        var shift = e.pageX - element.offset().left - e.offsetX + hint.outerWidth() / 2 - propertyWidth;
+                        const propertyWidth = propertyCell.outerWidth();
+                        const valueWidth = valueCell.outerWidth();
+                        const shift =
+                            e.pageX -
+                            element.offset().left -
+                            e.offsetX +
+                            hint.outerWidth() / 2 -
+                            propertyWidth;
                         // Testing prevents a flickering effect when resizing but there must be a better way
                         // Also this requires that resizing be performed with slow mouse/touch moves
                         if (Math.abs(shift) < 50) {
-                            var propertyPercent = (propertyWidth + shift) / (propertyWidth + valueWidth);
-                            var valuePercent = (valueWidth - shift) / (propertyWidth + valueWidth);
-                            headerColGroup.children('col:first-child').width(propertyPercent + '%');
-                            headerColGroup.children('col:last-child').width(valuePercent + '%');
-                            contentColGroup.children('col:first-child').width(propertyPercent + '%');
-                            contentColGroup.children('col:last-child').width(valuePercent + '%');
+                            const propertyPercent =
+                                (propertyWidth + shift) /
+                                (propertyWidth + valueWidth);
+                            const valuePercent =
+                                (valueWidth - shift) /
+                                (propertyWidth + valueWidth);
+                            headerColGroup
+                                .children('col:first-child')
+                                .width(`${propertyPercent}%`);
+                            headerColGroup
+                                .children('col:last-child')
+                                .width(`${valuePercent}%`);
+                            contentColGroup
+                                .children('col:first-child')
+                                .width(`${propertyPercent}%`);
+                            contentColGroup
+                                .children('col:last-child')
+                                .width(`${valuePercent}%`);
                         }
                         // call = Date.now();
                     }, 0);
                     // }
                 },
-                resizeend: function (e) {
-                    var propertyWidth = element.find('.k-grid-content>table>tbody>tr>td:first-child').outerWidth();
-                    var handle = $(e.currentTarget);
+                resizeend(e) {
+                    const propertyWidth = element
+                        .find('.k-grid-content>table>tbody>tr>td:first-child')
+                        .outerWidth();
+                    const handle = $(e.currentTarget);
                     handle
                         .css({ left: propertyWidth - handle.outerWidth() / 2 })
                         .show();
                     // Resize all widgets in the property grid
-                    element.children().each(function (index, child) {
+                    element.children().each((index, child) => {
                         kendo.resize($(child));
                     });
                 }
@@ -418,18 +477,20 @@ const PropertyGrid = Widget.extend({
      * @param validation
      * @returns {*}
      */
-    validation: function (validation) {
-        var that = this;
-        if ($.type(validation) === OBJECT || $.type(validation) === NULL) {
+    validation(validation) {
+        const that = this;
+        if ($.type(validation) === CONSTANTS.OBJECT || $.type(validation) === CONSTANTS.NULL) {
             if (validation !== that.options.validation) {
                 that.options.validation = validation;
                 that._removeValidator();
                 that._addValidator();
             }
-        } else if ($.type(validation) !== UNDEFINED) {
+        } else if ($.type(validation) !== CONSTANTS.UNDEFINED) {
             return that.options.validation;
         } else {
-            throw new TypeError('`validation` is expected to be an object if not null or undefined');
+            throw new TypeError(
+                '`validation` is expected to be an object if not null or undefined'
+            );
         }
     },
 
@@ -438,10 +499,12 @@ const PropertyGrid = Widget.extend({
      * See http://docs.telerik.com/kendo-ui/api/javascript/ui/validator
      * @private
      */
-    _addValidator: function () {
-        var that = this;
+    _addValidator() {
+        const that = this;
         if (!(that._validator instanceof kendo.ui.Validator)) {
-            that._validator = that.element.kendoValidator(that.options.validation).data('kendoValidator');
+            that._validator = that.element
+                .kendoValidator(that.options.validation)
+                .data('kendoValidator');
         }
     },
 
@@ -449,8 +512,8 @@ const PropertyGrid = Widget.extend({
      * Remove validator
      * @private
      */
-    _removeValidator: function () {
-        var that = this;
+    _removeValidator() {
+        const that = this;
         if (that._validator instanceof kendo.ui.Validator) {
             that._validator.destroy();
         }
@@ -460,8 +523,8 @@ const PropertyGrid = Widget.extend({
      * Get the error messages if any. (call validate first)
      * @returns {*}
      */
-    errors: function () {
-        var that = this;
+    errors() {
+        const that = this;
         if (that._validator instanceof kendo.ui.Validator) {
             return that._validator.errors();
         }
@@ -471,8 +534,8 @@ const PropertyGrid = Widget.extend({
      * Hides the validation messages.
      * @returns {*}
      */
-    hideMessages: function () {
-        var that = this;
+    hideMessages() {
+        const that = this;
         if (that._validator instanceof kendo.ui.Validator) {
             return that._validator.hideMessages();
         }
@@ -482,8 +545,8 @@ const PropertyGrid = Widget.extend({
      * Validates the input element(s) against the declared validation rules.
      * @returns {*}
      */
-    validate: function () {
-        var that = this;
+    validate() {
+        const that = this;
         if (that._validator instanceof kendo.ui.Validator) {
             return that._validator.validate();
         }
@@ -494,8 +557,8 @@ const PropertyGrid = Widget.extend({
      * @param input
      * @returns {*}
      */
-    validateInput: function (input) {
-        var that = this;
+    validateInput(input) {
+        const that = this;
         if (that._validator instanceof kendo.ui.Validator) {
             return that._validator.validateInput(input);
         }
@@ -505,17 +568,14 @@ const PropertyGrid = Widget.extend({
      * Destroy
      * @method destroy
      */
-    destroy: function () {
-        var that = this;
-        var element = that.element;
+    destroy() {
+        const that = this;
+        const element = that.element;
         that._removeValidator();
-        element
-            .off(NS)
-            .removeClass(WIDGET_CLASS);
+        element.off(NS).removeClass(WIDGET_CLASS);
         Widget.fn.destroy.call(this);
         kendo.destroy(element);
     }
-
 });
 
 /**
@@ -523,33 +583,30 @@ const PropertyGrid = Widget.extend({
  */
 plugin(PropertyGrid);
 
-/*********************************************************************************
+/** *******************************************************************************
  * Helpers
- *********************************************************************************/
+ ******************************************************************************** */
 
 var util = {
-
     /**
      * Return a hash object from an array of rows
      * @param rows
      * @returns {{}}
      */
-    hash: function (rows) {
-        var ret = {};
+    hash(rows) {
+        const ret = {};
         if ($.isArray(rows)) {
-            $.each(rows, function (index, row) {
+            $.each(rows, (index, row) => {
                 // check fields like attributes.src
-                var hierarchy = row.field.split('.');
-                var obj = ret;
-                for (var i = 0; i < hierarchy.length; i++) {
+                const hierarchy = row.field.split('.');
+                let obj = ret;
+                for (let i = 0; i < hierarchy.length; i++) {
                     obj = obj[hierarchy[i]] = obj[hierarchy[i]] || {};
                 }
                 obj._index = index;
-                for (var prop in row) {
-                    if (row.hasOwnProperty(prop)) {
-                        obj[prop] = row[prop];
-                    }
-                }
+                Object.keys(row).forEach(key => {
+                    obj[key] = row[key];
+                });
             });
         }
         return ret;
@@ -561,11 +618,10 @@ var util = {
      * @param fieldName
      * @returns {*}
      */
-    formatTitle: function (fieldName) {
+    formatTitle(fieldName) {
         // See http://stackoverflow.com/questions/6142922/replace-a-regex-capture-group-with-uppercase-in-javascript
-        return kendo.toHyphens(fieldName).replace(/(^\w|-\w)/g, function (v) {
-            return v.replace('-', ' ').toUpperCase();
-        });
+        return toHyphens(fieldName)
+            .replace(/(^\w|-\w)/g, v => v.replace('-', ' ').toUpperCase());
     },
 
     /**
@@ -574,30 +630,32 @@ var util = {
      * @param defaultValue
      * @param value
      */
-    getType: function (field, defaultValue, value) {
-        var fieldTypes = ['string', 'number', 'boolean', 'date'];
-        var type;
+    getType(field, defaultValue, value) {
+        const fieldTypes = ['string', 'number', 'boolean', 'date'];
+        let type;
         if (field && fieldTypes.indexOf(field.type) > -1) {
             return field.type;
         }
-        if ($.type(defaultValue) !== UNDEFINED && $.type(defaultValue) !== NULL) {
+        if (
+            $.type(defaultValue) !== CONSTANTS.UNDEFINED &&
+            $.type(defaultValue) !== CONSTANTS.NULL
+        ) {
             type = $.type(defaultValue);
             return fieldTypes.indexOf(type) > -1 ? type : undefined;
         }
-        if ($.type(value) !== UNDEFINED && $.type(value) !== NULL) {
+        if ($.type(value) !== CONSTANTS.UNDEFINED && $.type(value) !== CONSTANTS.NULL) {
             type = $.type(value);
             return fieldTypes.indexOf(type) > -1 ? type : undefined;
         }
         // By default
-        return STRING;
+        return CONSTANTS.STRING;
     },
 
     /**
      * Improve the editor set in row
      * @param row
      */
-    optimizeEditor: function (row) {
-
+    optimizeEditor(row) {
         if (!row.editable) {
             row.editor = editors.span;
             return;
@@ -613,20 +671,46 @@ var util = {
         }
 
         // If row editor is a string
-        if ($.type(row.editor) === STRING) {
+        if ($.type(row.editor) === CONSTANTS.STRING) {
             row.editor = row.editor.toLowerCase();
 
             // If it designates a public well-known editor
-            if (row.editor.length && !RX_PRIVATE.test(row.editor) && $.isFunction(editors[row.editor])) {
+            if (
+                row.editor.length &&
+                !RX_PRIVATE.test(row.editor) &&
+                $.isFunction(editors[row.editor])
+            ) {
                 row.editor = editors[row.editor];
                 return;
             }
 
             // If it designates a kendo UI widget that works with an input
-            var widgets = ['colorpicker', 'datepicker', 'datetimepicker', 'maskedtextbox', 'multiinput', 'numerictextbox', 'rating', 'slider', 'switch', 'timepicker'];
-            if ((widgets.indexOf(row.editor) > -1) &&
-                (kendo.rolesFromNamespaces(kendo.ui).hasOwnProperty(row.editor) || kendo.rolesFromNamespaces(kendo.mobile.ui).hasOwnProperty(row.editor))) {
-                row.attributes = $.extend({}, row.attributes, util.getRoleBinding(row.editor));
+            const widgets = [
+                'colorpicker',
+                'datepicker',
+                'datetimepicker',
+                'maskedtextbox',
+                'multiinput',
+                'numerictextbox',
+                'rating',
+                'slider',
+                'switch',
+                'timepicker'
+            ];
+            if (
+                widgets.indexOf(row.editor) > -1 &&
+                (kendo
+                    .rolesFromNamespaces(kendo.ui)
+                    .hasOwnProperty(row.editor) ||
+                    kendo
+                        .rolesFromNamespaces(kendo.mobile.ui)
+                        .hasOwnProperty(row.editor))
+            ) {
+                row.attributes = $.extend(
+                    {},
+                    row.attributes,
+                    util.getRoleBinding(row.editor)
+                );
                 row.editor = editors.input; // editors._kendoInput;
                 return;
             }
@@ -636,37 +720,49 @@ var util = {
         row.editor = undefined;
 
         // If there is a template, use the corresponding editor
-        if ($.type(row.template) === STRING && row.template.length) {
+        if ($.type(row.template) === CONSTANTS.STRING && row.template.length) {
             row.editor = editors._template;
             return;
         }
 
         // Otherwise we can only rely on data type
         switch (row.type) {
-            case NUMBER:
-                row.attributes = $.extend({}, row.attributes, util.getRoleBinding('numerictextbox'));
+            case CONSTANTS.NUMBER:
+                row.attributes = $.extend(
+                    {},
+                    row.attributes,
+                    util.getRoleBinding('numerictextbox')
+                );
                 row.editor = editors.input; // editors._kendoInput;
                 break;
-            case BOOLEAN:
-                row.attributes = $.extend({}, row.attributes, util.getRoleBinding('switch'));
+            case CONSTANTS.BOOLEAN:
+                row.attributes = $.extend(
+                    {},
+                    row.attributes,
+                    util.getRoleBinding('switch')
+                );
                 row.editor = editors.input; // editors._kendoInput;
                 break;
-            case DATE:
-                row.attributes = $.extend({}, row.attributes, util.getRoleBinding('datepicker'));
+            case CONSTANTS.DATE:
+                row.attributes = $.extend(
+                    {},
+                    row.attributes,
+                    util.getRoleBinding('datepicker')
+                );
                 row.editor = editors.input; // editors._kendoInput;
                 break;
-            default: // STRING
+            default:
+                // CONSTANTS.STRING
                 row.attributes = $.extend({ type: 'text' }, row.attributes);
                 row.editor = editors.input;
         }
     },
 
-    getRoleBinding: function (role) {
-        var binding = {};
-        if ($.type(role) === STRING && role.length) {
+    getRoleBinding(role) {
+        const binding = {};
+        if ($.type(role) === CONSTANTS.STRING && role.length) {
             binding[kendo.attr('role')] = role;
         }
         return binding;
     }
-
 };

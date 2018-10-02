@@ -3,108 +3,106 @@
  * Sources at https://github.com/Memba
  */
 
-// https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
-import 'kendo.core';
-import assert from '../common/window.assert.es6';
-import CONSTANTS from '../common/window.constants.es6';
-import BaseModel from './models.base.es6';
-import PageCollectionDataSource from './datasources.page.es6';
-import tools from '../tools/tools.es6';
-import BaseTool from '../tools/tools.base.es6';
-
-const { format } = window.kendo;
-
 // TODO: Add better descriptions for PageExplorer (requires access to tools)
 // TODO Consider a better way to round height, top, left, width only when saving
 // TODO List assets (requires access to tools)
 // TODO List tools to load them
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.data';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseModel from './models.base.es6';
+import PageComponentDataSource from './datasources.pagecomponent.es6';
+import tools from '../tools/tools.es6';
+import BaseTool from '../tools/tools.base.es6';
+
+const {
+    data: { ObservableObject },
+    format,
+    template
+} = window.kendo;
+
 /**
  * PageComponent
+ * @class PageComponent
+ * @extends BaseModel
  */
 const PageComponent = BaseModel.define({
-    id: 'id',
+    id: CONSTANTS.ID,
     fields: {
         id: {
             type: CONSTANTS.STRING,
             editable: false,
             nullable: true
         },
-        tool: {
-            type: CONSTANTS.STRING,
-            editable: false,
-            nullable: true // TODO why nullable ?
-        },
-        top: {
-            type: CONSTANTS.NUMBER
-            // defaultValue: 0
-        },
-        left: {
-            type: CONSTANTS.NUMBER
-            // defaultValue: 0
+        attributes: {
+            type: CONSTANTS.OBJECT,
+            nullable: true
         },
         height: {
             type: CONSTANTS.NUMBER
-            // defaultValue: -1 // why not 0?
         },
-        width: {
+        left: {
             type: CONSTANTS.NUMBER
-            // defaultValue: -1 // why not 0?
+        },
+        properties: {
+            type: CONSTANTS.OBJECT,
+            nullable: true
         },
         rotate: {
             type: CONSTANTS.NUMBER,
-            // defaultValue: 0,
             parse(value) {
                 return $.type(value) === CONSTANTS.NUMBER
                     ? (value + 360) % 360
                     : 0;
             }
         },
-        /*
-        tag: {
+        tool: {
             type: CONSTANTS.STRING,
-            defaultValue: null
+            editable: false,
+            nullable: true
         },
-        */
-        attributes: {
-            defaultValue: null
+        top: {
+            type: CONSTANTS.NUMBER
         },
-        properties: {
-            defaultValue: null
+        width: {
+            type: CONSTANTS.NUMBER
         }
     },
 
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      */
     init(options) {
-        // Note: Kendo UI requires that new PageComponent() works, i.e. options = undefined
+        // Note: Kendo UI requires that new PageComponent() works, i.e. options can be undefined
         if (
-            ($.type(options) === CONSTANTS.OBJECT &&
-                $.type(options.tool) !== CONSTANTS.STRING) ||
-            options.tool.length === 0 ||
-            !(tools[options.tool] instanceof BaseTool)
+            $.type(options) === CONSTANTS.OBJECT &&
+            ($.type(options.tool) !== CONSTANTS.STRING ||
+                options.tool.length === 0 ||
+                options.tool === CONSTANTS.POINTER ||
+                !(tools[options.tool] instanceof BaseTool))
         ) {
-            throw new Error(
-                format('`{0}` is not a valid Kidoju tool', options.tool)
-            );
+            throw new Error(format('`{0}` is not a valid tool', options.tool));
         }
 
+        // Note: field parse function are executed by BaseModel init method
+        // when executing parse, `this` is undefined, so there is no access to other values
         BaseModel.fn.init.call(this, options);
 
         if (
-            tools &&
+            tools instanceof ObservableObject &&
             $.type(this.tool) === CONSTANTS.STRING &&
             this.tool.length
         ) {
             const tool = tools[this.tool];
             if (tool instanceof BaseTool) {
                 // Let the tool build a Model for attributes to allow validation in the property grid
-                const Attributes = tool._getAttributeModel();
+                const Attributes = tool.getAttributeModel();
                 // Extend options attributes with possible new attributes as tools improve
                 const attributes = $.extend(
                     {},
@@ -120,7 +118,7 @@ const PageComponent = BaseModel.define({
                 });
 
                 // Let the tool build a Model for properties to allow validation in the property grid
-                const Properties = tool._getPropertyModel();
+                const Properties = tool.getPropertyModel();
                 // Extend options properties with possible new properties as tools improve
                 const properties = $.extend(
                     {},
@@ -136,15 +134,32 @@ const PageComponent = BaseModel.define({
                 });
 
                 // Add the code library if any, otherwise we will be missing code for any items designated by a name
+                // TODO Temporarily commented to avoid loading ValidationAdapter
+                /*
                 if (
                     tool.properties &&
-                    tool.properties.validation instanceof
-                        kidoju.adapters.ValidationAdapter
+                    tool.properties.validation instanceof ValidationAdapter
                 ) {
                     this._library = tool.properties.validation.library;
                 }
+                */
             }
         }
+    },
+
+    /**
+     * Get the component index
+     * @method index
+     */
+    index() {
+        let index;
+        if ($.isFunction(this.parent)) {
+            const collection = this.parent();
+            if (collection instanceof PageComponentDataSource) {
+                index = collection.indexOf(this);
+            }
+        }
+        return index;
     },
 
     /**
@@ -156,7 +171,7 @@ const PageComponent = BaseModel.define({
         if ($.isFunction(this.parent)) {
             const collection = this.parent();
             if (
-                collection instanceof PageCollectionDataSource &&
+                collection instanceof PageComponentDataSource &&
                 $.isFunction(collection.parent)
             ) {
                 page = collection.parent();
@@ -166,9 +181,39 @@ const PageComponent = BaseModel.define({
     },
 
     /**
-     * Clone a page component
+     * Help
+     * @method help$
      */
+    help$() {
+        let ret;
+        const tool = tools[this.get('tool')];
+        assert.instanceof(
+            BaseTool,
+            tool,
+            assert.format(
+                assert.messages.instanceof.default,
+                'tool',
+                'BaseTool'
+            )
+        );
+        const page = this.page();
+        if ($.type(page) !== CONSTANTS.UNDEFINED) {
+            const indexes = {
+                component: this.index(),
+                page: page.index()
+            }.index();
+            ret = template(tool.help)(indexes);
+        }
+        return ret;
+    }
+
+    /**
+     * Clone
+     * @method clone
+     */
+    /*
     clone() {
+    // TODO: why not use toJSON() - beware serializable
         const component = this;
         assert.type(
             CONSTANTS.STRING,
@@ -195,7 +240,7 @@ const PageComponent = BaseModel.define({
         // Copy display attributes
         fields = component.attributes.fields;
         clone.attributes = {};
-        for (/* var */ field in fields) {
+        for (field in fields) {
             if (fields.hasOwnProperty(field)) {
                 clone.attributes[field] = JSON.parse(
                     JSON.stringify(component.get(`attributes.${field}`))
@@ -205,7 +250,7 @@ const PageComponent = BaseModel.define({
         // copy some property attributes
         fields = component.properties.fields;
         clone.properties = {};
-        for (/* var */ field in fields) {
+        for (field in fields) {
             // Copying validation can be fairly complex depending on the use of all, considering components need to change name
             if (
                 fields.hasOwnProperty(field) &&
@@ -227,11 +272,13 @@ const PageComponent = BaseModel.define({
         // Return clone
         return new PageComponent(clone);
     },
+    */
 
     /**
-     * PageComponent validation
+     * Validate
      * @param pageIdx (in PageCollection)
      */
+    /*
     validate(pageIdx) {
         assert.instanceof(
             PageComponent,
@@ -277,16 +324,10 @@ const PageComponent = BaseModel.define({
         }
         return ret;
     }
+    */
 });
 
 /**
  * Default export
  */
 export default PageComponent;
-
-/**
- * Legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.data = window.kidoju.data || {};
-window.kidoju.data.PageComponent = PageComponent;

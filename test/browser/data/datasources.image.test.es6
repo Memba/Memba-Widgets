@@ -10,9 +10,9 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import Image from '../../../src/js/data/models.image.es6';
 import BaseDataSource from '../../../src/js/data/datasources.base.es6';
 import ImageDataSource from '../../../src/js/data/datasources.image.es6';
+import Image from '../../../src/js/data/models.image.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
@@ -21,7 +21,6 @@ const {
 } = window.kendo;
 chai.use(sinonChai);
 
-const INVALID = [];
 const DATA = [
     {
         text: 'error',
@@ -81,18 +80,34 @@ describe('datasources.image', () => {
                 .catch(done);
         });
 
-        it('It should raise events', () => {
-
+        it('It should raise events', done => {
+            const change = sinon.spy();
+            const dataSource = new ImageDataSource({ data: DATA });
+            dataSource.bind('change', change);
+            dataSource
+                .read()
+                .then(() => {
+                    const image = dataSource.at(0);
+                    expect(image).to.be.an.instanceof(Image);
+                    image.set('text', JSC.string()());
+                    expect(change).to.have.been.calledTwice;
+                    done();
+                })
+                .catch(done);
         });
 
         it('It should handle duplicate ids', () => {
+            expect(true).to.be.false;
+        });
 
+        it('It should handle errors', () => {
+            expect(true).to.be.false;
         });
     });
 
     describe('create', () => {
         it('It should create from an array', () => {
-
+            expect(true).to.be.false;
         });
     });
 });

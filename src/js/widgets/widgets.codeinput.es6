@@ -17,8 +17,9 @@ import BaseTool from '../tools/tools.base.es6';
 const {
     attr,
     data: { DataSource },
+    destroy,
     format,
-    ui: { DropDownList, plugin, Widget }
+    ui: { DropDownList, plugin, DataBoundWidget }
 } = window.kendo;
 const logger = new Logger('widgets.codeinput');
 
@@ -29,32 +30,26 @@ const LIB_COMMENT = '// ';
 const RX_VALIDATION_LIBRARY = /^\/\/ ([^\s\[\n]+)( (\[[^\n]+\]))?$/;
 const RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
 
-/** *******************************************************************************
- * Widget
- ******************************************************************************** */
-
 /**
  * CodeInput
  * Displays as a drop down list when value is // xxxxx refering to a library formula
  * Displays as an readonly input containing the word "custom" when value is a validate custom function
  * IMPORTANT: this is not the value that is displayed: it is either `custom` or value stripped of `// `
  * @class CodeInput
+ * @extends widget
  */
-const CodeInput = Widget.extend({
+const CodeInput = DataBoundWidget.extend({
     /**
      * Constructor
-     * @connstructor init
+     * @constructor init
      * @param element
      * @param options
      */
     init(element, options) {
-        const that = this;
-        options = options || {};
-        Widget.fn.init.call(that, element, options);
+        DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
-        that._layout();
-        that._dataSource();
-        kendo.notify(that);
+        this._render();
+        this._dataSource();
     },
 
     /**
@@ -85,7 +80,7 @@ const CodeInput = Widget.extend({
      */
     _initValue() {
         // Consider making it setOptions(options)
-        const options = this.options;
+        const { options } = this;
         if (
             $.type(options.value) === CONSTANTS.STRING &&
             RX_VALIDATION_CUSTOM.test(options.value)
@@ -294,7 +289,7 @@ const CodeInput = Widget.extend({
      * Builds the widget layout
      * @private
      */
-    _layout() {
+    _render() {
         const that = this;
         const options = that.options;
         that.wrapper = that.element;
@@ -406,8 +401,9 @@ const CodeInput = Widget.extend({
     /**
      * Enable
      */
-    enable(enabled) {
-        enabled = !!enabled;
+    enable(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         this.dropDownList.enable(enabled);
         this.paramInput.toggleClass(CONSTANTS.DISABLED_CLASS, !enabled);
     },
@@ -430,10 +426,8 @@ const CodeInput = Widget.extend({
         that.customInput = undefined;
         that.paramInput = undefined;
         // Destroy kendo;
-        Widget.fn.destroy.call(that);
-        kendo.destroy(wrapper);
-        // Remove widget class
-        // wrapper.removeClass(WIDGET_CLASS);
+        DataBoundWidget.fn.destroy.call(this);
+        destroy(this.wrapper);
     }
 });
 

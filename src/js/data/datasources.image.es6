@@ -9,7 +9,6 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import BaseDataSource from './datasources.base.es6';
 import Image from './models.image.es6';
 
 const {
@@ -19,16 +18,16 @@ const {
 /**
  * ImageDataSource
  * @class ImageDataSource
- * @extends BaseDataSource
+ * @extends DataSource
  */
-const ImageDataSource = BaseDataSource.extend({
+const ImageDataSource = DataSource.extend({
     /**
      * Init
      * @constructor init
      * @param options
      */
     init(options) {
-        BaseDataSource.fn.init.call(
+        DataSource.fn.init.call(
             this,
             $.extend(true, {}, options, {
                 schema: {

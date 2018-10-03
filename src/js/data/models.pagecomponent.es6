@@ -3,7 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO: Add better descriptions for PageExplorer (requires access to tools)
 // TODO Consider a better way to round height, top, left, width only when saving
 // TODO List assets (requires access to tools)
 // TODO List tools to load them
@@ -181,7 +180,15 @@ const PageComponent = BaseModel.define({
     },
 
     /**
-     * Help
+     * Description (for widgets.explorer)
+     * @method description$
+     */
+    description$() {
+        // TODO: Add better descriptions for PageExplorer (requires access to tools)
+    },
+
+    /**
+     * Help (for widgets.markdown)
      * @method help$
      */
     help$() {

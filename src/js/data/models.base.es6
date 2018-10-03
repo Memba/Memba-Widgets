@@ -3,9 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Consider a function that populates validation rules on forms
+// TODO Consider a function/widget that populates validation rules on forms
 // See http://docs.telerik.com/kendo-ui/framework/validator/overview
 // TODO Consider an LRUCache for history
+// TODO timezones?
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -15,7 +16,7 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {
-    data: { DataSource, Model, ObservableObject },
+    data: { DataSource, Model, ObservableArray, ObservableObject },
     getter
 } = window.kendo;
 
@@ -33,10 +34,10 @@ const BaseModel = Model.define({
      * @see http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
      * @param data
      */
-    init(data = {}) {
+    init(data) {
         if (
             data &&
-            !(data instanceof Model) &&
+            !(data instanceof Model) && // BaseModel inherits from Model
             $.type(data.hasSubgroups) === CONSTANTS.BOOLEAN &&
             Array.isArray(data.items)
         ) {
@@ -51,6 +52,8 @@ const BaseModel = Model.define({
     /**
      * _parse
      * Note: assigns the field defaultValue when the value is undefined
+     * This needs to be done in the _parse method in order to work with
+     * new kendo.data.DataSource({ data: [...]})
      * @method _parse
      * @param name (field name)
      * @param value
@@ -95,12 +98,14 @@ const BaseModel = Model.define({
      * There are several issues with kendo.data.Model that we attempt to fix here:
      * - If data is passed to init, missing properties do not get a default value
      * - passing an ISO UTC string date as a value for a field of type date is not parsed
-     * - more generally filed parse functions are not executed on default values, which is an issue with complex types
+     * - more generally parse functions are not executed on default values, which is an issue with complex types
      * - events are not propagated to parents
      * @param data
      * @private
      */
     _parseData(data) {
+        // eslint-disable-next-line no-param-reassign
+        data = data || {}; // Can be undefined or null
         assert.type(
             CONSTANTS.OBJECT,
             data,
@@ -136,12 +141,12 @@ const BaseModel = Model.define({
      * @returns {boolean}
      */
     accept(data) {
-        // Call the base accept method
+        // Call the base accept method after parsing data
         Model.fn.accept.call(this, this._parseData(data));
 
+        // TODO Review this event thing.......
         // Trigger a change event on the parent observable (possibly a viewModel)
         // Without it, any UI widget data bound to the parent is not updated
-        // TODO Review this event thing.......
         if ($.type(this.parent) === CONSTANTS.FUNCTION) {
             const parent = this.parent();
             if (parent instanceof ObservableObject) {
@@ -160,9 +165,28 @@ const BaseModel = Model.define({
                     }
                     return exit;
                 });
+            } else if (parent instanceof ObservableArray) {
+                // TODO or DataSource????
+                parent.some((item, index) => {
+                    let exit = false;
+                    if (
+                        item instanceof this.constructor &&
+                        item.uid === this.uid
+                    ) {
+                        // As we have found our nested object in the parent
+                        // trigger a change event otherwise UI won't be updated via MVVM
+                        parent.trigger(CONSTANTS.CHANGE, {
+                            action: 'itemchange',
+                            index,
+                            items: [item]
+                        });
+                        // Once we have found the key holding our model in its parent and triggered the change event,
+                        // break out of for loop
+                        exit = true;
+                    }
+                    return exit;
+                });
             }
-            // } else if (parent instanceof ObservableArray) {
-            // TODO: What in this case ????
         }
     },
 

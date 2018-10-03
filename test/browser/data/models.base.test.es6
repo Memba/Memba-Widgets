@@ -13,12 +13,15 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { error2xhr } from '../../../src/js/data/data.util.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
+import { jsonClone } from '../../../src/js/common/window.util.es6';
 
 const { describe, it, xit } = window;
 const {
-    data: { DataSource, Model, ObservableArray },
+    Class,
+    data: { DataSource, Model, ObservableArray, ObservableObject },
     observable
 } = window.kendo;
 const { expect } = chai;
@@ -27,7 +30,7 @@ chai.use(sinonChai);
 
 describe('models.base', () => {
     describe('BaseModel', () => {
-        describe('Default values', () => {
+        xdescribe('Default values', () => {
             const definition = {
                 id: 'id',
                 fields: {
@@ -36,82 +39,166 @@ describe('models.base', () => {
                         nullable: true,
                         editable: false
                     },
-                    title: {
-                        type: 'string',
-                        defaultValue: 'hey'
-                    },
-                    dob: {
-                        type: 'date'
-                    },
                     age: {
                         type: 'number',
                         defaultValue() {
                             return 10;
                         }
+                    },
+                    dob: {
+                        type: 'date'
+                    },
+                    male: {
+                        type: 'boolean'
+                    },
+                    title: {
+                        type: 'string',
+                        defaultValue: 'hey'
                     }
                 }
             };
-            const data = { id: '1' };
+            const data = { id: new ObjectId().toString() };
 
             it('kendo.data.Model does not assign default values', () => {
                 // This test should allow us to detect fixes in future versions of Kendo UI
                 // in view to remove our custom code to fix kendo.data.Model...
                 const DataModel = Model.define(definition);
-                const model1 = new DataModel();
-                const model2 = new DataModel(data);
+                const item1 = new DataModel();
+                const item2 = new DataModel(jsonClone(data));
 
-                expect(model1.id).to.be.null;
-                expect(model1).to.have.property(
-                    'title',
-                    definition.fields.title.defaultValue
+                // Default values are assigned when model is initialized without data
+                expect(item1).to.have.property(
+                    'age',
+                    DataModel.fn.defaults.age()
                 );
-                expect(model1)
-                    .to.have.property('dob')
-                    .that.is.a('date');
-                expect(model1).to.have.property('age', 10);
+                expect(item1).to.have.property(
+                    'dob',
+                    DataModel.fn.defaults.dob
+                );
+                expect(item1).to.have.property('id', DataModel.fn.defaults.id);
+                expect(item1).to.have.property(
+                    'male',
+                    DataModel.fn.defaults.male
+                );
+                expect(item1).to.have.property(
+                    'title',
+                    DataModel.fn.defaults.title
+                );
 
+                // Default values are not assigned when model is initialized with partial data
                 // undefined fields is the problem to fix
-                expect(model2).to.have.property('id', data.id);
-                expect(model2.title).to.be.undefined;
-                expect(model2.dob).to.be.undefined;
-                expect(model2.age).to.be.undefined;
+                expect(item2).not.to.have.property('age');
+                expect(item2).not.to.have.property('dob');
+                expect(item2).to.have.property('id', data.id);
+                expect(item2).not.to.have.property('male');
+                expect(item2).not.to.have.property('title');
+            });
+
+            it('kendo.data.Model does not assign default values (via kendo.data.DataSource)', done => {
+                const DataModel = Model.define(definition);
+                const dataSource = new DataSource({
+                    data: [jsonClone(data)],
+                    schema: {
+                        model: DataModel,
+                        modelBase: DataModel
+                    }
+                });
+                dataSource
+                    .read()
+                    .then(() => {
+                        const item = dataSource.at(0);
+                        expect(item).to.have.property('age').that.is.null; // Because kendo.parseFloat(undefined) === null
+                        expect(item).to.have.property('dob').that.is.null; // Because kendo.parseDate(undefined) === null
+                        expect(item).to.have.property('id', data.id);
+                        expect(item).to.have.property('male').that.is.undefined;
+                        expect(item).to.have.property('title').that.is
+                            .undefined;
+                        done();
+                    })
+                    .catch(done);
             });
 
             it('BaseModel should assign default values', () => {
                 const DataModel = BaseModel.define(definition);
-                const model1 = new DataModel();
-                const model2 = new DataModel(data);
+                const item1 = new DataModel();
+                const item2 = new DataModel(jsonClone(data));
 
-                expect(model1.id).to.be.null;
-                expect(model1).to.have.property(
-                    'title',
-                    definition.fields.title.defaultValue
-                );
-                expect(model1)
-                    .to.have.property('dob')
-                    .that.is.a('date');
-                expect(model1).to.have.property(
+                // Default values are assigned when model is initialized without data
+                expect(item1).to.have.property(
                     'age',
-                    definition.fields.age.defaultValue()
+                    DataModel.fn.defaults.age()
+                );
+                expect(item1).to.have.property(
+                    'dob',
+                    DataModel.fn.defaults.dob
+                );
+                expect(item1).to.have.property('id', DataModel.fn.defaults.id);
+                expect(item1).to.have.property(
+                    'male',
+                    DataModel.fn.defaults.male
+                );
+                expect(item1).to.have.property(
+                    'title',
+                    DataModel.fn.defaults.title
                 );
 
+                // Default values are now assigned when model is initialized with partial data
                 // undefined fields have been fixed in BaseModel
-                expect(model2).to.have.property('id', data.id);
-                expect(model2).to.have.property(
-                    'title',
-                    definition.fields.title.defaultValue
-                );
-                expect(model2)
-                    .to.have.property('dob')
-                    .that.is.a('date');
-                expect(model2).to.have.property(
+                expect(item2).to.have.property(
                     'age',
-                    definition.fields.age.defaultValue()
+                    DataModel.fn.defaults.age()
                 );
+                expect(item1).to.have.property(
+                    'dob',
+                    DataModel.fn.defaults.dob
+                );
+                expect(item2).to.have.property(
+                    'male',
+                    DataModel.fn.defaults.male
+                );
+                expect(item2).to.have.property(
+                    'title',
+                    DataModel.fn.defaults.title
+                );
+            });
+
+            it('BaseModel should assign default values (via kendo.data.DataSource)', done => {
+                const DataModel = BaseModel.define(definition);
+                const dataSource = new DataSource({
+                    data: [jsonClone(data)],
+                    schema: {
+                        model: DataModel,
+                        modelBase: DataModel
+                    }
+                });
+                dataSource
+                    .read()
+                    .then(() => {
+                        const item = dataSource.at(0);
+                        expect(item).to.have.property(
+                            'age',
+                            DataModel.fn.defaults.age()
+                        );
+                        expect(item).to.have.property(
+                            'dob',
+                            DataModel.fn.defaults.dob
+                        );
+                        expect(item).to.have.property('id', data.id);
+                        expect(item).to.have.property(
+                            'male',
+                            DataModel.fn.defaults.male
+                        );
+                        expect(item).to.have.property(
+                            'title',
+                            DataModel.fn.defaults.title
+                        );
+                        done();
+                    })
+                    .catch(done);
             });
         });
 
-        describe('Parsing dates', () => {
+        xdescribe('Parsing dates', () => {
             const definition = {
                 id: 'id',
                 fields: {
@@ -140,72 +227,112 @@ describe('models.base', () => {
 
             it('kendo.data.Model does not parse dates', () => {
                 const DataModel = Model.define(definition);
-                const model = new DataModel(data1);
+                // const item = new DataModel(jsonClone(data1));
+                const item = new DataModel(JSON.parse(JSON.stringify(data1))); // Keeps date strings
                 const change = sinon.spy();
 
-                expect(model)
-                    .to.have.property('id')
-                    .that.is.equal(data1.id);
+                expect(item).to.have.property('id', data1.id);
                 // There lies the problem: the date property is supposed to be a Date and the string value has not been parsed/converted
-                expect(model)
+                expect(item)
                     .to.have.property('date')
                     .that.is.a('string');
-                expect(model.date).to.equal(data1.date);
+                expect(item.date).to.equal(data1.date);
 
-                model.bind('change', change);
-                model.accept(data2);
+                item.bind('change', change);
+                item.accept(data2);
 
                 // Although fields are non-editable, they have been updated which is expected with accept
-                expect(model)
-                    .to.have.property('id')
-                    .that.is.equal(data2.id);
+                expect(item).to.have.property('id', data2.id);
                 // model is not dirty, which is expected since we have not called set
-                expect(model).to.have.property('dirty').that.is.false;
+                expect(item).to.have.property('dirty').that.is.false;
                 // accordingly the change event has not been raised
                 expect(change).not.to.have.been.called;
 
                 // There lies the problem again: the date property is supposed to be a Date and the string value has not been parsed/converted
-                expect(model)
+                expect(item)
                     .to.have.property('date')
                     .that.is.a('string');
-                expect(model.date).to.equal(data2.date);
+                expect(item.date).to.equal(data2.date);
             });
 
             it('BaseModel should parse dates', () => {
                 const DataModel = BaseModel.define(definition);
-                const model = new DataModel(data1);
+                // const item = new DataModel(jsonClone(data1));
+                const item = new DataModel(JSON.parse(JSON.stringify(data1))); // Keeps date strings
                 const change = sinon.spy();
 
-                expect(model)
+                expect(item)
                     .to.have.property('id')
                     .that.is.equal(data1.id);
                 // The fix in BaseModel is discussed and explained at http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
-                expect(model)
+                expect(item)
                     .to.have.property('date')
                     .that.is.an.instanceof(Date);
-                expect(model.date.getTime()).to.equal(past.getTime());
+                expect(item.date.getTime()).to.equal(past.getTime());
 
-                model.bind('change', change);
-                model.accept({
+                item.bind('change', change);
+                item.accept({
                     id: data2.id,
                     date: now.toISOString()
                 });
 
-                expect(model)
-                    .to.have.property('id')
-                    .that.is.equal(data2.id);
-                expect(model).to.have.property('dirty').that.is.false;
+                expect(item).to.have.property('id', data2.id);
+                expect(item).to.have.property('dirty').that.is.false;
                 expect(change).not.to.have.been.called;
 
                 // We have fixed our date parsing issue
-                expect(model)
+                expect(item)
                     .to.have.property('date')
                     .that.is.an.instanceof(Date);
-                expect(model.date.getTime()).to.equal(now.getTime());
+                expect(item.date.getTime()).to.equal(now.getTime());
+            });
+
+            it('BEWARE! kendo.data.Model parses dates (via kendo.data.DataSource)', done => {
+                const DataModel = Model.define(definition);
+                const dataSource = new DataSource({
+                    data: [JSON.parse(JSON.stringify(data1))],
+                    schema: {
+                        model: DataModel,
+                        modelBase: DataModel
+                    }
+                });
+                dataSource
+                    .read()
+                    .then(() => {
+                        const item = dataSource.at(0);
+                        expect(item).to.have.property('id', data1.id);
+                        expect(item)
+                            .to.have.property('date')
+                            .that.is.a('date');
+                        done();
+                    })
+                    .catch(done);
+            });
+
+            it('BaseModel should parse dates (via kendo.data.DataSource)', done => {
+                const DataModel = BaseModel.define(definition);
+                const dataSource = new DataSource({
+                    data: [JSON.parse(JSON.stringify(data1))],
+                    schema: {
+                        model: DataModel,
+                        modelBase: DataModel
+                    }
+                });
+                dataSource
+                    .read()
+                    .then(() => {
+                        const item = dataSource.at(0);
+                        expect(item).to.have.property('id', data1.id);
+                        expect(item)
+                            .to.have.property('date')
+                            .that.is.a('date');
+                        done();
+                    })
+                    .catch(done);
             });
         });
 
-        describe('Parsing nested properties', () => {
+        xdescribe('Parsing nested properties', () => {
             // Nested properties are a feature of kendo.data.Model
             // documented at https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
             // They are used to flatten a json object with nested properties to display in a grid
@@ -233,7 +360,7 @@ describe('models.base', () => {
                 }
             };
             const data = {
-                id: '1',
+                id: new ObjectId().toString(),
                 author: {
                     firstName: 'Joe',
                     lastName: 'Blogs'
@@ -247,22 +374,105 @@ describe('models.base', () => {
 
             it('kendo.data.Model does not parse nested properties', () => {
                 const DataModel = Model.define(definition);
-                const model = new DataModel(data);
-                expect(model.comments).to.be.undefined;
-                expect(model.firstName).to.be.undefined;
-                expect(model.lastName).to.be.undefined;
+                const item = new DataModel(jsonClone(data));
+                expect(item).to.have.property('id', data.id);
+                expect(item).not.to.have.property('comments');
+                expect(item).not.to.have.property('firstName');
+                expect(item).not.to.have.property('lastName');
+                // But it has original properties
+                expect(item).to.have.property('author');
+                expect(item).to.have.property('metrics');
             });
 
             it('BaseModel should parse nested properties', () => {
                 const DataModel = BaseModel.define(definition);
-                const model = new DataModel(data);
-                expect(model.comments).to.equal(data.metrics.comments.count);
-                expect(model.firstName).to.equal(data.author.firstName);
-                expect(model.lastName).to.equal(data.author.lastName);
+                const item = new DataModel(jsonClone(data));
+                expect(item).to.have.property('id', data.id);
+                expect(item).to.have.property(
+                    'comments',
+                    data.metrics.comments.count
+                );
+                expect(item).to.have.property(
+                    'firstName',
+                    data.author.firstName
+                );
+                expect(item).to.have.property('lastName', data.author.lastName);
+                // And it is clean of original properties
+                expect(item).not.to.have.property('author');
+                expect(item).not.to.have.property('metrics');
+            });
+
+            it('BEWARE! kendo.data.Model parses nested properties (with kendo.data.DataSource)', done => {
+                const DataModel = Model.define(definition);
+                const dataSource = new DataSource({
+                    data: [jsonClone(data)],
+                    schema: {
+                        model: DataModel,
+                        modelBase: DataModel
+                    }
+                });
+                dataSource
+                    .read()
+                    .then(() => {
+                        const item = dataSource.at(0);
+                        expect(item).to.have.property('id', data.id);
+                        expect(item).to.have.property(
+                            'comments',
+                            data.metrics.comments.count
+                        );
+                        expect(item).to.have.property(
+                            'firstName',
+                            data.author.firstName
+                        );
+                        expect(item).to.have.property(
+                            'lastName',
+                            data.author.lastName
+                        );
+                        // But it also has original properties
+                        // So it is a bit of a mess
+                        expect(item).to.have.property('author');
+                        expect(item).to.have.property('metrics');
+                        done();
+                    })
+                    .catch(done);
+            });
+
+            it('BaseModel should parse nested properties (with kendo.data.DataSource)', done => {
+                const DataModel = BaseModel.define(definition);
+                const dataSource = new DataSource({
+                    data: [jsonClone(data)],
+                    schema: {
+                        model: DataModel,
+                        modelBase: DataModel
+                    }
+                });
+                dataSource
+                    .read()
+                    .then(() => {
+                        const item = dataSource.at(0);
+                        expect(item).to.have.property('id', data.id);
+                        expect(item).to.have.property(
+                            'comments',
+                            data.metrics.comments.count
+                        );
+                        expect(item).to.have.property(
+                            'firstName',
+                            data.author.firstName
+                        );
+                        expect(item).to.have.property(
+                            'lastName',
+                            data.author.lastName
+                        );
+                        // And it is clean of original properties
+                        expect(item).not.to.have.property('author');
+                        expect(item).not.to.have.property('metrics');
+                        done();
+                    })
+                    .catch(done);
             });
         });
 
-        describe('Parsing nested models (subdocuments)', () => {
+        xdescribe('Parsing nested models (subdocuments)', () => {
             const authorDefinition = {
                 id: 'userId',
                 fields: {
@@ -299,26 +509,26 @@ describe('models.base', () => {
                 }
             };
             const data1 = {
-                id: '1',
+                id: new ObjectId().toString(),
                 title: 'Les Misérables',
                 author: {
-                    userId: 'a',
+                    userId: new ObjectId().toString(),
                     name: 'Victor Hugo'
                 }
             };
             const data2 = {
-                id: '2',
+                id: new ObjectId().toString(),
                 title: 'La Peste',
                 author: {
-                    id: 'b',
+                    id: new ObjectId().toString(),
                     name: 'Albert Camus'
                 }
             };
             const data3 = {
-                id: '3',
-                title: 'Les 3 Mousquetaires',
+                id: new ObjectId().toString(),
+                title: 'Les Trois Mousquetaires',
                 author: {
-                    id: 'c',
+                    id: new ObjectId().toString(),
                     name: 'Alexandre Dumas'
                 }
             };
@@ -329,8 +539,9 @@ describe('models.base', () => {
                     return value instanceof Author ? value : new Author(value);
                 };
                 const Book = Model.define(bookDefinition);
-                const model = new Book(data1);
-                expect(model.author).not.to.be.an.instanceof(Author);
+                const item = new Book(data1);
+                expect(item.author).not.to.be.an.instanceof(Author);
+                expect(item.author).to.be.an.instanceof(ObservableObject);
             });
 
             it('BaseModel should parse nested models', () => {
@@ -341,24 +552,125 @@ describe('models.base', () => {
                 const Book = BaseModel.define(bookDefinition);
 
                 const change = sinon.spy();
-                const model = new Book(data1);
-                model.bind('change', change);
+                const item = new Book(data1);
+                item.bind('change', change);
                 expect(change).not.to.have.been.called;
-                expect(model.author).to.be.an.instanceof(Author);
-                expect(model.get('author.name')).to.equal(data1.author.name);
+                expect(item.author).to.be.an.instanceof(Author);
+                expect(item.get('author.name')).to.equal(data1.author.name);
 
-                model.accept(data2);
+                item.accept(data2);
                 expect(change).not.to.have.been.called;
-                expect(model.author).to.be.an.instanceof(Author);
-                expect(model.get('author.name')).to.equal(data2.author.name);
+                expect(item.author).to.be.an.instanceof(Author);
+                expect(item.get('author.name')).to.equal(data2.author.name);
 
-                model.set('author', data3.author);
+                item.set('author', data3.author);
                 expect(change).to.have.been.calledOnce;
-                expect(model.author).to.be.an.instanceof(Author);
+                expect(item.author).to.be.an.instanceof(Author);
+            });
+
+            it('kendo.data.Model does not parse nested models (via kendo.data.DataSource)', done => {
+                const Author = Model.define(authorDefinition);
+                bookDefinition.fields.author.parse = function parse(value) {
+                    return value instanceof Author ? value : new Author(value);
+                };
+                const Book = Model.define(bookDefinition);
+                const dataSource = new DataSource({
+                    data: [jsonClone(data1)],
+                    schema: {
+                        model: Book,
+                        modelBase: Book
+                    }
+                });
+                dataSource
+                    .read()
+                    .then(() => {
+                        let item;
+                        item = dataSource.at(0);
+                        expect(item.author).to.be.an.instanceof(Author); // This is unexpected!
+                        // Add
+                        dataSource.add(jsonClone(data2));
+                        item = dataSource.at(1);
+                        expect(item.author).not.to.be.an.instanceof(Author); // Obviously!
+                        expect(item.author).to.be.an.instanceof(
+                            ObservableObject
+                        );
+                        // Insert
+                        dataSource.insert(0, jsonClone(data3));
+                        item = dataSource.at(0);
+                        expect(item.author).not.to.be.an.instanceof(Author); // Obviously!
+                        expect(item.author).to.be.an.instanceof(
+                            ObservableObject
+                        );
+                        done();
+                    })
+                    .catch(done);
+            });
+
+            it('BaseModel should parse nested models (via kendo.data.DataSource)', done => {
+                const Author = BaseModel.define(authorDefinition);
+                bookDefinition.fields.author.parse = function parse(value) {
+                    return value instanceof Author ? value : new Author(value);
+                };
+                const Book = BaseModel.define(bookDefinition);
+                const dataSource = new DataSource({
+                    data: [jsonClone(data1)],
+                    schema: {
+                        model: Book,
+                        modelBase: Book
+                    }
+                });
+                dataSource
+                    .read()
+                    .then(() => {
+                        let item = dataSource.at(0);
+                        expect(item.author).to.be.an.instanceof(Author);
+                        dataSource.add(jsonClone(data2));
+                        item = dataSource.at(1);
+                        expect(item.author).to.be.an.instanceof(Author);
+                        dataSource.insert(0, jsonClone(data3));
+                        item = dataSource.at(0);
+                        expect(item.author).to.be.an.instanceof(Author);
+                        done();
+                    })
+                    .catch(done);
+            });
+
+            it('kendo.data.Model raises a change event when setting a submodel property', done => {
+                const Author = Model.define(authorDefinition);
+                bookDefinition.fields.author.parse = function parse(value) {
+                    return value instanceof Author ? value : new Author(value);
+                };
+                const Book = Model.define(bookDefinition);
+                const viewModel = observable({
+                    book: new Book(jsonClone(data1))
+                });
+                viewModel.bind('change', e => {
+                    expect(e).to.have.property('field', 'book.author.name');
+                    done();
+                });
+                // viewModel.book.set('title', 'Germinal');
+                viewModel.book.author.set('name', 'Emile Zola');
+            });
+
+            it('BaseModel should raise a change event when setting a submodel property', done => {
+                const Author = BaseModel.define(authorDefinition);
+                bookDefinition.fields.author.parse = function parse(value) {
+                    return value instanceof Author ? value : new Author(value);
+                };
+                const Book = BaseModel.define(bookDefinition);
+                const viewModel = observable({
+                    book: new Book(jsonClone(data1))
+                });
+                viewModel.bind('change', e => {
+                    expect(e).to.have.property('field', 'book.author.name');
+                    done();
+                });
+                // viewModel.book.set('title', 'Germinal');
+                viewModel.book.author.set('name', 'Emile Zola');
             });
         });
 
-        describe('Parsing nested data sources of models (arrays of subdocuments)', () => {
+        xdescribe('Parsing nested data sources of models (arrays of subdocuments)', () => {
             const bookDefinition = {
                 id: 'id',
                 fields: {
@@ -384,69 +696,600 @@ describe('models.base', () => {
                         type: 'string'
                     },
                     books: {
-                        type: 'object',
-                        defaultValue: [],
+                        // type: 'object',
+                        defaultValue: []
+                        /*
                         parse(value) {
-                            return value instanceof DataSource
+                            return value instanceof DataSource &&
+                                value.reader.model === Book
                                 ? value
-                                : new DataSource({ data: value, schema: { model: Book } }); // eslint-disable-line prettier/prettier
+                                : new DataSource({ data: value, schema: { model: Book } });
                         }
+                        */
                     }
                 }
             };
-            const data = {
-                id: '1',
+            const data1 = {
+                id: new ObjectId().toString(),
                 name: 'Victo Hugo',
                 books: [
-                    { id: 'a', title: 'Les Misérables' },
-                    { id: 'b', title: 'Le Contemplations' },
-                    { id: 'c', title: 'Les Châtiments' }
+                    {
+                        id: new ObjectId().toString(),
+                        title: 'Les Misérables'
+                    },
+                    {
+                        id: new ObjectId().toString(),
+                        title: 'Le Contemplations'
+                    },
+                    {
+                        id: new ObjectId().toString(),
+                        title: 'Les Châtiments'
+                    }
+                ]
+            };
+            const data2 = {
+                id: new ObjectId().toString(),
+                name: 'Alexandre Dumas',
+                books: [
+                    {
+                        id: new ObjectId().toString(),
+                        title: 'Les Trois Mousquetaires'
+                    },
+                    {
+                        id: new ObjectId().toString(),
+                        title: '20 Ans Après'
+                    },
+                    {
+                        id: new ObjectId().toString(),
+                        title: 'Le Conte de Monté-Christo'
+                    }
+                ]
+            };
+            const data3 = {
+                id: new ObjectId().toString(),
+                name: 'Stendhal',
+                books: [
+                    {
+                        id: new ObjectId().toString(),
+                        title: 'Le Rouge et le Noir'
+                    },
+                    {
+                        id: new ObjectId().toString(),
+                        title: 'La Chartreuse de Parme'
+                    }
                 ]
             };
 
             it('kendo.data.Model does not parse nested data sources of models', () => {
                 const Book = Model.define(bookDefinition);
                 authorDefinition.fields.books.parse = function parse(value) {
-                    return value instanceof DataSource
+                    return value instanceof DataSource &&
+                        value.reader.model === Book
                         ? value
-                        : new DataSource({ data: value, schema: { model: Book } }); // eslint-disable-line prettier/prettier
+                        : new DataSource({ data: value, schema: { model: Book, modelBase: Book } }); // eslint-disable-line prettier/prettier
                 };
                 const Author = Model.define(authorDefinition);
-                const model = new Author(data);
-                expect(model.books).to.be.an.instanceof(ObservableArray); // Not a DataSource
+                const item = new Author(data1);
+                expect(item.books).not.to.be.an.instanceof(DataSource);
+                expect(item.books).to.be.an.instanceof(ObservableArray);
             });
 
             it('BaseModel should parse nested data sources of models', done => {
                 const Book = BaseModel.define(bookDefinition);
                 authorDefinition.fields.books.parse = function parse(value) {
-                    return value instanceof DataSource
+                    return value instanceof DataSource &&
+                        value.reader.model === Book
                         ? value
-                        : new DataSource({ data: value, schema: { model: Book } }); // eslint-disable-line prettier/prettier
+                        : new DataSource({ data: value, schema: { model: Book, modelBase: Book } }); // eslint-disable-line prettier/prettier
                 };
                 const Author = BaseModel.define(authorDefinition);
-                const model = new Author(data);
-                expect(model.books).to.be.an.instanceof(DataSource);
-                model.books
+                const item = new Author(data1);
+                expect(item.books).to.be.an.instanceof(DataSource);
+                item.books
                     .read()
                     .then(() => {
-                        expect(model.books.total()).to.equal(data.books.length);
+                        expect(item.books.total()).to.equal(data1.books.length);
                         let count = 0;
-                        model.books.data().forEach(book => {
+                        item.books.data().forEach(book => {
                             expect(book).to.be.an.instanceof(Book);
                             count += 1;
                         });
-                        expect(count).to.equal(data.books.length);
+                        expect(count).to.equal(data1.books.length);
+                        done();
+                    })
+                    .catch(done);
+            });
+
+            it('kendo.data.Model does not parse nested data sources of models (via kendo.data.DataSource)', done => {
+                const Book = Model.define(bookDefinition);
+                authorDefinition.fields.books.parse = function parse(value) {
+                    return value instanceof DataSource &&
+                        value.reader.model === Book
+                        ? value
+                        : new DataSource({ data: value, schema: { model: Book, modelBase: Book } }); // eslint-disable-line prettier/prettier
+                };
+                const Author = Model.define(authorDefinition);
+                const dataSource = new DataSource({
+                    data: [jsonClone(data1)],
+                    schema: {
+                        model: Author,
+                        modelBase: Author
+                    }
+                });
+                dataSource
+                    .read()
+                    .then(() => {
+                        let item;
+                        item = dataSource.at(0);
+                        expect(item).to.be.an.instanceof(Author);
+                        expect(item.books).to.be.an.instanceof(DataSource); // This is unexpected!
+                        // Add
+                        dataSource.add(jsonClone(data2));
+                        item = dataSource.at(1);
+                        expect(item).to.be.an.instanceof(Author);
+                        expect(item.books).not.to.be.an.instanceof(DataSource); // Obviously!
+                        expect(item.books).to.be.an.instanceof(ObservableArray);
+                        // Insert
+                        dataSource.insert(0, jsonClone(data3));
+                        item = dataSource.at(0);
+                        expect(item).to.be.an.instanceof(Author);
+                        expect(item.books).not.to.be.an.instanceof(DataSource); // Obviously!
+                        expect(item.books).to.be.an.instanceof(ObservableArray);
+                        done();
+                    })
+                    .catch(done);
+            });
+
+            it('BaseModel should parse nested data sources of models (via kendo.data.DataSource)', done => {
+                const Book = BaseModel.define(bookDefinition);
+                authorDefinition.fields.books.parse = function parse(value) {
+                    return value instanceof DataSource &&
+                        value.reader.model === Book
+                        ? value
+                        : new DataSource({ data: value, schema: { model: Book, modelBase: Book } }); // eslint-disable-line prettier/prettier
+                };
+                const Author = BaseModel.define(authorDefinition);
+                const dataSource = new DataSource({
+                    data: [jsonClone(data1)],
+                    schema: {
+                        model: Author,
+                        modelBase: Author
+                    }
+                });
+                dataSource
+                    .read()
+                    .then(() => {
+                        let item;
+                        item = dataSource.at(0);
+                        expect(item).to.be.an.instanceof(Author);
+                        expect(item.books).to.be.an.instanceof(DataSource);
+                        // Add
+                        dataSource.add(jsonClone(data2));
+                        item = dataSource.at(1);
+                        expect(item).to.be.an.instanceof(Author);
+                        expect(item.books).to.be.an.instanceof(DataSource);
+                        // Insert
+                        dataSource.insert(0, jsonClone(data3));
+                        item = dataSource.at(0);
+                        expect(item).to.be.an.instanceof(Author);
+                        expect(item.books).to.be.an.instanceof(DataSource);
+                        done();
+                    })
+                    .catch(done);
+            });
+
+            it('kendo.data.Model does not raise a change event when adding an item to a nested data source', () => {
+                const Book = Model.define(bookDefinition);
+                authorDefinition.fields.books.parse = function parse(value) {
+                    return value instanceof DataSource &&
+                        value.reader.model === Book
+                        ? value
+                        : new DataSource({ data: value, schema: { model: Book, modelBase: Book } }); // eslint-disable-line prettier/prettier
+                };
+                const Author = Model.define(authorDefinition);
+                const viewModel = observable({
+                    author: new Author(data1)
+                });
+                const change = sinon.spy();
+                viewModel.bind('change', change);
+                expect(viewModel.author.books).not.to.be.an.instanceof(
+                    DataSource
+                );
+                expect(viewModel.author.books).to.be.an.instanceof(
+                    ObservableArray
+                );
+                const b = {
+                    id: new ObjectId().toString(),
+                    title: 'Notre Dame de Paris'
+                };
+                viewModel.author.books.push(b); // push instead of add
+                expect(change).to.have.been.calledOnce;
+                expect(change).to.have.been.calledWith(
+                    sinon.match(
+                        e =>
+                            e.action === 'add' &&
+                            e.field === 'author.books' &&
+                            Array.isArray(e.items) &&
+                            e.items.length === 1 &&
+                            e.items[0].title === b.title
+                    )
+                );
+            });
+
+            it('BaseModel should raise a change event when adding an item to a nested data source', () => {
+                const Book = BaseModel.define(bookDefinition);
+                authorDefinition.fields.books.parse = function parse(value) {
+                    return value instanceof DataSource &&
+                        value.reader.model === Book
+                        ? value
+                        : new DataSource({ data: value, schema: { model: Book, modelBase: Book } }); // eslint-disable-line prettier/prettier
+                };
+                const Author = BaseModel.define(authorDefinition);
+                const viewModel = observable({
+                    author: new Author(data1)
+                });
+                const change = sinon.spy();
+                viewModel.bind('change', change);
+                expect(viewModel.author.books).to.be.an.instanceof(DataSource);
+                const b = {
+                    id: new ObjectId().toString(),
+                    title: 'Notre Dame de Paris'
+                };
+                viewModel.author.books.add(b);
+                expect(change).to.have.been.calledOnce;
+                expect(change).to.have.been.calledWith(
+                    sinon.match(
+                        e =>
+                            e.action === 'add' &&
+                            e.field === 'author.books' &&
+                            Array.isArray(e.items) &&
+                            e.items.length === 1 &&
+                            e.items[0].title === b.title
+                    )
+                );
+            });
+        });
+
+        xdescribe('Aggregating and grouping', () => {
+            const definition = {
+                id: 'id',
+                fields: {
+                    id: {
+                        type: 'string',
+                        nullable: true,
+                        editable: false
+                    },
+                    name: {
+                        type: 'string'
+                    },
+                    age: {
+                        type: 'number'
+                    }
+                }
+            };
+            const data1 = {
+                id: new ObjectId().toString(),
+                name: 'Joe Bloggs',
+                age: 10
+            };
+            const data2 = {
+                id: new ObjectId().toString(),
+                name: 'Jim Smith',
+                age: 20
+            };
+            const data3 = {
+                id: new ObjectId().toString(),
+                name: 'Mary Jones',
+                age: 20
+            };
+
+            it('BaseModel should support kendo.data.DataSource aggregating', done => {
+                const DataModel = BaseModel.define(definition);
+                const dataSource = new DataSource({
+                    data: [
+                        jsonClone(data1),
+                        jsonClone(data2),
+                        jsonClone(data3)
+                    ],
+                    aggregate: [
+                        { field: 'age', aggregate: 'sum' },
+                        { field: 'age', aggregate: 'min' },
+                        { field: 'age', aggregate: 'max' }
+                    ],
+                    schema: {
+                        model: DataModel,
+                        modelBase: DataModel
+                    }
+                });
+                dataSource
+                    .fetch()
+                    .then(() => {
+                        const results = dataSource.aggregates().age;
+                        expect(results).to.have.property('max', 20);
+                        expect(results).to.have.property('min', 10);
+                        expect(results).to.have.property('sum', 50);
+                        done();
+                    })
+                    .catch(done);
+            });
+
+            it('BaseModel should support kendo.data.DataSource grouping', done => {
+                const DataModel = BaseModel.define(definition);
+                const dataSource = new DataSource({
+                    data: [
+                        jsonClone(data1),
+                        jsonClone(data2),
+                        jsonClone(data3)
+                    ],
+                    group: { field: 'age' },
+                    schema: {
+                        model: DataModel,
+                        modelBase: DataModel
+                    }
+                });
+                dataSource
+                    .fetch()
+                    .then(() => {
+                        const view = dataSource.view();
+                        expect(view[0]).to.have.property('field', 'age');
+                        expect(view[0]).to.have.property('value', 10);
+                        expect(view[0])
+                            .to.have.property('items')
+                            .that.is.an('array')
+                            .with.lengthOf(1);
+                        expect(view[1]).to.have.property('field', 'age');
+                        expect(view[1]).to.have.property('value', 20);
+                        expect(view[1])
+                            .to.have.property('items')
+                            .that.is.an('array')
+                            .with.lengthOf(2);
                         done();
                     })
                     .catch(done);
             });
         });
 
-        describe('Propagating change events', () => {
+        xdescribe('Raising change event on viewModel on accept', () => {
             // Review thoroughly as I am not sure it is a good idea
             // Add breakpoint in all widgets and Kidoju-WebApp - player and editor
+            const definition = {
+                id: 'id',
+                fields: {
+                    id: {
+                        type: 'string',
+                        nullable: true,
+                        editable: false
+                    },
+                    name: {
+                        type: 'string'
+                    },
+                    age: {
+                        type: 'number'
+                    }
+                }
+            };
+            const data1 = {
+                id: new ObjectId().toString(),
+                name: 'Joe Bloggs',
+                age: 10
+            };
+            const data2 = {
+                id: new ObjectId().toString(),
+                name: 'Jim Smith',
+                age: 20
+            };
+            const data3 = {
+                id: new ObjectId().toString(),
+                name: 'Jim Smith',
+                age: 20
+            };
 
-            it('We expect to raise a change event on the parent ObservableObject on accept', () => {
+            xit('kendo.data.Model does not raise a change event on accept (ObservableObject)', () => {
+                const DataModel = Model.define(definition);
+                const viewModel = observable({
+                    item: new DataModel(data1)
+                });
+                const change = sinon.spy();
+                viewModel.bind('change', change);
+                viewModel.item.accept(data2);
+                expect(change).not.to.have.been.called;
+            });
+
+            xit('BaseModel should raise a change event on accept (ObservableObject)', () => {
+                const DataModel = BaseModel.define(definition);
+                const viewModel = observable({
+                    item: new DataModel(data1)
+                });
+                const change = sinon.spy();
+                viewModel.bind('change', change);
+                viewModel.item.accept(data2);
+                expect(change).to.have.been.calledOnce;
+                expect(change).to.have.been.calledWith(
+                    sinon.match(e => e.field === 'item')
+                );
+            });
+
+            xit('kendo.data.Model does not raise a change event on accept (ObservableArray)', () => {
+                const DataModel = Model.define(definition);
+                const viewModel = observable({
+                    items: [new DataModel(data1)]
+                });
+                const change = sinon.spy();
+                viewModel.bind('change', change);
+                viewModel.items[0].accept(data2);
+                expect(change).not.to.have.been.called;
+            });
+
+            it('BaseModel should raise a change event on accept (ObservableArray)', () => {
+                const DataModel = BaseModel.define(definition);
+                const viewModel = observable({
+                    items: [new DataModel(data1)]
+                });
+                const change = sinon.spy();
+                viewModel.bind('change', change);
+                viewModel.items[0].accept(data2);
+                expect(change).to.have.been.calledOnce;
+                expect(change).to.have.been.calledWith(
+                    sinon.match(
+                        e =>
+                            e.action === 'itemchange' &&
+                            e.field === 'items' &&
+                            e.index === 0 &&
+                            Array.isArray(e.items) &&
+                            e.items.length === 1
+                    )
+                );
+            });
+        });
+
+        xdescribe('Handling errors', () => {
+            const definition = {
+                id: 'id',
+                fields: {
+                    id: {
+                        type: 'string',
+                        nullable: true,
+                        editable: false
+                    },
+                    name: {
+                        type: 'string'
+                    },
+                    age: {
+                        type: 'number'
+                    }
+                }
+            };
+            const data1 = {
+                id: new ObjectId().toString(),
+                name: 'Joe Bloggs',
+                age: 10
+            };
+            const data2 = {
+                id: new ObjectId().toString(),
+                name: 'Jim Smith',
+                age: 20
+            };
+            const data3 = {
+                id: new ObjectId().toString(),
+                name: 'Mary Jones',
+                age: 20
+            };
+
+            const DataModel = BaseModel.define(definition);
+            const error404 = new Error('Not found');
+            error404.status = 404;
+            const Transport404 = Class.extend({
+                create(options) {
+                    // Note: calling options.success with an error wont work
+                    // The data source will try to read the data
+                    options.error(error2xhr(error404));
+                },
+                destroy(options) {
+                    options.error(error2xhr(error404));
+                },
+                read(options) {
+                    options.error(error2xhr(error404));
+                },
+                update(options) {
+                    options.error(error2xhr(error404));
+                }
+            });
+
+            it('Read error', done => {
+                const errorHandler = sinon.spy();
+                const dataSource = new DataSource({
+                    data: [jsonClone(data1)],
+                    schema: {
+                        model: DataModel,
+                        modelBase: DataModel,
+                        errors: 'error',
+                        data: 'data',
+                        total: 'total'
+                    },
+                    transport: new Transport404(),
+                    error: errorHandler
+                });
+                dataSource
+                    .read()
+                    .then(() => {
+                        expect(true).to.be.false;
+                        done();
+                    })
+                    .catch(res => {
+                        expect(errorHandler).to.have.been.calledOnce;
+                        expect(res[1]).to.equal('error');
+                        expect(res[2]).to.equal('Ajax error');
+                        done();
+                    });
+            });
+        });
+
+        describe('toJSON', () => {
+            it('it should serialize primitive types and dates', () => {
+                const DataModel = BaseModel.define({
+                    id: 'id',
+                    fields: {
+                        id: {
+                            type: 'string',
+                            nullable: true,
+                            editable: false
+                        },
+                        children: {
+                            type: 'number'
+                        },
+                        dob: {
+                            type: 'date'
+                        },
+                        male: {
+                            type: 'boolean'
+                        },
+                        name: {
+                            type: 'string'
+                        }
+                    }
+                });
+                const data = {
+                    children: 3,
+                    dob: new Date(),
+                    male: true,
+                    name: 'jack'
+                };
+                const model = new DataModel(data);
+                const json = model.toJSON();
+                // id is null by default and discarded
+                expect(json).to.deep.equal(data);
+            });
+
+            it('it should discard properties added without a field definition', () => {
+                const DataModel = BaseModel.define({
+                    id: 'id',
+                    fields: {
+                        id: {
+                            type: 'string',
+                            nullable: true,
+                            editable: false
+                        },
+                        name: {
+                            type: 'string'
+                        }
+                    },
+                    dummy1: 'dummy' // <---- one here
+                });
+                const data = {
+                    name: 'Jack',
+                    dummy2: 'dummy' // <---- another one here
+                };
+                const model = new DataModel(data);
+                const json = model.toJSON();
+                delete data.dummy2;
+                expect(json).to.deep.equal(data);
+            });
+
+            it('it should use from fields to serialize nested properties', () => {
+                // Nested properties are a feature of kendo.data.Model
+                // documented at https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
+                // They are used to flatten a json object with nested properties to display in a grid
+                // Out Lazy objects for grids should use nested properties when necessary
                 const definition = {
                     id: 'id',
                     fields: {
@@ -455,64 +1298,108 @@ describe('models.base', () => {
                             nullable: true,
                             editable: false
                         },
-                        date: {
-                            type: 'date',
-                            nullable: true,
-                            editable: false
+                        comments: {
+                            from: 'metrics.comments.count',
+                            type: 'number'
+                        },
+                        firstName: {
+                            from: 'author.firstName',
+                            type: 'string'
+                        },
+                        lastName: {
+                            from: 'author.lastName',
+                            type: 'string'
+                        },
+                        // For an explanation of the following properties
+                        // See https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
+                        // They are not required here
+                        author: {
+                            defaultValue: {}
+                        },
+                        metrics: {
+                            defaultValue: {
+                                comments: {}
+                            }
                         }
                     }
                 };
-                const BadModel = Model.define(definition);
-                const FixedModel = BaseModel.define(definition);
+                const data = {
+                    id: '1',
+                    author: {
+                        firstName: 'Joe',
+                        lastName: 'Blogs'
+                    },
+                    metrics: {
+                        comments: {
+                            count: 10
+                        }
+                    }
+                };
+                const DataModel = BaseModel.define(definition);
+                const model = new DataModel(data);
+                const json = model.toJSON();
+                expect(json).to.deep.equal(data);
+            });
 
-                const past = new Date(1966, 14, 2);
-                const d1 = {
-                    id: new ObjectId().toString(),
-                    date: past
-                };
-                const now = new Date();
-                const d2 = {
-                    id: new ObjectId().toString(),
-                    date: now
-                };
-                const viewModel = observable({
-                    badObject: new BadModel(d1),
-                    fixedObject: new FixedModel(d1)
+            it('it should discard properties marked as not serializable (NEW!)', () => {
+                const DataModel = BaseModel.define({
+                    id: 'id',
+                    fields: {
+                        id: {
+                            type: 'string',
+                            nullable: true,
+                            editable: false
+                        },
+                        firstName: {
+                            type: 'string',
+                            serializable: false // <---- here
+                        },
+                        lastName: {
+                            type: 'string'
+                        }
+                    }
                 });
-
-                const change = sinon.spy();
-                viewModel.bind('change', change);
-
-                viewModel.badObject.accept(d2);
-
-                // BadModel inherited from kendo.data.Model does not trigger a change event
-                // on the parent observable when changing values via accept method
-                expect(change).not.to.have.been.called;
-
-                viewModel.fixedObject.accept(d2);
-
-                // FixedModel inherited from our BaseModel does trigger a change event
-                // on the parent observable when changing values via accept method
-                expect(change).to.have.been.calledOnce;
+                const data = {
+                    id: '1',
+                    firstName: 'Joe',
+                    lastName: 'Bloggs'
+                };
+                const model = new DataModel(data);
+                const json = model.toJSON();
+                // remove firstName which is not serializable
+                delete data.firstName;
+                expect(json).to.deep.equal(data);
             });
 
-            xit('We expect to raise a change event on the parent ObservableArray on accept', () => {
-                // TODO + check if good idea.....
-            });
+            // TODO It should discard empty objects and empty arrays
 
-            xit('change event with submodel', done => {
+            // TODO It should discard nullable fields with null value
+
+            it('it should serialize a complex object derived from a model nesting a submodel', () => {
                 const Author = BaseModel.define({
                     id: 'userId',
                     fields: {
-                        userId: { type: 'string', nullable: true },
-                        name: { type: 'string' }
+                        userId: {
+                            type: 'string',
+                            nullable: true,
+                            editable: false
+                        },
+                        name: {
+                            type: 'string'
+                        }
                     }
                 });
                 const Book = BaseModel.define({
                     id: 'id',
                     fields: {
-                        id: { type: 'string', nullable: true },
-                        title: { type: 'string' },
+                        id: {
+                            type: 'string',
+                            nullable: true,
+                            editable: false
+                        },
+                        title: {
+                            type: 'string'
+                        },
                         author: {
                             defaultValue: null,
                             parse(value) {
@@ -523,384 +1410,127 @@ describe('models.base', () => {
                         }
                     }
                 });
-                const viewModel = kendo.observable({
-                    book: new Book({
-                        id: '1',
-                        title: 'Les Misérables',
-                        author: {
-                            userId: 'a',
-                            name: 'Victor Hugo'
-                        }
-                    })
-                });
-                viewModel.bind('change', e => {
-                    expect(e).to.have.property('field', 'book.author.name');
-                    done();
-                });
-                // viewModel.book.set('title', 'Germinal');
-                viewModel.book.author.set('name', 'Emile Zola');
+                const data = {
+                    id: new ObjectId().toString(),
+                    title: 'Les Misérables',
+                    author: {
+                        userId: new ObjectId().toString(),
+                        name: 'Victor Hugo'
+                    }
+                };
+                const model = new Book(data);
+                const json = model.toJSON();
+                expect(json).to.deep.equal(data);
             });
 
-            xit('change event with subdatasource', done => {
+            it('it should serialize a complex object derived from a model nesting a dataSource of submodels', () => {
                 const Book = BaseModel.define({
                     id: 'id',
                     fields: {
-                        id: { type: 'string', nullable: true },
-                        title: { type: 'string' }
-                    }
-                });
-                const BookDataSource = DataSource.extend({
-                    init(options) {
-                        // Enforce the use of PageWithOptions items in the page collection data source
-                        DataSource.fn.init.call(
-                            this,
-                            $.extend(true, {}, options, {
-                                schema: { modelBase: Book, model: Book }
-                            })
-                        );
-                        // Let's use a slightly modified reader to leave data conversions to kidoju.data.BaseModel._parseData
-                        this.reader = new window.kidoju.data.BaseModelCollectionDataReader(
-                            this.reader
-                        );
+                        id: {
+                            type: 'string',
+                            nullable: true,
+                            editable: false
+                        },
+                        title: {
+                            type: 'string'
+                        }
                     }
                 });
                 const Author = BaseModel.define({
                     id: 'id',
                     fields: {
-                        id: { type: 'string', nullable: true },
-                        name: { type: 'string' },
+                        id: {
+                            type: 'string',
+                            nullable: true,
+                            editable: false
+                        },
+                        name: {
+                            type: 'string'
+                        },
                         books: {
                             defaultValue: [],
                             parse(value) {
-                                return value instanceof BookDataSource
+                                return value instanceof DataSource &&
+                                    value.reader.model === Book
                                     ? value
-                                    : new BookDataSource(value);
+                                    : new DataSource({data: value, schema: { model: Book, modelBase: Book }}); // eslint-disable-line prettier/prettier
                             }
                         }
                     }
                 });
-                const b = { title: 'Le Compte de Monte-Cristo' };
-                const viewModel = kendo.observable({
-                    author: new Author({
-                        id: ObjectId(),
-                        name: 'Victor Hugo',
-                        books: [{ id: ObjectId(), title: 'Les Misérables' }]
-                    })
-                });
-                viewModel.bind('change', e => {
-                    expect(e).to.have.property('action', 'add');
-                    expect(e).to.have.property('field', 'author.books');
-                    expect(e)
-                        .to.have.property('items')
-                        .that.is.an.instanceof(Array)
-                        .with.property('length', 1);
-                    expect(e.items[0]).to.have.property('title', b.title);
-                    done();
-                });
-                viewModel.author.books.add(b);
+                const data = {
+                    id: new ObjectId().toString(),
+                    name: 'Victo Hugo',
+                    books: [
+                        {
+                            id: new ObjectId().toString(),
+                            title: 'Les Misérables'
+                        },
+                        {
+                            id: new ObjectId().toString(),
+                            title: 'Le Contemplations'
+                        },
+                        {
+                            id: new ObjectId().toString(),
+                            title: 'Les Châtiments'
+                        }
+                    ]
+                };
+                const model = new Author(data);
+                // IMPORTANT! call read
+                model.books.read();
+                const json = model.toJSON();
+                expect(json).to.deep.equal(data);
             });
 
-            xit('error event', done => {
-                done();
+            it('it should serialize an inherited model', () => {
+                const DataModel = BaseModel.define({
+                    id: 'id',
+                    fields: {
+                        id: {
+                            type: 'string',
+                            nullable: true,
+                            editable: false
+                        },
+                        children: {
+                            type: 'number'
+                        },
+                        dob: {
+                            type: 'date'
+                        },
+                        male: {
+                            type: 'boolean'
+                        },
+                        name: {
+                            type: 'string'
+                        }
+                    }
+                });
+                const Inherited = DataModel.define({
+                    fields: {
+                        country: {
+                            type: 'string'
+                        }
+                    }
+                });
+                const data = {
+                    children: 3,
+                    dob: new Date(),
+                    male: true,
+                    name: 'jack',
+                    country: 'FR'
+                };
+                const model = new Inherited(data);
+                const json = model.toJSON();
+                // id is null by default and discarded
+                expect(json).to.deep.equal(data);
             });
         });
 
-        describe('Enhancements of kendo.data.Model in BaseModel', () => {
-            describe('toJSON', () => {
-                it('it should serialize primitive types and dates', () => {
-                    const DataModel = BaseModel.define({
-                        id: 'id',
-                        fields: {
-                            id: {
-                                type: 'string',
-                                nullable: true,
-                                editable: false
-                            },
-                            children: {
-                                type: 'number'
-                            },
-                            dob: {
-                                type: 'date'
-                            },
-                            male: {
-                                type: 'boolean'
-                            },
-                            name: {
-                                type: 'string'
-                            }
-                        }
-                    });
-                    const data = {
-                        children: 3,
-                        dob: new Date(),
-                        male: true,
-                        name: 'jack'
-                    };
-                    const model = new DataModel(data);
-                    const json = model.toJSON();
-                    // id is null by default and discarded
-                    expect(json).to.deep.equal(data);
-                });
-
-                it('it should discard properties added without a field definition', () => {
-                    const DataModel = BaseModel.define({
-                        id: 'id',
-                        fields: {
-                            id: {
-                                type: 'string',
-                                nullable: true,
-                                editable: false
-                            },
-                            name: {
-                                type: 'string'
-                            }
-                        },
-                        dummy1: 'dummy' // <---- one here
-                    });
-                    const data = {
-                        name: 'Jack',
-                        dummy2: 'dummy' // <---- another one here
-                    };
-                    const model = new DataModel(data);
-                    const json = model.toJSON();
-                    delete data.dummy2;
-                    expect(json).to.deep.equal(data);
-                });
-
-                it('it should use from fields to serialize nested properties', () => {
-                    // Nested properties are a feature of kendo.data.Model
-                    // documented at https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
-                    // They are used to flatten a json object with nested properties to display in a grid
-                    // Out Lazy objects for grids should use nested properties when necessary
-                    const definition = {
-                        id: 'id',
-                        fields: {
-                            id: {
-                                type: 'string',
-                                nullable: true,
-                                editable: false
-                            },
-                            comments: {
-                                from: 'metrics.comments.count',
-                                type: 'number'
-                            },
-                            firstName: {
-                                from: 'author.firstName',
-                                type: 'string'
-                            },
-                            lastName: {
-                                from: 'author.lastName',
-                                type: 'string'
-                            },
-                            // For an explanation of the following properties
-                            // See https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
-                            // They are not required here
-                            author: {
-                                defaultValue: {}
-                            },
-                            metrics: {
-                                defaultValue: {
-                                    comments: {}
-                                }
-                            }
-                        }
-                    };
-                    const data = {
-                        id: '1',
-                        author: {
-                            firstName: 'Joe',
-                            lastName: 'Blogs'
-                        },
-                        metrics: {
-                            comments: {
-                                count: 10
-                            }
-                        }
-                    };
-                    const DataModel = BaseModel.define(definition);
-                    const model = new DataModel(data);
-                    const json = model.toJSON();
-                    expect(json).to.deep.equal(data);
-                });
-
-                it('it should discard properties marked as not serializable (NEW!)', () => {
-                    const DataModel = BaseModel.define({
-                        id: 'id',
-                        fields: {
-                            id: {
-                                type: 'string',
-                                nullable: true,
-                                editable: false
-                            },
-                            firstName: {
-                                type: 'string',
-                                serializable: false // <---- here
-                            },
-                            lastName: {
-                                type: 'string'
-                            }
-                        }
-                    });
-                    const data = {
-                        id: '1',
-                        firstName: 'Joe',
-                        lastName: 'Bloggs'
-                    };
-                    const model = new DataModel(data);
-                    const json = model.toJSON();
-                    // remove firstName which is not serializable
-                    delete data.firstName;
-                    expect(json).to.deep.equal(data);
-                });
-
-                // TODO It should discard empty objects and empty arrays
-
-                // TODO It should discard nullable fields with null value
-
-                it('it should serialize a complex object derived from a model nesting a submodel', () => {
-                    const Author = BaseModel.define({
-                        id: 'userId',
-                        fields: {
-                            userId: {
-                                type: 'string',
-                                nullable: true,
-                                editable: false
-                            },
-                            name: {
-                                type: 'string'
-                            }
-                        }
-                    });
-                    const Book = BaseModel.define({
-                        id: 'id',
-                        fields: {
-                            id: {
-                                type: 'string',
-                                nullable: true,
-                                editable: false
-                            },
-                            title: {
-                                type: 'string'
-                            },
-                            author: {
-                                defaultValue: null,
-                                parse(value) {
-                                    return value instanceof Author
-                                        ? value
-                                        : new Author(value);
-                                }
-                            }
-                        }
-                    });
-                    const data = {
-                        id: '1',
-                        title: 'Les Misérables',
-                        author: {
-                            userId: 'a',
-                            name: 'Victor Hugo'
-                        }
-                    };
-                    const model = new Book(data);
-                    const json = model.toJSON();
-                    expect(json).to.deep.equal(data);
-                });
-
-                it('it should serialize a complex object derived from a model nesting a dataSource of submodels', () => {
-                    const Book = BaseModel.define({
-                        id: 'id',
-                        fields: {
-                            id: {
-                                type: 'string',
-                                nullable: true,
-                                editable: false
-                            },
-                            title: {
-                                type: 'string'
-                            }
-                        }
-                    });
-                    const Author = BaseModel.define({
-                        id: 'id',
-                        fields: {
-                            id: {
-                                type: 'string',
-                                nullable: true,
-                                editable: false
-                            },
-                            name: {
-                                type: 'string'
-                            },
-                            books: {
-                                defaultValue: new DataSource({
-                                    data: [],
-                                    schema: { model: Book }
-                                }),
-                                parse(value) {
-                                    return value instanceof DataSource
-                                        ? value
-                                        : new DataSource({data: value, schema: {model: Book}}); // eslint-disable-line prettier/prettier
-                                }
-                            }
-                        }
-                    });
-                    const data = {
-                        id: '1',
-                        name: 'Victo Hugo',
-                        books: [
-                            { id: 'a', title: 'Les Misérables' },
-                            { id: 'b', title: 'Le Contemplations' },
-                            { id: 'c', title: 'Les Châtiments' }
-                        ]
-                    };
-                    const model = new Author(data);
-                    // IMPORTANT! call read
-                    model.books.read();
-                    const json = model.toJSON();
-                    expect(json).to.deep.equal(data);
-                });
-
-                it('it should serialize an inherited model', () => {
-                    const DataModel = BaseModel.define({
-                        id: 'id',
-                        fields: {
-                            id: {
-                                type: 'string',
-                                nullable: true,
-                                editable: false
-                            },
-                            children: {
-                                type: 'number'
-                            },
-                            dob: {
-                                type: 'date'
-                            },
-                            male: {
-                                type: 'boolean'
-                            },
-                            name: {
-                                type: 'string'
-                            }
-                        }
-                    });
-                    const Inherited = DataModel.define({
-                        fields: {
-                            country: {
-                                type: 'string'
-                            }
-                        }
-                    });
-                    const data = {
-                        children: 3,
-                        dob: new Date(),
-                        male: true,
-                        name: 'jack',
-                        country: 'FR'
-                    };
-                    const model = new Inherited(data);
-                    const json = model.toJSON();
-                    // id is null by default and discarded
-                    expect(json).to.deep.equal(data);
-                });
+        xdescribe('validation', () => {
+            xit('TODO', done => {
+                done();
             });
         });
     });

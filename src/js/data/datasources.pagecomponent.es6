@@ -9,7 +9,6 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import BaseDataSource from './datasources.base.es6';
 import PageComponent from './models.pagecomponent.es6';
 
 const {
@@ -19,11 +18,11 @@ const {
 /**
  * PageComponentDataSource
  * @class PageComponentDataSource
- * @extends BaseDataSource
+ * @extends DataSource
  */
-const PageComponentDataSource = BaseDataSource.extend({
+const PageComponentDataSource = DataSource.extend({
     init(options) {
-        BaseDataSource.fn.init.call(
+        DataSource.fn.init.call(
             this,
             $.extend(true, options, {
                 schema: {

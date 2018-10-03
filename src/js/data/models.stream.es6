@@ -7,7 +7,7 @@
 // TODO Add save/load here
 // TODO Add preloading of assets here too
 // TODO store history to patch diff
-// TODO preload images
+// TODO preload images/assets
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved

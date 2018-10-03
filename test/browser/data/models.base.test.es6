@@ -10,7 +10,7 @@
 import $ from 'jquery';
 import 'kendo.binder';
 import chai from 'chai';
-import JSC from 'jscheck';
+// import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { error2xhr } from '../../../src/js/data/data.util.es6';
@@ -30,7 +30,7 @@ chai.use(sinonChai);
 
 describe('models.base', () => {
     describe('BaseModel', () => {
-        xdescribe('Default values', () => {
+        describe('Default values', () => {
             const definition = {
                 id: 'id',
                 fields: {
@@ -198,7 +198,7 @@ describe('models.base', () => {
             });
         });
 
-        xdescribe('Parsing dates', () => {
+        describe('Parsing dates', () => {
             const definition = {
                 id: 'id',
                 fields: {
@@ -332,7 +332,7 @@ describe('models.base', () => {
             });
         });
 
-        xdescribe('Parsing nested properties', () => {
+        describe('Parsing nested properties', () => {
             // Nested properties are a feature of kendo.data.Model
             // documented at https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
             // They are used to flatten a json object with nested properties to display in a grid
@@ -472,7 +472,7 @@ describe('models.base', () => {
             });
         });
 
-        xdescribe('Parsing nested models (subdocuments)', () => {
+        describe('Parsing nested models (subdocuments)', () => {
             const authorDefinition = {
                 id: 'userId',
                 fields: {
@@ -670,7 +670,7 @@ describe('models.base', () => {
             });
         });
 
-        xdescribe('Parsing nested data sources of models (arrays of subdocuments)', () => {
+        describe('Parsing nested data sources of models (arrays of subdocuments)', () => {
             const bookDefinition = {
                 id: 'id',
                 fields: {
@@ -950,7 +950,7 @@ describe('models.base', () => {
             });
         });
 
-        xdescribe('Aggregating and grouping', () => {
+        describe('Aggregating and grouping', () => {
             const definition = {
                 id: 'id',
                 fields: {
@@ -1050,8 +1050,9 @@ describe('models.base', () => {
         });
 
         xdescribe('Raising change event on viewModel on accept', () => {
-            // Review thoroughly as I am not sure it is a good idea
+            // TODO Review thoroughly as I am not sure it is a good idea
             // Add breakpoint in all widgets and Kidoju-WebApp - player and editor
+
             const definition = {
                 id: 'id',
                 fields: {
@@ -1142,7 +1143,7 @@ describe('models.base', () => {
             });
         });
 
-        xdescribe('Handling errors', () => {
+        describe('Handling errors', () => {
             const definition = {
                 id: 'id',
                 fields: {

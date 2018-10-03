@@ -147,6 +147,7 @@ const BaseModel = Model.define({
         // TODO Review this event thing.......
         // Trigger a change event on the parent observable (possibly a viewModel)
         // Without it, any UI widget data bound to the parent is not updated
+        /*
         if ($.type(this.parent) === CONSTANTS.FUNCTION) {
             const parent = this.parent();
             if (parent instanceof ObservableObject) {
@@ -187,7 +188,7 @@ const BaseModel = Model.define({
                     return exit;
                 });
             }
-        }
+        }*/
     },
 
     /**

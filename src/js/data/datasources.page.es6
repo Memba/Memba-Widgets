@@ -3,20 +3,23 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO error?
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
 import Page from './models.page.es6';
+import PageComponentDataSource from './datasources.pagecomponent';
+
+const {
+    data: { DataSource, ObservableArray }
+} = window.kendo;
 
 /**
- * PageCollectionDataSource
- * @class PageCollectionDataSource
+ * PageDataSource
+ * @class PageDataSource
  * @extends DataSource
  */
-const PageCollectionDataSource = DataSource.extend({
+const PageDataSource = DataSource.extend({
     /**
      * Init
      * @constructor init
@@ -84,24 +87,26 @@ const PageCollectionDataSource = DataSource.extend({
  * @method create
  * @param options
  */
-PageCollectionDataSource.create = function (options) {
-    options = options && options.push ? { data: options } : options;
-
-    var dataSource = options || {};
-    var data = dataSource.data;
-
-    dataSource.data = data;
-
-    if (!(dataSource instanceof PageCollectionDataSource) && dataSource instanceof kendo.data.DataSource) {
-        throw new Error('Incorrect DataSource type. Only PageCollectionDataSource instances are supported');
+PageDataSource.create = function (options) {
+    // Note: this code is vey similar to SchedulerDataSource.create
+    const dataSource =
+        Array.isArray(options) || options instanceof ObservableArray
+            ? { data: options }
+            : options || {};
+    if (
+        !(dataSource instanceof PageDataSource) &&
+        dataSource instanceof DataSource
+    ) {
+        throw new Error(
+            'Incorrect DataSource type. Only PagetDataSource instances are supported'
+        );
     }
-
-    return dataSource instanceof PageCollectionDataSource ? dataSource : new PageCollectionDataSource(dataSource);
+    return dataSource instanceof PageDataSource
+        ? dataSource
+        : new PageDataSource(dataSource);
 };
-
-
 
 /**
  * Default export
  */
-export default PageCollectionDataSource;
+export default PageDataSource;

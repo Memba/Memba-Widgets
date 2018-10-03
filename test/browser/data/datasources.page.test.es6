@@ -10,7 +10,6 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import BaseDataSource from '../../../src/js/data/datasources.base.es6';
 import PageDataSource from '../../../src/js/data/datasources.page.es6';
 import Page from '../../../src/js/data/models.page.es6';
 
@@ -46,7 +45,6 @@ describe('datasources.page', () => {
         it('It should init', () => {
             const dataSource = new PageDataSource();
             expect(dataSource).to.be.an.instanceof(PageDataSource);
-            expect(dataSource).to.be.an.instanceof(BaseDataSource);
             expect(dataSource).to.be.an.instanceof(DataSource);
         });
 

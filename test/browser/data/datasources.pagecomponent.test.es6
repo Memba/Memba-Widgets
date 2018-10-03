@@ -11,7 +11,6 @@ import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import Image from '../../../src/js/data/models.image.es6';
-import BaseDataSource from '../../../src/js/data/datasources.base.es6';
 import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
 import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
@@ -65,7 +64,6 @@ describe('datasources.pagecomponent', () => {
             xit('It should initialize without options', done => {
                 const dataSource = new PageComponentDataSource();
                 expect(dataSource).to.be.an.instanceof(PageComponentDataSource);
-                expect(dataSource).to.be.an.instanceof(BaseDataSource);
                 expect(dataSource).to.be.an.instanceof(DataSource);
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -86,7 +84,6 @@ describe('datasources.pagecomponent', () => {
             xit('It should initialize from an empty array', done => {
                 const dataSource = new PageComponentDataSource({ data: [] });
                 expect(dataSource).to.be.an.instanceof(PageComponentDataSource);
-                expect(dataSource).to.be.an.instanceof(BaseDataSource);
                 expect(dataSource).to.be.an.instanceof(DataSource);
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -120,7 +117,6 @@ describe('datasources.pagecomponent', () => {
                     data: [{ tool: 'label' }]
                 });
                 expect(dataSource).to.be.an.instanceof(PageComponentDataSource);
-                expect(dataSource).to.be.an.instanceof(BaseDataSource);
                 expect(dataSource).to.be.an.instanceof(DataSource);
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')

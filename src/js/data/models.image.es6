@@ -15,12 +15,10 @@ const Image = BaseModel.define({
     id: 'text', // `text` is used for component validation
     fields: {
         text: {
-            type: CONSTANTS.STRING,
-            nullable: false
+            type: CONSTANTS.STRING
         },
         url: {
-            type: CONSTANTS.STRING,
-            nullable: false
+            type: CONSTANTS.STRING
         }
     }
 });

@@ -184,7 +184,23 @@ const PageComponent = BaseModel.define({
      * @method description$
      */
     description$() {
+        let ret;
+        const tool = tools[this.get('tool')];
+        assert.instanceof(
+            BaseTool,
+            tool,
+            assert.format(
+                assert.messages.instanceof.default,
+                'tool',
+                'BaseTool'
+            )
+        );
+
         // TODO: Add better descriptions for PageExplorer (requires access to tools)
+        // A label might display the label of the text
+        // An image might display the alt text
+
+        return ret;
     },
 
     /**

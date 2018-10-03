@@ -18,12 +18,16 @@ const { expect } = chai;
 describe('data.util', () => {
     describe('error2xhr', () => {
         it('It should convert an error into an $.ajax failure', () => {
-            const message = 'Oops!';
-            const arr = error2xhr(new Error(message));
-            expect(arr).to.be.an('array').with.property('length', 3);
+            const arr = error2xhr(new Error('Oops!'));
+            expect(arr)
+                .to.be.an('array').with.property('length', 3);
+            expect(arr[0]).to.have.property('readyState', 4);
+            expect(arr[0]).to.have.property('responseJSON');
             expect(arr[0]).to.have.property('responseText');
+            expect(arr[0]).to.have.property('status', 520);
+            expect(arr[0]).to.have.property('statusText', 'error');
             expect(arr[1]).to.equal('error');
-            expect(arr[2]).to.equal(message);
+            expect(arr[2]).to.equal('Ajax error');
         });
     });
 

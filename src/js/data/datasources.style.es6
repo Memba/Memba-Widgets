@@ -4,7 +4,6 @@
  */
 
 // TODO add CSS style parser
-// TODO: error
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved

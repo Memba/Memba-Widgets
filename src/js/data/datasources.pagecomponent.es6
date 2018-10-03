@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO error?
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -28,7 +26,9 @@ const PageComponentDataSource = DataSource.extend({
                 schema: {
                     modelBase: PageComponent,
                     model: PageComponent
+                    // TODO data, error, total
                 }
+                // TODO error: errorHandler
             })
         );
     }

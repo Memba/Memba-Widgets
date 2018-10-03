@@ -15,12 +15,10 @@ const Style = BaseModel.define({
     id: 'name',
     fields: {
         name: {
-            type: CONSTANTS.STRING,
-            nullable: false
+            type: CONSTANTS.STRING
         },
         value: {
-            type: CONSTANTS.STRING,
-            nullable: false
+            type: CONSTANTS.STRING
         }
     }
 });

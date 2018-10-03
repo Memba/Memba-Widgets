@@ -12,6 +12,7 @@ import CONSTANTS from './window.constants.es6';
 /**
  * Date reviver for JSON.parse
  * @see https://weblog.west-wind.com/posts/2014/Jan/06/JavaScript-JSON-Date-Parsing-and-real-Dates
+ * @function dateReviver
  * @param key
  * @param value
  */
@@ -24,10 +25,21 @@ export function dateReviver(key, value) {
 }
 
 /**
+ * Clone using JSON
+ * @function jsonClone
+ * @param obj
+ * @returns {any}
+ */
+export function jsonClone(obj) {
+    return JSON.parse(JSON.stringify(obj), dateReviver);
+}
+
+/**
  * Escape text for regular expression
  * @see https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
  * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
  * @see https://github.com/lodash/lodash/blob/master/escapeRegExp.js
+ * @function escapeRegExp
  * @param str
  * @returns {*}
  */
@@ -38,6 +50,7 @@ export function escapeRegExp(str) {
 
 /**
  * Build a random hex string of length characters
+ * @function randomHexString
  * @param length
  * @returns {string}
  */
@@ -55,6 +68,7 @@ export function randomHexString(length) {
 
 /**
  * Get a 6 char random id
+ * @function randomId
  * @returns {string}
  */
 export function randomId() {
@@ -63,6 +77,7 @@ export function randomId() {
 
 /**
  * Get a 6 char random val
+ * @function randomVal
  * @returns {string}
  */
 export function randomVal() {
@@ -71,7 +86,7 @@ export function randomVal() {
 
 /**
  * Rounding numbers with precision
- * @method round
+ * @function round
  * @param value
  * @param precision
  * @return {Number}
@@ -84,7 +99,7 @@ export function round(value, precision = 2) {
 
 /**
  * Check an array or a Kendo UI ObservableArray
- * @method  isAnyArray
+ * @function isAnyArray
  * @param a
  * @returns {boolean}
  */
@@ -101,7 +116,7 @@ export function isAnyArray(a) {
 
 /**
  * Compare string arrays
- * @method compareStringArrays
+ * @function compareStringArrays
  * @param a
  * @param b
  * @returns {boolean}
@@ -117,7 +132,7 @@ export function compareStringArrays(a, b) {
 
 /**
  * Gets a selection
- * @method getSelection
+ * @function getSelection
  * @param htmlElement
  */
 export function getSelection(htmlElement) {
@@ -152,7 +167,7 @@ export function getSelection(htmlElement) {
 
 /**
  * Sets a selection
- * @method setSelection
+ * @function setSelection
  * @param htmlElement
  * @param cursor
  */
@@ -207,7 +222,7 @@ export function setSelection(htmlElement, cursor) {
 
 /**
  * Replaces the selection with alternate text
- * @method replaceSelection
+ * @function replaceSelection
  * @param htmlElement
  * @param text
  */

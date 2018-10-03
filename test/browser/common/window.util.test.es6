@@ -10,6 +10,7 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import {
     dateReviver,
+    jsonClone,
     escapeRegExp,
     randomHexString,
     randomId,
@@ -39,6 +40,19 @@ describe('window.util', () => {
                 .to.have.property('date')
                 .that.is.a('date');
             expect(test2.date.getTime()).to.equal(date.getTime());
+        });
+    });
+
+    describe('jsonClone', () => {
+        it('It should parse dates in JSON documents', () => {
+            // const obj = JSC.object()(); // Deep equal fails
+            const obj = {
+                a: JSC.boolean()(),
+                b: JSC.number()(),
+                c: JSC.string()(),
+                d: new Date()
+            };
+            expect(jsonClone(obj)).to.deep.equal(obj);
         });
     });
 

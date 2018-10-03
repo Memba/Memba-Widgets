@@ -53,7 +53,13 @@ export function error2xhr(err) {
     // Possible responseText from rapi calls are:
     // - "{"error":{"name":"ApplicationError","i18n":"errors.http.401","status":401,"message":"Unauthorized"}}"
     return [
-        { responseJSON: { error }, responseText: JSON.stringify({ error }) },
+        {
+            readyState: 4,
+            responseJSON: { error },
+            responseText: JSON.stringify({ error }),
+            status: error.status,
+            statusText: 'error'
+        },
         'error',
         error.message
     ];

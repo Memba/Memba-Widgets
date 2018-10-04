@@ -22,6 +22,13 @@ const {
 } = window;
 const { expect } = chai;
 
+/**
+ * Headless browsers do not support WebRTC
+ */
+if (window.PHANTOMJS || window.webdriver) {
+    return;
+}
+
 describe('window.media', () => {
     describe('enumerateDevices', () => {
         it('It should enumerate devices', done => {

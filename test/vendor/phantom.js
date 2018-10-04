@@ -5,7 +5,7 @@ var page = require('webpage').create();
 //TODO: Set the URL you want to debug - set breakpoints in the Javascript code using the debugger; statement
 //TODO: Open http://127.0.0.1:9000/ in chrome and click about:blank, then launch __run() in the console
 //TODO: As explained in http://phantomjs.org/troubleshooting.html
-var url = 'http://localhost:63342/Kidoju.Widgets/test/browsers/kidoju.widgets.navigation.test.html';
+var url = 'http://localhost:63342/Kidoju.Widgets/src/kidoju.widgets.markdown.html';
 
 
 page.onResourceRequested = function (request) {

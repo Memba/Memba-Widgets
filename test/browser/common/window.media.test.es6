@@ -22,14 +22,20 @@ const {
 } = window;
 const { expect } = chai;
 
-/**
- * Headless browsers do not support WebRTC
- */
-if (window.PHANTOMJS || window.webdriver) {
-    return;
-}
-
 describe('window.media', () => {
+    /**
+     * Headless browsers do not support WebRTC
+     */
+    if (
+        !(navigator.mediaDevices || {}).getUserMedia &&
+        !navigator.getUserMedia &&
+        !navigator.webkitGetUserMedia &&
+        !navigator.mozGetUserMedia &&
+        !navigator.msGetUserMedia
+    ) {
+        return;
+    }
+
     describe('enumerateDevices', () => {
         it('It should enumerate devices', done => {
             enumerateDevices()

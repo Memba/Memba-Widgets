@@ -53,71 +53,35 @@ module.exports = grunt => {
                 jshintrc: true
             }
         },
+        karma: {
+            // https://github.com/npm/npm/issues/12238#issuecomment-367147962
+            // If webpack runs out of memory on Travis-CI
+            unit: {
+                configFile: 'coverage.conf.js'
+            }
+        },
         /*
         kendo_lint: {
             files: ['src/js/kidoju.*.js']
         },
         */
-        mocha: {
-            // Tests running in a browser (phantomJS)
-            browser: {
-                options: {
-                    // debug: true,
-                    log: true,
-                    logErrors: true,
-                    reporter: 'Spec',
-                    run: true,
-                    timeout: 20000
-                },
-                src: ['test/browser/*.test.html']
-            }
-        },
-        mochaTest: {
-            // Test running in nodeJS (supertest, zombie, ...)
-            zombie: {
-                options: {
-                    debug: true,
-                    quiet: false,
-                    reporter: 'spec',
-                    timeout: 10000,
-                    ui: 'bdd'
-                },
-                src: ['test/node/zombie/*.test.js']
-            }
-        },
         stylelint: {
             options: {
                 configFile: '.stylelintrc'
             },
             src: ['src/styles/**/*.{css,less,scss}']
         }
-        /*
-        yuidoc: {
-            compile: {
-                name: '<%= pkg.name %>',
-                description: '<%= pkg.description %>',
-                version: '<%= pkg.version %>',
-                url: '<%= pkg.homepage %>',
-                options: {
-                    paths: 'src/js/',
-                    outdir: 'docs/yui/'
-                }
-            }
-        }
-        */
     });
 
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    // grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-eslint');
     grunt.loadNpmTasks('grunt-jscs');
     grunt.loadNpmTasks('grunt-jsdoc');
+    grunt.loadNpmTasks('grunt-karma');
     // grunt.loadNpmTasks('grunt-kendo-lint');
-    grunt.loadNpmTasks('grunt-mocha');
-    grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-stylelint');
 
     grunt.registerTask('lint', ['eslint', 'jscs', 'jshint', 'stylelint']);
-    grunt.registerTask('test', ['mocha']); // , 'mochaTest']);
+    grunt.registerTask('test', ['karma']);
     grunt.registerTask('default', ['lint', 'test']);
 };

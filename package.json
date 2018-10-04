@@ -23,15 +23,18 @@
   },
   "scripts": {
     "start": "node ./nodejs/http.server.js",
-    "test": "grunt test"
+    "test": "node --max-old-space-size=4096 ./node_modules/grunt/bin/grunt test"
   },
   "dependencies": {},
   "devDependencies": {
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
+    "@babel/plugin-transform-runtime": "^7.1.0",
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
     "babel-eslint": "^10.0.1",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-istanbul": "^5.0.1",
     "babel-plugin-module-resolver": "^3.1.1",
     "chai": "^4.2.0",
     "eslint": "^5.6.1",
@@ -42,16 +45,13 @@
     "eslint-plugin-node": "^7.0.1",
     "eslint-plugin-prettier": "^3.0.0",
     "grunt": "^1.0.3",
-    "grunt-contrib-csslint": "^2.0.0",
     "grunt-contrib-jshint": "^2.0.0",
     "grunt-eslint": "^21.0.0",
     "grunt-jscs": "^3.0.1",
     "grunt-jsdoc": "^2.3.0",
-    "grunt-mocha": "^1.1.0",
-    "grunt-mocha-test": "^0.13.3",
+    "grunt-karma": "^3.0.0",
     "grunt-stylelint": "^0.10.1",
     "karma": "^3.0.0",
-    "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage": "^1.1.2",
     "karma-edge-launcher": "^0.4.2",
@@ -62,7 +62,9 @@
     "karma-phantomjs-launcher": "^1.0.4",
     "karma-safari-launcher": "^1.0.0",
     "karma-sauce-launcher": "^1.2.0",
-    "karma-sinon": "^1.0.5",
+    "karma-sinon-chai": "^2.0.2",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "^3.0.5",
     "less": "^3.8.1",
     "mocha": "^5.2.0",
     "phantomjs-prebuilt": "^2.1.16",
@@ -71,7 +73,8 @@
     "sinon-chai": "^3.2.0",
     "stylelint": "^9.6.0",
     "stylelint-config-standard": "^18.2.0",
-    "systemjs-plugin-babel": "0.0.25"
+    "systemjs-plugin-babel": "0.0.25",
+    "webpack": "^4.20.2"
   },
   "engines": {
     "node": ">=4"

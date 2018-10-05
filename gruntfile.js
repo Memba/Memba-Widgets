@@ -65,6 +65,44 @@ module.exports = grunt => {
             files: ['src/js/kidoju.*.js']
         },
         */
+        modernizr: {
+            // @see https://github.com/Modernizr/customizr#config-file
+            dist: {
+                crawl: false,
+                customTests: [],
+                devFile: false,
+                dest: 'src/js/vendor/modernizr/modernizr.js',
+                tests: [
+                    'audio',
+                    'blobconstructor',
+                    'canvas',
+                    'canvastext',
+                    'hashchange',
+                    'history',
+                    'svg',
+                    'touchevents',
+                    'video',
+                    'flexbox',
+                    'csstransforms',
+                    'filereader',
+                    'filesystem',
+                    'xhr2',
+                    'speechrecognition',
+                    'speechsynthesis',
+                    'localstorage',
+                    'sessionstorage',
+                    'svgasimg',
+                    'inlinesvg',
+                    'bloburls',
+                    'datauri',
+                    'getusermedia',
+                    ['atobbtoa'],
+                    'webworkers'
+                ],
+                options: ['setClasses'],
+                uglify: false
+            }
+        },
         stylelint: {
             options: {
                 configFile: '.stylelintrc'
@@ -79,9 +117,10 @@ module.exports = grunt => {
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks('grunt-karma');
     // grunt.loadNpmTasks('grunt-kendo-lint');
+    grunt.loadNpmTasks('grunt-modernizr');
     grunt.loadNpmTasks('grunt-stylelint');
 
     grunt.registerTask('lint', ['eslint', 'jscs', 'jshint', 'stylelint']);
     grunt.registerTask('test', ['karma']);
-    grunt.registerTask('default', ['lint', 'test']);
+    grunt.registerTask('default', ['modernizr', 'lint', 'test']);
 };

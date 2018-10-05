@@ -167,6 +167,7 @@
                     'jquery.simulate': 'test/vendor/jquery.simulate.js',
                     'jscheck': 'test/vendor/jscheck.js',
                     'mocha': 'test/vendor/mocha.js',
+                    'modernizr': 'src/js/vendor/modernizr/modernizr.js',
                     'sinon': 'test/vendor/sinon.js',
                     'sinon-chai': 'test/vendor/sinon-chai.js'
                 },
@@ -183,6 +184,9 @@
                         meta: {
                             // IMPORTANT! See https://github.com/jshint/jshint/issues/2840
                             'vendor/codemirror/addon/lint/jshint.js': {
+                                format: 'global'
+                            },
+                            'vendor/modernizr/modernizr.js': {
                                 format: 'global'
                             },
                             '*.js': {
@@ -224,7 +228,15 @@
                     exports.teardown = context.teardown || context.afterEach;
                     exports.test = context.test || context.it;
                     exports.run = context.run;
-                    const params = new URLSearchParams(window.location.search);
+                    const params = 'URLSearchParams' in window ?
+                        new URLSearchParams(window.location.search) :
+                        {
+                            // Especially for Internet Explorer
+                            get: function (name) {
+                                const match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+                                return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+                            }
+                        };
                     const test = params.get('t');
                     if (test) {
                         document.title = test;
@@ -233,9 +245,7 @@
                         // now use SystemJS to load all test files
                         SystemJS.import('./' + test + '.test.es6').then(function() {
                             mocha.checkLeaks().globals([]);
-                            // if (!window.blanket && !window.PHANTOMJS) {
                             mocha.run();
-                            // }
                         });
                     }
                 });

@@ -10,7 +10,8 @@
                     "./test/vendor/",
                     "./src/js/vendor/kendo/",
                     "./src/js/vendor/kendo/cultures/",
-                    "./src/js/vendor/kendo/messages/"
+                    "./src/js/vendor/kendo/messages/",
+                    "./src/js/vendor/modernizr/"
                 ],
                 "alias": {
                     // This takes over externals in webpack and includes jQuery in the builds

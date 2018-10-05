@@ -222,8 +222,8 @@ module.exports = config => {
             ChromeTravis: {
                 base: 'ChromeHeadless',
                 flags: [
-                    // --window-size=1280,1024 --remote-debugging-port=9222 --use-fake-device-for-media-stream --use-fake-ui-for-media-stream
-                    '--disable-gpu --disable-software-rasterizer --disable-extensions --disable-infobars --disable-translate --no-sandbox'
+                    //  --no-sandbox --window-size=1280,1024 --remote-debugging-port=9222 --use-fake-device-for-media-stream --use-fake-ui-for-media-stream
+                    '--disable-gpu --disable-software-rasterizer --disable-extensions --disable-infobars --disable-translate'
                 ]
             }
         },

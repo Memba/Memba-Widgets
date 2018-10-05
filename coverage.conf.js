@@ -8,8 +8,9 @@ const path = require('path');
 // Karma configuration
 module.exports = config => {
     config.set({
-        // mocha configuration
         client: {
+            captureConsole: true,
+            // mocha configuration
             mocha: {
                 ui: 'bdd',
                 timeout: 10000
@@ -20,7 +21,7 @@ module.exports = config => {
         basePath: '',
 
         // Increase timeout especially for phantomJS
-        browserDisconnectTimeout: 5000,
+        browserDisconnectTimeout: 10000,
 
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
@@ -64,21 +65,11 @@ module.exports = config => {
             },
             // Our mocha tests
             {
-                pattern: 'test/browser/**/*.test.es6',
+                // pattern: 'test/browser/**/*.test.es6',
+                pattern: 'test/browser/{common,data}/*.test.es6',
                 served: true,
                 included: true // They need to be included!
             }
-            // served but not included
-            // {
-            //     pattern: 'test/data/*.json',
-            //     served: true,
-            //     included: false
-            // },
-            // {
-            //     pattern: 'src/**/*.*',
-            //     served: true,
-            //     included: false
-            // }
         ],
 
         // list of files to exclude
@@ -118,15 +109,60 @@ module.exports = config => {
                         ]
                     },
                     {
-                        // import sinonChai from 'sinon-chai' does not work
-                        // @see https://github.com/domenic/sinon-chai/issues/85
-                        test: require.resolve('sinon-chai'),
+                        // Append  module.exports = JSC; to jscheck.js
+                        // @see https://webpack.js.org/loaders/exports-loader/
+                        test: require.resolve(
+                            path.join(__dirname, '/test/vendor/jscheck.js')
+                        ),
+                        use: 'exports-loader?JSC'
+                    },
+                    {
+                        // Prepend var jQuery = require("jquery"); to jquery.simulate.js.js.
+                        // @see https://webpack.js.org/loaders/imports-loader/#usage
+                        test: require.resolve(
+                            path.join(
+                                __dirname,
+                                '/test/vendor/jquery.simulate.js'
+                            )
+                        ),
+                        use: [
+                            {
+                                loader: 'imports-loader',
+                                options: { jQuery: 'jquery' }
+                            }
+                        ]
+                    },
+                    {
+                        // Assign this=window and prevent AMD + CJS loading
+                        // @see https://github.com/jakerella/jquery-mockjax/issues/285#issuecomment-342411363
+                        // @see https://webpack.js.org/loaders/imports-loader/#disable-amd
+                        // @see https://webpack.js.org/guides/shimming/
+                        test: require.resolve(
+                            path.join(
+                                __dirname,
+                                '/test/vendor/jquery.mockjax.js'
+                            )
+                        ),
                         use: [
                             {
                                 loader: 'imports-loader',
                                 options: {
-                                    require: '>function(){}'
+                                    // define: '>false',
+                                    exports: '>false',
+                                    this: '>window'
                                 }
+                            }
+                        ]
+                    },
+                    {
+                        // import sinonChai from 'sinon-chai' does not work
+                        // @see https://github.com/domenic/sinon-chai/issues/85
+                        // @see https://webpack.js.org/loaders/imports-loader/#disable-amd
+                        test: require.resolve('sinon-chai'),
+                        use: [
+                            {
+                                loader: 'imports-loader',
+                                options: { require: '>function(){}' }
                             }
                         ]
                     }
@@ -135,9 +171,9 @@ module.exports = config => {
             resolve: {
                 extensions: ['.es6', '.js'],
                 modules: [
-                    '.',
                     path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
-                    path.resolve(__dirname, 'test/browser/vendor'),
+                    path.resolve(__dirname, 'src/js/vendor/modernizr'),
+                    path.resolve(__dirname, 'test/vendor'),
                     'node_modules'
                 ]
             }
@@ -147,7 +183,7 @@ module.exports = config => {
         webpackMiddleware: {
             // webpack-dev-middleware configuration
             // i. e.
-            noInfo: false,
+            // noInfo: false,
             stats: 'errors-only'
         },
         */
@@ -173,10 +209,14 @@ module.exports = config => {
         // Configure Chrome headless for Travis
         // @see https://developers.google.com/web/updates/2017/06/headless-karma-mocha-chai#running_it_all_on_travis_ci
         // @see https://docs.travis-ci.com/user/chrome#Karma-Chrome-Launcher
+        // @see https://developers.google.com/web/updates/2017/04/headless-chrome <-- IMPORTANT
         customLaunchers: {
             ChromeTravis: {
                 base: 'ChromeHeadless',
-                flags: ['--no-sandbox'] // --disable-gpu
+                flags: [
+                    // --window-size=1280,1024 --remote-debugging-port=9222 --no-sandbox --use-fake-device-for-media-stream --use-fake-ui-for-media-stream
+                    '--disable-gpu --disable-software-rasterizer --disable-extensions --disable-infobars --disable-translate'
+                ]
             }
         },
 
@@ -184,13 +224,13 @@ module.exports = config => {
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         browsers: [
             // 'Chrome'
-            // 'ChromeHeadless'
-            'ChromeTravis'
+            // 'ChromeHeadless',
+            'ChromeTravis',
             // 'Edge',
             // 'Firefox',
             // 'IE',
             // 'Opera',
-            // 'PhantomJS',
+            'PhantomJS'
             // 'Safari'
         ],
 

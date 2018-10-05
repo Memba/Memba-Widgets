@@ -4,18 +4,20 @@
         [
             "module-resolver",
             {
+                "cwd": "babelrc", // "packagejson"
                 "extensions": [".es6", ".js"],
                 "root": [
                     ".",
                     "./test/vendor/",
+                    // "./src/js/vendor/**",
                     "./src/js/vendor/kendo/",
                     "./src/js/vendor/kendo/cultures/",
-                    "./src/js/vendor/kendo/messages/",
-                    "./src/js/vendor/modernizr/"
+                    "./src/js/vendor/kendo/messages/"
                 ],
                 "alias": {
                     // This takes over externals in webpack and includes jQuery in the builds
-                    "jquery": "./src/js/vendor/jquery/jquery-3.3.1.min.js"
+                    // "jquery": "./src/js/vendor/jquery/jquery-3.3.1.min.js",
+                    // "modernizr": "./src/js/vendor/modernizr/modernizr.js"
                 }
             }
         ]

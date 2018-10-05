@@ -1,6 +1,6 @@
 /*!
  * modernizr v3.6.0
- * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
+ * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-filesystem-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
  *
  * Copyright (c)
  *  Faruk Ates
@@ -1368,30 +1368,6 @@ to be the File object's prototype.)
 
   Modernizr.addTest('filereader', !!(window.File && window.FileList && window.FileReader));
 
-/*!
-{
-  "name": "XML HTTP Request Level 2 XHR2",
-  "property": "xhr2",
-  "tags": ["network"],
-  "builderAliases": ["network_xhr2"],
-  "notes": [{
-    "name": "W3 Spec",
-    "href": "https://www.w3.org/TR/XMLHttpRequest2/"
-  },{
-    "name": "Details on Related Github Issue",
-    "href": "https://github.com/Modernizr/Modernizr/issues/385"
-  }]
-}
-!*/
-/* DOC
-Tests for XHR2.
-*/
-
-  // all three of these details report consistently across all target browsers:
-  //   !!(window.ProgressEvent);
-  //   'XMLHttpRequest' in window && 'withCredentials' in new XMLHttpRequest
-  Modernizr.addTest('xhr2', 'XMLHttpRequest' in window && 'withCredentials' in new XMLHttpRequest());
-
 
   /**
    * atRule returns a given CSS property at-rule (eg @keyframes), possibly in
@@ -1543,6 +1519,48 @@ Tests for XHR2.
   };
 
   
+/*!
+{
+  "name": "Filesystem API",
+  "property": "filesystem",
+  "caniuse": "filesystem",
+  "notes": [{
+    "name": "W3 Draft",
+    "href": "http://dev.w3.org/2009/dap/file-system/file-dir-sys.html"
+  }],
+  "authors": ["Eric Bidelman (@ebidel)"],
+  "tags": ["file"],
+  "builderAliases": ["file_filesystem"],
+  "knownBugs": ["The API will be present in Chrome incognito, but will throw an exception. See crbug.com/93417"]
+}
+!*/
+
+  Modernizr.addTest('filesystem', !!prefixed('requestFileSystem', window));
+
+/*!
+{
+  "name": "XML HTTP Request Level 2 XHR2",
+  "property": "xhr2",
+  "tags": ["network"],
+  "builderAliases": ["network_xhr2"],
+  "notes": [{
+    "name": "W3 Spec",
+    "href": "https://www.w3.org/TR/XMLHttpRequest2/"
+  },{
+    "name": "Details on Related Github Issue",
+    "href": "https://github.com/Modernizr/Modernizr/issues/385"
+  }]
+}
+!*/
+/* DOC
+Tests for XHR2.
+*/
+
+  // all three of these details report consistently across all target browsers:
+  //   !!(window.ProgressEvent);
+  //   'XMLHttpRequest' in window && 'withCredentials' in new XMLHttpRequest
+  Modernizr.addTest('xhr2', 'XMLHttpRequest' in window && 'withCredentials' in new XMLHttpRequest());
+
 /*!
 {
   "authors": ["Cătălin Mariș"],

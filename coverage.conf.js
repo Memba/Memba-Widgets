@@ -47,11 +47,6 @@ module.exports = config => {
                 served: true,
                 included: true
             },
-            {
-                pattern: 'src/styles/vendor/kendo/**/*',
-                served: true,
-                included: false
-            },
             // External jQuery and polyfill
             {
                 pattern: 'src/js/vendor/jquery/jquery-3.3.1.min.js',
@@ -63,10 +58,23 @@ module.exports = config => {
                 served: true,
                 included: true
             },
+            // Other files made available on demand
+            {
+                pattern: 'src/js/**/*',
+                served: true,
+                included: false
+            },
+            {
+                pattern: 'src/styles/**/*',
+                served: true,
+                included: false
+            },
             // Our mocha tests
             {
                 // pattern: 'test/browser/**/*.test.es6',
-                pattern: 'test/browser/{common,data}/*.test.es6',
+                // pattern: 'test/browser/{common,data}/*.test.es6',
+                pattern: 'test/browser/common/*.test.es6',
+                // pattern: 'test/browser/data/*.test.es6',
                 served: true,
                 included: true // They need to be included!
             }
@@ -223,14 +231,14 @@ module.exports = config => {
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         browsers: [
-            // 'Chrome'
+            'Chrome'
             // 'ChromeHeadless',
-            'ChromeTravis',
+            // 'ChromeTravis',
             // 'Edge',
             // 'Firefox',
             // 'IE',
             // 'Opera',
-            'PhantomJS'
+            // 'PhantomJS'
             // 'Safari'
         ],
 

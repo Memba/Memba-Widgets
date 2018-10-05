@@ -21,11 +21,14 @@ const {
     MediaDeviceInfo,
     MediaStream,
     Modernizr,
+    navigator: { userAgent },
     ScriptProcessorNode
 } = window;
 const { expect } = chai;
 
-if (!Modernizr.getusermedia) {
+if (!Modernizr.getusermedia || userAgent.indexOf('HeadlessChrome') > -1) {
+    // getUserMedia does not work with headless chrome
+    // https://github.com/Modernizr/Modernizr/issues/2375
     document.getElementById('mocha').innerHTML =
         '<span>getUserMedia is not supported</span>';
     // return; // Cannot have a return statement here (check in IE)

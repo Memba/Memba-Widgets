@@ -3,6 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Try josdejong/mathjs
+// TODO Try kisonecat/math-expression
+// TODO Try silentmatt/math-expr
+
 /* eslint-disable no-unused-expressions */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
@@ -16,21 +20,17 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 
 const { before, describe, it, location, Modernizr } = window;
 const { expect } = chai;
-const libraries = [
-    `${location.protocol}//${location.host}${
-        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
-    }/src/js/vendor/jashkenas/underscore.js`,
-    `${location.protocol}//${location.host}${
-        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
-    }/src/js/vendor/khan/kas.js`,
-    `${location.protocol}//${location.host}${
-        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
-    }/src/js/kidoju.data.workerlib.js`
-];
 
-// TODO Try kisonecat/math-expression
-// TODO Try kisonecat/mathjs
-// TODO Try silentmatt/math-expr
+const root = window.__karma__
+    ? 'base' // Base directory for Karma assets
+    : `${location.protocol}//${location.host}${
+        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '' // eslint-disable-line prettier/prettier
+    }`; // eslint-disable-line prettier/prettier
+const libraries = [
+    `${root}/src/js/vendor/jashkenas/underscore.js`,
+    `${root}/src/js/vendor/khan/kas.js`,
+    `${root}/src/js/kidoju.data.workerlib.js`
+];
 
 function noop() {}
 

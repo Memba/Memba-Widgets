@@ -14,7 +14,14 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import FileSystem from '../../../src/js/common/window.fs.es6';
 
-const { before, describe, it, Modernizr, xdescribe } = window;
+const {
+    before,
+    describe,
+    it,
+    Modernizr,
+    navigator: { userAgent, vendor },
+    xdescribe
+} = window;
 const { expect } = chai;
 
 chai.use(sinonChai);
@@ -327,8 +334,8 @@ if (!Modernizr.filesystem) {
                         .then(e => {
                             try {
                                 if (
-                                    /Chrome/.test(navigator.userAgent) &&
-                                    /Google Inc/.test(navigator.vendor)
+                                    /Chrome/.test(userAgent) &&
+                                    /Google Inc/.test(vendor)
                                 ) {
                                     // Only on Chrome - https://caniuse.com/#feat=filesystem
                                     expect(e).to.be.an.instanceof(
@@ -410,7 +417,9 @@ if (!Modernizr.filesystem) {
                     .catch(err => {
                         try {
                             expect(err.message).to.equal(
-                                'XMLHttpRequest status 403'
+                                window.__karma__
+                                    ? 'XMLHttpRequest error'
+                                    : 'XMLHttpRequest status 403'
                             );
                             done();
                         } catch (ex) {

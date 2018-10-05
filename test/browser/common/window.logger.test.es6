@@ -11,7 +11,7 @@ import $ from 'jquery';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-// import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import Logger from '../../../src/js/common/window.logger.es6';
 
 const { afterEach, beforeEach, describe, it } = window;
@@ -41,13 +41,13 @@ function messageLog(level, message, data) {
 }
 
 function errorLog(level, message, data, error) {
-    const stack = error.stack
-        .split(LINEFEED)
-        .join(LINESEP)
-        .replace(RX_SPACES, SPACE);
+    const stack =
+        $.type(error.stack) === CONSTANTS.STRING // for PhantomJS
+            ? `stack${EQ}${error.stack.split(LINEFEED).join(LINESEP).replace(RX_SPACES, SPACE)}${SEP}`
+            : '';
     return `[${level.toUpperCase()}${
         level.length === 4 ? ' ' : ''
-    }]${FIRST}message${EQ}${message}${SEP}module${EQ}${MODULE}${SEP}stack${EQ}${stack}${SEP}data${EQ}${JSON.stringify(
+    }]${FIRST}message${EQ}${message}${SEP}module${EQ}${MODULE}${SEP}${stack}data${EQ}${JSON.stringify(
         data
     )}`;
 }

@@ -5,15 +5,21 @@
 
 /* eslint-disable no-unused-expressions */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import 'jquery.simulate';
 import chai from 'chai';
+import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import FileSystem from '../../../src/js/common/window.fs.es6';
+import 'jquery.mockjax';
+// import FileSystem from '../../../src/js/common/window.fs.es6';
 
 const { before, describe, it, xdescribe, xit } = window;
 const { expect } = chai;
 
+chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
 const JPG_IMAGE = '';
@@ -27,7 +33,7 @@ const ERROR_ = '';
 describe('window.image', () => {
     describe('preload', () => {
         it('It should preload an existing image url', () => {
-            test()
+            expect(true).to.be.true;
         });
     });
 });

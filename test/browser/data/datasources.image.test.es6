@@ -94,17 +94,17 @@ describe('datasources.image', () => {
                 .catch(done);
         });
 
-        it('It should handle duplicate ids', () => {
+        xit('It should handle duplicate ids', () => {
             expect(true).to.be.false;
         });
 
-        it('It should handle errors', () => {
+        xit('It should handle errors', () => {
             expect(true).to.be.false;
         });
     });
 
     describe('create', () => {
-        it('It should create from an array', () => {
+        xit('It should create from an array', () => {
             expect(true).to.be.false;
         });
     });

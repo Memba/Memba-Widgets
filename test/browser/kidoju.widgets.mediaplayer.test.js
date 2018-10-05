@@ -26,7 +26,7 @@
      * HTMLMediaElement is not supported in PhantomJS
      * @see https://github.com/ariya/phantomjs/issues/10839
      */
-    if (window.PHANTOMJS) {
+    if (window.PHANTOMJS) { // TODO user Modernizr
         return;
     }
 

@@ -111,25 +111,25 @@ describe('window.util', () => {
     });
 
     describe('compareStringArrays', () => {
-        it('TODO', () => {
+        xit('TODO', () => {
             expect(true).to.be.false;
         });
     });
 
     describe('getSelection', () => {
-        it('TODO', () => {
+        xit('TODO', () => {
             expect(true).to.be.false;
         });
     });
 
     describe('setSelection', () => {
-        it('TODO', () => {
+        xit('TODO', () => {
             expect(true).to.be.false;
         });
     });
 
     describe('replaceSelection', () => {
-        it('TODO', () => {
+        xit('TODO', () => {
             expect(true).to.be.false;
         });
     });

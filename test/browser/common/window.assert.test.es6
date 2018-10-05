@@ -9,11 +9,11 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import chai from 'chai';
-import JSC from 'jscheck';
+// import JSC from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import assert from '../../../src/js/common/window.assert.es6';
 
-const { describe, it, xit } = window;
+const { describe, it } = window;
 const { expect } = chai;
 const ERR_MSG = 'Oops!';
 class Person {

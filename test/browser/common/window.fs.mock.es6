@@ -3,9 +3,12 @@
  * Sources at https://github.com/Memba
  */
 
+// eslint-disable-next-line import/no-extraneous-dependencies
+import 'modernizr';
+
 function noop() {}
 
-if (window.PHANTOMJS) {
+if (!window.Modernizr.filesystem) {
     // eslint-disable-next-line no-console
     console.log('Mocking HTML 5 File API for PhantomJS');
 

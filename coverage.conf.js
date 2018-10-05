@@ -231,9 +231,9 @@ module.exports = config => {
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         browsers: [
-            'Chrome'
-            // 'ChromeHeadless',
-            // 'ChromeTravis',
+            // 'Chrome'
+            // 'ChromeHeadless'
+            'ChromeTravis'
             // 'Edge',
             // 'Firefox',
             // 'IE',

@@ -29,8 +29,6 @@ const StyleAdapter = BaseAdapter.extend({
         that.defaultValue = that.defaultValue || (that.nullable ? null : '');
         // This is the inline editor with a [...] button which triggers this.showDialog
         that.editor = function(container, settings) {
-            const binding = {};
-            binding[attr('bind')] = `value: ${settings.field}`;
             // We need a wrapper because container has { display: table-cell; }
             const wrapper = $('<div/>')
                 .css({ display: 'flex' })
@@ -42,7 +40,7 @@ const StyleAdapter = BaseAdapter.extend({
                     width: '100%' // 'auto' seems to imply a min-width
                 })
                 .prop({ readonly: true })
-                .attr($.extend({}, settings.attributes, binding))
+                .attr($.extend({}, settings.attributes, getValueBinding(settings.field)))
                 .appendTo(wrapper);
             $('<button/>')
                 .text('...')

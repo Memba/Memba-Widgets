@@ -6,8 +6,11 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+
+const { attr } = window.kendo;
 
 /**
  * Synchronization state
@@ -19,6 +22,14 @@ export const SYNC_STATE = {
     DESTROYED: 3,
     UPDATED: 2
 };
+
+/**
+ * Generic datasource error handler
+ * @param e
+ */
+export function dataSourceErrorHandler(e) {
+    debugger;
+}
 
 /**
  * An error helper that converts an error into an array [xhr, status, error]
@@ -63,19 +74,6 @@ export function error2xhr(err) {
         'error',
         error.message
     ];
-}
-
-/**
- * Converts [xhr, status, errorThrown] to an Error
- * @param xhr
- * @param status
- * @param errorThrown
- * @returns {Error}
- */
-export function xhr2error(xhr, status, errorThrown) {
-    const error = new Error(errorThrown);
-    error.code = xhr.status;
-    return error;
 }
 
 /**
@@ -160,13 +158,45 @@ export function extendQueryWithPartition(query, partition) {
 }
 
 /**
+ * Returns a Kendo UI value data binding (with optional source binding)
+ * @function getValueBinding
+ * @param field
+ * @param source
+ */
+export function getValueBinding(field, source) {
+    const binding = {};
+    if ($.type(field) === CONSTANTS.STRING && field.length) {
+        binding[attr('bind')] = `value: ${field}`;
+    }
+    if ($.type(source) === CONSTANTS.STRING && source.length) {
+        binding[attr('bind')] = binding[attr('bind')]
+            ? `${binding[attr('bind')]}, source: ${source}`
+            : `source: ${source}`;
+    }
+    return binding;
+}
+
+/**
+ * Returns a Kendo UI text data binding
+ * @fiuncton getTextBinding
+ * @param field
+ */
+export function getTextBinding(field) {
+    const binding = {};
+    if ($.type(field) === CONSTANTS.STRING && field.length) {
+        binding[attr('bind')] = `text: ${field}`;
+    }
+    return binding;
+}
+
+/**
  * Normalize data source schema
  * @see https://docs.telerik.com/kendo-ui/api/javascript/data/datasource/configuration/schema
  * @param schema
  * @returns {*}
  */
 export function normalizeSchema(schema) {
-    return Object.Assign(
+    return Object.assign(
         {
             // aggregates
             data(response) {
@@ -190,9 +220,14 @@ export function normalizeSchema(schema) {
 }
 
 /**
- * Generic datasource error handler
- * @param e
+ * Converts [xhr, status, errorThrown] to an Error
+ * @param xhr
+ * @param status
+ * @param errorThrown
+ * @returns {Error}
  */
-export function errorHandler(e) {
-    debugger;
+export function xhr2error(xhr, status, errorThrown) {
+    const error = new Error(errorThrown);
+    error.code = xhr.status;
+    return error;
 }

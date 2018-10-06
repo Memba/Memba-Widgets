@@ -31,10 +31,8 @@ const MultiQuizAdapter = BaseAdapter.extend({
         // this.editor = 'input';
         // $.extend(this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
-            const binding = {};
-            binding[attr('bind')] = `value: ${settings.field}`;
             const input = $('<div/>')
-                .attr(binding)
+                .attr(getValueBinding(settings.field))
                 .appendTo(container);
             input.kendoMultiQuiz({
                 mode: 'checkbox',

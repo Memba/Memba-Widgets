@@ -33,15 +33,14 @@ const HighLighterAdapter = BaseAdapter.extend({
         // TODO: Not Disabled when setting teh Disabled switch
         // And not reset when changing teh value of split => might require a window like chargrid
         this.editor = function(container, settings) {
-            const binding = {};
-            binding[attr('bind')] = `value: ${settings.field}`;
             const highLighter = $('<div/>')
                 .css({
                     width: '100%',
                     fontSize: '1em',
                     minHeight: '4.6em'
                 })
-                .attr($.extend(binding, attributes))
+                // .attr($.extend(binding, attributes))
+                .attr($.extend({}, settings.attributes, getValueBinding(settings.field)))
                 .appendTo(container);
             const highLighterWidget = highLighter.kendoHighLighter({
                 text: settings.model.get('attributes.text'),

@@ -36,10 +36,8 @@ const DisabledAdapter = BaseAdapter.extend({
         // this.attributes = $.extend({}, this.attributes, attributes);
         // this.attributes[attr('role')] = 'switch';
         this.editor = function(container, settings) {
-            const binding = {};
-            binding[attr('bind')] = `value: ${settings.field}`;
             const input = $('<div/>')
-                .attr(binding)
+                .attr(getValueBinding(settings.field))
                 .appendTo(container);
             const switchWidget = input
                 .kendoMobileSwitch({

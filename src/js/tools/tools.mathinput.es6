@@ -56,7 +56,7 @@ var MathInput = BaseTool.extend({
     width: 370,
     attributes: {
         // The formula is intended to set several MathQuillMathFields, which requires to make the solution an array of mathinputs
-        // formula: new MathAdapter({ title: i18n.mathinput.attributes.formula.title }),
+        // formula: new MathInputAdapter({ title: i18n.mathinput.attributes.formula.title }),
         // backspace: new BooleanAdapter({ title: i18n.mathinput.attributes.backspace.title, defaultValue: false }),
         // field: new BooleanAdapter({ title: i18n.mathinput.attributes.field.title, defaultValue: false }),
         keypad: new BooleanAdapter({ title: i18n.mathinput.attributes.keypad.title, defaultValue: true }),
@@ -72,7 +72,7 @@ var MathInput = BaseTool.extend({
     properties: {
         name: new ReadOnlyAdapter({ title: i18n.mathinput.properties.name.title }),
         question: new QuestionAdapter({ title: i18n.mathinput.properties.question.title }),
-        solution: new MathAdapter({ title: i18n.mathinput.properties.solution.title, defaultValue: '' }),
+        solution: new MathInputAdapter({ title: i18n.mathinput.properties.solution.title, defaultValue: '' }),
         validation: new ValidationAdapter({
             defaultValue: LIB_COMMENT + mathLibrary.defaultValue,
             library: mathLibrary.library,

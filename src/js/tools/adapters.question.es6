@@ -31,11 +31,9 @@ const QuestionAdapter = BaseAdapter.extend({
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = function(container, settings) {
-            const binding = {};
-            binding[attr('bind')] = `value: ${settings.field}`;
             const input = $('<input/>')
                 .css({ width: '100%' })
-                .attr($.extend({}, settings.attributes, binding))
+                .attr($.extend({}, settings.attributes, getValueBinding(settings.field)))
                 .appendTo(container);
             input.kendoComboBox({
                 autoWidth: true,

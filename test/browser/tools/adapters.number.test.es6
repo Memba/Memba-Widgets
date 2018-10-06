@@ -6,8 +6,8 @@
 /* eslint-disable no-unused-expressions */
 
 import chai from 'chai';
-import { randomVal } from '../../../src/js/common/window.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { randomVal } from '../../../src/js/common/window.util.es6';
 import NumberAdapter from '../../../src/js/tools/adapters.number.es6';
 
 const { describe, it } = window;

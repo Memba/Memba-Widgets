@@ -3,37 +3,40 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Consider a generic opendialog adapter with/without value
+// TODO finish catch
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import assets from '../app/app.assets.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { getValueBinding } from '../data/data.util.es6';
+import PageComponent from '../data/models.pagecomponent.es6';
+import openAssetManager from '../dialogs/dialogs.assetmanager.es6';
 import BaseAdapter from './adapters.base.es6';
-
-const { attr, format } = window.kendo;
-
-// TODO COnside genric opendialog adapter with/without value
+import ToolAssets from './util.assets';
 
 /**
+ * AssetAdapter
  * @class AssetAdapter
+ * @extends BaseAdapter
  */
 const AssetAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
-     * @param attributes
      */
-    init(options, attributes) {
+    init(options /* , attributes */) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
         that.type = CONSTANTS.STRING;
         that.defaultValue = that.defaultValue || (that.nullable ? null : '');
         // that.editor is the inline editor with a [...] button which triggers this.showDialog
         that.editor = function(container, settings) {
-            const binding = {};
-            binding[attr('bind')] = `value: ${settings.field}`;
             // We need a wrapper because container has { display: table-cell; }
             const wrapper = $('<div/>')
                 .css({ display: 'flex' })
@@ -45,7 +48,13 @@ const AssetAdapter = BaseAdapter.extend({
                     width: '100%' // 'auto' seems to imply a min-width
                 })
                 .prop({ readonly: true })
-                .attr($.extend({}, settings.attributes, binding))
+                .attr(
+                    $.extend(
+                        {},
+                        settings.attributes,
+                        getValueBinding(settings.field)
+                    )
+                )
                 .appendTo(wrapper);
             $('<button/>')
                 .text('...')
@@ -55,9 +64,15 @@ const AssetAdapter = BaseAdapter.extend({
                     marginRight: 0
                 })
                 .appendTo(wrapper)
-                .on(CONSTANTS.CLICK, $.proxy(that.showDialog, that, settings));
+                .on(CONSTANTS.CLICK, that.showDialog.bind(that, settings));
         };
     },
+
+    /**
+     * Show dialog
+     * @method showDialog
+     * @param options
+     */
     showDialog(options /* , e */) {
         assert.instanceof(
             PageComponent,
@@ -77,15 +92,13 @@ const AssetAdapter = BaseAdapter.extend({
                 'kidoju.ToolAssets'
             )
         );
-        // TODO wrap in import('./dialogs/kidoju.dialogs.assetmanager.es6').then(function () {...});
-        kidoju.dialogs
-            .openAssetManager({
-                title: options.title,
-                data: {
-                    value: options.model.get(options.field)
-                },
-                assets: Assets[options.model.tool]
-            })
+        openAssetManager({
+            title: options.title,
+            data: {
+                value: options.model.get(options.field)
+            },
+            assets: assets[options.model.tool]
+        })
             .then(result => {
                 if (
                     result.action ===

@@ -228,55 +228,49 @@ const PageComponent = BaseModel.define({
             ret = template(tool.help)(indexes);
         }
         return ret;
-    }
+    },
 
     /**
      * Clone
+     * Note: we are not using toJSON because some fields might not be serializable
      * @method clone
      */
-    /*
     clone() {
-    // TODO: why not use toJSON() - beware serializable
-        const component = this;
         assert.type(
             CONSTANTS.STRING,
-            component.tool,
+            this.tool,
             assert.format(
                 assert.messages.type.default,
-                'component.tool',
+                'this.tool',
                 CONSTANTS.STRING
             )
         );
-        let fields = component.fields;
         const clone = {};
-        // Copy page component fields (tool, top, left, height, width, rotate, ...), but not attributes and properties
-        for (var field in fields) {
-            // copy any field where fields[field].type is a string including 'boolean', CONSTANTS.NUMBER and CONSTANTS.STRING (i.e. not undefined)
+        // Copy page component fields (tool, top, left, height, width, rotate, ...), but not id, attributes and properties
+        Object.keys(this.fields).forEach(key => {
             if (
-                fields.hasOwnProperty(field) &&
-                $.type(fields[field].type) === CONSTANTS.STRING &&
-                field !== component.idField
+                key !== this.idField &&
+                key !== 'attributes' &&
+                key !== 'properties'
             ) {
-                clone[field] = component.get(field);
+                clone[key] = this.get(key);
             }
-        }
+        });
         // Copy display attributes
-        fields = component.attributes.fields;
         clone.attributes = {};
-        for (field in fields) {
-            if (fields.hasOwnProperty(field)) {
-                clone.attributes[field] = JSON.parse(
-                    JSON.stringify(component.get(`attributes.${field}`))
-                );
-            }
-        }
+        Object.keys(this.attributes.fields).forEach(key => {
+            // Consider using toJSON on  ObservableObject and ObservableArray
+            clone.attributes[key] = JSON.parse(
+                JSON.stringify(this.get(`attributes.${key}`))
+                // , dateReviver
+            );
+        });
         // copy some property attributes
-        fields = component.properties.fields;
         clone.properties = {};
-        for (field in fields) {
-            // Copying validation can be fairly complex depending on the use of all, considering components need to change name
+        Object.keys(this.properties.fields).forEach(key => {
+            // Copying validation can be fairly complex depending on the use of all,
+            // especially considering components need to change name
             if (
-                fields.hasOwnProperty(field) &&
                 [
                     'name',
                     'question',
@@ -285,17 +279,18 @@ const PageComponent = BaseModel.define({
                     'success',
                     'failure',
                     'omit'
-                ].indexOf(field) === -1
+                ].indexOf(key) === -1
             ) {
-                clone.properties[field] = JSON.parse(
-                    JSON.stringify(component.get(`properties.${field}`))
+                // Consider using toJSON on  ObservableObject and ObservableArray
+                clone.properties[key] = JSON.parse(
+                    JSON.stringify(this.get(`properties.${key}`))
+                    // , dateReviver
                 );
             }
-        }
+        });
         // Return clone
         return new PageComponent(clone);
-    },
-    */
+    }
 
     /**
      * Validate

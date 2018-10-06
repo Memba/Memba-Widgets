@@ -3,6 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Validation: cannot change id and tool
+// TODO Add image and textbox especially for cloning
+// TODO test cloning with more complexe objects (attribues or properties being objects or arrays)
+
 /* eslint-disable no-unused-expressions */
 
 import 'kendo.data';
@@ -16,7 +20,9 @@ import BaseModel from '../../../src/js/data/models.base.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
 
 // Load tools
+// import '../../../src/js/tools/tools.image.es6';
 import '../../../src/js/tools/tools.label.es6';
+// import '../../../src/js/tools/tools.textbox.es6';
 
 const { describe, it } = window;
 const {
@@ -24,6 +30,22 @@ const {
 } = window.kendo;
 const { expect } = chai;
 chai.use(sinonChai);
+
+/*
+const IMAGE = {
+    attributes: {
+        src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png',
+        alt: 'Google Logo'
+    },
+    height: 250,
+    id: new ObjectId().toString(),
+    left: 100,
+    rotate: 45,
+    tool : 'image',
+    top: 50,
+    width: 250
+};
+*/
 
 const LABEL = {
     attributes: {
@@ -43,10 +65,26 @@ const LABEL = {
     width: 300
 };
 
+/*
+const TEXTBOX = {
+    attributes: {},
+    height: 100,
+    id: new ObjectId().toString(),
+    left: 20,
+    properties: {
+        name: 'textfield3'
+    },
+    rotate: 0,
+    tool : 'textbox',
+    top: 20,
+    width: 300
+};
+*/
+
 describe('models.pagecomponent', () => {
     describe('PageComponent', () => {
         describe('Initialization', () => {
-            it('It should initialize a PageComponent without options', () => {
+            it('It should initialize a PageComponent without options (although there is no tool)', () => {
                 // Initialization without parameter is a Kendo UI requirement
                 const component = new PageComponent();
                 expect(component).to.be.an.instanceof(PageComponent);
@@ -126,11 +164,46 @@ describe('models.pagecomponent', () => {
             });
         });
 
-        // TODO Validation: cannot change id and tool
-        // TODO Validation style???
+        describe('description$', () => {
+            xit('TODO', () => {
+                expect(true).to.be.false;
+            });
+        });
+
+        describe('help$', () => {
+            xit('TODO', () => {
+                expect(true).to.be.false;
+            });
+        });
 
         describe('Clone', () => {
-            it('It should clone a component', () => {
+            xit('It should clone an image', () => {
+                expect(true).to.be.false;
+            });
+
+            it('It should clone a label', () => {
+                const component = new PageComponent(LABEL);
+                const json = component.toJSON();
+                const clone = component.clone();
+                expect(clone).to.be.an.instanceof(PageComponent);
+                expect(clone).to.be.an.instanceof(BaseModel);
+                expect(clone).to.be.an.instanceof(Model);
+                const result = clone.toJSON();
+                delete json.id;
+                expect(result).to.deep.equal(json);
+            });
+
+            xit('It should clone a textbox', () => {
+                expect(true).to.be.false;
+            });
+
+            xit('It should clone a component with complex attributes or properties (objects or arrays', () => {
+                expect(true).to.be.false;
+            });
+        });
+
+        describe('Validation', () => {
+            xit('TODO', () => {
                 expect(true).to.be.false;
             });
         });
@@ -155,126 +228,3 @@ describe('models.pagecomponent', () => {
     });
 });
 
-
-/*********************************************************************************************************
- * PageComponent
- *********************************************************************************************************/
-
-describe('Test PageComponent', function () {
-
-    describe('When initializing a PageComponent', function () {
-
-        it('if initialized from an undefined, it should pass although tool is null', function () {
-            // Unfortunately, initilization without parameter is a Kendo UI requirement
-            var component = new PageComponent();
-            // Test default values
-            expect(component).to.have.property('attributes').that.is.null;
-            expect(component).to.have.property('height', -1);
-            expect(component).to.have.property('id').that.is.null;
-            expect(component).to.have.property('left', 0);
-            expect(component).to.have.property('properties').that.is.null;
-            expect(component).to.have.property('rotate', 0);
-            expect(component).to.have.property('tag').that.is.null;
-            expect(component).to.have.property('tool').that.is.null;
-            expect(component).to.have.property('top', 0);
-            expect(component).to.have.property('width', -1);
-        });
-
-        it('if initialized from an object without tool, it should throw', function () {
-            function testFn() {
-                var component = new PageComponent({ dummy: true });
-            }
-            expect(testFn).to.throw(Error);
-        });
-
-        it('if initialized from an object with an invalid tool, it should throw', function () {
-            function testFn() {
-                var component = new PageComponent({ tool: 'dummy' });
-            }
-            expect(testFn).to.throw(Error);
-        });
-
-        it('if initialized from a valid object, it should pass', function () {
-            var component = new PageComponent({ tool: 'label' });
-            expect(component).to.be.an.instanceof(PageComponent);
-        });
-
-        it('if initialized from a complete label, it should pass', function () {
-            var obj = {
-                id: ObjectId(),
-                tool : 'label',
-                top: 250,
-                left: 500,
-                height: 100,
-                width: 300,
-                rotate: 90,
-                attributes: {
-                    style: 'font-family: Georgia, serif; color: #FF0000;',
-                    text: 'World'
-                }
-            };
-
-            function TestObjectProperty(obj, prop) {
-                var component = new PageComponent(obj);
-                if (prop === 'attributes' || prop === 'properties') {
-                    for (var subprop in obj[prop]) {
-                        if (obj[prop].hasOwnProperty(subprop)) {
-                            expect(component[prop][subprop]).to.equal(obj[prop][subprop]);
-                        }
-                    }
-                } else {
-                    expect(component[prop]).to.equal(obj[prop]);
-                }
-            }
-
-            for (var prop in obj) {
-                if (obj.hasOwnProperty(prop)) {
-                    // Extraction of TestObjectProperty fixes jshint error: `Blocks are nested too deeply`
-                    TestObjectProperty(obj, prop);
-                }
-            }
-
-        });
-
-        it('if initialized from a complete image, it shoud pass', function () {
-            var obj = {
-                id: ObjectId(),
-                tool : 'image',
-                top: 50,
-                left: 100,
-                height: 250,
-                width: 250,
-                rotate: 45,
-                attributes: {
-                    src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png',
-                    alt: 'Google Logo'
-                }
-            };
-            var component = new PageComponent(obj);
-
-        });
-
-        it('if initialized from a complete textbox, it shoud pass', function () {
-            var component = new PageComponent({
-                id: ObjectId(),
-                tool : 'textbox',
-                top: 20,
-                left: 20,
-                height: 100,
-                width: 300,
-                rotate: 0,
-                attributes: '{}',
-                properties: '{ "name": "textfield3" }'
-            });
-
-        });
-
-        xit('if cloned, it should pass', function (done) {
-            // TODO
-        });
-
-        // TODO Many other components!!!
-
-    });
-
-});

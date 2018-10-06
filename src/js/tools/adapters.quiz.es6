@@ -35,11 +35,9 @@ const QuizAdapter = BaseAdapter.extend({
         // this.editor = 'input';
         // $.extend(this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
-            const binding = {};
-            binding[attr('bind')] = `value: ${settings.field}`;
             const input = $('<input/>')
                 .css({ width: '100%' })
-                .attr($.extend({}, settings.attributes, binding))
+                .attr($.extend({}, settings.attributes, getValueBinding(settings.field)))
                 .appendTo(container);
             input.kendoDropDownList({
                 autoWidth: true,

@@ -9,32 +9,9 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { getTextBinding, getValueBinding } from '../data/data.util.es6';
 
 const { attr, template } = window.kendo;
-
-/**
- * Returns a Kendo UI value data binding
- * @param field
- */
-function getValueBinding(field) {
-    const binding = {};
-    if ($.type(field) === CONSTANTS.STRING && field.length) {
-        binding[attr('bind')] = `value: ${field}`;
-    }
-    return binding;
-}
-
-/**
- * Returns a Kendo UI text data binding
- * @param field
- */
-function getTextBinding(field) {
-    const binding = {};
-    if ($.type(field) === CONSTANTS.STRING && field.length) {
-        binding[attr('bind')] = `text: ${field}`;
-    }
-    return binding;
-}
 
 /**
  * Standard editors

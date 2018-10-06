@@ -10,13 +10,12 @@ import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
-const { attr, format } = window.kendo;
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
+const { attr } = window.kendo;
 
 /**
- * @class MathAdapter
+ * @class MathInputAdapter
  */
-const MathAdapter = BaseAdapter.extend({
+const MathInputAdapter = BaseAdapter.extend({
     /**
      * Constructor
      * @constructor
@@ -28,15 +27,14 @@ const MathAdapter = BaseAdapter.extend({
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = function(container, settings) {
-            const binding = {};
-            binding[attr('bind')] = `value: ${settings.field}`;
             const input = $('<div/>')
                 .css({
                     width: '100%',
                     fontSize: '1.25em',
                     minHeight: '4.6em'
                 })
-                .attr($.extend(binding, attributes))
+                // .attr($.extend(binding, attributes))
+                .attr($.extend({}, settings.attributes, getValueBinding(settings.field)))
                 .appendTo(container);
             const mathInputWidget = input.kendoMathInput({
                 toolbar: {
@@ -65,4 +63,4 @@ const MathAdapter = BaseAdapter.extend({
 /**
  * Default export
  */
-export default MathAdapter;
+export default MathInputAdapter;

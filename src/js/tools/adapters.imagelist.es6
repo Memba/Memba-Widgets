@@ -31,6 +31,8 @@ const ImageListBuilderAdapter = BaseAdapter.extend({
         that.defaultValue = that.defaultValue || [];
         // that.editor is the list editor where the insert image button triggers this.showDialog
         that.editor = function(container, settings) {
+            // TODO Why is there no value binding ????
+            // TODO: use getValueBinding
             const binding = {};
             binding[attr('bind')] = `source: ${settings.field}`;
             const imageList = $('<div/>')

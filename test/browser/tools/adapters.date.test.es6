@@ -6,8 +6,8 @@
 /* eslint-disable no-unused-expressions */
 
 import chai from 'chai';
-import { randomVal } from '../../../src/js/common/window.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { randomVal } from '../../../src/js/common/window.util.es6';
 import DateAdapter from '../../../src/js/tools/adapters.date.es6';
 
 const { describe, it } = window;
@@ -40,7 +40,9 @@ describe('adapters.date', () => {
 
         it('getField', () => {
             const field = adapter.getField();
-            expect(field).to.have.property('defaultValue').that.is.a('function');
+            expect(field)
+                .to.have.property('defaultValue')
+                .that.is.a('function');
             expect(field.defaultValue()).to.be.a('date');
             expect(field).to.have.property('type', CONSTANTS.DATE);
         });

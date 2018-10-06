@@ -9,12 +9,21 @@ import CONSTANTS from '../common/window.constants.es6';
 
 const { Class } = window.kendo;
 
-const ToolAssets = (kidoju.ToolAssets = Class.extend({
+/**
+ * ToolAssets
+ * @class ToolAssets
+ * @extends Class
+ */
+const ToolAssets = Class.extend({
+    /**
+     * Init
+     * @constructor init
+     * @param options
+     */
     init(options) {
-        options = options || {};
-        const collections = options.collections || [];
-        const extensions = options.extensions || [];
-        const schemes = options.schemes || {};
+        const collections = (options || {}).collections || [];
+        const extensions = (options || {}).extensions || [];
+        const schemes = (options || {}).schemes || {};
         assert.isArray(
             collections,
             assert.format(
@@ -39,13 +48,9 @@ const ToolAssets = (kidoju.ToolAssets = Class.extend({
         this.extensions = extensions;
         this.schemes = schemes;
     }
-}));
-
-const assets = (kidoju.assets = {
-    // Assets for the audio tool
-    audio: new ToolAssets(),
-    // Assets for the image tool
-    image: new ToolAssets(),
-    // Assets for the video tool
-    video: new ToolAssets()
 });
+
+/**
+ * Default export
+ */
+export default ToolAssets;

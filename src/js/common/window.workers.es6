@@ -11,7 +11,15 @@ import CONSTANTS from './window.constants.es6';
 import Logger from './window.logger.es6';
 
 const logger = new Logger('window.workers');
-const { Blob, console, cordova, navigator, URL, Worker } = window;
+const {
+    __karma__,
+    Blob,
+    console,
+    cordova,
+    navigator: { hardwareConcurrency },
+    URL,
+    Worker
+} = window;
 
 /**
  * Check whether chrome devtools is opened
@@ -40,15 +48,16 @@ function workerTimeout() {
     }
     const end = Date.now();
     const k = devtools.opened ? 4 : 1;
-    // A minimum of 250ms is required in browsers and 400ms in Phonegap
-    const timeout = k * Math.max(cordova ? 400 : 250, 10 * (end - start));
+    // A minimum of 250ms is required in browsers and 400ms in Phonegap and Karma tests
+    const timeout =
+        k * Math.max(cordova || __karma__ ? 400 : 250, 10 * (end - start));
     logger.info({
         method: 'workerTimeout',
         message: `Worker default timeout set to ${timeout} ms`
     });
     return timeout;
 }
-const CONCURRENCY = Math.max(1, (navigator.hardwareConcurrency || 4) - 1);
+const CONCURRENCY = Math.max(1, (hardwareConcurrency || 4) - 1);
 const TTL = workerTimeout();
 
 /**

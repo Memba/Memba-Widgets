@@ -47,10 +47,9 @@ function workerTimeout() {
         Math.floor(100 * Math.random());
     }
     const end = Date.now();
-    const k = devtools.opened ? 4 : 1;
+    const k = devtools.opened || __karma__ ? 4 : 1;
     // A minimum of 250ms is required in browsers and 400ms in Phonegap and Karma tests
-    const timeout =
-        k * Math.max(cordova || __karma__ ? 400 : 250, 10 * (end - start));
+    const timeout = k * Math.max(cordova ? 400 : 250, 10 * (end - start));
     logger.info({
         method: 'workerTimeout',
         message: `Worker default timeout set to ${timeout} ms`

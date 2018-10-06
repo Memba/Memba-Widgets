@@ -1,5 +1,5 @@
 # sudo:true until Travis is fixed - https://github.com/kidoju/Kidoju-Widgets/issues/251
-sudo: true
+sudo: required
 dist: trusty
 language: node_js
 node_js:

@@ -1,4 +1,4 @@
-# sudo:true until Travis is fixed - https://github.com/kidoju/Kidoju-Widgets/issues/251
+# sudo: false - uncomment when Travis is fixed - https://github.com/kidoju/Kidoju-Widgets/issues/251
 sudo: required
 dist: trusty
 language: node_js

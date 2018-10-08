@@ -1,7 +1,8 @@
 {
     "env": {
         "browser": true,
-        "es6": true
+        "es6": true,
+        "mocha": true
     },
     "extends": [
         "airbnb-base",
@@ -13,9 +14,10 @@
     ],
     "root": true,
     "rules": {
+        // "indent": "off",
         "indent": ["error", 4, { "SwitchCase": 1 }],
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
-        "no-underscore-dangle": 0,
+        "no-underscore-dangle": "off",
         "prettier/prettier": ["error", {
             "singleQuote": true,
             "tabWidth": 4

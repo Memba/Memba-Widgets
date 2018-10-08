@@ -40,6 +40,7 @@ const PageComponent = BaseModel.define({
         attributes: {
             type: CONSTANTS.OBJECT,
             nullable: true
+            // parse cannot access this
         },
         height: {
             type: CONSTANTS.NUMBER
@@ -50,6 +51,7 @@ const PageComponent = BaseModel.define({
         properties: {
             type: CONSTANTS.OBJECT,
             nullable: true
+            // parse cannot access this
         },
         rotate: {
             type: CONSTANTS.NUMBER,
@@ -79,71 +81,101 @@ const PageComponent = BaseModel.define({
      */
     init(options) {
         // Note: Kendo UI requires that new PageComponent() works, i.e. options can be undefined
-        if (
-            $.type(options) === CONSTANTS.OBJECT &&
-            ($.type(options.tool) !== CONSTANTS.STRING ||
-                options.tool.length === 0 ||
-                options.tool === CONSTANTS.POINTER ||
-                !(tools[options.tool] instanceof BaseTool))
-        ) {
-            throw new Error(format('`{0}` is not a valid tool', options.tool));
+        if (options) {
+            this._assertTool(options.tool);
         }
 
-        // Note: field parse function are executed by BaseModel init method
-        // when executing parse, `this` is undefined, so there is no access to other values
+        // Make init options available to the _parse function
+        this._options = options;
+
+        // Note: field parse functions are executed by BaseModel.init method
         BaseModel.fn.init.call(this, options);
+    },
 
-        if (
-            tools instanceof ObservableObject &&
-            $.type(this.tool) === CONSTANTS.STRING &&
-            this.tool.length
-        ) {
-            const tool = tools[this.tool];
-            if (tool instanceof BaseTool) {
-                // Let the tool build a Model for attributes to allow validation in the property grid
-                const Attributes = tool.getAttributeModel();
-                // Extend options attributes with possible new attributes as tools improve
-                const attributes = $.extend(
-                    {},
-                    Attributes.prototype.defaults,
-                    this.attributes
-                );
-                // Cast with Model
-                // this.set('attributes', new Attributes(attributes)); // <--- this sets the dirty flag and raises the change event
-                this.attributes = new Attributes(attributes);
-                this.attributes.bind(CONSTANTS.CHANGE, e => {
-                    e.field = `attributes.${e.field}`;
-                    this.trigger(CONSTANTS.CHANGE, e);
-                });
-
-                // Let the tool build a Model for properties to allow validation in the property grid
-                const Properties = tool.getPropertyModel();
-                // Extend options properties with possible new properties as tools improve
-                const properties = $.extend(
-                    {},
-                    Properties.prototype.defaults,
-                    this.properties
-                );
-                // Cast with Model
-                // this.set('properties', new Properties(properties)); // <--- this sets the dirty flag and raises the change event
-                this.properties = new Properties(properties);
-                this.properties.bind(CONSTANTS.CHANGE, e => {
-                    e.field = `properties.${e.field}`;
-                    this.trigger(CONSTANTS.CHANGE, e);
-                });
-
-                // Add the code library if any, otherwise we will be missing code for any items designated by a name
-                // TODO Temporarily commented to avoid loading ValidationAdapter
-                /*
-                if (
-                    tool.properties &&
-                    tool.properties.validation instanceof ValidationAdapter
-                ) {
-                    this._library = tool.properties.validation.library;
-                }
-                */
-            }
+    /**
+     *
+     * @param options
+     */
+    accept(options) {
+        if (options) {
+            this._assertTool(options.tool);
         }
+
+        // Make init options available to the _parse function
+        this._options = options;
+
+        // Note: field parse functions are executed by BaseModel.accept method
+        BaseModel.fn.accept.call(this, options);
+    },
+
+    /**
+     * Assert a tool
+     * @param toolId
+     * @private
+     */
+    _assertTool(toolId) {
+        if (
+            $.type(toolId) !== CONSTANTS.STRING ||
+            toolId.length === 0 ||
+            toolId === CONSTANTS.POINTER ||
+            !(tools instanceof ObservableObject) ||
+            !(tools[toolId] instanceof BaseTool)
+        ) {
+            throw new Error(format('`{0}` is not a valid tool', toolId));
+        }
+    },
+
+    /**
+     * _parse
+     * We need this _parse function because the field-level parse function cannot access this
+     * See comment in the field definitions above
+     * @method _parse
+     * @param name
+     * @param value
+     * @private
+     */
+    _parse(name, value) {
+        if (this._options && name === 'attributes') {
+            // If this._options is not undefined, we should have passed _assertTool
+            const tool = tools[this._options.tool];
+            // Let the tool build a Model for attributes to allow validation in the property grid
+            const Attributes = tool.getAttributeModel();
+            // Extend options attributes with possible new attributes as tools improve
+            const attributes = $.extend(
+                {},
+                Attributes.prototype.defaults,
+                this._options.attributes
+            );
+            // Cast with Model
+            // this.set('attributes', new Attributes(attributes)); // <--- this sets the dirty flag and raises the change event
+            return new Attributes(attributes);
+        }
+        if (this._options && name === 'properties') {
+            // If this._options is not undefined, we should have passed _assertTool
+            const tool = tools[this._options.tool];
+            // Let the tool build a Model for properties to allow validation in the property grid
+            const Properties = tool.getPropertyModel();
+            // Extend options properties with possible new properties as tools improve
+            const properties = $.extend(
+                {},
+                Properties.prototype.defaults,
+                this._options.properties
+            );
+            // Add the code library if any, otherwise we will be missing code for any items designated by a name
+            // TODO Temporarily commented to avoid loading ValidationAdapter
+            /*
+            if (
+                tool.properties &&
+                tool.properties.validation instanceof ValidationAdapter
+            ) {
+                this._library = tool.properties.validation.library;
+            }
+            */
+            // Cast with Model
+            // this.set('properties', new Properties(properties)); // <--- this sets the dirty flag and raises the change event
+            return new Properties(properties);
+        }
+        return BaseModel.fn._parse.call(this, name, value);
     },
 
     /**

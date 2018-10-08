@@ -6,17 +6,17 @@
     <script>
         window.app = { DEBUG: true };
     </script>
-    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <link href="../../src/styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../src/styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../src/styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- SystemJS loader -->
-    <script src="../../../test/vendor/polyfill.min.js"></script>
-    <script src="../../../test/vendor/system.js"></script>
+    <script src="../../test/vendor/polyfill.min.js"></script>
+    <script src="../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
             SystemJS.config({
-                baseURL: '../../../',
+                baseURL: '../../',
                 bundles: {
                     'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
@@ -168,6 +168,9 @@
                             'vendor/codemirror/addon/lint/jshint.js': {
                                 format: 'global'
                             },
+                            'vendor/modernizr/modernizr.js': {
+                                format: 'global'
+                            },
                             '*.js': {
                                 babelOptions: {
                                     es2015: false,
@@ -188,34 +191,32 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.imageset.es6').then(function () {
-                var kendo = window.kendo;
-                var viewModel = kendo.observable({
-                    visible: true,
-                    enabled: true,
-                    image: 'fire_engine'
-                });
-                $(function() {
-                    $('#imageset').kendoImageSet({
-                        value: 'cherries',
-                        images: [
-                            { text: 'aubergine', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/aubergine.svg' },
-                            { text: 'banana', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/banana.svg' },
-                            { text: 'cherries', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/cherries.svg' },
-                            { text: 'green_apple', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/green_apple.svg' },
-                            { text: 'pear', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/pear.svg' },
-                            { text: 'tomato', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/tomato.svg' }
-                        ]
-                    });
-                    kendo.bind('body', viewModel);
-                });
-            });
+            SystemJS.import('./userevents.es6');
         }());
     </script>
 </head>
 <body>
-<h1></h1>
-
-
+<h1>UserEvents</h1>
+<main style="position: absolute; left: 60px; top: 100px;">
+<div class="kj-stage" style="height: 400px; width: 500px; transform: scale(0.6); transform-origin: 0 0; border: solid 1px grey;">
+    <div data-role="stage" style="position:relative; height: 600px; width: 800px;">
+        <div class="kj-element" style="position:absolute; top:100px; left:150px; width:250px; height:250px;">
+            <div class="k-header" data-role="dropzone" data-bind="value: valueB1, source: sourceB, visible: visibleB, enabled: enabledB" style="width:250px; height:250px;">Drag the small circles here.</div>
+        </div>
+        <div class="kj-element" style="position:absolute; top:50px; left:50px; width:50px; height:50px;">
+            <div data-behavior="draggable" data-id="draggableB1" data-constant="red" style="border:solid 1px blue; border-radius: 50%; background-color:red; width:50px; height:50px;"></div>
+        </div>
+        <div class="kj-element" style="position:absolute; top:150px; left:50px; width:40px; height:40px;">
+            <div data-behavior="draggable" data-id="draggableB2" data-constant="blue" style="border:solid 1px blue; border-radius: 50%; background-color:blue; width:40px; height:40px;"></div>
+        </div>
+        <div class="kj-element" style="position:absolute; top:250px; left:50px; width:30px; height:30px;">
+            <div data-behavior="draggable" data-id="draggableB3" data-constant="green" style="border:solid 1px blue; border-radius: 50%; background-color:green; width:30px; height:30px;"></div>
+        </div>
+        <div class="kj-element" style="position:absolute; top:200px; left:200px; width:20px; height:20px;">
+            <div data-behavior="draggable" data-id="draggableB4" data-constant="yellow" style="border:solid 1px blue; border-radius: 50%; background-color:yellow; width:20px; height:20px;"></div>
+        </div>
+    </div>
+</div>
+</main>
 </body>
 </html>

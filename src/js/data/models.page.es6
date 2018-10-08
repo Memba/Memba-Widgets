@@ -9,12 +9,14 @@ import $ from 'jquery';
 import 'kendo.data';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { escapeRegExp } from '../common/window.util.es6';
 import PageDataSource from './datasources.page.es6';
 import PageComponentDataSource from './datasources.pagecomponent.es6';
+import PageComponent from './models.pagecomponent.es6';
 import BaseModel from './models.base.es6';
 
 const {
-    data: { DataSource, ObservableArray },
+    data: { ObservableArray },
     format
 } = window.kendo;
 
@@ -43,6 +45,7 @@ const Page = BaseModel.define({
             // defaultValue: new PageComponentDataSource({ data: [] }),
             defaultValue: [],
             parse(value) {
+                debugger;
                 if (value instanceof PageComponentDataSource) {
                     return value;
                 }
@@ -75,7 +78,7 @@ const Page = BaseModel.define({
     init(value) {
         // Call the base init method
         BaseModel.fn.init.call(this, value);
-
+        debugger;
         if (this.model && this.model.components) {
             // Reset PageDataSource with model.pages dataSource options
             // especially for the case where we have defined CRUD transports
@@ -126,6 +129,8 @@ const Page = BaseModel.define({
         this._loaded = !!(value && (value.components || value._loaded));
     },
 
+    _initComponents() {},
+
     /**
      * @method append
      * @param component
@@ -144,7 +149,7 @@ const Page = BaseModel.define({
         let method = '_query';
         const components = this.components;
         // Passing the id of the page to the components _query method
-        // is suggested by lendo.data.Node
+        // is suggested by Kendo.data.Node
         options[this.idField || CONSTANTS.ID] = this.id;
         if (!this._loaded) {
             components._data = undefined;
@@ -208,26 +213,20 @@ const Page = BaseModel.define({
 
     /**
      * Clone a page
+     * Note: we are not using toJSON because some fields might not be serializable
      * @method clone
      */
     clone() {
-        // TODO: why not use toJSON() - beware serializable
-        const page = this;
-        const fields = page.fields;
         let clone = {};
-        // Copy page fields (explanations, instructions, style)
-        for (const field in fields) {
-            if (
-                fields.hasOwnProperty(field) &&
-                $.type(fields[field].type) === CONSTANTS.STRING &&
-                field !== page.idField
-            ) {
-                clone[field] = page.get(field);
+        // Copy page fields (explanations, instructions, style), but not components
+        Object.keys(this.fields).forEach(key => {
+            if (key !== this.idField && key !== 'components') {
+                clone[key] = this.get(key);
             }
-        }
+        });
         clone = new Page(clone);
         // Copy components
-        const { components } = page;
+        const { components } = this;
         for (let i = 0, total = components.total(); i < total; i++) {
             clone.components.add(components.at(i).clone());
         }
@@ -249,6 +248,9 @@ const Page = BaseModel.define({
         createQuizInstructions:
             'Please select the option which corresponds to your answer to the question: _{0}_.',
         emptyPage: 'Page {0} cannot be empty.',
+
+        // TODO: Remove rules that belong to tools
+
         minConnectors:
             'At least {0} Connectors are required to make a question on page {1}.',
         missingDraggable:
@@ -266,9 +268,6 @@ const Page = BaseModel.define({
         missingInstructions: 'Instructions are recommended on page {0}.',
         missingExplanations: 'Explanations are recommended on page {0}.'
     },
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
 
     /**
      * Page validation
@@ -424,14 +423,12 @@ const Page = BaseModel.define({
         }
         return ret;
     }
-
-    /* jshint +W074 */
 });
 
 /**
  * createTextBoxPage
  */
-Page.createTextBoxPage = function(options) {
+Page.createTextBoxPage = options => {
     assert.isPlainObject(
         options,
         assert.format(assert.messages.isPlainObject.default, 'options')
@@ -457,7 +454,7 @@ Page.createTextBoxPage = function(options) {
     const solutions = options.solution
         .split('\n')
         .filter(item => item.trim() !== '');
-    const escaped = solutions.map(kidoju.util.escapeRegExp);
+    const escaped = solutions.map(escapeRegExp);
     return new Page({
         components: [
             new PageComponent({
@@ -492,8 +489,8 @@ Page.createTextBoxPage = function(options) {
                     validation:
                         solutions.length > 1
                             ? `// ignoreCaseMatch ${JSON.stringify([
-                                `^(?:${escaped.join('|')})$`
-                              ])}`
+                                `^(?:${escaped.join('|')})$` // eslint-disable-line prettier/prettier
+                            ])}` // eslint-disable-line prettier/prettier
                             : '// ignoreCaseEqual'
                 }
             })
@@ -512,7 +509,7 @@ Page.createTextBoxPage = function(options) {
 /**
  * createQuizPage
  */
-Page.createQuizPage = function(options) {
+Page.createQuizPage = options => {
     assert.isPlainObject(
         options,
         assert.format(assert.messages.isPlainObject.default, 'options')
@@ -593,7 +590,7 @@ Page.createQuizPage = function(options) {
 /**
  * createMultiQuizPage
  */
-Page.createMultiQuizPage = function(options) {
+Page.createMultiQuizPage = options => {
     assert.isPlainObject(
         options,
         assert.format(assert.messages.isPlainObject.default, 'options')

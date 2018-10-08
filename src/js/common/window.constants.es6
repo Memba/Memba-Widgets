@@ -35,6 +35,7 @@ const CONSTANTS = {
     MOUSEOUT: 'mouseout',
     MOUSEOVER: 'mouseover',
     MOUSEUP: 'mouseup',
+    TAP: 'tap',
     TOUCHEND: 'touchend',
     TOUCHLEAVE: 'touchleave',
     TOUCHMOVE: 'touchmove',

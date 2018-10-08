@@ -25,7 +25,7 @@ const PageComponentDataSource = DataSource.extend({
     init(options) {
         DataSource.fn.init.call(
             this,
-            $.extend(true, options, {
+            $.extend(true, {}, options, {
                 schema: {
                     modelBase: PageComponent,
                     model: PageComponent

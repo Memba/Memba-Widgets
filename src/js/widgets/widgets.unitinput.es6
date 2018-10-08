@@ -216,7 +216,11 @@ const UnitInput = Widget.extend({
      * @method destroy
      */
     destroy() {
+        // remove wrapper and stars
+        this.numericTextBox.destroy();
+        this.dropDownList.destroy();
         this.numericTextBox = undefined;
+        // TODO unwrap!
         this.dropDownList = undefined;
         Widget.fn.destroy.call(this);
         destroy(this.element);

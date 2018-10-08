@@ -8,7 +8,6 @@
 import $ from 'jquery';
 import 'kendo.data';
 import Page from './models.page.es6';
-import PageComponentDataSource from './datasources.pagecomponent';
 
 const {
     data: { DataSource, ObservableArray }
@@ -28,7 +27,7 @@ const PageDataSource = DataSource.extend({
     init(options) {
         DataSource.fn.init.call(
             this,
-            $.extend(true, options, {
+            $.extend(true, {}, options, {
                 schema: {
                     modelBase: Page,
                     model: Page
@@ -37,7 +36,7 @@ const PageDataSource = DataSource.extend({
         );
 
         /*
-        // PageWithOptions propagates configuration options to PageComponentCollectionDataSource
+        // PageWithOptions propagates configuration options to PageComponentDataSource
         var PageWithOptions = options && options.schema && ($.type(options.schema.model) === OBJECT) ?
             Page.define({ model: options.schema.model }) : Page;
 
@@ -87,7 +86,7 @@ const PageDataSource = DataSource.extend({
  * @method create
  * @param options
  */
-PageDataSource.create = function (options) {
+PageDataSource.create = options => {
     // Note: this code is vey similar to SchedulerDataSource.create
     const dataSource =
         Array.isArray(options) || options instanceof ObservableArray

@@ -5,8 +5,7 @@
 
 // TODO: check touch interfaces
 // TODO: Add tooltip with value and/or description
-// TODO: Display half stars
-// TODO: Should we bind to the DOM change event to be notified when input value changes?????
+// TODO: Should we bind to the DOM change event to be notified when input value changes?
 // TODO: https://developers.google.com/structured-data/rich-snippets/reviews
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
@@ -20,11 +19,14 @@ import { round } from '../common/window.util.es6';
 
 const {
     attr,
+    destroy,
     format,
     ui: { plugin, Widget }
 } = window.kendo;
 const logger = new Logger('widgets.rating');
 
+const NS = '.kendoRating';
+const WIDGET_CLASS = 'kj-rating'; // 'k-widget kj-rating';
 const STAR = 'star';
 const STAR_P = '&#x2605;';
 const STAR_O = '&#x2606;';
@@ -32,7 +34,6 @@ const STAR_SELECTOR = 'span.kj-rating-star';
 const RATING_MIN = 0;
 const RATING_MAX = 5;
 const RATING_STEP = 1;
-const NS = '.kendoRating';
 
 /** *****************************************************************************************
  * Rating
@@ -68,7 +69,10 @@ const Rating = Widget.extend({
             assert.format(assert.messages.isPlainObject.default, 'options')
         );
         const input = $(element);
-        assert.ok(input.is(CONSTANTS.INPUT), '`element` should be an html input field');
+        assert.ok(
+            input.is(CONSTANTS.INPUT),
+            '`element` should be an html input field'
+        );
         const opts = $.extend(
             {
                 enabled: !(
@@ -167,12 +171,11 @@ const Rating = Widget.extend({
      */
     _render() {
         const { element, options } = this;
-        this._clear();
-        element.wrap('<span class="kj-rating"/>');
+        element.wrap(`<${CONSTANTS.SPAN}/>`);
         // Hide the input
         element.hide();
         // Wrapper for visible/invisible bindings
-        this.wrapper = element.parent();
+        this.wrapper = element.parent().addClass(WIDGET_CLASS);
         // Number of stars to display
         const n = round((options.max - options.min) / options.step); // number of stars
         // Add stars to the DOM
@@ -207,7 +210,7 @@ const Rating = Widget.extend({
                     this._onStarHover.bind(this)
                 )
                 .on(
-                    `${CONSTANTS.CLICK}${NS}`,
+                    `${CONSTANTS.CLICK}${NS} ${CONSTANTS.TAP}${NS}`,
                     STAR_SELECTOR,
                     this._onStarClick.bind(this)
                 );
@@ -254,9 +257,9 @@ const Rating = Widget.extend({
         const idx = parseFloat($(e.currentTarget).attr(attr(STAR)));
         const value = options.min + idx * options.step;
         e.preventDefault();
-        if (!this.trigger(CONSTANTS.CHANGE, { value })) {
-            this.value(value);
-        }
+        this.value(value);
+        // The change event needs to be triggered once the value has been modified
+        this.trigger(CONSTANTS.CHANGE);
     },
 
     /**
@@ -293,11 +296,10 @@ const Rating = Widget.extend({
     },
 
     /**
-     * Clears the DOM from modifications made by the widget
-     * @method _clear
-     * @private
+     * Destroy
+     * @method destroy
      */
-    _clear() {
+    destroy() {
         // remove wrapper and stars
         if (this.wrapper) {
             this.wrapper
@@ -308,16 +310,9 @@ const Rating = Widget.extend({
             delete this.wrapper;
             this.element.show();
         }
-    },
-
-    /**
-     * Destroy
-     * @method destroy
-     */
-    destroy() {
-        const that = this;
-        that._clear();
+        // Destroy
         Widget.fn.destroy.call(this);
+        destroy(this.element);
     }
 });
 

@@ -4,8 +4,8 @@
  */
 
 // TODO Validation: cannot change id and tool
-// TODO Add image and textbox especially for cloning
-// TODO test cloning with more complexe objects (attribues or properties being objects or arrays)
+// TODO Add image and textbox
+// TODO Add a more complex tool with array attribues or properties
 
 /* eslint-disable no-unused-expressions */
 
@@ -14,6 +14,7 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { assertBaseModel } from '../_misc/test.util.es6';
 import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
@@ -81,6 +82,12 @@ const TEXTBOX = {
 };
 */
 
+const DATA = [
+    // IMAGE,
+    LABEL
+    // TEXTBOX
+];
+
 describe('models.pagecomponent', () => {
     describe('PageComponent', () => {
         describe('Initialization', () => {
@@ -91,15 +98,7 @@ describe('models.pagecomponent', () => {
                 expect(component).to.be.an.instanceof(BaseModel);
                 expect(component).to.be.an.instanceof(Model);
                 // Test default values
-                expect(component).to.have.property('attributes').that.is.null;
-                expect(component).to.have.property('height', 0);
-                expect(component).to.have.property('id').that.is.null;
-                expect(component).to.have.property('left', 0);
-                expect(component).to.have.property('properties').that.is.null;
-                expect(component).to.have.property('rotate', 0);
-                expect(component).to.have.property('tool').that.is.null;
-                expect(component).to.have.property('top', 0);
-                expect(component).to.have.property('width', 0);
+                assertBaseModel(component, component.defaults);
             });
 
             it('It should fail to initialize a PageComponent with invalid options', () => {
@@ -107,7 +106,6 @@ describe('models.pagecomponent', () => {
                     // eslint-disable-next-line no-unused-vars
                     const component = new PageComponent(JSC.object()());
                 }
-
                 expect(test).to.throw(Error);
             });
 
@@ -118,49 +116,75 @@ describe('models.pagecomponent', () => {
                         tool: CONSTANTS.POINTER
                     });
                 }
-
                 expect(test).to.throw(Error);
             });
 
             it('It should fail to initialize a PageComponent with an unknown tool', () => {
-                function testFn() {
+                function test() {
                     // eslint-disable-next-line no-unused-vars
                     const component = new PageComponent({
                         tool: JSC.string()()
                     });
                 }
+                expect(test).to.throw(Error);
+            });
 
-                expect(testFn).to.throw(Error);
+            it('It should initialize a PageComponent with a bare tool', () => {
+                function test(options) {
+                    const component = new PageComponent(options);
+                    expect(component).to.be.an.instanceof(PageComponent);
+                    expect(component).to.be.an.instanceof(BaseModel);
+                    expect(component).to.be.an.instanceof(Model);
+                    // Test default values
+                    assertBaseModel(
+                        component,
+                        Object.assign(component.defaults, options, {
+                            attributes: component.attributes.defaults,
+                            properties: component.properties.defaults
+                        })
+                    );
+                }
+                DATA.map(item => ({ tool: item.tool })).forEach(test);
             });
 
             it('It should initialize a PageComponent with a LABEL tool', () => {
-                const component = new PageComponent({ tool: 'label' });
-                expect(component).to.be.an.instanceof(PageComponent);
-                expect(component).to.be.an.instanceof(BaseModel);
-                expect(component).to.be.an.instanceof(Model);
-                // Test default values
-                expect(component)
-                    .to.have.property('attributes')
-                    .that.is.an.instanceof(Model);
-                expect(component).to.have.property('height', 0);
-                expect(component).to.have.property('id').that.is.null;
-                expect(component).to.have.property('left', 0);
-                expect(component)
-                    .to.have.property('properties')
-                    .that.is.an.instanceof(Model);
-                expect(component).to.have.property('rotate', 0);
-                expect(component).to.have.property('tool', 'label');
-                expect(component).to.have.property('top', 0);
-                expect(component).to.have.property('width', 0);
+                function test(options) {
+                    const component = new PageComponent(options);
+                    expect(component).to.be.an.instanceof(PageComponent);
+                    expect(component).to.be.an.instanceof(BaseModel);
+                    expect(component).to.be.an.instanceof(Model);
+                    const json = component.toJSON();
+                    expect(json).to.deep.equal(options);
+                }
+                DATA.forEach(test);
+            });
+        });
+
+        describe('Update', () => {
+            it('It should not modify id', () => {
+                function test(options) {
+                    const component = new PageComponent(options);
+                    expect(component.fields[component.idField].editable).to.be
+                        .false;
+                    component.set(component.idField, JSC.string()());
+                    // Modification is simply discarded (no error is thrown)
+                    expect(component).to.have.property(
+                        component.idField,
+                        options.id
+                    );
+                }
+                DATA.forEach(test);
             });
 
-            it('It should initialize a PageComponent with a LABEL tool and more options', () => {
-                const component = new PageComponent(LABEL);
-                expect(component).to.be.an.instanceof(PageComponent);
-                expect(component).to.be.an.instanceof(BaseModel);
-                expect(component).to.be.an.instanceof(Model);
-                const json = component.toJSON();
-                expect(json).to.deep.equal(LABEL);
+            it('It should not modify tool', () => {
+                function test(options) {
+                    const component = new PageComponent(options);
+                    expect(component.fields.tool.editable).to.be.false;
+                    component.set('tool', JSC.string()());
+                    // Modification is simply discarded (no error is thrown)
+                    expect(component).to.have.property('tool', options.tool);
+                }
+                DATA.forEach(test);
             });
         });
 
@@ -177,28 +201,19 @@ describe('models.pagecomponent', () => {
         });
 
         describe('Clone', () => {
-            xit('It should clone an image', () => {
-                expect(true).to.be.false;
-            });
-
-            it('It should clone a label', () => {
-                const component = new PageComponent(LABEL);
-                const json = component.toJSON();
-                const clone = component.clone();
-                expect(clone).to.be.an.instanceof(PageComponent);
-                expect(clone).to.be.an.instanceof(BaseModel);
-                expect(clone).to.be.an.instanceof(Model);
-                const result = clone.toJSON();
-                delete json.id;
-                expect(result).to.deep.equal(json);
-            });
-
-            xit('It should clone a textbox', () => {
-                expect(true).to.be.false;
-            });
-
-            xit('It should clone a component with complex attributes or properties (objects or arrays', () => {
-                expect(true).to.be.false;
+            it('It should clone components', () => {
+                function test(options) {
+                    const component = new PageComponent(options);
+                    const json = component.toJSON();
+                    const clone = component.clone();
+                    expect(clone).to.be.an.instanceof(PageComponent);
+                    expect(clone).to.be.an.instanceof(BaseModel);
+                    expect(clone).to.be.an.instanceof(Model);
+                    const result = clone.toJSON();
+                    delete json.id;
+                    expect(result).to.deep.equal(json);
+                }
+                DATA.forEach(test);
             });
         });
 
@@ -227,4 +242,3 @@ describe('models.pagecomponent', () => {
         });
     });
 });
-

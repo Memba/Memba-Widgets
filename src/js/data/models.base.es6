@@ -72,7 +72,7 @@ const BaseModel = Model.define({
         );
         const field = this.fields[name];
         /*
-        // The original _parse function calls getFieldName which seems to traverse a hierarchy
+        // TODO: The original _parse function calls getFieldName which seems to traverse a hierarchy
         // Which might make sense with grouping and aggregating
         if (!field) {
             field = getFieldByName(this.fields, name);
@@ -143,6 +143,8 @@ const BaseModel = Model.define({
     accept(data) {
         // Call the base accept method after parsing data
         Model.fn.accept.call(this, this._parseData(data));
+
+        // TODO: What if data is ony partial? Do we reset the other fields to default values?
 
         // TODO Review this event thing.......
         // Trigger a change event on the parent observable (possibly a viewModel)
@@ -218,7 +220,7 @@ const BaseModel = Model.define({
     },
 
     /**
-     * Modify original toJSON method to:
+     * Modified version of the original toJSON method to:
      * (1) exclude fields marked as serializable: false
      * (2) recursivley use toJSON when available on nested models and data sources
      * @returns {{}}

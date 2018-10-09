@@ -75,6 +75,9 @@ module.exports = config => {
                 // pattern: 'test/browser/{common,data}/*.test.es6',
                 pattern: 'test/browser/common/*.test.es6',
                 // pattern: 'test/browser/data/*.test.es6',
+                // pattern: 'test/browser/dialogs/*.test.es6',
+                // pattern: 'test/browser/tools/*.test.es6',
+                // pattern: 'test/browser/widgets/*.test.es6',
                 served: true,
                 included: true // They need to be included!
             }
@@ -222,7 +225,7 @@ module.exports = config => {
             ChromeTravis: {
                 base: 'ChromeHeadless',
                 flags: [
-                    //  --no-sandbox --window-size=1280,1024 --remote-debugging-port=9222 --use-fake-device-for-media-stream --use-fake-ui-for-media-stream
+                    //  --window-size=1280,1024
                     '--disable-gpu --disable-software-rasterizer --disable-extensions --disable-infobars --disable-translate'
                 ]
             }

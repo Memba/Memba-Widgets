@@ -13,95 +13,231 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
+import { getComponentArray, getPage } from '../_misc/test.components.es6';
+// import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
 import Page from '../../../src/js/data/models.page.es6';
-// import BaseModel from '../../../src/js/data/models.base.es6';
-// import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
 
-const { describe, it, kendo, xit } = window;
-const { DataSource } = kendo.data;
+// Load tools
+// import '../../../src/js/tools/tools.image.es6';
+import '../../../src/js/tools/tools.label.es6';
+// import '../../../src/js/tools/tools.textbox.es6';
+
+const { describe, it, xit } = window;
+const {
+    data: { DataSource }
+} = window.kendo;
 const { expect } = chai;
 chai.use(sinonChai);
 
 describe('models.page', () => {
     describe('Page', () => {
-        it('TODO', () => {
-            expect(true).to.be.false;
-        });
-    });
-});
+        describe('Initialization', () => {
+            it('It should initialize without options', done => {
+                // Unfortunately, this is a Kendo UI requirement
+                const page = new Page();
+                expect(page)
+                    .to.have.property('components')
+                    .that.is.an.instanceof(PageComponentDataSource);
+                expect(page).to.have.property('id').that.is.null;
+                expect(page).to.have.property('explanations', '');
+                expect(page).to.have.property('instructions', '');
+                expect(page).to.have.property('style', '');
+                expect(page).to.have.property('time', 30);
+                expect(page.components).to.respondTo('fetch');
+                page.components
+                    .fetch()
+                    .then(
+                        tryCatch(done)(() => {
+                            expect(page.components.total()).to.equal(0);
+                        })
+                    )
+                    .catch(done);
+            });
 
-/*********************************************************************************************************
- * Page
- *********************************************************************************************************/
+            it('It should initialize from a dummy object', done => {
+                const options = JSC.object()();
+                const prop = Object.keys(options)[0];
+                const page = new Page(options);
+                expect(page)
+                    .to.have.property('components')
+                    .that.is.an.instanceof(PageComponentDataSource);
+                expect(page).to.have.property('id').that.is.null;
+                expect(page).to.have.property('explanations', '');
+                expect(page).to.have.property('instructions', '');
+                expect(page).to.have.property('style', '');
+                expect(page).to.have.property('time', 30);
+                expect(page[prop]).to.be.undefined;
+                page.components
+                    .fetch()
+                    .then(
+                        tryCatch(done)(() => {
+                            expect(page.components.total()).to.equal(0);
+                        })
+                    )
+                    .catch(done);
+            });
 
-describe('Test Page', function () {
+            it('if should initialize with an array of bare components', done => {
+                const data = getComponentArray();
+                const options = {
+                    components: data.map(item => ({
+                        tool: item.tool
+                    }))
+                };
+                const page = new Page(options);
+                expect(page)
+                    .to.have.property('components')
+                    .that.is.an.instanceof(PageComponentDataSource);
+                expect(page).to.have.property('id').that.is.null;
+                expect(page).to.have.property('explanations', '');
+                expect(page).to.have.property('instructions', '');
+                expect(page).to.have.property('style', '');
+                expect(page).to.have.property('time', 30);
+                expect(page.components).to.respondTo('fetch');
+                page.components
+                    .fetch()
+                    .then(
+                        tryCatch(done)(() => {
+                            expect(page.components.total()).to.equal(
+                                data.length
+                            );
+                            page.components
+                                .data()
+                                .forEach((component, index) => {
+                                    assertBaseModel(
+                                        component,
+                                        Object.assign(
+                                            {},
+                                            component.defaults,
+                                            {
+                                                attributes:
+                                                    component.attributes
+                                                        .defaults,
+                                                properties:
+                                                    component.properties
+                                                        .defaults
+                                            },
+                                            options.components[index]
+                                        )
+                                    );
+                                });
+                        })
+                    )
+                    .catch(done);
+            });
 
-    describe('When initializing a Page', function (done) {
-
-        it('if initialized from an undefined, it should pass', function (done) {
-            // Unfortunately, this is a Kendo UI requirement
-            var page = new Page();
-            expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
-            expect(page).to.have.property('id').that.is.null;
-            expect(page).to.have.property('style', '');
-            expect(page.components).to.respondTo('fetch');
-            page.components.fetch().then(function () {
-                expect(page.components.total()).to.equal(0);
-                done();
+            it('if should initialize with an array of components', done => {
+                const data = getComponentArray();
+                const options = {
+                    components: data
+                };
+                const page = new Page(options);
+                expect(page)
+                    .to.have.property('components')
+                    .that.is.an.instanceof(PageComponentDataSource);
+                expect(page).to.have.property('id').that.is.null;
+                expect(page).to.have.property('explanations', '');
+                expect(page).to.have.property('instructions', '');
+                expect(page).to.have.property('style', '');
+                expect(page).to.have.property('time', 30);
+                expect(page.components).to.respondTo('fetch');
+                page.components
+                    .fetch()
+                    .then(
+                        tryCatch(done)(() => {
+                            expect(page.components.total()).to.equal(
+                                data.length
+                            );
+                            page.components
+                                .data()
+                                .forEach((component, index) => {
+                                    assertBaseModel(
+                                        component,
+                                        options.components[index]
+                                    );
+                                });
+                        })
+                    )
+                    .catch(done);
             });
         });
 
-        it('if initialized from an object without components, it should pass', function (done) {
-            var page = new Page({ dummy: true });
-            expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
-            expect(page).to.have.property('id').that.is.null;
-            expect(page).to.have.property('style', '');
-            expect(page.dummy).to.be.undefined;
-            expect(page.components).to.respondTo('fetch');
-            page.components.fetch().then(function () {
-                expect(page.components.total()).to.equal(0);
-                done();
+        describe('Non-editable fields', () => {
+            it('It should not modify id', () => {
+                const options = getPage();
+                const page = new Page(options);
+                expect(page.fields[page.idField].editable).to.be.false;
+                page.set(page.idField, JSC.string()());
+                // Modification is simply discarded (no error is thrown)
+                expect(page).to.have.property(page.idField, options.id);
             });
         });
 
-        it('if initialized from an object with components, it should pass', function (done) {
-            var page = new Page({ components: [{ tool: 'label' }, { tool: 'image' }] });
-            expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
-            expect(page).to.have.property('id').that.is.null;
-            expect(page).to.have.property('style', '');
-            expect(page.components).to.respondTo('fetch');
-            page.components.fetch().then(function () {
-                expect(page.components.total()).to.equal(2);
-                for (var i = 0; i < page.components.total(); i++) {
-                    var component = page.components.at(i);
-                    expect(component).to.have.property('attributes').that.is.an.instanceof(Model);
-                    expect(component).to.have.property('height', -1);
-                    expect(component).to.have.property('id').that.is.null;
-                    expect(component).to.have.property('left', 0);
-                    expect(component).to.have.property('properties').that.is.an.instanceof(Model);
-                    expect(component).to.have.property('rotate', 0);
-                    expect(component).to.have.property('tag').that.is.null;
-                    expect(component).to.have.property('tool').that.is.a('string'); // label or image
-                    expect(component).to.have.property('top', 0);
-                    expect(component).to.have.property('width', -1);
-                }
-                done();
+        describe('assets', () => {
+            xit('TODO', () => {
+                expect(true).to.be.false;
             });
         });
 
-        it('if cloned from an object with components, it should pass', function (done) {
-            var page = new Page({ components: [{ tool: 'label' }, { tool: 'image' }] });
-            expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
-            expect(page).to.have.property('id').that.is.null;
-            expect(page).to.have.property('style', '');
-            expect(page.components).to.respondTo('fetch');
-            page.components.fetch().then(function () {
-                expect(page.components.total()).to.equal(2);
-                var clone = page.clone();
-                // TODO
-                done();
+        describe('stream', () => {
+            xit('TODO', () => {
+                expect(true).to.be.false;
             });
         });
 
+        describe('index', () => {
+            xit('TODO', () => {
+                expect(true).to.be.false;
+            });
+        });
+
+        describe('Clone', () => {
+            it('It should clone any page', done => {
+                const options = getPage();
+                const page = new Page(options);
+                expect(page)
+                    .to.have.property('components')
+                    .that.is.an.instanceof(PageComponentDataSource);
+                page.components
+                    .fetch()
+                    .then(
+                        tryCatch(done)(() => {
+                            assertBaseModel(page, options);
+                            const clone = page.clone();
+                            // Clean options
+                            options.id = null;
+                            options.components.forEach(component => {
+                                /* eslint-disable no-param-reassign */
+                                component.id = null;
+                                // TODO also change name and remove question/solution/validation
+                                /* eslint-enable no-param-reassign */
+                            });
+                            assertBaseModel(clone, options);
+                        })
+                    )
+                    .catch(done);
+            });
+        });
+
+        describe('Validation', () => {
+            xit('TODO', () => {
+                expect(true).to.be.false;
+            });
+        });
+
+        describe('toJSON', () => {
+            it('It should save to JSON', () => {
+                expect(true).to.be.false;
+                // TODO: test default values are undefined
+            });
+        });
+
+        describe('Events', () => {
+            xit('TODO', () => {
+                expect(true).to.be.false;
+            });
+        });
     });
 });

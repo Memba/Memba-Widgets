@@ -94,6 +94,21 @@ const Stream = BaseModel.define({
     },
 
     /**
+     * Assets
+     * @method assets
+     * @returns {{audio: Array, image: Array, video: Array}}
+     */
+    assets() {
+        const assets = {
+            audio: [],
+            image: [],
+            video: []
+        };
+        // TODO
+        return assets;
+    },
+
+    /**
      * Append a page
      * @param model
      */

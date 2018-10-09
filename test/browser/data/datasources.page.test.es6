@@ -10,9 +10,13 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
+import { getPageArray, getTransport } from '../_misc/test.components.es6';
+import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { normalizeSchema } from '../../../src/js/data/data.util.es6';
 import PageDataSource from '../../../src/js/data/datasources.page.es6';
 import Page from '../../../src/js/data/models.page.es6';
-import ObjectId from '../../../src/js/common/pongodb.objectid';
 
 const { describe, it } = window;
 const { expect } = chai;
@@ -21,23 +25,6 @@ const {
     data: { DataSource, ObservableArray }
 } = window.kendo;
 chai.use(sinonChai);
-
-const someTransport = Class.extend({
-    create(options) {
-        options.success(
-            Object.assign(options.data, { id: new ObjectId().toString() })
-        );
-    },
-    destroy(options) {
-        options.success(options.data);
-    },
-    read(options) {
-        options.success({ data: DATA, total: DATA.length });
-    },
-    update(options) {
-        options.success(options.data);
-    }
-});
 
 describe('datasources.page', () => {
     describe('PageDataSource', () => {
@@ -49,28 +36,28 @@ describe('datasources.page', () => {
             });
 
             it('if initialized from an empty array, the count of pages should match', done => {
-                const pageCollectionDataSource1 = new PageCollectionDataSource();
-                const pageCollectionDataSource2 = new PageCollectionDataSource({
+                const dataSource1 = new PageDataSource();
+                const dataSource2 = new PageDataSource({
                     data: []
                 });
-                expect(pageCollectionDataSource1)
+                expect(dataSource1)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
-                expect(pageCollectionDataSource2)
+                expect(dataSource2)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource1.options.schema.model()
+                    new dataSource1.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 expect(
-                    new pageCollectionDataSource2.options.schema.model()
+                    new dataSource2.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 $.when(
-                    pageCollectionDataSource1.read(),
-                    pageCollectionDataSource2.read()
+                    dataSource1.read(),
+                    dataSource2.read()
                 ).then(() => {
-                    expect(pageCollectionDataSource1.total()).to.equal(0);
-                    expect(pageCollectionDataSource2.total()).to.equal(0);
+                    expect(dataSource1.total()).to.equal(0);
+                    expect(dataSource2.total()).to.equal(0);
                     done();
                 });
             });
@@ -82,18 +69,18 @@ describe('datasources.page', () => {
                     { title: 'The third man' },
                     { title: 'The guns of Navarone' }
                 ];
-                const pageCollectionDataSource = new PageCollectionDataSource({
+                const dataSource = new PageDataSource({
                     data: books
                 });
-                expect(pageCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
-                pageCollectionDataSource.read().then(() => {
+                dataSource.read().then(() => {
                     // TODO: any way to throw??????
-                    expect(pageCollectionDataSource.total()).to.equal(
+                    expect(dataSource.total()).to.equal(
                         books.length
                     );
                     done();
@@ -120,7 +107,7 @@ describe('datasources.page', () => {
                     { id: ObjectId(), title: 'The guns of Navarone' }
                 ];
                 function testFn() {
-                    const pageCollectionDataSource = new PageCollectionDataSource(
+                    const dataSource = new PageDataSource(
                         {
                             data: books,
                             schema: {
@@ -128,27 +115,28 @@ describe('datasources.page', () => {
                             }
                         }
                     );
-                    pageCollectionDataSource.read();
+                    dataSource.read();
                 }
                 expect(testFn).to.throw(Error);
             });
 
             it('if initialized from a proper array, the count of pages should match and dirty === false', done => {
-                const pageCollectionDataSource = new PageCollectionDataSource({
-                    data: pageCollectionArray
+                const data = getPageArray();
+                const dataSource = new PageDataSource({
+                    data
                 });
-                expect(pageCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
-                pageCollectionDataSource.read().then(() => {
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length
+                dataSource.read().then(() => {
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
-                    for (let i = 0; i < pageCollectionArray.length; i++) {
-                        expect(pageCollectionDataSource.at(i).dirty).to.be
+                    for (let i = 0; i < data.length; i++) {
+                        expect(dataSource.at(i).dirty).to.be
                             .false;
                     }
                     done();
@@ -170,22 +158,23 @@ describe('datasources.page', () => {
                     });
                     return dfd.promise();
                 }
-                const pageCollectionDataSource = new PageCollectionDataSource({
-                    data: pageCollectionArray
+                const data = getPageArray();
+                const dataSource = new PageDataSource({
+                    data
                 });
-                expect(pageCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
-                pageCollectionDataSource.read().then(() => {
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length
+                dataSource.read().then(() => {
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
                     const promises = [];
-                    for (let i = 0; i < pageCollectionArray.length; i++) {
-                        promises.push(test(pageCollectionDataSource.at(i)));
+                    for (let i = 0; i < data.length; i++) {
+                        promises.push(test(dataSource.at(i)));
                     }
                     $.when(...promises).always(done);
                 });
@@ -193,85 +182,83 @@ describe('datasources.page', () => {
 
             it('if initialized from a kendo.data.DataSource, an exception should be raised', () => {
                 const fn = function() {
-                    const dataSource = PageCollectionDataSource.create(
+                    const dataSource = PageDataSource.create(
                         new kendo.data.DataSource({ data: [] })
                     );
                 };
                 expect(fn).to.throw(Error);
             });
 
-            it('if initialized from a PageCollectionDataSource, the number of pages should match', done => {
-                const pageCollectionDataSource1 = PageCollectionDataSource.create(
-                    pageCollectionArray
+            it('if initialized from a PageDataSource, the number of pages should match', done => {
+                const data = getPageArray();
+                const dataSource1 = PageDataSource.create(data);
+                const dataSource2 = PageDataSource.create(
+                    dataSource1
                 );
-                const pageCollectionDataSource2 = PageCollectionDataSource.create(
-                    pageCollectionDataSource1
-                );
-                expect(pageCollectionDataSource1)
+                expect(dataSource1)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
-                expect(pageCollectionDataSource2)
+                expect(dataSource2)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource1.options.schema.model()
+                    new dataSource1.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 expect(
-                    new pageCollectionDataSource2.options.schema.model()
+                    new dataSource2.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 $.when(
-                    pageCollectionDataSource1.read(),
-                    pageCollectionDataSource2.read()
+                    dataSource1.read(),
+                    dataSource2.read()
                 ).then(() => {
-                    expect(pageCollectionDataSource1.total()).to.equal(
-                        pageCollectionArray.length
+                    expect(dataSource1.total()).to.equal(
+                        data.length
                     );
-                    expect(pageCollectionDataSource2.total()).to.equal(
-                        pageCollectionArray.length
+                    expect(dataSource2.total()).to.equal(
+                        data.length
                     );
                     done();
                 });
             });
 
             it('if initialized from a transport, the number of pages should match', done => {
-                const pageCollectionDataSource1 = PageCollectionDataSource.create(
-                    pageCollectionArray
-                );
-                const pageCollectionDataSource2 = new PageCollectionDataSource({
+                const data = getPageArray();
+                const dataSource1 = PageDataSource.create(data);
+                const dataSource2 = new PageDataSource({
                     transport: {
                         read(options) {
-                            options.success(pageCollectionArray);
+                            options.success(data);
                         }
                     }
                 });
-                expect(pageCollectionDataSource1)
+                expect(dataSource1)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
-                expect(pageCollectionDataSource2)
+                expect(dataSource2)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource1.options.schema.model()
+                    new dataSource1.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 expect(
-                    new pageCollectionDataSource2.options.schema.model()
+                    new dataSource2.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 $.when(
-                    pageCollectionDataSource1.read(),
-                    pageCollectionDataSource2.read()
+                    dataSource1.read(),
+                    dataSource2.read()
                 ).then(() => {
-                    expect(pageCollectionDataSource1.total()).to.equal(
-                        pageCollectionArray.length
+                    expect(dataSource1.total()).to.equal(
+                        data.length
                     );
-                    expect(pageCollectionDataSource2.total()).to.equal(
-                        pageCollectionArray.length
+                    expect(dataSource2.total()).to.equal(
+                        data.length
                     );
                     done();
                 });
             });
 
-            it('if initialized from $.ajax, the number of pages and components should match', done => {
-                const pageCollectionDataSource = new PageCollectionDataSource({
+            xit('if initialized from $.ajax, the number of pages and components should match', done => {
+                const dataSource = new PageDataSource({
                     transport: {
                         read: {
                             url: dataUrl('pageCollection.json'),
@@ -279,38 +266,38 @@ describe('datasources.page', () => {
                         }
                     }
                 });
-                expect(pageCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 $.when(
-                    pageCollectionDataSource.read(),
+                    dataSource.read(),
                     $.getJSON(
-                        pageCollectionDataSource.options.transport.read.url
+                        dataSource.options.transport.read.url
                     )
                 ).done((response1, response2) => {
                     expect(response2)
                         .to.be.an.instanceof(Array)
                         .that.has.property('length', 3);
                     expect(response2[0]).to.be.an.instanceof(Array);
-                    const pageCollectionArray = response2[0];
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length
+                    const data = response2[0];
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
                     const promises = [];
-                    for (var i = 0; i < pageCollectionDataSource.total(); i++) {
-                        var page = pageCollectionDataSource.at(i);
+                    for (var i = 0; i < dataSource.total(); i++) {
+                        var page = dataSource.at(i);
                         expect(page).to.be.an.instanceof(Page);
                         expect(page.components).to.be.an.instanceof(
-                            PageComponentCollectionDataSource
+                            PageComponentDataSource
                         );
                         expect(page.components.total()).to.equal(0);
                         /* jshint -W083 */
                         const promise = page.load().done(() => {
                             expect(page.components.total()).to.equal(
-                                pageCollectionArray[i].components.length
+                                data[i].components.length
                             );
                         });
                         /* jshint +W083 */
@@ -325,27 +312,28 @@ describe('datasources.page', () => {
             it('It should handle duplicate ids', () => {});
 
             it('If dataSource initialized from in-memory array, there should be one page component more', done => {
-                const pageCollectionDataSource = new PageCollectionDataSource({
-                    data: pageCollectionArray
+                const data = getPageArray();
+                const dataSource = new PageDataSource({
+                    data
                 });
-                expect(pageCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
-                pageCollectionDataSource.read().then(() => {
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length
+                dataSource.read().then(() => {
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
-                    pageCollectionDataSource.add(new Page());
+                    dataSource.add(new Page());
                     expect(
-                        pageCollectionDataSource
-                            .at(pageCollectionArray.length)
+                        dataSource
+                            .at(data.length)
                             .isNew()
                     ).to.be.true;
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length + 1
+                    expect(dataSource.total()).to.equal(
+                        data.length + 1
                     );
                     done();
                 });
@@ -355,10 +343,11 @@ describe('datasources.page', () => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
-                const pageCollectionDataSource = new PageCollectionDataSource({
+                const data = getPageArray();
+                const dataSource = new PageDataSource({
                     transport: {
                         read(options) {
-                            options.success(pageCollectionArray);
+                            options.success(data);
                         },
                         create(options) {
                             create(options);
@@ -374,26 +363,26 @@ describe('datasources.page', () => {
                         }
                     }
                 });
-                expect(pageCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
-                pageCollectionDataSource.read().then(() => {
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length
+                dataSource.read().then(() => {
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
-                    pageCollectionDataSource.add(new Page());
+                    dataSource.add(new Page());
                     expect(
-                        pageCollectionDataSource
-                            .at(pageCollectionArray.length)
+                        dataSource
+                            .at(data.length)
                             .isNew()
                     ).to.be.true;
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length + 1
+                    expect(dataSource.total()).to.equal(
+                        data.length + 1
                     );
-                    pageCollectionDataSource.sync().always(() => {
+                    dataSource.sync().always(() => {
                         expect(create).to.have.been.called;
                         expect(update).not.to.have.been.called;
                         expect(destroy).not.to.have.been.called;
@@ -405,22 +394,23 @@ describe('datasources.page', () => {
 
         describe('Updating', () => {
             it('If dataSource initialized from in-memory array, there should be one updated page', done => {
-                const pageCollectionDataSource = new PageCollectionDataSource({
-                    data: pageCollectionArray
+                const data = getPageArray();
+                const dataSource = new PageDataSource({
+                    data
                 });
-                expect(pageCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
-                pageCollectionDataSource.read().then(() => {
-                    pageCollectionDataSource
+                dataSource.read().then(() => {
+                    dataSource
                         .at(0)
                         .set('style', 'background-color: #555555;');
-                    expect(pageCollectionDataSource.at(0).dirty).to.be.true;
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length
+                    expect(dataSource.at(0).dirty).to.be.true;
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
                     done();
                 });
@@ -430,10 +420,11 @@ describe('datasources.page', () => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
-                const pageCollectionDataSource = new PageCollectionDataSource({
+                const data = getPageArray();
+                const dataSource = new PageDataSource({
                     transport: {
                         read(options) {
-                            options.success(pageCollectionArray);
+                            options.success(data);
                         },
                         create(options) {
                             create(options);
@@ -449,21 +440,21 @@ describe('datasources.page', () => {
                         }
                     }
                 });
-                expect(pageCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
-                pageCollectionDataSource.read().then(() => {
-                    pageCollectionDataSource
+                dataSource.read().then(() => {
+                    dataSource
                         .at(0)
                         .set('style', 'background-color: #555555;');
-                    expect(pageCollectionDataSource.at(0).dirty).to.be.true;
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length
+                    expect(dataSource.at(0).dirty).to.be.true;
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
-                    pageCollectionDataSource.sync().always(() => {
+                    dataSource.sync().always(() => {
                         expect(create).not.to.have.been.called;
                         expect(update).to.have.been.called;
                         expect(destroy).not.to.have.been.called;
@@ -475,24 +466,25 @@ describe('datasources.page', () => {
 
         describe('Removing', () => {
             it('If dataSource initialized from in-memory array, there should be one page less', done => {
-                const pageCollectionDataSource = new PageCollectionDataSource({
-                    data: pageCollectionArray
+                const data = getPageArray();
+                const dataSource = new PageDataSource({
+                    data
                 });
-                expect(pageCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
-                pageCollectionDataSource.read().then(() => {
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length
+                dataSource.read().then(() => {
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
-                    pageCollectionDataSource.remove(
-                        pageCollectionDataSource.at(0)
+                    dataSource.remove(
+                        dataSource.at(0)
                     );
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length - 1
+                    expect(dataSource.total()).to.equal(
+                        data.length - 1
                     );
                     done();
                 });
@@ -502,10 +494,11 @@ describe('datasources.page', () => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
-                const pageCollectionDataSource = new PageCollectionDataSource({
+                const data = getPageArray();
+                const dataSource = new PageDataSource({
                     transport: {
                         read(options) {
-                            options.success(pageCollectionArray);
+                            options.success(data);
                         },
                         create(options) {
                             create(options);
@@ -521,20 +514,20 @@ describe('datasources.page', () => {
                         }
                     }
                 });
-                expect(pageCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
-                pageCollectionDataSource.read().then(() => {
-                    expect(pageCollectionDataSource.total()).to.equal(
-                        pageCollectionArray.length
+                dataSource.read().then(() => {
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
-                    pageCollectionDataSource.remove(
-                        pageCollectionDataSource.at(0)
+                    dataSource.remove(
+                        dataSource.at(0)
                     );
-                    pageCollectionDataSource.sync().then(() => {
+                    dataSource.sync().then(() => {
                         expect(create).not.to.have.been.called;
                         expect(update).not.to.have.been.called;
                         expect(destroy).to.have.been.called;
@@ -559,9 +552,9 @@ describe('datasources.page', () => {
 });
 
 /** *******************************************************************************************************
- * PageCollectionDataSource
+ * PageDataSource
  ******************************************************************************************************** */
 
-describe('Test PageCollectionDataSource', () => {
-    describe('When initializing a PageCollectionDataSource', () => {});
+describe('Test PageDataSource', () => {
+    describe('When initializing a PageDataSource', () => {});
 });

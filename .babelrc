@@ -16,8 +16,7 @@
                 ],
                 "alias": {
                     // This takes over externals in webpack and includes jQuery in the builds
-                    // "jquery": "./src/js/vendor/jquery/jquery-3.3.1.min.js",
-                    // "modernizr": "./src/js/vendor/modernizr/modernizr.js"
+                    // "jquery": "./src/js/vendor/jquery/jquery-3.3.1.min.js"
                 }
             }
         ]

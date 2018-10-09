@@ -5,10 +5,14 @@
 
 /* eslint-disable no-unused-expressions */
 
+import 'kendo.data';
 import chai from 'chai';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 
+const {
+    data: { DataSource }
+} = window.kendo;
 const { expect } = chai;
 
 /**
@@ -49,6 +53,10 @@ export function assertBaseModel(actual, expected) {
             expect(actual).to.have.property(key, expected[key]);
         } else if (actual[key] instanceof BaseModel) {
             assertBaseModel(actual[key], (expected || {})[key]);
+        } else if (actual[key] instanceof DataSource) {
+            actual[key].data().forEach((item, index) => {
+                assertBaseModel(item, ((expected || {})[key] || [])[index]);
+            });
         } else {
             throw new Error(`actual.${key} has an unexpected value.`);
         }

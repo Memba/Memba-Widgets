@@ -14,8 +14,10 @@ import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
+import { getComponentArray, getTransport } from '../_misc/test.components.es6';
 import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { normalizeSchema } from '../../../src/js/data/data.util.es6';
 import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
@@ -28,102 +30,9 @@ import '../../../src/js/tools/tools.label.es6';
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    Class,
     data: { DataSource, ObservableArray }
 } = window.kendo;
 chai.use(sinonChai);
-
-/*
-const IMAGE = {
-    attributes: {
-        src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png',
-        alt: 'Google Logo'
-    },
-    height: 250,
-    id: new ObjectId().toString(),
-    left: 100,
-    rotate: 45,
-    tool : 'image',
-    top: 50,
-    width: 250
-};
-*/
-
-const LABEL = {
-    attributes: {
-        style: 'font-family: Georgia, serif; color: #FF0000;',
-        text: 'World'
-    },
-    height: 100,
-    id: new ObjectId().toString(),
-    left: 500,
-    properties: {
-        behavior: 'none',
-        constant: ''
-    },
-    rotate: 90,
-    tool: 'label',
-    top: 250,
-    width: 300
-};
-
-/*
-const TEXTBOX = {
-    attributes: {},
-    height: 100,
-    id: new ObjectId().toString(),
-    left: 20,
-    properties: {
-        name: 'textfield3'
-    },
-    rotate: 0,
-    tool : 'textbox',
-    top: 20,
-    width: 300
-};
-*/
-
-const DATA = [
-    // IMAGE,
-    LABEL // ,
-    // TEXTBOX
-];
-
-function assertModel(actual, expected) {
-    expect(actual).to.be.an.instanceof(BaseModel);
-    Object.keys(actual.fields).forEach(key => {
-        if (
-            actual[key] === null ||
-            [
-                CONSTANTS.BOOLEAN,
-                CONSTANTS.DATE,
-                CONSTANTS.NUMBER,
-                CONSTANTS.STRING
-            ].indexOf(actual.fields[key].type) > -1
-        ) {
-            expect(actual).to.have.property(key, expected[key]);
-        } else {
-            assertModel(actual[key], (expected || {})[key]);
-        }
-    });
-}
-
-const BasicTransport = Class.extend({
-    create(options) {
-        options.success(
-            Object.assign(options.data, { id: new ObjectId().toString() })
-        );
-    },
-    destroy(options) {
-        options.success(options.data);
-    },
-    read(options) {
-        options.success({ data: DATA, total: DATA.length });
-    },
-    update(options) {
-        options.success(options.data);
-    }
-});
 
 describe('datasources.pagecomponent', () => {
     describe('PageComponentDataSource', () => {
@@ -232,14 +141,15 @@ describe('datasources.pagecomponent', () => {
                         .catch(dfd.reject);
                     return dfd.promise();
                 }
-                const promises = DATA.map(item => test({ tool: item.tool }));
+                const data = getComponentArray();
+                const promises = data.map(item => test({ tool: item.tool }));
                 $.when(...promises)
                     .then(
                         tryCatch(done)((...results) => {
                             results.forEach(res => {
                                 expect(res.dataSource.total()).to.equal(1);
                                 const component = res.dataSource.at(0);
-                                assertModel(
+                                assertBaseModel(
                                     component,
                                     $.extend(
                                         {},
@@ -260,7 +170,8 @@ describe('datasources.pagecomponent', () => {
             });
 
             it('it should initialize from an array of components', done => {
-                const dataSource = new PageComponentDataSource({ data: DATA });
+                const data = getComponentArray();
+                const dataSource = new PageComponentDataSource({ data });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
@@ -272,8 +183,8 @@ describe('datasources.pagecomponent', () => {
                     .read()
                     .then(
                         tryCatch(done)(() => {
-                            expect(dataSource.total()).to.equal(DATA.length);
-                            DATA.forEach((options, index) => {
+                            expect(dataSource.total()).to.equal(data.length);
+                            data.forEach((options, index) => {
                                 const component = dataSource.at(index);
                                 assertBaseModel(component, options);
                             });
@@ -283,19 +194,10 @@ describe('datasources.pagecomponent', () => {
             });
 
             it('it should initialize from a transport', done => {
+                const data = getComponentArray();
                 const dataSource = new PageComponentDataSource({
-                    schema: {
-                        data(res) {
-                            return res &&
-                                Array.isArray(res.data) &&
-                                $.type(res.total) === CONSTANTS.NUMBER
-                                ? res.data
-                                : res;
-                        },
-                        errors: 'error',
-                        total: 'total'
-                    },
-                    transport: new BasicTransport()
+                    schema: normalizeSchema(),
+                    transport: getTransport(data)
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -308,8 +210,8 @@ describe('datasources.pagecomponent', () => {
                     .read()
                     .then(
                         tryCatch(done)(() => {
-                            expect(dataSource.total()).to.equal(DATA.length);
-                            DATA.forEach((options, index) => {
+                            expect(dataSource.total()).to.equal(data.length);
+                            data.forEach((options, index) => {
                                 const component = dataSource.at(index);
                                 assertBaseModel(component, options);
                             });
@@ -321,6 +223,7 @@ describe('datasources.pagecomponent', () => {
 
         describe('Adding and inserting', () => {
             it('It should add components', done => {
+                const data = getComponentArray();
                 const dataSource = new PageComponentDataSource();
                 function test(options) {
                     const total = dataSource.total();
@@ -333,13 +236,14 @@ describe('datasources.pagecomponent', () => {
                     .read()
                     .then(
                         tryCatch(done)(() => {
-                            DATA.forEach(test);
+                            data.forEach(test);
                         })
                     )
                     .catch(done);
             });
 
             it('It should insert components', done => {
+                const data = getComponentArray();
                 const dataSource = new PageComponentDataSource();
                 function test(options) {
                     const total = dataSource.total();
@@ -352,7 +256,7 @@ describe('datasources.pagecomponent', () => {
                     .read()
                     .then(
                         tryCatch(done)(() => {
-                            DATA.forEach(test);
+                            data.forEach(test);
                         })
                     )
                     .catch(done);
@@ -361,7 +265,8 @@ describe('datasources.pagecomponent', () => {
             /*
             xit('WARNING! It fails to handle duplicate ids', done => {
                 // This test is completed but fails to prove that kendo.data.DataSource handles duplicate ids
-                const dataSource = new PageComponentDataSource({ data: DATA });
+                const data = getComponentArray();
+                const dataSource = new PageComponentDataSource({ data });
                 function test(options) {
                     const total = dataSource.total();
                     dataSource.add(options);
@@ -373,7 +278,7 @@ describe('datasources.pagecomponent', () => {
                     .read()
                     .then(
                         tryCatch(done)(() => {
-                            DATA.forEach(test);
+                            data.forEach(test);
                         })
                     )
                     .catch(done);
@@ -384,11 +289,12 @@ describe('datasources.pagecomponent', () => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
-                const pageComponentCollectionDataSource = new PageComponentDataSource(
+                const data = getComponentArray();
+                const dataSource = new PageComponentDataSource(
                     {
                         transport: {
                             read(options) {
-                                options.success(DATA);
+                                options.success(data);
                             },
                             create(options) {
                                 create(options);
@@ -405,28 +311,28 @@ describe('datasources.pagecomponent', () => {
                         }
                     }
                 );
-                expect(pageComponentCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageComponentCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(PageComponent);
-                pageComponentCollectionDataSource.read().then(() => {
-                    expect(pageComponentCollectionDataSource.total()).to.equal(
-                        DATA.length
+                dataSource.read().then(() => {
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
-                    pageComponentCollectionDataSource.add(
+                    dataSource.add(
                         new PageComponent({ tool: 'label' })
                     );
                     expect(
-                        pageComponentCollectionDataSource
-                            .at(DATA.length)
+                        dataSource
+                            .at(data.length)
                             .isNew()
                     ).to.be.true;
-                    expect(pageComponentCollectionDataSource.total()).to.equal(
-                        DATA.length + 1
+                    expect(dataSource.total()).to.equal(
+                        data.length + 1
                     );
-                    pageComponentCollectionDataSource.sync().always(() => {
+                    dataSource.sync().always(() => {
                         expect(create).to.have.been.called;
                         expect(update).not.to.have.been.called;
                         expect(destroy).not.to.have.been.called;
@@ -438,21 +344,22 @@ describe('datasources.pagecomponent', () => {
 
         describe('Updating', () => {
             xit('If dataSource initialized from in-memory array, there should be one updated page component', done => {
-                const pageComponentCollectionDataSource = new PageComponentDataSource(
-                    { data: DATA }
+                const data = getComponentArray();
+                const dataSource = new PageComponentDataSource(
+                    { data }
                 );
-                expect(pageComponentCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageComponentCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(PageComponent);
-                pageComponentCollectionDataSource.read().then(() => {
-                    pageComponentCollectionDataSource.at(0).set('top', 111);
-                    expect(pageComponentCollectionDataSource.at(0).dirty).to.be
+                dataSource.read().then(() => {
+                    dataSource.at(0).set('top', 111);
+                    expect(dataSource.at(0).dirty).to.be
                         .true;
-                    expect(pageComponentCollectionDataSource.total()).to.equal(
-                        DATA.length
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
                     done();
                 });
@@ -462,11 +369,12 @@ describe('datasources.pagecomponent', () => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
-                const pageComponentCollectionDataSource = new PageComponentDataSource(
+                const data = getComponentArray();
+                const dataSource = new PageComponentDataSource(
                     {
                         transport: {
                             read(options) {
-                                options.success(DATA);
+                                options.success(data);
                             },
                             create(options) {
                                 create(options);
@@ -483,20 +391,20 @@ describe('datasources.pagecomponent', () => {
                         }
                     }
                 );
-                expect(pageComponentCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageComponentCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(PageComponent);
-                pageComponentCollectionDataSource.read().then(() => {
-                    pageComponentCollectionDataSource.at(0).set('top', 111);
-                    expect(pageComponentCollectionDataSource.at(0).dirty).to.be
+                dataSource.read().then(() => {
+                    dataSource.at(0).set('top', 111);
+                    expect(dataSource.at(0).dirty).to.be
                         .true;
-                    expect(pageComponentCollectionDataSource.total()).to.equal(
-                        DATA.length
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
-                    pageComponentCollectionDataSource.sync().always(() => {
+                    dataSource.sync().always(() => {
                         expect(create).not.to.have.been.called;
                         expect(update).to.have.been.called;
                         expect(destroy).not.to.have.been.called;
@@ -508,24 +416,25 @@ describe('datasources.pagecomponent', () => {
 
         describe('Removing', () => {
             xit('If dataSource initialized from in-memory array, there should be one page component less', done => {
-                const pageComponentCollectionDataSource = new PageComponentDataSource(
-                    { data: DATA }
+                const data = getComponentArray();
+                const dataSource = new PageComponentDataSource(
+                    { data }
                 );
-                expect(pageComponentCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageComponentCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(PageComponent);
-                pageComponentCollectionDataSource.read().then(() => {
-                    expect(pageComponentCollectionDataSource.total()).to.equal(
-                        DATA.length
+                dataSource.read().then(() => {
+                    expect(dataSource.total()).to.equal(
+                        data.length
                     );
-                    pageComponentCollectionDataSource.remove(
-                        pageComponentCollectionDataSource.at(0)
+                    dataSource.remove(
+                        dataSource.at(0)
                     );
-                    expect(pageComponentCollectionDataSource.total()).to.equal(
-                        DATA.length - 1
+                    expect(dataSource.total()).to.equal(
+                        data.length - 1
                     );
                     done();
                 });
@@ -535,11 +444,12 @@ describe('datasources.pagecomponent', () => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
+                const data = getComponentArray();
                 const pageComponentCollectionDataSource = new PageComponentDataSource(
                     {
                         transport: {
                             read(options) {
-                                options.success(DATA);
+                                options.success(data);
                             },
                             create(options) {
                                 create(options);
@@ -564,7 +474,7 @@ describe('datasources.pagecomponent', () => {
                 ).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(() => {
                     expect(pageComponentCollectionDataSource.total()).to.equal(
-                        DATA.length
+                        data.length
                     );
                     pageComponentCollectionDataSource.remove(
                         pageComponentCollectionDataSource.at(0)
@@ -591,58 +501,59 @@ describe('datasources.pagecomponent', () => {
 
         describe('toJSON', () => {
             xit('it should implement toJSON', done => {
-                const pageComponentCollectionDataSource = new PageComponentDataSource(
-                    { data: DATA }
+                const data = getComponentArray();
+                const dataSource = new PageComponentDataSource(
+                    { data }
                 );
-                expect(pageComponentCollectionDataSource)
+                expect(dataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
-                    new pageComponentCollectionDataSource.options.schema.model()
+                    new dataSource.options.schema.model()
                 ).to.be.an.instanceof(PageComponent);
-                pageComponentCollectionDataSource.read().then(() => {
-                    expect(pageComponentCollectionDataSource)
+                dataSource.read().then(() => {
+                    expect(dataSource)
                         .to.have.property('toJSON')
                         .that.is.a('function');
-                    const pageComponentCollectionJSON = pageComponentCollectionDataSource.toJSON();
+                    const json = dataSource.toJSON();
                     // Note: deep.equal of both arrays does not work
-                    expect(pageComponentCollectionJSON)
+                    expect(json)
                         .to.be.an.instanceof(Array)
-                        .with.property('length', DATA.length);
+                        .with.property('length', data.length);
                     for (
                         let i = 0;
-                        i < pageComponentCollectionJSON.length;
+                        i < json.length;
                         i++
                     ) {
                         expect(
-                            pageComponentCollectionJSON[i].attributes.alt
-                        ).to.equal(DATA[i].attributes.alt);
-                        // expect(pageComponentCollectionJSON[i].attributes.dirty).to.equal(DATA[i].attributes.dirty);
+                            json[i].attributes.alt
+                        ).to.equal(data[i].attributes.alt);
+                        // expect(json[i].attributes.dirty).to.equal(data[i].attributes.dirty);
                         expect(
-                            pageComponentCollectionJSON[i].attributes.src
-                        ).to.equal(DATA[i].attributes.src);
-                        expect(pageComponentCollectionJSON[i].height).to.equal(
-                            DATA[i].height
+                            json[i].attributes.src
+                        ).to.equal(data[i].attributes.src);
+                        expect(json[i].height).to.equal(
+                            data[i].height
                         );
-                        expect(pageComponentCollectionJSON[i].id).to.equal(
-                            DATA[i].id
+                        expect(json[i].id).to.equal(
+                            data[i].id
                         );
-                        expect(pageComponentCollectionJSON[i].left).to.equal(
-                            DATA[i].left
+                        expect(json[i].left).to.equal(
+                            data[i].left
                         );
-                        // expect(pageComponentCollectionJSON[i].properties.dirty).to.equal(DATA[i].properties.dirty);
-                        expect(pageComponentCollectionJSON[i].rotate).to.equal(
-                            DATA[i].rotate
+                        // expect(json[i].properties.dirty).to.equal(data[i].properties.dirty);
+                        expect(json[i].rotate).to.equal(
+                            data[i].rotate
                         );
-                        // expect(pageComponentCollectionJSON[i].tag).to.equal(DATA[i].tag);
-                        expect(pageComponentCollectionJSON[i].tool).to.equal(
-                            DATA[i].tool
+                        // expect(json[i].tag).to.equal(data[i].tag);
+                        expect(json[i].tool).to.equal(
+                            data[i].tool
                         );
-                        expect(pageComponentCollectionJSON[i].top).to.equal(
-                            DATA[i].top
+                        expect(json[i].top).to.equal(
+                            data[i].top
                         );
-                        expect(pageComponentCollectionJSON[i].width).to.equal(
-                            DATA[i].width
+                        expect(json[i].width).to.equal(
+                            data[i].width
                         );
                     }
                     done();
@@ -662,72 +573,74 @@ describe('datasources.pagecomponent', () => {
         });
 
         xit('if initialized from a PageComponentDataSource, the number of components should match', done => {
-            const pageComponentCollectionDataSource1 = PageComponentDataSource.create(
-                DATA
+            const data = getComponentArray();
+            const dataSource1 = PageComponentDataSource.create(
+                data
             );
-            const pageComponentCollectionDataSource2 = PageComponentDataSource.create(
-                pageComponentCollectionDataSource1
+            const dataSource2 = PageComponentDataSource.create(
+                dataSource1
             );
-            expect(pageComponentCollectionDataSource1)
+            expect(dataSource1)
                 .to.have.nested.property('options.schema.model')
                 .that.is.a('function');
-            expect(pageComponentCollectionDataSource2)
+            expect(dataSource2)
                 .to.have.nested.property('options.schema.model')
                 .that.is.a('function');
             expect(
-                new pageComponentCollectionDataSource1.options.schema.model()
+                new dataSource1.options.schema.model()
             ).to.be.an.instanceof(PageComponent);
             expect(
-                new pageComponentCollectionDataSource2.options.schema.model()
+                new dataSource2.options.schema.model()
             ).to.be.an.instanceof(PageComponent);
             $.when(
-                pageComponentCollectionDataSource1.read(),
-                pageComponentCollectionDataSource2.read()
+                dataSource1.read(),
+                dataSource2.read()
             ).then(() => {
-                expect(pageComponentCollectionDataSource1.total()).to.equal(
-                    DATA.length
+                expect(dataSource1.total()).to.equal(
+                    data.length
                 );
-                expect(pageComponentCollectionDataSource2.total()).to.equal(
-                    DATA.length
+                expect(dataSource2.total()).to.equal(
+                    data.length
                 );
                 done();
             });
         });
 
         xit('if initialized from a transport, the number of components should match', done => {
-            const pageComponentCollectionDataSource1 = PageComponentDataSource.create(
-                DATA
+            const data = getComponentArray();
+            const dataSource1 = PageComponentDataSource.create(
+                data
             );
-            const pageComponentCollectionDataSource2 = new PageComponentDataSource(
+            const dataSource2 = new PageComponentDataSource(
                 {
                     transport: {
                         read(options) {
-                            options.success(DATA);
+                            options.success(data);
                         }
                     }
                 }
             );
-            expect(pageComponentCollectionDataSource1)
+            expect(dataSource1)
                 .to.have.nested.property('options.schema.model')
                 .that.is.a('function');
-            expect(pageComponentCollectionDataSource2)
+            expect(dataSource2)
                 .to.have.nested.property('options.schema.model')
                 .that.is.a('function');
             expect(
-                new pageComponentCollectionDataSource1.options.schema.model()
+                new dataSource1.options.schema.model()
             ).to.be.an.instanceof(PageComponent);
             expect(
-                new pageComponentCollectionDataSource2.options.schema.model()
+                new dataSource2.options.schema.model()
             ).to.be.an.instanceof(PageComponent);
             $.when(
-                pageComponentCollectionDataSource1.read(),
-                pageComponentCollectionDataSource2.read()
+                dataSource1.read(),
+                dataSource2.read()
             ).then(() => {
-                expect(pageComponentCollectionDataSource1.total()).to.equal(
-                    DATA.length
+                expect(dataSource1.total()).to.equal(
+                    data.length
                 );
-                expect(pageComponentCollectionDataSource2.total()).to.equal(
-                    DATA.length
+                expect(dataSource2.total()).to.equal(
+                    data.length
                 );
                 done();
             });

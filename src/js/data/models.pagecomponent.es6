@@ -179,6 +179,21 @@ const PageComponent = BaseModel.define({
     },
 
     /**
+     * Assets
+     * @method assets
+     * @returns {{audio: Array, image: Array, video: Array}}
+     */
+    assets() {
+        const assets = {
+            audio: [],
+            image: [],
+            video: []
+        };
+        // TODO
+        return assets;
+    },
+
+    /**
      * Get the component index
      * @method index
      */

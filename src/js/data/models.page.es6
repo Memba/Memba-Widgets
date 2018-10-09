@@ -20,8 +20,6 @@ const {
     format
 } = window.kendo;
 
-// TODO List assets (requires access to tools)
-
 /**
  * Page
  * @see kendo.data.HierarchicalDataSource and kendo.data.Node for implementation details
@@ -45,7 +43,6 @@ const Page = BaseModel.define({
             // defaultValue: new PageComponentDataSource({ data: [] }),
             defaultValue: [],
             parse(value) {
-                debugger;
                 if (value instanceof PageComponentDataSource) {
                     return value;
                 }
@@ -67,7 +64,8 @@ const Page = BaseModel.define({
             type: CONSTANTS.STRING
         },
         time: {
-            type: CONSTANTS.NUMBER
+            type: CONSTANTS.NUMBER,
+            defaultValue: 30 // seconds
         }
     },
 
@@ -78,7 +76,7 @@ const Page = BaseModel.define({
     init(value) {
         // Call the base init method
         BaseModel.fn.init.call(this, value);
-        debugger;
+
         if (this.model && this.model.components) {
             // Reset PageDataSource with model.pages dataSource options
             // especially for the case where we have defined CRUD transports
@@ -129,9 +127,17 @@ const Page = BaseModel.define({
         this._loaded = !!(value && (value.components || value._loaded));
     },
 
-    _initComponents() {},
+    /**
+     * _initComponents
+     * @method _initComponents
+     * @private
+     */
+    _initComponents() {
+
+    },
 
     /**
+     * Append
      * @method append
      * @param component
      */
@@ -162,6 +168,22 @@ const Page = BaseModel.define({
             }, this)
         );
         return components[method](options);
+    },
+
+    /**
+     * Assets
+     * @method assets
+     * @returns {{audio: Array, image: Array, video: Array}}
+     */
+    assets() {
+        const assets = {
+            audio: [],
+            image: [],
+            video: []
+        };
+        // TODO iterate through components
+        // TODO: Do not add duplicates
+        return assets;
     },
 
     /**
@@ -489,7 +511,7 @@ Page.createTextBoxPage = options => {
                     validation:
                         solutions.length > 1
                             ? `// ignoreCaseMatch ${JSON.stringify([
-                                `^(?:${escaped.join('|')})$` // eslint-disable-line prettier/prettier
+                                `^(?:${escaped.join('|')})$`// eslint-disable-line prettier/prettier
                             ])}` // eslint-disable-line prettier/prettier
                             : '// ignoreCaseEqual'
                 }

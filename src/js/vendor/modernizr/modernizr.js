@@ -1,5 +1,6 @@
-/*!
- * modernizr v3.6.0
+/*! modernizr v3.6.0 */
+
+/**
  * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-filesystem-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
  *
  * Copyright (c)
@@ -256,7 +257,7 @@
   }
 
   ;
-/*!
+/*
 {
   "name" : "HTML5 Audio Element",
   "property": "audio",
@@ -305,7 +306,7 @@ Detects the audio element
     return bool;
   });
 
-/*!
+/*
 {
   "name": "Blob constructor",
   "property": "blobconstructor",
@@ -333,7 +334,7 @@ Detects support for the Blob constructor, for creating file-like objects of immu
     aliases: ['blob-constructor']
   });
 
-/*!
+/*
 {
   "name": "Canvas",
   "property": "canvas",
@@ -354,7 +355,7 @@ Detects support for the `<canvas>` element for 2D drawing.
     return !!(elem.getContext && elem.getContext('2d'));
   });
 
-/*!
+/*
 {
   "name": "Canvas text",
   "property": "canvastext",
@@ -450,7 +451,7 @@ Detects support for the text APIs for `<canvas>` elements.
 
   ModernizrProto.hasEvent = hasEvent;
   
-/*!
+/*
 {
   "name": "Hashchange event",
   "property": "hashchange",
@@ -483,7 +484,7 @@ Detects support for the `hashchange` event, fired when the current location frag
     return (document.documentMode === undefined || document.documentMode > 7);
   });
 
-/*!
+/*
 {
   "name": "History API",
   "property": "history",
@@ -529,7 +530,7 @@ Detects support for the History API for manipulating the browser session history
     return (window.history && 'pushState' in window.history);
   });
 
-/*!
+/*
 {
   "name": "SVG",
   "property": "svg",
@@ -755,7 +756,7 @@ Detects support for SVG in `<embed>` or `<object>` elements.
 
   var testStyles = ModernizrProto.testStyles = injectElementWithStyles;
   
-/*!
+/*
 {
   "name": "Touch Events",
   "property": "touchevents",
@@ -807,7 +808,7 @@ This test will also return `true` for Firefox 4 Multitouch support.
     return bool;
   });
 
-/*!
+/*
 {
   "name": "HTML5 Video",
   "property": "video",
@@ -1307,7 +1308,7 @@ Modernizr.video.ogg     // 'probably'
   }
   ModernizrProto.testAllProps = testAllProps;
   
-/*!
+/*
 {
   "name": "Flexbox",
   "property": "flexbox",
@@ -1328,7 +1329,7 @@ Detects support for the Flexible Box Layout model, a.k.a. Flexbox, which allows 
 
   Modernizr.addTest('flexbox', testAllProps('flexBasis', '1px', true));
 
-/*!
+/*
 {
   "name": "CSS Transforms",
   "property": "csstransforms",
@@ -1344,7 +1345,7 @@ Detects support for the Flexible Box Layout model, a.k.a. Flexbox, which allows 
            testAllProps('transform', 'scale(1)', true);
   });
 
-/*!
+/*
 {
   "name": "File API",
   "property": "filereader",
@@ -1519,7 +1520,7 @@ to be the File object's prototype.)
   };
 
   
-/*!
+/*
 {
   "name": "Filesystem API",
   "property": "filesystem",
@@ -1537,7 +1538,7 @@ to be the File object's prototype.)
 
   Modernizr.addTest('filesystem', !!prefixed('requestFileSystem', window));
 
-/*!
+/*
 {
   "name": "XML HTTP Request Level 2 XHR2",
   "property": "xhr2",
@@ -1561,7 +1562,7 @@ Tests for XHR2.
   //   'XMLHttpRequest' in window && 'withCredentials' in new XMLHttpRequest
   Modernizr.addTest('xhr2', 'XMLHttpRequest' in window && 'withCredentials' in new XMLHttpRequest());
 
-/*!
+/*
 {
   "authors": ["Cătălin Mariș"],
   "name": "Speech Recognition API",
@@ -1583,7 +1584,7 @@ Tests for XHR2.
 
   Modernizr.addTest('speechrecognition', !!prefixed('SpeechRecognition', window));
 
-/*!
+/*
 {
   "authors": ["Cătălin Mariș"],
   "name": "Speech Synthesis API",
@@ -1601,7 +1602,7 @@ Tests for XHR2.
 
   Modernizr.addTest('speechsynthesis', 'SpeechSynthesisUtterance' in window);
 
-/*!
+/*
 {
   "name": "Local Storage",
   "property": "localstorage",
@@ -1651,7 +1652,7 @@ Tests for XHR2.
     }
   });
 
-/*!
+/*
 {
   "name": "Session Storage",
   "property": "sessionstorage",
@@ -1917,7 +1918,7 @@ Tests for XHR2.
 
   
 
-/*!
+/*
 {
   "name": "SVG as an <img> tag source",
   "property": "svgasimg",
@@ -1944,7 +1945,7 @@ Tests for XHR2.
   // tag in HTML – but it’s a heuristic which works
   Modernizr.addTest('svgasimg', document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#Image', '1.1'));
 
-/*!
+/*
 {
   "name": "Inline SVG",
   "property": "inlinesvg",
@@ -1971,7 +1972,7 @@ Detects support for inline SVG in HTML (not within XHTML).
     return (typeof SVGRect != 'undefined' && div.firstChild && div.firstChild.namespaceURI) == 'http://www.w3.org/2000/svg';
   });
 
-/*!
+/*
 {
   "name": "Blob URLs",
   "property": "bloburls",
@@ -1992,7 +1993,7 @@ Detects support for creating Blob URLs
   url = url && window[url];
   Modernizr.addTest('bloburls', url && 'revokeObjectURL' in url && 'createObjectURL' in url);
 
-/*!
+/*
 {
   "name": "Data URI",
   "property": "datauri",
@@ -2071,7 +2072,7 @@ Modernizr.datauri.over32kb  // false in IE8
 
   });
 
-/*!
+/*
 {
   "name": "getUserMedia",
   "property": "getusermedia",
@@ -2090,7 +2091,7 @@ Detects support for the new Promise-based `getUserMedia` API.
 
   Modernizr.addTest('getUserMedia', 'mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices);
 
-/*!
+/*
 {
   "name": "Base 64 encoding/decoding",
   "property": ["atobbtoa"],
@@ -2116,7 +2117,7 @@ Detects support for WindowBase64 API (window.atob && window.btoa).
 
   Modernizr.addTest('atobbtoa', 'atob' in window && 'btoa' in window, {aliases: ['atob-btoa']});
 
-/*!
+/*
 {
   "name": "Web Workers",
   "property": "webworkers",

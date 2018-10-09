@@ -197,9 +197,12 @@
                     $('#scratchpad').kendoScratchPad();
                     // Bound to observable
                     var viewModel = kendo.observable({
-                        surface: [],
+                        paths: [],
                         visible: true,
-                        enabled: true
+                        enabled: true,
+                        length$() {
+                            return (this.get('paths') || []).length;
+                        }
                     });
                     kendo.bind(document.body, viewModel);
                 });
@@ -212,14 +215,14 @@
 <h2>Code initialization</h2>
 <div id="scratchpad" style="height:500px; width:500px;"></div>
 <h2>Bound to observable</h2>
-<div data-role="scratchpad" data-bind="value: surface, visible: visible, enabled: enabled" style="height:500px; width:500px;" /></div>
+<div data-role="scratchpad" data-bind="value: paths, visible: visible, enabled: enabled" style="height:500px; width:500px;" /></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled
 </div>
 <pre>
     {
-        value: <span data-bind="text: stream"></span>,
+        value: <span data-bind="text: length$"></span>,
         visible: <span data-bind="text: visible"></span>,
         enabled: <span data-bind="text: enabled"></span>
     }

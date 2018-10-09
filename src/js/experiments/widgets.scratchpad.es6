@@ -19,6 +19,7 @@ const {
     getTouches,
     roleSelector,
     ui: { plugin, Widget }
+    // UserEvents
 } = window.kendo;
 const { Path, Segment, Surface } = window.kendo.drawing;
 const { ObservableArray } = window.kendo.data;
@@ -174,17 +175,17 @@ const ScratchPad = Widget.extend({
     enable(enable) {
         this._enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
-        /*
         // Note: We cannot use UserEvents because it implements
         // a minimum delta before triggering the start event handler
+        /*
         if (this.userEvents instanceof UserEvents) {
             this.userEvents.destroy();
             this.userEvents = undefined;
         }
         if (this._enabled) {
             this.userEvents = new UserEvents(this.element, {
-                minHold: -1,
-                threshold: -1,
+                minHold: 0,
+                threshold: 0,
                 start: this._onMouseDown.bind(this),
                 move: this._onMouseMove.bind(this),
                 end: this._onMouseEnd.bind(this)
@@ -236,6 +237,7 @@ const data = {};
 ScratchPad._onMouseDown = function onMouseDown(e) {
     const that = $(e.currentTarget).data('kendoScratchPad');
     const touches = getTouches(e);
+    e.preventDefault(); // Prevents from executing both mouse and touch events
     if (
         that instanceof ScratchPad &&
         that._enabled &&
@@ -258,6 +260,7 @@ ScratchPad._onMouseDown = function onMouseDown(e) {
  * @private
  */
 ScratchPad._onMouseMove = function onMouseMove(e) {
+    e.preventDefault(); // Prevents from executing both mouse and touch events
     if (e.data.widget instanceof ScratchPad && e.data.path instanceof Path) {
         const that = $(e.currentTarget).data('kendoScratchPad');
         const touches = getTouches(e);
@@ -281,8 +284,11 @@ ScratchPad._onMouseMove = function onMouseMove(e) {
  * @private
  */
 ScratchPad._onMouseEnd = function onMouseEnd(e) {
+    e.preventDefault(); // Prevents from executing both mouse and touch events
     if (
-        (e.type === CONSTANTS.MOUSEOUT || e.type === CONSTANTS.TOUCHLEAVE) &&
+        (e.type === CONSTANTS.MOUSEOUT ||
+            e.type === CONSTANTS.TOUCHLEAVE ||
+            e.type === CONSTANTS.POINTEROUT) &&
         (e.currentTarget === e.relatedTarget ||
             $.contains(e.currentTarget, e.relatedTarget))
     ) {
@@ -314,25 +320,33 @@ ScratchPad._onMouseEnd = function onMouseEnd(e) {
  */
 $(document)
     .on(
-        `${CONSTANTS.MOUSEDOWN}${NS} ${CONSTANTS.TOUCHSTART}${NS}`,
+        `${CONSTANTS.MOUSEDOWN}${NS} ${CONSTANTS.TOUCHSTART}${NS} ${
+            CONSTANTS.POINTERDOWN
+        }${NS}`,
         roleSelector(ROLE),
         data,
         ScratchPad._onMouseDown
     )
     .on(
-        `${CONSTANTS.MOUSEMOVE}${NS} ${CONSTANTS.TOUCHMOVE}${NS}`,
+        `${CONSTANTS.MOUSEMOVE}${NS} ${CONSTANTS.TOUCHMOVE}${NS} ${
+            CONSTANTS.POINTERMOVE
+        }${NS}`,
         roleSelector(ROLE),
         data,
         ScratchPad._onMouseMove
     )
     .on(
-        `${CONSTANTS.MOUSEOUT}${NS} ${CONSTANTS.TOUCHLEAVE}${NS}`,
+        `{CONSTANTS.MOUSEOUT}${NS} ${CONSTANTS.TOUCHLEAVE}${NS} ${
+            CONSTANTS.POINTEROUT
+        }${NS} `,
         roleSelector(ROLE),
         data,
         ScratchPad._onMouseEnd
     )
     .on(
-        `${CONSTANTS.MOUSEUP}${NS} ${CONSTANTS.TOUCHEND}${NS}`,
+        `${CONSTANTS.MOUSEUP}${NS} ${CONSTANTS.TOUCHEND}${NS} ${
+            CONSTANTS.POINTERUP
+        }${NS}`,
         // roleSelector(ROLE), IMPORTANT! We need to stop drawing wherever mouseup/touchend occurs
         data,
         ScratchPad._onMouseEnd

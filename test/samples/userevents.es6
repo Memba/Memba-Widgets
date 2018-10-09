@@ -39,50 +39,66 @@ const userEvents = new UserEvents($('.kj-stage'), {
 
 // calculate scale???
 const scale = 0.6;
+const stage = $('.kj-stage');
 
-$('.kj-element:has([data-behavior="draggable"])').kendoDraggable({
-    container: $('.kj-stage'),
+stage.kendoDraggable({
+    container: stage,
+    filter: '.kj-element:has([data-behavior="draggable"])',
     ignore: 'input,textarea',
     hint(element) {
         console.log('hint');
-        const hint = element.clone().css({
-            position: 'absolute',
-            left:
-                scale * element.position().left + $('.kj-stage').offset().left,
-            top: scale * element.position().top + $('.kj-stage').offset().top,
+        const hint = element.clone()
+        .css({
+            // position: 'absolute',
+            // left:
+            //     scale * element.position().left + stage.offset().left,
+            // top: scale * element.position().top + stage.offset().top,
             transform: `scale(${scale})`,
             transformOrigin: 'center center'
         });
-        element.hide();
+        // element.hide();
         return hint;
-    },
-    drag(e) {
-        console.log('drag');
-    },
-    dragcancel(e) {
-        console.log('dragcancel');
-    },
-    dragend(e) {
-        console.log('dragend');
-        e.sender.hint.remove();
-        e.sender.element
-            .css({
-                left:
-                    (e.sender.hintOffset.left - $('.kj-stage').offset().left) /
-                    scale,
-                top:
-                    (e.sender.hintOffset.top - $('.kj-stage').offset().top) /
-                    scale
-            })
-            .show();
     },
     dragstart(e) {
         console.log('dragstart');
-        const { element, hint } = e.sender;
-        hint.css({
-            left:
-                scale * element.position().left + $('.kj-stage').offset().left,
-            top: scale * element.position().top + $('.kj-stage').offset().top
-        });
+        // const { element, hint } = e.sender;
+        // hint.css({
+        //     left:
+        //         scale * element.position().left + stage.offset().left,
+        //     top: scale * element.position().top + stage.offset().top
+        // });
+    },
+    drag(e) {
+        if (
+            Math.round(
+                e.sender.hintOffset.left +
+                    e.sender.hint.width() -
+                    stage.offset().left
+            ) >=
+            stage.width() * scale
+        ) {
+            e.sender.hintOffset.left = stage.width() * scale;
+        }
+        if (
+            Math.round(
+                e.sender.hintOffset.top +
+                    e.sender.hint.height() -
+                    stage.offset().top
+            ) >=
+            stage.height() * scale
+        ) {
+            e.sender.hintOffset.top = stage.height() * scale;
+        }
+    },
+    dragend(e) {
+        e.sender.hint.remove();
+        $(e.sender.currentTarget)
+            .closest('.kj-element')
+            .css({
+                left: 15 + (e.sender.hintOffset.left - stage.offset().left) / scale,
+                top: 15 + (e.sender.hintOffset.top - stage.offset().top) / scale
+            })
+            .show();
+        e.preventDefault();
     }
 });

@@ -70,70 +70,81 @@ const Page = BaseModel.define({
     },
 
     /**
-     * @constructor
-     * @param value
+     * Init
+     * @constructor init
+     * @param options
      */
-    init(value) {
+    init(options) {
         // Call the base init method
-        BaseModel.fn.init.call(this, value);
+        BaseModel.fn.init.call(this, options);
 
-        if (this.model && this.model.components) {
-            // Reset PageDataSource with model.pages dataSource options
-            // especially for the case where we have defined CRUD transports
+        // Reset PageComponentDataSource with configuration.components options
+        // especially for the case where we have defined CRUD transports for components
+        // when initializing PageDataSource with a schema
+        if (this.configuration && this.configuration.components) {
             this.components = new PageComponentDataSource(
-                this.model.components
+                this.configuration.components
             );
         }
 
-        const { components } = this;
+        // Init components
+        // Note: refer to the _initChildren method of kendo.data.Node
+        this._initComponents();
 
-        /*
-         var transport = components.transport,
-         parameterMap = transport.parameterMap;
-         transport.parameterMap = function (data, type) {
-         data[that.idField || CONSTANTS.ID] = that.id;
-         if (parameterMap) {
-         data = parameterMap(data, type);
-         }
-         return data;
-         };
-         */
-
-        if (components instanceof PageComponentDataSource) {
-            // Add parent function
-            const that = this;
-            components.parent = function() {
-                return that;
-            };
-
-            // Bind the change and error events
-            // to propagate them from the components collection to the page node
-            /*
-             components
-             .bind(CHANGE, function (e) {
-             e.page = e.page || that;
-             that.trigger(CHANGE, e);
-             })
-             .bind(CONSTANTS.ERROR, function (e) {
-             var pageCollection = that.parent();
-             if (pageCollection) {
-             e.page = e.page || that;
-             pageCollection.trigger(CONSTANTS.ERROR, e);
-             }
-             });
-             */
-        }
-
-        this._loaded = !!(value && (value.components || value._loaded));
+        // this._loaded = !!(options && options._loaded);
+        this._loaded = !!(options && (options.components || options._loaded));
     },
 
     /**
      * _initComponents
+     * Note: check kendo.data.Node._initChildren
      * @method _initComponents
      * @private
      */
     _initComponents() {
+        const that = this;
+        const { components } = that;
 
+        if (components instanceof PageComponentDataSource) {
+            const { parameterMap, transport } = components;
+            transport.parameterMap = function(data, type) {
+                debugger;
+                let ret = data;
+                ret[that.idField || CONSTANTS.ID] = that.id;
+                if (parameterMap) {
+                    ret = parameterMap(ret, type);
+                }
+                return ret;
+            };
+
+            // Add parent function
+            components.parent = function() {
+                return that;
+            };
+
+            // Bind the change to bubble up
+            // DO NOT UNCOMMENT, otherwise they will be raised twice
+            /*
+            components.bind(CONSTANTS.CHANGE, e => {
+                debugger;
+                e.node = e.node || that;
+                that.trigger(CONSTANTS.CHANGE, e);
+            });
+            */
+
+            // Bind the error to bubble up
+            components.bind(CONSTANTS.ERROR, e => {
+                // Raise error on the page;
+                that.trigger(CONSTANTS.ERROR, e);
+
+                // Raise error on the parent collection of pages
+                const collection = that.parent();
+                if (collection) {
+                    e.node = e.node || that;
+                    collection.trigger(CONSTANTS.ERROR, e);
+                }
+            });
+        }
     },
 
     /**
@@ -142,7 +153,7 @@ const Page = BaseModel.define({
      * @param component
      */
     append(component) {
-        this.loaded(true);
+        this.loaded(true); // TODO what for???
         this.components.add(component);
     },
 
@@ -151,9 +162,10 @@ const Page = BaseModel.define({
      * @returns {*}
      */
     load() {
+        const that = this;
+        const { components } = that;
         const options = {};
         let method = '_query';
-        const components = this.components;
         // Passing the id of the page to the components _query method
         // is suggested by Kendo.data.Node
         options[this.idField || CONSTANTS.ID] = this.id;
@@ -161,12 +173,9 @@ const Page = BaseModel.define({
             components._data = undefined;
             method = 'read';
         }
-        components.one(
-            CONSTANTS.CHANGE,
-            $.proxy(function() {
-                this.loaded(true);
-            }, this)
-        );
+        components.one(CONSTANTS.CHANGE, () => {
+            that._loaded = true;
+        });
         return components[method](options);
     },
 
@@ -181,8 +190,20 @@ const Page = BaseModel.define({
             image: [],
             video: []
         };
-        // TODO iterate through components
-        // TODO: Do not add duplicates
+        // Iterate through components
+        this.components.data().forEach(component => {
+            const media = component.assets();
+            // Iterate through asset classes (medium)
+            Object.keys(media).forEach(medium => {
+                // Iterate through assets
+                media[medium].forEach(a => {
+                    // Only add if not a duplicate
+                    if (assets[media].indexOf(a) === -1) {
+                        assets[media].push(a);
+                    }
+                });
+            });
+        });
         return assets;
     },
 
@@ -226,11 +247,13 @@ const Page = BaseModel.define({
      * @returns {boolean|*|Page._loaded}
      */
     loaded(value) {
-        if (value !== undefined) {
+        let ret;
+        if ($.type(value) !== CONSTANTS.UNDEFINED) {
             this._loaded = value;
         } else {
-            return this._loaded;
+            ret = this._loaded;
         }
+        return ret;
     },
 
     /**

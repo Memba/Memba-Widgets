@@ -212,7 +212,7 @@ const Stream = BaseModel.define({
                         )
                     );
                     test[properties.name] = {
-                        value: tool.getTestDefaultValue(component)
+                        value: tool.getDefaultValue(component)
                     };
                 }
             });
@@ -411,34 +411,94 @@ const Stream = BaseModel.define({
                         page.components.data(),
                         (componentIdx, component) => {
                             // List component properties
-                            let properties = component.properties;
-                            assert.instanceof(kendo.data.Model, properties, assert.format(assert.messages.instanceof.default, 'properties', 'kendo.data.Model'));
-                            assert.type(OBJECT, properties.fields, assert.format(assert.messages.type.default, 'properties.fields', OBJECT));
+                            const properties = component.properties;
+                            assert.instanceof(
+                                kendo.data.Model,
+                                properties,
+                                assert.format(
+                                    assert.messages.instanceof.default,
+                                    'properties',
+                                    'kendo.data.Model'
+                                )
+                            );
+                            assert.type(
+                                OBJECT,
+                                properties.fields,
+                                assert.format(
+                                    assert.messages.type.default,
+                                    'properties.fields',
+                                    OBJECT
+                                )
+                            );
 
                             // If our component has a name property to record the result of a test interaction
                             // Note: some components like textboxes have properties, others likes labels and images don't
                             // assert.type(STRING, properties.name, assert.format(assert.messages.type.default, 'properties.name', STRING));
-                            if ($.type(properties.name) === STRING && $.type(properties.validation) === STRING) {
+                            if (
+                                $.type(properties.name) === STRING &&
+                                $.type(properties.validation) === STRING
+                            ) {
                                 let code;
-                                var libraryMatches = properties.validation.match(RX_VALIDATION_LIBRARY);
-                                if ($.isArray(libraryMatches) && libraryMatches.length === 4) {
+                                const libraryMatches = properties.validation.match(
+                                    RX_VALIDATION_LIBRARY
+                                );
+                                if (
+                                    $.isArray(libraryMatches) &&
+                                    libraryMatches.length === 4
+                                ) {
                                     // Find libraryMatches[1] in the code library
                                     // Array.find is not available in Internet Explorer, thus the use of Array.filter
-                                    var found = properties._library.filter((item) => item.name === libraryMatches[1]);
-                                    assert.isArray(found, assert.format(assert.messages.isArray.default, 'found'));
-                                    assert.hasLength(found, assert.format(assert.messages.hasLength.default, 'found'));
+                                    let found = properties._library.filter(
+                                        item => item.name === libraryMatches[1]
+                                    );
+                                    assert.isArray(
+                                        found,
+                                        assert.format(
+                                            assert.messages.isArray.default,
+                                            'found'
+                                        )
+                                    );
+                                    assert.hasLength(
+                                        found,
+                                        assert.format(
+                                            assert.messages.hasLength.default,
+                                            'found'
+                                        )
+                                    );
                                     found = found[0];
-                                    assert.isPlainObject(found, assert.format(assert.messages.isPlainObject.default, 'found'));
-                                    assert.type(STRING, found.formula, assert.format(assert.messages.type.default, 'found.formula', STRING));
+                                    assert.isPlainObject(
+                                        found,
+                                        assert.format(
+                                            assert.messages.isPlainObject
+                                                .default,
+                                            'found'
+                                        )
+                                    );
+                                    assert.type(
+                                        STRING,
+                                        found.formula,
+                                        assert.format(
+                                            assert.messages.type.default,
+                                            'found.formula',
+                                            STRING
+                                        )
+                                    );
                                     // libraryMatches[3] is the param value beginning with ` ["` and ending with `"]`
-                                    var paramValue = libraryMatches[3];
-                                    if ($.type(found.param) === STRING && $.type(paramValue) === STRING  && paramValue.length > '[]'.length) {
+                                    let paramValue = libraryMatches[3];
+                                    if (
+                                        $.type(found.param) === STRING &&
+                                        $.type(paramValue) === STRING &&
+                                        paramValue.length > '[]'.length
+                                    ) {
                                         // Get the  paramValue in the JSON array
                                         paramValue = JSON.parse(paramValue)[0];
                                     }
                                     // This is code from the library possibly with param
                                     // When we shall have several params, consider kendo.format.apply(this, [paramValue])
-                                    code = kendo.format(found.formula, paramValue);
+                                    code = kendo.format(
+                                        found.formula,
+                                        paramValue
+                                    );
                                 } else {
                                     // This is custom code not form the library
                                     code = properties.validation;
@@ -446,32 +506,34 @@ const Stream = BaseModel.define({
 
                                 // Note: when e.data.value is undefined, we need to specifically call postMessage(undefined) instead of postMessage() otherwise we get the following error:
                                 // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
-                                var blob = new Blob([
-                                    // 'self.importScripts("' + workerLibPath + '");\n' +
-                                    workerLib + ';\n' +
-                                            'self.onmessage = function (e) {\n' +
-                                            code +
-                                            '\nvar data=JSON.parse(e.data);\nif (typeof data.value === "undefined") { self.postMessage(undefined); } else { self.postMessage(validate(data.value, data.solution, data.all)); } self.close(); };'
-                                ], { type: 'application/javascript' });
-                                const blobURL = window.URL.createObjectURL(blob);
+                                const blob = new Blob(
+                                    [
+                                        // 'self.importScripts("' + workerLibPath + '");\n' +
+                                        `${workerLib};\n` +
+                                            `self.onmessage = function (e) {\n${code}\nvar data=JSON.parse(e.data);\nif (typeof data.value === "undefined") { self.postMessage(undefined); } else { self.postMessage(validate(data.value, data.solution, data.all)); } self.close(); };`
+                                    ],
+                                    { type: 'application/javascript' }
+                                );
+                                const blobURL = window.URL.createObjectURL(
+                                    blob
+                                );
 
                                 logger.debug({
-                                    message: `blob created for ${  properties.name}`,
-                                    method: 'PageDataSource.validateTestFromProperties',
+                                    message: `blob created for ${
+                                        properties.name
+                                    }`,
+                                    method:
+                                        'PageDataSource.validateTestFromProperties',
                                     data: { blobURL, property: properties.name }
                                 });
 
                                 // Queue task into worker pool with name, script, and value to be posted to script
                                 if (!properties.disabled) {
-                                    workerPool.add(
-                                        properties.name,
-                                        blobURL,
-                                        {
-                                            value: all[properties.name],
-                                            solution: properties.solution,
-                                            all // all properties - TODO should be page properties only
-                                        });
-                                    );
+                                    workerPool.add(properties.name, blobURL, {
+                                        value: all[properties.name],
+                                        solution: properties.solution,
+                                        all // all properties - TODO should be page properties only
+                                    });
 
                                     // Update result
                                     result[properties.name] = {
@@ -487,30 +549,93 @@ const Stream = BaseModel.define({
                                         success: properties.success,
                                         // disabled: properties.disabled,
                                         // Functions used by getScoreArray for improved display in score grid
-                                        value$: function () {
-                                            assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-                                            assert.instanceof(kendo.Observable, kidoju.tools, assert.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
-                                            var tool = kidoju.tools[component.tool]; // also this.tool
-                                            assert.instanceof(kidoju.Tool, tool, assert.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
-                                            return tool.value$(this);
+                                        value$() {
+                                            assert.instanceof(
+                                                PageComponent,
+                                                component,
+                                                assert.format(
+                                                    assert.messages.instanceof
+                                                        .default,
+                                                    'component',
+                                                    'PageComponent'
+                                                )
+                                            );
+                                            assert.instanceof(
+                                                kendo.Observable,
+                                                kidoju.tools,
+                                                assert.format(
+                                                    assert.messages.instanceof
+                                                        .default,
+                                                    'kidoju.tools',
+                                                    'kendo.Observable'
+                                                )
+                                            );
+                                            const tool =
+                                                kidoju.tools[component.tool]; // also this.tool
+                                            assert.instanceof(
+                                                kidoju.Tool,
+                                                tool,
+                                                assert.format(
+                                                    assert.messages.instanceof
+                                                        .default,
+                                                    'tool',
+                                                    'kidoju.Tool'
+                                                )
+                                            );
+                                            return tool.getHtmlValue(this);
                                         },
-                                        solution$: function () {
-                                            assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-                                            assert.instanceof(kendo.Observable, kidoju.tools, assert.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
-                                            var tool = kidoju.tools[component.tool]; // also this.tool
-                                            assert.instanceof(kidoju.Tool, tool, assert.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
-                                            return tool.solution$(this);
+                                        solution$() {
+                                            assert.instanceof(
+                                                PageComponent,
+                                                component,
+                                                assert.format(
+                                                    assert.messages.instanceof
+                                                        .default,
+                                                    'component',
+                                                    'PageComponent'
+                                                )
+                                            );
+                                            assert.instanceof(
+                                                kendo.Observable,
+                                                kidoju.tools,
+                                                assert.format(
+                                                    assert.messages.instanceof
+                                                        .default,
+                                                    'kidoju.tools',
+                                                    'kendo.Observable'
+                                                )
+                                            );
+                                            const tool =
+                                                kidoju.tools[component.tool]; // also this.tool
+                                            assert.instanceof(
+                                                kidoju.Tool,
+                                                tool,
+                                                assert.format(
+                                                    assert.messages.instanceof
+                                                        .default,
+                                                    'tool',
+                                                    'kidoju.Tool'
+                                                )
+                                            );
+                                            return tool.getHtmlSolution(this);
                                         }
                                     };
 
                                     logger.debug({
-                                        message: `${properties.name  } added to the worker pool`,
-                                        method: 'PageDataSource.validateTestFromProperties',
-                                        data: { blobURL, property: properties.name }
+                                        message: `${
+                                            properties.name
+                                        } added to the worker pool`,
+                                        method:
+                                            'PageDataSource.validateTestFromProperties',
+                                        data: {
+                                            blobURL,
+                                            property: properties.name
+                                        }
                                     });
                                 }
                             }
-                        });
+                        }
+                    );
                 });
 
                 logger.debug({

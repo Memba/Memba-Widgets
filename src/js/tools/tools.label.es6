@@ -32,6 +32,7 @@ function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).label || {
             description: 'Label',
+            help: '',
             attributes: {
                 style: { title: 'Style' },
                 text: { title: 'Text', defaultValue: 'Label' }
@@ -51,6 +52,7 @@ const Label = BaseTool.extend({
     id: 'label',
     icon: 'font',
     description: i18n().description,
+    help: i18n().help,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
         default:
@@ -77,7 +79,7 @@ const Label = BaseTool.extend({
             {
                 title: i18n().properties.behavior.title,
                 defaultValue: 'none',
-                enum: ['none', 'draggable', 'selectable']
+                enum: ['none', 'draggable', 'selectable'] // TODO
             },
             {
                 style: 'width: 100%;'

@@ -34,7 +34,7 @@ const {
 } = window.kendo;
 chai.use(sinonChai);
 
-describe('datasources.pagecomponent', () => {
+xdescribe('datasources.pagecomponent', () => {
     describe('PageComponentDataSource', () => {
         describe('Initialization', () => {
             it('It should initialize without options', done => {

@@ -51,7 +51,7 @@ var Quiz = BaseTool.extend({
     templates: {
         design: format(QUIZ, 'data-#= ns #enable="false"'),
         play: format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
-        review: format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
+        review: format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMark()
     },
     height: 120,
     width: 490,

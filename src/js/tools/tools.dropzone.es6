@@ -51,7 +51,7 @@ var DropZone = BaseTool.extend({
     templates: {
         design: format(DROPZONE, 'data-#= ns #enable="false"'),
         play: format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
-        review: format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.showResult()
+        review: format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMark()
     },
     height: 250,
     width: 250,

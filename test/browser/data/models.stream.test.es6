@@ -19,7 +19,7 @@ const { DataSource } = kendo.data;
 const { expect } = chai;
 chai.use(sinonChai);
 
-describe('models.stream', () => {
+xdescribe('models.stream', () => {
     describe('Stream', () => {
         var stream;
 

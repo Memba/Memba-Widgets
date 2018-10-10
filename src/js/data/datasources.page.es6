@@ -7,11 +7,35 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
+import assert from '../common/window.assert.es6';
 import Page from './models.page.es6';
 
 const {
     data: { DataSource, ObservableArray }
 } = window.kendo;
+
+/**
+ * dataMethod
+ * @function dataMethod
+ * Note: as in kendo.data.HierarchicalDataSource
+ * @param name
+ * @returns {function(...[*]=): *}
+ */
+/*
+function dataMethod(name) {
+    return function(...args) {
+        const data = this._data;
+        const result = DataSource.fn[name].apply(
+            this,
+            Array.prototype.slice.call(args)
+        );
+        if (this._data !== data) {
+            this._attachBubbleHandlers();
+        }
+        return result;
+    };
+}
+*/
 
 /**
  * PageDataSource
@@ -25,60 +49,59 @@ const PageDataSource = DataSource.extend({
      * @param options
      */
     init(options) {
+        if (options && options.schema) {
+            assert.ok(
+                !options.schema.model ||
+                    Object.prototype.isPrototypeOf.call(
+                        Page.prototype,
+                        options.schema.model.prototype
+                    ),
+                '`model` should derive from Page'
+            );
+            assert.ok(
+                !options.schema.modelBase ||
+                    Object.prototype.isPrototypeOf.call(
+                        Page.prototype,
+                        options.schema.modelBase.prototype
+                    ),
+                '`modelBase` should derive from Page'
+            );
+        }
+
         DataSource.fn.init.call(
             this,
-            $.extend(true, {}, options, {
-                schema: {
-                    modelBase: Page,
-                    model: Page
-                }
-            })
+            $.extend(
+                true,
+                {},
+                {
+                    schema: {
+                        modelBase: Page,
+                        model: Page
+                    }
+                },
+                options
+            )
         );
 
-        /*
-        // PageWithOptions propagates configuration options to PageComponentDataSource
-        var PageWithOptions = options && options.schema && ($.type(options.schema.model) === OBJECT) ?
-            Page.define({ model: options.schema.model }) : Page;
-
-        // Enforce the use of PageWithOptions items in the page collection data source
-        // options contains a property options.schema.model which needs to be replaced with PageWithOptions
-        // kidoju.data.DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: PageWithOptions, model: PageWithOptions } }, options));
-        DataSource.fn.init.call(this, $.extend(true, {}, options, { schema: { modelBase: PageWithOptions, model: PageWithOptions } }));
-
-        // Let's use a slightly modified reader to leave data conversions to kidoju.data.Model._parseData
-        this.reader = new ModelCollectionDataReader(this.reader);
-        */
+        // See https://www.telerik.com/forums/_attachbubblehandlers
+        // this._attachBubbleHandlers();
     }
 
     /**
-     * @method remove
-     * @param model
-     * @returns {*}
+     * _attachBubbleHandlers
+     * @method _attachBubbleHandlers
+     * @private
      */
     /*
-    remove: function (model) {
-        return DataSource.fn.remove.call(this, model);
+    _attachBubbleHandlers() {
+        const that = this;
+        that._data.bind(CONSTANTS.ERROR, e => {
+            that.trigger(CONSTANTS.ERROR, e);
+        });
     },
-    */
 
-    /**
-     * @method insert
-     * @param index
-     * @param model
-     * @returns {*}
-     */
-    /*
-    insert: function (index, model) {
-        if (!model) {
-            return;
-        }
-        if (!(model instanceof Page)) {
-            var page = model;
-            model = this._createNewModel();
-            model.accept(page);
-        }
-        return DataSource.fn.insert.call(this, index, model);
-    },
+    success: dataMethod('success'),
+    data: dataMethod('data')
     */
 });
 

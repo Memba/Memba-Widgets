@@ -60,7 +60,7 @@ const Textbox = BaseTool.extend({
             format(
                 TEXTBOX,
                 'data-#= ns #bind="value: #: properties.name #.value"'
-            ) + BaseTool.fn.showResult()
+            ) + BaseTool.fn.getHtmlCheckMark()
     },
     height: 80,
     width: 300,

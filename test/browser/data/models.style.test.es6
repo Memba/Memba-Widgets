@@ -7,9 +7,9 @@
 
 import 'kendo.data';
 import chai from 'chai';
-import JSC from 'jscheck';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
+// import JSC from 'jscheck';
+// import sinon from 'sinon';
+// import sinonChai from 'sinon-chai';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import Style from '../../../src/js/data/models.style.es6';
 
@@ -18,11 +18,11 @@ const { expect } = chai;
 const {
     data: { Model }
 } = window.kendo;
-chai.use(sinonChai);
+// chai.use(sinonChai);
 
 const STYLE = {
-    text: 'information',
-    url: 'https://cdn.kidoju.com/styles/o_collection/svg/office/information.svg'
+    name: 'font-size',
+    value: '30px'
 };
 
 describe('models.style', () => {
@@ -33,8 +33,8 @@ describe('models.style', () => {
             expect(style).to.be.an.instanceof(BaseModel);
             expect(style).to.be.an.instanceof(Model);
             // Test default values
-            expect(style).to.have.property('text', '');
-            expect(style).to.have.property('url', '');
+            expect(style).to.have.property('name', '');
+            expect(style).to.have.property('value', '');
         });
 
         it('It should initialize with options', () => {

@@ -5,6 +5,7 @@
 
 import JSC from 'jscheck';
 import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
+import { error2xhr } from '../../../src/js/data/data.util.es6';
 
 // Note: floating numbers generate errors due to changes in the last digit
 const angleGenerator = JSC.integer(0, 360);
@@ -76,10 +77,10 @@ export function getLabel() {
 }
 
 /**
- * getTexbox
- * @function getTexbox
+ * getTextBox
+ * @function getTextBox
  */
-export function getTexbox() {
+export function getTextBox() {
     return {
         attributes: {
             // TODO
@@ -102,12 +103,9 @@ export function getTexbox() {
  * @function getComponentArray
  */
 export function getComponentArray() {
-    // TODO Randomize
-    return [
-        // getImage(),
-        getLabel()
-        // getTextbox()
-    ];
+    // First component is always a label
+    return [getLabel()];
+    // TODO return [getLabel()].concat(JSC.array(JSC.number(2, 5), JSC.one_of(getImage. getTextBox)));
 }
 
 /**
@@ -130,9 +128,7 @@ export function getPage() {
  * @function getPageArray
  */
 export function getPageArray() {
-    return [
-        // TODO
-    ];
+    return JSC.array(JSC.number(3, 5), getPage)();
 }
 
 /**
@@ -142,7 +138,7 @@ export function getPageArray() {
  */
 export function getStream() {
     return {
-        // TODO
+        pages: getPageArray()
     };
 }
 
@@ -156,7 +152,6 @@ export function getTransport(data) {
     return {
         create(options) {
             options.success(
-                // TODO: Check whther option.data has an id???
                 Object.assign(options.data, { id: new ObjectId().toString() })
             );
         },
@@ -168,6 +163,29 @@ export function getTransport(data) {
         },
         update(options) {
             options.success(options.data);
+        }
+    };
+}
+
+/**
+ * getErrorTransport
+ * @function getErrorTransport
+ * @param data
+ * @returns {*}
+ */
+export function getErrorTransport() {
+    return {
+        create(options) {
+            options.error(error2xhr(new Error('Create error')));
+        },
+        destroy(options) {
+            options.error(error2xhr(new Error('Destroy error')));
+        },
+        read(options) {
+            options.error(error2xhr(new Error('Read error')));
+        },
+        update(options) {
+            options.error(error2xhr(new Error('Update error')));
         }
     };
 }

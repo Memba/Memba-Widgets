@@ -52,7 +52,7 @@ var MultiQuiz = BaseTool.extend({
     templates: {
         design: format(MULTIQUIZ, 'data-#= ns #enable="false"'),
         play: format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
-        review: format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
+        review: format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMark()
     },
     height: 150,
     width: 420,

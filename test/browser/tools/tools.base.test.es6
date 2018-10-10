@@ -6,13 +6,14 @@
 /* eslint-disable no-unused-expressions */
 
 import chai from 'chai';
+import BaseModel from '../../../src/js/data/models.base.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
 
 describe('tools.base', () => {
-    describe('Test', () => {
+    describe('BaseTool', () => {
         const tool = new BaseTool();
 
         it('It should have descriptors', () => {
@@ -20,6 +21,7 @@ describe('tools.base', () => {
             expect(tool).to.have.property('cursor', null);
             expect(tool).to.have.property('description', null);
             expect(tool).to.have.property('height', 250);
+            expect(tool).to.have.property('help', null);
             expect(tool).to.have.property('id', null);
             expect(tool).to.have.property('icon', null);
             expect(tool).to.have.property('weight', 0);
@@ -38,12 +40,58 @@ describe('tools.base', () => {
                 .that.deep.equals({});
         });
 
-        it('getHtmlContent', () => {
-            expect(tool.getHtmlContent).to.respondTo();
+        it('getAttributeModel', () => {
+            expect(
+                tool.getAttributeModel().constructor === BaseModel.constructor
+            ).to.be.true;
         });
 
-        it('onResize', () => {
-            expect(tool.onResize).to.respond;
+        it('getAttributeRows', () => {
+            expect(tool.getAttributeRows())
+                .to.be.an('array')
+                .with.lengthOf(5);
+        });
+
+        it('getPropertyModel', () => {
+            expect(
+                tool.getPropertyModel().constructor === BaseModel.constructor
+            ).to.be.true;
+        });
+
+        it('getPropertyRows', () => {
+            expect(tool.getPropertyRows()).to.deep.equal([]);
+        });
+
+        it('getAssets', () => {
+            expect(tool.getAssets()).to.deep.equal({
+                audio: [],
+                image: [],
+                video: []
+            });
+        });
+
+        it('getDefaultValue', () => {
+            expect(tool.getDefaultValue()).to.be.undefined;
+        });
+
+        it('getDescription', () => {
+            expect(tool.getDescription()).to.be.null;
+        });
+
+        it('getHelp', () => {
+            expect(tool.getHelp()).to.be.null;
+        });
+
+        it('getHtmlContent', () => {
+            expect(tool).to.respondTo('getHtmlContent');
+        });
+
+        xit('onResize', () => {
+            expect(tool).to.respondTo('onResize');
+        });
+
+        it('validate', () => {
+            expect(tool).to.respondTo('validate');
         });
     });
 });

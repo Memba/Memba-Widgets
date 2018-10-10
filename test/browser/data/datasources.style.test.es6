@@ -10,6 +10,7 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
 import StyleDataSource from '../../../src/js/data/datasources.style.es6';
 import Style from '../../../src/js/data/models.style.es6';
 
@@ -22,22 +23,21 @@ chai.use(sinonChai);
 
 const DATA = [
     {
-        text: 'error',
-        url: 'https://cdn.kidoju.com/styles/o_collection/svg/office/error.svg'
+        name: 'border',
+        value: 'solid 1px #000000'
     },
     {
-        text: 'success',
-        url: 'https://cdn.kidoju.com/styles/o_collection/svg/office/ok.svg'
+        name: 'background-color',
+        value: '#ffffff'
     },
     {
-        text: 'warning',
-        url:
-            'https://cdn.kidoju.com/styles/o_collection/svg/office/sign_warning.svg'
+        name: 'color',
+        value: '#ff0000'
     }
 ];
-const IMAGE = {
-    text: 'information',
-    url: 'https://cdn.kidoju.com/styles/o_collection/svg/office/information.svg'
+const STYLE = {
+    text: 'font-size',
+    url: '30px'
 };
 
 describe('datasources.style', () => {
@@ -50,7 +50,7 @@ describe('datasources.style', () => {
 
         it('It should add an style', () => {
             const dataSource = new StyleDataSource();
-            dataSource.add(IMAGE);
+            dataSource.add(STYLE);
             const total = dataSource.total();
             expect(total).to.equal(1);
             const data = dataSource.data();
@@ -64,17 +64,18 @@ describe('datasources.style', () => {
             const dataSource = new StyleDataSource({ data: DATA });
             dataSource
                 .read()
-                .then(() => {
-                    dataSource.insert(0, IMAGE);
-                    const total = dataSource.total();
-                    expect(total).to.equal(DATA.length + 1);
-                    const data = dataSource.data();
-                    expect(data)
-                        .to.be.an.instanceof(ObservableArray)
-                        .with.lengthOf(DATA.length + 1);
-                    expect(data[0]).to.be.an.instanceof(Style);
-                    done();
-                })
+                .then(
+                    tryCatch(done)(() => {
+                        dataSource.insert(0, STYLE);
+                        const total = dataSource.total();
+                        expect(total).to.equal(DATA.length + 1);
+                        const data = dataSource.data();
+                        expect(data)
+                            .to.be.an.instanceof(ObservableArray)
+                            .with.lengthOf(DATA.length + 1);
+                        expect(data[0]).to.be.an.instanceof(Style);
+                    })
+                )
                 .catch(done);
         });
 
@@ -84,13 +85,14 @@ describe('datasources.style', () => {
             dataSource.bind('change', change);
             dataSource
                 .read()
-                .then(() => {
-                    const style = dataSource.at(0);
-                    expect(style).to.be.an.instanceof(Style);
-                    style.set('text', JSC.string()());
-                    expect(change).to.have.been.calledTwice;
-                    done();
-                })
+                .then(
+                    tryCatch(done)(() => {
+                        const style = dataSource.at(0);
+                        expect(style).to.be.an.instanceof(Style);
+                        style.set('text', JSC.string()());
+                        expect(change).to.have.been.calledTwice;
+                    })
+                )
                 .catch(done);
         });
 

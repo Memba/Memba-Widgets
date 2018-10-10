@@ -4,7 +4,6 @@
  */
 
 // TODO Consider a better way to round height, top, left, width only when saving
-// TODO List assets (requires access to tools)
 // TODO List tools to load them
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
@@ -20,8 +19,7 @@ import BaseTool from '../tools/tools.base.es6';
 
 const {
     data: { ObservableObject },
-    format,
-    template
+    format
 } = window.kendo;
 
 /**
@@ -110,18 +108,18 @@ const PageComponent = BaseModel.define({
 
     /**
      * Assert a tool
-     * @param toolId
+     * @param tool
      * @private
      */
-    _assertTool(toolId) {
+    _assertTool(tool) {
         if (
-            $.type(toolId) !== CONSTANTS.STRING ||
-            toolId.length === 0 ||
-            toolId === CONSTANTS.POINTER ||
+            $.type(tool) !== CONSTANTS.STRING ||
+            tool.length === 0 ||
+            tool === CONSTANTS.POINTER ||
             !(tools instanceof ObservableObject) ||
-            !(tools[toolId] instanceof BaseTool)
+            !(tools[tool] instanceof BaseTool)
         ) {
-            throw new Error(format('`{0}` is not a valid tool', toolId));
+            throw new Error(format('`{0}` is not a valid tool', tool));
         }
     },
 
@@ -184,13 +182,8 @@ const PageComponent = BaseModel.define({
      * @returns {{audio: Array, image: Array, video: Array}}
      */
     assets() {
-        const assets = {
-            audio: [],
-            image: [],
-            video: []
-        };
-        // TODO
-        return assets;
+        const tool = tools[this.get('tool')];
+        return tool.getAssets(this);
     },
 
     /**
@@ -231,23 +224,8 @@ const PageComponent = BaseModel.define({
      * @method description$
      */
     description$() {
-        let ret;
         const tool = tools[this.get('tool')];
-        assert.instanceof(
-            BaseTool,
-            tool,
-            assert.format(
-                assert.messages.instanceof.default,
-                'tool',
-                'BaseTool'
-            )
-        );
-
-        // TODO: Add better descriptions for PageExplorer (requires access to tools)
-        // A label might display the label of the text
-        // An image might display the alt text
-
-        return ret;
+        return tool.getDescription(this);
     },
 
     /**
@@ -255,26 +233,8 @@ const PageComponent = BaseModel.define({
      * @method help$
      */
     help$() {
-        let ret;
         const tool = tools[this.get('tool')];
-        assert.instanceof(
-            BaseTool,
-            tool,
-            assert.format(
-                assert.messages.instanceof.default,
-                'tool',
-                'BaseTool'
-            )
-        );
-        const page = this.page();
-        if ($.type(page) !== CONSTANTS.UNDEFINED) {
-            const indexes = {
-                component: this.index(),
-                page: page.index()
-            }.index();
-            ret = template(tool.help)(indexes);
-        }
-        return ret;
+        return tool.getHelp(this);
     },
 
     /**

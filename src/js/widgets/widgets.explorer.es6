@@ -19,7 +19,7 @@ const {
     format,
     ui: { plugin, Widget }
 } = window.kendo;
-const logger = new Logger('widgets.toolbox');
+const logger = new Logger('widgets.explorer');
 
 const NS = '.kendoToolBox';
 const WIDGET_CLASS = 'k-widget k-toolbar kj-toolbox';

@@ -15,10 +15,10 @@ import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { assertBaseModel } from '../_misc/test.util.es6';
-import { getComponentArray } from '../_misc/test.components.es6';
+import { getComponentArray, getPage } from '../_misc/test.components.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
-// import Page from '../../../src/js/data/models.page.es6';
+import Page from '../../../src/js/data/models.page.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
 
 // Load tools
@@ -33,7 +33,7 @@ const {
 const { expect } = chai;
 chai.use(sinonChai);
 
-describe('models.pagecomponent', () => {
+xdescribe('models.pagecomponent', () => {
     describe('PageComponent', () => {
         describe('Initialization', () => {
             it('It should initialize a PageComponent without options (although there is no tool)', () => {
@@ -46,7 +46,7 @@ describe('models.pagecomponent', () => {
                 assertBaseModel(component, component.defaults);
             });
 
-            it('It should fail to initialize a PageComponent with invalid options', () => {
+            it('It should throw when initializing a PageComponent with invalid options', () => {
                 function test() {
                     // eslint-disable-next-line no-unused-vars
                     const component = new PageComponent(JSC.object()());
@@ -54,7 +54,7 @@ describe('models.pagecomponent', () => {
                 expect(test).to.throw(Error);
             });
 
-            it('It should fail to initialize a PageComponent with a POINTER', () => {
+            it('It should throw when initializing a PageComponent with a POINTER', () => {
                 function test() {
                     // eslint-disable-next-line no-unused-vars
                     const component = new PageComponent({
@@ -64,7 +64,7 @@ describe('models.pagecomponent', () => {
                 expect(test).to.throw(Error);
             });
 
-            it('It should fail to initialize a PageComponent with an unknown tool', () => {
+            it('It should throw when initializing a PageComponent with an unknown tool', () => {
                 function test() {
                     // eslint-disable-next-line no-unused-vars
                     const component = new PageComponent({
@@ -141,20 +141,64 @@ describe('models.pagecomponent', () => {
         });
 
         describe('assets', () => {
-            xit('TODO', () => {
-                expect(true).to.be.false;
+            it('It should list assets', () => {
+                function test(options) {
+                    const component = new PageComponent(options);
+                    const assets = component.assets();
+                    expect(assets)
+                        .to.have.property('audio')
+                        .that.is.an('array');
+                    expect(assets)
+                        .to.have.property('image')
+                        .that.is.an('array');
+                    expect(assets)
+                        .to.have.property('video')
+                        .that.is.an('array');
+                    // TODO: how do we ensure these have the correct list?
+                }
+                getComponentArray().forEach(test);
             });
         });
 
         describe('page', () => {
-            xit('TODO', () => {
-                expect(true).to.be.false;
+            it('It should return undefined without parent page', () => {
+                function test(options) {
+                    const component = new PageComponent(options);
+                    const page = component.page();
+                    expect(page).to.be.undefined;
+                }
+                getComponentArray().forEach(test);
+            });
+
+            it('It should return the parent page otherwise', () => {
+                const options = getPage();
+                const page = new Page(options);
+                options.components.forEach((item, index) => {
+                    const component = page.components.at(index);
+                    expect(component).to.be.an.instanceof(PageComponent);
+                    expect(component.page === page).to.be.true;
+                });
             });
         });
 
         describe('index', () => {
-            xit('TODO', () => {
-                expect(true).to.be.false;
+            it('It should return undefined without parent data source', () => {
+                function test(options) {
+                    const component = new PageComponent(options);
+                    const index = component.index();
+                    expect(index).to.be.undefined;
+                }
+                getComponentArray().forEach(test);
+            });
+
+            it('It should return an index otherwise', () => {
+                const options = getPage();
+                const page = new Page(options);
+                options.components.forEach((item, index) => {
+                    const component = page.components.at(index);
+                    expect(component).to.be.an.instanceof(PageComponent);
+                    expect(component.page === page).to.be.true;
+                });
             });
         });
 
@@ -170,7 +214,7 @@ describe('models.pagecomponent', () => {
             });
         });
 
-        describe('Clone', () => {
+        describe('clone', () => {
             it('It should clone any component', () => {
                 function test(options) {
                     const component = new PageComponent(options);

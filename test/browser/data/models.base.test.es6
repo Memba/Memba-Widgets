@@ -13,6 +13,7 @@ import chai from 'chai';
 // import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
 import { error2xhr } from '../../../src/js/data/data.util.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
@@ -105,16 +106,18 @@ describe('models.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(() => {
-                        const item = dataSource.at(0);
-                        expect(item).to.have.property('age').that.is.null; // Because kendo.parseFloat(undefined) === null
-                        expect(item).to.have.property('dob').that.is.null; // Because kendo.parseDate(undefined) === null
-                        expect(item).to.have.property('id', data.id);
-                        expect(item).to.have.property('male').that.is.undefined;
-                        expect(item).to.have.property('title').that.is
-                            .undefined;
-                        done();
-                    })
+                    .then(
+                        tryCatch(done)(() => {
+                            const item = dataSource.at(0);
+                            expect(item).to.have.property('age').that.is.null; // Because kendo.parseFloat(undefined) === null
+                            expect(item).to.have.property('dob').that.is.null; // Because kendo.parseDate(undefined) === null
+                            expect(item).to.have.property('id', data.id);
+                            expect(item).to.have.property('male').that.is
+                                .undefined;
+                            expect(item).to.have.property('title').that.is
+                                .undefined;
+                        })
+                    )
                     .catch(done);
             });
 
@@ -173,27 +176,28 @@ describe('models.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(() => {
-                        const item = dataSource.at(0);
-                        expect(item).to.have.property(
-                            'age',
-                            DataModel.fn.defaults.age()
-                        );
-                        expect(item).to.have.property(
-                            'dob',
-                            DataModel.fn.defaults.dob
-                        );
-                        expect(item).to.have.property('id', data.id);
-                        expect(item).to.have.property(
-                            'male',
-                            DataModel.fn.defaults.male
-                        );
-                        expect(item).to.have.property(
-                            'title',
-                            DataModel.fn.defaults.title
-                        );
-                        done();
-                    })
+                    .then(
+                        tryCatch(done)(() => {
+                            const item = dataSource.at(0);
+                            expect(item).to.have.property(
+                                'age',
+                                DataModel.fn.defaults.age()
+                            );
+                            expect(item).to.have.property(
+                                'dob',
+                                DataModel.fn.defaults.dob
+                            );
+                            expect(item).to.have.property('id', data.id);
+                            expect(item).to.have.property(
+                                'male',
+                                DataModel.fn.defaults.male
+                            );
+                            expect(item).to.have.property(
+                                'title',
+                                DataModel.fn.defaults.title
+                            );
+                        })
+                    )
                     .catch(done);
             });
         });
@@ -298,14 +302,15 @@ describe('models.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(() => {
-                        const item = dataSource.at(0);
-                        expect(item).to.have.property('id', data1.id);
-                        expect(item)
-                            .to.have.property('date')
-                            .that.is.a('date');
-                        done();
-                    })
+                    .then(
+                        tryCatch(done)(() => {
+                            const item = dataSource.at(0);
+                            expect(item).to.have.property('id', data1.id);
+                            expect(item)
+                                .to.have.property('date')
+                                .that.is.a('date');
+                        })
+                    )
                     .catch(done);
             });
 
@@ -320,14 +325,15 @@ describe('models.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(() => {
-                        const item = dataSource.at(0);
-                        expect(item).to.have.property('id', data1.id);
-                        expect(item)
-                            .to.have.property('date')
-                            .that.is.a('date');
-                        done();
-                    })
+                    .then(
+                        tryCatch(done)(() => {
+                            const item = dataSource.at(0);
+                            expect(item).to.have.property('id', data1.id);
+                            expect(item)
+                                .to.have.property('date')
+                                .that.is.a('date');
+                        })
+                    )
                     .catch(done);
             });
         });
@@ -413,27 +419,28 @@ describe('models.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(() => {
-                        const item = dataSource.at(0);
-                        expect(item).to.have.property('id', data.id);
-                        expect(item).to.have.property(
-                            'comments',
-                            data.metrics.comments.count
-                        );
-                        expect(item).to.have.property(
-                            'firstName',
-                            data.author.firstName
-                        );
-                        expect(item).to.have.property(
-                            'lastName',
-                            data.author.lastName
-                        );
-                        // But it also has original properties
-                        // So it is a bit of a mess
-                        expect(item).to.have.property('author');
-                        expect(item).to.have.property('metrics');
-                        done();
-                    })
+                    .then(
+                        tryCatch(done)(() => {
+                            const item = dataSource.at(0);
+                            expect(item).to.have.property('id', data.id);
+                            expect(item).to.have.property(
+                                'comments',
+                                data.metrics.comments.count
+                            );
+                            expect(item).to.have.property(
+                                'firstName',
+                                data.author.firstName
+                            );
+                            expect(item).to.have.property(
+                                'lastName',
+                                data.author.lastName
+                            );
+                            // But it also has original properties
+                            // So it is a bit of a mess
+                            expect(item).to.have.property('author');
+                            expect(item).to.have.property('metrics');
+                        })
+                    )
                     .catch(done);
             });
 
@@ -448,26 +455,27 @@ describe('models.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(() => {
-                        const item = dataSource.at(0);
-                        expect(item).to.have.property('id', data.id);
-                        expect(item).to.have.property(
-                            'comments',
-                            data.metrics.comments.count
-                        );
-                        expect(item).to.have.property(
-                            'firstName',
-                            data.author.firstName
-                        );
-                        expect(item).to.have.property(
-                            'lastName',
-                            data.author.lastName
-                        );
-                        // And it is clean of original properties
-                        expect(item).not.to.have.property('author');
-                        expect(item).not.to.have.property('metrics');
-                        done();
-                    })
+                    .then(
+                        tryCatch(done)(() => {
+                            const item = dataSource.at(0);
+                            expect(item).to.have.property('id', data.id);
+                            expect(item).to.have.property(
+                                'comments',
+                                data.metrics.comments.count
+                            );
+                            expect(item).to.have.property(
+                                'firstName',
+                                data.author.firstName
+                            );
+                            expect(item).to.have.property(
+                                'lastName',
+                                data.author.lastName
+                            );
+                            // And it is clean of original properties
+                            expect(item).not.to.have.property('author');
+                            expect(item).not.to.have.property('metrics');
+                        })
+                    )
                     .catch(done);
             });
         });
@@ -583,26 +591,27 @@ describe('models.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(() => {
-                        let item;
-                        item = dataSource.at(0);
-                        expect(item.author).to.be.an.instanceof(Author); // This is unexpected!
-                        // Add
-                        dataSource.add(jsonClone(data2));
-                        item = dataSource.at(1);
-                        expect(item.author).not.to.be.an.instanceof(Author); // Obviously!
-                        expect(item.author).to.be.an.instanceof(
-                            ObservableObject
-                        );
-                        // Insert
-                        dataSource.insert(0, jsonClone(data3));
-                        item = dataSource.at(0);
-                        expect(item.author).not.to.be.an.instanceof(Author); // Obviously!
-                        expect(item.author).to.be.an.instanceof(
-                            ObservableObject
-                        );
-                        done();
-                    })
+                    .then(
+                        tryCatch(done)(() => {
+                            let item;
+                            item = dataSource.at(0);
+                            expect(item.author).to.be.an.instanceof(Author); // This is unexpected!
+                            // Add
+                            dataSource.add(jsonClone(data2));
+                            item = dataSource.at(1);
+                            expect(item.author).not.to.be.an.instanceof(Author); // Obviously!
+                            expect(item.author).to.be.an.instanceof(
+                                ObservableObject
+                            );
+                            // Insert
+                            dataSource.insert(0, jsonClone(data3));
+                            item = dataSource.at(0);
+                            expect(item.author).not.to.be.an.instanceof(Author); // Obviously!
+                            expect(item.author).to.be.an.instanceof(
+                                ObservableObject
+                            );
+                        })
+                    )
                     .catch(done);
             });
 
@@ -621,7 +630,7 @@ describe('models.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(() => {
+                    .then(tryCatch(done)(() => {
                         let item = dataSource.at(0);
                         expect(item.author).to.be.an.instanceof(Author);
                         dataSource.add(jsonClone(data2));
@@ -630,8 +639,7 @@ describe('models.base', () => {
                         dataSource.insert(0, jsonClone(data3));
                         item = dataSource.at(0);
                         expect(item.author).to.be.an.instanceof(Author);
-                        done();
-                    })
+                    }))
                     .catch(done);
             });
 
@@ -787,7 +795,7 @@ describe('models.base', () => {
                 expect(item.books).to.be.an.instanceof(DataSource);
                 item.books
                     .read()
-                    .then(() => {
+                    .then(tryCatch(done)(() => {
                         expect(item.books.total()).to.equal(data1.books.length);
                         let count = 0;
                         item.books.data().forEach(book => {
@@ -795,8 +803,7 @@ describe('models.base', () => {
                             count += 1;
                         });
                         expect(count).to.equal(data1.books.length);
-                        done();
-                    })
+                    }))
                     .catch(done);
             });
 
@@ -818,7 +825,7 @@ describe('models.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(() => {
+                    .then(tryCatch(done)(() => {
                         let item;
                         item = dataSource.at(0);
                         expect(item).to.be.an.instanceof(Author);
@@ -835,8 +842,7 @@ describe('models.base', () => {
                         expect(item).to.be.an.instanceof(Author);
                         expect(item.books).not.to.be.an.instanceof(DataSource); // Obviously!
                         expect(item.books).to.be.an.instanceof(ObservableArray);
-                        done();
-                    })
+                    }))
                     .catch(done);
             });
 
@@ -858,7 +864,7 @@ describe('models.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(() => {
+                    .then(tryCatch(done)(() => {
                         let item;
                         item = dataSource.at(0);
                         expect(item).to.be.an.instanceof(Author);
@@ -873,8 +879,7 @@ describe('models.base', () => {
                         item = dataSource.at(0);
                         expect(item).to.be.an.instanceof(Author);
                         expect(item.books).to.be.an.instanceof(DataSource);
-                        done();
-                    })
+                    }))
                     .catch(done);
             });
 
@@ -1003,13 +1008,12 @@ describe('models.base', () => {
                 });
                 dataSource
                     .fetch()
-                    .then(() => {
+                    .then(tryCatch(done)(() => {
                         const results = dataSource.aggregates().age;
                         expect(results).to.have.property('max', 20);
                         expect(results).to.have.property('min', 10);
                         expect(results).to.have.property('sum', 50);
-                        done();
-                    })
+                    }))
                     .catch(done);
             });
 
@@ -1029,7 +1033,7 @@ describe('models.base', () => {
                 });
                 dataSource
                     .fetch()
-                    .then(() => {
+                    .then(tryCatch(done)(() => {
                         const view = dataSource.view();
                         expect(view[0]).to.have.property('field', 'age');
                         expect(view[0]).to.have.property('value', 10);
@@ -1043,8 +1047,7 @@ describe('models.base', () => {
                             .to.have.property('items')
                             .that.is.an('array')
                             .with.lengthOf(2);
-                        done();
-                    })
+                    }))
                     .catch(done);
             });
         });
@@ -1213,8 +1216,7 @@ describe('models.base', () => {
                 dataSource
                     .read()
                     .then(() => {
-                        expect(true).to.be.false;
-                        done();
+                        done(new Error('UNexpected error')); // TODO
                     })
                     .catch(res => {
                         expect(errorHandler).to.have.been.calledOnce;

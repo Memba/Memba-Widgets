@@ -50,7 +50,7 @@ var MathInput = BaseTool.extend({
     templates: {
         design: format(MATHINPUT, 'data-#= ns #enable="false"'),
         play: format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value"'),
-        review: format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.showResult()
+        review: format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMark()
     },
     height: 120,
     width: 370,

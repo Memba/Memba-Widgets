@@ -50,7 +50,7 @@ var HighLighter = BaseTool.extend({
     templates: {
         design: format(HIGHLIGHTER, 'data-#= ns #enable="false"'),
         play: format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
-        review: format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.showResult()
+        review: format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMark()
     },
     height: 250,
     width: 250,

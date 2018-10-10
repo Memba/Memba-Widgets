@@ -10,6 +10,7 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
 import ImageDataSource from '../../../src/js/data/datasources.image.es6';
 import Image from '../../../src/js/data/models.image.es6';
 
@@ -64,17 +65,18 @@ describe('datasources.image', () => {
             const dataSource = new ImageDataSource({ data: DATA });
             dataSource
                 .read()
-                .then(() => {
-                    dataSource.insert(0, IMAGE);
-                    const total = dataSource.total();
-                    expect(total).to.equal(DATA.length + 1);
-                    const data = dataSource.data();
-                    expect(data)
-                        .to.be.an.instanceof(ObservableArray)
-                        .with.lengthOf(DATA.length + 1);
-                    expect(data[0]).to.be.an.instanceof(Image);
-                    done();
-                })
+                .then(
+                    tryCatch(done)(() => {
+                        dataSource.insert(0, IMAGE);
+                        const total = dataSource.total();
+                        expect(total).to.equal(DATA.length + 1);
+                        const data = dataSource.data();
+                        expect(data)
+                            .to.be.an.instanceof(ObservableArray)
+                            .with.lengthOf(DATA.length + 1);
+                        expect(data[0]).to.be.an.instanceof(Image);
+                    })
+                )
                 .catch(done);
         });
 
@@ -84,13 +86,14 @@ describe('datasources.image', () => {
             dataSource.bind('change', change);
             dataSource
                 .read()
-                .then(() => {
-                    const image = dataSource.at(0);
-                    expect(image).to.be.an.instanceof(Image);
-                    image.set('text', JSC.string()());
-                    expect(change).to.have.been.calledTwice;
-                    done();
-                })
+                .then(
+                    tryCatch(done)(() => {
+                        const image = dataSource.at(0);
+                        expect(image).to.be.an.instanceof(Image);
+                        image.set('text', JSC.string()());
+                        expect(change).to.have.been.calledTwice;
+                    })
+                )
                 .catch(done);
         });
 

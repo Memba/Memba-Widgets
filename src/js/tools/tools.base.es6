@@ -122,6 +122,7 @@ const BaseTool = Class.extend({
     cursor: null,
     description: null,
     height: 250,
+    help: null,
     id: null,
     icon: null,
     properties: {},
@@ -139,14 +140,13 @@ const BaseTool = Class.extend({
      * @constructor init
      * @param options
      */
-    init(options = {}) {
+    init(options) {
         // Extend tool with init options
         $.extend(this, options);
     },
 
     /**
      * Get a kidoju.data.Model for attributes
-     * @class kidoju.Tool
      * @method getAttributeModel
      * @returns {kidoju.data.Model}
      * @private
@@ -163,7 +163,6 @@ const BaseTool = Class.extend({
 
     /**
      * Gets property grid row specifications for attributes
-     * @class kidoju.Tool
      * @method getAttributeRows
      * @returns {Array}
      * @private
@@ -215,7 +214,6 @@ const BaseTool = Class.extend({
 
     /**
      * Get a kidoju.data.Model for properties
-     * @class kidoju.Tool
      * @method getPropertyModel
      * @returns {kidoju.data.Model}
      * @private
@@ -241,7 +239,6 @@ const BaseTool = Class.extend({
 
     /**
      * Gets property grid row specifications for properties
-     * @class kidoju.Tool
      * @method _getPropertyRows
      * @returns {Array}
      * @private
@@ -257,8 +254,48 @@ const BaseTool = Class.extend({
     },
 
     /**
+     * Get assets
+     * @method getAssets
+     * @param component
+     * @returns {Array}
+     */
+    getAssets(/* component */) {
+        return {
+            audio: [],
+            image: [],
+            video: []
+        };
+    },
+
+    /**
+     * Return the default value when playing the component as part of a test
+     * @method getDefaultValue
+     * @param component
+     */
+    getDefaultValue(/* component */) {},
+
+    /**
+     * Get description
+     * @method getDescription
+     * @param component
+     * @returns {Array}
+     */
+    getDescription(/* component */) {
+        return this.description;
+    },
+
+    /**
+     * Get help
+     * @method getHelp
+     * @param component
+     * @returns {Array}
+     */
+    getHelp(/* component */) {
+        return this.help;
+    },
+
+    /**
      * Get Html or jQuery content
-     * @class kidoju.Tool
      * @method getHtmlContent
      * @param component
      * @param mode
@@ -298,18 +335,11 @@ const BaseTool = Class.extend({
     },
 
     /**
-     * Return the default value when playing the component as part of a test
-     * @param component
-     */
-    getTestDefaultValue(component) {
-        // TODO: consider removing as it seems useless
-    },
-
-    /**
      * Add the display of a success or failure icon to the corresponding stage element
+     * @method getHtmlCheckMark
      * @returns {string}
      */
-    showResult() {
+    getHtmlCheckMark() {
         // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
         return (
             `${'<div class=".kj-element-result" data-#= ns #bind="visible: #: properties.name #">' +
@@ -325,24 +355,25 @@ const BaseTool = Class.extend({
 
     /**
      * Improved display of value in score grid
-     * Note: search for getScoreArray in kidoju.data
+     * @method getHtmlValue
      * @param testItem
      */
-    value$(testItem) {
+    getHtmlValue(testItem) {
         return htmlEncode(testItem.value || '');
     },
 
     /**
      * Improved display of solution in score grid
-     * Note: search for getScoreArray in kidoju.data
+     * @method getHtmlSolution
      * @param testItem
      */
-    solution$(testItem) {
+    getHtmlSolution(testItem) {
         return htmlEncode(testItem.solution || '');
     },
 
     /**
      * Component validation
+     * @method validate
      * @param component
      * @param pageIdx
      */

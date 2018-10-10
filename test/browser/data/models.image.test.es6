@@ -7,9 +7,9 @@
 
 import 'kendo.data';
 import chai from 'chai';
-import JSC from 'jscheck';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
+// import JSC from 'jscheck';
+// import sinon from 'sinon';
+// import sinonChai from 'sinon-chai';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import Image from '../../../src/js/data/models.image.es6';
 
@@ -18,7 +18,7 @@ const { expect } = chai;
 const {
     data: { Model }
 } = window.kendo;
-chai.use(sinonChai);
+// chai.use(sinonChai);
 
 const IMAGE = {
     text: 'information',

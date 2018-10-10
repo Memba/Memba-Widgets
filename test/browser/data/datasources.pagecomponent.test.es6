@@ -34,7 +34,7 @@ const {
 } = window.kendo;
 chai.use(sinonChai);
 
-xdescribe('datasources.pagecomponent', () => {
+describe('datasources.pagecomponent', () => {
     describe('PageComponentDataSource', () => {
         describe('Initialization', () => {
             it('It should initialize without options', done => {
@@ -562,7 +562,7 @@ xdescribe('datasources.pagecomponent', () => {
         });
     });
 
-    describe('PageComponentDataSource.create', () => {
+    xdescribe('PageComponentDataSource.create', () => {
         it('if initialized from a kendo.data.DataSource that is not a kendo.PageComponentDataSource, it should throw', () => {
             const testFn = function() {
                 const dataSource = PageComponentDataSource.create(

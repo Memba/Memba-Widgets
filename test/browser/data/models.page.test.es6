@@ -22,7 +22,7 @@ import {
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
 import Page from '../../../src/js/data/models.page.es6';
-import Stream from '../../../src/js/data/models.stream.es6';
+// import Stream from '../../../src/js/data/models.stream.es6';
 
 // Load tools
 // import '../../../src/js/tools/tools.image.es6';
@@ -36,7 +36,7 @@ const {
 const { expect } = chai;
 chai.use(sinonChai);
 
-xdescribe('models.page', () => {
+describe('models.page', () => {
     describe('Page', () => {
         describe('Initialization', () => {
             it('It should initialize without options', done => {

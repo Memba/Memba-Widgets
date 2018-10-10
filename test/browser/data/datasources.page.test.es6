@@ -29,7 +29,7 @@ const {
 } = window.kendo;
 chai.use(sinonChai);
 
-xdescribe('datasources.page', () => {
+describe('datasources.page', () => {
     describe('PageDataSource', () => {
         describe('Initialization', () => {
             it('It should initialize without options', () => {

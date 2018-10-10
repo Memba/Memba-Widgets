@@ -33,7 +33,7 @@ const {
 const { expect } = chai;
 chai.use(sinonChai);
 
-xdescribe('models.pagecomponent', () => {
+describe('models.pagecomponent', () => {
     describe('PageComponent', () => {
         describe('Initialization', () => {
             it('It should initialize a PageComponent without options (although there is no tool)', () => {
@@ -170,7 +170,7 @@ xdescribe('models.pagecomponent', () => {
                 getComponentArray().forEach(test);
             });
 
-            it('It should return the parent page otherwise', () => {
+            xit('It should return the parent page otherwise', () => {
                 const options = getPage();
                 const page = new Page(options);
                 options.components.forEach((item, index) => {
@@ -191,7 +191,7 @@ xdescribe('models.pagecomponent', () => {
                 getComponentArray().forEach(test);
             });
 
-            it('It should return an index otherwise', () => {
+            xit('It should return an index otherwise', () => {
                 const options = getPage();
                 const page = new Page(options);
                 options.components.forEach((item, index) => {

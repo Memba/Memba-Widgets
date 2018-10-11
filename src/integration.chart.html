@@ -2,15 +2,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.chart</title>
+    <title>integration.chart</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.chart stylesheet -->
-    <!-- link href="./styles/kidoju.widgets.chart.css" rel="stylesheet" -->
+    <!-- integration.chart stylesheet -->
+    <!-- link href="./styles/integration.chart.css" rel="stylesheet" -->
     <!-- SystemJS loader -->
     <script src="../test/vendor/system.js"></script>
     <script>
@@ -167,6 +167,9 @@
                         meta: {
                             // IMPORTANT! See https://github.com/jshint/jshint/issues/2840
                             'vendor/codemirror/addon/lint/jshint.js': {
+                                format: 'global'
+                            },
+                            'vendor/modernizr/modernizr.js': {
                                 format: 'global'
                             },
                             '*.js': {
@@ -327,7 +330,7 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.chart</h1>
+<h1>integration.chart</h1>
 <div id="spreadsheet"></div>
 <div id="chart"></div>
 <pre>

@@ -69,7 +69,7 @@ const CharGridTool = BaseTool.extend({
             format(
                 CHARGRID,
                 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'
-            ) + BaseTool.fn.getHtmlCheckMark()
+            ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 400,
     width: 400,

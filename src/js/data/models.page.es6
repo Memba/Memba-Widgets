@@ -70,6 +70,41 @@ const Page = BaseModel.define({
     },
 
     /**
+     * i18n Messages
+     */
+    messages: {
+        createMultiQuizExplanations: 'The correct answers are:\n\n- **{0}**.',
+        createMultiQuizInstructions:
+            'Please select the options which correspond to your answers to the question: _{0}_.',
+        createTextBoxExplanations: 'The correct answer is **{0}**.',
+        createTextBoxInstructions:
+            'Please fill in the text box with your answer to the question: _{0}_.',
+        createQuizExplanations: 'The correct answer is **{0}**.',
+        createQuizInstructions:
+            'Please select the option which corresponds to your answer to the question: _{0}_.',
+        emptyPage: 'Page {0} cannot be empty.',
+
+        // TODO: Remove rules that belong to tools
+
+        minConnectors:
+            'At least {0} Connectors are required to make a question on page {1}.',
+        missingDraggable:
+            'Draggable Labels or Images are required for a Drop Zone on page {0}.',
+        missingDropZone:
+            'A Drop Zone is required for draggable Labels or Images on page {0}.',
+        missingLabel: 'A Label is recommended on page {0}.',
+        missingMultimedia:
+            'A multimedia element (Image, Audio, Video) is recommended on page {0}.',
+        missingQuestion: 'A question is recommended on page {0}.',
+        missingSelectable:
+            'Selectable Labels or Images are required for a Selector on page {0}.',
+        missingSelector:
+            'A Selector is required for selectable Labels or Images on page {0}.',
+        missingInstructions: 'Instructions are recommended on page {0}.',
+        missingExplanations: 'Explanations are recommended on page {0}.'
+    },
+
+    /**
      * Init
      * @constructor init
      * @param options
@@ -106,8 +141,9 @@ const Page = BaseModel.define({
         const { components } = that;
 
         if (components instanceof PageComponentDataSource) {
-            const { parameterMap, transport } = components;
-            transport.parameterMap = function(data, type) {
+            const { transport } = components;
+            const { parameterMap } = transport;
+            transport.parameterMap = function map(data, type) {
                 debugger;
                 let ret = data;
                 ret[that.idField || CONSTANTS.ID] = that.id;
@@ -123,7 +159,7 @@ const Page = BaseModel.define({
             };
 
             // Bind the change to bubble up
-            // DO NOT UNCOMMENT, otherwise they will be raised twice
+            // DO NOT UNCOMMENT, otherwise change will be raised twice
             /*
             components.bind(CONSTANTS.CHANGE, e => {
                 debugger;
@@ -158,12 +194,12 @@ const Page = BaseModel.define({
     },
 
     /**
+     * Load components
      * @method load
      * @returns {*}
      */
     load() {
-        const that = this;
-        const { components } = that;
+        const { components } = this;
         const options = {};
         let method = '_query';
         // Passing the id of the page to the components _query method
@@ -174,9 +210,26 @@ const Page = BaseModel.define({
             method = 'read';
         }
         components.one(CONSTANTS.CHANGE, () => {
-            that._loaded = true;
+            // TODO Check this
+            debugger;
+            this._loaded = true;
         });
         return components[method](options);
+    },
+
+    /**
+     * Gets or sets the loaded status of components
+     * @param value
+     * @returns {boolean|*|Page._loaded}
+     */
+    loaded(value) {
+        let ret;
+        if ($.type(value) !== CONSTANTS.UNDEFINED) {
+            this._loaded = value;
+        } else {
+            ret = this._loaded;
+        }
+        return ret;
     },
 
     /**
@@ -242,21 +295,6 @@ const Page = BaseModel.define({
     },
 
     /**
-     * Gets or sets the loaded status of page components
-     * @param value
-     * @returns {boolean|*|Page._loaded}
-     */
-    loaded(value) {
-        let ret;
-        if ($.type(value) !== CONSTANTS.UNDEFINED) {
-            this._loaded = value;
-        } else {
-            ret = this._loaded;
-        }
-        return ret;
-    },
-
-    /**
      * Clone a page
      * Note: we are not using toJSON because some fields might not be serializable
      * @method clone
@@ -280,45 +318,11 @@ const Page = BaseModel.define({
     },
 
     /**
-     * i18n Messages
-     */
-    messages: {
-        createMultiQuizExplanations: 'The correct answers are:\n\n- **{0}**.',
-        createMultiQuizInstructions:
-            'Please select the options which correspond to your answers to the question: _{0}_.',
-        createTextBoxExplanations: 'The correct answer is **{0}**.',
-        createTextBoxInstructions:
-            'Please fill in the text box with your answer to the question: _{0}_.',
-        createQuizExplanations: 'The correct answer is **{0}**.',
-        createQuizInstructions:
-            'Please select the option which corresponds to your answer to the question: _{0}_.',
-        emptyPage: 'Page {0} cannot be empty.',
-
-        // TODO: Remove rules that belong to tools
-
-        minConnectors:
-            'At least {0} Connectors are required to make a question on page {1}.',
-        missingDraggable:
-            'Draggable Labels or Images are required for a Drop Zone on page {0}.',
-        missingDropZone:
-            'A Drop Zone is required for draggable Labels or Images on page {0}.',
-        missingLabel: 'A Label is recommended on page {0}.',
-        missingMultimedia:
-            'A multimedia element (Image, Audio, Video) is recommended on page {0}.',
-        missingQuestion: 'A question is recommended on page {0}.',
-        missingSelectable:
-            'Selectable Labels or Images are required for a Selector on page {0}.',
-        missingSelector:
-            'A Selector is required for selectable Labels or Images on page {0}.',
-        missingInstructions: 'Instructions are recommended on page {0}.',
-        missingExplanations: 'Explanations are recommended on page {0}.'
-    },
-
-    /**
      * Page validation
      * @param pageIdx
      * @returns {Array}
      */
+    /*
     validate(pageIdx) {
         assert.instanceof(
             Page,
@@ -394,11 +398,9 @@ const Page = BaseModel.define({
             });
         }
         // Check a multimedia element
-        /*
-        if (componentTotal > 0 && !hasMultimedia) {
-            ret.push({ type: CONSTANTS.WARNING, index: pageIdx, message: format(this.messages.missingMultimedia, pageIdx + 1) });
-        }
-        */
+        // if (componentTotal > 0 && !hasMultimedia) {
+        //    ret.push({ type: CONSTANTS.WARNING, index: pageIdx, message: format(this.messages.missingMultimedia, pageIdx + 1) });
+        //
         // Check a question
         if (componentTotal > 0 && !hasQuestion) {
             ret.push({
@@ -468,6 +470,7 @@ const Page = BaseModel.define({
         }
         return ret;
     }
+    */
 });
 
 /**

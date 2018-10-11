@@ -15,3 +15,5 @@ import BaseTool from './tools.base.es6';
 // TODO Add calculated solutions : What day is it today?
 // Add random number generation
 
+// Make it the result of Math.random() or Date.now() or any other formula
+// So it is not exactly random but the result of a formula

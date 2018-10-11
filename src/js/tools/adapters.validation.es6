@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import openCodeEditor from '../dialogs/dialogs.codeeditor.es6';
 import '../widgets/widgets.codeinput.es6';
@@ -18,18 +18,20 @@ const { attr, format, htmlEncode, ns, ui } = window.kendo;
 // TODO: This is another case of open dialog adapter
 
 // TODO Review where to store that
-const LIB_COMMENT = '// ';
+const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
+// const LIB_COMMENT = '// ';
 const CUSTOM = {
-    name: 'custom',
-    // TODO 18n description
+    name: 'custom', // TODO i18n
     formula: format(
-        BaseAdapter.validationDeclaration,
+        VALIDATION_CUSTOM, // BaseAdapter.validationDeclaration,
         '// Your code should return true when value is validated against solution.'
     )
 };
 
 /**
+ * ValidationAdapter
  * @class ValidationAdapter
+ * @extends BaseAdapter
  */
 const ValidationAdapter = BaseAdapter.extend({
     /**
@@ -38,14 +40,14 @@ const ValidationAdapter = BaseAdapter.extend({
      * @param options
      * @param attributes
      */
-    init(options, attributes) {
+    init(options /* , attributes */) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
         // TODO Assert library
         that.type = CONSTANTS.STRING;
         // this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         that.editor = function(container, settings) {
-            const binding = {};
+            const binding = {}; // TODO use getValueBinding
             // Note: _library is added to the data bound PageComponent in its init method
             binding[attr('bind')] = `value: ${
                 settings.field
@@ -54,13 +56,12 @@ const ValidationAdapter = BaseAdapter.extend({
             const wrapper = $('<div/>')
                 .css({ display: 'flex' })
                 .appendTo(container);
-            const codeInput = $(
-                `${'<div ' + 'data-'}${ns}role="codeinput" ` +
-                    `data-${ns}default="${
-                        settings.model.properties.defaults.validation
-                    }" />`
+            $(
+                `<div data-${ns}role="codeinput" data-${ns}default="${
+                    settings.model.properties.defaults.validation
+                }" />`
             )
-                .attr($.extend({}, settings.attributes, binding))
+                .attr($.extend({}, settings.attributes, binding)) // TODO use attributes (from init)?
                 .css({ flex: 'auto' })
                 .appendTo(wrapper);
             $('<button/>')
@@ -96,7 +97,7 @@ const ValidationAdapter = BaseAdapter.extend({
             .then(result => {
                 if (
                     result.action ===
-                    kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
+                    ui.BaseDialog.fn.options.messages.actions.ok.action
                 ) {
                     options.model.set(options.field, result.data.value);
                 }

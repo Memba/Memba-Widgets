@@ -18,7 +18,7 @@ describe('adapters.textbox', () => {
         const adapter = new TextBoxAdapter();
 
         it('It should have descriptors', () => {
-            expect(Object.keys(adapter).length).to.equal(13);
+            expect(Object.keys(adapter)).to.have.lengthOf(13);
             expect(adapter).to.have.property('attributes').that.is.undefined;
             expect(adapter).to.have.property('defaultValue', '');
             expect(adapter).to.have.property('editable').that.is.undefined;

@@ -18,15 +18,7 @@ import PageComponent from '../data/models.pagecomponent.es6';
 import BaseAdapter from './adapters.base.es6';
 import NumberAdapter from './adapters.number.es6';
 
-const {
-    attr,
-    format,
-    Class,
-    htmlEncode,
-    ns,
-    template,
-    ui: { Stage }
-} = window.kendo;
+const { attr, format, Class, htmlEncode, ns, template } = window.kendo;
 
 /**
  * Incors images
@@ -146,9 +138,9 @@ const BaseTool = Class.extend({
     },
 
     /**
-     * Get a kidoju.data.Model for attributes
+     * Get a BaseModel for attributes
      * @method getAttributeModel
-     * @returns {kidoju.data.Model}
+     * @returns {BaseModel}
      * @private
      */
     getAttributeModel() {
@@ -213,9 +205,9 @@ const BaseTool = Class.extend({
     },
 
     /**
-     * Get a kidoju.data.Model for properties
+     * Get a BaseModel for properties
      * @method getPropertyModel
-     * @returns {kidoju.data.Model}
+     * @returns {BaseModel}
      * @private
      */
     getPropertyModel() {
@@ -268,13 +260,6 @@ const BaseTool = Class.extend({
     },
 
     /**
-     * Return the default value when playing the component as part of a test
-     * @method getDefaultValue
-     * @param component
-     */
-    getDefaultValue(/* component */) {},
-
-    /**
      * Get description
      * @method getDescription
      * @param component
@@ -295,6 +280,27 @@ const BaseTool = Class.extend({
     },
 
     /**
+     * Get the field definition for a test model derived from BaseTest
+     * @method getTestModelField
+     * @param component
+     * @returns {{type: string, defaultValue: string}}
+     */
+    getTestModelField(component) {
+        // TODO check possible problem with undefined which is our default value ????
+        // TODO: we might have to use null!!!
+        return {
+            type: CONSTANTS.STRING,
+            defaultValue: ''
+            // editable: true
+            // nullable: false
+            // parse(value) { return value; }
+            // from: undefined
+            // validation: {}
+            // page: component.page().index()
+        };
+    },
+
+    /**
      * Get Html or jQuery content
      * @method getHtmlContent
      * @param component
@@ -308,16 +314,16 @@ const BaseTool = Class.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         assert.enum(
-            Object.keys(Stage.fn.modes),
+            Object.values(CONSTANTS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(Stage.fn.modes)
+                Object.values(CONSTANTS.STAGE_MODES)
             )
         );
         const templates = this.templates || {};
@@ -326,8 +332,8 @@ const BaseTool = Class.extend({
             CONSTANTS.STRING,
             t,
             assert.format(
-                assert.messages.default.type,
-                `this.templates[${mode}]`,
+                assert.messages.type.default,
+                `this.templates.${mode}`,
                 CONSTANTS.STRING
             )
         );
@@ -336,10 +342,10 @@ const BaseTool = Class.extend({
 
     /**
      * Add the display of a success or failure icon to the corresponding stage element
-     * @method getHtmlCheckMark
+     * @method getHtmlCheckMarks (formerly showResult)
      * @returns {string}
      */
-    getHtmlCheckMark() {
+    getHtmlCheckMarks() {
         // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
         return (
             `${'<div class=".kj-element-result" data-#= ns #bind="visible: #: properties.name #">' +
@@ -371,6 +377,9 @@ const BaseTool = Class.extend({
         return htmlEncode(testItem.solution || '');
     },
 
+    // onEnable
+    // onResize
+
     /**
      * Component validation
      * @method validate
@@ -384,7 +393,7 @@ const BaseTool = Class.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         assert.type(

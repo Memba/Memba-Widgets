@@ -18,7 +18,7 @@ describe('adapters.number', () => {
         const adapter = new NumberAdapter();
 
         it('It should have descriptors', () => {
-            expect(Object.keys(adapter).length).to.equal(13);
+            expect(Object.keys(adapter)).to.have.lengthOf(13);
             expect(adapter)
                 .to.have.property('attributes')
                 .that.deep.equals({ 'data-role': 'numerictextbox' });

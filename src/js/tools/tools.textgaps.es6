@@ -65,7 +65,7 @@ const TextGaps = BaseTool.extend({
     templates: {
         design: format(TEXTGAPS, 'data-#= ns #enable="false"'),
         play: format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
-        review: format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMark()
+        review: format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 150,
     width: 420,

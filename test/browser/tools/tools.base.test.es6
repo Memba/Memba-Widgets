@@ -28,62 +28,98 @@ describe('tools.base', () => {
             expect(tool).to.have.property('width', 250);
         });
 
-        it('It should have attributes', () => {
+        it('It should have empty attributes and properties', () => {
             expect(tool)
                 .to.have.property('attributes')
                 .that.deep.equals({});
-        });
-
-        it('It should have properties', () => {
             expect(tool)
                 .to.have.property('properties')
                 .that.deep.equals({});
         });
 
         it('getAttributeModel', () => {
+            const Model = tool.getAttributeModel();
             expect(
-                tool.getAttributeModel().constructor === BaseModel.constructor
+                Object.prototype.isPrototypeOf.call(
+                    BaseModel.prototype,
+                    Model.prototype
+                )
             ).to.be.true;
+            expect(Model.fields).to.deep.equal({});
         });
 
         it('getAttributeRows', () => {
-            expect(tool.getAttributeRows())
+            const rows = tool.getAttributeRows();
+            expect(rows)
                 .to.be.an('array')
                 .with.lengthOf(5);
+            expect(rows[0]).to.have.property('field', 'top');
+            expect(rows[1]).to.have.property('field', 'left');
+            expect(rows[2]).to.have.property('field', 'height');
+            expect(rows[3]).to.have.property('field', 'width');
+            expect(rows[4]).to.have.property('field', 'rotate');
         });
 
         it('getPropertyModel', () => {
+            const Model = tool.getAttributeModel();
             expect(
-                tool.getPropertyModel().constructor === BaseModel.constructor
+                Object.prototype.isPrototypeOf.call(
+                    BaseModel.prototype,
+                    Model.prototype
+                )
             ).to.be.true;
+            expect(Model.fields).to.deep.equal({});
         });
 
         it('getPropertyRows', () => {
-            expect(tool.getPropertyRows()).to.deep.equal([]);
+            const rows = tool.getPropertyRows();
+            expect(rows)
+                .to.be.an('array')
+                .with.lengthOf(0);
         });
 
         it('getAssets', () => {
-            expect(tool.getAssets()).to.deep.equal({
+            const assets = tool.getAssets();
+            expect(assets).to.deep.equal({
                 audio: [],
                 image: [],
                 video: []
             });
         });
 
-        it('getDefaultValue', () => {
-            expect(tool.getDefaultValue()).to.be.undefined;
-        });
-
         it('getDescription', () => {
-            expect(tool.getDescription()).to.be.null;
+            const description = tool.getDescription();
+            expect(description).to.be.null;
         });
 
         it('getHelp', () => {
-            expect(tool.getHelp()).to.be.null;
+            const help = tool.getHelp();
+            expect(help).to.be.null;
+        });
+
+        it('getTestModelField', () => {
+            const field = tool.getTestModelField();
+            expect(field).to.deep.equal({ type: 'string', defaultValue: '' });
         });
 
         it('getHtmlContent', () => {
             expect(tool).to.respondTo('getHtmlContent');
+        });
+
+        it('getHtmlCheckMarks', () => {
+            expect(tool).to.respondTo('getHtmlContent');
+        });
+
+        it('getHtmlValue', () => {
+            expect(tool).to.respondTo('getHtmlValue');
+        });
+
+        it('getHtmlSolution', () => {
+            expect(tool).to.respondTo('getHtmlSolution');
+        });
+
+        xit('onEnable', () => {
+            expect(tool).to.respondTo('onEnable');
         });
 
         xit('onResize', () => {

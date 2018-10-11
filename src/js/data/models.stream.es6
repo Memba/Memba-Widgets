@@ -4,18 +4,17 @@
  */
 
 // TODO Add calculations and worker pool here!
-// TODO Add save/load here
-// TODO Add preloading of assets here too
-// TODO store history to patch diff
-// TODO preload images/assets
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
+import { preload } from '../common/window.image.es6';
+import tools from '../tools/tools.es6';
 import PageDataSource from './datasources.page.es6';
 import BaseModel from './models.base.es6';
+import BaseTest from './models.basetest.es6';
 
 const {
     data: { ObservableArray }
@@ -27,6 +26,7 @@ const {
  * - to build a test activity to record user answers
  * - to calculate a score and show corrections
  * @class Stream
+ * @extends BaseModel
  */
 const Stream = BaseModel.define({
     // id
@@ -51,110 +51,6 @@ const Stream = BaseModel.define({
     },
 
     /**
-     * Constructor
-     * @constructor
-     * @param value
-     */
-    init(value) {
-        const that = this;
-
-        // Call the base init method
-        BaseModel.fn.init.call(that, value);
-
-        if (that.model && that.model.pages) {
-            // Reset PageDataSource with model.pages dataSource options
-            that.pages = new PageDataSource(that.model.pages);
-        }
-
-        const pages = that.pages;
-
-        /*
-         var transport = pages.transport,
-         parameterMap = transport.parameterMap;
-         transport.parameterMap = function (data, type) {
-         data[that.idField || 'id'] = that.id;
-         if (parameterMap) {
-         data = parameterMap(data, type);
-         }
-         return data;
-         };
-         */
-
-        if (pages instanceof PageDataSource) {
-            // Add parent() function
-            that.pages.parent = function() {
-                return that;
-            };
-
-            // Note: this is where kendo.data.Node bind the change and error events
-            // to propagate them from the pages collection to the stream node or a parent collection
-        }
-
-        that._loaded = !!(value && (value.pages || value._loaded));
-    },
-
-    /**
-     * Assets
-     * @method assets
-     * @returns {{audio: Array, image: Array, video: Array}}
-     */
-    assets() {
-        const assets = {
-            audio: [],
-            image: [],
-            video: []
-        };
-        // TODO
-        return assets;
-    },
-
-    /**
-     * Append a page
-     * @param model
-     */
-    append(page) {
-        this.loaded(true);
-        this.pages.add(page);
-    },
-
-    /**
-     * Load pages
-     * @returns {*}
-     */
-    load() {
-        const options = {};
-        let method = '_query';
-        const pages = this.pages;
-        // Passing the id of the page to the components _query method
-        // is suggested by kendo.data.Node
-        options[this.idField || 'id'] = this.id;
-        if (!this._loaded) {
-            pages._data = undefined;
-            method = 'read';
-        }
-        pages.one(
-            CONSTANTS.CHANGE,
-            $.proxy(function() {
-                this.loaded(true);
-            }, this)
-        );
-        return pages[method](options);
-    },
-
-    /**
-     * Gets or sets loaded value
-     * @param value
-     * @returns {boolean|*}
-     */
-    loaded(value) {
-        if (value !== undefined) {
-            this._loaded = value;
-        } else {
-            return this._loaded;
-        }
-    },
-
-    /**
      * i18n Messages
      */
     messages: {
@@ -170,544 +66,193 @@ const Stream = BaseModel.define({
     },
 
     /**
-     * Get empty user test data from properties
-     * IMPORTANT: Make sure all pages are loaded first
-     * @method getTestFromProperties
-     * @returns {*}
+     * Init
+     * @constructor init
+     * @param options
      */
-    getTestFromProperties() {
-        assert.instanceof(
-            kendo.Observable,
-            kidoju.tools,
-            assert.format(
-                assert.messages.instanceof.default,
-                'kidoju.tools',
-                'kendo.Observable'
-            )
-        );
-        const that = this;
-        const tools = kidoju.tools;
-        const test = {
-            // Store for interactions
-            interactions: []
-        };
-        $.each(that.data(), (pageIdx, page) => {
-            $.each(page.components.data(), (componentIdx, component) => {
-                const properties = component.properties;
-                if (
-                    properties instanceof kendo.data.Model &&
-                    $.type(properties.fields) === OBJECT &&
-                    !$.isEmptyObject(properties.fields) &&
-                    $.type(properties.name) === STRING &&
-                    $.type(properties.validation) === STRING
-                ) {
-                    const tool = kidoju.tools[component.tool];
-                    assert.instanceof(
-                        kidoju.Tool,
-                        tool,
-                        assert.format(
-                            assert.messages.instanceof.default,
-                            'tool',
-                            'kidoju.Tool'
-                        )
-                    );
-                    test[properties.name] = {
-                        value: tool.getDefaultValue(component)
-                    };
-                }
-            });
-        });
-        return test;
+    init(options) {
+        // Call the base init method
+        BaseModel.fn.init.call(this, options);
+
+        // Reset PageDataSource with configuration.pages options
+        // especially for the case where we have defined CRUD transports for pages
+        // when initializing PageDataSource with a schema
+        if (this.configuration && this.configuration.pages) {
+            this.pages = new PageDataSource(this.configuration.pages);
+        }
+
+        // Init pages
+        // Note: refer to the _initChildren method of kendo.data.Node
+        this._initPages();
+
+        // this._loaded = !!(options && options._loaded);
+        this._loaded = !!(options && (options.pages || options._loaded));
     },
 
     /**
-     * Validate user test data
-     * IMPORTANT: Make sure all pages are loaded first
-     * @method validateTestFromProperties
+     * _initComponents
+     * Note: check kendo.data.Node._initChildren
+     * @method _initComponents
+     * @private
+     */
+    _initPages() {
+        const that = this;
+        const { pages } = that.pages;
+
+        if (pages instanceof PageDataSource) {
+            const { transport } = pages;
+            const { parameterMap } = transport;
+            transport.parameterMap = function map(data, type) {
+                debugger;
+                let ret = data;
+                ret[that.idField || CONSTANTS.ID] = that.id;
+                if (parameterMap) {
+                    ret = parameterMap(ret, type);
+                }
+                return ret;
+            };
+            // Add parent function
+            that.pages.parent = function() {
+                return that;
+            };
+
+            // Bind the change to bubble up
+            // DO NOT UNCOMMENT, otherwise change will be raised twice
+            /*
+            pages.bind(CONSTANTS.CHANGE, e => {
+                debugger;
+                e.node = e.node || that;
+                that.trigger(CONSTANTS.CHANGE, e);
+            });
+            */
+
+            // Bind the error to bubble up
+            pages.bind(CONSTANTS.ERROR, e => {
+                // Raise error on the page;
+                that.trigger(CONSTANTS.ERROR, e);
+
+                // Raise error on the parent collection of pages
+                const collection = that.parent();
+                if (collection) {
+                    e.node = e.node || that;
+                    collection.trigger(CONSTANTS.ERROR, e);
+                }
+            });
+        }
+    },
+
+    /**
+     * Append a page
+     * @param model
+     */
+    append(page) {
+        this.loaded(true); // TODO what for???
+        this.pages.add(page);
+    },
+
+    /**
+     * Load pages
+     * @method load
      * @returns {*}
      */
-    validateTestFromProperties(test) {
-        // Note: the model being created on the fly (no kendo.data.Model)), we only have an ObservableObject to test
-        assert.instanceof(
-            kendo.data.ObservableObject,
-            test,
-            assert.format(
-                assert.messages.instanceof.default,
-                'test',
-                'kendo.data.ObservableObject'
-            )
-        );
-
-        const pageCollectionDataSource = this; // don't use that which is used below
-        const deferred = $.Deferred();
-        const workerPool = new WorkerPool(
-            (window.navigator.hardwareConcurrency || 2) - 1,
-            workerTimeout()
-        );
-        // TODO: use an app.model and define a submodel with each field - see BaseTest above
-        const result = {
-            interactions: test.interactions,
-            score() {
-                let score = 0;
-                assert.instanceof(
-                    kendo.data.ObservableObject,
-                    this,
-                    assert.format(
-                        assert.messages.instanceof.default,
-                        'this',
-                        'kendo.data.ObservableObject'
-                    )
-                );
-                for (const name in this) {
-                    if (
-                        this.hasOwnProperty(name) &&
-                        RX_VALID_NAME.test(name) &&
-                        !this.get(`${name}.disabled`)
-                    ) {
-                        score += this.get(`${name}.score`);
-                    }
-                }
-                return score;
-            },
-            max() {
-                let max = 0;
-                assert.instanceof(
-                    kendo.data.ObservableObject,
-                    this,
-                    assert.format(
-                        assert.messages.instanceof.default,
-                        'this',
-                        'kendo.data.ObservableObject'
-                    )
-                );
-                for (const name in this) {
-                    if (
-                        this.hasOwnProperty(name) &&
-                        RX_VALID_NAME.test(name) &&
-                        !this.get(`${name}.disabled`)
-                    ) {
-                        max += this.get(`${name}.success`);
-                    }
-                }
-                return max;
-            },
-            percent() {
-                assert.instanceof(
-                    kendo.data.ObservableObject,
-                    this,
-                    assert.format(
-                        assert.messages.instanceof.default,
-                        'this',
-                        'kendo.data.ObservableObject'
-                    )
-                );
-                const max = this.max();
-                const score = this.score();
-                return score === 0 || max === 0 ? 0 : (100 * score) / max;
-            },
-            getScoreArray() {
-                assert.instanceof(
-                    kendo.data.ObservableObject,
-                    this,
-                    assert.format(
-                        assert.messages.instanceof.default,
-                        'this',
-                        'kendo.data.ObservableObject'
-                    )
-                );
-                const that = this; // this is variable `result`
-                const scoreArray = [];
-                for (const name in that) {
-                    if (
-                        that.hasOwnProperty(name) &&
-                        RX_VALID_NAME.test(name) &&
-                        !this.get(`${name}.disabled`)
-                    ) {
-                        const testItem = that.get(name);
-                        const scoreItem = testItem.toJSON();
-                        // Improved display of values in score grids
-                        scoreItem.value = testItem.value$();
-                        scoreItem.solution = testItem.solution$();
-                        scoreArray.push(scoreItem);
-                    }
-                }
-                return scoreArray;
-            },
-            toJSON() {
-                const json = {};
-                assert.instanceof(
-                    kendo.data.ObservableObject,
-                    this,
-                    assert.format(
-                        assert.messages.instanceof.default,
-                        'this',
-                        'kendo.data.ObservableObject'
-                    )
-                );
-                for (const name in this) {
-                    if (this.hasOwnProperty(name)) {
-                        if (RX_VALID_NAME.test(name)) {
-                            json[name] = {
-                                result: this.get(`${name}.result`),
-                                score: this.get(`${name}.score`),
-                                value: this.get(`${name}.value`)
-                            };
-                        } else if (name === 'interactions') {
-                            json[name] = this.get(name).toJSON(); // .slice();
-                        }
-                    }
-                }
-                return json;
-            }
-        };
-
-        // Flatten test for validation formulas
-        const all = test.toJSON();
-        delete all.interactions;
-        for (const prop in all) {
-            if (all.hasOwnProperty(prop) && $.type(all[prop]) === OBJECT) {
-                if (all[prop].value === null) {
-                    // tools built upon kendo ui widgets cannot have undefined values because value(undefined) === value() so they use null
-                    all[prop] = undefined; // TODO use undefined or null? we should probably use null for unanswered tests
-                } else {
-                    all[prop] = all[prop].value;
-                }
-            }
+    load() {
+        const { pages } = this;
+        const options = {};
+        let method = '_query';
+        // Passing the id of the page to the components _query method
+        // is suggested by kendo.data.Node
+        options[this.idField || CONSTANTS.ID] = this.id;
+        if (!this._loaded) {
+            pages._data = undefined;
+            method = 'read';
         }
+        pages.one(CONSTANTS.CHANGE, () => {
+            // TODO Check this
+            debugger;
+            this._loaded = true;
+        });
+        return pages[method](options);
+    },
 
-        // TODO we might even consider storing workerLib in session storage considering https://addyosmani.com/basket.js/
-        const app = window.app;
-        // Loading workerLib via $.ajax fails in Cordova applications
-        // See: https://www.scirra.com/blog/ashley/25/hacking-something-useful-out-of-wkwebview
-        // See: http://stackoverflow.com/questions/39527101/wkwebview-web-worker-throws-error-dom-exception-18-returns-an-error
-        $.ajax({
-            url:
-                (app &&
-                    app.uris &&
-                    app.uris.webapp &&
-                    app.uris.webapp.workerlib) ||
-                workerLibPath,
-            cache: true,
-            dataType: 'text'
-        })
-            .done(workerLib => {
-                logger.debug({
-                    message: 'workerLib downloaded',
-                    method: 'PageDataSource.validateTestFromProperties',
-                    data: {
-                        path:
-                            (app &&
-                                app.uris &&
-                                app.uris.webapp &&
-                                app.uris.webapp.workerlib) ||
-                            workerLibPath
+    /**
+     * Gets or sets the loaded status of pages
+     * @param value
+     * @returns {boolean|*}
+     */
+    loaded(value) {
+        let ret;
+        if ($.type(value) !== CONSTANTS.UNDEFINED) {
+            this._loaded = value;
+        } else {
+            ret = this._loaded;
+        }
+        return ret;
+    },
+
+    /**
+     * Assets
+     * @method assets
+     * @returns {{audio: Array, image: Array, video: Array}}
+     */
+    assets() {
+        const assets = {
+            audio: [],
+            image: [],
+            video: []
+        };
+        // Iterate through pages
+        this.pages.data().forEach(page => {
+            const media = page.assets();
+            // Iterate through asset classes (medium)
+            Object.keys(media).forEach(medium => {
+                // Iterate through assets
+                media[medium].forEach(a => {
+                    // Only add if not a duplicate
+                    if (assets[media].indexOf(a) === -1) {
+                        assets[media].push(a);
                     }
                 });
-                // Add tasks to the worker pool
-                // Iterate through pages
-                $.each(pageCollectionDataSource.data(), (pageIdx, page) => {
-                    // Iterate through page components
-                    $.each(
-                        page.components.data(),
-                        (componentIdx, component) => {
-                            // List component properties
-                            const properties = component.properties;
-                            assert.instanceof(
-                                kendo.data.Model,
-                                properties,
-                                assert.format(
-                                    assert.messages.instanceof.default,
-                                    'properties',
-                                    'kendo.data.Model'
-                                )
-                            );
-                            assert.type(
-                                OBJECT,
-                                properties.fields,
-                                assert.format(
-                                    assert.messages.type.default,
-                                    'properties.fields',
-                                    OBJECT
-                                )
-                            );
-
-                            // If our component has a name property to record the result of a test interaction
-                            // Note: some components like textboxes have properties, others likes labels and images don't
-                            // assert.type(STRING, properties.name, assert.format(assert.messages.type.default, 'properties.name', STRING));
-                            if (
-                                $.type(properties.name) === STRING &&
-                                $.type(properties.validation) === STRING
-                            ) {
-                                let code;
-                                const libraryMatches = properties.validation.match(
-                                    RX_VALIDATION_LIBRARY
-                                );
-                                if (
-                                    $.isArray(libraryMatches) &&
-                                    libraryMatches.length === 4
-                                ) {
-                                    // Find libraryMatches[1] in the code library
-                                    // Array.find is not available in Internet Explorer, thus the use of Array.filter
-                                    let found = properties._library.filter(
-                                        item => item.name === libraryMatches[1]
-                                    );
-                                    assert.isArray(
-                                        found,
-                                        assert.format(
-                                            assert.messages.isArray.default,
-                                            'found'
-                                        )
-                                    );
-                                    assert.hasLength(
-                                        found,
-                                        assert.format(
-                                            assert.messages.hasLength.default,
-                                            'found'
-                                        )
-                                    );
-                                    found = found[0];
-                                    assert.isPlainObject(
-                                        found,
-                                        assert.format(
-                                            assert.messages.isPlainObject
-                                                .default,
-                                            'found'
-                                        )
-                                    );
-                                    assert.type(
-                                        STRING,
-                                        found.formula,
-                                        assert.format(
-                                            assert.messages.type.default,
-                                            'found.formula',
-                                            STRING
-                                        )
-                                    );
-                                    // libraryMatches[3] is the param value beginning with ` ["` and ending with `"]`
-                                    let paramValue = libraryMatches[3];
-                                    if (
-                                        $.type(found.param) === STRING &&
-                                        $.type(paramValue) === STRING &&
-                                        paramValue.length > '[]'.length
-                                    ) {
-                                        // Get the  paramValue in the JSON array
-                                        paramValue = JSON.parse(paramValue)[0];
-                                    }
-                                    // This is code from the library possibly with param
-                                    // When we shall have several params, consider kendo.format.apply(this, [paramValue])
-                                    code = kendo.format(
-                                        found.formula,
-                                        paramValue
-                                    );
-                                } else {
-                                    // This is custom code not form the library
-                                    code = properties.validation;
-                                }
-
-                                // Note: when e.data.value is undefined, we need to specifically call postMessage(undefined) instead of postMessage() otherwise we get the following error:
-                                // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
-                                const blob = new Blob(
-                                    [
-                                        // 'self.importScripts("' + workerLibPath + '");\n' +
-                                        `${workerLib};\n` +
-                                            `self.onmessage = function (e) {\n${code}\nvar data=JSON.parse(e.data);\nif (typeof data.value === "undefined") { self.postMessage(undefined); } else { self.postMessage(validate(data.value, data.solution, data.all)); } self.close(); };`
-                                    ],
-                                    { type: 'application/javascript' }
-                                );
-                                const blobURL = window.URL.createObjectURL(
-                                    blob
-                                );
-
-                                logger.debug({
-                                    message: `blob created for ${
-                                        properties.name
-                                    }`,
-                                    method:
-                                        'PageDataSource.validateTestFromProperties',
-                                    data: { blobURL, property: properties.name }
-                                });
-
-                                // Queue task into worker pool with name, script, and value to be posted to script
-                                if (!properties.disabled) {
-                                    workerPool.add(properties.name, blobURL, {
-                                        value: all[properties.name],
-                                        solution: properties.solution,
-                                        all // all properties - TODO should be page properties only
-                                    });
-
-                                    // Update result
-                                    result[properties.name] = {
-                                        page: pageIdx,
-                                        name: properties.name,
-                                        question: properties.question,
-                                        tool: component.tool,
-                                        value: test[properties.name].value,
-                                        solution: properties.solution,
-                                        result: undefined,
-                                        omit: properties.omit,
-                                        failure: properties.failure,
-                                        success: properties.success,
-                                        // disabled: properties.disabled,
-                                        // Functions used by getScoreArray for improved display in score grid
-                                        value$() {
-                                            assert.instanceof(
-                                                PageComponent,
-                                                component,
-                                                assert.format(
-                                                    assert.messages.instanceof
-                                                        .default,
-                                                    'component',
-                                                    'PageComponent'
-                                                )
-                                            );
-                                            assert.instanceof(
-                                                kendo.Observable,
-                                                kidoju.tools,
-                                                assert.format(
-                                                    assert.messages.instanceof
-                                                        .default,
-                                                    'kidoju.tools',
-                                                    'kendo.Observable'
-                                                )
-                                            );
-                                            const tool =
-                                                kidoju.tools[component.tool]; // also this.tool
-                                            assert.instanceof(
-                                                kidoju.Tool,
-                                                tool,
-                                                assert.format(
-                                                    assert.messages.instanceof
-                                                        .default,
-                                                    'tool',
-                                                    'kidoju.Tool'
-                                                )
-                                            );
-                                            return tool.getHtmlValue(this);
-                                        },
-                                        solution$() {
-                                            assert.instanceof(
-                                                PageComponent,
-                                                component,
-                                                assert.format(
-                                                    assert.messages.instanceof
-                                                        .default,
-                                                    'component',
-                                                    'PageComponent'
-                                                )
-                                            );
-                                            assert.instanceof(
-                                                kendo.Observable,
-                                                kidoju.tools,
-                                                assert.format(
-                                                    assert.messages.instanceof
-                                                        .default,
-                                                    'kidoju.tools',
-                                                    'kendo.Observable'
-                                                )
-                                            );
-                                            const tool =
-                                                kidoju.tools[component.tool]; // also this.tool
-                                            assert.instanceof(
-                                                kidoju.Tool,
-                                                tool,
-                                                assert.format(
-                                                    assert.messages.instanceof
-                                                        .default,
-                                                    'tool',
-                                                    'kidoju.Tool'
-                                                )
-                                            );
-                                            return tool.getHtmlSolution(this);
-                                        }
-                                    };
-
-                                    logger.debug({
-                                        message: `${
-                                            properties.name
-                                        } added to the worker pool`,
-                                        method:
-                                            'PageDataSource.validateTestFromProperties',
-                                        data: {
-                                            blobURL,
-                                            property: properties.name
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    );
-                });
-
-                logger.debug({
-                    message: 'Run the worker pool',
-                    method: 'PageDataSource.validateTestFromProperties'
-                });
-
-                // Run the worker pool
-                workerPool
-                    .run()
-                    .done(function() {
-                        // iterate through recorded answer validations (arguments)
-                        // for each named value
-                        $.each(arguments, (index, argument) => {
-                            // store the result which is success, failure or omitted (undefined)
-                            result[argument.name].result = argument.value;
-                            // store the score depending on the result
-                            switch (argument.value) {
-                                case true: // success
-                                    if (
-                                        result[argument.name] &&
-                                        $.type(
-                                            result[argument.name].success
-                                        ) === NUMBER
-                                    ) {
-                                        result[argument.name].score =
-                                            result[argument.name].success;
-                                    }
-                                    break;
-                                case false: // failure
-                                    if (
-                                        result[argument.name] &&
-                                        $.type(
-                                            result[argument.name].failure
-                                        ) === NUMBER
-                                    ) {
-                                        result[argument.name].score =
-                                            result[argument.name].failure;
-                                    }
-                                    break;
-                                default:
-                                    // undefined (omitted)
-                                    if (
-                                        result[argument.name] &&
-                                        $.type(result[argument.name].omit) ===
-                                            NUMBER
-                                    ) {
-                                        result[argument.name].score =
-                                            result[argument.name].omit;
-                                    }
-                                    break;
-                            }
-                            // calculate the total test score
-                            // result.score += result[argument.name].score;
-                            // calculate the max possible score in order to calculate a percentage
-                            // if (result[argument.name] && result[argument.name].success) {
-                            //    result.max += result[argument.name].success;
-                            // }
-                        });
-                        deferred.resolve(result);
-                    })
-                    .fail(deferred.reject);
-            })
-            .fail(deferred.reject);
-
-        // return the test result
-        return deferred.promise();
+            });
+        });
+        return assets;
     },
+
+    /**
+     * Preload images (only images for now)
+     */
+    preload() {
+        const assets = this.assets();
+        const promises = assets.image.map(preload);
+        return $.when(...promises);
+    },
+
+    /**
+     * Get a test model to append to a score activity
+     * IMPORTANT: Make sure all pages are loaded first
+     * @method getTestModel (formerly getTestFromProperties)
+     * @returns {*}
+     */
+    getTestModel() {
+        const fields = {};
+        // TODO: test if(this.loaded()) ???????
+        this.pages.data().forEach(page => {
+            page.components.forEach(component => {
+                const { name } = component.properties || {};
+                if ($.type(name) === CONSTANTS.STRING) {
+                    const tool = tools[component.tool];
+                    // TODO Add page index to each field
+                    debugger;
+                    fields[name] = tool.getTestModelField(component);
+                }
+            });
+        });
+        return BaseTest.define(fields);
+    }
 
     /**
      * Stream validation
      */
+    /*
     validate() {
         assert.instanceof(
             Stream,
@@ -763,7 +308,7 @@ const Stream = BaseModel.define({
                             values._total += 1;
                             values[tool] = (values[tool] || 0) + 1;
                         }
-                        values._weight += kidoju.tools[tool].weight;
+                        values._weight += tools[tool].weight;
                     }
                 }
             }
@@ -815,10 +360,10 @@ const Stream = BaseModel.define({
                 if (proportion >= QTY_VARIETY) {
                     assert.instanceof(
                         kendo.Observable,
-                        kidoju.tools,
+                        tools,
                         assert.format(
                             assert.messages.instanceof.default,
-                            'kidoju.tools',
+                            'tools',
                             'kendo.Observable'
                         )
                     );
@@ -828,7 +373,7 @@ const Stream = BaseModel.define({
                         message: kendo.format(
                             this.messages.qtyVariety,
                             proportion,
-                            kidoju.tools[prop].description
+                            tools[prop].description
                         )
                     });
                 }
@@ -836,6 +381,7 @@ const Stream = BaseModel.define({
         }
         return ret;
     }
+    */
 });
 
 /**

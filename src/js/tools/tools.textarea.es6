@@ -51,7 +51,7 @@ var Textarea = BaseTool.extend({
     templates: {
         design: format(TEXTAREA, ''),
         play: format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"'),
-        review: format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"') + BaseTool.fn.getHtmlCheckMark()
+        review: format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"') + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 300,
     width: 500,

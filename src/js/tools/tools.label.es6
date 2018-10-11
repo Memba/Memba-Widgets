@@ -17,12 +17,11 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 
-const {
-    format,
-    ns,
-    template,
-    ui: { Stage }
-} = window.kendo;
+const { format, ns, template } = window.kendo;
+
+// TODO Review these constants
+const RX_TEXT = /\S+/i;
+const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
 
 /**
  * i18n
@@ -32,7 +31,7 @@ function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).label || {
             description: 'Label',
-            help: '',
+            help: null,
             attributes: {
                 style: { title: 'Style' },
                 text: { title: 'Text', defaultValue: 'Label' }
@@ -110,16 +109,16 @@ const Label = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         assert.enum(
-            Object.keys(Stage.fn.modes),
+            Object.values(CONSTANTS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(Stage.fn.modes)
+                Object.values(CONSTANTS.STAGE_MODES)
             )
         );
         const tmpl = template(that.templates.default);
@@ -162,7 +161,7 @@ const Label = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         const content = stageElement.children('div');
@@ -218,23 +217,20 @@ const Label = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const {
+            description,
+            i18n: { messages }
+        } = this; // tool description
         if (
             !component.attributes ||
             !component.attributes.text ||
-            component.attributes.text ===
-                i18n().attributes.text.defaultValue ||
+            component.attributes.text === i18n().attributes.text.defaultValue ||
             !RX_TEXT.test(component.attributes.text)
         ) {
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(
-                    messages.invalidText,
-                    description,
-                    pageIdx + 1
-                )
+                message: format(messages.invalidText, description, pageIdx + 1)
             });
         }
         if (
@@ -247,11 +243,7 @@ const Label = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(
-                    messages.invalidStyle,
-                    description,
-                    pageIdx + 1
-                )
+                message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
         // TODO: We should also check that there is a dropZone on the page if draggable

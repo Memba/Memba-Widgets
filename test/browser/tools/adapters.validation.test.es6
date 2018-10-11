@@ -18,11 +18,13 @@ describe('adapters.validation', () => {
         const adapter = new ValidationAdapter();
 
         it('It should have descriptors', () => {
-            expect(Object.keys(adapter).length).to.equal(13);
+            expect(Object.keys(adapter)).to.have.lengthOf(13);
             expect(adapter).to.have.property('attributes').that.is.undefined;
-            expect(adapter).to.have.property('defaultValue', '');
+            expect(adapter).to.have.property('defaultValue').that.is.undefined;
             expect(adapter).to.have.property('editable').that.is.undefined;
-            expect(adapter).to.have.property('editor', 'input');
+            expect(adapter)
+                .to.have.property('editor')
+                .that.is.a('function');
             expect(adapter).to.have.property('field').that.is.undefined;
             expect(adapter).to.have.property('format').that.is.undefined;
             expect(adapter).to.have.property('from').that.is.undefined;
@@ -37,7 +39,7 @@ describe('adapters.validation', () => {
         it('getField', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
-                defaultValue: '',
+                // defaultValue: '', // TODO should be // equal or check library
                 type: CONSTANTS.STRING
             });
         });
@@ -45,10 +47,11 @@ describe('adapters.validation', () => {
         it('getRow', () => {
             const field = randomVal();
             const row = adapter.getRow(field);
-            expect(row).to.deep.equal({
-                field,
-                editor: 'input'
-            });
+            expect(Object.keys(row)).to.have.lengthOf(2);
+            expect(row).to.have.property('field', field);
+            expect(row)
+                .to.have.property('editor')
+                .that.is.a('function');
         });
     });
 });

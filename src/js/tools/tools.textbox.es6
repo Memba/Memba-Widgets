@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.maskedtextbox';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
@@ -20,8 +21,15 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import { LIB_COMMENT, stringLibrary } from './util.libraries.es6';
 
-const { attr, format } = window.kendo;
+const {
+    format,
+    ui: { MaskedTextBox }
+} = window.kendo;
 const ScoreAdapter = NumberAdapter;
+
+// TODO Review RX constants
+const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
+const RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
 
 /**
  * i18n
@@ -29,9 +37,21 @@ const ScoreAdapter = NumberAdapter;
  */
 function i18n() {
     return (
-        (((window.app || {}).i18n || {}).tools || {}).textbox ||
-        {
-            // TODO
+        (((window.app || {}).i18n || {}).tools || {}).textbox || {
+            description: 'TextBox',
+            attributes: {
+                mask: { title: 'Mask' },
+                style: { title: 'Style' }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: { title: 'Question' },
+                solution: { title: 'Solution' },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' }
+            }
         }
     );
 }
@@ -47,7 +67,7 @@ const TEXTBOX =
 const Textbox = BaseTool.extend({
     id: 'textbox',
     icon: 'text_field',
-    description: i18n.textbox.description,
+    description: i18n().description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
@@ -60,39 +80,39 @@ const Textbox = BaseTool.extend({
             format(
                 TEXTBOX,
                 'data-#= ns #bind="value: #: properties.name #.value"'
-            ) + BaseTool.fn.getHtmlCheckMark()
+            ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 80,
     width: 300,
     attributes: {
-        mask: new TextBoxAdapter({ title: i18n.textbox.attributes.mask.title }),
-        style: new StyleAdapter({ title: i18n.textbox.attributes.style.title })
+        mask: new TextBoxAdapter({ title: i18n().attributes.mask.title }),
+        style: new StyleAdapter({ title: i18n().attributes.style.title })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n.textbox.properties.name.title
+            title: i18n().properties.name.title
         }),
         question: new QuestionAdapter({
-            title: i18n.textbox.properties.question.title
+            title: i18n().properties.question.title
         }),
         solution: new TextBoxAdapter({
-            title: i18n.textbox.properties.solution.title
+            title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
             defaultValue: LIB_COMMENT + stringLibrary.defaultValue,
             library: stringLibrary.library,
-            title: i18n.textbox.properties.validation.title
+            title: i18n().properties.validation.title
         }),
         success: new ScoreAdapter({
-            title: i18n.textbox.properties.success.title,
+            title: i18n().properties.success.title,
             defaultValue: 1
         }),
         failure: new ScoreAdapter({
-            title: i18n.textbox.properties.failure.title,
+            title: i18n().properties.failure.title,
             defaultValue: 0
         }),
         omit: new ScoreAdapter({
-            title: i18n.textbox.properties.omit.title,
+            title: i18n().properties.omit.title,
             defaultValue: 0
         })
     },
@@ -165,8 +185,8 @@ const Textbox = BaseTool.extend({
         // See also http://docs.telerik.com/kendo-ui/api/javascript/ui/maskedtextbox#configuration-mask
         const maskedTextBoxWidget = content.data('kendoMaskedTextBox');
         if (
-            kendo.ui.MaskedTextBox &&
-            maskedTextBoxWidget instanceof kendo.ui.MaskedTextBox &&
+            MaskedTextBox &&
+            maskedTextBoxWidget instanceof MaskedTextBox &&
             maskedTextBoxWidget.options.mask !== component.attributes.mask
         ) {
             maskedTextBoxWidget.setOptions({ mask: component.attributes.mask });
@@ -184,8 +204,10 @@ const Textbox = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const {
+            description,
+            i18n: { messages }
+        } = this; // tool description
         // TODO: validate mask
         if (
             !component.attributes ||

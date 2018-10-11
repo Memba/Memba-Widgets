@@ -50,7 +50,7 @@ var ImageSet = BaseTool.extend({
     templates: {
         design: format(IMAGESET, 'data-#= ns #enabled="false"'),
         play: format(IMAGESET, 'data-#= ns #bind="value: #: properties.name #.value"'),
-        review: format(IMAGESET, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enabled="false"') + BaseTool.fn.getHtmlCheckMark()
+        review: format(IMAGESET, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enabled="false"') + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 250,
     width: 250,

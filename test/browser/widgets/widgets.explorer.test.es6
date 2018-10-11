@@ -8,15 +8,30 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import 'jquery.simulate';
 import 'kendo.binder';
-import 'kendo.data';
 import chai from 'chai';
+import chaiJquery from 'chai-jquery';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import BaseAdapter from '../../../src/js/tools/adapters.base.es6';
-import AssetAdapter from '../../../src/js/tools/adapters.asset.es6';
+import '../../../src/js/widgets/widgets.rating.es6';
 
-const { describe, it, kendo, xit } = window;
+const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
+const {
+    attr,
+    bind,
+    destroy,
+    observable,
+    ui: { Rating }
+} = window.kendo;
+const FIXTURES = '#fixtures';
+const ELEMENT = '<input>';
+const ROLE = 'rating';
+
+chai.use((c, u) => chaiJquery(c, u, $));
+chai.use(sinonChai);
 
 var expect = window.chai.expect;
 var sinon = window.sinon;
@@ -94,12 +109,12 @@ describe('widgets.explorer', function () {
         });
 
         it('from markup', function () {
-            var viewModel = kendo.observable({
+            var viewModel = observable({
                     components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                     current: undefined
                 });
             var element = $(EXPLORER3).appendTo(FIXTURES);
-            kendo.bind(FIXTURES, viewModel);
+            bind(FIXTURES, viewModel);
             var explorer = element.data('kendoExplorer');
             expect(explorer).to.be.an.instanceof(Explorer);
             expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
@@ -209,7 +224,7 @@ describe('widgets.explorer', function () {
 
         /*
          // For obscure reasons, setting the viewModel here does not work
-        viewModel = kendo.observable({
+        viewModel = observable({
             components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
             current: null
         });
@@ -217,11 +232,11 @@ describe('widgets.explorer', function () {
 
         beforeEach(function () {
             element = $(EXPLORER3).appendTo(FIXTURES);
-            viewModel = kendo.observable({
+            viewModel = observable({
                 components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                 current: null
             });
-            kendo.bind(FIXTURES, viewModel);
+            bind(FIXTURES, viewModel);
             explorer = element.data('kendoExplorer');
         });
 
@@ -342,7 +357,7 @@ describe('widgets.explorer', function () {
 
     afterEach(function () {
         var fixtures = $(FIXTURES);
-        kendo.destroy(fixtures);
+        destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();
     });

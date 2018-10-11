@@ -6,6 +6,8 @@
 import JSC from 'jscheck';
 import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
 import { error2xhr } from '../../../src/js/data/data.util.es6';
+import tools from '../../../src/js/tools/tools.es6';
+import BaseTool from '../../../src/js/tools/tools.base.es6';
 
 // Note: floating numbers generate errors due to changes in the last digit
 const angleGenerator = JSC.integer(0, 360);
@@ -98,14 +100,40 @@ export function getTextBox() {
     };
 }
 
+const componentGenerator = {
+    image: getImage,
+    label: getLabel, // <- always keep
+    textbox: getTextBox
+};
+
 /**
  * getComponentArray
  * @function getComponentArray
  */
 export function getComponentArray() {
-    // First component is always a label
-    return [getLabel()];
-    // TODO return [getLabel()].concat(JSC.array(JSC.number(2, 5), JSC.one_of(getImage. getTextBox)));
+    let ret = [];
+    const generators = [];
+    Object.keys(componentGenerator).forEach(key => {
+        // This ensures we only create components for registered tools
+        if (tools[key] instanceof BaseTool) {
+            if (key === 'label') {
+                // First component is always a label for some tests
+                ret.push(getLabel());
+            } else {
+                generators.push(componentGenerator[key]);
+            }
+        }
+    });
+    const { length } = generators;
+    if (length) {
+        ret = ret.concat(
+            JSC.array(
+                JSC.number(1, Math.min(length, 3)),
+                JSC.one_of(generators)
+            )()
+        );
+    }
+    return ret;
 }
 
 /**

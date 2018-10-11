@@ -3,7 +3,35 @@
  * Sources at https://github.com/Memba
  */
 
+/* eslint-disable no-unused-expressions */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'jquery.simulate';
+import 'kendo.binder';
+import chai from 'chai';
+import chaiJquery from 'chai-jquery';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import '../../../src/js/widgets/widgets.rating.es6';
+
+const { afterEach, before, beforeEach, describe, it } = window;
+const { expect } = chai;
+const {
+    attr,
+    bind,
+    destroy,
+    observable,
+    ui: { Rating }
+} = window.kendo;
+const FIXTURES = '#fixtures';
+const ELEMENT = '<input>';
+const ROLE = 'rating';
+
+chai.use((c, u) => chaiJquery(c, u, $));
+chai.use(sinonChai);
 
 var expect = window.chai.expect;
 var sinon = window.sinon;
@@ -57,7 +85,7 @@ describe('kidoju.widgets.imageset', function () {
 
         it('from markup', function () {
             var element = $(IMAGESET2).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
+            init(FIXTURES);
             var imageset = element.data('kendoImageSet');
             expect(imageset).to.be.an.instanceof(ImageSet);
             // expect(element).to.have.class('k-widget');
@@ -66,7 +94,7 @@ describe('kidoju.widgets.imageset', function () {
 
         afterEach(function () {
             var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
+            destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
@@ -100,7 +128,7 @@ describe('kidoju.widgets.imageset', function () {
 
         afterEach(function () {
             var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
+            destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
@@ -119,7 +147,7 @@ describe('kidoju.widgets.imageset', function () {
         beforeEach(function () {
             element = $(IMAGESET1).appendTo(FIXTURES);
             imageset = element.kendoImageSet(options).data('kendoImageSet');
-            viewModel = kendo.observable({
+            viewModel = observable({
                 // TODO
             });
             change = sinon.spy();
@@ -132,7 +160,7 @@ describe('kidoju.widgets.imageset', function () {
 
         afterEach(function () {
             var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
+            destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
@@ -158,7 +186,7 @@ describe('kidoju.widgets.imageset', function () {
 
         afterEach(function () {
             var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
+            destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });

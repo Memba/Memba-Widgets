@@ -62,7 +62,7 @@ describe('widgets.toolbox', function () {
 
         it('from markup', function () {
             var element = $(TOOLBOX2).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
+            init(FIXTURES);
             var toolbox = element.data('kendoToolBox');
             expect(toolbox).to.be.an.instanceof(ToolBox);
             expect(element.hasClass('k-widget')).to.be.true;
@@ -193,7 +193,7 @@ describe('widgets.toolbox', function () {
 
     afterEach(function () {
         var fixtures = $(FIXTURES);
-        kendo.destroy(fixtures);
+        destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();
     });

@@ -208,7 +208,7 @@ describe('widgets.rating', () => {
 
         /*
          // For obscure reasons, setting the viewModel here does not work
-         viewModel = kendo.observable({
+         viewModel = observable({
             rating: undefined
          });
          */

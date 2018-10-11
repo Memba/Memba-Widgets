@@ -69,7 +69,7 @@
 
             it('from markup', function () {
                 var element = $(SPLITBUTTON2).appendTo(FIXTURES);
-                kendo.init(FIXTURES);
+                init(FIXTURES);
                 var splitButton = element.data('kendoSplitButton');
                 expect(splitButton).to.be.an.instanceof(SplitButton);
                 // expect(element).to.have.class('k-widget');
@@ -83,7 +83,7 @@
 
             afterEach(function () {
                 var fixtures = $(FIXTURES);
-                kendo.destroy(fixtures);
+                destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
             });
@@ -117,7 +117,7 @@
 
             afterEach(function () {
                 var fixtures = $(FIXTURES);
-                kendo.destroy(fixtures);
+                destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
             });
@@ -136,7 +136,7 @@
             beforeEach(function () {
                 element = $(SPLITBUTTON1).appendTo(FIXTURES);
                 splitButton = element.kendoSplitButton(options).data('kendoSplitButton');
-                viewModel = kendo.observable({
+                viewModel = observable({
                     // TODO
                 });
                 change = sinon.spy();
@@ -149,7 +149,7 @@
 
             afterEach(function () {
                 var fixtures = $(FIXTURES);
-                kendo.destroy(fixtures);
+                destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
             });
@@ -175,7 +175,7 @@
 
             afterEach(function () {
                 var fixtures = $(FIXTURES);
-                kendo.destroy(fixtures);
+                destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
             });

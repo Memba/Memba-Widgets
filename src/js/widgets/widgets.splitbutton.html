@@ -190,7 +190,10 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.splitbutton.es6').then(function () {
+            Promise.all([
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('./widgets.splitbutton.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
                     visible: true,

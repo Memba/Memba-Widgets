@@ -80,6 +80,7 @@ const CONSTANTS = {
     RX_URL: /^https?:\/\//,
     // Characters
     DOT: '.',
+    EMPTY: '',
     HASH: '#',
     HYPHEN: '-',
     UNDERSCORE: '_',

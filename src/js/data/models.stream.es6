@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Add calculations and worker pool here!
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -111,6 +109,7 @@ const Stream = BaseModel.define({
                 }
                 return ret;
             };
+
             // Add parent function
             that.pages.parent = function() {
                 return that;

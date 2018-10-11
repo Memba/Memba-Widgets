@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.rating.es6';
+import '../../../src/js/widgets/widgets.license.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -24,16 +24,16 @@ const {
     bind,
     destroy,
     observable,
-    ui: { Rating }
+    ui: { License }
 } = window.kendo;
 const FIXTURES = '#fixtures';
 const ELEMENT = '<input>';
-const ROLE = 'rating';
+const ROLE = 'license';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-describe('widgets.rating', () => {
+describe('widgets.license', () => {
     before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $('body').append('<div id="fixtures"></div>');
@@ -208,7 +208,7 @@ describe('widgets.rating', () => {
 
         /*
          // For obscure reasons, setting the viewModel here does not work
-         viewModel = kendo.observable({
+         viewModel = observable({
             rating: undefined
          });
          */

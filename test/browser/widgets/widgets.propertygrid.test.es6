@@ -679,20 +679,20 @@ describe('kidoju.widgets.propertygrid', function () {
 
         it('from markup', function () {
             var element = $(PROPERTYGRID2).appendTo(FIXTURES);
-            var viewModel = kendo.observable({
+            var viewModel = observable({
 
             });
-            kendo.bind(FIXTURES, viewModel);
+            bind(FIXTURES, viewModel);
             var propertyGrid = element.data('kendoPropertyGrid');
             expect(propertyGrid).to.be.an.instanceof(PropertyGrid);
         });
 
         it('from markup and rows', function () {
             var element = $(PROPERTYGRID2).appendTo(FIXTURES);
-            var viewModel = kendo.observable({
+            var viewModel = observable({
 
             });
-            kendo.bind(FIXTURES, viewModel);
+            bind(FIXTURES, viewModel);
             var propertyGrid = element.data('kendoPropertyGrid');
             expect(propertyGrid).to.be.an.instanceof(PropertyGrid);
         });
@@ -901,7 +901,7 @@ describe('kidoju.widgets.propertygrid', function () {
 
         /*
          // For obscure reasons, setting the viewModel here does not work
-         viewModel = kendo.observable({
+         viewModel = observable({
          components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
          current: null
          });
@@ -909,10 +909,10 @@ describe('kidoju.widgets.propertygrid', function () {
 
         beforeEach(function () {
             element = $(PROPERTYGRID2).appendTo(FIXTURES);
-            viewModel = kendo.observable({
+            viewModel = observable({
                 current: null
             });
-            kendo.bind(FIXTURES, viewModel);
+            bind(FIXTURES, viewModel);
             propertyGrid = element.data('kendoPropertyGrid');
         });
 
@@ -992,7 +992,7 @@ describe('kidoju.widgets.propertygrid', function () {
 
     afterEach(function () {
         var fixtures = $(FIXTURES);
-        // kendo.destroy(fixtures); // TODO: RangeError: Maximum call stack size exceeded
+        // destroy(fixtures); // TODO: RangeError: Maximum call stack size exceeded
         fixtures.find('*').off();
         fixtures.empty();
     });

@@ -193,12 +193,12 @@ describe('widgets.stage', function () {
         });
 
         it('from markup', function () {
-            var viewModel = kendo.observable({
+            var viewModel = observable({
                     components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                     current: undefined
                 });
             var element = $(STAGE2).appendTo(FIXTURES);
-            kendo.bind(FIXTURES, viewModel);
+            bind(FIXTURES, viewModel);
             var stage = element.data('kendoStage');
             expect(stage).to.be.an.instanceof(Stage);
             expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
@@ -393,7 +393,7 @@ describe('widgets.stage', function () {
 
         /*
          // For obscure reasons, setting the viewModel here does not work
-         viewModel = kendo.observable({
+         viewModel = observable({
             components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
             current: null
          });
@@ -401,11 +401,11 @@ describe('widgets.stage', function () {
 
         beforeEach(function () {
             element = $(STAGE2).appendTo(FIXTURES);
-            viewModel = kendo.observable({
+            viewModel = observable({
                 components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                 current: null
             });
-            kendo.bind(FIXTURES, viewModel);
+            bind(FIXTURES, viewModel);
             stage = element.data('kendoStage');
         });
 
@@ -859,7 +859,7 @@ describe('widgets.stage', function () {
 
     afterEach(function () {
         var fixtures = $(FIXTURES);
-        kendo.destroy(fixtures);
+        destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();
     });

@@ -63,7 +63,7 @@
 
             it('from markup', function () {
                 var element = $(UNITINPUT2).appendTo(FIXTURES);
-                kendo.init(FIXTURES);
+                init(FIXTURES);
                 var unitInput = element.data('kendoUnitInput');
                 expect(unitInput).to.be.an.instanceof(UnitInput);
                 // expect(element).to.have.class('k-widget');
@@ -77,7 +77,7 @@
 
             afterEach(function () {
                 var fixtures = $(FIXTURES);
-                kendo.destroy(fixtures);
+                destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
             });
@@ -111,7 +111,7 @@
 
             afterEach(function () {
                 var fixtures = $(FIXTURES);
-                kendo.destroy(fixtures);
+                destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
             });
@@ -130,7 +130,7 @@
             beforeEach(function () {
                 element = $(UNITINPUT1).appendTo(FIXTURES);
                 unitInput = element.kendoUnitInput(options).data('kendoUnitInput');
-                viewModel = kendo.observable({
+                viewModel = observable({
                     // TODO
                 });
                 change = sinon.spy();
@@ -143,7 +143,7 @@
 
             afterEach(function () {
                 var fixtures = $(FIXTURES);
-                kendo.destroy(fixtures);
+                destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
             });
@@ -169,7 +169,7 @@
 
             afterEach(function () {
                 var fixtures = $(FIXTURES);
-                kendo.destroy(fixtures);
+                destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
             });

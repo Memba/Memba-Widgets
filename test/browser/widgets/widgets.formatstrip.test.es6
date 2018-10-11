@@ -8,16 +8,29 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
+import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import BaseAdapter from '../../../src/js/widgets/widgets.formatstrip.es6';
+import '../../../src/js/widgets/widgets.rating.es6';
 
-const { afterEach, before, describe, it, xit } = window;
+const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
+const {
+    attr,
+    bind,
+    destroy,
+    observable,
+    ui: { Rating }
+} = window.kendo;
+const FIXTURES = '#fixtures';
+const ELEMENT = '<input>';
+const ROLE = 'rating';
 
+chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
 
@@ -103,12 +116,12 @@ describe('widgets.formatstrip', function () {
         });
 
         xit('from markup', function () {
-            var viewModel = kendo.observable({
+            var viewModel = observable({
                 formatStrip: undefined
             });
             var element =  $(FORMATSTRIP2).appendTo(FIXTURES);
             expect(element).to.match('input');
-            kendo.bind(FIXTURES, viewModel);
+            bind(FIXTURES, viewModel);
             var formatStrip = element.data('kendoFormatStrip');
             expect(formatStrip).to.be.an.instanceof(FormatStrip);
             var min = formatStrip.options.min;
@@ -192,17 +205,17 @@ describe('widgets.formatstrip', function () {
 
         /*
          // For obscure reasons, setting the viewModel here does not work
-         viewModel = kendo.observable({
+         viewModel = observable({
          formatStrip: undefined
          });
          */
 
         beforeEach(function () {
             element = $(FORMATSTRIP2).appendTo(FIXTURES);
-            viewModel = kendo.observable({
+            viewModel = observable({
                 current: undefined
             });
-            kendo.bind(FIXTURES, viewModel);
+            bind(FIXTURES, viewModel);
             formatStrip = element.data('kendoFormatStrip');
         });
 
@@ -322,7 +335,7 @@ describe('widgets.formatstrip', function () {
     afterEach(function () {
         var fixtures = $(FIXTURES);
         kendo.unbind(fixtures);
-        kendo.destroy(fixtures);
+        destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();
     });

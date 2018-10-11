@@ -13,23 +13,25 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import '../../../src/js/widgets/widgets.mathexpression.es6';
+import '../../../src/js/widgets/widgets.markdown.es6';
 
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
 const {
     attr,
     destroy,
-    ui: { MathExpression }
+    init,
+    observable,
+    ui: { Markdown }
 } = window.kendo;
 const FIXTURES = '#fixtures';
 const ELEMENT = '<div/>';
-const ROLE = 'mathexpression';
+const ROLE = 'markdown';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-describe('widgets.mathexpression', () => {
+describe('widgets.markdown', () => {
     before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $('body').append('<div id="fixtures"></div>');
@@ -38,45 +40,42 @@ describe('widgets.mathexpression', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
-            expect($.fn.kendoMathExpression).to.be.a('function');
+            expect($.fn.kendoMarkdown).to.be.an.instanceof(Function);
         });
     });
 
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(FIXTURES);
-            const widget = element
-                .kendoMathExpression()
-                .data('kendoMathExpression');
-            expect(widget).to.be.an.instanceof(MathExpression);
+            const widget = element.kendoMarkdown().data('kendoMarkdown');
+            expect(widget).to.be.an.instanceof(Markdown);
             // expect(element).to.have.class('k-widget');
+            expect(element).to.have.class('kj-markdown');
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
             const options = {};
-            const widget = element
-                .kendoMathExpression()
-                .data('kendoMathExpression');
-            expect(widget).to.be.an.instanceof(MathExpression);
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element.kendoMarkdown(options).data('kendoMarkdown');
+            expect(widget).to.be.an.instanceof(Markdown);
             // expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-mathexpression');
+            expect(element).to.have.class('kj-markdown');
         });
 
         it('from markup', () => {
+            const attributes = {};
+            attributes[attr('role')] = ROLE;
             const element = $(ELEMENT)
-                .attr()
+                .attr(attributes)
                 .appendTo(FIXTURES);
             init(FIXTURES);
-            const dropZone = element.data('kendoMathExpression');
-            expect(dropZone).to.be.an.instanceof(MathExpression);
+            const markDown = element.data('kendoMarkdown');
+            expect(markDown).to.be.an.instanceof(Markdown);
             // expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-mathexpression');
+            expect(element).to.have.class('kj-markdown');
         });
 
-        xit('from markup with attributes', () => {
-            // TODO: AssetManager might be a bit complex to initialize with attributes...
-        });
+        xit('from markup with attributes', () => {});
 
         afterEach(() => {
             const fixtures = $(FIXTURES);
@@ -92,21 +91,17 @@ describe('widgets.mathexpression', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            widget = element
-                .kendoMathExpression(options)
-                .data('kendoMathExpression');
+            widget = element.kendoMarkdown(options).data('kendoMarkdown');
         });
 
         xit('value', done => {
-            expect(widget).to.be.an.instanceof(MathExpression);
+            expect(widget).to.be.an.instanceof(Markdown);
         });
 
-        xit('setOptions', () => {
-            // TODO especially regarding filters (to be enforced)
-        });
+        xit('setOptions', () => {});
 
         xit('destroy', () => {
-            expect(widget).to.be.an.instanceof(MathExpression);
+            expect(widget).to.be.an.instanceof(Markdown);
             widget.destroy();
             expect(widget.element).to.be.empty;
         });
@@ -128,9 +123,7 @@ describe('widgets.mathexpression', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            widget = element
-                .kendoMathExpression(options)
-                .data('kendoMathExpression');
+            widget = element.kendoMarkdown(options).data('kendoMarkdown');
             viewModel = observable({
                 // TODO
             });
@@ -155,9 +148,7 @@ describe('widgets.mathexpression', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            widget = element
-                .kendoMathExpression(options)
-                .data('kendoMathExpression');
+            widget = element.kendoMarkdown(options).data('kendoMarkdown');
             event = sinon.spy();
         });
 

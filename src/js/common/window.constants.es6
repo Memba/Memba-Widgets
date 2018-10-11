@@ -87,6 +87,11 @@ const CONSTANTS = {
     ID: 'id',
     ME: 'me',
     POINTER: 'pointer',
+    STAGE_MODES: {
+        DESIGN: 'design',
+        PLAY: 'play',
+        REVIEW: 'review'
+    },
     // HTML tags
     DIV: 'div',
     INPUT: 'input',

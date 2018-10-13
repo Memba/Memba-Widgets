@@ -10,14 +10,15 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import {
     dateReviver,
-    jsonClone,
     escapeRegExp,
+    isAnyArray,
+    compareStringArrays,
+    isGuid,
+    jsonClone,
     randomHexString,
     randomId,
     randomVal,
     round,
-    isAnyArray,
-    compareStringArrays,
     getSelection,
     setSelection,
     replaceSelection
@@ -26,7 +27,8 @@ import {
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    data: { ObservableArray }
+    data: { ObservableArray },
+    guid
 } = window.kendo;
 
 describe('window.util', () => {
@@ -43,6 +45,47 @@ describe('window.util', () => {
         });
     });
 
+    describe('escapeRegExp', () => {
+        it('It should return an escaped regular expression', () => {
+            expect(escapeRegExp('()')).to.equal('\\(\\)');
+            expect(escapeRegExp('[]')).to.equal('\\[\\]');
+            expect(escapeRegExp('{}')).to.equal('\\{\\}');
+        });
+    });
+
+    describe('isAnyArray', () => {
+        it('it should check an array', () => {
+            expect(isAnyArray(JSC.array()())).to.be.true;
+        });
+
+        it('it should check a Kendo UI ObservableArray', () => {
+            expect(isAnyArray(new ObservableArray(JSC.array()()))).to.be.true;
+        });
+
+        it('it should not check other value types', () => {
+            expect(isAnyArray(JSC.boolean()())).to.be.false;
+            expect(isAnyArray(JSC.number(1000))).to.be.false;
+            expect(isAnyArray(JSC.string())).to.be.false;
+            expect(isAnyArray(JSC.object()())).to.be.false;
+        });
+    });
+
+    describe('compareStringArrays', () => {
+        xit('TODO', () => {
+            expect(true).to.be.false;
+        });
+    });
+
+    describe('isGuid', () => {
+        it('It should return true when testing a guid', () => {
+            expect(isGuid(guid())).to.be.true;
+        });
+
+        it('It should return false when testing a non-guid', () => {
+            expect(isGuid(JSC.any()())).to.be.false;
+        });
+    });
+
     describe('jsonClone', () => {
         it('It should parse dates in JSON documents', () => {
             // const obj = JSC.object()(); // Deep equal fails
@@ -53,14 +96,6 @@ describe('window.util', () => {
                 d: new Date()
             };
             expect(jsonClone(obj)).to.deep.equal(obj);
-        });
-    });
-
-    describe('escapeRegExp', () => {
-        it('It should return an escaped regular expression', () => {
-            expect(escapeRegExp('()')).to.equal('\\(\\)');
-            expect(escapeRegExp('[]')).to.equal('\\[\\]');
-            expect(escapeRegExp('{}')).to.equal('\\{\\}');
         });
     });
 
@@ -90,29 +125,6 @@ describe('window.util', () => {
         it('It should round with precision', () => {
             expect(round(1.23456789)).to.equal(1.23);
             expect(round(2.96754321, 4)).to.equal(2.9675);
-        });
-    });
-
-    describe('isAnyArray', () => {
-        it('it should check an array', () => {
-            expect(isAnyArray(JSC.array()())).to.be.true;
-        });
-
-        it('it should check a Kendo UI ObservableArray', () => {
-            expect(isAnyArray(new ObservableArray(JSC.array()()))).to.be.true;
-        });
-
-        it('it should not check other value types', () => {
-            expect(isAnyArray(JSC.boolean()())).to.be.false;
-            expect(isAnyArray(JSC.number(1000))).to.be.false;
-            expect(isAnyArray(JSC.string())).to.be.false;
-            expect(isAnyArray(JSC.object()())).to.be.false;
-        });
-    });
-
-    describe('compareStringArrays', () => {
-        xit('TODO', () => {
-            expect(true).to.be.false;
         });
     });
 

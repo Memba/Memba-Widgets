@@ -25,16 +25,6 @@ export function dateReviver(key, value) {
 }
 
 /**
- * Clone using JSON
- * @function jsonClone
- * @param obj
- * @returns {any}
- */
-export function jsonClone(obj) {
-    return JSON.parse(JSON.stringify(obj), dateReviver);
-}
-
-/**
  * Escape text for regular expression
  * @see https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
  * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
@@ -46,6 +36,65 @@ export function jsonClone(obj) {
 export function escapeRegExp(str) {
     // From https://github.com/lodash/lodash/blob/master/escapeRegExp.js
     return str.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
+}
+
+/**
+ * Check an array or a Kendo UI ObservableArray
+ * @function isAnyArray
+ * @param a
+ * @returns {boolean}
+ */
+export function isAnyArray(a) {
+    // return Array.isArray(a) || a instanceof kendo.data.ObservableArray;
+    return (
+        typeof a === 'object' && // an array is an object
+        typeof a.length === 'number' &&
+        typeof a.forEach === 'function' &&
+        typeof a.join === 'function' &&
+        typeof a.push === 'function'
+    );
+}
+
+/**
+ * Compare string arrays
+ * @function compareStringArrays
+ * @param a
+ * @param b
+ * @returns {boolean}
+ */
+export function compareStringArrays(a, b) {
+    return (
+        isAnyArray(a) &&
+        isAnyArray(b) &&
+        a.length === b.length &&
+        a.join(';') === b.join(';')
+    );
+}
+
+/**
+ * isGuid
+ * @function isGuid
+ * @param value
+ * @returns {boolean}
+ */
+export function isGuid(value) {
+    // http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+    return (
+        // $.type(value) === CONSTANTS.STRING &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(
+            value
+        )
+    );
+}
+
+/**
+ * Clone using JSON
+ * @function jsonClone
+ * @param obj
+ * @returns {any}
+ */
+export function jsonClone(obj) {
+    return JSON.parse(JSON.stringify(obj), dateReviver);
 }
 
 /**
@@ -95,39 +144,6 @@ export function round(value, precision = 2) {
     const val = parseFloat(value);
     const p = Math.trunc(10 ** Math.trunc(precision));
     return Math.round(val * p) / p;
-}
-
-/**
- * Check an array or a Kendo UI ObservableArray
- * @function isAnyArray
- * @param a
- * @returns {boolean}
- */
-export function isAnyArray(a) {
-    // return Array.isArray(a) || a instanceof kendo.data.ObservableArray;
-    return (
-        typeof a === 'object' && // an array is an object
-        typeof a.length === 'number' &&
-        typeof a.forEach === 'function' &&
-        typeof a.join === 'function' &&
-        typeof a.push === 'function'
-    );
-}
-
-/**
- * Compare string arrays
- * @function compareStringArrays
- * @param a
- * @param b
- * @returns {boolean}
- */
-export function compareStringArrays(a, b) {
-    return (
-        isAnyArray(a) &&
-        isAnyArray(b) &&
-        a.length === b.length &&
-        a.join(';') === b.join(';')
-    );
 }
 
 /**

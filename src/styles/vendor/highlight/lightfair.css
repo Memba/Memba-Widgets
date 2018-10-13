@@ -1,6 +1,6 @@
 /*
 
- highlight.js style for Microtik RouterOS script
+Lightfair style (c) Tristian Kelly <tristian.kelly560@gmail.com>
 
 */
 
@@ -8,41 +8,33 @@
   display: block;
   overflow-x: auto;
   padding: 0.5em;
-  background: #F0F0F0;
 }
 
-/* Base color: saturation 0; */
+.hljs-name {
+    color:#01a3a3;
+}
+
+.hljs-tag,.hljs-meta {
+    color:#778899;
+}
 
 .hljs,
 .hljs-subst {
-  color: #444;
+    color: #444
 }
 
 .hljs-comment {
-  color: #888888;
+    color: #888888
 }
 
 .hljs-keyword,
+.hljs-attribute,
 .hljs-selector-tag,
 .hljs-meta-keyword,
 .hljs-doctag,
 .hljs-name {
-  font-weight: bold;
+    font-weight: bold
 }
-
-.hljs-attribute {
-  color: #0E9A00;
-}    
-
-.hljs-function {
-  color: #99069A;
-}
-
-.hljs-builtin-name {
-  color: #99069A;
-}
-
-/* User color: hue: 0 */
 
 .hljs-type,
 .hljs-string,
@@ -52,13 +44,13 @@
 .hljs-quote,
 .hljs-template-tag,
 .hljs-deletion {
-  color: #880000;
+    color: #4286f4
 }
 
 .hljs-title,
 .hljs-section {
-  color: #880000;
-  font-weight: bold;
+    color: #4286f4;
+    font-weight: bold
 }
 
 .hljs-regexp,
@@ -68,41 +60,28 @@
 .hljs-link,
 .hljs-selector-attr,
 .hljs-selector-pseudo {
-  color: #BC6060;
+    color: #BC6060
 }
 
-
-/* Language color: hue: 90; */
-
 .hljs-literal {
-  color: #78A960;
+    color: #62bcbc
 }
 
 .hljs-built_in,
 .hljs-bullet,
 .hljs-code,
 .hljs-addition {
-  color: #0C9A9A;
-}
-
-
-/* Meta color: hue: 200 */
-
-.hljs-meta {
-  color: #1f7199;
+    color: #25c6c6
 }
 
 .hljs-meta-string {
-  color: #4d99bf;
+    color: #4d99bf
 }
 
-
-/* Misc effects */
-
 .hljs-emphasis {
-  font-style: italic;
+    font-style: italic
 }
 
 .hljs-strong {
-  font-weight: bold;
+    font-weight: bold
 }

@@ -22,12 +22,8 @@ import {
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
 import Page from '../../../src/js/data/models.page.es6';
-// import Stream from '../../../src/js/data/models.stream.es6';
-
-// Load tools
-// import '../../../src/js/tools/tools.image.es6';
-import '../../../src/js/tools/tools.label.es6';
-// import '../../../src/js/tools/tools.textbox.es6';
+import Stream from '../../../src/js/data/models.stream.es6';
+import '../../../src/js/tools/index.es6';
 
 const { describe, it, xit } = window;
 const {
@@ -98,7 +94,7 @@ describe('models.page', () => {
                     .catch(done);
             });
 
-            it('if should initialize with an array of bare components', done => {
+            it('if should initialize with bare components', done => {
                 const data = getComponentArray();
                 const options = {
                     components: data.map(item => ({
@@ -140,25 +136,24 @@ describe('models.page', () => {
                     .catch(done);
             });
 
-            it('if should initialize with an array of components', done => {
-                const data = getComponentArray();
-                const options = {
-                    components: data
-                };
+            it('if should initialize with all data', done => {
+                const options = getPage();
                 const page = new Page(options);
                 const { components } = page;
                 expect(components).to.be.an.instanceof(PageComponentDataSource);
-                expect(page).to.have.property('id').that.is.null;
-                expect(page).to.have.property('explanations', '');
-                expect(page).to.have.property('instructions', '');
-                expect(page).to.have.property('style', '');
-                expect(page).to.have.property('time', 30);
+                expect(page).to.have.property('id');
+                expect(page).to.have.property('explanations');
+                expect(page).to.have.property('instructions');
+                expect(page).to.have.property('style');
+                expect(page).to.have.property('time');
                 expect(components).to.respondTo('fetch');
                 components
                     .fetch()
                     .then(
                         tryCatch(done)(() => {
-                            expect(components.total()).to.equal(data.length);
+                            expect(components.total()).to.equal(
+                                options.components.length
+                            );
                             components.data().forEach((component, index) => {
                                 assertBaseModel(
                                     component,
@@ -168,12 +163,6 @@ describe('models.page', () => {
                         })
                     )
                     .catch(done);
-            });
-        });
-
-        xdescribe('load', () => {
-            xit('TODO', () => {
-                expect(true).to.be.false;
             });
         });
 
@@ -187,6 +176,20 @@ describe('models.page', () => {
                 expect(page).to.have.property(page.idField, options.id);
             });
         });
+
+        /*
+        describe('append', () => {
+            it('...', () => {});
+        });
+
+        describe('load', () => {
+            it('...', () => {});
+        });
+
+        describe('loaded', () => {
+            it('...', () => {});
+        });
+        */
 
         describe('assets', () => {
             it('It should list assets', done => {
@@ -212,8 +215,14 @@ describe('models.page', () => {
             });
         });
 
-        xdescribe('stream', () => {
+        xdescribe('pages.components.parent', () => {
             xit('TODO', () => {
+                expect(true).to.be.false;
+            });
+        });
+
+        describe('stream', () => {
+            it('it should return the parent stream', () => {
                 expect(true).to.be.false;
             });
         });
@@ -224,7 +233,7 @@ describe('models.page', () => {
             });
         });
 
-        describe('clone', () => {
+        xdescribe('clone', () => {
             it('It should clone any page', done => {
                 const options = getPage();
                 const page = new Page(options);
@@ -238,10 +247,27 @@ describe('models.page', () => {
                             const clone = page.clone();
                             // Clean options
                             options.id = null;
-                            options.components.forEach(component => {
+                            options.components.forEach((component, index) => {
                                 /* eslint-disable no-param-reassign */
-                                component.id = null;
-                                // TODO also change name and remove question/solution/validation
+                                const model = clone.components.at(index);
+                                component[model.idField] =
+                                    model.defaults[model.idField];
+                                if (model.properties.defaults.name) {
+                                    component.properties.failure =
+                                        model.properties.defaults.failure;
+                                    component.properties.name =
+                                        model.properties.defaults.name;
+                                    component.properties.omit =
+                                        model.properties.defaults.omit;
+                                    component.properties.question =
+                                        model.properties.defaults.question;
+                                    component.properties.solution =
+                                        model.properties.defaults.solution;
+                                    component.properties.success =
+                                        model.properties.defaults.success;
+                                    component.properties.omit =
+                                        model.properties.defaults.omit;
+                                }
                                 /* eslint-enable no-param-reassign */
                             });
                             assertBaseModel(clone, options);
@@ -272,17 +298,19 @@ describe('models.page', () => {
                 const pageChange = sinon.spy();
                 const componentsChange = sinon.spy();
                 page.bind(CONSTANTS.CHANGE, e => {
-                    // debugger;
+                    debugger;
                     pageChange(e);
                 });
                 components.bind(CONSTANTS.CHANGE, e => {
-                    // debugger;
+                    debugger;
                     componentsChange(e);
                 });
+                debugger;
                 components
                     .fetch()
                     .then(
                         tryCatch(done)(() => {
+                            debugger;
                             let hasLabel = false;
                             components.data().forEach(component => {
                                 if (component.get('tool') === 'label') {
@@ -310,7 +338,7 @@ describe('models.page', () => {
                     .catch(done);
             });
 
-            it('It should propagate CHANGE events when adding/inserting components', done => {
+            xit('It should propagate CHANGE events when adding/inserting components', done => {
                 const options = getPage();
                 const page = new Page(options);
                 const { components } = page;
@@ -339,16 +367,16 @@ describe('models.page', () => {
                     .catch(done);
             });
 
-            it('It should propagate ERROR events from data source to page', () => {
-                const PageWithConfiguration = Page.define({
-                    configuration: {
+            xit('It should propagate ERROR events from data source to page', () => {
+                const PageWithModel = Page.define({
+                    model: {
                         components: {
                             transport: getErrorTransport()
                         }
                     }
                 });
                 const options = getPage();
-                const page = new PageWithConfiguration(options);
+                const page = new PageWithModel(options);
                 const { components } = page;
                 const pageError = sinon.spy();
                 const componentsError = sinon.spy();

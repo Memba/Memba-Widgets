@@ -15,9 +15,11 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
-import openAssetManager from '../dialogs/dialogs.assetmanager.es6';
+// import openAssetManager from '../dialogs/dialogs.assetmanager.es6'; // <-- TODO
 import BaseAdapter from './adapters.base.es6';
-import ToolAssets from './util.assets';
+import ToolAssets from './util.assets.es6';
+
+const openAssetManager = () => {}; // <-- TODO (see above)
 
 /**
  * AssetAdapter

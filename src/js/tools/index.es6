@@ -11,7 +11,7 @@ import './tools.pointer.es6';
 // import './tools.connector.es6';
 // import './tools.dropzone.es6';
 // import './tools.highlighter.es6';
-// import './tools.image.es6';
+import './tools.image.es6';
 // import './tools.imageset.es6';
 import './tools.label.es6';
 // import './tools.mathexpression.es6';

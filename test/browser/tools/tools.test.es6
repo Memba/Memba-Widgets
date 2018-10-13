@@ -22,17 +22,6 @@ const { describe, it, kendo, xit } = window;
 const { expect } = chai;
 const { data: ObservableObject } = kendo;
 
-// No need to load kendo.widgets.stage.js
-kendo.ui.Stage = {
-    fn: {
-        modes: {
-            design: 'design',
-            play: 'play',
-            review: 'review'
-        }
-    }
-};
-
 describe('tools', function() {
     describe('Loading', function() {
         it('it should find tools', function() {

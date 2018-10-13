@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import assets from '../app/app.assets.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
@@ -16,14 +17,17 @@ import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { ToolAssets, assets } from './util.assets.es6';
+import ToolAssets from './util.assets.es6';
 
 const {
     format,
     ns,
     template,
-    ui: { Stage }
 } = window.kendo;
+
+const RX_IMAGE = /^(cdn|data):\/\/[\s\S]+.(gif|jpe?g|png|svg)$/i;
+const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
+const RX_TEXT = /\S+/i;
 
 /**
  * i18n
@@ -51,8 +55,9 @@ function i18n() {
 }
 
 /**
- * @class Image tool
- * @type {void|*}
+ * Image
+ * @class Image
+ * @extends BaseTool
  */
 const Image = BaseTool.extend({
     id: 'image',
@@ -87,11 +92,36 @@ const Image = BaseTool.extend({
                 style: 'width: 100%;'
             }
         ),
-        constant: new TextBoxAdapter({ title: i18n().properties.constant.title })
+        constant: new TextBoxAdapter({
+            title: i18n().properties.constant.title
+        })
     },
 
     /**
-     * Get Html or jQuery content
+     * getAssets
+     * @method getAssets
+     * @param component
+     * @returns {{audio: Array, image: Array, video: Array}}
+     */
+    getAssets(component) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        return {
+            audio: [],
+            image: [component.get('attributes.src')],
+            video: []
+        };
+    },
+
+    /**
+     * getHtmlContent
      * @method getHtmlContent
      * @param component
      * @param mode
@@ -114,12 +144,12 @@ const Image = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.keys(Stage.fn.modes),
+            Object.values(CONSTANTS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(Stage.fn.modes)
+                Object.values(CONSTANTS.STAGE_MODES)
             )
         );
         assert.instanceof(
@@ -132,42 +162,37 @@ const Image = BaseTool.extend({
             )
         );
         const tmpl = template(that.templates.default);
-        // The class$ function adds the kj-interactive class to draggable components
-        component.class$ = function() {
-            return `kj-image${
-                component.properties.behavior === 'draggable'
-                    ? ` ${CONSTANTS.INTERACTIVE_CLASS}`
-                    : ''
-            }`;
-        };
-        // The id$ function returns the component id for components that have a behavior
-        component.id$ = function() {
-            return component.properties.behavior !== 'none' &&
-                $.type(component.id) === CONSTANTS.STRING &&
-                component.id.length
-                ? component.id
-                : '';
-        };
-        // The src$ function resolves urls with schemes like cdn://sample.jpg
-        component.src$ = function() {
-            let src = component.attributes.get('src');
-            const schemes = assets.image.schemes;
-            for (const scheme in schemes) {
-                if (
-                    Object.prototype.hasOwnProperty.call(schemes, scheme) &&
-                    new RegExp(`^${scheme}://`).test(src)
-                ) {
-                    src = src.replace(`${scheme}://`, schemes[scheme]);
-                    break;
-                }
+        $.extend(component, {
+            // The class$ function adds the kj-interactive class to draggable components
+            class$() {
+                return `kj-image${
+                    component.properties.behavior === 'draggable'
+                        ? ` ${CONSTANTS.INTERACTIVE_CLASS}`
+                        : ''
+                }`;
+            },
+            // The id$ function returns the component id for components that have a behavior
+            id$() {
+                return component.properties.behavior !== 'none' &&
+                    $.type(component.id) === CONSTANTS.STRING &&
+                    component.id.length
+                    ? component.id
+                    : '';
+            },
+            // ns is required for data-* declarations
+            ns,
+            // The src$ function resolves urls with schemes like cdn://sample.jpg
+            src$() {
+                const src = component.attributes.get('src');
+                return assets.image.scheme2http(src);
             }
-            return src;
-        };
-        return tmpl($.extend(component, { ns }));
+        });
+
+        return tmpl(component);
     },
 
     /**
-     * onResize Event Handler
+     * onResize
      * @method onResize
      * @param e
      * @param component
@@ -194,6 +219,7 @@ const Image = BaseTool.extend({
             const height = component.get('height');
             const width = component.get('width');
             const rectLimitedByHeight = {
+                // TODO review Math.round
                 height: Math.round(height),
                 width: Math.round((height * naturalWidth) / naturalHeight)
             };
@@ -251,8 +277,10 @@ const Image = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const {
+            description,
+            i18n: { messages }
+        } = this; // tool description
         if (
             !component.attributes ||
             !component.attributes.alt ||
@@ -298,11 +326,7 @@ const Image = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(
-                    messages.invalidStyle,
-                    description,
-                    pageIdx + 1
-                )
+                message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
         // TODO: We should also check that there is a dropZone/Selector on the page if draggable/selectable

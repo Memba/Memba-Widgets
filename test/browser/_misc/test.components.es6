@@ -5,6 +5,7 @@
 
 import JSC from 'jscheck';
 import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
+import { randomVal } from '../../../src/js/common/window.util.es6';
 import { error2xhr } from '../../../src/js/data/data.util.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';
@@ -41,12 +42,17 @@ const urlGenerator = ext =>
 export function getImage() {
     return {
         attributes: {
+            alt: textGenerator(),
             src: urlGenerator('png'),
-            alt: textGenerator()
+            style: styleGenerator()
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
         left: positionGenerator(),
+        properties: {
+            behavior: 'none',
+            constant: ''
+        },
         rotate: angleGenerator(),
         tool: 'image',
         top: positionGenerator(),
@@ -85,13 +91,20 @@ export function getLabel() {
 export function getTextBox() {
     return {
         attributes: {
-            // TODO
+            mask: '', // Not bothering
+            style: styleGenerator()
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
         left: positionGenerator(),
         properties: {
-            name: 'textfield3' // TODO random
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: textGenerator(),
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
         },
         rotate: angleGenerator(),
         tool: 'textbox',
@@ -171,25 +184,40 @@ export function getStream() {
 }
 
 /**
- * getTransport
- * @function getTransport
+ * getSpyingTransport
+ * @function getSpyingTransport
  * @param data
+ * @param spies
  * @returns {*}
  */
-export function getTransport(data) {
+export function getSpyingTransport(data, spies = {}) {
     return {
         create(options) {
-            options.success(
-                Object.assign(options.data, { id: new ObjectId().toString() })
-            );
+            const resp = Object.assign(options.data, {
+                id: new ObjectId().toString()
+            });
+            if (typeof spies.create === 'function') {
+                spies.create(resp);
+            }
+            options.success(options.data);
         },
         destroy(options) {
+            if (typeof spies.destroy === 'function') {
+                spies.destroy(options.data);
+            }
             options.success(options.data);
         },
         read(options) {
-            options.success({ data, total: data.length });
+            const resp = { data, total: data.length };
+            if (typeof spies.read === 'function') {
+                spies.read(resp);
+            }
+            options.success(resp);
         },
         update(options) {
+            if (typeof spies.update === 'function') {
+                spies.update(options.data);
+            }
             options.success(options.data);
         }
     };

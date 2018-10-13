@@ -99,7 +99,7 @@ const TextGaps = BaseTool.extend({
         var that = this;
         assert.instanceof(TextGaps, that, assert.format(assert.messages.instanceof.default, 'this', 'TextGaps'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+        assert.enum(Object.values(CONSTANTS.STAGE_MODES), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(CONSTANTS.STAGE_MODES)));
         var template = kendo.template(that.templates[mode]);
         return template($.extend(component, { ns: kendo.ns }));
     },

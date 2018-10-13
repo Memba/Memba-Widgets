@@ -109,12 +109,12 @@ const MathExpression = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.keys(kendo.ui.Stage.fn.modes),
+            Object.values(CONSTANTS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(kendo.ui.Stage.fn.modes)
+                Object.values(CONSTANTS.STAGE_MODES)
             )
         );
         const tmpl = template(that.templates.default);
@@ -184,8 +184,10 @@ const MathExpression = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const {
+            description,
+            i18n: { messages }
+        } = this; // tool description
         if (
             !component.attributes ||
             !component.attributes.formula ||

@@ -51,23 +51,7 @@ const MultiQuizAdapter = BaseAdapter.extend({
                             },
                             image$() {
                                 let image = this.get('image');
-                                const schemes = assets.image.schemes;
-                                for (const scheme in schemes) {
-                                    if (
-                                        Object.prototype.hasOwnProperty.call(
-                                            schemes,
-                                            scheme
-                                        ) &&
-                                        new RegExp(`^${scheme}://`).test(image)
-                                    ) {
-                                        image = image.replace(
-                                            `${scheme}://`,
-                                            schemes[scheme]
-                                        );
-                                        break;
-                                    }
-                                }
-                                return image;
+                                return assets.image.scheme2http(image);
                             }
                         })
                     }

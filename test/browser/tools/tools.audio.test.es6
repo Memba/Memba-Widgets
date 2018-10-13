@@ -18,17 +18,6 @@ import BaseTool from '../../../src/js/tools/tools.base.es6';
 const { describe, it, kendo, xit } = window;
 const { expect } = chai;
 
-// No need to load widgets.stage.es6
-kendo.ui.Stage = {
-    fn: {
-        modes: {
-            design: 'design',
-            play: 'play',
-            review: 'review'
-        }
-    }
-};
-
 describe('tools.audio', () => {
     describe('AudioTool', () => {
         const tool = tools.audio;
@@ -94,15 +83,15 @@ describe('Audio', () => {
         expect(fn2).to.throw;
 
         // If we submit a valid page component in design mode
-        html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+        html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.DESIGN);
         expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
 
         // If we submit a valid page component in play mode
-        html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+        html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.PLAY);
         expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
 
         // If we submit a valid page component in review mode
-        html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+        html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.REVIEW);
         expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
     });
 

@@ -7,11 +7,18 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import assets from '../app/app.assets.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
+import AssetAdapter from './adapters.asset.es6';
+import BooleanAdapter from './adapters.boolean.es6';
+import NumberAdapter from './adapters.number.es6';
+import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { ToolAssets, assets } from './util.assets.es6';
+import ToolAssets from './util.assets.es6';
+
+const { ns, template } = window.kendo;
 
 /**
  * i18n
@@ -85,12 +92,12 @@ var Video = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.keys(kendo.ui.Stage.fn.modes),
+            Object.values(CONSTANTS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(kendo.ui.Stage.fn.modes)
+                Object.values(CONSTANTS.STAGE_MODES)
             )
         );
         assert.instanceof(
@@ -102,44 +109,37 @@ var Video = BaseTool.extend({
                 'kidoju.ToolAssets'
             )
         );
-        const template = kendo.template(this.templates.default);
+        const tmpl = template(this.templates.default);
 
-        // The files$ function resolves urls with schemes like cdn://video.mp4 and returns a stringified array
-        component.files$ = function() {
-            let mp4 = component.attributes.get('mp4');
-            let ogv = component.attributes.get('ogv');
-            let wbem = component.attributes.get('wbem');
-            const schemes = assets.video.schemes;
-            for (const scheme in schemes) {
-                if (Object.prototype.hasOwnProperty.call(schemes, scheme)) {
-                    const schemeRx = new RegExp(`^${scheme}://`);
-                    if (schemeRx.test(mp4)) {
-                        mp4 = mp4.replace(`${scheme}://`, schemes[scheme]);
-                    }
-                    if (schemeRx.test(ogv)) {
-                        ogv = ogv.replace(`${scheme}://`, schemes[scheme]);
-                    }
-                    if (schemeRx.test(wbem)) {
-                        wbem = wbem.replace(`${scheme}://`, schemes[scheme]);
-                    }
+        $.extend(component, {
+            // The files$ function resolves urls with schemes like cdn://video.mp4 and returns a stringified array
+            files$() {
+                let mp4 = component.attributes.get('mp4');
+                let ogv = component.attributes.get('ogv');
+                let wbem = component.attributes.get('wbem');
+                const files = [];
+                mp4 = assets.video.scheme2http(mp4);
+                if (RX_HTTP_S.test(mp4)) {
+                    files.push(mp4);
                 }
-            }
-            const files = [];
-            if (RX_HTTP_S.test(mp4)) {
-                files.push(mp4);
-            }
-            if (RX_HTTP_S.test(ogv)) {
-                files.push(ogv);
-            }
-            if (RX_HTTP_S.test(wbem)) {
-                files.push(wbem);
-            }
+                ogv = assets.video.scheme2http(ogv);
+                if (RX_HTTP_S.test(ogv)) {
+                    files.push(ogv);
+                }
+                wbem = assets.video.scheme2http(wbem);
+                if (RX_HTTP_S.test(wbem)) {
+                    files.push(wbem);
+                }
 
-            // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
-            return ` ${JSON.stringify(files)}`;
-        };
+                // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                // return ` ${JSON.stringify(files)}`;
+                return JSON.stringify(files);
+            },
+            // ns is required for data-* declarations
+            ns
+        });
 
-        return template($.extend(component, { ns: kendo.ns }));
+        return tmpl(component);
     },
 
     /**
@@ -197,8 +197,10 @@ var Video = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const {
+            description,
+            i18n: { messages }
+        } = this; // tool description
         if (!component.attributes || !RX_VIDEO.test(component.attributes.mp4)) {
             ret.push({
                 type: CONSTANTS.ERROR,

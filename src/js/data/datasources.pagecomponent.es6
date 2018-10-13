@@ -11,7 +11,7 @@ import assert from '../common/window.assert.es6';
 import PageComponent from './models.pagecomponent.es6';
 
 const {
-    data: { DataSource, ObservableArray }
+    data: { DataSource, Model, ObservableArray }
 } = window.kendo;
 
 /**
@@ -51,7 +51,7 @@ const PageComponentDataSource = DataSource.extend({
     init(options) {
         if (options && options.schema) {
             assert.ok(
-                !options.schema.model ||
+                !(options.schema.model instanceof Model) ||
                     Object.prototype.isPrototypeOf.call(
                         PageComponent.prototype,
                         options.schema.model.prototype
@@ -59,14 +59,32 @@ const PageComponentDataSource = DataSource.extend({
                 '`model` should derive from PageComponent'
             );
             assert.ok(
-                !options.schema.modelBase ||
+                !(options.schema.modelBase instanceof Model) ||
                     Object.prototype.isPrototypeOf.call(
                         PageComponent.prototype,
                         options.schema.modelBase.prototype
                     ),
                 '`modelBase` should derive from PageComponent'
             );
+
+            // Propagates Page options to PageComponentDataSource
+            // especially in the case where the wtream is defined with
+            // a hierarchy of CRUD transports
+            if ($.isPlainObject(options.schema.model)) {
+                $.extend(true, options, {
+                    schema: {
+                        modelBase: PageComponent.define({
+                            model:
+                                options.schema.modelBase || options.schema.model
+                        }),
+                        model: PageComponent.define({
+                            model: options.schema.model
+                        })
+                    }
+                });
+            }
         }
+
         DataSource.fn.init.call(
             this,
             $.extend(

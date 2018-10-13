@@ -18,17 +18,6 @@ import BaseTool from '../../../src/js/tools/tools.base.es6';
 const { describe, it, kendo, xit } = window;
 const { expect } = chai;
 
-// No need to load widgets.stage.es6
-kendo.ui.Stage = {
-    fn: {
-        modes: {
-            design: 'design',
-            play: 'play',
-            review: 'review'
-        }
-    }
-};
-
 describe('tools.pointer', () => {
     describe('PointerTool', () => {
         const tool = tools.pointer;

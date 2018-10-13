@@ -84,7 +84,7 @@ var ImageSet = BaseTool.extend({
         var that = this;
         assert.instanceof(ImageSet, that, assert.format(assert.messages.instanceof.default, 'this', 'ImageSet'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-        assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+        assert.enum(Object.values(CONSTANTS.STAGE_MODES), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(CONSTANTS.STAGE_MODES)));
         assert.instanceof(ToolAssets, assets.image, assert.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
         var template = kendo.template(that.templates[mode]);
         // The data$ function resolves urls with schemes like cdn://sample.jpg

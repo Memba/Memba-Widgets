@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO validation!!!!
+// TODO i18n
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -12,8 +15,8 @@ import CONSTANTS from '../common/window.constants.es6';
 import { escapeRegExp } from '../common/window.util.es6';
 import PageDataSource from './datasources.page.es6';
 import PageComponentDataSource from './datasources.pagecomponent.es6';
-import PageComponent from './models.pagecomponent.es6';
 import BaseModel from './models.base.es6';
+import PageComponent from './models.pagecomponent.es6';
 
 const {
     data: { ObservableArray },
@@ -113,21 +116,23 @@ const Page = BaseModel.define({
         // Call the base init method
         BaseModel.fn.init.call(this, options);
 
-        // Reset PageComponentDataSource with configuration.components options
-        // especially for the case where we have defined CRUD transports for components
-        // when initializing PageDataSource with a schema
-        if (this.configuration && this.configuration.components) {
+        // Propagates Page options to PageComponentDataSource
+        // especially in the case where the stream is defined with
+        // a hierarchy of CRUD transports
+        /*
+        if (this.model && this.model.components) {
             this.components = new PageComponentDataSource(
-                this.configuration.components
+                this.model.components
             );
         }
+        */
 
         // Init components
         // Note: refer to the _initChildren method of kendo.data.Node
         this._initComponents();
 
         // this._loaded = !!(options && options._loaded);
-        this._loaded = !!(options && (options.components || options._loaded));
+        // this._loaded = !!(options && (options.components || options._loaded));
     },
 
     /**
@@ -141,10 +146,12 @@ const Page = BaseModel.define({
         const { components } = that;
 
         if (components instanceof PageComponentDataSource) {
+            /*
+            // This is used to add a foreign key to the transport request
+            // In order to filter components that are only relevant to that page
             const { transport } = components;
             const { parameterMap } = transport;
             transport.parameterMap = function map(data, type) {
-                debugger;
                 let ret = data;
                 ret[that.idField || CONSTANTS.ID] = that.id;
                 if (parameterMap) {
@@ -152,6 +159,7 @@ const Page = BaseModel.define({
                 }
                 return ret;
             };
+            */
 
             // Add parent function
             components.parent = function() {
@@ -163,12 +171,13 @@ const Page = BaseModel.define({
             /*
             components.bind(CONSTANTS.CHANGE, e => {
                 debugger;
-                e.node = e.node || that;
+                e.page = e.page || that;
                 that.trigger(CONSTANTS.CHANGE, e);
             });
             */
 
             // Bind the error to bubble up
+            /*
             components.bind(CONSTANTS.ERROR, e => {
                 // Raise error on the page;
                 that.trigger(CONSTANTS.ERROR, e);
@@ -176,10 +185,11 @@ const Page = BaseModel.define({
                 // Raise error on the parent collection of pages
                 const collection = that.parent();
                 if (collection) {
-                    e.node = e.node || that;
+                    e.page = e.page || that;
                     collection.trigger(CONSTANTS.ERROR, e);
                 }
             });
+            */
         }
     },
 
@@ -188,16 +198,19 @@ const Page = BaseModel.define({
      * @method append
      * @param component
      */
+    /*
     append(component) {
-        this.loaded(true); // TODO what for???
+        this.loaded(true);
         this.components.add(component);
     },
+    */
 
     /**
      * Load components
      * @method load
      * @returns {*}
      */
+    /*
     load() {
         const { components } = this;
         const options = {};
@@ -210,18 +223,18 @@ const Page = BaseModel.define({
             method = 'read';
         }
         components.one(CONSTANTS.CHANGE, () => {
-            // TODO Check this
-            debugger;
             this._loaded = true;
         });
         return components[method](options);
     },
+    */
 
     /**
      * Gets or sets the loaded status of components
      * @param value
      * @returns {boolean|*|Page._loaded}
      */
+    /*
     loaded(value) {
         let ret;
         if ($.type(value) !== CONSTANTS.UNDEFINED) {
@@ -231,6 +244,7 @@ const Page = BaseModel.define({
         }
         return ret;
     },
+    */
 
     /**
      * Assets

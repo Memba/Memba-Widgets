@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import assets from '../app/app.assets.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
@@ -14,14 +15,13 @@ import AssetAdapter from './adapters.asset.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { ToolAssets, assets } from './util.assets.es6';
+import ToolAssets from './util.assets.es6';
 
 const {
     format,
     ns,
     roleSelector,
     template,
-    ui: { Stage }
 } = window.kendo;
 
 /**
@@ -65,6 +65,31 @@ const AudioTool = BaseTool.extend({
     },
 
     /**
+     * getAssets
+     * @method getAssets
+     * @param component
+     * @returns {{audio: Array, image: Array, video: Array}}
+     */
+    getAssets(component) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+        const audio = [];
+
+        return {
+            audio: [component.get('attributes.src')],
+            image: [],
+            video: []
+        };
+    },
+
+    /**
      * Get Html or jQuery content
      * @method getHtmlContent
      * @param component
@@ -88,12 +113,12 @@ const AudioTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.keys(Stage.fn.modes),
+            Object.values(CONSTANTS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(Stage.fn.modes)
+                Object.values(CONSTANTS.STAGE_MODES)
             )
         );
         assert.instanceof(
@@ -106,33 +131,30 @@ const AudioTool = BaseTool.extend({
             )
         );
         const tmpl = template(that.templates.default);
-        // The files$ function resolves urls with schemes like cdn://audio.mp3 and returns a stringified array
-        component.files$ = function() {
-            let mp3 = component.attributes.get('mp3');
-            let ogg = component.attributes.get('ogg');
-            const schemes = assets.audio.schemes;
-            for (const scheme in schemes) {
-                if (Object.prototype.hasOwnProperty.call(schemes, scheme)) {
-                    const schemeRx = new RegExp(`^${scheme}://`);
-                    if (schemeRx.test(mp3)) {
-                        mp3 = mp3.replace(`${scheme}://`, schemes[scheme]);
-                    }
-                    if (schemeRx.test(ogg)) {
-                        ogg = ogg.replace(`${scheme}://`, schemes[scheme]);
-                    }
+
+        $.extend(component, {
+            // The files$ function resolves urls with schemes like cdn://video.mp4 and returns a stringified array
+            files$() {
+                let mp3 = component.attributes.get('mp3');
+                let ogg = component.attributes.get('ogg');
+                const files = [];
+                // TODO CHeck when mp3 or ogg is undefined;
+                mp3 = assets.audio.http2scheme(mp3);
+                if (RX_HTTP_S.test(mp3)) {
+                    files.push(mp3);
                 }
-            }
-            const files = [];
-            if (RX_HTTP_S.test(mp3)) {
-                files.push(mp3);
-            }
-            if (RX_HTTP_S.test(ogg)) {
-                files.push(ogg);
-            }
-            // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
-            return ` ${JSON.stringify(files)}`;
-        };
-        return tmpl($.extend(component, { ns }));
+                ogg = assets.audio.http2scheme(ogg);
+                if (RX_HTTP_S.test(ogg)) {
+                    files.push(ogg);
+                }
+                // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                // return `${JSON.stringify(files)}`;
+                return JSON.stringify(files);
+            },
+            // ns is required for data-* declarations
+            ns
+        });
+        return tmpl(component);
     },
 
     /**
@@ -188,8 +210,10 @@ const AudioTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const {
+            description,
+            i18n: { messages }
+        } = this; // tool description
         if (!component.attributes || !RX_AUDIO.test(component.attributes.mp3)) {
             ret.push({
                 type: CONSTANTS.ERROR,

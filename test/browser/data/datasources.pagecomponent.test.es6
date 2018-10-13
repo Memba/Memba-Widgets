@@ -14,18 +14,14 @@ import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
-import { getComponentArray, getTransport } from '../_misc/test.components.es6';
+import { getComponentArray, getSpyingTransport } from '../_misc/test.components.es6';
 import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { normalizeSchema } from '../../../src/js/data/data.util.es6';
 import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
-
-// Load tools
-// import '../../../src/js/tools/tools.image.es6';
-import '../../../src/js/tools/tools.label.es6';
-// import '../../../src/js/tools/tools.textbox.es6';
+import '../../../src/js/tools/index.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
@@ -197,7 +193,7 @@ describe('datasources.pagecomponent', () => {
                 const data = getComponentArray();
                 const dataSource = new PageComponentDataSource({
                     schema: normalizeSchema(),
-                    transport: getTransport(data)
+                    transport: getSpyingTransport(data)
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')

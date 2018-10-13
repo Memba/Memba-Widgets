@@ -3,10 +3,17 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 import BaseModel from './models.base.es6';
-import $ from '../vendor/jquery/jquery-3.3.1.min';
-import tools from '../tools/tools';
+import tools from '../tools/tools.es6';
+
+const logger = new Logger('models.basetest');
 
 /**
  * BaseTest
@@ -21,7 +28,34 @@ const BaseTest = BaseModel.define({
             defaultValue: []
         }
         // TODO store for random/calculated constants
-    }
+
+        // TODO time ....
+    },
+
+    /**
+     * Grade test
+     */
+    grade() {
+        const promises = Object.key(this.fields).map(field =>
+            this.gradeField(field)
+        );
+        return $.when(...promises);
+    },
+
+    /**
+     * Grade page
+     * @param pageIdx
+     */
+    gradePage(pageIdx) {},
+
+    /**
+     * Grade field
+     * @param field
+     */
+    gradeField(field) {
+        const dfd = $.Deferred();
+        return dfd.promise().resolve();
+    },
 
     /**
      * Grade a page
@@ -41,118 +75,7 @@ const BaseTest = BaseModel.define({
         // TODO: use an app.model and define a submodel with each field - see BaseTest above
         const result = {
             interactions: test.interactions,
-            score() {
-                let score = 0;
-                assert.instanceof(
-                    kendo.data.ObservableObject,
-                    this,
-                    assert.format(
-                        assert.messages.instanceof.default,
-                        'this',
-                        'kendo.data.ObservableObject'
-                    )
-                );
-                for (const name in this) {
-                    if (
-                        this.hasOwnProperty(name) &&
-                        RX_VALID_NAME.test(name) &&
-                        !this.get(`${name}.disabled`)
-                    ) {
-                        score += this.get(`${name}.score`);
-                    }
-                }
-                return score;
-            },
-            max() {
-                let max = 0;
-                assert.instanceof(
-                    kendo.data.ObservableObject,
-                    this,
-                    assert.format(
-                        assert.messages.instanceof.default,
-                        'this',
-                        'kendo.data.ObservableObject'
-                    )
-                );
-                for (const name in this) {
-                    if (
-                        this.hasOwnProperty(name) &&
-                        RX_VALID_NAME.test(name) &&
-                        !this.get(`${name}.disabled`)
-                    ) {
-                        max += this.get(`${name}.success`);
-                    }
-                }
-                return max;
-            },
-            percent() {
-                assert.instanceof(
-                    kendo.data.ObservableObject,
-                    this,
-                    assert.format(
-                        assert.messages.instanceof.default,
-                        'this',
-                        'kendo.data.ObservableObject'
-                    )
-                );
-                const max = this.max();
-                const score = this.score();
-                return score === 0 || max === 0 ? 0 : (100 * score) / max;
-            },
-            getScoreArray() {
-                assert.instanceof(
-                    kendo.data.ObservableObject,
-                    this,
-                    assert.format(
-                        assert.messages.instanceof.default,
-                        'this',
-                        'kendo.data.ObservableObject'
-                    )
-                );
-                const that = this; // this is variable `result`
-                const scoreArray = [];
-                for (const name in that) {
-                    if (
-                        that.hasOwnProperty(name) &&
-                        RX_VALID_NAME.test(name) &&
-                        !this.get(`${name}.disabled`)
-                    ) {
-                        const testItem = that.get(name);
-                        const scoreItem = testItem.toJSON();
-                        // Improved display of values in score grids
-                        scoreItem.value = testItem.value$();
-                        scoreItem.solution = testItem.solution$();
-                        scoreArray.push(scoreItem);
-                    }
-                }
-                return scoreArray;
-            },
-            toJSON() {
-                const json = {};
-                assert.instanceof(
-                    kendo.data.ObservableObject,
-                    this,
-                    assert.format(
-                        assert.messages.instanceof.default,
-                        'this',
-                        'kendo.data.ObservableObject'
-                    )
-                );
-                for (const name in this) {
-                    if (this.hasOwnProperty(name)) {
-                        if (RX_VALID_NAME.test(name)) {
-                            json[name] = {
-                                result: this.get(`${name}.result`),
-                                score: this.get(`${name}.score`),
-                                value: this.get(`${name}.value`)
-                            };
-                        } else if (name === 'interactions') {
-                            json[name] = this.get(name).toJSON(); // .slice();
-                        }
-                    }
-                }
-                return json;
-            }
+
         };
 
         // Flatten test for validation formulas
@@ -184,7 +107,7 @@ const BaseTest = BaseModel.define({
             cache: true,
             dataType: 'text'
         })
-        .done(workerLib => {
+        .then(workerLib => {
             logger.debug({
                 message: 'workerLib downloaded',
                 method: 'PageDataSource.validateTestFromProperties',
@@ -289,7 +212,7 @@ const BaseTest = BaseModel.define({
                                 }
                                 // This is code from the library possibly with param
                                 // When we shall have several params, consider kendo.format.apply(this, [paramValue])
-                                code = kendo.format(
+                                code = format(
                                     found.formula,
                                     paramValue
                                 );
@@ -440,7 +363,7 @@ const BaseTest = BaseModel.define({
             // Run the worker pool
             workerPool
             .run()
-            .done(function() {
+            .then(function() {
                 // iterate through recorded answer validations (arguments)
                 // for each named value
                 $.each(arguments, (index, argument) => {
@@ -491,14 +414,109 @@ const BaseTest = BaseModel.define({
                 });
                 deferred.resolve(result);
             })
-            .fail(deferred.reject);
+            .catch(deferred.reject);
         })
-        .fail(deferred.reject);
+        .catch(deferred.reject);
 
         // return the test result
         return deferred.promise();
     },
     */
+
+    /**
+     * User score
+     * @returns {number}
+     */
+    score() {
+        let score = 0;
+        for (const name in this) {
+            if (
+                this.hasOwnProperty(name) &&
+                RX_VALID_NAME.test(name) &&
+                !this.get(`${name}.disabled`)
+            ) {
+                score += this.get(`${name}.score`);
+            }
+        }
+        return score;
+    },
+
+    /**
+     * Max possible score
+     * @method max
+     * @returns {number}
+     */
+    max() {
+        let max = 0;
+        for (const name in this) {
+            if (
+                this.hasOwnProperty(name) &&
+                RX_VALID_NAME.test(name) &&
+                !this.get(`${name}.disabled`)
+            ) {
+                max += this.get(`${name}.success`);
+            }
+        }
+        return max;
+    },
+
+    /**
+     * Score/Max as a percentage
+     * @method percent
+     * @returns {number}
+     */
+    percent() {
+        const max = this.max();
+        const score = this.score();
+        return score === 0 || max === 0 ? 0 : (100 * score) / max;
+    },
+
+    /**
+     * Get score table
+     * @method getScoreTable (formerly getScoreArray)
+     * @returns {Array}
+     */
+    getScoreTable() {
+        const that = this; // this is variable `result`
+        const scoreArray = [];
+        for (const name in that) {
+            if (
+                that.hasOwnProperty(name) &&
+                RX_VALID_NAME.test(name) &&
+                !this.get(`${name}.disabled`)
+            ) {
+                const testItem = that.get(name);
+                const scoreItem = testItem.toJSON();
+                // Improved display of values in score grids
+                scoreItem.value = testItem.value$();
+                scoreItem.solution = testItem.solution$();
+                scoreArray.push(scoreItem);
+            }
+        }
+        return scoreArray;
+    },
+
+    /**
+     * toJSON
+     * @method toJSON
+     */
+    toJSON() {
+        const json = {};
+        for (const name in this) {
+            if (this.hasOwnProperty(name)) {
+                if (RX_VALID_NAME.test(name)) {
+                    json[name] = {
+                        result: this.get(`${name}.result`),
+                        score: this.get(`${name}.score`),
+                        value: this.get(`${name}.value`)
+                    };
+                } else if (name === 'interactions') {
+                    json[name] = this.get(name).toJSON(); // .slice();
+                }
+            }
+        }
+        return json;
+    }
 });
 
 /**

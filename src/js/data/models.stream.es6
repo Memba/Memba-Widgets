@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO validation!!!!
+// TODO i18n
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -12,6 +15,7 @@ import { preload } from '../common/window.image.es6';
 import tools from '../tools/tools.es6';
 import PageDataSource from './datasources.page.es6';
 import BaseModel from './models.base.es6';
+import Page from './models.page.es6';
 import BaseTest from './models.basetest.es6';
 
 const {
@@ -72,24 +76,26 @@ const Stream = BaseModel.define({
         // Call the base init method
         BaseModel.fn.init.call(this, options);
 
-        // Reset PageDataSource with configuration.pages options
-        // especially for the case where we have defined CRUD transports for pages
-        // when initializing PageDataSource with a schema
-        if (this.configuration && this.configuration.pages) {
-            this.pages = new PageDataSource(this.configuration.pages);
+        // Propagates Stream options to PageDataSource
+        // especially in the case where the stream is defined with
+        // a hierarchy of CRUD transports
+        /*
+        if (this.model && this.model.pages) {
+            this.pages = new PageDataSource(this.model.pages);
         }
+        */
 
         // Init pages
         // Note: refer to the _initChildren method of kendo.data.Node
         this._initPages();
 
         // this._loaded = !!(options && options._loaded);
-        this._loaded = !!(options && (options.pages || options._loaded));
+        // this._loaded = !!(options && (options.pages || options._loaded));
     },
 
     /**
      * _initComponents
-     * Note: check kendo.data.Node._initChildren
+     * Note: check kendo.data.Node._initChildren at https://github.com/telerik/kendo-ui-core/blob/master/src/kendo.data.js#L4699
      * @method _initComponents
      * @private
      */
@@ -98,6 +104,9 @@ const Stream = BaseModel.define({
         const { pages } = that.pages;
 
         if (pages instanceof PageDataSource) {
+            /*
+            // This is used to add a foreign key to the transport request
+            // In order to filter pages that are only relevant to that stream
             const { transport } = pages;
             const { parameterMap } = transport;
             transport.parameterMap = function map(data, type) {
@@ -109,6 +118,7 @@ const Stream = BaseModel.define({
                 }
                 return ret;
             };
+            */
 
             // Add parent function
             that.pages.parent = function() {
@@ -125,7 +135,7 @@ const Stream = BaseModel.define({
             });
             */
 
-            // Bind the error to bubble up
+            // Bind the error event to bubble up
             pages.bind(CONSTANTS.ERROR, e => {
                 // Raise error on the page;
                 that.trigger(CONSTANTS.ERROR, e);
@@ -142,18 +152,23 @@ const Stream = BaseModel.define({
 
     /**
      * Append a page
+     * @ https://docs.telerik.com/kendo-ui/api/javascript/data/node/methods/append
      * @param model
      */
+    /*
     append(page) {
-        this.loaded(true); // TODO what for???
+        this.loaded(true);
         this.pages.add(page);
     },
+    */
 
     /**
      * Load pages
+     * @see https://docs.telerik.com/kendo-ui/api/javascript/data/node/methods/load
      * @method load
      * @returns {*}
      */
+    /*
     load() {
         const { pages } = this;
         const options = {};
@@ -166,18 +181,19 @@ const Stream = BaseModel.define({
             method = 'read';
         }
         pages.one(CONSTANTS.CHANGE, () => {
-            // TODO Check this
-            debugger;
             this._loaded = true;
         });
         return pages[method](options);
     },
+    */
 
     /**
      * Gets or sets the loaded status of pages
+     * @see https://docs.telerik.com/kendo-ui/api/javascript/data/node/methods/loaded
      * @param value
      * @returns {boolean|*}
      */
+    /*
     loaded(value) {
         let ret;
         if ($.type(value) !== CONSTANTS.UNDEFINED) {
@@ -187,6 +203,7 @@ const Stream = BaseModel.define({
         }
         return ret;
     },
+    */
 
     /**
      * Assets
@@ -218,11 +235,27 @@ const Stream = BaseModel.define({
 
     /**
      * Preload images (only images for now)
+     * @method preload
      */
     preload() {
         const assets = this.assets();
+        // TODO scheme2http !!!!
         const promises = assets.image.map(preload);
         return $.when(...promises);
+    },
+
+    /**
+     * Aggregate time
+     * @method time
+     *
+     */
+    time() {
+        let time = 0;
+        this.pages.data().forEach(page => {
+            debugger;
+            time += page.get('time') || Page.fn.defaults.time;
+        });
+        return time;
     },
 
     /**
@@ -269,7 +302,7 @@ const Stream = BaseModel.define({
         // var MIN_PAGES = 5;
         // var pageTotal = this.pages.total();
         // if (pageTotal < MIN_PAGES) {
-        //    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minPages, MIN_PAGES) });
+        //    ret.push({ type: ERROR, index: -1, message: format(this.messages.minPages, MIN_PAGES) });
         // }
         // for (var i = 0; i < pageTotal; i++) {
         for (let i = 0, pageTotal = this.pages.total(); i < pageTotal; i++) {
@@ -325,7 +358,7 @@ const Stream = BaseModel.define({
                     ret.push({
                         type: ERROR,
                         index,
-                        message: kendo.format(
+                        message: format(
                             this.messages.duplicateNames,
                             name,
                             pages
@@ -340,13 +373,13 @@ const Stream = BaseModel.define({
             ret.push({
                 type: ERROR,
                 index: -1,
-                message: kendo.format(this.messages.minQuestions, MIN_WEIGHT)
+                message: format(this.messages.minQuestions, MIN_WEIGHT)
             });
         }
         // Validate toolset (which includes _total) to make sure questions are varied
         // var TYPE_VARIETY = 3;
         // if (Object.keys(questions).length <= TYPE_VARIETY) {
-        //     ret.push({ type: WARNING, index: -1, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) });
+        //     ret.push({ type: WARNING, index: -1, message: format(this.messages.typeVariety, TYPE_VARIETY) });
         // }
         const QTY_VARIETY = 0.5;
         for (const prop in values) {
@@ -369,7 +402,7 @@ const Stream = BaseModel.define({
                     ret.push({
                         type: WARNING,
                         index: -1,
-                        message: kendo.format(
+                        message: format(
                             this.messages.qtyVariety,
                             proportion,
                             tools[prop].description

@@ -110,16 +110,14 @@ describe('tools.textbox', () => {
         });
 
         it('getDescription', () => {
-            expect(
-                Object.prototype.hasOwnProperty.call(tool, 'getDescription')
-            ).to.be.false;
+            expect(Object.prototype.hasOwnProperty.call(tool, 'getDescription'))
+                .to.be.false;
             expect(tool).to.respondTo('getDescription');
         });
 
         it('getHelp', () => {
-            expect(
-                Object.prototype.hasOwnProperty.call(tool, 'getHelp')
-            ).to.be.false;
+            expect(Object.prototype.hasOwnProperty.call(tool, 'getHelp')).to.be
+                .false;
             expect(tool).to.respondTo('getHelp');
         });
 

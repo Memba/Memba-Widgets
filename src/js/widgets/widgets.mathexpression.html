@@ -195,7 +195,7 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
-                SystemJS.import('kendo.binder.js'),
+                SystemJS.import('kendo.binder'),
                 SystemJS.import('./widgets.mathexpression.es6')
             ]).then(function () {
                 var kendo = window.kendo;

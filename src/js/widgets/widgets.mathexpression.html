@@ -194,7 +194,10 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.mathexpression.es6').then(function () {
+            Promise.all([
+                SystemJS.import('kendo.binder.js'),
+                SystemJS.import('./widgets.mathexpression.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
                     formula: '\\int_{a}^{b}x^2dx',
@@ -214,7 +217,7 @@
 </head>
 <body>
 <h1>widgets.mathexpression</h1>
-<h2>Javascript code</h2>
+<h2>JavaScript code</h2>
 <div id="math1"></div>
 <h2>HTML declaration</h2>
 <div id="math2" data-role="mathexpression" data-value="\prod_{i=a}^{b} f(i)" style="font-size:200%;color:red;"></div>

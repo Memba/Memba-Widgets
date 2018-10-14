@@ -193,7 +193,10 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.imageset.es6').then(function () {
+            Promise.all([
+                SystemJS.import('kendo.binder.js'),
+                SystemJS.import('./widgets.imageset.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
                     visible: true,
@@ -221,8 +224,8 @@
 <body>
 <h1>widgets.imageset</h1>
 
-<h2>ImageSet with MVVM data-bound values</h2>
-<div data-role="imageset" data-bind="value: image, visible: visible, enabled: enabled" data-images="[{&quot;text&quot;:&quot;ambulance&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/ambulance.svg&quot;},{&quot;text&quot;:&quot;oncoming_police_car&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/oncoming_police_car.svg&quot;},{&quot;text&quot;:&quot;fire_engine&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/fire_engine.svg&quot;}]" style="height:100px; width:100px"></div>
+<h2>Bound to observable</h2>
+<div data-role="imageset" data-bind="value: image, visible: visible, enabled: enabled" data-images="[{&quot;text&quot;:&quot;ambulance&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/ambulance.svg&quot;},{&quot;text&quot;:&quot;oncoming_police_car&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/oncoming_police_car.svg&quot;},{&quot;text&quot;:&quot;fire_engine&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/fire_engine.svg&quot;}]" style="height:100px; width:100px;"></div>
 
 <div>
     <input type="text" data-bind="value: image"><br/>
@@ -230,7 +233,7 @@
     Enabled: &nbsp;<input type="checkbox" data-bind="checked: enabled">
 </div>
 
-<h2>ImageSet initilalized in code</h2>
+<h2>JavaScript code</h2>
 <div id="imageset" style="height:100px; width:100px"></div>
 
 </body>

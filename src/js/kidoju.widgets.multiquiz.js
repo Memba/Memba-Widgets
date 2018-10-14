@@ -26,7 +26,7 @@
 
         var kendo = window.kendo;
         var ui = kendo.ui;
-        var Widget = ui.Widget;
+        var DataBoundWidget = ui.DataBoundWidget;
         var MultiSelect = ui.MultiSelect;
         var DataSource = kendo.data.DataSource;
         var ObservableArray = kendo.data.ObservableArray;
@@ -71,7 +71,7 @@
         /**
          * MultiQuiz widget
          */
-        var MultiQuiz = Widget.extend({
+        var MultiQuiz = DataBoundWidget.extend({
 
             /**
              * Constructor

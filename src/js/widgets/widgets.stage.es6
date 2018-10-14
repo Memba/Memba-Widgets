@@ -7,7 +7,7 @@
 
 var kendo = window.kendo;
 var ui = kendo.ui;
-var Widget = ui.Widget;
+var DataBoundWidget = ui.DataBoundWidget;
 var data = kendo.data;
 var binders = data.binders;
 var Binder = data.Binder;
@@ -131,7 +131,7 @@ binders.widget.properties = Binder.extend({
 /**
  * @class Stage Widget (kendoStage)
  */
-var Stage = Widget.extend({
+var Stage = DataBoundWidget.extend({
 
     /**
      * Init

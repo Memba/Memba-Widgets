@@ -193,7 +193,10 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.buttonset.es6').then(function () {
+            Promise.all([
+                SystemJS.import('kendo.binder.js'),
+                SystemJS.import('./widgets.buttonset.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
                     value: 3,
@@ -218,7 +221,7 @@
 </head>
 <body>
 <h1>widgets.buttonset</h1>
-<h2>JavaScript Code</h2>
+<h2>JavaScript code</h2>
 <input id="buttonset" class="km-ios7">
 <h2>HTML declaration</h2>
 <input data-role="buttonset" data-buttons="[{&quot;text&quot;:&quot;Options1&quot;},{&quot;text&quot;:&quot;Options2&quot;},{&quot;text&quot;:&quot;Options3&quot;},{&quot;text&quot;:&quot;Options4&quot;}]" data-value="3">

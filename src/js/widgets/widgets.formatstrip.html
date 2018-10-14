@@ -193,8 +193,11 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.formatstrip.es6').then(function (kendo) {
-                // var kendo = window.kendo;
+            Promise.all([
+                SystemJS.import('kendo.binder.js'),
+                SystemJS.import('./widgets.formatstrip.es6')
+            ]).then(function () {
+                var kendo = window.kendo;
                 var kidoju = window.kidoju;
                 var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
                 var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({

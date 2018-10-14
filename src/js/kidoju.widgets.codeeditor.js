@@ -38,7 +38,7 @@
     (function ($, undefined) {
 
         var kendo = window.kendo;
-        var Widget = kendo.ui.Widget;
+        var DataBoundWidget = kendo.ui.DataBoundWidget;
         var DropDownList = kendo.ui.DropDownList;
         var DataSource = kendo.data.DataSource;
         var assert = window.assert;
@@ -68,7 +68,7 @@
         /**
          * @class CodeEditor Widget (kendoCodeEditor)
          */
-        var CodeEditor = Widget.extend({
+        var CodeEditor = DataBoundWidget.extend({
 
             // TODO: Add testing of user value against solution
             // Quite complex, because we need to bring in kidoju.library.js + web workers execution (currently in kidoju.tools)

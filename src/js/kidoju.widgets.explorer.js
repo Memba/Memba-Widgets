@@ -31,7 +31,7 @@
         var kendo = window.kendo;
         var data = kendo.data;
         var ObservableArray = kendo.data.ObservableArray;
-        var Widget = kendo.ui.Widget;
+        var DataBoundWidget = kendo.ui.DataBoundWidget;
         var kidoju = window.kidoju;
         var PageComponent = kidoju.data.PageComponent;
         var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
@@ -84,7 +84,7 @@
          * *class
          * @type {*}
          */
-        var Explorer = Widget.extend({
+        var Explorer = DataBoundWidget.extend({
 
             init: function (element, options) {
                 var that = this;

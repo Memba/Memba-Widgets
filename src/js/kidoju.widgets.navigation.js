@@ -29,7 +29,7 @@
         var kendo = window.kendo;
         var data = kendo.data;
         var ObservableArray = data.ObservableArray;
-        var Widget = kendo.ui.Widget;
+        var DataBoundWidget = kendo.ui.DataBoundWidget;
         var kidoju = window.kidoju;
         var Page = kidoju.data.Page;
         var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
@@ -78,7 +78,7 @@
          * *class
          * @type {*}
          */
-        var Navigation = Widget.extend({
+        var Navigation = DataBoundWidget.extend({
 
             /**
              * Widget constructor

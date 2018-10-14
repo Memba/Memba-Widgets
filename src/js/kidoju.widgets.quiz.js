@@ -26,7 +26,7 @@
 
         var kendo = window.kendo;
         var ui = kendo.ui;
-        var Widget = ui.Widget;
+        var DataBoundWidget = ui.DataBoundWidget;
         var DropDownList = ui.DropDownList;
         var DataSource = kendo.data.DataSource;
         var assert = window.assert;
@@ -69,7 +69,7 @@
         /**
          * Quiz widget
          */
-        var Quiz = Widget.extend({
+        var Quiz = DataBoundWidget.extend({
 
             /**
              * Constructor

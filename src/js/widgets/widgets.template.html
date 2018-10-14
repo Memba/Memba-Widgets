@@ -193,7 +193,10 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.template.es6').then(function () {
+            Promise.all([
+                SystemJS.import('kendo.binder.js'),
+                SystemJS.import('./widgets.template.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
                     visible: true,
@@ -223,23 +226,23 @@
     </script>
 </head>
 <body>
-<h1>Template</h1>
+<h1>widgets.template</h1>
 
-<h2>Template with MVVM data-bound values</h2>
+<h2>HTML declaration</h2>
+<div data-role="template" data-template="script2" data-bind="value: data2"></div>
+
+<h2>Javascript code</h2>
+<div id="template2"></div>
+
+<p>With embedded kendo controls</p>
+<div id="template3"></div>
+
+<h2>Bound to observable</h2>
 <div data-role="template" data-template="script1" data-bind="value: data1, visible: visible"></div>
 <input type="text" data-bind="value: data1" data-value-update="keyup" />&nbsp;
 Visible: &nbsp;<input type="checkbox" data-bind="checked: visible" />
 
-<h2>Template with declarative binding</h2>
-<div data-role="template" data-template="script2" data-bind="value: data2"></div>
-
-<h2>Template initilalized in code</h2>
-<div id="template2"></div>
-
-<h2>Template with embedded kendo controls</h2>
-<div id="template3"></div>
-
-<h2>Template with dataSource</h2>
+<p>With dataSource</p>
 <div data-role="template" data-template="script4" data-value-field="id" data-bind="value: data4a, source: data4b"></div>
 
 <script id="script1" type="text/x-kendo-template">

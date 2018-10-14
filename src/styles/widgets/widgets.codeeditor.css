@@ -1,0 +1,54 @@
+.kj-codeeditor .k-header,
+.kj-codeeditor .k-footer {
+  padding: 0.25em;
+}
+.kj-codeeditor .k-header > div,
+.kj-codeeditor .k-footer > div {
+  display: inline-block;
+  box-sizing: border-box;
+}
+.kj-codeeditor .k-header > div:not(:last-child),
+.kj-codeeditor .k-footer > div:not(:last-child) {
+  padding-right: 0.5em;
+}
+.kj-codeeditor .k-header > div > label,
+.kj-codeeditor .k-footer > div > label {
+  display: flex;
+  align-items: center;
+  text-overflow: ellipsis;
+}
+.kj-codeeditor .k-header > div > label > span,
+.kj-codeeditor .k-footer > div > label > span {
+  padding-right: 0.5em;
+}
+.kj-codeeditor .k-header > div .k-dropdown,
+.kj-codeeditor .k-footer > div .k-dropdown,
+.kj-codeeditor .k-header > div .k-textbox,
+.kj-codeeditor .k-footer > div .k-textbox {
+  width: 100%;
+}
+.kj-codeeditor .kj-codeeditor-header > div {
+  width: 50%;
+}
+.kj-codeeditor .kj-codeeditor-footer > div {
+  width: 33.3%;
+}
+.kj-codeeditor .kj-codeeditor-footer > div:nth-child(3) {
+  white-space: nowrap;
+}
+.kj-codeeditor .kj-codeeditor-footer > div .kj-codeeditor-message {
+  display: inline-block;
+  padding-left: 0.5em;
+  vertical-align: middle;
+}
+.kj-codeeditor .kj-codeeditor-footer > div .kj-codeeditor-message .k-notification-wrap {
+  white-space: initial;
+  line-height: 1.72em;
+  padding: 2px 7px 2px;
+}
+.kj-codeeditor .kj-codeeditor-footer > div .kj-codeeditor-message .k-notification-wrap span.k-icon {
+  margin-right: 0.7em;
+}
+.CodeMirror-lint-tooltip {
+  z-index: 10100;
+}

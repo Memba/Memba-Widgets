@@ -18,12 +18,14 @@ const CONSTANTS = {
     SYMBOL: 'symbol',
     UNDEFINED: 'undefined',
     // Events
+    BLUR: 'blur',
     CHANGE: 'change',
     CLICK: 'click',
     CLOSE: 'close',
     DATABINDING: 'dataBinding',
     DATABOUND: 'dataBound',
     ERROR: 'error',
+    FOCUS: 'focus',
     KEYDOWN: 'keydown',
     KEYPRESS: 'keypress',
     KEYUP: 'keyup',
@@ -42,6 +44,7 @@ const CONSTANTS = {
     POINTEROUT: 'pointerout',
     POINTEROVER: 'pointerover',
     POINTERUP: 'pointerup',
+    SELECT: 'select',
     TAP: 'tap',
     TOUCHEND: 'touchend',
     TOUCHLEAVE: 'touchleave',
@@ -93,10 +96,14 @@ const CONSTANTS = {
         PLAY: 'play',
         REVIEW: 'review'
     },
+    UID: 'uid',
     // HTML tags
+    BODY: 'body',
     DIV: 'div',
     INPUT: 'input',
-    SELECT: 'select',
+    LI: 'li',
+    // SELECT: 'select',
+    UL: 'ul',
     SPAN: 'span'
 };
 

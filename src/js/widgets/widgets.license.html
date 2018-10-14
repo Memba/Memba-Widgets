@@ -194,7 +194,10 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.license.es6').then(function () {
+            Promise.all([
+                SystemJS.import('kendo.binder.js'),
+                SystemJS.import('./widgets.license.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
                 $(function () {
                     // Unbound
@@ -215,7 +218,7 @@
 <h1>widgets.license</h1>
 <h2>JavaScript code</h2>
 <div id="license"></div>
-<h2>Declarative</h2>
+<h2>HTML Declaration</h2>
 <div data-role="license" data-value="0"></div>
 <h2>Bound to observable</h2>
 <div data-role="license" data-bind="value: license, visible: visible, enabled: enabled" /></div>

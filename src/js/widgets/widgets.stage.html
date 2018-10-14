@@ -194,10 +194,11 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
-                SystemJS.import('./js/vendor/kendo/kendo.slider'),
-                SystemJS.import('./js/vendor/kendo/kendo.grid.js'),
-                SystemJS.import('./js/widgets.toolbox.es6'),
-                SystemJS.import('./js/widgets.stage.es6')
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('kendo.slider'),
+                SystemJS.import('kendo.grid.js'),
+                SystemJS.import('./widgets.toolbox.es6'),
+                SystemJS.import('./widgets.stage.es6')
             ]).then(function () {
                 var kendo = window.kendo;
                 var kidoju = window.kidoju;

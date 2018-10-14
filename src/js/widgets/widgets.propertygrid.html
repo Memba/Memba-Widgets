@@ -195,6 +195,7 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
+                SystemJS.import('kendo.binder.js'),
                 SystemJS.import('./widgets.rating.es6'),
                 SystemJS.import('./widgets.propertygrid.es6')
             ]).then(function () {

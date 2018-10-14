@@ -26,7 +26,7 @@
 
         var kendo = window.kendo;
         var data = kendo.data;
-        var Widget = kendo.ui.Widget;
+        var DataBoundWidget = kendo.ui.DataBoundWidget;
         var kidoju = window.kidoju;
         var Page = kidoju.data.Page;
         var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
@@ -111,7 +111,7 @@
          * @class PlayBar
          * @type {*}
          */
-        var PlayBar = Widget.extend({
+        var PlayBar = DataBoundWidget.extend({
 
             /**
              * Widget constructor

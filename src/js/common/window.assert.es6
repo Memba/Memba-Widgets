@@ -83,7 +83,7 @@ export default function assert(test, message) {
  * @param value
  * @param message
  */
-assert.enum = function _enum(array, value, message) {
+assert.enum = (array, value, message) => {
     if (array.indexOf(value) === -1) {
         throw new RangeError(message);
     }
@@ -95,7 +95,7 @@ assert.enum = function _enum(array, value, message) {
  * @param actual
  * @param message
  */
-assert.equal = function _equal(expected, actual, message) {
+assert.equal = (expected, actual, message) => {
     if (expected !== actual) {
         throw new RangeError(message);
     }
@@ -104,20 +104,21 @@ assert.equal = function _equal(expected, actual, message) {
 /**
  * Assert format (note: prefer kendo.format when available)
  * @param message
+ * @param values
+ * @returns {*}
  */
-assert.format = function _format(message, ...values) {
-    return message.replace(
-        /\{(\d+)\}/g,
+assert.format = (message, ...values) =>
+    message.replace(
+        /{(\d+)}/g,
         (match, index) => `${values[parseInt(index, 10)]}`
     );
-};
 
 /**
  * Assert the length property (for Arrays and jQuery)
  * @param el
  * @param message
  */
-assert.hasLength = function _hasLength(el, message) {
+assert.hasLength = (el, message) => {
     if (!el || !el.length) {
         throw new TypeError(message);
     }
@@ -129,7 +130,7 @@ assert.hasLength = function _hasLength(el, message) {
  * @param value
  * @param message
  */
-assert.instanceof = function _instanceof(Class, value, message) {
+assert.instanceof = (Class, value, message) => {
     if (!(value instanceof Class)) {
         throw new TypeError(message);
     }
@@ -140,7 +141,7 @@ assert.instanceof = function _instanceof(Class, value, message) {
  * @param value
  * @param message
  */
-assert.isArray = function _isArray(value, message) {
+assert.isArray = (value, message) => {
     if (!Array.isArray(value)) {
         throw new TypeError(message);
     }
@@ -151,7 +152,7 @@ assert.isArray = function _isArray(value, message) {
  * @param value
  * @param message
  */
-assert.isDefined = function _isDefined(value, message) {
+assert.isDefined = (value, message) => {
     if ($.type(value) === 'undefined') {
         throw new TypeError(message);
     }
@@ -162,7 +163,7 @@ assert.isDefined = function _isDefined(value, message) {
  * @param value
  * @param message
  */
-assert.isEmptyObject = function _isEmptyObject(value, message) {
+assert.isEmptyObject = (value, message) => {
     if (!$.isEmptyObject(value)) {
         throw new TypeError(message);
     }
@@ -173,7 +174,7 @@ assert.isEmptyObject = function _isEmptyObject(value, message) {
  * @param value
  * @param message
  */
-assert.isFunction = function _isFunction(value, message) {
+assert.isFunction = (value, message) => {
     if (!$.isFunction(value)) {
         throw new TypeError(message);
     }
@@ -184,7 +185,8 @@ assert.isFunction = function _isFunction(value, message) {
  * @param value
  * @param message
  */
-assert.isOptionalObject = function _isOptionalObject(value, message) {
+assert.isOptionalObject = (value, message) => {
+    // TODO Review
     if (
         $.type(value) !== 'undefined' &&
         (!$.isPlainObject(value) || $.isEmptyObject(value))
@@ -198,7 +200,8 @@ assert.isOptionalObject = function _isOptionalObject(value, message) {
  * @param value
  * @param message
  */
-assert.isPlainObject = function _isPlainObject(value, message) {
+assert.isPlainObject = (value, message) => {
+    // TODO Review
     if (!$.isPlainObject(value) || $.isEmptyObject(value)) {
         throw new TypeError(message);
     }
@@ -209,7 +212,8 @@ assert.isPlainObject = function _isPlainObject(value, message) {
  * @param value
  * @param message
  */
-assert.isPlainOrEmptyObject = function _isPlainOrEmptyObject(value, message) {
+assert.isPlainOrEmptyObject = (value, message) => {
+    // TODO Review
     if (!$.isPlainObject(value)) {
         throw new TypeError(message);
     }
@@ -220,7 +224,7 @@ assert.isPlainOrEmptyObject = function _isPlainOrEmptyObject(value, message) {
  * @param value
  * @param message
  */
-assert.isUndefined = function _isUndefined(value, message) {
+assert.isUndefined = (value, message) => {
     if ($.type(value) !== 'undefined') {
         throw new TypeError(message);
     }
@@ -232,9 +236,41 @@ assert.isUndefined = function _isUndefined(value, message) {
  * @param value
  * @param message
  */
-assert.match = function _match(rx, value, message) {
+assert.match = (rx, value, message) => {
     if ($.type(value) !== 'string' || !rx.test(value)) {
         throw new RangeError(message);
+    }
+};
+
+/**
+ * Assert instance of Class or null or undefined
+ * @param Class
+ * @param value
+ * @param message
+ */
+assert.nullableInstanceOrUndef = (Class, value, message) => {
+    if (
+        $.type(value) !== 'undefined' &&
+        !(value instanceof Class) &&
+        $.type(value) !== 'null'
+    ) {
+        throw new TypeError(message);
+    }
+};
+
+/**
+ * Assert type or null or undefined
+ * @param type
+ * @param value
+ * @param message
+ */
+assert.nullableTypeOrUndef = (type, value, message) => {
+    if (
+        $.type(value) !== 'undefined' &&
+        $.type(value) !== type &&
+        $.type(value) !== 'null'
+    ) {
+        throw new TypeError(message);
     }
 };
 
@@ -244,9 +280,7 @@ assert.match = function _match(rx, value, message) {
  * @param message
  * @returns {*}
  */
-assert.ok = function _ok(test, message) {
-    return assert(test, message);
-};
+assert.ok = (test, message) => assert(test, message);
 
 /**
  * Assert type
@@ -254,7 +288,7 @@ assert.ok = function _ok(test, message) {
  * @param value
  * @param message
  */
-assert.type = function _type(type, value, message) {
+assert.type = (type, value, message) => {
     if ($.type(value) !== type) {
         throw new TypeError(message);
     }
@@ -266,7 +300,7 @@ assert.type = function _type(type, value, message) {
  * @param value
  * @param message
  */
-assert.typeOrUndef = function _typeOrUndef(type, value, message) {
+assert.typeOrUndef = (type, value, message) => {
     if ($.type(value) !== 'undefined' && $.type(value) !== type) {
         throw new TypeError(message);
     }
@@ -312,6 +346,13 @@ assert.messages = {
     match: {
         default: '`{0}` is expected to match `{1}`'
     },
+    nullableInstanceOrUndef: {
+        default:
+            '`{0}` is expected to be an instance of `{1}` or be null or undefined'
+    },
+    nullableTypeOrUndef: {
+        default: '`{0}` is expected to have type `{1}` or be null or undefined'
+    },
     ok: {
         default: 'A statement is expected to be true'
     },
@@ -327,7 +368,7 @@ assert.messages = {
  * Assert data source transport options
  * @param options
  */
-assert.crud = function _crud(options) {
+assert.crud = options => {
     assert.isPlainObject(
         options,
         assert.format(assert.messages.isPlainObject.default, 'options')
@@ -353,7 +394,7 @@ assert.crud = function _crud(options) {
  * Assert rapi interface
  * @param rapi
  */
-assert.rapi = function _rapi(rapi) {
+assert.rapi = rapi => {
     assert.isFunction(
         rapi.create,
         assert.format(assert.messages.isFunction.default, 'rapi.create')

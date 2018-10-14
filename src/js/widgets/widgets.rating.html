@@ -194,17 +194,20 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.rating.es6').then(function () {
+            Promise.all([
+                SystemJS.import('kendo.binder.js'),
+                SystemJS.import('./widgets.rating.es6')
+            ]).then(function () {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    rating: 3,
+                    visible: true,
+                    enabled: true
+                });
+                viewModel.bind('change', function (e) {
+                    console.log('changed ' + e.sender.rating);
+                });
                 $(function () {
-                    var kendo = window.kendo;
-                    var viewModel = kendo.observable({
-                        rating: 3,
-                        visible: true,
-                        enabled: true
-                    });
-                    viewModel.bind('change', function (e) {
-                        console.log('changed ' + e.sender.rating);
-                    });
                     kendo.bind('body', viewModel);
                 });
             });
@@ -222,7 +225,7 @@
 </head>
 <body>
 <h1>widgets.rating</h1>
-<h2>Rating unbound</h2>
+<h2>HTML declaration</h2>
 <div>Value:<input id="rating" data-role="rating" type="number" value="2" readonly /></div>
 <h2>Bound to observable</h2>
 <div>Value:<input id="numbox" type="number" data-bind="value: rating" /></div>

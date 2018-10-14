@@ -261,6 +261,8 @@ describe('window.assert', () => {
                 .undefined;
         });
 
+        xit('isPLainOrEmptyObject', () => {});
+
         it('isUndefined', () => {
             expect(assert.messages.isUndefined.default).to.be.a(
                 CONSTANTS.STRING
@@ -296,6 +298,10 @@ describe('window.assert', () => {
             expect(fn).to.throw(Error, ERR_MSG);
             expect(assert.match(/abc/, '9abcd', ERR_MSG)).to.be.undefined;
         });
+
+        xit('nullableInstanceOrUndef', () => {});
+
+        xit('nullableTypeOrUndef', () => {});
 
         it('ok', () => {
             expect(assert.messages.ok.default).to.be.a(CONSTANTS.STRING);
@@ -398,5 +404,8 @@ describe('window.assert', () => {
             expect(assert.typeOrUndef('array', undefined, ERR_MSG)).to.be
                 .undefined;
         });
+
+        // assert.crud is a composition of the above.
+        // assert.rapi is a composition of the above.
     });
 });

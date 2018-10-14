@@ -6,7 +6,7 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.binder';
+import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 

@@ -29,6 +29,7 @@
         var DataSource = data.DataSource;
         var ui = kendo.ui;
         var Widget = ui.Widget;
+        var DataBoundWidget = ui.DataBoundWidget;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.dropzone');
         var util = window.kidoju.util;
@@ -305,7 +306,7 @@
          * DropZone
          * @class DropZone Widget (kendoDropZone)
          */
-        var DropZone = Widget.extend({
+        var DropZone = DataBoundWidget.extend({
 
             /**
              * Init

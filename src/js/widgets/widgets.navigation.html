@@ -2,15 +2,16 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>widgets.toolbox</title>
+    <title>widgets.navigation</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- widgets.toolbox stylesheet -->
-    <!--link href="../../styles/widgets/widgets.toolbox.css" rel="stylesheet" /-->
+    <!-- widgets.navigation stylesheet -->
+    <link href="../../styles/widgets/widgets.stage.css" rel="stylesheet">
+    <link href="../../styles/widgets/widgets.navigation.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
@@ -194,54 +195,136 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
-                SystemJS.import('kendo.binder'),
-                SystemJS.import('../tools/tools.es6'),
-                SystemJS.import('../tools/tools.base.es6'),
-                SystemJS.import('../tools/index.es6'),
-                SystemJS.import('./widgets.toolbox.es6')
-            ]).then(function (res) {
+                SystemJS.import('kendo.binder.js'),
+                SystemJS.import('kendo.splitter.js'),
+                SystemJS.import('./widgets.navigation.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
-                var tools = res[0].default;
-                var BaseTool = res[1].default;
-                // Use tools as viewModel for bindings
-                tools.set('visible', true);
-                tools.set('enabled', true);
-                tools.source$ = function() {
-                    var ret = [];
-                    for (var tool in this) {
-                        if (
-                            Object.prototype.hasOwnProperty.call(this, tool) &&
-                            this[tool] instanceof BaseTool
-                        ) {
-                            ret.push(tool);
-                        }
+                var kidoju = window.kidoju;
+                var Page = kidoju.data.Page;
+                var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+
+                var pageCollectionData = [
+                    {
+                        id: kendo.guid(),
+                        instructions: 'Company?',
+                        components: [
+                            { id: kendo.guid(), tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
+                            { id: kendo.guid(), tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
+                            { id: kendo.guid(), tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield1' } }
+                        ]
+                    },
+                    {
+                        id: kendo.guid(),
+                        instructions: 'Marignan?',
+                        components: [
+                            { id: kendo.guid(), tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
+                            { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield2' } }
+                        ]
+                    },
+                    {
+                        id: kendo.guid(),
+                        instructions: 'Cheval IV?',
+                        components: [
+                            { id: kendo.guid(), tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
+                            { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
+                        ]
                     }
-                    return ret;
+                ];
+                var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionData });
+                var viewModel = window.viewModel = kendo.observable({
+                    current: undefined,
+                    pages: pageCollectionDataSource
+                });
+                var onResize = window.onResize = function() {
+                    var navigationWidget = $('[data-role="navigation"]').data('kendoNavigation'),
+                        stage = $('#right [data-role="stage"]'),
+                        stageWidget = stage.data('kendoStage');
+                    if (navigationWidget instanceof kendo.ui.Navigation) {
+                        navigationWidget.resize();
+                    }
+                    if (stageWidget instanceof kendo.ui.Stage) {
+                        var width = $('#right').width(),
+                            height = $('#right').height(),
+                            scale = Math.min(0.90*width/1024, 0.90*height/768);
+                        stageWidget.scale(scale);
+                        $('.centered')
+                        .width(scale*stage.outerWidth())
+                        .height(scale*stage.outerHeight())
+                        .css('position', 'absolute')
+                        .css('top', '50%')
+                        .css('left', '50%')
+                        .css('margin-left', '-' + scale*stage.outerWidth()/2 + 'px')
+                        .css('margin-top', '-' + scale*stage.outerHeight()/2 + 'px');
+                    }
                 };
 
                 $(function() {
-                    $('#toolbox1').kendoToolBox();
-                    kendo.bind('body', tools);
+                    var splitter = $('.kj-splitter').kendoSplitter({
+                        orientation: 'horizontal',
+                        resize: window.onResize,
+                        panes: [
+                            { size: '300px' /*, min: '50px', max: '500px'*/ },
+                            {}
+                        ]
+                    }).data("kendoSplitter");
+
+                    kendo.bind('body', viewModel);
+
+                    $(window).on('resize', window.onResize);
+
+                    $(document).on('keypress', function(e) {
+                        //Add empty pages when pressing the space bar
+                        if (e.type === 'keypress' && e.keyCode === 32) {
+                            var page = new Page();
+                            //TODO: consider adding a label on the page
+                            viewModel.pages.add(page);
+                        }
+                    });
+
+                    pageCollectionDataSource.fetch(function() {
+                        window.viewModel.set('current', pageCollectionDataSource.at(0));
+                        window.onResize();
+                    });
                 });
             });
         }());
     </script>
+    <style>
+        html {
+            /* See: http://www.telerik.com/forums/100-window-height-splitter */
+            overflow: hidden;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        .kj-splitter {
+            height: 100%;
+            border: 0;
+        }
+
+        #left,
+        [data-role="navigation"] {
+            height: 100%;
+            border: 0;
+        }
+    </style>
 </head>
 <body>
-<h1>widgets.toolbox</h1>
-<div id="toolbox1"></div>
-<div id="toolbox2" data-role="toolbox" data-size="64" data-bind="visible: visible, enabled: enabled"></div>
-<div>
-    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
-    <input type="checkbox" data-bind="checked: enabled" />Enabled
+<div class="kj-splitter">
+    <div id="left">
+        <div data-role="navigation" data-bind="source: pages, value: current"></div>
+    </div>
+    <div id="right">
+        <div class="centered">
+            <div data-role="stage" data-bind="source: current.components"></div>
+        </div>
+    </div>
 </div>
-<select data-bind="value: active, source: source$"></select>
-<pre>
-    {
-        value: <span data-bind="text: active"></span>,
-        visible: <span data-bind="text: visible"></span>,
-        enabled: <span data-bind="text: enabled"></span>
-    }
-</pre>
 </body>
 </html>

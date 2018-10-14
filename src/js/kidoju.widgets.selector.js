@@ -34,6 +34,7 @@
         var DataSource = data.DataSource;
         var Surface = drawing.Surface;
         var Widget = kendo.ui.Widget;
+        var DataBoundWidget = kendo.ui.DataBoundWidget;
         var ToolBar = kendo.ui.ToolBar;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.selection');
@@ -857,7 +858,7 @@
          * Selector
          * @class Selector Widget (kendoSelector)
          */
-        var Selector = Widget.extend({
+        var Selector = DataBoundWidget.extend({
 
             /**
              * Init

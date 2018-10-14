@@ -17,8 +17,9 @@ import './tools.label.es6';
 // import './tools.mathexpression.es6';
 // import './tools.mathinput.es6';
 // import './tools.multiquiz.es6';
+// TODO import './tools.numericbox.es6.txt';
 // import './tools.quiz.es6';
-// import './tools.random.es6.txt'; */
+// TODO import './tools.random.es6.txt'; */
 // import './tools.selector.es6';
 // import './tools.table.es6';
 // import './tools.textarea.es6';

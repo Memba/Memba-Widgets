@@ -6,7 +6,7 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.binder';
+import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
@@ -31,7 +31,7 @@ const TOOL = 'tool';
 const ACTIVE_TOOL = 'active';
 const POINTER = 'pointer';
 const DEFAULT_EXTENSION = '.svg';
-const DEFAULT_PATH = './styles/images/';
+const DEFAULT_PATH = '../../styles/images/';
 const DEFAULT_SIZE = 32;
 
 /** *******************************************************************************

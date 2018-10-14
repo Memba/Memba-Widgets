@@ -193,7 +193,10 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.textgaps.es6').then(function () {
+            Promise.all([
+                SystemJS.import('kendo.binder.js'),
+                SystemJS.import('./widgets.textgaps.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
                     value: [],

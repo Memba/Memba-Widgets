@@ -1,0 +1,15 @@
+.kj-navigation {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  border: none;
+}
+.kj-navigation .k-list .kj-placeholder {
+  opacity: 0.2;
+  filter: alpha(opacity=20);
+}
+.kj-item {
+  cursor: pointer;
+  user-select: none;
+}

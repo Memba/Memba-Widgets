@@ -82,6 +82,7 @@ const PropertyGrid = Widget.extend({
      * @returns {*}
      */
     value(value) {
+        // TODO assert value
         const that = this;
         if ($.type(value) === CONSTANTS.OBJECT || $.type(value) === CONSTANTS.NULL) {
             if (that.options.value !== value) {

@@ -84,29 +84,31 @@ const ImageSet = Widget.extend({
      * @return {*}
      */
     value(value) {
-        const that = this;
-        const images = that.options.images;
+        assert.nullableTypeOrUndef(
+            CONSTANTS.STRING,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                'value',
+                CONSTANTS.STRING
+            )
+        );
+        let ret;
+        const { images } = this.options;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            if ($.isArray(images) && images[that._index]) {
-                return images[that._index].text;
+            if ($.isArray(images) && images[this._index]) {
+                ret = images[this._index].text;
             }
-        } else if (
-            $.type(value) === CONSTANTS.STRING ||
-            $.type(value) === CONSTANTS.NULL
-        ) {
-            that._index = 0;
-            for (let i = 0, length = images.length; i < length; i++) {
+        } else { // TODO compare values
+            this._index = 0;
+            for (let i = 0, { length } = images; i < length; i++) {
                 if (value === images[i].text) {
-                    that._index = i;
+                    this._index = i;
                     break;
                 }
             }
-            that.refresh();
-        } else {
-            throw new TypeError(
-                '`value` should be a nullable string or undefined.'
-            );
+            this.refresh();
         }
+        return ret;
     },
 
     /**

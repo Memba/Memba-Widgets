@@ -1,19 +1,16 @@
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>dialogs.styleeditor</title>
+    <title>widgets.table</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- dialogs.basedialog stylesheet -->
-    <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
-    <!-- widgets.styleeditor stylesheet -->
-    <link href="../../styles/widgets/widgets.styleeditor.css" rel="stylesheet">
+    <!-- widgets.table stylesheet -->
+    <link href="../../styles/widgets/widgets.table.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
@@ -23,6 +20,7 @@
             SystemJS.config({
                 baseURL: '../../../',
                 bundles: {
+                    'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
                     'kendodatavizbarcode': ['kendo.dataviz.barcode'],
                     'kendodatavizchart': ['kendo.dataviz.chart'],
@@ -38,7 +36,6 @@
                     'kendodrawing': ['kendo.drawing'],
                     'kendoeditor': ['kendo.editor'],
                     'kendogantt': ['kendo.gantt'],
-                    'kendogrid': ['kendo.grid'],
                     'kendopdf': ['kendo.pdf'],
                     'kendoscheduler': ['kendo.scheduler'],
                     'kendospreadsheet': ['kendo.spreadsheet']
@@ -196,51 +193,71 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            // We need to load kendo.grid here because SystemJS does not load it as a bundle
-            // from the import reference in dialogs.styleeditor.es6
-            // See https://github.com/systemjs/systemjs/issues/1818
-            SystemJS.import('kendo.grid')
-                .then(function () {
-                    return SystemJS.import('./dialogs.styleeditor.es6')
-                })
-                .then(function (module) {
-                    var kendo = window.kendo;
-                    var openStyleEditor = module.default;
-                    $(function () {
-                        $('#button1').click(function (e) {
-                            openStyleEditor({
-                                title: 'My Style'
-                            }).then(function(result) {
-                                $("#console1").append(
-                                    kendo.format(
-                                        '<div>action `{0}` with data `{1}` at {2}</div>',
-                                        result.action,
-                                        JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
-                                    )
-                                );
-                            });
-                        });
-                    });
+            Promise.all([
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('kendo.spreadsheet'),
+                SystemJS.import('./widgets.table.es6')
+            ]).then(function () {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    json: null,
+                    json$: function () {
+                        return JSON.stringify(this.get('json'));
+                    },
+                    visible: true,
+                    enabled: true
                 });
+
+                $(function() {
+                    kendo.bind('body', viewModel);
+                    var spreadsheetWidget = $('#spreadsheet').kendoSpreadsheet({
+                        sheets: [{}],
+                        sheetsbar: false,
+                        columns: 5,
+                        rows: 8,
+                        columnWidth: 150,
+                        rowHeight: 58,
+                        render: function (e) { // render is triggered by cell data and formatting changes but it occurs too often to debug
+                            // change: function (e) { // change is only triggered by cell data changes (not cell formatting changes)
+                            viewModel.set('json', e.sender.toJSON());
+                        },
+                        toolbar: {
+                            // TODO: merge and hide not included in v1
+                            home: [['bold', 'italic', 'underline'], 'backgroundColor', 'textColor', 'borders', 'fontSize', 'fontFamily', 'alignment', 'textWrap', ['formatDecreaseDecimal', 'formatIncreateDecimal'], 'format'],
+                            insert: false,
+                            data: false
+                        }
+                    }).data('kendoSpreadsheet');
+                    // Prevent other options to add/remove/hide/merge cells
+                    $('#spreadsheet').find('.k-spreadsheet-fixed-container').off('contextmenu');
+                    // Set default font size
+                    var activeSheet = spreadsheetWidget.activeSheet();
+                    activeSheet.range('R1C1:R' + spreadsheetWidget.options.rows + 'C' + spreadsheetWidget.options.columns).forEachCell(function(rowIndex, columnIndex, cell) {
+                        var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
+                        range.fontSize(range.fontSize() || 48);
+                    });
+                    spreadsheetWidget.refresh();
+                });
+            });
         }());
     </script>
-    <style type="text/css">
-        .highlight-section {
-            margin-top: 10px;
-            width: 600px;
-            padding: 7px 7px 7px 7px;
-            min-height: 35px;
-        }
-    </style>
 </head>
-
 <body>
-
-<h1>dialogs.styleeditor</h1>
-
-<h2>using openStyleEditor</h2>
-<button id="button1" class="k-button">Show Me!</button>
-<div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
-
+<h1>widgets.table</h1>
+<div style="height:300px;">
+    <div data-role="table" data-columns="5" data-rows="8" data-bind="value: json, visible: visible"></div>
+    <!--div data-role="table" data-columns="4" data-rows="6" data-value="{&quot;activeSheet&quot;:&quot;Sheet1&quot;,&quot;sheets&quot;:[{&quot;name&quot;:&quot;Sheet1&quot;,&quot;rows&quot;:[{&quot;index&quot;:0,&quot;cells&quot;:[{&quot;value&quot;:12,&quot;format&quot;:&quot;#&quot;,&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]},{&quot;index&quot;:1,&quot;cells&quot;:[{&quot;value&quot;:12,&quot;format&quot;:&quot;#&quot;,&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]},{&quot;index&quot;:2,&quot;cells&quot;:[{&quot;value&quot;:14,&quot;format&quot;:&quot;#&quot;,&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]},{&quot;index&quot;:3,&quot;cells&quot;:[{&quot;value&quot;:15,&quot;format&quot;:&quot;#&quot;,&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]},{&quot;index&quot;:4,&quot;cells&quot;:[{&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]},{&quot;index&quot;:5,&quot;cells&quot;:[{&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]}],&quot;columns&quot;:[],&quot;selection&quot;:&quot;D6:D6&quot;,&quot;activeCell&quot;:&quot;D6:D6&quot;,&quot;frozenRows&quot;:0,&quot;frozenColumns&quot;:0,&quot;showGridLines&quot;:true,&quot;mergedCells&quot;:[],&quot;hyperlinks&quot;:[]}]}"></div-->
+</div>
+<div id="spreadsheet"></div>
+<pre>
+{
+    json:
+    <div data-bind="text: json$" style="margin-left:50px;"></div>
+    visible: <span data-bind="text: visible"></span>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+</div>
 </body>
 </html>

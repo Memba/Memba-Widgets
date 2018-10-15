@@ -84,11 +84,11 @@ const ButtonSet = Widget.extend({
      * @param value
      */
     value(value) {
-        assert.typeOrUndef(
+        assert.nullableTypeOrUndef(
             CONSTANTS.NUMBER,
             value,
             assert.format(
-                assert.messages.typeOrUndef.default,
+                assert.messages.nullableTypeOrUndef.default,
                 'value',
                 CONSTANTS.NUMBER
             )

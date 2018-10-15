@@ -229,12 +229,6 @@ const CodeEditor = DataBoundWidget.extend({
         return ret;
     },
 
-    /* This function has too many statements. */
-    /* jshint -W071 */
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * refresh UI
      * @private
@@ -318,9 +312,6 @@ const CodeEditor = DataBoundWidget.extend({
 
         logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
-
-    /* jshint +W074 */
-    /* jshint +W071 */
 
     /**
      * Builds the widget layout
@@ -548,9 +539,6 @@ const CodeEditor = DataBoundWidget.extend({
         }
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Run test
      * @param workerLib
@@ -626,8 +614,6 @@ const CodeEditor = DataBoundWidget.extend({
 
         return dfd.promise();
     },
-
-    /* jshint +W074 */
 
     /**
      * Display result (success, failure, omit)

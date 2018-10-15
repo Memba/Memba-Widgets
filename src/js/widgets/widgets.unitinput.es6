@@ -82,11 +82,11 @@ const UnitInput = Widget.extend({
      * @return {*}
      */
     value(value) {
-        assert.typeOrUndef(
+        assert.nullableTypeOrUndef(
             CONSTANTS.STRING,
             value,
             assert.format(
-                assert.messages.typeOrUndef.default,
+                assert.messages.nullableTypeOrUndef.default,
                 'value',
                 CONSTANTS.STRING
             )

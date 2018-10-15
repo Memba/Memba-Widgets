@@ -36,6 +36,22 @@ const StyleDataSource = DataSource.extend({
                 }
             })
         );
+    },
+
+    parseString() {
+
+    },
+
+    toString() {
+
+    },
+
+    parseJSON() {
+
+    },
+
+    toJSON() {
+
     }
 });
 

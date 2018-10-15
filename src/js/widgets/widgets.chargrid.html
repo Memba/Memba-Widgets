@@ -1,19 +1,16 @@
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>dialogs.styleeditor</title>
+    <title>widgets.chargrid</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- dialogs.basedialog stylesheet -->
-    <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
-    <!-- widgets.styleeditor stylesheet -->
-    <link href="../../styles/widgets/widgets.styleeditor.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.mobile.all.min.css" rel="stylesheet">
+    <!-- widgets.chargrid stylesheet -->
+    <!-- link href="./styles/widgets.chargrid.css" rel="stylesheet" -->
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
@@ -23,6 +20,7 @@
             SystemJS.config({
                 baseURL: '../../../',
                 bundles: {
+                    'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
                     'kendodatavizbarcode': ['kendo.dataviz.barcode'],
                     'kendodatavizchart': ['kendo.dataviz.chart'],
@@ -38,7 +36,6 @@
                     'kendodrawing': ['kendo.drawing'],
                     'kendoeditor': ['kendo.editor'],
                     'kendogantt': ['kendo.gantt'],
-                    'kendogrid': ['kendo.grid'],
                     'kendopdf': ['kendo.pdf'],
                     'kendoscheduler': ['kendo.scheduler'],
                     'kendospreadsheet': ['kendo.spreadsheet']
@@ -196,51 +193,64 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            // We need to load kendo.grid here because SystemJS does not load it as a bundle
-            // from the import reference in dialogs.styleeditor.es6
-            // See https://github.com/systemjs/systemjs/issues/1818
-            SystemJS.import('kendo.grid')
-                .then(function () {
-                    return SystemJS.import('./dialogs.styleeditor.es6')
+            // We need to load kendo.drawing here because AMD does not load it as a bundle
+            // Note that Promise.all cannot guarantee it is available before te chargrid is initialized
+            Promise.all([
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('kendo.drawing')
+            ]).then(function () {
+                    return SystemJS.import('./widgets.chargrid.es6');
                 })
-                .then(function (module) {
+                .then(function () {
                     var kendo = window.kendo;
-                    var openStyleEditor = module.default;
-                    $(function () {
-                        $('#button1').click(function (e) {
-                            openStyleEditor({
-                                title: 'My Style'
-                            }).then(function(result) {
-                                $("#console1").append(
-                                    kendo.format(
-                                        '<div>action `{0}` with data `{1}` at {2}</div>',
-                                        result.action,
-                                        JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
-                                    )
-                                );
-                            });
-                        });
+                    var viewModel = kendo.observable({
+                        value: {},
+                        visible: true,
+                        enabled: true,
+                        value$: function () {
+                            return JSON.stringify(this.get('value'));
+                        }
+                    });
+                    $(function() {
+                        kendo.bind('body', viewModel);
                     });
                 });
         }());
     </script>
-    <style type="text/css">
-        .highlight-section {
-            margin-top: 10px;
-            width: 600px;
-            padding: 7px 7px 7px 7px;
-            min-height: 35px;
+    <style>
+        .kj-stage {
+            border: solid 1px black;
         }
     </style>
 </head>
-
 <body>
-
-<h1>dialogs.styleeditor</h1>
-
-<h2>using openStyleEditor</h2>
-<button id="button1" class="k-button">Show Me!</button>
-<div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
-
+<h1>widgets.chargrid</h1>
+<div class="kj-stage" style="height:600px;width:800px;">
+    <div data-role="stage" style="position:relative;height: 600px;width: 800px;">
+        <div class="kj-element" style="position:absolute;left:200px;top:100px;height:400px;width:400px;">
+            <div id="chargrid1" data-role="chargrid" data-scaler=".kj-stage" data-container=".kj-stage>div[data-role=stage]" data-whitelist="1-9" data-value="[['.','1','2','3','4','5'],['+',null,null,'3','4','5']]" data-locked="[[1,1,0,0,0,0],[1,1,0,0,0,0],[1,1,0,0,0,0],[1,1,0,0,0,0]]" style="height:400px;width:400px;"></div>
+        </div>
+    </div>
+</div>
+<div class="kj-stage" style="height:600px;width:800px;transform:scale(0.75);">
+    <div data-role="stage" style="position:relative;height:600px;width:800px;">
+        <div class="kj-element" style="position:absolute;left:200px;top:100px;height:400px;width:400px;transform:rotate(30deg)">
+            <div id="chargrid2" data-role="chargrid" data-scaler=".kj-stage" data-container=".kj-stage>div[data-role=stage]" data-whitelist="a-z" data-bind="value: value, visible: visible, enabled: enabled" style="height:400px;width:400px;"></div>
+        </div>
+    </div>
+</div>
+<p>Test in the following input that chars do not get mixed up with the grid above</p>
+<div><input type="text" class="k-textbox"></div>
+<pre>
+{
+    value: <span data-bind="text: value$()"></span>,
+    visible: <span data-bind="text: visible"></span>
+    enabled: <span data-bind="text: enabled"></span>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+</div>
 </body>
 </html>

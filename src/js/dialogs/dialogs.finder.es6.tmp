@@ -11,7 +11,7 @@ import 'kendo.data';
 import 'kendo.combobox';
 import 'kendo.listview';
 import 'kendo.pager';
-import './kidoju.widgets.basedialog.es6';
+import './widgets.basedialog.es6';
 import CONSTANTS from '../window.constants.es6';
 
 const {

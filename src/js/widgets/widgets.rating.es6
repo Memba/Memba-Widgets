@@ -131,11 +131,11 @@ const Rating = Widget.extend({
      * @return {number}
      */
     value(value) {
-        assert.typeOrUndef(
+        assert.nullableTypeOrUndef(
             CONSTANTS.NUMBER,
             value,
             assert.format(
-                assert.messages.typeOrUndef.default,
+                assert.messages.nullableTypeOrUndef.default,
                 'value',
                 CONSTANTS.NUMBER
             )

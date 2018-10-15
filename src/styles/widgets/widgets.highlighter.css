@@ -1,10 +1,10 @@
 .kj-highlighter {
-    user-select: none;
+  user-select: none;
 }
 .kj-highlighter:not([data-enable="false"]) {
-    cursor: pointer;
+  cursor: pointer;
 }
 .kj-highlighter .kj-highlighter-active {
-    background-color: #ffff00;
-    color: #0f0f0f;
+  background-color: #ffff00;
+  color: #0f0f0f;
 }

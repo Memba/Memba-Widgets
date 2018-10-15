@@ -74,6 +74,7 @@ const Template = DataBoundWidget.extend({
      * @return {*}
      */
     value(value) {
+        // TODO assert value
         let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
             ret = this._value;

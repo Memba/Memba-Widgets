@@ -76,16 +76,19 @@ const CONSTANTS = {
     // Other properties
     ACTION: 'action',
     // Regular Expressions
-    RX_ISODATE: /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/,
+    RX_ISODATE: /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|[+|-]([\d|:]*))?$/,
     RX_LANGUAGE: /^[a-z]{2}$/,
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
     RX_MONGODB_KEY: /^_(i|[a-z]*I)d$/,
     RX_URL: /^https?:\/\//,
     // Characters
+    COLON: ':',
+    COMMA: ',',
     DOT: '.',
     EMPTY: '',
     HASH: '#',
     HYPHEN: '-',
+    SEMICOLON: ';',
     UNDERSCORE: '_',
     // Miscellaneous
     ID: 'id',
@@ -99,7 +102,9 @@ const CONSTANTS = {
     UID: 'uid',
     // HTML tags
     BODY: 'body',
+    CANVAS: 'canvas',
     DIV: 'div',
+    IMG: 'img',
     INPUT: 'input',
     LI: 'li',
     // SELECT: 'select',

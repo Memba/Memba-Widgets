@@ -1,19 +1,16 @@
 <!DOCTYPE html>
-
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>dialogs.styleeditor</title>
+    <title>widgets.imagelist</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- dialogs.basedialog stylesheet -->
-    <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
-    <!-- widgets.styleeditor stylesheet -->
-    <link href="../../styles/widgets/widgets.styleeditor.css" rel="stylesheet">
+    <!-- widgets.imagelist stylesheet -->
+    <link href="../../styles/widgets/widgets.imagelist.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
@@ -23,6 +20,7 @@
             SystemJS.config({
                 baseURL: '../../../',
                 bundles: {
+                    'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
                     'kendodatavizbarcode': ['kendo.dataviz.barcode'],
                     'kendodatavizchart': ['kendo.dataviz.chart'],
@@ -38,7 +36,6 @@
                     'kendodrawing': ['kendo.drawing'],
                     'kendoeditor': ['kendo.editor'],
                     'kendogantt': ['kendo.gantt'],
-                    'kendogrid': ['kendo.grid'],
                     'kendopdf': ['kendo.pdf'],
                     'kendoscheduler': ['kendo.scheduler'],
                     'kendospreadsheet': ['kendo.spreadsheet']
@@ -196,51 +193,64 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            // We need to load kendo.grid here because SystemJS does not load it as a bundle
-            // from the import reference in dialogs.styleeditor.es6
-            // See https://github.com/systemjs/systemjs/issues/1818
-            SystemJS.import('kendo.grid')
-                .then(function () {
-                    return SystemJS.import('./dialogs.styleeditor.es6')
-                })
-                .then(function (module) {
-                    var kendo = window.kendo;
-                    var openStyleEditor = module.default;
-                    $(function () {
-                        $('#button1').click(function (e) {
-                            openStyleEditor({
-                                title: 'My Style'
-                            }).then(function(result) {
-                                $("#console1").append(
-                                    kendo.format(
-                                        '<div>action `{0}` with data `{1}` at {2}</div>',
-                                        result.action,
-                                        JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
-                                    )
-                                );
-                            });
-                        });
-                    });
+            Promise.all([
+                SystemJS.import('../vendor/kendo/kendo.grid.js'),
+                SystemJS.import('./widgets.imagelist.es6')
+            ]).then(function () {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    quiz: new kendo.data.DataSource({
+                        data: [
+                            { text: 'question 1', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg' },
+                            { text: 'question 2', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg' },
+                            { text: 'question 3', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg' },
+                            { text: 'question 4', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg' }
+                        ],
+                        // Note: Without a schema, the Add button wont'work because otherwise the listView does not know the properties to create a new dataItem with
+                        schema: {
+                            model: {
+                                id: 'text',
+                                fields: {
+                                    text: {
+                                        type: 'string'
+                                    },
+                                    image: {
+                                        type: 'string'
+                                    }
+                                }
+                            }
+                        }
+                    }),
+                    urls: [
+                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg',
+                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg',
+                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg',
+                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg'
+                    ],
+                    onClick: function (e) {
+                        if (e.action === 'image') {
+                            // Note: this is where we should plug our asset manager
+                            var image = e.item.get('image');
+                            var prompt = window.prompt("What's your image?", image);
+                            // We need an input to get a validator, and we need to update it before the model otherwise validation fails an the model is not updated
+                            // e.sender.element.find('input[type="hidden"][data-bind*="image"]').val(prompt);
+                            e.item.set('image', prompt);
+                        }
+                    }
                 });
+                $(function() {
+                    kendo.bind('body', viewModel);
+                });
+            });
         }());
     </script>
-    <style type="text/css">
-        .highlight-section {
-            margin-top: 10px;
-            width: 600px;
-            padding: 7px 7px 7px 7px;
-            min-height: 35px;
-        }
-    </style>
 </head>
-
 <body>
-
-<h1>dialogs.styleeditor</h1>
-
-<h2>using openStyleEditor</h2>
-<button id="button1" class="k-button">Show Me!</button>
-<div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
-
+<h1>widgets.imagelist</h1>
+<div data-role="imagelist" data-bind="source:quiz, events:{ click: onClick }" data-text-field="text" data-image-field="image"></div>
+<h2>Grid</h2>
+<div id="grid" data-role="grid" data-bind="source:quiz"></div>
+<!--h2>Array of image urls</h2>
+<div data-role="imagelist" data-bind="source:urls, events:{ click: onClick }" data-text-field="text" data-image-field="image"></div-->
 </body>
 </html>

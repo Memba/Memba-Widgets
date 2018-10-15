@@ -69,6 +69,7 @@ const TextGaps = Widget.extend({
      * @param value
      */
     value(value) {
+        // TODO assert value
         const that = this;
         if ($.type(value) === CONSTANTS.NULL) {
             value = [];

@@ -117,6 +117,16 @@ const Markdown = Widget.extend({
      * @param value
      */
     value(value) {
+        assert.nullableTypeOrUndef(
+            CONSTANTS.STRING,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                'value',
+                CONSTANTS.STRING
+            )
+        );
+        let ret;
+
         if (
             $.type(value) === CONSTANTS.STRING ||
             $.type(value) === CONSTANTS.NULL

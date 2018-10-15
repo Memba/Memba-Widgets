@@ -98,10 +98,10 @@ const ToolBox = Widget.extend({
      */
     // TODO: was tool(id)
     value(value) {
-        assert.typeOrUndef(
+        assert.nullableTypeOrUndef(
             CONSTANTS.STRING,
             assert.format(
-                assert.messages.typeOrUndef.default,
+                assert.messages.nullableTypeOrUndef.default,
                 'value',
                 CONSTANTS.STRING
             )

@@ -8,10 +8,10 @@
 import $ from 'jquery';
 import 'kendo.core';
 import './widgets.basedialog.es6';
-import '../kidoju.widgets.vectordrawing';
-import '../kidoju.widgets.assetmanager';
 import CONSTANTS from '../common/window.constants.es6';
 // import assert from '../common/window.assert.es6';
+import '../widgets/widgets.vectordrawing.es6';
+import '../widgets/widgets.assetmanager.es6';
 
 const {
     bind,

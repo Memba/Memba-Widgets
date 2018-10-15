@@ -92,9 +92,6 @@ var Navigation = DataBoundWidget.extend({
     //    TODO: we need to read height and width both from styles and options and decide which wins
     // },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Gets/Sets the index of the selected page in the navigation
      * Note: index is 0 based, whereas playbar page numbers are 1 based
@@ -103,31 +100,29 @@ var Navigation = DataBoundWidget.extend({
      * @returns {*}
      */
     index: function (index) {
-                var that = this;
-                var page;
-                if ($.type(index) === CONSTANTS.NUMBER) {
-                    if ((index % 1 !== 0) || (index < -1) || (index >= that.length())) {
-                        throw new RangeError();
-                    }
-                    page = that.dataSource.at(index);
-                    if (page instanceof Page) {
-                        that.value(page);
-                    } else {
-                        that.value(null);
-                    }
-                } else if ($.type(index) === CONSTANTS.UNDEFINED) {
-                    page = that.dataSource.getByUid(that._selectedUid);
-                    if (page instanceof Page) {
-                        return that.dataSource.indexOf(page);
-                    } 
-                        return -1;
-                    
-                } else {
-                    throw new TypeError();
-                }
-            },
+        var that = this;
+        var page;
+        if ($.type(index) === CONSTANTS.NUMBER) {
+            if ((index % 1 !== 0) || (index < -1) || (index >= that.length())) {
+                throw new RangeError();
+            }
+            page = that.dataSource.at(index);
+            if (page instanceof Page) {
+                that.value(page);
+            } else {
+                that.value(null);
+            }
+        } else if ($.type(index) === CONSTANTS.UNDEFINED) {
+            page = that.dataSource.getByUid(that._selectedUid);
+            if (page instanceof Page) {
+                return that.dataSource.indexOf(page);
+            }
+                return -1;
 
-    /* jshint +W074 */
+        } else {
+            throw new TypeError();
+        }
+    },
 
     /**
      * Gets/Sets the id of the selected page in the navigation
@@ -412,9 +407,6 @@ var Navigation = DataBoundWidget.extend({
         item.off().remove();
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Refresh
      * @param e
@@ -462,8 +454,6 @@ var Navigation = DataBoundWidget.extend({
             that.trigger(CONSTANTS.DATABOUND);
         }
     },
-
-    /* jshint +W074 */
 
     /**
      * Adds the k-state-selected class to the selected page determined by that._selectedUid

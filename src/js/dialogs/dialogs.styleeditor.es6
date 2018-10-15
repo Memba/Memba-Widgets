@@ -8,8 +8,8 @@
 import $ from 'jquery';
 import 'kendo.core';
 import './widgets.basedialog.es6';
-import '../kidoju.widgets.styleeditor';
 import CONSTANTS from '../common/window.constants.es6';
+import '../widgets/widgets.styleeditor.es6';
 
 const {
     ns,

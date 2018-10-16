@@ -228,7 +228,7 @@ plugin(ScratchPad);
 
 const NS = '.kendoScratchPad';
 const ROLE = 'scratchpad';
-const data = {};
+const eventData = {};
 
 /**
  * mousedown event handler
@@ -311,13 +311,13 @@ $(document)
     .on(
         applyEventMap(CONSTANTS.MAPDOWN, NS.substr(1)),
         roleSelector(ROLE),
-        data,
+        eventData,
         ScratchPad._onMouseDown
     )
     .on(
         applyEventMap(CONSTANTS.MAPMOVE, NS.substr(1)),
         roleSelector(ROLE),
-        data,
+        eventData,
         ScratchPad._onMouseMove
     )
     .on(
@@ -326,6 +326,6 @@ $(document)
             NS.substr(1)
         ),
         // roleSelector(ROLE), IMPORTANT! We need to stop drawing wherever mouseup/touchend occurs
-        data,
+        eventData,
         ScratchPad._onMouseEnd
     );

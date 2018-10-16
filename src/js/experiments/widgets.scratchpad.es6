@@ -336,7 +336,7 @@ $(document)
         ScratchPad._onMouseMove
     )
     .on(
-        `{CONSTANTS.MOUSEOUT}${NS} ${CONSTANTS.TOUCHLEAVE}${NS} ${
+        `${CONSTANTS.MOUSEOUT}${NS} ${CONSTANTS.TOUCHLEAVE}${NS} ${
             CONSTANTS.POINTEROUT
         }${NS} `,
         roleSelector(ROLE),

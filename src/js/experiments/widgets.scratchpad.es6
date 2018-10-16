@@ -15,6 +15,7 @@ import CONSTANTS from '../common/window.constants.es6';
 // TODO: import Logger from '../window.logger.es6';
 
 const {
+    applyEventMap,
     destroy,
     getTouches,
     roleSelector,
@@ -26,8 +27,8 @@ const { ObservableArray } = window.kendo.data;
 const WIDGET_CLASS = 'k-widget kj-scratchpad';
 
 // TODO add asserts and logs
+// TODO constrain within ScratchPad
 // TODO Consider path stroke options
-// TODO Touch Cancel
 // TODO Consider scaling within Kidoju Stage
 // TODO use pathEx to smoothen lines and reduce data size
 
@@ -285,18 +286,6 @@ ScratchPad._onMouseMove = function onMouseMove(e) {
  */
 ScratchPad._onMouseEnd = function onMouseEnd(e) {
     e.preventDefault(); // Prevents from executing both mouse and touch events
-    if (
-        (e.type === CONSTANTS.MOUSEOUT ||
-            e.type === CONSTANTS.TOUCHLEAVE ||
-            e.type === CONSTANTS.POINTEROUT) &&
-        (e.currentTarget === e.relatedTarget ||
-            $.contains(e.currentTarget, e.relatedTarget))
-    ) {
-        // Discard mouseout and touchleave when leaving
-        // to a relatedTarget contained within the currentTarget
-        // especially when crossing paths
-        return;
-    }
     if (e.data.widget instanceof ScratchPad && e.data.path instanceof Path) {
         ScratchPad._onMouseMove(e);
         e.data.widget._value.push({
@@ -320,33 +309,22 @@ ScratchPad._onMouseEnd = function onMouseEnd(e) {
  */
 $(document)
     .on(
-        `${CONSTANTS.MOUSEDOWN}${NS} ${CONSTANTS.TOUCHSTART}${NS} ${
-            CONSTANTS.POINTERDOWN
-        }${NS}`,
+        applyEventMap(CONSTANTS.MAPDOWN, NS.substr(1)),
         roleSelector(ROLE),
         data,
         ScratchPad._onMouseDown
     )
     .on(
-        `${CONSTANTS.MOUSEMOVE}${NS} ${CONSTANTS.TOUCHMOVE}${NS} ${
-            CONSTANTS.POINTERMOVE
-        }${NS}`,
+        applyEventMap(CONSTANTS.MAPMOVE, NS.substr(1)),
         roleSelector(ROLE),
         data,
         ScratchPad._onMouseMove
     )
     .on(
-        `${CONSTANTS.MOUSEOUT}${NS} ${CONSTANTS.TOUCHLEAVE}${NS} ${
-            CONSTANTS.POINTEROUT
-        }${NS} `,
-        roleSelector(ROLE),
-        data,
-        ScratchPad._onMouseEnd
-    )
-    .on(
-        `${CONSTANTS.MOUSEUP}${NS} ${CONSTANTS.TOUCHEND}${NS} ${
-            CONSTANTS.POINTERUP
-        }${NS}`,
+        applyEventMap(
+            `${CONSTANTS.MAPUP} ${CONSTANTS.MAPCANCEL}`,
+            NS.substr(1)
+        ),
         // roleSelector(ROLE), IMPORTANT! We need to stop drawing wherever mouseup/touchend occurs
         data,
         ScratchPad._onMouseEnd

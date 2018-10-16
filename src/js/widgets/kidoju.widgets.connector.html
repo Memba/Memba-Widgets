@@ -2,22 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.attributes</title>
+    <title>kidoju.widgets.connector</title>
     <script>
         window.app = { DEBUG: true };
     </script>
-    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.explorer stylesheet -->
-    <link href="styles/widgets/kidoju.tools.css" rel="stylesheet">
-    <link rel="stylesheet" href="./styles/kidoju.widgets.explorer.css">
-    <!-- kidoju.widgets.codeeditor stylesheet -->
-    <link href="./styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
-    <link href="./styles/vendor/codemirror/addon/lint/lint.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.codeeditor.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.connector stylesheet -->
+    <!--link href="./styles/kidoju.widgets.connector.css" rel="stylesheet"-->
     <!-- SystemJS loader -->
-    <script src="../test/vendor/system.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
@@ -197,67 +192,87 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('kendo.dataviz.diagram') // This is a workaround to force the correct load order
+            SystemJS.import('kendo.drawing') // This is a workaround to force the correct load order
                 .then(function () {
-                    return Promise.all([
-                        SystemJS.import('./js/vendor/kendo/kendo.dialog.js'),
-                        SystemJS.import('./js/kidoju.widgets.explorer.js'),
-                        SystemJS.import('./js/kidoju.widgets.assetmanager.js'),
-                        SystemJS.import('./js/kidoju.widgets.codeinput.js'),
-                        SystemJS.import('./js/kidoju.widgets.codeeditor.js'),
-                        SystemJS.import('./js/kidoju.widgets.styleeditor.js'),
-                        SystemJS.import('./js/kidoju.widgets.propertygrid.js')
-                    ]);
+                    return SystemJS.import('./js/kidoju.widgets.connector.js');
                 })
                 .then(function () {
                     var kendo = window.kendo;
-                    var kidoju = window.kidoju;
-                    var tools = kidoju.tools;
-                    var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
-                    var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
-                        data: [
-                            { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                            { id: kendo.guid(), tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { src: 'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg' } },
-                            { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'World' } },
-                            { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                        ]
-                    });
-                    var viewModel = window.viewModel = kendo.observable({
-                        items: pageComponentCollectionDataSource,
-                        current: null
-                    });
-                    viewModel.bind('change', function(e) {
-                        if(e.field === 'current') {
-                            var grid1 = $('#grid1').data('kendoPropertyGrid'),
-                                grid2 = $('#grid2').data('kendoPropertyGrid'),
-                                tool = tools[e.sender.current.tool],
-                                rows1 = tool._getAttributeRows();
-                            var rows2 = tool._getPropertyRows();
-                            if (grid1) {
-                                grid1.rows(rows1);
-                            }
-                            if (grid2) {
-                                grid2.rows(rows2);
-                            }
-                        }
+                    var viewModel = kendo.observable({
+                        red: undefined,
+                        green: undefined,
+                        blue: undefined,
+                        yellow: undefined,
+                        source: [{ type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} }], // Test type filtering
+                        source2: new kendo.data.DataSource([{ type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }]),
+                        source$: function() {
+                            var ret = '';
+                            this.get('source').forEach(function(item) {
+                                ret += kendo.format('{0} {1} --> {2} ({3})\n', item.type, item.id, item.data.target, item.data.color);
+                            });
+                            return ret;
+                        },
+                        visible: true,
+                        enabled: true
                     });
                     $(function() {
                         kendo.bind('body', viewModel);
-                        pageComponentCollectionDataSource.fetch(function() {
-                            viewModel.set('current', pageComponentCollectionDataSource.at(1));
-                        });
                     });
                 });
         }());
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.attributes</h1>
-<div data-bind="text: current.uid"></div>
-<div id="explorer1" data-role="explorer" data-bind="source: items, value: current" style="width:200px; display:inline-block;"></div>
-<h3>Attributes</h3>
-<div id="grid1" data-role="propertygrid" data-bind="value: current"></div>
-<h3>Properties</h3>
-<div id="grid2" data-role="propertygrid" data-bind="value: current"></div>
+<h1>kidoju.widgets.connector</h1>
+<div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.75);">
+    <div data-role="stage" style="height:300px;width:300px;">
+        <div class="kj-element" style="position:absolute;top:10px;left:10px;height:40px;width:40px;">
+            <div data-role="connector" data-id="id-red" data-target-value="red" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF0000" style="height:40px;width:40px;" data-bind="value: red, source: source, visible: visible, enabled: enabled"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:10px;left:250px;height:40px;width:40px;">
+            <div data-role="connector" data-id="id-green" data-target-value="green" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#00FF00" style="height:40px;width:40px;" data-bind="value: green, source: source, visible: visible, enabled: enabled"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:250px;left:250px;height:40px;width:40px;">
+            <div data-role="connector" data-id="id-blue" data-target-value="blue" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:40px;width:40px;" data-bind="value: blue, source: source, visible: visible, enabled: enabled"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:250px;left:10px;height:40px;width:40px;">
+            <div data-role="connector" data-id="id-yellow" data-target-value="yellow" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF00FF" style="height:40px;width:40px;" data-bind="value: yellow, source: source, visible: visible, enabled: enabled"></div>
+        </div>
+    </div>
+</div>
+<pre>
+{
+    red: <span data-bind="text: red"></span>
+    green: <span data-bind="text: green"></span>
+    blue: <span data-bind="text: blue"></span>
+    yellow: <span data-bind="text: yellow"></span>
+    source$:
+    <div data-bind="text: source$" style="margin-left:50px;"></div>
+    visible: <span data-bind="text: visible"></span>
+    enabled: <span data-bind="text: enabled"></span>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />enabled
+</div>
+
+<h2>Check a second widget on the same page</h2>
+<div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.9);">
+    <div data-role="stage" style="height:300px;width:300px;">
+        <div class="kj-element" style="position:absolute;top:10px;left:10px;height:40px;width:40px;">
+            <div data-role="connector" data-id="id-red" data-target-value="red" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF0000" style="height:40px;width:40px;" data-bind="source: source2"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:10px;left:250px;height:40px;width:40px;">
+            <div data-role="connector" data-id="id-green" data-target-value="green" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#00FF00" style="height:40px;width:40px;" data-bind="source: source2"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:250px;left:250px;height:40px;width:40px;">
+            <div data-role="connector" data-id="id-blue" data-target-value="blue" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:40px;width:40px;" data-bind="source: source2"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:250px;left:10px;height:40px;width:40px;">
+            <div data-role="connector" data-id="id-yellow" data-target-value="yellow" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF00FF" style="height:40px;width:40px;" data-bind="source: source2"></div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -2,22 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.attributes</title>
+    <title>kidoju.widgets.formatstrip</title>
     <script>
         window.app = { DEBUG: true };
     </script>
-    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.explorer stylesheet -->
-    <link href="styles/widgets/kidoju.tools.css" rel="stylesheet">
-    <link rel="stylesheet" href="./styles/kidoju.widgets.explorer.css">
-    <!-- kidoju.widgets.codeeditor stylesheet -->
-    <link href="./styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
-    <link href="./styles/vendor/codemirror/addon/lint/lint.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.codeeditor.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.formatstrip stylesheet -->
+    <link href="./styles/kidoju.widgets.formatstrip.css" rel="stylesheet">
     <!-- SystemJS loader -->
-    <script src="../test/vendor/system.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
@@ -197,67 +192,63 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('kendo.dataviz.diagram') // This is a workaround to force the correct load order
-                .then(function () {
-                    return Promise.all([
-                        SystemJS.import('./js/vendor/kendo/kendo.dialog.js'),
-                        SystemJS.import('./js/kidoju.widgets.explorer.js'),
-                        SystemJS.import('./js/kidoju.widgets.assetmanager.js'),
-                        SystemJS.import('./js/kidoju.widgets.codeinput.js'),
-                        SystemJS.import('./js/kidoju.widgets.codeeditor.js'),
-                        SystemJS.import('./js/kidoju.widgets.styleeditor.js'),
-                        SystemJS.import('./js/kidoju.widgets.propertygrid.js')
-                    ]);
-                })
-                .then(function () {
-                    var kendo = window.kendo;
-                    var kidoju = window.kidoju;
-                    var tools = kidoju.tools;
-                    var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
-                    var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
+            SystemJS.import('./js/kidoju.widgets.formatstrip.js').then(function (kendo) {
+                // var kendo = window.kendo;
+                var kidoju = window.kidoju;
+                var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
                         data: [
-                            { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                            { id: kendo.guid(), tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { src: 'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg' } },
-                            { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'World' } },
-                            { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
+                            // { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
+                            { id: kendo.guid(), tool : 'audio',top: 300, left : 500, height: 100, width: 500, rotate: 0, attributes: { autoplay: false, mp3: '', ogg: '' } },
+                            { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia; font-style: italic; color: #FF0000;', text: 'World' } },
+                            { id: kendo.guid(), tool : 'quiz', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { data: 'a\nb\nc\nd\n', activeStyle: '', itemStyle: '', groupStyle: 'font-size: 30px; text-decoration: underline;' } }
+                            // { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
                         ]
-                    });
-                    var viewModel = window.viewModel = kendo.observable({
-                        items: pageComponentCollectionDataSource,
-                        current: null
-                    });
-                    viewModel.bind('change', function(e) {
-                        if(e.field === 'current') {
-                            var grid1 = $('#grid1').data('kendoPropertyGrid'),
-                                grid2 = $('#grid2').data('kendoPropertyGrid'),
-                                tool = tools[e.sender.current.tool],
-                                rows1 = tool._getAttributeRows();
-                            var rows2 = tool._getPropertyRows();
-                            if (grid1) {
-                                grid1.rows(rows1);
-                            }
-                            if (grid2) {
-                                grid2.rows(rows2);
-                            }
+                    }),
+                    viewModel = window.viewModel = kendo.observable({
+                        components: pageComponentCollectionDataSource,
+                        selectedComponent: null, // For the formatstrip
+                        style: null, // For the formatbar
+                        enabled: true,
+                        visible: true,
+                        reset: function(e) {
+                            this.set('selectedComponent', null);
                         }
                     });
-                    $(function() {
-                        kendo.bind('body', viewModel);
-                        pageComponentCollectionDataSource.fetch(function() {
-                            viewModel.set('current', pageComponentCollectionDataSource.at(1));
-                        });
+                $(function() {
+                    kendo.bind('body', viewModel);
+                    pageComponentCollectionDataSource.fetch(function() {
+                        // viewModel.set('selectedComponent', pageComponentCollectionDataSource.at(1));
                     });
                 });
+            });
         }());
     </script>
+    <style>
+        body>div:first-of-type {
+            height: 22px;
+        }
+        button {
+            margin: 5px 0px;
+        }
+    </style>
 </head>
 <body>
-<h1>kidoju.widgets.attributes</h1>
-<div data-bind="text: current.uid"></div>
-<div id="explorer1" data-role="explorer" data-bind="source: items, value: current" style="width:200px; display:inline-block;"></div>
-<h3>Attributes</h3>
-<div id="grid1" data-role="propertygrid" data-bind="value: current"></div>
-<h3>Properties</h3>
-<div id="grid2" data-role="propertygrid" data-bind="value: current"></div>
+<h1>kidoju.widgets.formatbar</h1>
+<!--div data-role="formatbar" data-bind="value: style, visible: visible, enabled: enabled"></div-->
+<div style="padding:20px">
+    <input type="text" data-bind="value: style" class="k-textbox" style="width: 100%;">
+    <div>
+        <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+        <input type="checkbox" data-bind="checked: enabled" />Enabled
+    </div>
+</div>
+<div style="padding:20px"><div data-bind="attr: { style: style }">Sample Text</div></div>
+<h1>kidoju.widgets.formatstrip</h1>
+<button data-bind="click: reset">Clear Selection</button><br/>
+<input data-role="dropdownlist" data-bind="source: components, value: selectedComponent" data-text-field="tool" data-value-field="id" style="width: 300px"></select>
+<div>&nbsp;</div>
+<div id="formatstrip" data-role="formatstrip" data-bind="value: selectedComponent, visible: visible, enabled: enabled" style="width:100%;" data-auto-bind="false"></div>
+<div data-bind="text: selectedComponent.id"></div>
 </body>
 </html>

@@ -1,23 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html class="k-default">
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.attributes</title>
+    <title>kidoju.widgets.quiz</title>
     <script>
         window.app = { DEBUG: true };
     </script>
-    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.explorer stylesheet -->
-    <link href="styles/widgets/kidoju.tools.css" rel="stylesheet">
-    <link rel="stylesheet" href="./styles/kidoju.widgets.explorer.css">
-    <!-- kidoju.widgets.codeeditor stylesheet -->
-    <link href="./styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
-    <link href="./styles/vendor/codemirror/addon/lint/lint.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.codeeditor.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.quiz stylesheet -->
+    <link href="./styles/kidoju.widgets.quiz.css" rel="stylesheet">
     <!-- SystemJS loader -->
-    <script src="../test/vendor/system.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
@@ -197,67 +192,149 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('kendo.dataviz.diagram') // This is a workaround to force the correct load order
-                .then(function () {
-                    return Promise.all([
-                        SystemJS.import('./js/vendor/kendo/kendo.dialog.js'),
-                        SystemJS.import('./js/kidoju.widgets.explorer.js'),
-                        SystemJS.import('./js/kidoju.widgets.assetmanager.js'),
-                        SystemJS.import('./js/kidoju.widgets.codeinput.js'),
-                        SystemJS.import('./js/kidoju.widgets.codeeditor.js'),
-                        SystemJS.import('./js/kidoju.widgets.styleeditor.js'),
-                        SystemJS.import('./js/kidoju.widgets.propertygrid.js')
-                    ]);
-                })
-                .then(function () {
-                    var kendo = window.kendo;
-                    var kidoju = window.kidoju;
-                    var tools = kidoju.tools;
-                    var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
-                    var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
-                        data: [
-                            { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                            { id: kendo.guid(), tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { src: 'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg' } },
-                            { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'World' } },
-                            { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                        ]
-                    });
-                    var viewModel = window.viewModel = kendo.observable({
-                        items: pageComponentCollectionDataSource,
-                        current: null
-                    });
-                    viewModel.bind('change', function(e) {
-                        if(e.field === 'current') {
-                            var grid1 = $('#grid1').data('kendoPropertyGrid'),
-                                grid2 = $('#grid2').data('kendoPropertyGrid'),
-                                tool = tools[e.sender.current.tool],
-                                rows1 = tool._getAttributeRows();
-                            var rows2 = tool._getPropertyRows();
-                            if (grid1) {
-                                grid1.rows(rows1);
-                            }
-                            if (grid2) {
-                                grid2.rows(rows2);
-                            }
-                        }
-                    });
-                    $(function() {
-                        kendo.bind('body', viewModel);
-                        pageComponentCollectionDataSource.fetch(function() {
-                            viewModel.set('current', pageComponentCollectionDataSource.at(1));
-                        });
-                    });
+            SystemJS.import('./js/kidoju.widgets.quiz.js').then(function (kendo) {
+                var data = [
+                    {
+                        text: 'question 1',
+                        image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg'
+                    },
+                    {
+                        text: 'question 2',
+                        image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg'
+                    },
+                    {
+                        text: 'question 3',
+                        image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg'
+                    },
+                    {
+                        text: 'question 4',
+                        image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg'
+                    }
+                ];
+                var model = kendo.data.Model.define({
+                    id: 'text',
+                    fields: {
+                        text: {type: 'string'},
+                        image: {type: 'string'}
+                    }
                 });
+                var viewModel = kendo.observable({
+                    value: undefined, // Note: value is always the text (not the image) in the following source items
+                    source: '1974[http://www.acardandagift.com/images/1974_C1871_I_HEART_IMAGE1.png]\n' +
+                    '1982[http://www.acardandagift.com/images/1982_C1879_I_HEART_IMAGE1.png]\n' +
+                    '1993[http://www.acardandagift.com/images/1993_C1890_I_HEART_IMAGE1.png]',
+                    visible: true,
+                    enabled: true,
+                    readonly: true,
+                    source$: function () {
+                        var ret = [];
+                        var source = this.get('source');
+                        var match = source.match(/([^\[\]]+)\[([^\[\]]*)\]/g);
+                        for (var i = 0, length = match.length; i < length; i++) {
+                            var item = match[i].replace('\n', '').trim();
+                            var pos = item.indexOf('[');
+                            ret.push({
+                                text: item.substr(0, pos),
+                                image: item.substr(pos + 1, item.length - pos - 2)
+                            });
+                        }
+                        return ret;
+                    }
+                });
+                $(function () {
+
+                    // Quiz initiated from code
+                    $('#quiz1').kendoQuiz({
+                        value: null,
+                        mode: kendo.ui.Quiz.fn.modes.radio,
+                        shuffle: true,
+                        itemStyle: {
+                            color: '#FF0000'
+                        },
+                        selectedStyle: {
+                            backgroundColor: '#00FF00'
+                        },
+                        dataSource: new kendo.data.DataSource({
+                            data: data,
+                            schema: {
+                                model: model
+                            }
+                        })
+                    });
+
+                    $('#quiz2').kendoQuiz({
+                        value: null,
+                        mode: kendo.ui.Quiz.fn.modes.button,
+                        itemStyle: {
+                            color: '#FF0000'
+                        },
+                        selectedStyle: {
+                            backgroundColor: '#00FF00'
+                        },
+                        dataSource: new kendo.data.DataSource({
+                            data: data,
+                            schema: {
+                                model: model
+                            }
+                        })
+                    });
+
+                    $('#quiz3').kendoQuiz({
+                        value: null,
+                        mode: kendo.ui.Quiz.fn.modes.dropdown,
+                        itemStyle: {
+                            color: '#FF0000'
+                        },
+                        selectedStyle: {
+                            backgroundColor: '#00FF00'
+                        },
+                        dataSource: new kendo.data.DataSource({
+                            data: data,
+                            schema: {
+                                model: model
+                            }
+                        })
+                    });
+
+                    // Other quizzes bound to observable
+                    kendo.bind('body', viewModel);
+
+                });
+            });
         }());
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.attributes</h1>
-<div data-bind="text: current.uid"></div>
-<div id="explorer1" data-role="explorer" data-bind="source: items, value: current" style="width:200px; display:inline-block;"></div>
-<h3>Attributes</h3>
-<div id="grid1" data-role="propertygrid" data-bind="value: current"></div>
-<h3>Properties</h3>
-<div id="grid2" data-role="propertygrid" data-bind="value: current"></div>
+<h1>kidoju.widgets.quiz</h1>
+
+<h2>Quiz initiated from code</h2>
+<div id="quiz1" style="font-size:60px; border: solid 1px black;"></div>
+<div id="quiz2" style="font-size:60px; border: solid 1px black;"></div>
+<div class="kj-stage" style="position:relative; transform: scale(0.5); height: 200px; border: solid 1px #808080;">
+    <div class="kj-element" style="position:absolute; top: 50px; left: 50px; width: 400px;">
+        <div id="quiz3" style="font-size:40px; border: solid 1px black;"></div>
+    </div>
+</div>
+<h2>Quiz bound to observable</h2>
+<div id="quiz4" data-role="quiz" data-mode="button" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz5" data-role="quiz" data-mode="dropdown" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz6" data-role="quiz" data-mode="image" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz7" data-role="quiz" data-mode="link" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz8" data-role="quiz" data-mode="radio" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled&nbsp;
+</div>
+<pre>
+    {
+        value: <span data-bind="text: value"></span>
+        source:
+            <div data-bind="text: source" style="margin-left: 80px;"></div>
+        visible: <span data-bind="text: visible"></span>
+        enabled: <span data-bind="text: enabled"></span>
+    }
+</pre>
+<textarea data-bind="value: source" class="k-textbox" rows="5" style="width:100%;"></textarea>
 </body>
 </html>

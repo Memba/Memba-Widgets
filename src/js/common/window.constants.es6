@@ -30,6 +30,11 @@ const CONSTANTS = {
     KEYPRESS: 'keypress',
     KEYUP: 'keyup',
     LOAD: 'load',
+    // To be used with kendo.applyEventMap
+    MAPCANCEL: 'cancel',
+    MAPDOWN: 'down',
+    MAPMOVE: 'move',
+    MAPUP: 'up',
     MOUSEDOWN: 'mousedown',
     MOUSEENTER: 'mouseenter',
     MOUSELEAVE: 'mouseleave',
@@ -47,7 +52,7 @@ const CONSTANTS = {
     SELECT: 'select',
     TAP: 'tap',
     TOUCHEND: 'touchend',
-    TOUCHLEAVE: 'touchleave',
+    // TOUCHLEAVE: 'touchleave', // <-- See https://developer.mozilla.org/en-US/docs/Web/Events/touchleave
     TOUCHMOVE: 'touchmove',
     TOUCHSTART: 'touchstart',
     // Custom events

@@ -2,22 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.attributes</title>
+    <title>kidoju.widgets.selector</title>
     <script>
         window.app = { DEBUG: true };
     </script>
-    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.explorer stylesheet -->
-    <link href="styles/widgets/kidoju.tools.css" rel="stylesheet">
-    <link rel="stylesheet" href="./styles/kidoju.widgets.explorer.css">
-    <!-- kidoju.widgets.codeeditor stylesheet -->
-    <link href="./styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
-    <link href="./styles/vendor/codemirror/addon/lint/lint.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.codeeditor.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.selector stylesheet -->
+    <!--link href="./styles/kidoju.widgets.selector.css" rel="stylesheet"-->
     <!-- SystemJS loader -->
-    <script src="../test/vendor/system.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
@@ -197,67 +192,150 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('kendo.dataviz.diagram') // This is a workaround to force the correct load order
+            SystemJS.import('kendo.drawing') // This is a workaround to force the correct load order
                 .then(function () {
-                    return Promise.all([
-                        SystemJS.import('./js/vendor/kendo/kendo.dialog.js'),
-                        SystemJS.import('./js/kidoju.widgets.explorer.js'),
-                        SystemJS.import('./js/kidoju.widgets.assetmanager.js'),
-                        SystemJS.import('./js/kidoju.widgets.codeinput.js'),
-                        SystemJS.import('./js/kidoju.widgets.codeeditor.js'),
-                        SystemJS.import('./js/kidoju.widgets.styleeditor.js'),
-                        SystemJS.import('./js/kidoju.widgets.propertygrid.js')
-                    ]);
+                    return SystemJS.import('./js/kidoju.widgets.selector.js');
                 })
                 .then(function () {
                     var kendo = window.kendo;
-                    var kidoju = window.kidoju;
-                    var tools = kidoju.tools;
-                    var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
-                    var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
-                        data: [
-                            { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                            { id: kendo.guid(), tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { src: 'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg' } },
-                            { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'World' } },
-                            { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                        ]
-                    });
-                    var viewModel = window.viewModel = kendo.observable({
-                        items: pageComponentCollectionDataSource,
-                        current: null
-                    });
-                    viewModel.bind('change', function(e) {
-                        if(e.field === 'current') {
-                            var grid1 = $('#grid1').data('kendoPropertyGrid'),
-                                grid2 = $('#grid2').data('kendoPropertyGrid'),
-                                tool = tools[e.sender.current.tool],
-                                rows1 = tool._getAttributeRows();
-                            var rows2 = tool._getPropertyRows();
-                            if (grid1) {
-                                grid1.rows(rows1);
+                    function formatSelector(selector) {
+                        return function () {
+                            return (this.get(selector) || []).join(',');
+                        };
+                    }
+                    function formatSource(source) {
+                        return function() {
+                            var ret = '';
+                            var data = this.get(source);
+                            if ($.isFunction(data.data)) {
+                                data = data.data();
                             }
-                            if (grid2) {
-                                grid2.rows(rows2);
-                            }
+                            data.forEach(function (item) {
+                                switch(item.type) {
+                                    case 'selection':
+                                        ret += item.id + ' ' + item.data.shape /*stroke*/ + ' ---> [';
+                                        for (var i = 0, length = item.data.selections.length; i < length; i++) {
+                                            ret += '[{' + item.data.selections[i].origin.join(',') + '},{' + item.data.selections[i].size.join(',') + '}]';
+                                        }
+                                        ret += ']\n';
+                                        break;
+                                    default:
+                                        ret += 'Any dummy type which should not break kendo.ui.Selector\n'
+                                }
+                            });
+                            return ret;
                         }
+                    }
+                    var viewModel = kendo.observable({
+                        // A - Top stage
+                        sourceA: [
+                            // Test type filtering
+                            { type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} },
+                            // Test initial value
+                            { type: 'selection', id: 'val_abcde1', data: { stroke: { color: '#00ffff', width: 6, opacity: 1, dashType: 'solid' }, shape: 'rect', selections: [{ origin: [2,12],size: [93,57]}] } }
+                        ],
+                        sourceA$: formatSource('sourceA'),
+                        selectorA1: null,
+                        selectorA1$: formatSelector('selectorA1'),
+                        selectorA2: null,
+                        selectorA2$: formatSelector('selectorA2'),
+                        visibleA: true,
+                        enabledA: true,
+                        // B - Bottom stage
+                        sourceB: new kendo.data.DataSource([{ type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }]),
+                        sourceB$: formatSource('sourceB'),
+                        selectorB1: null,
+                        selectorB1$: formatSelector('selectorB1'),
+                        visibleB: true,
+                        enabledB: true
                     });
                     $(function() {
-                        kendo.bind('body', viewModel);
-                        pageComponentCollectionDataSource.fetch(function() {
-                            viewModel.set('current', pageComponentCollectionDataSource.at(1));
-                        });
+                        kendo.bind('body', viewModel, kendo.ui, kendo.mobile.ui);
                     });
                 });
         }());
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.attributes</h1>
-<div data-bind="text: current.uid"></div>
-<div id="explorer1" data-role="explorer" data-bind="source: items, value: current" style="width:200px; display:inline-block;"></div>
-<h3>Attributes</h3>
-<div id="grid1" data-role="propertygrid" data-bind="value: current"></div>
-<h3>Properties</h3>
-<div id="grid2" data-role="propertygrid" data-bind="value: current"></div>
+<h1>kidoju.widgets.selector</h1>
+<div id="toolbarA"></div>
+<div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.75);">
+    <div data-role="stage" style="height:300px;width:300px;">
+        <div class="kj-element" style="position:absolute;top:10px;left:10px;height:50px;width:100px;">
+            <div data-behavior="selectable" data-constant="red" style="height:50px;width:100px;background:#ff0000;border:solid 1px #000000;border-radius:50%"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:10px;left:190px;height:50px;width:100px;">
+            <div data-behavior="selectable" data-constant="green" style="height:50px;width:100px;background:#00ff00;border:solid 1px #000000;border-radius:50%"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:240px;left:190px;height:50px;width:100px;">
+            <div data-behavior="selectable" data-constant="blue" style="height:50px;width:100px;background:#0000ff;border:solid 1px #000000;border-radius:50%"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:240px;left:10px;height:50px;width:100px;">
+            <div data-behavior="selectable" data-constant="magenta" style="height:50px;width:100px;background:#ff00ff;border:solid 1px #000000;border-radius:50%"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:125px;left:100px;height:50px;width:100px;">
+            <input type="text" class="kj-interactive" style="height:50px;width:100px;font-size:40px;">
+        </div>
+        <div class="kj-element" style="position:absolute;top:0px;left:290px;height:10px;width:10px;">
+            <div data-role="selector" data-id="val_abcde1" data-shape="rect" data-stroke="{ color: '#00FFFF', width: 6 }" data-toolbar="#toolbarA" style="height:10px;width:10px;" data-bind="value: selectorA1, source: sourceA, visible: visibleA, enabled: enabledA"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:0px;left:290px;height:10px;width:10px;">
+            <div data-role="selector" data-id="val_abcde2" data-shape="cross" data-stroke="{ color: '#AAFF22', width: 6 }" data-toolbar="#toolbarA" style="height:10px;width:10px;" data-bind="value: selectorA2, source: sourceA, visible: visibleA, enabled: enabledA"></div>
+        </div>
+    </div>
+</div>
+<div>
+    <input type="checkbox" data-bind="checked: visibleA" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabledA" />enabled
+</div>
+<pre>
+{
+    selectorA1: <span data-bind="text: selectorA1$"></span>
+    selectorA2: <span data-bind="text: selectorA2$"></span>
+    source:
+    <div data-bind="text: sourceA$" style="margin-left:50px;"></div>
+    visible: <span data-bind="text: visibleA"></span>
+    enabled: <span data-bind="text: enabledA"></span>
+}
+</pre>
+<!-- -------------------------------------------------------- -->
+<h2>Check a second widget on the same page</h2>
+<div id="toolbarB"></div>
+<div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.9);">
+    <div data-role="stage" style="height:300px;width:300px;">
+        <div class="kj-element" style="position:absolute;top:10px;left:10px;height:50px;width:100px;">
+            <div data-behavior="selectable" data-constant="red" style="height:50px;width:100px;background:#ff0000;border:solid 1px #000000;border-radius:50%"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:10px;left:190px;height:50px;width:100px;">
+            <div data-behavior="selectable" data-constant="green" style="height:50px;width:100px;background:#00ff00;border:solid 1px #000000;border-radius:50%"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:240px;left:190px;height:50px;width:100px;">
+            <div data-behavior="selectable" data-constant="blue" style="height:50px;width:100px;background:#0000ff;border:solid 1px #000000;border-radius:50%"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:240px;left:10px;height:50px;width:100px;">
+            <div data-behavior="selectable" data-constant="magenta" style="height:50px;width:100px;background:#ff00ff;border:solid 1px #000000;border-radius:50%"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:125px;left:100px;height:50px;width:100px;">
+            <div data-behavior="selectable" data-constant="cyan" style="height:50px;width:100px;background:#00ffff;border:solid 1px #000000;border-radius:50%"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:0px;left:290px;height:10px;width:10px;">
+            <div data-role="selector" data-id="val_abcde5" data-shape="cross" data-stroke="{ color: '#000000', width: 4 }" data-toolbar="#toolbarB" style="height:10px;width:10px;" data-bind="value: selectorB1, source: sourceB, visible: visibleB, enabled: enabledB"></div>
+        </div>
+    </div>
+</div>
+<div>
+    <input type="checkbox" data-bind="checked: visibleB" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabledB" />enabled
+</div>
+<pre>
+{
+    selectorB1: <span data-bind="text: selectorB1$"></span>
+    source:
+    <div data-bind="text: sourceB$" style="margin-left:50px;"></div>
+    visible: <span data-bind="text: visibleB"></span>
+    enabled: <span data-bind="text: enabledB"></span>
+}
+</pre>
+
 </body>
 </html>

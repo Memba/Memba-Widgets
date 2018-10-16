@@ -12,6 +12,76 @@ import 'kendo.core';
 import assert from './window.assert.es6';
 import CONSTANTS from './window.constants.es6';
 
+const {
+    _outerHeight,
+    _outerWidth,
+    getComputedStyles,
+    getOffset
+} = window.kendo;
+
+/**
+ * Constrain a value within a range
+ * @param value
+ * @param range
+ * @returns {number}
+ */
+export function within(value, range) {
+    return Math.min(Math.max(value, range.min), range.max);
+}
+
+/**
+ * Get the numeric value of a CSS property
+ * @param element
+ * @param property
+ * @returns {number}
+ */
+export function numericCssPropery(element, property) {
+    return parseInt(element.css(property), 10) || 0;
+}
+
+/**
+ * Get the boundaries of (x, y) for an element or fit within a container
+ * @param container
+ * @param element
+ * @returns {{x: {min: *, max: *}, y: {min: *, max: *}}}
+ */
+export function containerBoundaries(container, element) {
+    // BEGIN Added by JLC
+    const styles = getComputedStyles(container.parent()[0], ['transform']);
+    // https://www.michael1e.com/get-scale-value-css-javascript/
+    // https://stackoverflow.com/questions/5603615/get-the-scale-value-of-an-element
+    const matrix = new Matrix(styles.transform);
+    const scaleX = matrix.a;
+    const scaleY = matrix.d;
+    // END Added by JLC
+
+    const offset = getOffset(container);
+    const minX =
+        offset.left +
+        numericCssPropery(container, 'borderLeftWidth') +
+        numericCssPropery(container, 'paddingLeft');
+    const minY =
+        offset.top +
+        numericCssPropery(container, 'borderTopWidth') +
+        numericCssPropery(container, 'paddingTop');
+    // const maxX = minX + container.width() - _outerWidth(element, true);
+    // const maxY = minY + container.height() - _outerHeight(element, true);
+    const maxX =
+        minX + scaleX * (container.width() - _outerWidth(element, true));
+    const maxY =
+        minY + scaleY * (container.height() - _outerHeight(element, true));
+    return {
+        x: {
+            min: minX,
+            max: maxX
+        },
+        y: {
+            min: minY,
+            max: maxY
+        }
+    };
+}
+
 /**
  * Get the position of the center of an element
  * @param element

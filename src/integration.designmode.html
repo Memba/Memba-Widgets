@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.integration.designmode</title>
+    <!-- weinre - see http://people.apache.org/~pmuellr/weinre/docs/latest -->
+    <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.mobile.all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <!--script src="./js/vendor/kendo/jquery.min.js"></script-->
+    <script src="./js/vendor/kendo/kendo.all.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script>
+    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
+    <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
+    <script src="./js/vendor/kendo/kendo.sortable.js"></script>
+    <script src="./js/vendor/kendo/kendo.button.js"></script>
+    <script src="./js/vendor/kendo/kendo.color.js"></script>
+    <script src="./js/vendor/kendo/kendo.popup.js"></script>
+    <script src="./js/vendor/kendo/kendo.slider.js"></script>
+    <script src="./js/vendor/kendo/kendo.colorpicker.js"></script>
+    <script src="./js/vendor/kendo/kendo.calendar.js"></script>
+    <script src="./js/vendor/kendo/kendo.datepicker.js"></script>
+    <script src="./js/vendor/kendo/kendo.list.js"></script>
+    <script src="./js/vendor/kendo/kendo.dropdownlist.js"></script>
+    <script src="./js/vendor/kendo/kendo.maskedtextbox.js"></script>
+    <script src="./js/vendor/kendo/kendo.menu.js"></script>
+    <script src="./js/vendor/kendo/kendo.numerictextbox.js"></script>
+    <script src="./js/vendor/kendo/kendo.panelbar.js"></script>
+    <script src="./js/vendor/kendo/kendo.resizable.js"></script>
+    <script src="./js/vendor/kendo/kendo.splitter.js"></script>
+    <script src="./js/vendor/kendo/kendo.toolbar.js"></script>
+    <script src="./js/vendor/kendo/kendo.validator.js"></script>
+    <script src="./js/vendor/kendo/kendo.window.js"></script>
+    <script src="./js/vendor/kendo/kendo.fx.js"></script>
+    <script src="./js/vendor/kendo/kendo.mobile.switch.js"></script-->
+    <!-- Kidoju fonts -->
+    <link href="./styles/fonts/kidoju.css" rel="stylesheet">
+    <!-- Code mirror -->
+    <link href="./styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
+    <link href="./styles/vendor/codemirror/addon/lint/lint.css" rel="stylesheet">
+    <script src="./js/vendor/codemirror/lib/codemirror.js"></script>
+    <script src="./js/vendor/codemirror/mode/meta.js"></script>
+    <script src="./js/vendor/codemirror/mode/xml/xml.js"></script>
+    <script src="./js/vendor/codemirror/mode/markdown/markdown.js"></script>
+    <script src="./js/vendor/codemirror/mode/gfm/gfm.js"></script>
+    <script src="./js/vendor/codemirror/mode/javascript/javascript.js"></script>
+    <script src="./js/vendor/codemirror/addon/lint/jshint.js"></script>
+    <script src="./js/vendor/codemirror/addon/lint/lint.js"></script>
+    <script src="./js/vendor/codemirror/addon/lint/javascript-lint.js"></script>
+    <!-- KaTeX -->
+    <link rel="stylesheet" type="text/css" href="styles/vendor/khan/katex.css">
+    <script src="js/vendor/khan/katex.js"></script>
+    <!-- MathQuill -->
+    <link rel="stylesheet" type="text/css" href="../src/styles/vendor/mathquill/mathquill.css">
+    <script src="../src/js/vendor/mathquill/mathquill.js"></script>
+    <!-- Design mode requirements -->
+    <link href="styles/widgets/kidoju.tools.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.assetmanager.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.codeeditor.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.explorer.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.highlighter.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.imagelist.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.mathexpression.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.mathinput.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.multiquiz.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.mediaplayer.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.navigation.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.propertygrid.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.stage.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.styleeditor.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.textgaps.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.unitinput.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.quiz.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.table.css" rel="stylesheet">
+    <script src="js/window.assert.js"></script>
+    <script src="./js/window.logger.js"></script>
+    <script src="./js/kidoju.util.js"></script>
+    <script src="./js/kidoju.data.js"></script>
+    <script src="./js/kidoju.tools.js"></script>
+    <script src="js/widgets/kidoju.widgets.assetmanager.js"></script>
+    <script src="js/widgets/kidoju.widgets.chargrid.js"></script>
+    <script src="./js/kidoju.widgets.codeeditor.js"></script>
+    <script src="./js/kidoju.widgets.codeinput.js"></script>
+    <script src="js/widgets/kidoju.widgets.connector.js"></script>
+    <script src="js/widgets/kidoju.widgets.dropzone.js"></script>
+    <script src="js/widgets/kidoju.widgets.explorer.js"></script>
+    <script src="./js/kidoju.widgets.highlighter.js"></script>
+    <script src="./js/kidoju.widgets.imagelist.js"></script>
+    <script src="./js/kidoju.widgets.imageset.js"></script>
+    <script src="js/widgets/kidoju.widgets.markeditor.toolbar.js"></script>
+    <script src="js/widgets/kidoju.widgets.markeditor.js"></script>
+    <script src="js/widgets/kidoju.widgets.mathinput.toolbar.js"></script>
+    <script src="js/widgets/kidoju.widgets.mathinput.js"></script>
+    <script src="./js/kidoju.widgets.mathexpression.js"></script>
+    <script src="js/widgets/kidoju.widgets.mediaplayer.js"></script>
+    <script src="js/widgets/kidoju.widgets.multiquiz.js"></script>
+    <script src="js/widgets/kidoju.widgets.propertygrid.js"></script>
+    <script src="js/widgets/kidoju.widgets.quiz.js"></script>
+    <script src="js/widgets/kidoju.widgets.selector.js"></script>
+    <script src="js/widgets/kidoju.widgets.stage.js"></script>
+    <!-- navigation should load after stage -->
+    <script src="js/widgets/kidoju.widgets.navigation.js"></script>
+    <script src="./js/kidoju.widgets.styleeditor.js"></script>
+    <script src="./js/kidoju.widgets.textgaps.js"></script>
+    <script src="./js/kidoju.widgets.unitinput.js"></script>
+    <script src="./js/kidoju.widgets.table.js"></script>
+    <script src="./js/kidoju.widgets.toolbox.js"></script>
+    <style>
+        html, body {
+            font: 14px sans-serif;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+        header {
+            height: 48px;
+            background-color: #001111;
+        }
+        header>img {
+            padding: 2px 5px;
+        }
+        footer {
+            position: absolute;
+            height: 35px;
+            bottom: 0px;
+        }
+        footer>div {
+            padding: 8px;
+        }
+        .no-scroll {
+            scrollable: false;
+        }
+        main>[data-role="splitter"] {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: auto;
+            top: 88px;
+            bottom: 35px;
+            border-width: 0 0 1px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="./styles/images/KdjLogoBB.png" alt="Kidoju Logo">
+    </header>
+    <main>
+        <div data-role="toolbar"></div>
+        <div data-role="splitter" data-panes="[{min: 100, max:400, size: 300}, { scrollable: false }, {min: 100, max:600, size: 300}]">
+            <div id="left-pane">
+                <div data-role="navigation" data-bind="source: stream.pages, value: selectedPage"></div>
+            </div>
+            <div id="center-pane" style="touch-action:none">
+                <div class="centered">
+                    <div data-role="stage" data-bind="source: selectedPage.components, value: selectedComponent" data-mode="design"></div>
+                </div>
+            </div>
+            <div id="right-pane">
+                <div class="no-scroll">
+                    <ul data-role="panelbar">
+                        <li>
+                            Toolbox
+                            <div data-role="toolbox"></div>
+                        </li>
+                        <li>
+                            Explorer
+                            <div data-role="explorer" data-bind="source: selectedPage.components, value: selectedComponent"></div>
+                        </li>
+                        <li>
+                            Display Attributes
+                            <div id="attributes" data-role="propertygrid" data-bind="value: selectedComponent" data-messages="{ property: null, value: null }"></div>
+                        </li>
+                        <li>
+                            Test Logic
+                            <div id="properties" data-role="propertygrid" data-bind="value: selectedComponent" data-messages="{ property: null, value: null }"></div>
+                        </li>
+                        <li>
+                            Instructions
+                            <div id="instructions">
+                                <div data-role="markeditor" data-bind="value: selectedPage.instructions, enabled: selectedPage" style="width: 100%;border:none;"></div>
+                            </div>
+                        </li>
+                        <li>
+                            Explanations
+                            <div id="explanations">
+                                <div data-role="markeditor" data-bind="value: selectedPage.explanations, enabled: selectedPage" style="width: 100%;border:none;"></div>
+                            </div>
+                        </li>
+                        <li>
+                            Snap
+                            <div id="snap" style="padding:0.5em;">
+                                <div><label style="text-align: center">Grid:</label><input id="snap-grid" type="number" data-role="slider" data-min="0" data-max="50" data-small-step="1" data-large-step="10" data-tick-placement="none"></div>
+                                <div><label>Angle:</label><input id="snap-angle" type="number" data-role="slider" data-min="0" data-max="50" data-small-step="1" data-large-step="10" data-tick-placement="none"></div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div>Copyright &copy; 2013-2018 Memba Sarl. All rights reserved.</div>
+    </footer>
+    <script>
+        ;(function(window, $, undefined){
+
+            'use strict';
+
+            var kendo = window.kendo;
+            var ObjectId = kendo.guid;
+            var kidoju = window.kidoju;
+            var tools = kidoju.tools;
+            var Tool = kidoju.Tool;
+            var Stream = kidoju.data.Stream;
+            var Page = kidoju.data.Page;
+            // var PageComponent = kidoju.data.PageComponent;
+            // var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+            // var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
+
+            //LocalStream with localStorage methods
+            var storageKey = 'kidoju.integration';
+            var LocalStream = Stream.define({
+                    _fetchAll: function() {
+                        var that = this,
+                            dfd = $.Deferred();
+                        that.pages.fetch()
+                            .done(function () {
+                                var promises = [];
+                                $.each(that.pages.data(), function (index, page) {
+                                    promises.push(page.components.fetch());
+                                });
+                                $.when.apply($, promises)
+                                    .done(dfd.resolve)
+                                    .fail(dfd.reject);
+                            })
+                            .fail(dfd.reject);
+                        return dfd.promise();
+                    },
+                    load: function () {
+                        var that = this,
+                            stream = JSON.parse(localStorage.getItem(storageKey)) || {};
+                        that.accept(stream);
+                        return that._fetchAll();
+                    },
+                    save: function () {
+                        var that = this,
+                            data = that.toJSON(true);
+                        $.each(data.pages, function (pageIdx, page) {
+                            page.id = page.id || ObjectId();
+                            $.each(page.components, function (componentIdx, component) {
+                                component.id = component.id || ObjectId();
+                            });
+                        });
+                        localStorage.setItem(storageKey, kendo.stringify(data));
+                        that.accept(data);
+                        return that._fetchAll();
+                    }
+                });
+            var streamData = {
+                    "pages": [{
+                        "id": "40365503-413a-49e2-990b-bde37541892b",
+                        "style": "",
+                        "components": [{
+                            "id": "f96ade80-c6bd-415e-a58e-200097bdc1da",
+                            "tool": "label",
+                            "top": 40,
+                            "left": 50,
+                            "height": 205,
+                            "width": 800,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "text": "Who painted this self-portrait?",
+                                "style": "font-family:Georgia, serif;font-size:80px;color:#663300;"
+                            }
+                        }, {
+                            "id": "54a74fb1-12f0-43b2-a9ac-b03325624276",
+                            "tool": "quiz",
+                            "top": 310,
+                            "left": 460,
+                            "height": 300,
+                            "width": 500,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "mode": "radio",
+                                "groupStyle": "",
+                                "itemStyle": "font-family:Georgia, serif;color:#663300;font-size:60px;",
+                                "activeStyle": "background-color:#c7aa7d;",
+                                "data": [{ text: "Fernand Léger" }, { text: "Pablo Picasso" }, { text: "George Braque" }, { text: "Paul Cézanne" }]
+                            },
+                            "properties": {
+                                "name": "val_e57345",
+                                "question": "Self-portrait",
+                                "solution": "Pablo Picasso",
+                                "validation": "// equal",
+                                "success": 1,
+                                "failure": 0,
+                                "omit": 0
+                            }
+                        }, {
+                            "id": "c971f83d-2dcf-48f4-ab96-7fbbefd870ed",
+                            "tool": "image",
+                            "top": 274,
+                            "left": 67,
+                            "height": 450,
+                            "width": 370,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "src": "data://self-portrait-1907.jpg",
+                                "alt": "Painting Landscape"
+                            }
+                        }]
+                    }, {
+                        "id": "c9caa1a7-8f5f-4b4a-a4dc-c9a98652dc2a",
+                        "style": "",
+                        "components": [{
+                            "id": "31ba6ec9-5b77-45cd-b11f-e659b3a1d8e3",
+                            "tool": "textbox",
+                            "top": 227,
+                            "left": 637,
+                            "height": 101,
+                            "width": 288,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {"style": "font-family:Georgia, serif;"},
+                            "properties": {
+                                "name": "val_1b0890",
+                                "question": "Year Elvis dies",
+                                "solution": "1977",
+                                "validation": "// equal",
+                                "success": 1,
+                                "failure": 0,
+                                "omit": 0
+                            }
+                        }, {
+                            "id": "ed5d0c8f-7e77-4b57-881a-ec11f76279a2",
+                            "tool": "label",
+                            "top": 61,
+                            "left": 52,
+                            "height": 115,
+                            "width": 932,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "text": "Which year did Elvis die?",
+                                "style": "font-family:Georgia, serif;font-size:80px;color:#FF0000;"
+                            }
+                        }, {
+                            "id": "285b7355-91dc-447e-869f-3db89d96fac0",
+                            "tool": "image",
+                            "top": 228,
+                            "left": 54,
+                            "height": 397,
+                            "width": 520,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "src": "data://Elvis.jpg",
+                                "alt": "Painting Landscape"
+                            }
+                        }]
+                    }, {
+                        "id": "7c187777-deea-41e8-83f4-4b7fab333702",
+                        "style": "",
+                        "components": [{
+                            "id": "f294c11f-be14-4a93-9123-5748d20e3ee8",
+                            "tool": "image",
+                            "top": 30,
+                            "left": 343,
+                            "height": 710,
+                            "width": 652,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "src": "data://France-Fleuves-1.png",
+                                "alt": "Painting Landscape"
+                            }
+                        }, {
+                            "id": "76923b71-d891-4ef7-9090-f2cfe5e14bbb",
+                            "tool": "textbox",
+                            "top": 171,
+                            "left": 622,
+                            "height": 60,
+                            "width": 193,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {"style": "color:#0066CC;background-color:#E0F0FF;opacity:0.8;"},
+                            "properties": {
+                                "name": "val_123890",
+                                "question": "French river (north)",
+                                "solution": "Seine",
+                                "validation": "// ignoreCaseEqual",
+                                "success": 0.25,
+                                "failure": 0,
+                                "omit": 0
+                            }
+                        }, {
+                            "id": "75275998-467d-4374-a6ea-d221b8c14d30",
+                            "tool": "textbox",
+                            "top": 274,
+                            "left": 576,
+                            "height": 60,
+                            "width": 183,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {"style": "color:#0066CC;background-color:#E0F0FF;opacity:0.8;"},
+                            "properties": {
+                                "name": "val_5ee0ab",
+                                "question": "French river (west)",
+                                "solution": "Loire",
+                                "validation": "// ignoreCaseEqual",
+                                "success": 0.25,
+                                "failure": 0,
+                                "omit": 0
+                            }
+                        }, {
+                            "id": "b1222495-1bc1-41cc-8cc6-086057f769f6",
+                            "tool": "label",
+                            "top": 38,
+                            "left": 35,
+                            "height": 695,
+                            "width": 303,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "text": "Please name the french rivers on the map",
+                                "style": "font-family:Georgia, serif;font-size:80px;color:#0066CC;"
+                            }
+                        }, {
+                            "id": "6c4dec80-6c44-4fa3-a919-904987ec5094",
+                            "tool": "textbox",
+                            "top": 555,
+                            "left": 475,
+                            "height": 60,
+                            "width": 230,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {"style": "color:#0066CC;background-color:#E0F0FF;opacity:0.8;"},
+                            "properties": {
+                                "name": "val_304345",
+                                "question": "French river (south-west)",
+                                "solution": "Garonne",
+                                "validation": "// ignoreCaseEqual",
+                                "success": 0.25,
+                                "failure": 0,
+                                "omit": 0
+                            }
+                        }, {
+                            "id": "a08a68d2-7d19-4576-bf61-12f46acaeb02",
+                            "tool": "textbox",
+                            "top": 525,
+                            "left": 735,
+                            "height": 60,
+                            "width": 230,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {"style": "color:#0066CC;background-color:#E0F0FF;opacity:0.8;"},
+                            "properties": {
+                                "name": "val_a8aef1",
+                                "question": "French river (south-east)",
+                                "solution": "Rhône",
+                                "validation": "// ignoreCaseMatch (Rh(o|ô)ne)",
+                                "success": 0.25,
+                                "failure": 0,
+                                "omit": 0
+                            }
+                        }]
+                    }, {
+                        "id": "82b02398-7810-467c-9328-b554c26d5786",
+                        "style": "",
+                        "components": [{
+                            "id": "a23a63bb-6dfd-42f4-b828-2995cbe44e51",
+                            "tool": "label",
+                            "top": 60,
+                            "left": 100,
+                            "height": 400,
+                            "width": 820,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "text": "\"S.O.S.,\" the Morse code distress signal, originally stood for \"Save Our Ship.\"",
+                                "style": "text-align:center;font-family:Georgia, serif;font-size:80px;color:#000000;"
+                            }
+                        }, {
+                            "id": "2c64f70f-727e-4d40-a070-2ad675ba4a5f",
+                            "tool": "quiz",
+                            "top": 500,
+                            "left": 200,
+                            "height": 140,
+                            "width": 650,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "mode": "button",
+                                "groupStyle": "font-size:50px;",
+                                "itemStyle": "width:300px;",
+                                "activeStyle": "",
+                                "data": [{ text: "True" }, { text: "False" }]
+                            },
+                            "properties": {
+                                "name": "val_667456",
+                                "question": "SOS for Save Our Ships",
+                                "solution": "False",
+                                "validation": "// equal",
+                                "success": 1,
+                                "failure": 0,
+                                "omit": 0
+                            }
+                        }]
+                    }]
+                };
+
+            var schemes = {
+                cdn: 'https://cdn.kidoju.com/',
+                data: window.location.protocol + '//' + window.location.host + '/Kidoju.Widgets/test/data/images/miscellaneous/'
+            };
+
+            kidoju.assets.audio = new kidoju.ToolAssets({
+                collections: [],
+                extensions: ['.mp3', '.ogg'],
+                schemes: schemes,
+                transport: {}
+            });
+
+            kidoju.assets.image = new kidoju.ToolAssets({
+                collections: [
+                    {
+                        name: 'G-Collection',
+                        transport: {
+                            read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/g_collection/svg/all/index.json'
+                        }
+                    },
+                    {
+                        name: 'O-Collection',
+                        collections: [
+                            {
+                                name: 'Dark Grey',
+                                transport: {
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/dark_grey/index.json'
+                                }
+                            },
+                            {
+                                name: 'Office',
+                                transport: {
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/office/index.json'
+                                }
+                            },
+                            {
+                                name: 'White',
+                                transport: {
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/white/index.json'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        name: 'V-Collection',
+                        collections: [
+                            {
+                                name: 'Small',
+                                transport: {
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/32x32/index.json'
+                                }
+                            },
+                            {
+                                name: 'Medium',
+                                transport: {
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/64x64/index.json'
+                                }
+                            },
+                            {
+                                name: 'Large',
+                                transport: {
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/128x128/index.json'
+                                }
+                            },
+                            {
+                                name: 'Huge',
+                                transport: {
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/256x256/index.json'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        name: 'X-Collection',
+                        collections: [
+                            {
+                                name: 'Small',
+                                transport: {
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/32x32/index.json'
+                                }
+                            },
+                            {
+                                name: 'Large',
+                                transport: {
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/128x128/index.json'
+                                }
+                            }
+                        ]
+                    }
+                ],
+                extensions: ['.gif', '.jpg', '.png', '.svg'],
+                schemes: schemes,
+                transport: {}
+            });
+
+            kidoju.assets.video = new kidoju.ToolAssets({
+                collections: [],
+                extensions: ['.mp4', '.ogv', '.wbem'],
+                schemes: schemes,
+                transport: {}
+            });
+
+            //Create some dummy data
+            if (!window.localStorage.getItem(storageKey)) {
+                window.localStorage.setItem(storageKey, kendo.stringify(streamData));
+            }
+
+            //Define viewModel
+            var viewModel = window.viewModel = kendo.observable({
+                    stream: new LocalStream(),
+                    selectedPage: undefined,
+                    selectedComponent: undefined
+            });
+
+            //Bind change event to map rows
+            viewModel.bind('change', function(e) {
+                if(e.field === 'selectedPage') {
+                    viewModel.set('selectedComponent', undefined);
+                } else if(e.field === 'selectedComponent') {
+                    var tool = tools[e.sender.get('selectedComponent.tool')];
+                    if (tool instanceof Tool) {
+                        var grid1 = $('#attributes').data('kendoPropertyGrid'),
+                            grid2 = $('#properties').data('kendoPropertyGrid');
+                        if (grid1 instanceof kendo.ui.PropertyGrid) {
+                            grid1.rows(tool._getAttributeRows());
+                        }
+                        if (grid2 instanceof kendo.ui.PropertyGrid) {
+                            grid2.rows(tool._getPropertyRows());
+                        }
+                    }
+                }
+            });
+
+            // Bind set event to ensure property grid changes are passed to viewModel when changing selectedPage or selectedComponent
+            viewModel.bind('set', function(e) {
+                // IMPORTANT: by default changing selectedComponent does not trigger a blur event on the input holding the property grid value being edited if any.
+                // So one may edit a component value in a property grid, click another component on stage, the selected component would then change on stage and in the property grid
+                // and the value being edited would not have been changed in the view Model. Below is a fix.
+                if(e.field === 'selectedComponent') {
+                    $(document.activeElement).blur();
+                }
+            });
+
+            //onResize event handler
+            function onResize() {
+                var navigationWidget = $(kendo.roleSelector('navigation')).data('kendoNavigation'),
+                    stage = $('#center-pane').find(kendo.roleSelector('stage')),
+                    stageWidget = stage.data('kendoStage');
+                if (navigationWidget instanceof kendo.ui.Navigation) {
+                    navigationWidget.resize();
+                }
+                if (stageWidget instanceof kendo.ui.Stage) {
+                    var width = $('#center-pane').width(),
+                        height = $('#center-pane').height(),
+                        scale = Math.min(0.90*width/1024, 0.90*height/768);
+                    stageWidget.scale(scale);
+                    $('.centered')
+                        .width(scale*stage.outerWidth())
+                        .height(scale*stage.outerHeight())
+                        .css('position', 'absolute')
+                        .css('top', '50%')
+                        .css('left', '50%')
+                        .css('margin-left', '-' + scale*stage.outerWidth()/2 + 'px')
+                        .css('margin-top', '-' + scale*stage.outerHeight()/2 + 'px');
+                }
+            }
+
+            //When document is ready...
+            $(function() {
+
+                //Init toolbar
+                $(kendo.roleSelector('toolbar')).kendoToolBar({
+                    items: [
+                        { id: 'add', type: 'button', text: 'Add Page'},
+                        { id: 'duplicate', type: 'button', text: 'Duplicate Page'},
+                        { id: 'delete', type: 'button', text: 'Delete Page'},
+                        { id: 'save', type: 'button', text: 'Save'},
+                        { id: 'reset', type: 'button', text: 'Reset'},
+                        { id: 'play', type: 'button', text: 'Play', primary: true}
+                    ],
+                    click: function(e) {
+                        switch(e.id) {
+                            case 'add':
+                                viewModel.stream.pages.add({}); //consider index position
+                                break;
+                            case 'duplicate':
+                                var navigation = $(kendo.roleSelector('navigation')).data('kendoNavigation');
+                                var page = navigation.value();
+                                viewModel.stream.pages.add(page.clone()); //consider index position
+                                break;
+                            case 'delete':
+                                var navigation = $(kendo.roleSelector('navigation')).data('kendoNavigation');
+                                var stage = $('#center-pane').find(kendo.roleSelector('stage')).data('kendoStage');
+                                var explorer = $('#right-pane').find(kendo.roleSelector('explorer')).data('kendoExplorer');
+                                var page = navigation.value();
+                                if (page instanceof Page) {
+                                    viewModel.set('selectedComponent', undefined);
+                                    viewModel.set('selectedPage', undefined); // This does not trigger source binding on selectedPage.components
+                                    stage.setDataSource(undefined); // ... so we need to explicitely set the dataSource on the stage
+                                    explorer.setDataSource(undefined); // ... and on the explorer
+                                    viewModel.stream.pages.remove(page);
+
+                                }
+                                break;
+                            case 'save':
+                                viewModel.stream.save();
+                                break;
+                            case 'reset':
+                                window.localStorage.setItem(storageKey, kendo.stringify(streamData));
+                                viewModel.stream.load().then(function() {
+                                    viewModel.set('selectedPage', viewModel.stream.pages.at(0));
+                                });
+                                break;
+                            case 'play':
+                                window.location.assign('integration.playmode.html');
+                                break;
+                        }
+                    }
+                });
+
+                //Load stream
+                viewModel.stream.load().then(function() {
+                    viewModel.set('selectedPage', viewModel.stream.pages.at(0));
+                    kendo.bind('body', viewModel, kendo.ui, kendo.mobile.ui, kendo.dataviz.ui);
+
+                    //Bind resize events and resize (splitter is not available before kendo.bind)
+                    $('main').find(kendo.roleSelector('splitter')).data('kendoSplitter').bind('resize', onResize);
+                    $(window).on('resize', onResize);
+                    onResize();
+
+                    // Init sliders
+                    $('#snap-angle').data('kendoSlider').bind('change', function (e) {
+                        var stage = $('#center-pane').find(kendo.roleSelector('stage'));
+                        var stageWidget = stage.data('kendoStage');
+                        stageWidget.snapAngle(e.sender.value());
+                    });
+                    $('#snap-grid').data('kendoSlider').bind('change', function (e) {
+                        var stage = $('#center-pane').find(kendo.roleSelector('stage'));
+                        var stageWidget = stage.data('kendoStage');
+                        stageWidget.snapGrid(e.sender.value());
+                    });
+
+                });
+            });
+
+        }(this, jQuery));
+    </script>
+</body>
+</html>

@@ -2,21 +2,21 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>userevents</title>
+    <title>widgets.draganddrop</title>
     <script>
         window.app = { DEBUG: true };
     </script>
-    <link href="../../src/styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="../../src/styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="../../src/styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- SystemJS loader -->
-    <script src="../../test/vendor/polyfill.min.js"></script>
-    <script src="../../test/vendor/system.js"></script>
+    <script src="../../../test/vendor/polyfill.min.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
             SystemJS.config({
-                baseURL: '../../',
+                baseURL: '../../../',
                 bundles: {
                     'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
@@ -191,45 +191,102 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./uservents.es6');
+            Promise.all([
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('./widgets.draganddrop.es6')
+            ]).then(() => {
+                var scale = 0.6;
+                var kendo = window.kendo;
+                $(function () {
+                    $('.kj-stage').kendoDraggableEx({
+                        container: $('[data-role="stage"]'),
+                        filter: '.kj-element:has([data-behavior="draggable"])',
+                        ignore: 'input,textarea',
+                        hint(element) {
+                            console.log('hint');
+                            const hint = element.clone()
+                            .css({
+                                transform: `scale(${scale})`,
+                                transformOrigin: '0 0'
+                            });
+                            return hint;
+                        },
+                        dragstart(e) {
+                            console.log('dragstart (' +
+                                Math.trunc(e.sender.hintOffset.left) + ', ' +
+                                Math.trunc(e.sender.hintOffset.top) + ')');
+                            $(e.currentTarget).hide();
+                        },
+                        drag(e) {
+                            console.log('drag (' +
+                                Math.trunc(e.sender.hintOffset.left) + ', ' +
+                                Math.trunc(e.sender.hintOffset.top) + ')');
+                        },
+                        dragend(e) {
+                            console.log('dragend (' +
+                                Math.trunc(e.sender.hintOffset.left) + ', ' +
+                                Math.trunc(e.sender.hintOffset.top) + ')');
+                            const hintOffset = e.sender.hintOffset;
+                            // const offset = kendo.getOffset($('.kj-stage'));
+                            const offset = kendo.getOffset(e.sender.options.container);
+                            e.sender.hint.hide();
+                            $(e.currentTarget)
+                                .css({
+                                    top: (hintOffset.top - offset.top)  / scale,
+                                    left: (hintOffset.left - offset.left)  / scale
+                                })
+                                .show();
+                        },
+                        dragcancel(e) {
+                            console.log('dragcancel (' +
+                                Math.trunc(e.sender.hintOffset.left) + ', ' +
+                                Math.trunc(e.sender.hintOffset.top) + ')');
+                            $(e.currentTarget).hide();
+                        }
+                    });
+                    // $('.kj-stage').kendoDropTargetAreaEX()
+                    $('.kj-element:has([data-behavior="droptarget"])').kendoDropTargetEx({
+                        dragenter(e) {
+                            e.dropTarget.css({
+                                boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)'
+                            });
+                        },
+                        dragleave(e) {
+                            e.dropTarget.css({
+                                boxShadow: ''
+                            });
+                        },
+                        drop(e) {
+                            debugger;
+                        }
+                    })
+                });
+            });
         }());
     </script>
-    <style>
-    #mouse {
-        height: 20px;
-        width: 20px;
-        margin-top: -10px;
-        margin-left: -10px;
-        border-radius: 50%;
-        background-color: #0ff;
-        position: absolute;
-        display: none;
-    }
-    </style>
 </head>
 <body>
-<h1>UserEvents</h1>
+<h1>widgets.draganddrop</h1>
 <main style="position: absolute; left: 60px; top: 100px;">
-<div class="kj-stage" style="height: 400px; width: 500px; transform: scale(0.6); transform-origin: 0 0; border: solid 1px grey;">
-    <div data-role="stage" style="position:relative; height: 600px; width: 800px;">
-        <div class="kj-element" style="position:absolute; top:100px; left:150px; width:250px; height:250px;">
-            <div class="k-header" data-role="dropzone" data-bind="value: valueB1, source: sourceB, visible: visibleB, enabled: enabledB" style="width:250px; height:250px;">Drag the small circles here.</div>
+    <div class="kj-stage" style="height: 400px; width: 500px; transform: scale(0.6); transform-origin: 0 0; border: solid 1px grey;">
+        <div data-role="stage" style="position:relative; height: 400px; width: 500px;">
+            <div class="kj-element" style="position:absolute; top:100px; left:150px; width:250px; height:250px;">
+                <div data-behavior="droptarget" class="k-header" data-role="dropzone" data-bind="value: valueB1, source: sourceB, visible: visibleB, enabled: enabledB" style="width:250px; height:250px;">Drag the small circles here.</div>
+            </div>
+            <div class="kj-element" style="position:absolute; top:50px; left:50px; width:50px; height:50px;">
+                <div data-behavior="draggable" data-id="draggableB1" data-constant="red" style="border:solid 1px blue; border-radius: 50%; background-color:red; width:50px; height:50px;"></div>
+            </div>
+            <div class="kj-element" style="position:absolute; top:150px; left:50px; width:40px; height:40px;">
+                <div data-behavior="draggable" data-id="draggableB2" data-constant="blue" style="border:solid 1px blue; border-radius: 50%; background-color:blue; width:40px; height:40px;"></div>
+            </div>
+            <div class="kj-element" style="position:absolute; top:250px; left:50px; width:30px; height:30px;">
+                <div data-behavior="draggable" data-id="draggableB3" data-constant="green" style="border:solid 1px blue; border-radius: 50%; background-color:green; width:30px; height:30px;"></div>
+            </div>
+            <div class="kj-element" style="position:absolute; top:200px; left:200px; width:20px; height:20px;">
+                <div data-behavior="draggable" data-id="draggableB4" data-constant="yellow" style="border:solid 1px blue; border-radius: 50%; background-color:yellow; width:20px; height:20px;"></div>
+            </div>
         </div>
-        <div class="kj-element" style="position:absolute; top:50px; left:50px; width:50px; height:50px;">
-            <div data-behavior="draggable" data-id="draggableB1" data-constant="red" style="border:solid 1px blue; border-radius: 50%; background-color:red; width:50px; height:50px;"></div>
-        </div>
-        <div class="kj-element" style="position:absolute; top:150px; left:50px; width:40px; height:40px;">
-            <div data-behavior="draggable" data-id="draggableB2" data-constant="blue" style="border:solid 1px blue; border-radius: 50%; background-color:blue; width:40px; height:40px;"></div>
-        </div>
-        <div class="kj-element" style="position:absolute; top:250px; left:50px; width:30px; height:30px;">
-            <div data-behavior="draggable" data-id="draggableB3" data-constant="green" style="border:solid 1px blue; border-radius: 50%; background-color:green; width:30px; height:30px;"></div>
-        </div>
-        <div class="kj-element" style="position:absolute; top:200px; left:200px; width:20px; height:20px;">
-            <div data-behavior="draggable" data-id="draggableB4" data-constant="yellow" style="border:solid 1px blue; border-radius: 50%; background-color:yellow; width:20px; height:20px;"></div>
-        </div>
-        <div id="mouse"></div>
     </div>
-</div>
 </main>
 </body>
 </html>

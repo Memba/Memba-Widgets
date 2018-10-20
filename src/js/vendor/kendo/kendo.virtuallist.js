@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -470,7 +470,12 @@
                         }
                     });
                 } else {
-                    that.select([-1]);
+                    if (!that.value()[0]) {
+                        that.select([-1]);
+                    } else {
+                        that._selectingValue = false;
+                        that._triggerListBound();
+                    }
                 }
             },
             mapValueToIndex: function (indexes) {
@@ -694,7 +699,7 @@
             focusLast: function () {
                 var lastIndex = this.dataSource.total();
                 this.scrollTo(this.heightContainer.offsetHeight);
-                this.focus(lastIndex);
+                this.focus(lastIndex - 1);
             },
             focusPrev: function () {
                 var index = this._focusedIndex;

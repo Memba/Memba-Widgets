@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -912,20 +912,26 @@
         });
         kendo.spreadsheet.AdjustDecimalsCommand = Command.extend({
             init: function (options) {
-                this._decimals = options.value;
+                this._delta = options.value;
                 options.property = 'format';
                 Command.fn.init.call(this, options);
             },
             exec: function () {
                 var sheet = this.range().sheet();
-                var decimals = this._decimals;
+                var delta = this._delta;
                 var formatting = kendo.spreadsheet.formatting;
                 this.getState();
                 sheet.batch(function () {
                     this.range().forEachCell(function (row, col, cell) {
                         var format = cell.format;
-                        if (format || decimals > 0) {
-                            format = formatting.adjustDecimals(format || '#', decimals);
+                        if (!format) {
+                            var value = cell.value;
+                            if (typeof value == 'number' && /\./.test(value)) {
+                                format = '0.' + String(value).split('.')[1].replace(/\d/g, '0');
+                            }
+                        }
+                        if (format || delta > 0) {
+                            format = formatting.adjustDecimals(format || '0', delta);
                             sheet.range(row, col).format(format);
                         }
                     });
@@ -2377,7 +2383,7 @@
         };
         var Mac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
         var isAlphaNum = function (keyCode) {
-            if (keyCode > 47 && keyCode < 58 || keyCode > 64 && keyCode < 91 || keyCode > 95 && keyCode < 112 || keyCode > 185 && keyCode < 193 || keyCode > 218 && keyCode < 223) {
+            if (keyCode > 47 && keyCode < 58 || keyCode > 64 && keyCode < 91 || keyCode > 95 && keyCode < 112 || keyCode > 185 && keyCode < 193 || keyCode > 218 && keyCode < 223 || keyCode === 229) {
                 return true;
             }
             return false;
@@ -11419,6 +11425,9 @@
                     }
                 } else if (this.is(['autoFilter'])) {
                     filterRef = attrs.ref;
+                    if (closed) {
+                        addAutoFilter();
+                    }
                 } else if (filterRef) {
                     if (this.is(['filterColumn'])) {
                         filterColumn = parseInt(attrs.colId, 10);
@@ -11520,8 +11529,7 @@
                 } else if (tag == 'sheetData') {
                     sheet._rows._refresh();
                 } else if (tag == 'autoFilter') {
-                    sheet.range(filterRef).filter(filters);
-                    filterRef = null;
+                    addAutoFilter();
                 } else if (filterRef) {
                     if (tag == 'customFilters') {
                         filters.push({
@@ -11561,6 +11569,10 @@
                 }
             }
         });
+        function addAutoFilter() {
+            sheet.range(filterRef).filter(filters);
+            filterRef = null;
+        }
     }
     function getCustomFilter(op, value) {
         var ourOp = {
@@ -18377,7 +18389,7 @@
         if (n % 2) {
             return numbers[n >> 1];
         }
-        return (numbers[n >> 1] + numbers[n >> 1 + 1]) / 2;
+        return (numbers[n >>= 1] + numbers[n - 1]) / 2;
     }).args([
         [
             'numbers',

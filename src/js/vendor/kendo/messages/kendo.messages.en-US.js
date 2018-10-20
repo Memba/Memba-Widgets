@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -401,7 +401,9 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "confirmDelete": "Delete"
   },
   "noRecords": "No records available.",
-  "expandCollapseColumnHeader": ""
+  "expandCollapseColumnHeader": "",
+  "groupHeader": "Press ctrl + space to group",
+  "ungroupHeader": "Press ctrl + space to ungroup"
 });
 }
 

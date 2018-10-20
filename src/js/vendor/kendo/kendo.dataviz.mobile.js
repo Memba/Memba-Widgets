@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2018.3.911'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2018.3.1017'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1517,7 +1517,7 @@
                 var os = false, minorVersion, match = [], notAndroidPhone = !/mobile safari/i.test(ua), agentRxs = {
                         wp: /(Windows Phone(?: OS)?)\s(\d+)\.(\d+(\.\d+)?)/,
                         fire: /(Silk)\/(\d+)\.(\d+(\.\d+)?)/,
-                        android: /(Android|Android.*(?:Opera|Firefox).*?\/)\s*(\d+)\.(\d+(\.\d+)?)/,
+                        android: /(Android|Android.*(?:Opera|Firefox).*?\/)\s*(\d+)\.?(\d+(\.\d+)?)?/,
                         iphone: /(iPhone|iPod).*OS\s+(\d+)[\._]([\d\._]+)/,
                         ipad: /(iPad).*OS\s+(\d+)[\._]([\d_]+)/,
                         meego: /(MeeGo).+NokiaBrowser\/(\d+)\.([\d\._]+)/,
@@ -1559,7 +1559,7 @@
                             os.name = testRx(agent, osRxs);
                             os[os.name] = true;
                             os.majorVersion = match[2];
-                            os.minorVersion = match[3].replace('_', '.');
+                            os.minorVersion = (match[3] || '0').replace('_', '.');
                             minorVersion = os.minorVersion.replace('.', '').substr(0, 2);
                             os.flatVersion = os.majorVersion + minorVersion + new Array(3 - (minorVersion.length < 3 ? minorVersion.length : 2)).join('0');
                             os.cordova = typeof window.PhoneGap !== UNDEFINED || typeof window.cordova !== UNDEFINED;
@@ -5089,6 +5089,8 @@
                 startswith: 'startswith',
                 isnull: 'eq',
                 isnotnull: 'ne',
+                isnullorempty: 'eq',
+                isnotnullorempty: 'ne',
                 isempty: 'eq',
                 isnotempty: 'ne'
             }, odataFiltersVersionFour = extend({}, odataFilters, { contains: 'contains' }), mappers = {
@@ -5141,7 +5143,11 @@
                     if (useOdataFour) {
                         filter = odataFiltersVersionFour[operator];
                     }
-                    if (operator === 'isnull' || operator === 'isnotnull') {
+                    if (operator === 'isnullorempty') {
+                        filter = kendo.format('{0} {1} null or {0} {1} \'\'', field, filter);
+                    } else if (operator === 'isnotnullorempty') {
+                        filter = kendo.format('{0} {1} null and {0} {1} \'\'', field, filter);
+                    } else if (operator === 'isnull' || operator === 'isnotnull') {
                         filter = kendo.format('{0} {1} null', field, filter);
                     } else if (operator === 'isempty' || operator === 'isnotempty') {
                         filter = kendo.format('{0} {1} \'\'', field, filter);
@@ -5975,9 +5981,12 @@
             ObservableArray.prototype[Symbol.iterator] = [][Symbol.iterator];
         }
         var LazyObservableArray = ObservableArray.extend({
-            init: function (data, type) {
+            init: function (data, type, events) {
                 Observable.fn.init.call(this);
                 this.type = type || ObservableObject;
+                if (events) {
+                    this._events = events;
+                }
                 for (var idx = 0; idx < data.length; idx++) {
                     this[idx] = data[idx];
                 }
@@ -7374,13 +7383,13 @@
                     if (group.hasSubgroups) {
                         wrapGroupItems(group.items, model);
                     } else {
-                        group.items = new LazyObservableArray(group.items, model);
+                        group.items = new LazyObservableArray(group.items, model, group.items._events);
                     }
                 }
             }
         }
         function eachGroupItems(data, func) {
-            for (var idx = 0, length = data.length; idx < length; idx++) {
+            for (var idx = 0; idx < data.length; idx++) {
                 if (data[idx].hasSubgroups) {
                     if (eachGroupItems(data[idx].items, func)) {
                         return true;
@@ -8212,7 +8221,7 @@
                 return this.reader.aggregates(data);
             },
             success: function (data) {
-                var that = this, options = that.options;
+                var that = this, options = that.options, items, replaceSubset;
                 that.trigger(REQUESTEND, {
                     response: data,
                     type: 'read'
@@ -8237,7 +8246,7 @@
                     that._destroyed = [];
                 } else {
                     data = that._readData(data);
-                    var items = [];
+                    items = [];
                     var itemIds = {};
                     var model = that.reader.model;
                     var idField = model ? model.idField : 'id';
@@ -8261,7 +8270,18 @@
                     that._total = data.length;
                 }
                 that._pristineTotal = that._total;
-                that._pristineData = data.slice(0);
+                replaceSubset = that._skip && that._data.length && that._skip < that._data.length;
+                if (that.options.endless) {
+                    if (replaceSubset) {
+                        that._pristineData.splice(that._skip, that._pristineData.length);
+                    }
+                    items = data.slice(0);
+                    for (var j = 0; j < items.length; j++) {
+                        that._pristineData.push(items[j]);
+                    }
+                } else {
+                    that._pristineData = data.slice(0);
+                }
                 that._detachObservableParents();
                 if (that.options.endless) {
                     that._data.unbind(CHANGE, that._changeHandler);
@@ -8270,6 +8290,9 @@
                         data.shift();
                     }
                     data = that._observe(data);
+                    if (replaceSubset) {
+                        that._data.splice(that._skip, that._data.length);
+                    }
                     for (var i = 0; i < data.length; i++) {
                         that._data.push(data[i]);
                     }
@@ -8534,6 +8557,9 @@
                 if (that.options.serverAggregates !== true) {
                     options.aggregate = that._aggregate;
                 }
+                if (that.options.serverGrouping) {
+                    that._clearEmptyGroups(data);
+                }
                 result = that._queryProcess(data, options);
                 if (that.options.serverAggregates !== true) {
                     that._aggregateResult = that._calculateAggregates(result.dataToAggregate || data, options);
@@ -8543,6 +8569,21 @@
                 e = e || {};
                 e.items = e.items || that._view;
                 that.trigger(CHANGE, e);
+            },
+            _clearEmptyGroups: function (data) {
+                for (var idx = data.length - 1; idx >= 0; idx--) {
+                    var group = data[idx];
+                    if (group.hasSubgroups) {
+                        this._clearEmptyGroups(group.items);
+                    } else {
+                        if (group.items && !group.items.length) {
+                            splice.apply(group.parent(), [
+                                idx,
+                                1
+                            ]);
+                        }
+                    }
+                }
             },
             _queryProcess: function (data, options) {
                 if (this.options.inPlaceSort) {
@@ -8681,10 +8722,10 @@
             pageSize: function (val) {
                 var that = this;
                 if (val !== undefined) {
-                    that._query({
+                    that._query(that._pageableQueryOptions({
                         pageSize: val,
                         page: 1
-                    });
+                    }));
                     return;
                 }
                 return that.take();
@@ -56754,14 +56795,18 @@
             },
             eventOffset: function (e) {
                 var point;
-                if (e.touch) {
+                var x;
+                var y;
+                var offset = this.element.offset();
+                if (e.x || e.y) {
                     var field = 'location';
-                    point = new g.Point(e.x[field], e.y[field]);
+                    x = e.x[field] - offset.left;
+                    y = e.y[field] - offset.top;
+                    point = new g.Point(x, y);
                 } else {
-                    var offset = this.element.offset();
                     var event = e.originalEvent || e;
-                    var x = valueOrDefault(event.pageX, event.clientX) - offset.left;
-                    var y = valueOrDefault(event.pageY, event.clientY) - offset.top;
+                    x = valueOrDefault(event.pageX, event.clientX) - offset.left;
+                    y = valueOrDefault(event.pageY, event.clientY) - offset.top;
                     point = new g.Point(x, y);
                 }
                 return point;
@@ -66676,7 +66721,8 @@
                         target: target,
                         group: item.options.group,
                         checked: item.options.selected,
-                        id: item.options.id
+                        id: item.options.id,
+                        item: item
                     };
                     if (handler) {
                         handler.call(that, eventData);
@@ -66687,7 +66733,8 @@
                     eventData = {
                         sender: that,
                         target: target,
-                        id: item.options.id
+                        id: item.options.id,
+                        item: item
                     };
                     if (handler) {
                         handler.call(that, eventData);
@@ -67734,16 +67781,17 @@
                         if (!method) {
                             view.setDate(currentValue, value);
                         }
+                        if (!isInRange(currentValue, min, max)) {
+                            currentValue = restrictValue(currentValue, options.min, options.max);
+                        }
                         if (isDisabled(currentValue)) {
                             currentValue = that._nextNavigatable(currentValue, value);
                         }
                         min = createDate(min.getFullYear(), min.getMonth(), min.getDate());
-                        if (isInRange(currentValue, min, max)) {
-                            if (that._isMultipleSelection()) {
-                                that._keyboardRangeSelection(e, currentValue);
-                            } else {
-                                that._focus(restrictValue(currentValue, options.min, options.max));
-                            }
+                        if (that._isMultipleSelection()) {
+                            that._keyboardRangeSelection(e, currentValue);
+                        } else {
+                            that._focus(currentValue);
                         }
                     }
                 } else {
@@ -67767,21 +67815,22 @@
                         if (!method) {
                             view.setDate(currentValue, value);
                         }
+                        min = createDate(min.getFullYear(), min.getMonth(), min.getDate());
+                        if (!isInRange(currentValue, min, max)) {
+                            currentValue = restrictValue(currentValue, options.min, options.max);
+                        }
                         if (isDisabled(currentValue)) {
                             currentValue = that._nextNavigatable(currentValue, value);
                         }
-                        min = createDate(min.getFullYear(), min.getMonth(), min.getDate());
-                        if (isInRange(currentValue, min, max)) {
-                            if (that._isMultipleSelection()) {
-                                if (!that._dateInView(currentValue)) {
-                                    that.navigate(currentValue);
-                                } else {
-                                    that._current = currentValue;
-                                    that._class(FOCUSED, currentValue);
-                                }
+                        if (that._isMultipleSelection()) {
+                            if (!that._dateInView(currentValue)) {
+                                that.navigate(currentValue);
                             } else {
-                                that._focus(restrictValue(currentValue, options.min, options.max));
+                                that._current = currentValue;
+                                that._class(FOCUSED, currentValue);
                             }
+                        } else {
+                            that._focus(currentValue);
                         }
                     }
                 }
@@ -68883,6 +68932,7 @@
                         this._dateTime.modifyPart(symbol, key == 38 ? 1 : -1);
                         this._updateElementValue();
                         this._selectSegment(symbol);
+                        this.element.trigger(CHANGE);
                     }
                 }
                 if (kendo.support.browser.msie && kendo.support.browser.version < 10) {
@@ -69901,6 +69951,7 @@
         var NumericTextBox = Widget.extend({
             init: function (element, options) {
                 var that = this, isStep = options && options.step !== undefined, min, max, step, value, disabled;
+                var inputType;
                 Widget.fn.init.call(that, element, options);
                 options = that.options;
                 element = that.element.on('focusout' + ns, proxy(that._focusout, that)).attr('role', 'spinbutton');
@@ -69918,6 +69969,7 @@
                     options.step = step;
                 }
                 that._initialOptions = extend({}, options);
+                inputType = element.attr('type');
                 that._reset();
                 that._wrapper();
                 that._arrows();
@@ -69941,7 +69993,14 @@
                 element.attr('aria-valuemin', options.min !== NULL ? options.min * options.factor : options.min).attr('aria-valuemax', options.max !== NULL ? options.max * options.factor : options.max);
                 options.format = extractFormat(options.format);
                 value = options.value;
-                that.value(value !== NULL ? value : element.val());
+                if (value == NULL) {
+                    if (inputType == 'number') {
+                        value = parseFloat(element.val());
+                    } else {
+                        value = element.val();
+                    }
+                }
+                that.value(value);
                 disabled = element.is('[disabled]') || $(that.element).parents('fieldset').is(':disabled');
                 if (disabled) {
                     that.enable(false);
@@ -71205,10 +71264,14 @@
                     'maxWidth',
                     'maxHeight'
                 ];
+                var contentBoxSizing = wrapper.css('box-sizing') == 'content-box';
+                var lrBorderWidth = contentBoxSizing ? toInt(wrapper, 'border-left-width') + toInt(wrapper, 'border-right-width') : 0;
+                var tbBorderWidth = contentBoxSizing ? toInt(wrapper, 'border-top-width') + toInt(wrapper, 'border-bottom-width') : 0;
+                var paddingTop = contentBoxSizing ? toInt(wrapper, 'padding-top') : 0;
                 if (this.containment && !this._isPinned) {
                     this._updateBoundaries();
-                    options.maxHeight = Math.min(this.containment.height - toInt(wrapper, 'padding-top'), maxHeight);
-                    options.maxWidth = Math.min(this.containment.width, options.maxWidth);
+                    options.maxHeight = Math.min(this.containment.height - (tbBorderWidth + paddingTop), maxHeight);
+                    options.maxWidth = Math.min(this.containment.width - lrBorderWidth, options.maxWidth);
                 }
                 for (var i = 0; i < dimensions.length; i++) {
                     var value = options[dimensions[i]] || '';
@@ -72054,18 +72117,19 @@
                 }
             },
             _onDocumentResize: function () {
-                var that = this, wrapper = that.wrapper, wnd = $(window), zoomLevel = kendo.support.zoomLevel(), w, h;
+                var that = this, wrapper = that.wrapper, wnd = $(window), zoomLevel = kendo.support.zoomLevel(), contentBoxSizing = wrapper.css('box-sizing') == 'content-box', w, h;
                 if (!that.options.isMaximized) {
                     return;
                 }
-                var lrBorderWidth = toInt(wrapper, 'border-left-width') + toInt(wrapper, 'border-right-width');
-                var tbBorderWidth = toInt(wrapper, 'border-top-width') + toInt(wrapper, 'border-bottom-width');
-                if (this.containment && !this._isPinned) {
-                    w = this.containment.innerWidth();
-                    h = this.containment.innerHeight() - toInt(wrapper, 'padding-top');
+                var lrBorderWidth = contentBoxSizing ? toInt(wrapper, 'border-left-width') + toInt(wrapper, 'border-right-width') : 0;
+                var tbBorderWidth = contentBoxSizing ? toInt(wrapper, 'border-top-width') + toInt(wrapper, 'border-bottom-width') : 0;
+                var paddingTop = contentBoxSizing ? toInt(wrapper, 'padding-top') : 0;
+                if (that.containment && !that._isPinned) {
+                    w = that.containment.innerWidth() - lrBorderWidth;
+                    h = that.containment.innerHeight() - (tbBorderWidth + paddingTop);
                 } else {
                     w = wnd.width() / zoomLevel - lrBorderWidth;
-                    h = wnd.height() / zoomLevel - toInt(wrapper, 'padding-top') - tbBorderWidth;
+                    h = wnd.height() / zoomLevel - (tbBorderWidth + paddingTop);
                 }
                 wrapper.css({
                     width: w,
@@ -72472,7 +72536,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, outerHeight = kendo._outerHeight, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', GROUPHEADER = '.k-group-header', LABELIDPART = '_label', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, HIDDENCLASS = 'k-hidden', WIDTH = 'width', isIE = browser.msie, isIE8 = isIE && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
+        var kendo = window.kendo, ui = kendo.ui, outerHeight = kendo._outerHeight, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', GROUPHEADER = '.k-group-header', ITEMSELECTOR = '.k-item', LABELIDPART = '_label', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, HIDDENCLASS = 'k-hidden', WIDTH = 'width', isIE = browser.msie, isIE8 = isIE && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
                 'ComboBox': 'DropDownList',
                 'DropDownList': 'ComboBox'
             };
@@ -73026,7 +73090,7 @@
                     trigger = true;
                 }
                 if (trigger) {
-                    if (that._old === null || value === '') {
+                    if (that._old === null || that._old === '' || value === '') {
                         that._valueBeforeCascade = that._old = value;
                     } else {
                         if (that.dataItem()) {
@@ -73678,7 +73742,7 @@
                 if (that._userTriggered) {
                     that._clearSelection(parent, true);
                 } else if (value) {
-                    if (value !== that.listView.value()[0]) {
+                    if (value !== unifyType(that.listView.value()[0], typeof value)) {
                         that.value(value);
                     }
                     if (!that.dataSource.view()[0] || that.selectedIndex === -1) {
@@ -73695,7 +73759,7 @@
             _cascadeSelect: function (parent, valueBeforeCascade) {
                 var that = this;
                 var dataItem = parent.dataItem();
-                var filterValue = dataItem ? parent._value(dataItem) : null;
+                var filterValue = dataItem ? dataItem[that.options.cascadeFromParentField] || parent._value(dataItem) : null;
                 var valueField = that.options.cascadeFromField || parent.options.dataValueField;
                 var expressions;
                 that._valueBeforeCascade = valueBeforeCascade !== undefined ? valueBeforeCascade : that.value();
@@ -73825,7 +73889,7 @@
                     endY = tapPosition(e);
                     if (Math.abs(endY - startY) < 10) {
                         e.preventDefault();
-                        that.trigger('click', { item: $(e.target) });
+                        that.trigger('click', { item: $(e.target.closest(ITEMSELECTOR)) });
                     }
                 });
             },
@@ -74022,7 +74086,7 @@
                 return deferred;
             },
             items: function () {
-                return this.element.children('.k-item');
+                return this.element.children(ITEMSELECTOR);
             },
             _click: function (e) {
                 if (!e.isDefaultPrevented()) {
@@ -74953,7 +75017,12 @@
                         }
                     });
                 } else {
-                    that.select([-1]);
+                    if (!that.value()[0]) {
+                        that.select([-1]);
+                    } else {
+                        that._selectingValue = false;
+                        that._triggerListBound();
+                    }
                 }
             },
             mapValueToIndex: function (indexes) {
@@ -75177,7 +75246,7 @@
             focusLast: function () {
                 var lastIndex = this.dataSource.total();
                 this.scrollTo(this.heightContainer.offsetHeight);
-                this.focus(lastIndex);
+                this.focus(lastIndex - 1);
             },
             focusPrev: function () {
                 var index = this._focusedIndex;
@@ -75958,6 +76027,7 @@
                 optionLabel: '',
                 cascadeFrom: '',
                 cascadeFromField: '',
+                cascadeFromParentField: '',
                 ignoreCase: true,
                 animation: {},
                 filter: 'none',
@@ -81622,7 +81692,7 @@
                 root.empty();
             },
             _createLeaf: function (item) {
-                return this._createTile(item).css('background-color', item.color).addClass('k-leaf').toggleClass('k-inverse', this._tileColorBrightness(item) > 180).append($('<div></div>').html(this._getText(item)));
+                return this._createTile(item).css('background-color', item.color).addClass('k-leaf').toggleClass('k-inverse', this._tileColorBrightness(item) > 180).toggle(item.value !== 0).append($('<div></div>').html(this._getText(item)));
             },
             _createTile: function (item) {
                 var tile = $('<div class=\'k-treemap-tile\'></div>');
@@ -81967,7 +82037,7 @@
                 scope.$watch(source, function (mew) {
                     var widget = kendoWidgetInstance(element);
                     if (widget && typeof widget.setDataSource == 'function') {
-                        if (mew !== current) {
+                        if (mew !== current && mew !== widget.dataSource) {
                             var ds = toDataSource(mew, type);
                             widget.setDataSource(ds);
                             current = mew;

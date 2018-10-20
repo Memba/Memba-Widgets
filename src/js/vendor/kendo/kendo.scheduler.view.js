@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1298,7 +1298,6 @@
                 var events = selection.events;
                 var groupEvents = this._getAllEvents();
                 var idx, groupEvent, length = groupEvents.length;
-                var occurencceUIDs = [];
                 if (!events[0] || !groupEvents[0]) {
                     return found;
                 }
@@ -1310,18 +1309,12 @@
                         result = result.add(groupEvent.element);
                         if (selection.events.indexOf(groupEvent.uid) === -1) {
                             selection.events.push(groupEvent.uid);
-                        } else {
-                            if (occurencceUIDs.indexOf(groupEvent.uid) === -1) {
-                                occurencceUIDs.push(groupEvent.uid);
-                            }
                         }
                     }
                 }
                 if (result[0]) {
                     result.addClass('k-state-selected').attr('aria-selected', true);
-                    if (occurencceUIDs.indexOf(result.last().attr('data-uid')) === -1) {
-                        this.current(result.last()[0]);
-                    }
+                    this.current(result.last()[0]);
                     this._selectedSlots = [];
                     found = true;
                 }

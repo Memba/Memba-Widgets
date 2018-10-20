@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -308,9 +308,12 @@
             ObservableArray.prototype[Symbol.iterator] = [][Symbol.iterator];
         }
         var LazyObservableArray = ObservableArray.extend({
-            init: function (data, type) {
+            init: function (data, type, events) {
                 Observable.fn.init.call(this);
                 this.type = type || ObservableObject;
+                if (events) {
+                    this._events = events;
+                }
                 for (var idx = 0; idx < data.length; idx++) {
                     this[idx] = data[idx];
                 }
@@ -1707,13 +1710,13 @@
                     if (group.hasSubgroups) {
                         wrapGroupItems(group.items, model);
                     } else {
-                        group.items = new LazyObservableArray(group.items, model);
+                        group.items = new LazyObservableArray(group.items, model, group.items._events);
                     }
                 }
             }
         }
         function eachGroupItems(data, func) {
-            for (var idx = 0, length = data.length; idx < length; idx++) {
+            for (var idx = 0; idx < data.length; idx++) {
                 if (data[idx].hasSubgroups) {
                     if (eachGroupItems(data[idx].items, func)) {
                         return true;
@@ -2545,7 +2548,7 @@
                 return this.reader.aggregates(data);
             },
             success: function (data) {
-                var that = this, options = that.options;
+                var that = this, options = that.options, items, replaceSubset;
                 that.trigger(REQUESTEND, {
                     response: data,
                     type: 'read'
@@ -2570,7 +2573,7 @@
                     that._destroyed = [];
                 } else {
                     data = that._readData(data);
-                    var items = [];
+                    items = [];
                     var itemIds = {};
                     var model = that.reader.model;
                     var idField = model ? model.idField : 'id';
@@ -2594,7 +2597,18 @@
                     that._total = data.length;
                 }
                 that._pristineTotal = that._total;
-                that._pristineData = data.slice(0);
+                replaceSubset = that._skip && that._data.length && that._skip < that._data.length;
+                if (that.options.endless) {
+                    if (replaceSubset) {
+                        that._pristineData.splice(that._skip, that._pristineData.length);
+                    }
+                    items = data.slice(0);
+                    for (var j = 0; j < items.length; j++) {
+                        that._pristineData.push(items[j]);
+                    }
+                } else {
+                    that._pristineData = data.slice(0);
+                }
                 that._detachObservableParents();
                 if (that.options.endless) {
                     that._data.unbind(CHANGE, that._changeHandler);
@@ -2603,6 +2617,9 @@
                         data.shift();
                     }
                     data = that._observe(data);
+                    if (replaceSubset) {
+                        that._data.splice(that._skip, that._data.length);
+                    }
                     for (var i = 0; i < data.length; i++) {
                         that._data.push(data[i]);
                     }
@@ -2867,6 +2884,9 @@
                 if (that.options.serverAggregates !== true) {
                     options.aggregate = that._aggregate;
                 }
+                if (that.options.serverGrouping) {
+                    that._clearEmptyGroups(data);
+                }
                 result = that._queryProcess(data, options);
                 if (that.options.serverAggregates !== true) {
                     that._aggregateResult = that._calculateAggregates(result.dataToAggregate || data, options);
@@ -2876,6 +2896,21 @@
                 e = e || {};
                 e.items = e.items || that._view;
                 that.trigger(CHANGE, e);
+            },
+            _clearEmptyGroups: function (data) {
+                for (var idx = data.length - 1; idx >= 0; idx--) {
+                    var group = data[idx];
+                    if (group.hasSubgroups) {
+                        this._clearEmptyGroups(group.items);
+                    } else {
+                        if (group.items && !group.items.length) {
+                            splice.apply(group.parent(), [
+                                idx,
+                                1
+                            ]);
+                        }
+                    }
+                }
             },
             _queryProcess: function (data, options) {
                 if (this.options.inPlaceSort) {
@@ -3014,10 +3049,10 @@
             pageSize: function (val) {
                 var that = this;
                 if (val !== undefined) {
-                    that._query({
+                    that._query(that._pageableQueryOptions({
                         pageSize: val,
                         page: 1
-                    });
+                    }));
                     return;
                 }
                 return that.take();

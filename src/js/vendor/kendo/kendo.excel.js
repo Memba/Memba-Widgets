@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -500,7 +500,7 @@
                     this.dataSource = new dataSource.constructor(extend({}, dataSource.options, {
                         page: options.allPages ? 0 : dataSource.page(),
                         filter: dataSource.filter(),
-                        pageSize: options.allPages ? dataSource.total() : dataSource.pageSize(),
+                        pageSize: options.allPages ? dataSource.total() : dataSource.pageSize() || dataSource.total(),
                         sort: dataSource.sort(),
                         group: dataSource.group(),
                         aggregate: dataSource.aggregate()

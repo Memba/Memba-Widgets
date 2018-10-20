@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1603,16 +1603,18 @@
                 fileEntry.data('request').abort();
             },
             prepareChunk: function (fileEntry) {
-                var file = fileEntry.data('files')[0].rawFile;
-                var uid = fileEntry.data('files')[0].uid;
+                var file = fileEntry.data('files')[0];
+                var rawFile = file.rawFile;
+                var uid = file.uid;
                 var chunkSize = this.upload.options.async.chunkSize;
                 this.position[uid] = 0;
                 this.metaData[uid] = {
                     chunkIndex: 0,
-                    contentType: file.type,
-                    fileName: file.name,
-                    totalFileSize: file.size,
-                    totalChunks: Math.ceil(file.size / chunkSize),
+                    contentType: rawFile.type,
+                    fileName: rawFile.name,
+                    relativePath: file.name,
+                    totalFileSize: rawFile.size,
+                    totalChunks: Math.ceil(rawFile.size / chunkSize),
                     uploadUid: uid
                 };
             },

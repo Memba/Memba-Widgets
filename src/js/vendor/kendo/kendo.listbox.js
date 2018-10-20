@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -821,7 +821,7 @@
             _wrapper: function () {
                 var that = this, element = that.element, wrapper = element.parent('div.k-listbox');
                 if (!wrapper[0]) {
-                    wrapper = element.wrap('<div class="k-widget k-listbox" deselectable="on" />').parent();
+                    wrapper = element.wrap('<div class="k-widget k-listbox" unselectable="on" />').parent();
                     wrapper[0].style.cssText = element[0].style.cssText;
                     wrapper[0].title = element[0].title;
                     $('<div class="k-list-scroller" />').insertBefore(element);

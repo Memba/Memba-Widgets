@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -413,9 +413,10 @@
                 var resizable = this.options.resizable;
                 var isResizable = $.isPlainObject(resizable) ? resizable.content === undefined || resizable.content === true : resizable;
                 if (isResizable && this.textarea) {
-                    $('<div class=\'k-resize-handle\'><span class=\'k-icon k-i-arrow-45-down-right\' /></div>').insertAfter(this.textarea);
+                    var draggableElement = $('<div class=\'k-resize-handle\'><span class=\'k-icon k-i-arrow-45-down-right\' /></div>').insertAfter(this.textarea);
                     this.wrapper.addClass('k-resizable');
                     this.wrapper.kendoResizable(extend({}, this.options.resizable, {
+                        draggableElement: draggableElement,
                         start: function (e) {
                             var editor = this.editor = $(e.currentTarget).closest('.k-editor');
                             this.initialSize = editor.height();
@@ -4361,7 +4362,7 @@
                 }).data('kendoWindow');
             },
             _toggleOverflowStyles: function (element, show) {
-                element.find('li').toggleClass('k-item k-state-default', show).find('.k-tool:not(.k-state-disabled),.k-overflow-button').toggleClass('k-overflow-button k-button', show);
+                element.find('> li').toggleClass('k-item k-state-default', show).find('.k-tool:not(.k-state-disabled),.k-overflow-button').toggleClass('k-overflow-button k-button', show);
             },
             _initOverflowPopup: function (ui) {
                 var that = this;

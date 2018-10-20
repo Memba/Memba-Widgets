@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -883,7 +883,7 @@
                 end = new Date(rule.until);
             }
             useEventStart = freqName === 'yearly' || freqName === 'monthly' || freqName === 'weekly';
-            if (start < eventStartMS || count || rule.interval > 1 || useEventStart) {
+            if (start < eventStartMS || count || rule.interval > 1 || useEventStart || (freqName === 'daily' || freqName === 'hourly') && !rule.seconds) {
                 start = new Date(eventStartMS);
             } else {
                 hours = start.getHours();

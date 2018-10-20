@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -337,7 +337,7 @@
                 }
                 that.input.val('');
                 that._search();
-                that.trigger(CHANGE);
+                that._change();
                 that.focus();
                 that._hideClear();
                 if (that._state === FILTER) {
@@ -562,6 +562,7 @@
                     that.trigger(CHANGE);
                     that.element.trigger(CHANGE);
                 }
+                that.popup.position();
                 that._toggleCloseVisibility();
             },
             _click: function (e) {
@@ -590,6 +591,9 @@
                 var visible = that.popup.visible();
                 var dir = 0;
                 var activeItemIdx;
+                if (key !== keys.ENTER) {
+                    this._multipleSelection = false;
+                }
                 if (key === keys.DOWN) {
                     e.preventDefault();
                     if (!visible) {
@@ -604,13 +608,14 @@
                             that._activeItem = listView.focus();
                             dir = -1;
                         }
-                        activeItemIdx = listView.getElementIndex(that._getActiveItem()[0]);
+                        activeItemIdx = listView.getElementIndex(that._getActiveItem().first());
                         listView.focusNext();
                         if (!listView.focus()) {
                             listView.focusLast();
                         } else {
                             if (e.shiftKey) {
-                                that._selectRange(activeItemIdx, listView.getElementIndex(listView.focus()[0]) + dir);
+                                this._multipleSelection = true;
+                                that._selectRange(activeItemIdx, listView.getElementIndex(listView.focus().first()) + dir);
                             }
                         }
                     } else {
@@ -622,13 +627,14 @@
                             that._activeItem = listView.focus();
                             dir = 1;
                         }
-                        activeItemIdx = listView.getElementIndex(that._getActiveItem()[0]);
+                        activeItemIdx = listView.getElementIndex(that._getActiveItem().first());
                         listView.focusPrev();
                         if (!listView.focus()) {
                             that.close();
                         } else {
                             if (e.shiftKey) {
-                                that._selectRange(activeItemIdx, listView.getElementIndex(listView.focus()[0]) + dir);
+                                this._multipleSelection = true;
+                                that._selectRange(activeItemIdx, listView.getElementIndex(listView.focus().first()) + dir);
                             }
                         }
                     }
@@ -645,7 +651,8 @@
                         tag = tag.next();
                         that.currentTag(tag[0] ? tag : null);
                     }
-                } else if (e.ctrlKey && !e.altKey && key === keys.A && visible) {
+                } else if (e.ctrlKey && !e.altKey && key === keys.A && visible && !that.options.virtual) {
+                    this._multipleSelection = true;
                     if (this._getSelectedIndices().length === listView.items().length) {
                         that._activeItem = null;
                     }
@@ -657,9 +664,12 @@
                         return;
                     }
                     e.preventDefault();
-                    if (listView.focus().hasClass(SELECTEDCLASS)) {
-                        that._close();
-                        return;
+                    if (this._multipleSelection) {
+                        this._multipleSelection = false;
+                        if (listView.focus().hasClass(SELECTEDCLASS)) {
+                            that._close();
+                            return;
+                        }
                     }
                     that._select(listView.focus()).done(function () {
                         that._change();
@@ -690,7 +700,7 @@
                         that.tagList.children().each(function (index, tag) {
                             that._removeTag($(tag), false);
                         });
-                        that.trigger(CHANGE);
+                        that._change();
                     }
                     that.close();
                 } else if (key === keys.HOME) {
@@ -698,7 +708,7 @@
                         if (!listView.focus()) {
                             that.close();
                         } else {
-                            if (e.ctrlKey && e.shiftKey) {
+                            if (e.ctrlKey && e.shiftKey && !that.options.virtual) {
                                 that._selectRange(listView.getElementIndex(listView.focus()[0]), 0);
                             }
                             listView.focusFirst();
@@ -714,7 +724,7 @@
                         if (!listView.focus()) {
                             that.close();
                         } else {
-                            if (e.ctrlKey && e.shiftKey) {
+                            if (e.ctrlKey && e.shiftKey && !that.options.virtual) {
                                 that._selectRange(listView.getElementIndex(listView.focus()[0]), listView.element.children().length - 1);
                             }
                             listView.focusLast();

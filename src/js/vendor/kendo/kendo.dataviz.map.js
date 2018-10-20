@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2315,14 +2315,18 @@
             },
             eventOffset: function (e) {
                 var point;
-                if (e.touch) {
+                var x;
+                var y;
+                var offset = this.element.offset();
+                if (e.x || e.y) {
                     var field = 'location';
-                    point = new g.Point(e.x[field], e.y[field]);
+                    x = e.x[field] - offset.left;
+                    y = e.y[field] - offset.top;
+                    point = new g.Point(x, y);
                 } else {
-                    var offset = this.element.offset();
                     var event = e.originalEvent || e;
-                    var x = valueOrDefault(event.pageX, event.clientX) - offset.left;
-                    var y = valueOrDefault(event.pageY, event.clientY) - offset.top;
+                    x = valueOrDefault(event.pageX, event.clientX) - offset.left;
+                    y = valueOrDefault(event.pageY, event.clientY) - offset.top;
                     point = new g.Point(x, y);
                 }
                 return point;

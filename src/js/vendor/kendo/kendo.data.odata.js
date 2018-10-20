@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -46,6 +46,8 @@
                 startswith: 'startswith',
                 isnull: 'eq',
                 isnotnull: 'ne',
+                isnullorempty: 'eq',
+                isnotnullorempty: 'ne',
                 isempty: 'eq',
                 isnotempty: 'ne'
             }, odataFiltersVersionFour = extend({}, odataFilters, { contains: 'contains' }), mappers = {
@@ -98,7 +100,11 @@
                     if (useOdataFour) {
                         filter = odataFiltersVersionFour[operator];
                     }
-                    if (operator === 'isnull' || operator === 'isnotnull') {
+                    if (operator === 'isnullorempty') {
+                        filter = kendo.format('{0} {1} null or {0} {1} \'\'', field, filter);
+                    } else if (operator === 'isnotnullorempty') {
+                        filter = kendo.format('{0} {1} null and {0} {1} \'\'', field, filter);
+                    } else if (operator === 'isnull' || operator === 'isnotnull') {
                         filter = kendo.format('{0} {1} null', field, filter);
                     } else if (operator === 'isempty' || operator === 'isnotempty') {
                         filter = kendo.format('{0} {1} \'\'', field, filter);

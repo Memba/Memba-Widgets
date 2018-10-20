@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -665,7 +665,7 @@
                 root.empty();
             },
             _createLeaf: function (item) {
-                return this._createTile(item).css('background-color', item.color).addClass('k-leaf').toggleClass('k-inverse', this._tileColorBrightness(item) > 180).append($('<div></div>').html(this._getText(item)));
+                return this._createTile(item).css('background-color', item.color).addClass('k-leaf').toggleClass('k-inverse', this._tileColorBrightness(item) > 180).toggle(item.value !== 0).append($('<div></div>').html(this._getText(item)));
             },
             _createTile: function (item) {
                 var tile = $('<div class=\'k-treemap-tile\'></div>');

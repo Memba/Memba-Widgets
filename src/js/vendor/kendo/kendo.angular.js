@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -75,7 +75,7 @@
                 scope.$watch(source, function (mew) {
                     var widget = kendoWidgetInstance(element);
                     if (widget && typeof widget.setDataSource == 'function') {
-                        if (mew !== current) {
+                        if (mew !== current && mew !== widget.dataSource) {
                             var ds = toDataSource(mew, type);
                             widget.setDataSource(ds);
                             current = mew;

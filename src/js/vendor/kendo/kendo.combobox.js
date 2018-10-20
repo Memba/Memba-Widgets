@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -117,6 +117,7 @@
                 suggest: false,
                 cascadeFrom: '',
                 cascadeFromField: '',
+                cascadeFromParentField: '',
                 ignoreCase: true,
                 animation: {},
                 virtual: false,
@@ -623,8 +624,15 @@
                 var that = this;
                 var item = e.item;
                 var dataItem = that.listView.dataItemByIndex(that.listView.getElementIndex(item));
+                var shouldTrigger = true;
                 e.preventDefault();
-                if (that.trigger('select', {
+                if (dataItem) {
+                    shouldTrigger = that._value(dataItem) !== List.unifyType(that.value(), typeof that._value(dataItem));
+                    if (!shouldTrigger) {
+                        that.input.val(that._text(dataItem));
+                    }
+                }
+                if (shouldTrigger && that.trigger('select', {
                         dataItem: dataItem,
                         item: item
                     })) {
@@ -809,7 +817,7 @@
                     var value = that.text();
                     if (that._prev !== value) {
                         that._prev = value;
-                        if (that.options.filter === 'none') {
+                        if (that.options.filter === 'none' && that.options.virtual) {
                             that.listView.select(-1);
                         }
                         that.search(value);

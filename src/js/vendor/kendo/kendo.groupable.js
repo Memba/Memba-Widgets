@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -218,9 +218,12 @@
                     ns: kendo.ns
                 });
             },
-            descriptors: function () {
-                var that = this, indicators = $('.k-group-indicator', that.groupContainer), aggregates, names, field, idx, length;
-                aggregates = that.element.find(that.options.filter).map(function () {
+            aggregates: function () {
+                var that = this;
+                var names;
+                var idx;
+                var length;
+                return that.element.find(that.options.filter).map(function () {
                     var cell = $(this), aggregate = cell.attr(kendo.attr('aggregates')), member = cell.attr(kendo.attr('field'));
                     if (aggregate && aggregate !== '') {
                         names = aggregate.split(',');
@@ -234,6 +237,9 @@
                     }
                     return aggregate;
                 }).toArray();
+            },
+            descriptors: function () {
+                var that = this, indicators = $('.k-group-indicator', that.groupContainer), field, aggregates = that.aggregates();
                 return $.map(indicators, function (item) {
                     item = $(item);
                     field = item.attr(kendo.attr('field'));

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -83,7 +83,7 @@
                 that._refreshHandler = that.element = that.link = that.dataSource = null;
             },
             refresh: function () {
-                var that = this, sort = that.dataSource.sort() || [], idx, length, descriptor, dir, element = that.element, field = element.attr(kendo.attr(FIELD)), headerIndex, sortOrder;
+                var that = this, sort = that.dataSource.sort() || [], idx, length, descriptor, dir, element = that.element, field = element.attr(kendo.attr(FIELD)), headerIndex, sortOrder, leafCells;
                 element.removeAttr(kendo.attr(DIR));
                 element.removeAttr(ARIASORT);
                 for (idx = 0, length = sort.length; idx < length; idx++) {
@@ -98,11 +98,18 @@
                     var table = element.closest('table');
                     if (table.parent().hasClass('k-grid-header-wrap')) {
                         table = table.closest('.k-grid').find('.k-grid-content > table');
+                    } else if (table.parent().hasClass('k-grid-header-locked')) {
+                        table = table.closest('.k-grid').find('.k-grid-content-locked > table');
                     } else if (!table.parent().hasClass('k-grid')) {
                         table = null;
                     }
                     if (table) {
-                        headerIndex = element.parent().children(':visible').index(element);
+                        if (element.attr(kendo.attr('index'))) {
+                            leafCells = leafDataCells(element.closest('table'));
+                            headerIndex = leafCells.index(element);
+                        } else {
+                            headerIndex = element.parent().children(':visible').index(element);
+                        }
                         element.toggleClass('k-sorted', dir !== undefined);
                         table.children('colgroup').children().eq(headerIndex).toggleClass('k-sorted', dir !== undefined);
                     }
@@ -169,6 +176,37 @@
                 this.dataSource.sort(sort);
             }
         });
+        function leafDataCells(container) {
+            var rows = container.find('tr:not(.k-filter-row)');
+            var filter = function () {
+                var el = $(this);
+                return !el.hasClass('k-group-cell') && !el.hasClass('k-hierarchy-cell');
+            };
+            var cells = $();
+            if (rows.length > 1) {
+                cells = rows.find('th:visible').filter(filter).filter(function () {
+                    return this.rowSpan > 1;
+                });
+            }
+            cells = cells.add(rows.last().find('th:visible').filter(filter));
+            var indexAttr = kendo.attr('index');
+            cells.sort(function (a, b) {
+                a = $(a);
+                b = $(b);
+                var indexA = a.attr(indexAttr);
+                var indexB = b.attr(indexAttr);
+                if (indexA === undefined) {
+                    indexA = $(a).index();
+                }
+                if (indexB === undefined) {
+                    indexB = $(b).index();
+                }
+                indexA = parseInt(indexA, 10);
+                indexB = parseInt(indexB, 10);
+                return indexA > indexB ? 1 : indexA < indexB ? -1 : 0;
+            });
+            return cells;
+        }
         ui.plugin(ColumnSorter);
     }(window.kendo.jQuery));
     return window.kendo;

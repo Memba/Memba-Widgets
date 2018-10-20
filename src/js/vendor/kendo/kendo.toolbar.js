@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1044,7 +1044,8 @@
                         target: target,
                         group: item.options.group,
                         checked: item.options.selected,
-                        id: item.options.id
+                        id: item.options.id,
+                        item: item
                     };
                     if (handler) {
                         handler.call(that, eventData);
@@ -1055,7 +1056,8 @@
                     eventData = {
                         sender: that,
                         target: target,
-                        id: item.options.id
+                        id: item.options.id,
+                        item: item
                     };
                     if (handler) {
                         handler.call(that, eventData);

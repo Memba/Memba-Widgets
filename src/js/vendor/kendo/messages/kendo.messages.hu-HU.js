@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -225,7 +225,9 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "isnull": "null",
     "isnotnull": "nem null",
     "isempty": "üres",
-    "isnotempty": "nem üres"
+    "isnotempty": "nem üres",
+    "isnullorempty": "nincs értéke",
+    "isnotnullorempty": "van értéke"
   },
   "number": {
     "eq": "egyenlő",
@@ -291,7 +293,9 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "isnull": "null",
     "isnotnull": "nem null",
     "isempty": "üres",
-    "isnotempty": "nem üres"
+    "isnotempty": "nem üres",
+    "isnullorempty": "nincs értéke",
+    "isnotnullorempty": "van értéke"
   },
   "number": {
     "eq": "egyenlő",
@@ -624,6 +628,8 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "deleteWindowTitle": "Ismétlődő elem törlése",
     "deleteWindowOccurrence": "Alkalom törlése",
     "deleteWindowSeries": "Összes ismétlődés törlése",
+    "deleteRecurringConfirmation": "Biztos, hogy törölni akarja ezt az alakalmat?",
+    "deleteSeriesConfirmation": "Biztos, hogy törölni akarja az összes ismétlődést?",
     "editWindowTitle": "Ismétlődő elem szerkesztése",
     "editWindowOccurrence": "Alkalom szerkesztése",
     "editWindowSeries": "Összes ismétlődés szerkesztése",

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -184,6 +184,7 @@
         var isRtl = false;
         var HEIGHT = 'height';
         var INCELL = 'incell';
+        var INLINE = 'inline';
         var POPUP = 'popup';
         var TABLE = 'table';
         var classNames = {
@@ -612,6 +613,13 @@
                     delete result[''];
                 }
                 return result;
+            },
+            read: function (data) {
+                var that = this;
+                if (that._isPageable()) {
+                    that._dataMaps = {};
+                }
+                return DataSource.fn.read.call(that, data);
             },
             remove: function (root) {
                 this._removeChildData(root);
@@ -1053,6 +1061,10 @@
                     }
                 }
             },
+            _isLastItemInView: function (dataItem) {
+                var view = this.view();
+                return view.length && view[view.length - 1] === dataItem;
+            },
             _defaultPageableQueryOptions: function () {
                 var that = this;
                 var dataMaps = that._getDataMaps();
@@ -1188,7 +1200,8 @@
                 if (!requestParams || typeof requestParams.id == 'undefined') {
                     this._data = this._observe([]);
                 }
-                return DataSource.fn.success.call(this, data, requestParams);
+                DataSource.fn.success.call(this, data, requestParams);
+                this._total = this._data.length;
             },
             load: function (model) {
                 var method = '_query';
@@ -1285,7 +1298,7 @@
             _parentNode: function (child) {
                 var that = this;
                 var parentIdField = that._modelParentIdField();
-                var idsMap = that._initIdsMap(data);
+                var idsMap = that._initIdsMap(that._getData());
                 var parentId = child[parentIdField];
                 var parent = idsMap[parentId] || that._getById(parentId);
                 return parent;
@@ -1402,6 +1415,11 @@
                 }
                 return result;
             },
+            cancelChanges: function (model) {
+                var that = this;
+                DataSource.fn.cancelChanges.call(that, model);
+                that._restorePageSizeAfterAddChild();
+            },
             _modelCanceled: function (model) {
                 var that = this;
                 if (that._isPageable()) {
@@ -1413,6 +1431,36 @@
                 if (that._isPageable()) {
                     that._initDataMaps(that._getData());
                 }
+            },
+            _setAddChildPageSize: function () {
+                var that = this;
+                var queryOptions = {};
+                if (that._isPageable()) {
+                    that._addChildPageSize = that.pageSize() + 1;
+                    queryOptions = that._defaultPageableQueryOptions();
+                    queryOptions.take = that._addChildPageSize;
+                    queryOptions.pageSize = that._addChildPageSize;
+                    that._query(queryOptions);
+                }
+            },
+            _restorePageSizeAfterAddChild: function () {
+                var that = this;
+                var queryOptions = {};
+                if (that._isPageable()) {
+                    if (!isUndefined(that._addChildPageSize)) {
+                        queryOptions = that._defaultPageableQueryOptions();
+                        queryOptions.take = that._addChildPageSize - 1;
+                        queryOptions.pageSize = that._addChildPageSize - 1;
+                        that._query(queryOptions);
+                    }
+                }
+                that._addChildPageSize = undefined;
+            },
+            sync: function () {
+                var that = this;
+                return DataSource.fn.sync.call(that).then(function () {
+                    that._restorePageSizeAfterAddChild();
+                });
             },
             _syncEnd: function () {
                 var that = this;
@@ -2208,7 +2256,7 @@
                 if (this.lockedTable && !$.contains(this.lockedTable[0], td[0])) {
                     lockedColumnOffset = leafColumns(lockedColumns(this.columns)).length;
                 }
-                return $(td).parent().children('td:visible').index(td) + lockedColumnOffset;
+                return $(td).parent().children().index(td) + lockedColumnOffset;
             },
             _isActiveInTable: function () {
                 var active = kendo._activeElement();
@@ -2550,6 +2598,7 @@
                 if (!that._isPageable()) {
                     return false;
                 }
+                that.dataSource._restorePageSizeAfterAddChild();
                 that.dataSource.page(that.dataSource.page() + 1);
                 return true;
             },
@@ -2558,6 +2607,7 @@
                 if (!that._isPageable()) {
                     return false;
                 }
+                that.dataSource._restorePageSizeAfterAddChild();
                 that.dataSource.page(that.dataSource.page() - 1);
                 return true;
             },
@@ -2635,6 +2685,8 @@
                 if (cell.length) {
                     that._handleEditing(current, cell, cell.closest(TABLE));
                     return true;
+                } else {
+                    that._preventPageSizeRestore = false;
                 }
                 return false;
             },
@@ -2652,6 +2704,7 @@
                         next = next[back ? 'prevAll' : 'nextAll']('tr:not(.k-grouping-row):not(.k-detail-row):visible:first');
                     }
                     next = next.children(DATA_CELL + (back ? ':last' : ':first'));
+                    that.dataSource._restorePageSizeAfterAddChild();
                 }
                 return next;
             },
@@ -2683,7 +2736,9 @@
                     }
                     if (that.editor.end()) {
                         if (incellEditing) {
+                            that._preventPageSizeRestore = true;
                             that.closeCell();
+                            that._preventPageSizeRestore = false;
                         } else {
                             that.saveRow();
                             isEdited = true;
@@ -2717,6 +2772,8 @@
                         that.current(that.editor.wrapper.children().eq(currentIndex));
                         that.current().removeClass('k-state-focused');
                     }
+                } else {
+                    that.dataSource._restorePageSizeAfterAddChild();
                 }
             },
             _moveRight: function (current) {
@@ -2853,20 +2910,28 @@
                 var that = this;
                 var editable = that.options.editable;
                 var selectable = that.selectable && that.selectable.options.multiple;
-                var closeCell = function () {
+                var closeCell = function (e) {
                     var target = activeElement();
                     var editor = that.editor || {};
                     var cell = editor.element;
                     if (cell && !$.contains(cell[0], target) && cell[0] !== target && !$(target).closest('.k-animation-container').length) {
                         if (editor.end()) {
+                            if (!e.relatedTarget && that._isPageable() && !isUndefined(that.dataSource._addChildPageSize)) {
+                                that._preventPageSizeRestore = false;
+                            }
                             that.closeCell();
                         }
                     }
+                    that._preventPageSizeRestore = false;
                 };
                 if (that._isIncellEditable() && editable.update !== false) {
                     that.wrapper.on(CLICK + NS, 'tr:not(.k-grouping-row) > td', function (e) {
                         var td = $(this), isLockedCell = that.lockedTable && td.closest('table')[0] === that.lockedTable[0];
                         if (td.hasClass(classNames.editCell) || td.has('a.k-grid-delete').length || td.has('button.k-grid-delete').length || td.closest('tbody')[0] !== that.tbody[0] && !isLockedCell || $(e.target).is(':input') || $(e.target).hasClass(classNames.iconExpand) || $(e.target).hasClass(classNames.iconCollapse)) {
+                            if (!that.editor) {
+                                that.dataSource._restorePageSizeAfterAddChild();
+                            }
+                            that._preventPageSizeRestore = false;
                             return;
                         }
                         if (that.editor) {
@@ -2880,13 +2945,21 @@
                         } else {
                             that.editCell(td);
                         }
+                    }).on('mousedown' + NS, 'tr:not(.k-grouping-row) > td', function (e) {
+                        if (that.editor && that._isPageable() && !isUndefined(that.dataSource._addChildPageSize)) {
+                            that._preventPageSizeRestore = $(e.target).parents(DOT + classNames.editRow).length > 0;
+                        } else {
+                            that._preventPageSizeRestore = false;
+                        }
                     }).on('focusin' + NS, function () {
                         if (!$.contains(this, activeElement())) {
                             clearTimeout(that._closeCellTimeout);
                             that._closeCellTimeout = null;
                         }
-                    }).on('focusout' + NS, function () {
-                        that._closeCellTimeout = setTimeout(closeCell, 1);
+                    }).on('focusout' + NS, function (e) {
+                        that._closeCellTimeout = setTimeout(function () {
+                            closeCell(e);
+                        }, 1);
                     });
                 }
             },
@@ -3338,8 +3411,14 @@
                     if (!column.columns) {
                         attr.rowSpan = rowSpan ? rowSpan : 1;
                     }
-                    if (column.headerAttributes && column.headerAttributes.colSpan === 1) {
-                        delete column.headerAttributes.colSpan;
+                    if (column.headerAttributes) {
+                        if (column.headerAttributes.colSpan === 1) {
+                            delete column.headerAttributes.colSpan;
+                        }
+                        if (column.headerAttributes['class']) {
+                            attr.className += ' ' + column.headerAttributes['class'];
+                            delete column.headerAttributes['class'];
+                        }
                     }
                     if (column['data-index'] > -1) {
                         attr['data-index'] = column['data-index'];
@@ -3463,7 +3542,7 @@
                 var childRow = rows[row.index + 1];
                 var totalColSpan = 0;
                 for (var idx = 0; idx < columns.length; idx++) {
-                    var cell = $.extend({}, columns[idx], { headerAttributes: {} });
+                    var cell = $.extend({}, columns[idx], { headerAttributes: columns[idx].headerAttributes || {} });
                     row.cells.push(cell);
                     if (columns[idx].columns && columns[idx].columns.length) {
                         if (!childRow) {
@@ -3695,6 +3774,7 @@
                     'style': column.hidden === true ? { 'display': 'none' } : {}
                 };
                 var incellEditing = this._isIncellEditable();
+                var columnHasEditCommand = false;
                 if (column.attributes) {
                     extend(true, attr, column.attributes);
                 }
@@ -3740,7 +3820,13 @@
                         } else if (!attr.className) {
                             attr.className = 'k-command-cell';
                         }
-                        if (model._edit && !this._isIncellEditable()) {
+                        if (attr['class']) {
+                            attr.className = attr['class'] + ' ' + attr.className;
+                        }
+                        columnHasEditCommand = grep(column.command, function (command) {
+                            return command === EDIT || command.name === EDIT;
+                        }).length > 0;
+                        if (model._edit && !this._isIncellEditable() && columnHasEditCommand) {
                             children = this._buildCommands([
                                 'update',
                                 'canceledit'
@@ -3854,24 +3940,21 @@
                 var left;
                 var cellWidth = outerWidth(th);
                 var container = th.closest('div');
-                var clientX = e.clientX + $(window).scrollLeft();
                 var indicatorWidth = this.options.columnResizeHandleWidth || 3;
                 left = cellWidth;
                 if (!resizeHandle) {
                     resizeHandle = this.resizeHandle = $('<div class="k-resize-handle"><div class="k-resize-handle-inner" /></div>');
                 }
                 var cells = leafDataCells(th.closest('thead')).filter(':visible');
-                for (var idx = 0; idx < cells.length; idx++) {
-                    if (cells[idx] == th[0]) {
-                        break;
+                if (isRtl) {
+                    left = th.position().left;
+                } else {
+                    for (var idx = 0; idx < cells.length; idx++) {
+                        if (cells[idx] == th[0]) {
+                            break;
+                        }
+                        left += cells[idx].offsetWidth;
                     }
-                    left += cells[idx].offsetWidth;
-                }
-                var cellOffset = th.offset().left + cellWidth;
-                var show = clientX > cellOffset - indicatorWidth && clientX < cellOffset + indicatorWidth;
-                if (!show) {
-                    resizeHandle.hide();
-                    return;
                 }
                 container.append(resizeHandle);
                 resizeHandle.show().css({
@@ -4033,8 +4116,9 @@
                         this.totalWidth = this.table.width();
                     },
                     resize: function (e) {
+                        var rtlModifier = isRtl ? -1 : 1;
                         var minColumnWidth = 11;
-                        var delta = e.x.location - this.startLocation;
+                        var delta = e.x.location * rtlModifier - this.startLocation * rtlModifier;
                         if (this.columnWidth + delta < minColumnWidth) {
                             delta = minColumnWidth - this.columnWidth;
                         }
@@ -4179,6 +4263,7 @@
                         filter: filter,
                         aria: true,
                         multiple: selectable.multiple,
+                        inputSelectors: '.k-icon.k-i-collapse,.k-icon.k-i-expand',
                         change: proxy(this._change, this),
                         useAllItems: useAllItems,
                         continuousItems: proxy(this._continuousItems, this, filter, selectable.cell),
@@ -4331,6 +4416,7 @@
                 this._dataSource(dataSource);
                 this._sortable();
                 this._filterable();
+                this._columnMenu();
                 this._pageable();
                 this._contentTree.render([]);
                 if (this.options.autoBind) {
@@ -4349,7 +4435,7 @@
             editRow: function (row) {
                 var that = this;
                 var model;
-                if (this._isIncellEditable()) {
+                if (this._isIncellEditable() || !this.options.editable) {
                     return;
                 }
                 if (typeof row === STRING) {
@@ -4368,6 +4454,7 @@
                 }
                 this._cancelEditor();
                 if (this.trigger(BEFORE_EDIT, { model: model })) {
+                    that.dataSource._restorePageSizeAfterAddChild();
                     return;
                 }
                 this._render();
@@ -4423,10 +4510,15 @@
                 }
             },
             addRow: function (parent) {
+                var that = this;
+                var dataSource = that.dataSource;
+                var pageable = that._isPageable();
+                var incellEditing = that._isIncellEditable();
+                var inlineEditing = that._isInlineEditable();
                 var editor = this.editor;
                 var index = 0;
                 var model = {};
-                if (editor && !editor.end()) {
+                if (editor && !editor.end() || !this.options.editable) {
                     return;
                 }
                 if (parent) {
@@ -4435,14 +4527,21 @@
                     }
                     model[parent.parentIdField] = parent.id;
                     index = this.dataSource.indexOf(parent) + 1;
-                    this.expand(parent).then(proxy(this._insertAt, this, model, index));
+                    this.expand(parent).then(function () {
+                        var showNewModelInView = pageable && dataSource._isLastItemInView(parent) && (incellEditing || inlineEditing);
+                        that._insertAt(model, index, showNewModelInView);
+                    });
                     return;
                 }
                 this._insertAt(model, index);
             },
-            _insertAt: function (model, index) {
+            _insertAt: function (model, index, showNewModelInView) {
                 var that = this;
+                var dataSource = that.dataSource;
                 model = that.dataSource.insert(index, model);
+                if (showNewModelInView) {
+                    dataSource._setAddChildPageSize();
+                }
                 var row = this.itemFor(model);
                 var cell;
                 if (that._isIncellEditable()) {
@@ -4491,9 +4590,16 @@
                     that._destroyEditor();
                     if (!that._isIncellEditable()) {
                         that.dataSource.cancelChanges(model);
+                    } else if (that._shouldRestorePageSize()) {
+                        that.dataSource._restorePageSizeAfterAddChild();
                     }
                     model._edit = false;
                 }
+                that._preventPageSizeRestore = false;
+            },
+            _shouldRestorePageSize: function () {
+                var that = this;
+                return that._isPageable() && that._isIncellEditable() && !that._preventPageSizeRestore;
             },
             _destroyEditor: function () {
                 if (!this.editor) {
@@ -4565,6 +4671,7 @@
                 var that = this;
                 var editedCell;
                 if (that.trigger(BEFORE_EDIT, { model: model })) {
+                    that.dataSource._restorePageSizeAfterAddChild();
                     return;
                 }
                 that.closeCell();
@@ -4614,12 +4721,12 @@
                     model: model,
                     container: cell
                 });
+                that._cancelEditor();
                 cell.removeClass(classNames.editCell);
                 tr = cell.parent().removeClass(classNames.editRow);
                 if (that.lockedContent) {
                     that._relatedRow(tr).removeClass(classNames.editRow);
                 }
-                that._cancelEditor();
                 that._render();
                 that.trigger(ITEM_CHANGE, {
                     item: tr,
@@ -4654,6 +4761,9 @@
             },
             _isIncellEditable: function () {
                 return this._editMode() === INCELL;
+            },
+            _isInlineEditable: function () {
+                return this._editMode() === INLINE;
             },
             _isPopupEditable: function () {
                 return this._editMode() === POPUP;

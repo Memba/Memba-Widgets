@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.3.911 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, outerHeight = kendo._outerHeight, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', GROUPHEADER = '.k-group-header', LABELIDPART = '_label', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, HIDDENCLASS = 'k-hidden', WIDTH = 'width', isIE = browser.msie, isIE8 = isIE && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
+        var kendo = window.kendo, ui = kendo.ui, outerHeight = kendo._outerHeight, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', GROUPHEADER = '.k-group-header', ITEMSELECTOR = '.k-item', LABELIDPART = '_label', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, HIDDENCLASS = 'k-hidden', WIDTH = 'width', isIE = browser.msie, isIE8 = isIE && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
                 'ComboBox': 'DropDownList',
                 'DropDownList': 'ComboBox'
             };
@@ -593,7 +593,7 @@
                     trigger = true;
                 }
                 if (trigger) {
-                    if (that._old === null || value === '') {
+                    if (that._old === null || that._old === '' || value === '') {
                         that._valueBeforeCascade = that._old = value;
                     } else {
                         if (that.dataItem()) {
@@ -1245,7 +1245,7 @@
                 if (that._userTriggered) {
                     that._clearSelection(parent, true);
                 } else if (value) {
-                    if (value !== that.listView.value()[0]) {
+                    if (value !== unifyType(that.listView.value()[0], typeof value)) {
                         that.value(value);
                     }
                     if (!that.dataSource.view()[0] || that.selectedIndex === -1) {
@@ -1262,7 +1262,7 @@
             _cascadeSelect: function (parent, valueBeforeCascade) {
                 var that = this;
                 var dataItem = parent.dataItem();
-                var filterValue = dataItem ? parent._value(dataItem) : null;
+                var filterValue = dataItem ? dataItem[that.options.cascadeFromParentField] || parent._value(dataItem) : null;
                 var valueField = that.options.cascadeFromField || parent.options.dataValueField;
                 var expressions;
                 that._valueBeforeCascade = valueBeforeCascade !== undefined ? valueBeforeCascade : that.value();
@@ -1392,7 +1392,7 @@
                     endY = tapPosition(e);
                     if (Math.abs(endY - startY) < 10) {
                         e.preventDefault();
-                        that.trigger('click', { item: $(e.target) });
+                        that.trigger('click', { item: $(e.target.closest(ITEMSELECTOR)) });
                     }
                 });
             },
@@ -1589,7 +1589,7 @@
                 return deferred;
             },
             items: function () {
-                return this.element.children('.k-item');
+                return this.element.children(ITEMSELECTOR);
             },
             _click: function (e) {
                 if (!e.isDefaultPrevented()) {

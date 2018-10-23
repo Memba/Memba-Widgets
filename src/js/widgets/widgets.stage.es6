@@ -1776,6 +1776,7 @@ const Stage = DataBoundWidget.extend({
                 // Add triggers the change event on the dataSource
                 // which calls the refresh method
                 this.dataSource.add(component);
+                this._showAdorner(component.uid);
                 this.trigger(CONSTANTS.SELECT, { value: component });
 
                 // Reset the pointer tool
@@ -1817,25 +1818,24 @@ const Stage = DataBoundWidget.extend({
             const adorner = this._getAdorner();
             const uid = adorner.attr(attr(CONSTANTS.UID));
             const stageElement = this._getStageElementByUid(uid);
+            // All the following measurements are scaled to stage coordinates
             adorner.data(STATE, {
                 action,
-                // top: stageElement.position().top does not work when scaled
+                // top: stageElement.position().top does not work when rotated
                 top: parseFloat(stageElement.css(CONSTANTS.TOP)) || 0,
-                // left: stageElement.position().left does not work when scaled
+                // left: stageElement.position().left does not work when rotated
                 left: parseFloat(stageElement.css(CONSTANTS.LEFT)) || 0,
                 height: stageElement.height(),
                 width: stageElement.width(),
                 angle: getTransformRotation(stageElement),
                 scale,
-                snapGrid: 0, // TODO
-                snapAngle: 0, // TODO
                 x,
                 y,
                 uid
             });
 
-            // log(adorner.data(STATE));
-            // $(document.body).css(CURSOR, target.css(CURSOR));
+            // Use the handle cursor while dragging
+            $(document.body).css(CURSOR, target.css(CURSOR));
         }
     },
 
@@ -1850,46 +1850,53 @@ const Stage = DataBoundWidget.extend({
             e,
             assert.format(assert.messages.isPlainObject.default, 'e')
         );
+        const target = $((e.touch || {}).initialTouch);
+        const action = target.attr(attr(CONSTANTS.ACTION));
         const adorner = this._getAdorner();
+        const uid = adorner.attr(attr(CONSTANTS.UID));
         const state = adorner.data(STATE);
 
-        // With a state, we are dragging a handle
-        if ($.isPlainObject(state)) {
+        // Weh have s state with a consistent action and uid
+        if (
+            $.isPlainObject(state) &&
+            action === state.action &&
+            uid === state.uid
+        ) {
             e.preventDefault();
 
-            const { uid } = state;
             const stageElement = this._getStageElementByUid(uid);
             const component = this.dataSource.getByUid(state.uid);
             const rect = stageElement[0].getBoundingClientRect();
             const offset = this.stage.offset();
             const doc = $(this.stage[0].ownerDocument);
+            const { scale } = state;
             // Find the stage element bounds and the center of rotation
             // Note: these calculations depend on the transformOrigin attribute of this.wrapper
             // ideally we should introduce transformOrigin in the calculation
             const bounds = {
-                left: rect.left - offset.left + doc.scrollLeft(),
-                top: rect.top - offset.top + doc.scrollTop(),
-                height: rect.height,
-                width: rect.width
+                left: (rect.left - offset.left + doc.scrollLeft()) / scale,
+                top: (rect.top - offset.top + doc.scrollTop()) / scale,
+                height: rect.height / scale,
+                width: rect.width / scale
             };
             const center = {
                 x: bounds.left + bounds.width / 2,
                 y: bounds.top + bounds.height / 2
             };
             // Find the mouse/touch position and add a component
-            const scale = getTransformScale(this.wrapper);
-            const x = (e.x.location - offset.left) / scale;
-            const y = (e.y.location - offset.top) / scale;
-            const dx = x - state.x; // / state.scale; // horizontal distance from S to S'
-            const dy = y - state.y; // / state.scale; // vertical distance from S to S'
+            const mouse = {
+                x: (e.x.location - offset.left) / scale,
+                y: (e.y.location - offset.top) / scale
+            };
+            const dx = mouse.x - state.x; // horizontal distance from S to S'
+            const dy = mouse.y - state.y; // vertical distance from S to S'
 
             if ($.isFunction(Stage._updateDebugVisualElements)) {
                 Stage._updateDebugVisualElements({
-                    wrapper: this.wrapper,
-                    mouse: { x, y },
-                    center,
                     bounds,
-                    scale
+                    center,
+                    mouse,
+                    wrapper: this.wrapper
                 });
             }
             if (state.action === ACTIONS.MOVE) {
@@ -1945,11 +1952,8 @@ const Stage = DataBoundWidget.extend({
             } else if (state.action === ACTIONS.ROTATE) {
                 const rad = getRadiansBetweenPoints(
                     center,
-                    {
-                        x: state.x,
-                        y: state.y
-                    },
-                    { x, y }
+                    { x: state.x, y: state.y },
+                    mouse
                 );
                 const deg = snap(
                     (360 + state.angle + rad2deg(rad)) % 360,
@@ -1972,11 +1976,18 @@ const Stage = DataBoundWidget.extend({
             e,
             assert.format(assert.messages.isPlainObject.default, 'e')
         );
+        const target = $((e.touch || {}).initialTouch);
+        const action = target.attr(attr(CONSTANTS.ACTION));
         const adorner = this._getAdorner();
+        const uid = adorner.attr(attr(CONSTANTS.UID));
         const state = adorner.data(STATE);
 
-        // With a startState, we are dragging a handle
-        if ($.isPlainObject(state)) {
+        // Weh have s state with a consistent action and uid
+        if (
+            $.isPlainObject(state) &&
+            action === state.action &&
+            uid === state.uid
+        ) {
             e.preventDefault();
 
             // Remove drag start state
@@ -2325,28 +2336,29 @@ if (window.app && window.app.DEBUG) {
      * @param options
      */
     Stage._updateDebugVisualElements = function(options) {
-        if ($.isPlainObject(options) && options.scale > 0) {
+        if ($.isPlainObject(options)) {
+            const { bounds, center, mouse, wrapper } = options;
             // Display center of rotation
-            options.wrapper.children(CONSTANTS.DOT + DEBUG_CENTER_CLASS).css({
+            wrapper.children(CONSTANTS.DOT + DEBUG_CENTER_CLASS).css({
                 display: 'block',
-                left: Math.round(options.center.x / options.scale),
-                top: Math.round(options.center.y / options.scale)
+                left: Math.round(center.x),
+                top: Math.round(center.y)
             });
 
             // Display bounding rectangle
-            options.wrapper.children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS).css({
+            wrapper.children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS).css({
                 display: 'block',
-                left: Math.round(options.bounds.left / options.scale),
-                top: Math.round(options.bounds.top / options.scale),
-                height: Math.round(options.bounds.height / options.scale),
-                width: Math.round(options.bounds.width / options.scale)
+                left: Math.round(bounds.left),
+                top: Math.round(bounds.top),
+                height: Math.round(bounds.height),
+                width: Math.round(bounds.width)
             });
 
             // Display mouse calculated position
-            options.wrapper.children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS).css({
+            wrapper.children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS).css({
                 display: 'block',
-                left: Math.round(options.mouse.x / options.scale),
-                top: Math.round(options.mouse.y / options.scale)
+                left: Math.round(mouse.x),
+                top: Math.round(mouse.y)
             });
         }
     };

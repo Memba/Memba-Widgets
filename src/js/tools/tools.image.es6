@@ -19,11 +19,7 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 
-const {
-    format,
-    ns,
-    template,
-} = window.kendo;
+const { format, ns, template } = window.kendo;
 
 const RX_IMAGE = /^(cdn|data):\/\/[\s\S]+.(gif|jpe?g|png|svg)$/i;
 const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;

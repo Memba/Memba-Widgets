@@ -275,49 +275,102 @@
                 /**
                  * Stage content
                  */
-                var pageComponentDataSource = new PageComponentDataSource({
-                    data: [
-                        { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                        { id: kendo.guid(), tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { src: 'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg' } },
-                        { id: kendo.guid(), tool : 'square', top: 500, left: 100, height: 200, width: 200, rotate: 25, attributes: {} },
-                        { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'World' } },
-                        { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                    ]
+                var data = [
+                    { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
+                    { id: kendo.guid(), tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { src: 'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg' } },
+                    { id: kendo.guid(), tool : 'square', top: 500, left: 100, height: 200, width: 200, rotate: 25, attributes: {} },
+                    { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia, serif; color: #FF0000; font-size: 80px;', text: 'World' } },
+                    { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
+                ];
+                var viewModel = kendo.observable({
+                    components: new PageComponentDataSource({ data }),
+                    component: null,
+                    onSliderChange(e) {
+                        var stage = $('#stage').data('kendoStage');
+                        stage.scale(e.value/100);
+                    },
+                    onInputModeChange(e) {
+                        var stage = $('#stage').data('kendoStage');
+                        var m = e.currentTarget.value;
+                        window.location.hash = m;
+                        stage.mode(m);
+                    },
+                    onEnabledChange(e) {
+                        var stage = $('#stage').data('kendoStage');
+                        switch(e.currentTarget.id) {
+                            case "enabled":
+                                stage.enable(e.currentTarget.checked);
+                                break;
+                            case "readonly":
+                                stage.readonly(e.currentTarget.checked);
+                                break;
+                        }
+                    },
+                    onGridSelection(e) {
+                        var stage = $('#stage').data('kendoStage');
+                        var rows = this.select();
+                        var component = this.dataItem(rows[0]);
+                        if(component) {
+                            stage.value(component);
+                        }
+                    },
+                    onStageSelection(e) {
+                        debugger; // TODO Never reached!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        var grid = $('#grid').data('kendoGrid');
+                        if(e.value) {
+                            var uid = grid.dataSource.get(e.value.id).uid;
+                            var rows = grid.table.find('tr[data-uid="' + uid + '"]');
+                            if (!rows.hasClass('k-state-selected')) {
+                                grid.select(rows);
+                            }
+                        } else {
+                            grid.clearSelection();
+                        }
+                    }
                 });
 
                 /**
                  * Initialization
                  */
                 $(function() {
-                    debugger;
                     var mode = window.location.hash.substr(1);
                     mode = mode.length ? mode : 'design';
 
-                    var stage = $('#stage').kendoStage({
-                        dataSource: pageComponentDataSource,
-                        autoBind: false,
-                        mode: mode,
-                        select: function(e) {
-                            var grid = $('#grid').data('kendoGrid');
-                            if(e.value) {
-                                var uid = grid.dataSource.get(e.value.id).uid,
-                                    rows = grid.table.find('tr[data-uid="' + uid + '"]');
-                                if (!rows.hasClass('k-state-selected')) {
-                                    grid.select(rows);
-                                }
-                            } else {
-                                grid.clearSelection();
-                            }
-                        }
-                    }).data('kendoStage');
+                    // Prepare slider for binding
+                    $('#slider')
+                        .attr(kendo.attr('role'), 'slider')
+                        .attr(kendo.attr('decreaseButtonTitle'), 'Zoom out')
+                        .attr(kendo.attr('increaseButtonTitle'), 'Zoom in')
+                        .attr(kendo.attr('largeStep'), 10)
+                        .attr(kendo.attr('min'), 0)
+                        .attr(kendo.attr('max'), 100)
+                        .attr(kendo.attr('smallStep'), 1);
 
-                    $('#grid').kendoGrid({
-                        dataSource: pageComponentDataSource,
-                        autoBind: false,
-                        height: 300,
-                        selectable: true,
-                        editable: true,
-                        columns: [
+                    $('input#' + mode).prop('checked', true);
+
+                    $('input[type="radio"][name="mode"]')
+                        .attr(kendo.attr('bind'), 'events: { change: onInputModeChange }');
+
+                    $('input[type="checkbox"]')
+                        .attr(kendo.attr('bind'), 'events: { change: onEnabledChange }');
+
+                    // Prepare stage for binding
+                    // TODO $('#stage, #stage2')
+                    $('#stage')
+                        .attr(kendo.attr('role'), 'stage')
+                        .attr(kendo.attr('autoBind'), false)
+                        .attr(kendo.attr('bind'), 'source: components, value: component')
+                        .attr(kendo.attr('mode'), mode);
+
+                    // Prepare grid for binding
+                    $('#grid')
+                        .attr(kendo.attr('role'), 'grid')
+                        .attr(kendo.attr('autoBind'), false)
+                        .attr(kendo.attr('bind'), 'source: components')
+                        .attr(kendo.attr('editable'), true)
+                        .attr(kendo.attr('height'), 300)
+                        .attr(kendo.attr('selectable'), true)
+                        .attr(kendo.attr('columns'), JSON.stringify([
                             {
                                 field: "id",
                                 title: "Id",
@@ -353,7 +406,7 @@
                                 title: "Rot.",
                                 width: 60
                             },
-                            //tag
+                            /*
                             {
                                 field: "attributes",
                                 title: "Attributes"
@@ -362,58 +415,23 @@
                                 field: "properties",
                                 title: "Properties"
                             },
+                            */
                             {
                                 command: "destroy",
                                 title: "&nbsp;",
                                 width: 120
                             }
-                        ],
-                        change: function(e) {
-                            var rows = this.select(),
-                                component = this.dataItem(rows[0]);
-                            if(component) {
-                                stage.value(component);
-                            }
-                        }
-                    });
+                        ]))
+                        .attr(kendo.attr('height'), 300);
 
-                    $('#slider').kendoSlider({
-                        increaseButtonTitle: 'Zoom in',
-                        decreaseButtonTitle: 'Zoom out',
-                        min: 0,
-                        max: 100,
-                        smallStep: 1,
-                        largeStep: 10,
-                        change: function(e) {
-                            stage.scale(e.value/100);
-                        }
-                    });
+                    // Bind html and events
+                    kendo.bind('body', viewModel);
+                    $('#slider').data('kendoSlider').bind('change', viewModel.onSliderChange);
+                    $('#stage').data('kendoStage').bind('select', viewModel.onStageSelection);
+                    $('#grid').data('kendoGrid').bind('change', viewModel.onGridSelection);
 
-                    $('#toolbox').kendoToolBox();
-
-                    $('input#' + mode).prop('checked', true);
-
-                    $('input[type="radio"][name="mode"]')
-                    .on('change', function(e) {
-                        mode = e.currentTarget.value;
-                        window.location.hash = mode;
-                        stage.mode(mode);
-                    });
-
-                    $('input[type="checkbox"]')
-                    .on('change', function(e) {
-                        switch(e.currentTarget.id) {
-                            case "enabled":
-                                stage.enable(e.currentTarget.checked);
-                                break;
-                            case "readonly":
-                                stage.readonly(e.currentTarget.checked);
-                                break;
-                        }
-                    });
-
-                    //Note: we have autoBind = false
-                    pageComponentDataSource.read();
+                    //Note: we have autoBind = false, so we need to read manually
+                    viewModel.components.read();
 
                 });
             });
@@ -436,5 +454,6 @@
 <div id="toolbox"></div>
 <div id="stage"></div>
 <div id="grid"></div>
+<div id="stage2" data-scale="0.25"></div>
 </body>
 </html>

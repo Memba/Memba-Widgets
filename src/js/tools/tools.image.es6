@@ -36,6 +36,7 @@ const RX_TEXT = /\S+/i;
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).image || {
+            name: 'Image',
             description: 'Image',
             attributes: {
                 alt: { title: 'Text', defaultValue: 'Image' },
@@ -62,8 +63,10 @@ function i18n() {
 const Image = BaseTool.extend({
     id: 'image',
     icon: 'painting_landscape',
+    name: i18n().name,
     description: i18n().description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    menu: ['attributes.src', 'attributes.alt', 'attributes.style'],
     templates: {
         default:
             '<img src="#: src$() #" alt="#: attributes.alt #" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">'

@@ -82,6 +82,26 @@ export function containerBoundaries(container, element) {
     };
 }
 
+// ----------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Convert radians to degrees
+ * @param deg
+ * @returns {number}
+ */
+export function deg2rad(deg) {
+    return (deg * Math.PI) / 180;
+}
+
+/**
+ * Convert degrees to radians
+ * @param rad
+ * @returns {number}
+ */
+export function rad2deg(rad) {
+    return (rad * 180) / Math.PI;
+}
+
 /**
  * Get the position of the center of an element
  * @param element
@@ -174,6 +194,65 @@ export function getMousePosition(e, stage) {
 }
 
 /**
+ * Calculate the angle between two points from a center
+ * @param center
+ * @param p1
+ * @param p2
+ * @returns {*}
+ */
+export function getRadiansBetweenPoints(center, p1, p2) {
+    assert.isPoint(
+        center,
+        assert.format(assert.messages.isPoint.default, 'center')
+    );
+    assert.isPoint(p1, assert.format(assert.messages.isPoint.default, 'p1'));
+    assert.isPoint(p2, assert.format(assert.messages.isPoint.default, 'p2'));
+    // See http://www.euclideanspace.com/maths/algebra/vectors/angleBetween/
+    // See http://stackoverflow.com/questions/7586063/how-to-calculate-the-angle-between-a-line-and-the-horizontal-axis
+    // See http://code.tutsplus.com/tutorials/euclidean-vectors-in-flash--active-8192
+    // See http://gamedev.stackexchange.com/questions/69649/using-atan2-to-calculate-angle-between-two-vectors
+    return (
+        Math.atan2(p2.y - center.y, p2.x - center.x) -
+        Math.atan2(p1.y - center.y, p1.x - center.x)
+    );
+}
+
+/**
+ * Rotate a point by an angle around a center
+ * @param point
+ * @param center
+ * @param radians
+ * @returns {*}
+ */
+export function getRotatedPoint(point, center, radians) {
+    assert.isPoint(
+        point,
+        assert.format(assert.messages.isPoint.default, 'point')
+    );
+    assert.isPoint(
+        center,
+        assert.format(assert.messages.isPoint.default, 'center')
+    );
+    assert.type(
+        CONSTANTS.NUMBER,
+        radians,
+        assert.format(assert.messages.type.default, 'radians', CONSTANTS.NUMBER)
+    );
+    return {
+        // See http://stackoverflow.com/questions/786472/rotate-a-point-by-another-point-in-2d
+        // See http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
+        x:
+            center.x +
+            (point.x - center.x) * Math.cos(radians) -
+            (point.y - center.y) * Math.sin(radians),
+        y:
+            center.y +
+            (point.x - center.x) * Math.sin(radians) +
+            (point.y - center.y) * Math.cos(radians)
+    };
+}
+
+/**
  * Get the rotation angle (in degrees) of an element's CSS transformation
  * @param element
  * @returns {Number|number}
@@ -187,7 +266,7 @@ export function getTransformRotation(element) {
     // $(element).css('transform') returns a matrix, so we have to read the style attribute
     const match = (element.attr('style') || '').match(
         /rotate\([\s]*([0-9.]+)[deg\s]*\)/
-    ); // TODO: Do we need $
+    );
     return Array.isArray(match) && match.length > 1
         ? parseFloat(match[1]) || 0
         : 0;
@@ -212,4 +291,35 @@ export function getTransformScale(element) {
     return Array.isArray(match) && match.length > 1
         ? parseFloat(match[1]) || 1
         : 1;
+}
+
+/**
+ * Snapping consists in rounding the value to the closest multiple of snapValue
+ * @param value
+ * @param snapValue
+ * @returns {*}
+ */
+export function snap(value, snapValue) {
+    assert.type(
+        CONSTANTS.NUMBER,
+        value,
+        assert.format(assert.messages.type.default, 'value', CONSTANTS.NUMBER)
+    );
+    assert.type(
+        CONSTANTS.NUMBER,
+        snapValue,
+        assert.format(
+            assert.messages.type.default,
+            'snapValue',
+            CONSTANTS.NUMBER
+        )
+    );
+    // eslint-disable-next-line no-param-reassign
+    snapValue = Math.round(snapValue);
+    if (snapValue) {
+        return value % snapValue < snapValue / 2
+            ? value - (value % snapValue)
+            : value + snapValue - (value % snapValue);
+    }
+    return Math.round(value);
 }

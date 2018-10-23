@@ -30,6 +30,7 @@ const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).label || {
+            name: 'Label',
             description: 'Label',
             help: null,
             attributes: {
@@ -50,9 +51,11 @@ function i18n() {
 const Label = BaseTool.extend({
     id: 'label',
     icon: 'font',
+    name: i18n().name,
     description: i18n().description,
     help: i18n().help,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    menu: ['attributes.text', 'attributes.style'],
     templates: {
         default:
             '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'

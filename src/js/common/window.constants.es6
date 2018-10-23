@@ -30,11 +30,6 @@ const CONSTANTS = {
     KEYPRESS: 'keypress',
     KEYUP: 'keyup',
     LOAD: 'load',
-    // To be used with kendo.applyEventMap
-    MAPCANCEL: 'cancel',
-    MAPDOWN: 'down',
-    MAPMOVE: 'move',
-    MAPUP: 'up',
     MOUSEDOWN: 'mousedown',
     MOUSEENTER: 'mouseenter',
     MOUSELEAVE: 'mouseleave',
@@ -55,6 +50,11 @@ const CONSTANTS = {
     // TOUCHLEAVE: 'touchleave', // <-- See https://developer.mozilla.org/en-US/docs/Web/Events/touchleave
     TOUCHMOVE: 'touchmove',
     TOUCHSTART: 'touchstart',
+    // To be used with kendo.applyEventMap
+    MAPCANCEL: 'cancel',
+    MAPDOWN: 'down',
+    MAPMOVE: 'move',
+    MAPUP: 'up',
     // Custom events
     LOADED: 'i18n.loaded',
     // ERROR: 'error',
@@ -76,11 +76,14 @@ const CONSTANTS = {
     INTERACTIVE_CLASS: 'kj-interactive',
     ELEMENT_CLASS: 'kj-element',
     // CSS Properties
+    CURSOR: 'cursor',
     HEIGHT: 'height',
+    LEFT: 'left',
+    NONE: 'none',
+    TOP: 'top',
     WIDTH: 'width',
-    // Other properties
-    ACTION: 'action',
     // Regular Expressions
+    RX_GUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
     RX_ISODATE: /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|[+|-]([\d|:]*))?$/,
     RX_LANGUAGE: /^[a-z]{2}$/,
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
@@ -96,6 +99,8 @@ const CONSTANTS = {
     SEMICOLON: ';',
     UNDERSCORE: '_',
     // Miscellaneous
+    ACTION: 'action',
+    ACTIVE: 'active',
     ID: 'id',
     ME: 'me',
     POINTER: 'pointer',

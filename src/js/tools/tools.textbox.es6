@@ -38,6 +38,7 @@ const RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).textbox || {
+            name: 'TextBox',
             description: 'TextBox',
             attributes: {
                 mask: { title: 'Mask' },
@@ -67,8 +68,16 @@ const TEXTBOX =
 const Textbox = BaseTool.extend({
     id: 'textbox',
     icon: 'text_field',
+    name: i18n().name,
     description: i18n().description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    menu: [
+        'attributes.style',
+        '', // separator
+        'properties.question',
+        'properties.solution',
+        'properties.validation'
+    ],
     weight: 1,
     templates: {
         design: format(TEXTBOX, ''),

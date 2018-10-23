@@ -81,9 +81,7 @@ export function isGuid(value) {
     // http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
     return (
         // $.type(value) === CONSTANTS.STRING &&
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(
-            value
-        )
+        CONSTANTS.RX_GUID.test(value)
     );
 }
 

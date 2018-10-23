@@ -17,6 +17,17 @@ import 'kendo.menu';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
+import {
+    deg2rad,
+    getMousePosition,
+    getRadiansBetweenPoints,
+    getRotatedPoint,
+    getTransformScale,
+    getTransformRotation,
+    rad2deg,
+    snap
+} from '../common/window.position.es6';
+import { isGuid } from '../common/window.util.es6';
 import PageComponentDataSource from '../data/datasources.pagecomponent.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
 import tools from '../tools/tools.es6';
@@ -30,23 +41,31 @@ const {
     data: { Binder, binders, ObservableArray, ObservableObject },
     destroy,
     format,
+    init,
     keys,
-    ui: { plugin, ContextMenu, DataBoundWidget }
+    support,
+    ui: { plugin, ContextMenu, DataBoundWidget },
+    unbind,
+    UserEvents
 } = window.kendo;
 const logger = new Logger('widgets.stage');
 const NS = '.kendoStage';
 const WIDGET_CLASS = 'k-widget kj-stage';
+const DEFAULTS = {
+    MODE: 'play',
+    SCALE: 1,
+    WIDTH: 1024,
+    HEIGHT: 768
+};
+
 const LOADING_OVERLAY =
     '<div contenteditable="false" class="k-loading-mask" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;"><div class="k-loading-image"></div><div class="k-loading-color"></div></div>';
-
 
 const MOUSEDOWN = `mousedown${NS} touchstart${NS}`;
 const MOUSEMOVE = `mousemove${NS} touchmove${NS}`;
 const MOUSEUP = `mouseup${NS} touchend${NS}`;
 const PROPERTYBINDING = 'propertyBinding';
-const PROPERTYBOUND = 'propertyBound';
-const SELECT = 'select';
-// var ENABLE = 'enable';
+const ENABLE = 'enable';
 const MOVE = 'move';
 const RESIZE = 'resize';
 const ROTATE = 'rotate'; // This constant is not simply an event
@@ -55,57 +74,31 @@ const RELATIVE = 'relative';
 const HIDDEN = 'hidden';
 const DISPLAY = 'display';
 const BLOCK = 'block';
-const NONE = 'none';
-const TOP = 'top';
-const LEFT = 'left';
-const HEIGHT = 'height';
-const WIDTH = 'width';
 const CURSOR = 'cursor';
 const TRANSFORM = 'transform';
 const CSS_ROTATE = 'rotate({0}deg)';
 const CSS_SCALE = 'scale({0})';
-const DATA_UID = attr('uid');
-const DATA_TOOL = attr('tool');
-const DATA_COMMAND = attr('command');
-const DOT = '.';
-const DIV_W_CLASS = '<div class="{0}"></div>';
 
-const ELEMENT_CLASS = 'kj-element';
-const ELEMENT = `<div ${DATA_UID}="{0}" ${DATA_TOOL}="{1}" class="${ELEMENT_CLASS}"></div>`;
-const ELEMENT_SELECTOR = `${DOT + ELEMENT_CLASS}[${DATA_UID}="{0}"]`;
-const OVERLAY_CLASS = 'kj-overlay';
-const HANDLE_BOX_CLASS = 'kj-handle-box';
-const HANDLE_BOX = format(DIV_W_CLASS, HANDLE_BOX_CLASS);
-const HANDLE_BOX_SELECTOR = `${DOT + HANDLE_BOX_CLASS}[${DATA_UID}="{0}"]`;
+const ADORNER_CLASS = 'kj-adorner';
 const HANDLE_CLASS = 'kj-handle';
-// Note: without touch-action: none, touch gestures won't work in Internet Explorer
-const HANDLE_MOVE = `<span class="${HANDLE_CLASS}" ${DATA_COMMAND}="move" style="touch-action:none;"></span>`;
-const HANDLE_RESIZE = `<span class="${HANDLE_CLASS}" ${DATA_COMMAND}="resize" style="touch-action:none;"></span>`;
-const HANDLE_ROTATE = `<span class="${HANDLE_CLASS}" ${DATA_COMMAND}="rotate" style="touch-action:none;"></span>`;
-const HANDLE_MENU = `<span class="${HANDLE_CLASS}" ${DATA_COMMAND}="menu" style="touch-action:none;"></span>`;
-// var HANDLE_SELECTOR = '.kj-handle[' + DATA_COMMAND + '="{0}"]';
+const MENU_CLASS = 'kj-menu';
 const NOPAGE_CLASS = 'kj-nopage';
+const OVERLAY_CLASS = 'kj-overlay';
+
+// TODO Remove ADORNER_SELECTOR
+const ADORNER_SELECTOR = `${CONSTANTS.DOT + ADORNER_CLASS}[${attr(
+    CONSTANTS.UID
+)}="{0}"]`;
+
+// var HANDLE_SELECTOR = '.kj-handle[' + attr(CONSTANTS.ACTION) + '="{0}"]';
+
 const STATE = 'state';
-const COMMANDS = {
+const ACTIONS = {
     MOVE: 'move',
     RESIZE: 'resize',
     ROTATE: 'rotate',
     MENU: 'menu'
 };
-const POINTER = 'pointer';
-const ACTIVE_TOOL = 'active';
-const DEFAULTS = {
-    MODE: 'play',
-    SCALE: 1,
-    WIDTH: 1024,
-    HEIGHT: 768
-};
-const DEBUG_MOUSE_CLASS = 'debug-mouse';
-const DEBUG_MOUSE_DIV = format(DIV_W_CLASS, DEBUG_MOUSE_CLASS);
-const DEBUG_BOUNDS_CLASS = 'debug-bounds';
-const DEBUG_BOUNDS = format(DIV_W_CLASS, DEBUG_BOUNDS_CLASS);
-const DEBUG_CENTER_CLASS = 'debug-center';
-const DEBUG_CENTER = '<div class="debug-center"></div>';
 
 /** *******************************************************************************
  * Custom Bindings
@@ -157,34 +150,36 @@ const Stage = DataBoundWidget.extend({
         this._scale = this.options.scale;
         this._height = this.options.height;
         this._width = this.options.width;
-        this._enabled = this.options.enabled; // TODO was disabled
+        this._enabled = this.options.enabled; // TODO was `disabled`
         this._readonly = this.options.readonly;
         this._snapAngle = this.options.snapAngle;
         this._snapGrid = this.options.snapGrid;
         this._render();
         this._dataSource();
+        this._initUserEvents();
         // this.enable(options.enabled);
     },
 
     /**
-     * DataBoundWidget modes
+     * Stage modes
      */
     modes: CONSTANTS.STAGE_MODES,
 
     /**
      * Events
+     * @property events
      */
     events: [
         CONSTANTS.CHANGE,
         CONSTANTS.DATABINDING,
         CONSTANTS.DATABOUND,
         PROPERTYBINDING,
-        PROPERTYBOUND,
-        SELECT
+        CONSTANTS.SELECT // TODO never triggered !!! See HTML too !!!
     ],
 
     /**
      * Options
+     * @property options
      */
     options: {
         name: 'Stage',
@@ -209,6 +204,7 @@ const Stage = DataBoundWidget.extend({
     },
 
     /**
+     * setOptions
      * @method setOptions
      * @param options
      */
@@ -220,33 +216,41 @@ const Stage = DataBoundWidget.extend({
     */
 
     /**
-     * Mode defines the operating mode of the Stage DataBoundWidget
+     * Operating mode of the Stage
+     * @method mode
      * @param value
      * @return {*}
      */
     mode(value) {
-        const that = this;
-        if ($.type(value) !== CONSTANTS.UNDEFINED) {
-            assert.type(
-                CONSTANTS.STRING,
+        assert.typeOrUndef(
+            CONSTANTS.STRING,
+            value,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'value',
+                CONSTANTS.STRING
+            )
+        );
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._mode;
+        } else {
+            assert.enum(
+                Object.values(Stage.fn.modes),
                 value,
                 assert.format(
-                    assert.messages.type.default,
+                    assert.messages.enum.default,
                     'value',
-                    CONSTANTS.STRING
+                    Object.values(Stage.fn.modes)
                 )
             );
-            if ($.type(that.modes[value]) === CONSTANTS.UNDEFINED) {
-                throw new RangeError();
+            if (value !== this._mode) {
+                this._mode = value;
+                this._initializeMode();
+                this.refresh();
             }
-            if (value !== that._mode) {
-                that._mode = value;
-                that._initializeMode();
-                that.refresh();
-            }
-        } else {
-            return that._mode;
         }
+        return ret;
     },
 
     /**
@@ -255,36 +259,40 @@ const Stage = DataBoundWidget.extend({
      * @return {*}
      */
     scale(value) {
-        const that = this;
-        if (value !== undefined) {
-            if ($.type(value) !== CONSTANTS.NUMBER) {
-                throw new TypeError();
-            }
-            if (value < 0) {
-                throw new RangeError();
-            }
-            if (value !== that._scale) {
-                // TODO: that.options.scale
-                that._scale = value;
-                that.wrapper.css({
-                    transformOrigin: '0 0',
-                    transform: format(CSS_SCALE, that._scale)
-                });
-                that.wrapper.find(DOT + HANDLE_CLASS).css({
-                    // transformOrigin: 'center center', // by default
-                    transform: format(CSS_SCALE, 1 / that._scale)
-                });
-                /*
-                // Scaling the message does not work very well so we have simply increased the font-size
-                that.element.find(DOT + NOPAGE_CLASS).css({
-                    // transformOrigin: 'center center', // by default
-                    transform: format(CSS_SCALE, 1 / that._scale)
-                });
-                */
-            }
-        } else {
-            return that._scale;
+        assert.typeOrUndef(
+            CONSTANTS.NUMBER,
+            value,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'value',
+                CONSTANTS.NUMBER
+            )
+        );
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._mode;
+        } else if (value < 0) {
+            throw new RangeError('`value` should be a positive number');
+        } else if (value !== this._scale) {
+            this._scale = value;
+            this.wrapper.css({
+                // TODO Review
+                transformOrigin: '0 0',
+                transform: format(CSS_SCALE, this._scale)
+            });
+            this.wrapper.find(CONSTANTS.DOT + HANDLE_CLASS).css({
+                // transformOrigin: 'center center', // by default
+                transform: format(CSS_SCALE, 1 / this._scale)
+            });
+            /*
+            // Scaling the message does not work very well so we have simply increased the font-size
+            that.element.find(CONSTANTS.DOT + NOPAGE_CLASS).css({
+                // transformOrigin: 'center center', // by default
+                transform: format(CSS_SCALE, 1 / that._scale)
+            });
+            */
         }
+        return ret;
     },
 
     /**
@@ -311,6 +319,7 @@ const Stage = DataBoundWidget.extend({
      * @returns {*}
      */
     index(index) {
+        // TODO select
         const that = this;
         let component;
         if (index !== undefined) {
@@ -337,6 +346,7 @@ const Stage = DataBoundWidget.extend({
      * @returns {*}
      */
     id(id) {
+        // TODO dataItem
         const that = this;
         let component;
         if (id !== undefined) {
@@ -359,63 +369,76 @@ const Stage = DataBoundWidget.extend({
     /**
      * Gets/Sets the value of the selected component in the explorer
      * @method value
-     * @param component
+     * @param value
      * @returns {*}
      */
-    value(component) {
-        const that = this;
-        if (component === CONSTANTS.NULL) {
-            if (that._selectedUid !== CONSTANTS.NULL) {
-                that._selectedUid = CONSTANTS.NULL;
-                logger.debug('selected component uid set to null');
-                that._toggleSelection();
-                that.trigger(CONSTANTS.CHANGE, {
-                    index: undefined,
-                    value: CONSTANTS.NULL
+    value(value) {
+        assert.nullableInstanceOrUndef(
+            PageComponent,
+            value,
+            assert.format(
+                assert.messages.nullableInstanceOrUndef.default,
+                'value',
+                'PageComponent'
+            )
+        );
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            // Return the selected component (with adorner)
+            if (
+                isGuid(this._selectedUid) &&
+                this.dataSource instanceof PageComponentDataSource
+            ) {
+                ret = this.dataSource.getByUid(this._selectedUid); // Returns undefined if not found
+            } else {
+                ret = null;
+            }
+        } else if ($.type(value) === CONSTANTS.NULL) {
+            // Deselect component (remove the adorner)
+            if (isGuid(this._selectedUid)) {
+                this._selectedUid = null;
+                logger.debug({ method: 'value', message: 'Remove selection' });
+                this._toggleSelection();
+                this.trigger(CONSTANTS.CHANGE, {
+                    index: -1,
+                    value: null
                 });
             }
-        } else if (component !== undefined) {
-            if (!(component instanceof PageComponent)) {
-                throw new TypeError();
+        } else if (
+            value instanceof PageComponent &&
+            isGuid(value.uid) &&
+            value.uid !== this._selectedUid
+        ) {
+            const index = this.dataSource.indexOf(value);
+            if (index > -1) {
+                this._selectedUid = value.uid;
+                logger.debug({ method: 'value', message: 'Remove selection' });
+                this._toggleSelection();
+                this.trigger(CONSTANTS.CHANGE, {
+                    index,
+                    value
+                });
             }
-            // Note: when that.value() was previously named that.selection() with a custom binding
-            // the selection binding was executed before the source binding so we had to record the selected component
-            // in a temp variable (that._tmp) and assign it to the _selectedUid in the refresh method,
-            // that is after the source was bound.
-            // The corresponding code has now been removed after renaming that.selection() into that.value()
-            // because the value binding is executed after the source binding.
-            if (
-                component.uid !== that._selectedUid &&
-                util.isGuid(component.uid)
-            ) {
-                const index = that.dataSource.indexOf(component);
-                if (index > -1) {
-                    that._selectedUid = component.uid;
-                    logger.debug(
-                        `selected component uid set to ${component.uid}`
-                    );
-                    that._toggleSelection();
-                    that.trigger(CONSTANTS.CHANGE, {
-                        index,
-                        value: component
-                    });
-                }
-            }
-        } else if (that._selectedUid === CONSTANTS.NULL) {
-            return CONSTANTS.NULL;
-        } else {
-            return that.dataSource.getByUid(that._selectedUid); // Returns undefined if not found
         }
+        return ret;
     },
 
     /**
-     * @method total()
+     * length
+     * @method length
      * @returns {*}
      */
     length() {
         return this.dataSource instanceof PageComponentDataSource
             ? this.dataSource.total()
             : -1;
+    },
+
+    /**
+     * @method items
+     */
+    items() {
+        return this.stage.children(CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS);
     },
 
     /**
@@ -439,32 +462,90 @@ const Stage = DataBoundWidget.extend({
 
     /**
      * Get/set snap angle
-     * @param snapValue
+     * @method snapAngle
+     * @param value
      */
-    snapAngle(snapValue) {
-        if ($.type(snapValue) === CONSTANTS.UNDEFINED) {
-            return this._snapAngle;
+    snapAngle(value) {
+        assert.typeOrUndef(
+            CONSTANTS.NUMBER,
+            value,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'value',
+                CONSTANTS.NUMBER
+            )
+        );
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._snapAngle;
+        } else if (value < 0) {
+            throw new RangeError('`value` should be a positive number');
+        } else if (value !== this._snapAngle) {
+            this._snapAngle = value;
+            // Note: we do not snap components automatically
         }
-        if ($.type(snapValue) === CONSTANTS.NUMBER) {
-            this._snapAngle = snapValue;
-        } else {
-            throw new TypeError('Snap angle value should be a number');
-        }
+        return ret;
     },
 
     /**
      * Get/set snap grid
-     * @param snapValue
+     * @method snapGrid
+     * @param value
      */
-    snapGrid(snapValue) {
-        if ($.type(snapValue) === CONSTANTS.UNDEFINED) {
-            return this._snapGrid;
+    snapGrid(value) {
+        assert.typeOrUndef(
+            CONSTANTS.NUMBER,
+            value,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'value',
+                CONSTANTS.NUMBER
+            )
+        );
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._snapGrid;
+        } else if (value < 0) {
+            throw new RangeError('`value` should be a positive number');
+        } else if (value !== this._snapGrid) {
+            this._snapGrid = value;
+            // Note: we do not snap components automatically
         }
-        if ($.type(snapValue) === CONSTANTS.NUMBER) {
-            this._snapGrid = snapValue;
-        } else {
-            throw new TypeError('Snap grid value should be a number');
-        }
+        return ret;
+    },
+
+    /**
+     * Widget layout
+     * @method _render
+     * @private
+     */
+    _render() {
+        assert.ok(
+            this.element.is(CONSTANTS.DIV),
+            'Please instantiate this widget with a <div/>'
+        );
+
+        // Set this.stage from the div element that makes the widget
+        this.stage = this.element.css({
+            position: RELATIVE, // !important
+            overflow: HIDDEN,
+            height: this.height(),
+            width: this.width()
+            // TODO tabIndex -> focus for key events
+        });
+
+        // We need that.wrapper for visible/invisible bindings
+        this.wrapper = this.stage
+            .wrap(`<${CONSTANTS.DIV}/>`)
+            .parent()
+            .addClass(WIDGET_CLASS)
+            .css({
+                position: RELATIVE, // !important
+                height: _outerHeight(this.stage),
+                width: _outerWidth(this.stage),
+                transformOrigin: '0 0', // 'top left', // !important without such attribute, element top left calculations are wrong
+                transform: format(CSS_SCALE, this.scale())
+            });
     },
 
     /**
@@ -518,40 +599,8 @@ const Stage = DataBoundWidget.extend({
     },
 
     /**
-     * Widget layout
-     * @private
-     */
-    _render() {
-        assert.ok(
-            this.element.is(CONSTANTS.DIV),
-            'Please instantiate this widget with a <div/>'
-        );
-
-        // Set this.stage from the div element that makes the widget
-        this.stage = this.element.css({
-            position: RELATIVE, // !important
-            overflow: HIDDEN,
-            height: this.height(),
-            width: this.width()
-            // TODO tabIndex -> focus for key events
-        });
-
-        // We need that.wrapper for visible/invisible bindings
-        this.wrapper = this.stage
-            .wrap(`<${CONSTANTS.DIV}/>`)
-            .parent()
-            .addClass(WIDGET_CLASS)
-            .css({
-                position: RELATIVE, // !important
-                height: _outerHeight(this.stage),
-                width: _outerWidth(this.stage),
-                transformOrigin: '0 0', // 'top left', // !important without such attribute, element top left calculations are wrong
-                transform: format(CSS_SCALE, this.scale())
-            });
-    },
-
-    /**
      * Initialize mode
+     * @method _initializeMode
      * @private
      */
     _initializeMode() {
@@ -560,20 +609,34 @@ const Stage = DataBoundWidget.extend({
             options: { dataSource }
         } = this;
 
-        const hasPage = !!dataSource;
+        const hasPage = !!dataSource; // TODO and data.length
         const isReadOnly = !hasPage || this._disabled || this._readonly;
+        const bindUserEntries = hasPage && this.mode() !== modes.DESIGN;
+        const designMode = hasPage && this.mode() === modes.DESIGN;
+        const enabledDesignMode =
+            designMode && !this._disabled && !this._readonly;
 
         // Set mode
         this._toggleNoPageMessage(!hasPage);
         this._toggleReadOnlyOverlay(isReadOnly);
-        const bindUserEntries = hasPage && this.mode() !== modes.DESIGN;
         this._togglePropertyBindings(bindUserEntries);
-        const designMode = hasPage && this.mode() === modes.DESIGN;
-        const enabledDesignMode =
-            designMode && !this._disabled && !this._readonly;
-        this._toggleHandleBox(enabledDesignMode);
+        this._initAdorner(enabledDesignMode);
         this._toggleTransformEventHandlers(designMode);
-        this._toggleContextMenu(enabledDesignMode);
+        this._initContextMenu(enabledDesignMode);
+    },
+
+    /**
+     * Clear all elements
+     * @private
+     */
+    _clearAll() {
+        this.stage
+            .children(CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS)
+            .each((index, stageElement) => {
+                unbind($(stageElement));
+                destroy($(stageElement));
+            });
+        this.stage.empty();
     },
 
     /**
@@ -597,15 +660,6 @@ const Stage = DataBoundWidget.extend({
                 })
                 .appendTo(this.wrapper);
         }
-    },
-
-    /**
-     *
-     * @param enable
-     * @private
-     */
-    _toggleLoadingOverlay(enable) {
-
     },
 
     /**
@@ -635,22 +689,12 @@ const Stage = DataBoundWidget.extend({
     },
 
     /**
-     * Clear mode
+     *
+     * @param enable
      * @private
      */
-    _clearMode() {
-        // TODO: Possibly remove!!!!!!
-        const that = this;
-        if (that.stage instanceof $) {
-            // Unbind elements
-            $.each(
-                that.stage.children(DOT + ELEMENT_CLASS),
-                (index, stageElement) => {
-                    destroy(stageElement);
-                }
-            );
-            that.stage.empty();
-        }
+    _toggleLoadingOverlay(enable) {
+        // TODO
     },
 
     /**
@@ -660,6 +704,11 @@ const Stage = DataBoundWidget.extend({
      */
     _togglePropertyBindings(enable) {
         const that = this;
+
+        // TODO: We might not need a PROPERTYBINDING event for that because this is all internal to ui.Stage
+        if (enable) {
+            debugger;
+        }
 
         // Unbind property bindings
         if ($.isFunction(that._propertyBinding)) {
@@ -671,13 +720,12 @@ const Stage = DataBoundWidget.extend({
             that._propertyBinding = $.proxy(function() {
                 const widget = this;
                 if (widget.properties() instanceof ObservableObject) {
-                    $.each(
-                        widget.stage.children(DOT + ELEMENT_CLASS),
-                        (index, stageElement) => {
+                    widget.stage
+                        .children(CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS)
+                        .each((index, stageElement) => {
                             // kendo.bind does unbind first
                             bind(stageElement, widget.properties());
-                        }
-                    );
+                        });
                 }
             }, that);
             that.bind(PROPERTYBINDING, that._propertyBinding);
@@ -690,7 +738,7 @@ const Stage = DataBoundWidget.extend({
      * @param enable
      * @private
      */
-    _toggleHandleBox(enable) {
+    _initAdorner(enable) {
         assert.instanceof(
             $,
             this.wrapper,
@@ -700,40 +748,64 @@ const Stage = DataBoundWidget.extend({
                 'jQuery'
             )
         );
-        const that = this;
-        const wrapper = that.wrapper;
+        const { wrapper } = this;
 
-        // Clear
-        if ($.isFunction(that._removeDebugVisualElements)) {
-            that._removeDebugVisualElements(wrapper);
+        // Clear adorner
+        if ($.isFunction(this._removeDebugVisualElements)) {
+            this._removeDebugVisualElements(wrapper);
         }
         $(document).off(NS);
-        wrapper.children(DOT + HANDLE_BOX_CLASS).remove();
+        this._getAdorner().remove();
 
-        // Setup handles
+        // Setup adorner
         if (enable) {
-            // Add handles
-            $(HANDLE_BOX)
+            // Note: without touch-action: none,
+            // touch gestures won't work in Internet Explorer
+            const handle = `<span class="${HANDLE_CLASS}" ${attr(
+                CONSTANTS.ACTION
+            )}="{0}" style="touch-action:none;"></span>`;
+
+            // Add adorner and handles
+            $(`<div class="${ADORNER_CLASS}"/>`)
                 .css({
                     position: ABSOLUTE,
-                    display: NONE
+                    display: CONSTANTS.NONE
                 })
-                .append(HANDLE_MOVE)
-                .append(HANDLE_RESIZE)
-                .append(HANDLE_ROTATE)
-                .append(HANDLE_MENU)
+                .append(format(handle, ACTIONS.MOVE))
+                .append(format(handle, ACTIONS.RESIZE))
+                .append(format(handle, ACTIONS.ROTATE))
+                .append(format(handle, ACTIONS.MENU))
                 .appendTo(wrapper);
 
             // Add stage event handlers
-            $(document) // was that.wrapper
-                .on(MOUSEDOWN, $.proxy(that._onMouseDown, that))
-                .on(MOUSEMOVE, $.proxy(that._onMouseMove, that))
-                .on(MOUSEUP, $.proxy(that._onMouseUp, that));
+            /*
+            $(document)
+                .on(MOUSEDOWN, this._onMouseDown.bind(this))
+                .on(MOUSEMOVE, this._onMouseMove.bind(this))
+                .on(MOUSEUP, this._onMouseUp.bind(this));
 
             // Add debug visual elements
-            if ($.isFunction(that._addDebugVisualElements)) {
-                that._addDebugVisualElements(wrapper);
+            if ($.isFunction(this._addDebugVisualElements)) {
+                this._addDebugVisualElements(wrapper);
             }
+            */
+        }
+    },
+
+    /**
+     * TODO
+     * @private
+     */
+    _initUserEvents() {
+        if ($.type(this.userEvents) === CONSTANTS.UNDEFINED) {
+            this.userEvents = new UserEvents(this.wrapper, {
+                global: true,
+                filter: '.kj-handle',
+                // press: $.noop,
+                start: this._onMouseDown.bind(this),
+                move: this._onMouseMove.bind(this),
+                end: this._onMouseUp.bind(this)
+            });
         }
     },
 
@@ -752,261 +824,216 @@ const Stage = DataBoundWidget.extend({
                 'jQuery'
             )
         );
-        const that = this;
-        const stage = that.stage;
 
         // Clear
-        stage.off(NS);
+        this.stage.off(NS);
 
         // Enable event handlers (also in navigation in design mode)
         if (enable) {
-            stage
-                // .on(ENABLE + NS, DOT + ELEMENT_CLASS, $.proxy(that._enableStageElement, that))
+            this.stage
+                .on(
+                    ENABLE + NS,
+                    CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS,
+                    this._onEnableStageElement.bind(this)
+                )
                 .on(
                     MOVE + NS,
-                    DOT + ELEMENT_CLASS,
-                    $.proxy(that._moveStageElement, that)
+                    CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS,
+                    this._onMoveStageElement.bind(this)
                 )
                 .on(
                     RESIZE + NS,
-                    DOT + ELEMENT_CLASS,
-                    $.proxy(that._resizeStageElement, that)
+                    CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS,
+                    this._onResizeStageElement.bind(this)
                 )
                 .on(
                     ROTATE + NS,
-                    DOT + ELEMENT_CLASS,
-                    $.proxy(that._rotateStageElement, that)
+                    CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS,
+                    this._onRotateStageElement.bind(this)
                 );
         }
     },
 
     /**
-     * Event handler called when adding or triggered when enabling an element
+     * Refresh
      * @param e
-     * @param component
-     * @param enable
-     * @private
      */
-    _enableStageElement(e, component, enable) {
-        const tools = this.options.tools;
-        assert.instanceof(
-            ObservableObject,
-            tools,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.options.tools',
-                'kendo.data.ObservableObject'
-            )
-        );
-        const tool = tools[component.tool];
-        assert.instanceof(
-            BaseTool,
-            tool,
-            assert.format(
-                assert.messages.instanceof.default,
-                'tool',
-                'BaseTool'
-            )
-        );
-        if ($.isFunction(tool.onEnable)) {
-            tool.onEnable(e, component, enable);
-        }
-    },
-
-    /**
-     * Event handler called when adding or triggered when moving an element
-     * @param e
-     * @param component
-     * @private
-     */
-    _moveStageElement(e, component) {
-        const tools = this.options.tools;
-        assert.instanceof(
-            ObservableObject,
-            tools,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.options.tools',
-                'kendo.data.ObservableObject'
-            )
-        );
-        const tool = tools[component.tool];
-        assert.instanceof(
-            BaseTool,
-            tool,
-            assert.format(
-                assert.messages.instanceof.default,
-                'tool',
-                'BaseTool'
-            )
-        );
-        if ($.isFunction(tool.onMove)) {
-            tool.onMove(e, component);
-        }
-    },
-
-    /**
-     * Event handler called when adding or triggered when resizing an element
-     * @param e
-     * @param component
-     * @private
-     */
-    _resizeStageElement(e, component) {
-        const tools = this.options.tools;
-        assert.instanceof(
-            ObservableObject,
-            tools,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.options.tools',
-                'kendo.data.ObservableObject'
-            )
-        );
-        const tool = tools[component.tool];
-        assert.instanceof(
-            BaseTool,
-            tool,
-            assert.format(
-                assert.messages.instanceof.default,
-                'tool',
-                'BaseTool'
-            )
-        );
-        if ($.isFunction(tool.onResize)) {
-            tool.onResize(e, component);
-        }
-    },
-
-    /**
-     * Event handler called when adding or triggered when rotating an element
-     * @param e
-     * @param component
-     * @private
-     */
-    _rotateStageElement(e, component) {
-        const tools = this.options.tools;
-        assert.instanceof(
-            ObservableObject,
-            tools,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.options.tools',
-                'kendo.data.ObservableObject'
-            )
-        );
-        const tool = tools[component.tool];
-        assert.instanceof(
-            BaseTool,
-            tool,
-            assert.format(
-                assert.messages.instanceof.default,
-                'tool',
-                'BaseTool'
-            )
-        );
-        if ($.isFunction(tool.onRotate)) {
-            tool.onRotate(e, component);
-        }
-    },
-
-    /**
-     * Toggle context menu
-     * @param enable
-     * @private
-     */
-    _toggleContextMenu(enable) {
+    refresh(e) {
         const that = this;
+        if (e === undefined || e.action === undefined) {
+            let components = [];
+            if (
+                e === undefined &&
+                that.dataSource instanceof PageComponentDataSource
+            ) {
+                components = that.dataSource.data();
+            } else if (e && e.items instanceof ObservableArray) {
+                components = e.items;
+            }
 
-        // Clear (noting that kendo.ui.ContextMenu is not available in kidoju-Mobile)
-        if (that.menu instanceof ContextMenu) {
-            that.menu.destroy();
-            that.menu.element.remove();
-            that.menu = undefined;
-        }
+            that.trigger(CONSTANTS.DATABINDING);
 
-        // Add context menu
-        if (enable) {
-            // See http://docs.telerik.com/kendo-ui/api/javascript/ui/contextmenu
-            that.menu = $('<ul class="kj-stage-menu"></ul>')
-                // TODO: Bring forward, Push backward, Edit, etc.....
-                .append(
-                    `<li ${DATA_COMMAND}="delete">${
-                        this.options.messages.contextMenu.delete
-                    }</li>`
-                )
-                .append(
-                    `<li ${DATA_COMMAND}="duplicate">${
-                        this.options.messages.contextMenu.duplicate
-                    }</li>`
-                )
-                .appendTo(that.wrapper)
-                .kendoContextMenu({
-                    target: `.kj-handle[${DATA_COMMAND}="menu"]`,
-                    showOn: MOUSEDOWN,
-                    select: $.proxy(that._contextMenuSelectHandler, that)
-                })
-                .data('kendoContextMenu');
+            // Add loading overlay
+            const overlay = $(LOADING_OVERLAY).appendTo(this.wrapper);
+
+            // Remove all elements from the stage
+            that._hideAdorner();
+            that._clearAll();
+
+            // Add elements to the stage
+            components.forEach(component => {
+                that._addStageElement(component);
+            });
+
+            // Remove loading overlay
+            overlay.remove();
+
+            // If the following line triggers `Uncaught TypeError: Cannot read property 'length' of null` in the console
+            // This is probably because binding on properties has not been properly set - check html
+            // as in <input type="text" style="width: 300px; height: 100px; font-size: 75px;" data-bind="value: ">
+            that.trigger(CONSTANTS.DATABOUND);
+
+            // We can only bind properties after all dataBound event handlers have executed
+            // otherwise there is a mix of binding sources
+            that.trigger(PROPERTYBINDING); // This calls an event handler in _initializePlayMode
+        } else if (e.action === 'add') {
+            e.items.forEach(component => {
+                that._addStageElement(component);
+                that.value(component);
+            });
+        } else if (e.action === 'remove') {
+            e.items.forEach(component => {
+                that._removeStageElementByUid(component.uid);
+                that.trigger(CONSTANTS.CHANGE, {
+                    action: e.action,
+                    value: component
+                });
+                if (
+                    that.wrapper
+                        .children(CONSTANTS.DOT + ADORNER_CLASS)
+                        .attr(attr(CONSTANTS.UID)) === component.uid
+                ) {
+                    that.value(null);
+                }
+            });
+        } else if (
+            e.action === 'itemchange' &&
+            Array.isArray(e.items) &&
+            e.items.length &&
+            e.items[0] instanceof PageComponent
+        ) {
+            e.items.forEach(component => {
+                const stageElement = that._getStageElementByUid(component.uid);
+                const adorner = that.wrapper.children(
+                    format(ADORNER_SELECTOR, component.uid)
+                );
+                if (stageElement.length) {
+                    switch (e.field) {
+                        case CONSTANTS.LEFT:
+                            if (
+                                Math.round(stageElement.position().left) !==
+                                Math.round(component.left)
+                            ) {
+                                stageElement.css(
+                                    CONSTANTS.LEFT,
+                                    component.left
+                                );
+                                adorner.css(CONSTANTS.LEFT, component.left);
+                                stageElement.trigger(MOVE + NS, component);
+                            }
+                            break;
+                        case CONSTANTS.TOP:
+                            if (
+                                Math.round(stageElement.position().top) !==
+                                Math.round(component.top)
+                            ) {
+                                stageElement.css(CONSTANTS.TOP, component.top);
+                                adorner.css(CONSTANTS.TOP, component.top);
+                                stageElement.trigger(MOVE + NS, component);
+                            }
+                            break;
+                        case CONSTANTS.HEIGHT:
+                            if (
+                                Math.round(stageElement.height()) !==
+                                Math.round(component.height)
+                            ) {
+                                stageElement.css(
+                                    CONSTANTS.HEIGHT,
+                                    component.height
+                                );
+                                adorner.css(CONSTANTS.HEIGHT, component.height);
+                                stageElement.trigger(RESIZE + NS, component);
+                            }
+                            break;
+                        case CONSTANTS.WIDTH:
+                            if (
+                                Math.round(stageElement.width()) !==
+                                Math.round(component.width)
+                            ) {
+                                stageElement.css(
+                                    CONSTANTS.WIDTH,
+                                    component.width
+                                );
+                                adorner.css(CONSTANTS.WIDTH, component.width);
+                                stageElement.trigger(RESIZE + NS, component);
+                            }
+                            break;
+                        case ROTATE:
+                            if (
+                                Math.round(
+                                    getTransformRotation(stageElement)
+                                ) !== Math.round(component.rotate)
+                            ) {
+                                stageElement.css(
+                                    TRANSFORM,
+                                    format(CSS_ROTATE, component.rotate)
+                                );
+                                adorner.css(
+                                    TRANSFORM,
+                                    format(CSS_ROTATE, component.rotate)
+                                );
+                                adorner
+                                    .children(CONSTANTS.DOT + HANDLE_CLASS)
+                                    .css(
+                                        TRANSFORM,
+                                        `${format(
+                                            CSS_ROTATE,
+                                            -component.rotate
+                                        )} ${format(
+                                            CSS_SCALE,
+                                            1 / that.scale()
+                                        )}`
+                                    );
+                                stageElement.trigger(ROTATE + NS, component);
+                            }
+                            break;
+                        default:
+                            if (
+                                /^attributes/.test(e.field) ||
+                                /^properties/.test(e.field)
+                            ) {
+                                that._prepareStageElement(
+                                    stageElement,
+                                    component
+                                );
+                                that._initStageElement(stageElement, component);
+                            }
+                    }
+                }
+            });
         }
+        /*
+        } else if (e.action === 'itemchange' && Array.isArray(e.items) && e.items.length && !(e.items[0] instanceof PageComponent)) {
+            // This is especially the case for the quiz component when e.field === attributes.data: the e.items[i] is a data entry
+            // but in this case using the parent() method to recursively find the component is a dead end
+        }
+        */
+        logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
 
     /**
-     * Event handler for selecting an item in the context menu
-     * @param e
-     * @private
-     */
-    _contextMenuSelectHandler(e) {
-        assert.isPlainObject(
-            e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
-        );
-        assert.instanceof(
-            $.Event,
-            e.event,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e.event',
-                'jQuery.Event'
-            )
-        );
-
-        // TODO: Consider an event dispatcher so that the same commands can be called from toolbar
-        // Check when implementing fonts, colors, etc....
-        const that = this;
-        let uid;
-        let item;
-        switch ($(e.item).attr(DATA_COMMAND)) {
-            case 'delete':
-                uid = that.wrapper
-                    .children(DOT + HANDLE_BOX_CLASS)
-                    .attr(DATA_UID);
-                item = that.dataSource.getByUid(uid);
-                that.dataSource.remove(item);
-                // This should raise the change event on the dataSource and call the refresh method of the widget
-                break;
-            case 'duplicate':
-                uid = that.wrapper
-                    .children(DOT + HANDLE_BOX_CLASS)
-                    .attr(DATA_UID);
-                item = that.dataSource.getByUid(uid);
-                var clone = item.clone();
-                clone.top += 10;
-                clone.left += 10;
-                that.dataSource.add(clone);
-                break;
-        }
-
-        // Close the menu
-        if (that.menu instanceof ContextMenu) {
-            that.menu.close();
-        }
-
-        // Event is handled, do not propagate
-        e.preventDefault();
-        // e.stopPropagation();
-    },
-
-    /**
-     * Add an element onto the stage either on a click or from dataSource
+     * _addStageElement
+     * @method _addStageElement
      * @param component
      * @private
      */
@@ -1038,57 +1065,40 @@ const Stage = DataBoundWidget.extend({
                 CONSTANTS.STRING
             )
         );
-        assert.type(
-            CONSTANTS.NUMBER,
-            component.left,
-            assert.format(
-                assert.messages.type.default,
-                'component.left',
-                CONSTANTS.NUMBER
-            )
-        );
-        assert.type(
-            CONSTANTS.NUMBER,
-            component.top,
-            assert.format(
-                assert.messages.type.default,
-                'component.top',
-                CONSTANTS.NUMBER
-            )
-        );
 
-        const that = this;
-        const stage = that.stage;
+        const { stage } = this;
 
         // Cannot add a stage element that already exists on stage
-        if (
-            stage.children(format(ELEMENT_SELECTOR, component.uid)).length > 0
-        ) {
+        if (this._getStageElementByUid(component.uid).length > 0) {
             return;
         }
 
         // Create stageElement
         const stageElement = $(
-            format(ELEMENT, component.uid, component.tool)
+            format(
+                `<div ${attr(CONSTANTS.UID)}="{0}" ${attr(
+                    'tool'
+                )}="{1}" class="${CONSTANTS.ELEMENT_CLASS}"></div>`,
+                component.uid,
+                component.tool
+            )
         ).css({
             position: ABSOLUTE,
-            top: component.get(TOP),
-            left: component.get(LEFT),
-            height: component.get(HEIGHT),
-            width: component.get(WIDTH),
+            top: component.get(CONSTANTS.TOP),
+            left: component.get(CONSTANTS.LEFT),
+            height: component.get(CONSTANTS.HEIGHT),
+            width: component.get(CONSTANTS.WIDTH),
             // transformOrigin: 'center center', // by default
             transform: format(CSS_ROTATE, component.get(ROTATE))
         });
 
         // Prepare stageElement with component
-        that._prepareStageElement(stageElement, component);
-
-        // Check index in the dataSource
-        const index = that.dataSource.indexOf(component);
+        this._prepareStageElement(stageElement, component);
 
         // Append to the stage at index
+        const index = this.dataSource.indexOf(component);
         const nextStageElement = stage.children(
-            `${DOT + ELEMENT_CLASS}:eq(${index})`
+            `${CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS}:eq(${index})`
         );
         if (nextStageElement.length) {
             nextStageElement.before(stageElement);
@@ -1097,11 +1107,60 @@ const Stage = DataBoundWidget.extend({
         }
 
         // init stageElement
-        that._initStageElement(stageElement, component);
+        this._initStageElement(stageElement, component);
     },
 
     /**
-     * Prepare Stage Element
+     * _getStageElementByUid
+     * @method _getStageElementByUid
+     * @param uid
+     * @private
+     */
+    _getStageElementByUid(uid) {
+        assert.match(
+            CONSTANTS.RX_GUID,
+            uid,
+            assert.format(
+                assert.messages.match.default,
+                'uid',
+                CONSTANTS.RX_GUID
+            )
+        );
+        return this.stage.children(
+            format(
+                `${CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS}[${attr(
+                    CONSTANTS.UID
+                )}="{0}"]`,
+                uid
+            )
+        );
+    },
+
+    /**
+     * _removeStageElementByUid
+     * @method _removeStageElementByUid
+     * @param uid
+     * @private
+     */
+    _removeStageElementByUid(uid) {
+        assert.match(
+            CONSTANTS.RX_GUID,
+            uid,
+            assert.format(
+                assert.messages.match.default,
+                'uid',
+                CONSTANTS.RX_GUID
+            )
+        );
+        const stageElement = this._getStageElementByUid(uid);
+        unbind(stageElement);
+        destroy(stageElement);
+        stageElement.remove();
+    },
+
+    /**
+     * _prepareStageElement
+     * @method _prepareStageElement
      * @param stageElement
      * @param component
      * @private
@@ -1125,37 +1184,33 @@ const Stage = DataBoundWidget.extend({
                 'kidoju.data.PageComponent'
             )
         );
-        assert.instanceof(
-            $,
-            this.stage,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.stage',
-                'jQuery'
-            )
-        );
         assert.equal(
             component.uid,
             stageElement.attr(attr('uid')),
             'The stageElement data-uid attribute is expected to equal the component uid'
         );
 
+        // Get tool
         const tool = this.options.tools[component.tool];
         assert.instanceof(
             BaseTool,
             tool,
             assert.format(assert.messages.instanceof.default, tool, 'BaseTool')
         );
+
+        // Get stage mode
         const mode = this.mode();
         assert.enum(
-            Object.values(Stage.fn.modes),
+            Object.values(CONSTANTS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.values(Stage.fn.modes)
+                Object.values(CONSTANTS.STAGE_MODES)
             )
         );
+
+        // Get html content
         let content = tool.getHtmlContent(component, mode);
         if (!(content instanceof $)) {
             assert.type(
@@ -1171,22 +1226,45 @@ const Stage = DataBoundWidget.extend({
         }
 
         // Empty stage element
-        // stageElement.unbind();
+        unbind(stageElement);
         destroy(stageElement);
         stageElement.empty();
 
         // Append content
         stageElement.append(content);
+
+        // Note: Kendo UI widgets have not been initialized and bound to view models
+        // this requires calling _initStageElement next
     },
 
     /**
-     *
+     * _initStageElement
+     * @method _initStageElement
      * @param stageElement
      * @private
      */
     _initStageElement(stageElement, component) {
-        // In case stageElement is made from kendo UI controls
-        kendo.init(stageElement);
+        assert.instanceof(
+            $,
+            stageElement,
+            assert.format(
+                assert.messages.instanceof.default,
+                'stageElement',
+                'jQuery'
+            )
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'kidoju.data.PageComponent'
+            )
+        );
+
+        // Initialize kendo UI widgets
+        init(stageElement);
 
         // We cannot trigger transform event handlers on stage elements
         // because they are not yet added to the stage to which events are delegated
@@ -1198,103 +1276,370 @@ const Stage = DataBoundWidget.extend({
         stageElement.trigger(RESIZE + NS, component);
         stageElement.trigger(ROTATE + NS, component);
         */
-        this._enableStageElement(
-            {
-                currentTarget: stageElement,
-                preventDefault: $.noop,
-                stopPropagation: $.noop
-            },
+
+        // But we can execute them with an emulated event
+        const emulatedEvent = {
+            currentTarget: stageElement,
+            preventDefault: $.noop,
+            stopPropagation: $.noop
+        };
+
+        this._onEnableStageElement(
+            emulatedEvent,
             component,
-            this.mode() === this.modes.PLAY
+            this.mode() === CONSTANTS.STAGE_MODES.PLAY
         );
-        this._moveStageElement(
-            {
-                currentTarget: stageElement,
-                preventDefault: $.noop,
-                stopPropagation: $.noop
-            },
-            component
-        );
-        this._resizeStageElement(
-            {
-                currentTarget: stageElement,
-                preventDefault: $.noop,
-                stopPropagation: $.noop
-            },
-            component
-        );
-        this._rotateStageElement(
-            {
-                currentTarget: stageElement,
-                preventDefault: $.noop,
-                stopPropagation: $.noop
-            },
-            component
-        );
+        this._onMoveStageElement(emulatedEvent, component);
+        this._onResizeStageElement(emulatedEvent, component);
+        this._onRotateStageElement(emulatedEvent, component);
     },
 
     /**
-     * Remove an element from the stage
-     * @param uid
+     * Event handler called when adding or triggered when enabling an element
+     * @method _onEnableStageElement
+     * @param e
+     * @param component
+     * @param enable
      * @private
      */
-    _removeStageElementByUid(uid) {
-        // TODO use a tool method to avoid leaks (remove all event handlers, ...)
-
-        // Find and remove stage element
-        const stageElement = this.stage.children(format(ELEMENT_SELECTOR, uid));
-        kendo.unbind(stageElement);
-        destroy(stageElement);
-        stageElement.off(NS).remove();
+    _onEnableStageElement(e, component, enable) {
+        const { options } = this;
+        assert.instanceof(
+            ObservableObject,
+            options.tools,
+            assert.format(
+                assert.messages.instanceof.default,
+                'this.options.tools',
+                'kendo.data.ObservableObject'
+            )
+        );
+        const tool = options.tools[component.tool];
+        assert.instanceof(
+            BaseTool,
+            tool,
+            assert.format(
+                assert.messages.instanceof.default,
+                'tool',
+                'BaseTool'
+            )
+        );
+        if ($.isFunction(tool.onEnable)) {
+            tool.onEnable(e, component, enable);
+        }
     },
 
     /**
-     * Show handles on a stage element
-     * @method _showHandles
+     * Event handler called when adding or triggered when moving an element
+     * @method _onMoveStageElement
+     * @param e
+     * @param component
+     * @private
+     */
+    _onMoveStageElement(e, component) {
+        const { options } = this;
+        assert.instanceof(
+            ObservableObject,
+            options.tools,
+            assert.format(
+                assert.messages.instanceof.default,
+                'this.options.tools',
+                'kendo.data.ObservableObject'
+            )
+        );
+        const tool = options.tools[component.tool];
+        assert.instanceof(
+            BaseTool,
+            tool,
+            assert.format(
+                assert.messages.instanceof.default,
+                'tool',
+                'BaseTool'
+            )
+        );
+        if ($.isFunction(tool.onMove)) {
+            tool.onMove(e, component);
+        }
+    },
+
+    /**
+     * Event handler called when adding or triggered when resizing an element
+     * @method _onResizeStageElement
+     * @param e
+     * @param component
+     * @private
+     */
+    _onResizeStageElement(e, component) {
+        const { options } = this;
+        assert.instanceof(
+            ObservableObject,
+            options.tools,
+            assert.format(
+                assert.messages.instanceof.default,
+                'this.options.tools',
+                'kendo.data.ObservableObject'
+            )
+        );
+        const tool = options.tools[component.tool];
+        assert.instanceof(
+            BaseTool,
+            tool,
+            assert.format(
+                assert.messages.instanceof.default,
+                'tool',
+                'BaseTool'
+            )
+        );
+        if ($.isFunction(tool.onResize)) {
+            tool.onResize(e, component);
+        }
+    },
+
+    /**
+     * Event handler called when adding or triggered when rotating an element
+     * @method _onRotateStageElement
+     * @param e
+     * @param component
+     * @private
+     */
+    _onRotateStageElement(e, component) {
+        const { options } = this;
+        assert.instanceof(
+            ObservableObject,
+            options.tools,
+            assert.format(
+                assert.messages.instanceof.default,
+                'this.options.tools',
+                'kendo.data.ObservableObject'
+            )
+        );
+        const tool = options.tools[component.tool];
+        assert.instanceof(
+            BaseTool,
+            tool,
+            assert.format(
+                assert.messages.instanceof.default,
+                'tool',
+                'BaseTool'
+            )
+        );
+        if ($.isFunction(tool.onRotate)) {
+            tool.onRotate(e, component);
+        }
+    },
+
+    /**
+     * Toggle context menu
+     * @param enable
+     * @private
+     */
+    _initContextMenu(enable) {
+        // Clear (noting that kendo.ui.ContextMenu is not available in kidoju-Mobile)
+        if (this.menu instanceof ContextMenu) {
+            this.menu.destroy();
+            this.menu.element.remove();
+            this.menu = undefined;
+        }
+
+        // Add context menu
+        if (enable) {
+            // See http://docs.telerik.com/kendo-ui/api/javascript/ui/contextmenu
+            this.menu = $(`<ul class="${MENU_CLASS}"></ul>`)
+                // TODO: Bring forward, Push backward, Edit, etc.....
+                .append(
+                    `<li ${attr(CONSTANTS.ACTION)}="delete">${
+                        this.options.messages.contextMenu.delete
+                    }</li>`
+                )
+                .append(
+                    `<li ${attr(CONSTANTS.ACTION)}="duplicate">${
+                        this.options.messages.contextMenu.duplicate
+                    }</li>`
+                )
+                .appendTo(this.wrapper)
+                .kendoContextMenu({
+                    target: `.kj-handle[${attr(CONSTANTS.ACTION)}="menu"]`,
+                    showOn: support.click,
+                    open: this._onContextMenuOpen.bind(this),
+                    select: this._onContextMenuSelect.bind(this)
+                })
+                .data('kendoContextMenu');
+        }
+    },
+
+    /**
+     * Event handler triggered when opening the context menu
+     * @method _onContextMenuOpen
+     * @param e
+     * @private
+     */
+    _onContextMenuOpen(e) {
+        assert.isPlainObject(
+            e,
+            assert.format(assert.messages.isPlainObject.default, 'e')
+        );
+        assert.instanceof(
+            ContextMenu,
+            e.sender,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e.sender',
+                'kendo.ui.ContextMenu'
+            )
+        );
+
+        if ($(e.item).is(`ul.${MENU_CLASS}`)) {
+            // This is the top menu, so let's find the component and tool
+            const uid = this._getSelectedUid();
+            const component = this.dataSource.getByUid(uid);
+            const tool = this.options.tools[component.tool];
+
+            // Discard the old menu, probably referring to another component
+            e.sender.remove(`[${attr(CONSTANTS.ACTION)}="component"]`);
+
+            // Get the context menu from the relevant tool
+            if (tool instanceof BaseTool && $.isFunction(tool.getContextMenu)) {
+                const menu = tool.getContextMenu();
+                if (Array.isArray(menu) && menu.length) {
+                    const attributes = {};
+                    attributes[attr(CONSTANTS.ACTION)] = 'component';
+                    e.sender.append([
+                        {
+                            text: tool.description, // TODO tool.name
+                            attr: attributes,
+                            items: tool.getContextMenu()
+                        }
+                    ]);
+                }
+            }
+        }
+    },
+
+    /**
+     * Event handler triggered when selecting an item in the context menu
+     * @method _onContextMenuSelection
+     * @param e
+     * @private
+     */
+    _onContextMenuSelect(e) {
+        assert.isPlainObject(
+            e,
+            assert.format(assert.messages.isPlainObject.default, 'e')
+        );
+        assert.instanceof(
+            ContextMenu,
+            e.sender,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e.sender',
+                'kendo.ui.ContextMenu'
+            )
+        );
+
+        // Get action
+        const action = $(e.item).attr(attr(CONSTANTS.ACTION));
+        if (action !== 'component') {
+            // Event is handled, do not propagate
+            e.preventDefault();
+
+            // Get action and component
+            const uid = this._getSelectedUid();
+            const component = this.dataSource.getByUid(uid);
+            let clone;
+            let tool;
+            let index;
+
+            // Handle action on component
+            switch (action) {
+                case 'delete':
+                    this.dataSource.remove(component);
+                    // TODO This should raise the change event on the dataSource and call the refresh method of the widget
+                    break;
+                case 'duplicate':
+                    clone = component.clone();
+                    clone.top += 10;
+                    clone.left += 10;
+                    index = this.dataSource.indexOf(component);
+                    this.dataSource.insert(index + 1, clone);
+                    break;
+                default:
+                    tool = this.options.tools[component.tool];
+                    if (
+                        tool instanceof BaseTool &&
+                        $.isFunction(tool.onContextMenu)
+                    ) {
+                        tool.onContextMenu(action, component);
+                    }
+            }
+
+            // Close the menu (does not close automatically)
+            e.sender.close();
+        }
+    },
+
+    /**
+     * Get adorner
+     * @method _getAdorner
+     * @returns {*}
+     * @private
+     */
+    _getAdorner() {
+        return this.wrapper.children(CONSTANTS.DOT + ADORNER_CLASS);
+    },
+
+    /**
+     * Show the adorner and handles on a stage element
+     * @method _showAdorner
      * @param uid
      * @private
      */
-    _showHandles(uid) {
-        const that = this;
-        const handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
-        if (handleBox.length) {
-            // Position handleBox on top of stageElement (same location, same size, same rotation)
-            const stageElement = that.stage.children(
-                format(ELEMENT_SELECTOR, uid)
-            );
-            handleBox
+    _showAdorner(uid) {
+        const adorner = this._getAdorner();
+        if (adorner.length) {
+            // Position adorner on top of stageElement (same location, same size, same rotation)
+            const stageElement = this._getStageElementByUid(uid);
+            adorner
                 .css({
-                    top: stageElement.css(TOP),
-                    left: stageElement.css(LEFT),
-                    height: stageElement.css(HEIGHT),
-                    width: stageElement.css(WIDTH),
+                    top: stageElement.css(CONSTANTS.TOP),
+                    left: stageElement.css(CONSTANTS.LEFT),
+                    height: stageElement.css(CONSTANTS.HEIGHT),
+                    width: stageElement.css(CONSTANTS.WIDTH),
                     // transformOrigin: 'center center', // by default
                     transform: stageElement.css(TRANSFORM), // This might return a matrix
                     display: BLOCK
                 })
-                .attr(DATA_UID, uid); // This is how we know which stageElement to transform when dragging handles
+                // IMPORTANT: Set the uid of the adorner to the uid of the stageElement it is set on
+                // This is how we know which stageElement to transform when dragging handles
+                .attr(attr(CONSTANTS.UID), uid);
 
-            // Scale and rotate handles
-            handleBox.children(DOT + HANDLE_CLASS).css({
+            // Scale back and rotate back handles
+            adorner.children(CONSTANTS.DOT + HANDLE_CLASS).css({
                 // transformOrigin: 'center center', // by default
                 transform: `${format(
                     CSS_ROTATE,
-                    -util.getTransformRotation(stageElement)
-                )} ${format(CSS_SCALE, 1 / that.scale())}`
+                    -getTransformRotation(stageElement)
+                )} ${format(CSS_SCALE, 1 / this.scale())}`
             });
         }
     },
 
     /**
-     * Hide handles
-     * @method _hideHandles
+     * Hide adroner and handles
+     * @method _hideAdorner
      * @private
      */
-    _hideHandles() {
-        this.wrapper
-            .children(DOT + HANDLE_BOX_CLASS)
-            .css({ display: NONE })
-            .removeAttr(DATA_UID);
+    _hideAdorner() {
+        this._getAdorner()
+            .css({ display: CONSTANTS.NONE })
+            .removeAttr(attr(CONSTANTS.UID));
+    },
+
+    /**
+     * _getSelectedUid
+     * @method _getSelectedUid
+     * @private
+     */
+    _getSelectedUid() {
+        return this._getAdorner().attr(attr(CONSTANTS.UID));
     },
 
     /**
@@ -1314,11 +1659,13 @@ const Stage = DataBoundWidget.extend({
         );
         const that = this;
         const tools = that.options.tools;
-        const activeToolId = tools.get(ACTIVE_TOOL);
+        const activeToolId = tools.get(CONSTANTS.ACTIVE);
         const target = $(e.target);
-        const mouse = util.getMousePosition(e, that.stage);
-        let stageElement = target.closest(DOT + ELEMENT_CLASS);
-        const handle = target.closest(DOT + HANDLE_CLASS);
+        const mouse = getMousePosition(e, that.stage);
+        let stageElement = target.closest(
+            CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS
+        );
+        const handle = target.closest(CONSTANTS.DOT + HANDLE_CLASS);
         let uid;
 
         // Close any context menu left opened if not selecting a menu item
@@ -1326,7 +1673,7 @@ const Stage = DataBoundWidget.extend({
             that.menu.close();
         }
 
-        if (activeToolId !== POINTER) {
+        if (activeToolId !== CONSTANTS.POINTER) {
             // When clicking the stage with an active tool, add a new element
             const tool = tools[activeToolId];
             assert.instanceof(
@@ -1338,7 +1685,7 @@ const Stage = DataBoundWidget.extend({
                     'BaseTool'
                 )
             );
-            const scale = util.getTransformScale(that.wrapper);
+            const scale = getTransformScale(that.wrapper);
             const left = mouse.x / scale;
             const top = mouse.y / scale;
 
@@ -1361,30 +1708,28 @@ const Stage = DataBoundWidget.extend({
                 that.dataSource.add(item);
                 // Add triggers the change event on the dataSource which calls the refresh method
 
-                tools.set(ACTIVE_TOOL, POINTER);
+                tools.set(CONSTANTS.ACTIVE, CONSTANTS.POINTER);
             }
 
             e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
             e.stopPropagation();
         } else if (handle.length) {
             // When hitting a handle with the pointer tool
-            const command = handle.attr(DATA_COMMAND);
-            if (command === COMMANDS.MENU) {
+            const action = handle.attr(attr(CONSTANTS.ACTION));
+            if (action === ACTIONS.MENU) {
                 $.noop(); // TODO: contextual menu here
             } else {
-                const handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
-                uid = handleBox.attr(DATA_UID); // the uid of the stageElement which is being selected before hitting the handle
-                stageElement = that.stage.children(
-                    format(ELEMENT_SELECTOR, uid)
-                );
-                handleBox.data(STATE, {
-                    command,
-                    top: parseFloat(stageElement.css(TOP)) || 0, // stageElement.position().top does not work when scaled
-                    left: parseFloat(stageElement.css(LEFT)) || 0, // stageElement.position().left does not work when scaled
+                const adorner = that._getAdorner();
+                uid = adorner.attr(attr(CONSTANTS.UID)); // the uid of the stageElement which is being selected before hitting the handle
+                stageElement = that._getStageElementByUid(uid);
+                adorner.data(STATE, {
+                    action,
+                    top: parseFloat(stageElement.css(CONSTANTS.TOP)) || 0, // stageElement.position().top does not work when scaled
+                    left: parseFloat(stageElement.css(CONSTANTS.LEFT)) || 0, // stageElement.position().left does not work when scaled
                     height: stageElement.height(),
                     width: stageElement.width(),
-                    angle: util.getTransformRotation(stageElement),
-                    scale: util.getTransformScale(that.wrapper),
+                    angle: getTransformRotation(stageElement),
+                    scale: getTransformScale(that.wrapper),
                     snapGrid: 0, // TODO
                     snapAngle: 0, // TODO
                     mouseX: mouse.x,
@@ -1392,15 +1737,18 @@ const Stage = DataBoundWidget.extend({
                     uid
                 });
 
-                // log(handleBox.data(STATE));
+                // log(adorner.data(STATE));
                 $(document.body).css(CURSOR, target.css(CURSOR));
             }
             e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
             e.stopPropagation();
-        } else if (stageElement.length || target.is(DOT + HANDLE_BOX_CLASS)) {
+        } else if (
+            stageElement.length ||
+            target.is(CONSTANTS.DOT + ADORNER_CLASS)
+        ) {
             // When hitting a stage element or the handle box with the pointer tool
-            uid = stageElement.attr(DATA_UID);
-            if (util.isGuid(uid)) {
+            uid = stageElement.attr(attr(CONSTANTS.UID));
+            if (isGuid(uid)) {
                 const component = that.dataSource.getByUid(uid);
                 if (component instanceof PageComponent) {
                     that.value(component);
@@ -1408,7 +1756,7 @@ const Stage = DataBoundWidget.extend({
             }
         } else if (that.wrapper.find(target).length) {
             // When hitting anything else in the wrapper with the pointer tool
-            that.value(CONSTANTS.NULL);
+            that.value(null);
             e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
             e.stopPropagation();
         }
@@ -1432,15 +1780,13 @@ const Stage = DataBoundWidget.extend({
             )
         );
         const that = this;
-        const handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
-        const startState = handleBox.data(STATE);
+        const adorner = this._getAdorner();
+        const startState = adorner.data(STATE);
 
         // With a startState, we are dragging a handle
         if ($.isPlainObject(startState)) {
-            const mouse = util.getMousePosition(e, that.stage);
-            const stageElement = that.stage.children(
-                format(ELEMENT_SELECTOR, startState.uid)
-            );
+            const mouse = getMousePosition(e, that.stage);
+            const stageElement = that._getStageElementByUid(startState.uid);
             const item = that.dataSource.getByUid(startState.uid);
             const rect = stageElement[0].getBoundingClientRect();
             const bounds = {
@@ -1471,25 +1817,25 @@ const Stage = DataBoundWidget.extend({
                 });
             }
 
-            if (startState.command === COMMANDS.MOVE) {
+            if (startState.action === ACTIONS.MOVE) {
                 item.set(
-                    LEFT,
-                    util.snap(
+                    CONSTANTS.LEFT,
+                    snap(
                         startState.left +
                             (mouse.x - startState.mouseX) / startState.scale,
                         that._snapGrid
                     )
                 );
                 item.set(
-                    TOP,
-                    util.snap(
+                    CONSTANTS.TOP,
+                    snap(
                         startState.top +
                             (mouse.y - startState.mouseY) / startState.scale,
                         that._snapGrid
                     )
                 );
                 // Set triggers the change event on the dataSource which calls the refresh method to update the stage
-            } else if (startState.command === COMMANDS.RESIZE) {
+            } else if (startState.action === ACTIONS.RESIZE) {
                 // See https://github.com/Memba/Kidoju-Widgets/blob/master/test/samples/move-resize-rotate.md
                 const dx = (mouse.x - startState.mouseX) / startState.scale; // horizontal distance from S to S'
                 const dy = (mouse.y - startState.mouseY) / startState.scale; // vertical distance from S to S'
@@ -1503,20 +1849,20 @@ const Stage = DataBoundWidget.extend({
                     x: startState.left,
                     y: startState.top
                 };
-                const alpha = util.deg2rad(startState.angle);
-                const mmprime = util.getRotatedPoint(topLeft, center, alpha); // Also M=M'
-                const topLeftAfterMove = util.getRotatedPoint(
+                const alpha = deg2rad(startState.angle);
+                const mmprime = getRotatedPoint(topLeft, center, alpha); // Also M=M'
+                const topLeftAfterMove = getRotatedPoint(
                     mmprime,
                     centerAfterMove,
                     -alpha
                 ); // Also T'
 
                 // TODO these calculations depend on the transformOrigin attribute of that.wrapper - ideally we should introduce transformOrigin in the calculation
-                item.set(LEFT, Math.round(topLeftAfterMove.x));
-                item.set(TOP, Math.round(topLeftAfterMove.y));
+                item.set(CONSTANTS.LEFT, Math.round(topLeftAfterMove.x));
+                item.set(CONSTANTS.TOP, Math.round(topLeftAfterMove.y));
                 item.set(
-                    HEIGHT,
-                    util.snap(
+                    CONSTANTS.HEIGHT,
+                    snap(
                         startState.height -
                             dx * Math.sin(alpha) +
                             dy * Math.cos(alpha),
@@ -1524,8 +1870,8 @@ const Stage = DataBoundWidget.extend({
                     )
                 );
                 item.set(
-                    WIDTH,
-                    util.snap(
+                    CONSTANTS.WIDTH,
+                    snap(
                         startState.width +
                             dx * Math.cos(alpha) +
                             dy * Math.sin(alpha),
@@ -1533,8 +1879,8 @@ const Stage = DataBoundWidget.extend({
                     )
                 );
                 // Set triggers the change event on the dataSource which calls the refresh method to update the stage
-            } else if (startState.command === COMMANDS.ROTATE) {
-                const rad = util.getRadiansBetween2Points(
+            } else if (startState.action === ACTIONS.ROTATE) {
+                const rad = getRadiansBetweenPoints(
                     center,
                     {
                         x: startState.mouseX,
@@ -1542,8 +1888,8 @@ const Stage = DataBoundWidget.extend({
                     },
                     mouse
                 );
-                const deg = util.snap(
-                    (360 + startState.angle + util.rad2deg(rad)) % 360,
+                const deg = snap(
+                    (360 + startState.angle + rad2deg(rad)) % 360,
                     that._snapAngle
                 );
                 item.set(ROTATE, deg);
@@ -1571,7 +1917,7 @@ const Stage = DataBoundWidget.extend({
             )
         );
         assert.instanceof(
-            kendo.ui.Stage,
+            Stage,
             this,
             assert.format(
                 assert.messages.instanceof.default,
@@ -1580,12 +1926,12 @@ const Stage = DataBoundWidget.extend({
             )
         );
         const that = this;
-        const handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
-        const startState = handleBox.data(STATE);
+        const adorner = this._getAdorner();
+        const startState = adorner.data(STATE);
 
         if ($.isPlainObject(startState)) {
             // Remove drag start state
-            handleBox.removeData(STATE);
+            adorner.removeData(STATE);
 
             // Reset cursor
             $(document.body).css(CURSOR, '');
@@ -1643,197 +1989,12 @@ const Stage = DataBoundWidget.extend({
     },
 
     /**
-     * Refresh
-     * @param e
-     */
-    refresh(e) {
-        const that = this;
-        if (e === undefined || e.action === undefined) {
-            const overlay = $(LOADING_OVERLAY).appendTo(this.wrapper);
-            let components = [];
-            if (
-                e === undefined &&
-                that.dataSource instanceof PageComponentDataSource
-            ) {
-                components = that.dataSource.data();
-            } else if (e && e.items instanceof ObservableArray) {
-                components = e.items;
-            }
-            that._hideHandles();
-            that.trigger(CONSTANTS.DATABINDING);
-
-            // Remove all elements from the stage
-            $.each(
-                that.stage.children(DOT + ELEMENT_CLASS),
-                (index, stageElement) => {
-                    that._removeStageElementByUid(
-                        $(stageElement).attr(DATA_UID)
-                    );
-                }
-            );
-
-            // Make sure there is nothing left (all elements must do their own cleaning)
-            assert.equal(
-                0,
-                that.element.children().length,
-                assert.format(
-                    assert.messages.equal.default,
-                    'that.element.children()',
-                    '0'
-                )
-            );
-
-            // Add all elements to the stage
-            $.each(components, (index, component) => {
-                that._addStageElement(component);
-            });
-
-            overlay.remove();
-
-            // If the following line triggers `Uncaught TypeError: Cannot read property 'length' of null` in the console
-            // This is probably because binding on properties has not been properly set - check html
-            // as in <input type="text" style="width: 300px; height: 100px; font-size: 75px;" data-bind="value: ">
-            that.trigger(CONSTANTS.DATABOUND);
-
-            // We can only bind properties after all dataBound event handlers have executed
-            // otherwise there is a mix of binding sources
-            that.trigger(PROPERTYBINDING); // This calls an event handler in _initializePlayMode
-            that.trigger(PROPERTYBOUND);
-        } else if (e.action === 'add') {
-            $.each(e.items, (index, component) => {
-                that._addStageElement(component);
-                that.value(component);
-            });
-        } else if (e.action === 'remove') {
-            $.each(e.items, (index, component) => {
-                that._removeStageElementByUid(component.uid);
-                that.trigger(CONSTANTS.CHANGE, {
-                    action: e.action,
-                    value: component
-                });
-                if (
-                    that.wrapper
-                        .children(DOT + HANDLE_BOX_CLASS)
-                        .attr(DATA_UID) === component.uid
-                ) {
-                    that.value(CONSTANTS.NULL);
-                }
-            });
-        } else if (
-            e.action === 'itemchange' &&
-            Array.isArray(e.items) &&
-            e.items.length &&
-            e.items[0] instanceof PageComponent
-        ) {
-            $.each(e.items, (index, component) => {
-                const stageElement = that.stage.children(
-                    format(ELEMENT_SELECTOR, component.uid)
-                );
-                const handleBox = that.wrapper.children(
-                    format(HANDLE_BOX_SELECTOR, component.uid)
-                );
-                if (stageElement.length) {
-                    switch (e.field) {
-                        case LEFT:
-                            if (
-                                Math.round(stageElement.position().left) !==
-                                Math.round(component.left)
-                            ) {
-                                stageElement.css(LEFT, component.left);
-                                handleBox.css(LEFT, component.left);
-                                stageElement.trigger(MOVE + NS, component);
-                            }
-                            break;
-                        case TOP:
-                            if (
-                                Math.round(stageElement.position().top) !==
-                                Math.round(component.top)
-                            ) {
-                                stageElement.css(TOP, component.top);
-                                handleBox.css(TOP, component.top);
-                                stageElement.trigger(MOVE + NS, component);
-                            }
-                            break;
-                        case HEIGHT:
-                            if (
-                                Math.round(stageElement.height()) !==
-                                Math.round(component.height)
-                            ) {
-                                stageElement.css(HEIGHT, component.height);
-                                handleBox.css(HEIGHT, component.height);
-                                stageElement.trigger(RESIZE + NS, component);
-                            }
-                            break;
-                        case WIDTH:
-                            if (
-                                Math.round(stageElement.width()) !==
-                                Math.round(component.width)
-                            ) {
-                                stageElement.css(WIDTH, component.width);
-                                handleBox.css(WIDTH, component.width);
-                                stageElement.trigger(RESIZE + NS, component);
-                            }
-                            break;
-                        case ROTATE:
-                            if (
-                                Math.round(
-                                    util.getTransformRotation(stageElement)
-                                ) !== Math.round(component.rotate)
-                            ) {
-                                stageElement.css(
-                                    TRANSFORM,
-                                    format(CSS_ROTATE, component.rotate)
-                                );
-                                handleBox.css(
-                                    TRANSFORM,
-                                    format(CSS_ROTATE, component.rotate)
-                                );
-                                handleBox
-                                    .children(DOT + HANDLE_CLASS)
-                                    .css(
-                                        TRANSFORM,
-                                        `${format(
-                                            CSS_ROTATE,
-                                            -component.rotate
-                                        )} ${format(
-                                            CSS_SCALE,
-                                            1 / that.scale()
-                                        )}`
-                                    );
-                                stageElement.trigger(ROTATE + NS, component);
-                            }
-                            break;
-                        default:
-                            if (
-                                /^attributes/.test(e.field) ||
-                                /^properties/.test(e.field)
-                            ) {
-                                that._prepareStageElement(
-                                    stageElement,
-                                    component
-                                );
-                                that._initStageElement(stageElement, component);
-                            }
-                    }
-                }
-            });
-        }
-        /*
-        } else if (e.action === 'itemchange' && Array.isArray(e.items) && e.items.length && !(e.items[0] instanceof PageComponent)) {
-            // This is especially the case for the quiz component when e.field === attributes.data: the e.items[i] is a data entry
-            // but in this case using the parent() method to recursively find the component is a dead end
-        }
-        */
-        logger.debug({ method: 'refresh', message: 'widget refreshed' });
-    },
-
-    /**
      * Toggle the selection
      * @returns {h|*}
      */
     _toggleSelection() {
         assert.instanceof(
-            kendo.ui.Stage,
+            Stage,
             this,
             assert.format(
                 assert.messages.instanceof.default,
@@ -1843,25 +2004,22 @@ const Stage = DataBoundWidget.extend({
         );
         const that = this;
         const uid = that._selectedUid;
-        const handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
-        // if (that.mode() === that.modes.DESIGN) {
-        if (handleBox.length) {
-            const stageElement = that.stage.children(
-                format(ELEMENT_SELECTOR, uid)
-            );
+        const adorner = this._getAdorner();
+        // if (that.mode() === CONSTANTS.STAGE_MODES.DESIGN) {
+        if (adorner.length) {
+            const stageElement = that._getStageElementByUid(uid);
             if (
-                util.isGuid(uid) &&
+                isGuid(uid) &&
                 stageElement.length &&
-                handleBox.attr(DATA_UID) !== uid
+                adorner.attr(attr(CONSTANTS.UID)) !== uid
             ) {
-                that._showHandles(uid);
+                that._showAdorner(uid);
                 // select(null) should clear the selection
             } else if (
-                uid === CONSTANTS.NULL &&
-                uid === CONSTANTS.NULL &&
-                handleBox.css(DISPLAY) !== NONE
+                $.type(uid) === CONSTANTS.NULL &&
+                adorner.css(DISPLAY) !== CONSTANTS.NONE
             ) {
-                that._hideHandles();
+                that._hideAdorner();
             }
         }
     },
@@ -1872,14 +2030,10 @@ const Stage = DataBoundWidget.extend({
      * @returns {*}
      */
     items() {
-        // Do not return .kj-connector-surface
-        const element = this.element;
-        if ($.isFunction(element[0].getElementsByClassName)) {
-            // To return an HTMLCollection when possible
-            return element[0].getElementsByClassName(ELEMENT_CLASS);
-        }
-        // Otherwise fallback to a simple array
-        return $.makeArray(this.element.children(DOT + ELEMENT_CLASS));
+        // TODO Do not return .kj-connector-surface
+        return $.makeArray(
+            this.stage.children(CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS)
+        );
     },
 
     /**
@@ -1889,9 +2043,9 @@ const Stage = DataBoundWidget.extend({
     _clear() {
         const that = this;
         // clear mode
-        that._clearMode();
+        that._clearAll();
         // unbind kendo
-        kendo.unbind(that.element);
+        unbind(that.element);
         // unbind all other events
         that.element.find('*').off();
         // remove no page div
@@ -1911,19 +2065,29 @@ const Stage = DataBoundWidget.extend({
     destroy() {
         const that = this;
         DataBoundWidget.fn.destroy.call(that);
-        that.setDataSource(CONSTANTS.NULL);
+        that.setDataSource(null);
         that._clear();
         destroy(that.element);
     }
 });
 
+/**
+ * Registration
+ */
 plugin(Stage);
 
 /** *******************************************************************************
- * Helpers
+ * Visual debug helpers
  ******************************************************************************** */
 
 if (window.app && window.app.DEBUG) {
+    const DEBUG_MOUSE_CLASS = 'debug-mouse';
+    const DEBUG_MOUSE_DIV = `<div class="${DEBUG_MOUSE_CLASS}"/>`;
+    const DEBUG_BOUNDS_CLASS = 'debug-bounds';
+    const DEBUG_BOUNDS = `<div class="${DEBUG_BOUNDS_CLASS}"/>`;
+    const DEBUG_CENTER_CLASS = 'debug-center';
+    const DEBUG_CENTER = `<div class="${DEBUG_CENTER_CLASS}"/>`;
+
     /**
      * Add debug visual eleemnts
      * @param wrapper
@@ -1934,7 +2098,7 @@ if (window.app && window.app.DEBUG) {
             .css({
                 position: ABSOLUTE,
                 border: '1px dashed #FF00FF',
-                display: NONE
+                display: CONSTANTS.NONE
             })
             .appendTo(wrapper);
 
@@ -1948,7 +2112,7 @@ if (window.app && window.app.DEBUG) {
                 marginLeft: '-10px',
                 borderRadius: '50%',
                 backgroundColor: '#FF00FF',
-                display: NONE
+                display: CONSTANTS.NONE
             })
             .appendTo(wrapper);
 
@@ -1962,7 +2126,7 @@ if (window.app && window.app.DEBUG) {
                 marginLeft: '-10px',
                 borderRadius: '50%',
                 backgroundColor: '#00FFFF',
-                display: NONE
+                display: CONSTANTS.NONE
             })
             .appendTo(wrapper);
     };
@@ -1974,14 +2138,14 @@ if (window.app && window.app.DEBUG) {
     Stage.fn._updateDebugVisualElements = function(options) {
         if ($.isPlainObject(options) && options.scale > 0) {
             // Display center of rotation
-            options.wrapper.children(DOT + DEBUG_CENTER_CLASS).css({
+            options.wrapper.children(CONSTANTS.DOT + DEBUG_CENTER_CLASS).css({
                 display: 'block',
                 left: Math.round(options.center.x / options.scale),
                 top: Math.round(options.center.y / options.scale)
             });
 
             // Display bounding rectangle
-            options.wrapper.children(DOT + DEBUG_BOUNDS_CLASS).css({
+            options.wrapper.children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS).css({
                 display: 'block',
                 left: Math.round(options.bounds.left / options.scale),
                 top: Math.round(options.bounds.top / options.scale),
@@ -1990,7 +2154,7 @@ if (window.app && window.app.DEBUG) {
             });
 
             // Display mouse calculated position
-            options.wrapper.children(DOT + DEBUG_MOUSE_CLASS).css({
+            options.wrapper.children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS).css({
                 display: 'block',
                 left: Math.round(options.mouse.x / options.scale),
                 top: Math.round(options.mouse.y / options.scale)
@@ -2004,9 +2168,15 @@ if (window.app && window.app.DEBUG) {
      */
     Stage.fn._hideDebugVisualElements = function(wrapper) {
         if (window.app && window.app.DEBUG) {
-            wrapper.children(DOT + DEBUG_CENTER_CLASS).css({ display: NONE });
-            wrapper.children(DOT + DEBUG_BOUNDS_CLASS).css({ display: NONE });
-            wrapper.children(DOT + DEBUG_MOUSE_CLASS).css({ display: NONE });
+            wrapper
+                .children(CONSTANTS.DOT + DEBUG_CENTER_CLASS)
+                .css({ display: CONSTANTS.NONE });
+            wrapper
+                .children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS)
+                .css({ display: CONSTANTS.NONE });
+            wrapper
+                .children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS)
+                .css({ display: CONSTANTS.NONE });
         }
     };
 
@@ -2016,9 +2186,9 @@ if (window.app && window.app.DEBUG) {
      */
     Stage.fn._removeDebugVisualElements = function(wrapper) {
         if (window.app && window.app.DEBUG) {
-            wrapper.children(DOT + DEBUG_CENTER_CLASS).remove();
-            wrapper.children(DOT + DEBUG_BOUNDS_CLASS).remove();
-            wrapper.children(DOT + DEBUG_MOUSE_CLASS).remove();
+            wrapper.children(CONSTANTS.DOT + DEBUG_CENTER_CLASS).remove();
+            wrapper.children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS).remove();
+            wrapper.children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS).remove();
         }
     };
 }

@@ -18,7 +18,7 @@ import PageComponent from '../data/models.pagecomponent.es6';
 import BaseAdapter from './adapters.base.es6';
 import NumberAdapter from './adapters.number.es6';
 
-const { attr, format, Class, htmlEncode, ns, template } = window.kendo;
+const { attr, Class, format, getter, htmlEncode, ns, template } = window.kendo;
 
 /**
  * Incors images
@@ -357,6 +357,61 @@ const BaseTool = Class.extend({
             }); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>` +
             `</div>`
         );
+    },
+
+    /**
+     * Return a context menu to show on stage in design mode
+     * @method getContextMenu
+     * @returns {*[]}
+     */
+    getContextMenu() {
+        const that = this;
+        return (that.menu || []).map(item => {
+            // Especially when item is an empty string, create a separator
+            if ($.type(item) !== CONSTANTS.STRING || !item.length) {
+                return {
+                    cssClass: 'k-separator'
+                };
+            }
+            // Otherwise add a menu item
+            const adapter = getter(item, true)(that);
+            const attributes = {};
+            attributes[attr(CONSTANTS.ACTION)] = item;
+            return {
+                text: adapter.title,
+                attr: attributes
+                // Note: consider adding SVG_WARNING when attribute/property is invalid
+            };
+        });
+    },
+
+    /**
+     * Execute context menu item selections
+     * @method onContextMenu
+     * @param action
+     * @param component
+     */
+    onContextMenu(action, component) {
+        assert.type(
+            CONSTANTS.STRING,
+            action,
+            assert.format(
+                assert.messages.type.default,
+                'action',
+                CONSTANTS.STRING
+            )
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        // TODO open dialog with property editor
+        window.alert(action);
     },
 
     /**

@@ -220,6 +220,21 @@ assert.isPlainOrEmptyObject = (value, message) => {
 };
 
 /**
+ * Assert a point (x, y)
+ * @param value
+ * @param message
+ */
+assert.isPoint = (value, message) => {
+    if (
+        $.type(value) !== 'object' ||
+        $.type(value.x) !== 'number' ||
+        $.type(value.y) !== 'number'
+    ) {
+        throw new TypeError(message);
+    }
+};
+
+/**
  * Assert undefined
  * @param value
  * @param message
@@ -339,6 +354,9 @@ assert.messages = {
     },
     isPlainOrEmptyObject: {
         default: '`{0}` is expected to be a plain or empty object'
+    },
+    isPoint: {
+        default: '`{0}` is expected to be a point {x, y}'
     },
     isUndefined: {
         default: '`{0}` is expected to be undefined'

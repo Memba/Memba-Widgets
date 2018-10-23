@@ -217,14 +217,14 @@ const Image = BaseTool.extend({
         );
         const content = stageElement.children('img');
         // Assuming we can get the natural size of the image, we shall keep proportions
+        // TODO Cannot get naturalHeight for SVG inages
         const { naturalHeight, naturalWidth } = content[0];
         if (naturalHeight && naturalWidth) {
             const height = component.get('height');
             const width = component.get('width');
             const rectLimitedByHeight = {
-                // TODO review Math.round
-                height: Math.round(height),
-                width: Math.round((height * naturalWidth) / naturalHeight)
+                height,
+                width: (height * naturalWidth) / naturalHeight
             };
             /*
              // Note: comparing rectLimitedByHeight and rectLimitedByWidth does not work because

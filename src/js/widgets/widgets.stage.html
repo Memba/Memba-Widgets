@@ -217,6 +217,8 @@
                 var Square = BaseTool.extend({
                     id: 'square',
                     icon: 'shapes',
+                    name: 'Square',
+                    description: 'Square',
                     cursor: 'progress',
                     templates: {
                         play: '<div style="background-color:#00FF00;">PLAY</div>',
@@ -306,7 +308,7 @@
                                 break;
                         }
                     },
-                    onGridSelection(e) {
+                    onGridSelect(e) {
                         var stage = $('#stage').data('kendoStage');
                         var rows = this.select();
                         var component = this.dataItem(rows[0]);
@@ -314,8 +316,7 @@
                             stage.value(component);
                         }
                     },
-                    onStageSelection(e) {
-                        debugger; // TODO Never reached!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    onStageSelect(e) {
                         var grid = $('#grid').data('kendoGrid');
                         if(e.value) {
                             var uid = grid.dataSource.get(e.value.id).uid;
@@ -353,6 +354,10 @@
 
                     $('input[type="checkbox"]')
                         .attr(kendo.attr('bind'), 'events: { change: onEnabledChange }');
+
+                    // Prepare toolbox
+                    $('#toolbox')
+                        .attr(kendo.attr('role'), 'toolbox');
 
                     // Prepare stage for binding
                     // TODO $('#stage, #stage2')
@@ -427,8 +432,8 @@
                     // Bind html and events
                     kendo.bind('body', viewModel);
                     $('#slider').data('kendoSlider').bind('change', viewModel.onSliderChange);
-                    $('#stage').data('kendoStage').bind('select', viewModel.onStageSelection);
-                    $('#grid').data('kendoGrid').bind('change', viewModel.onGridSelection);
+                    $('#stage').data('kendoStage').bind('select', viewModel.onStageSelect);
+                    $('#grid').data('kendoGrid').bind('change', viewModel.onGridSelect);
 
                     //Note: we have autoBind = false, so we need to read manually
                     viewModel.components.read();

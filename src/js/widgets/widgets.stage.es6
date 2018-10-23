@@ -156,7 +156,6 @@ const Stage = DataBoundWidget.extend({
         this._snapGrid = this.options.snapGrid;
         this._render();
         this._dataSource();
-        this._initUserEvents();
         // this.enable(options.enabled);
     },
 
@@ -531,7 +530,6 @@ const Stage = DataBoundWidget.extend({
             overflow: HIDDEN,
             height: this.height(),
             width: this.width()
-            // TODO tabIndex -> focus for key events
         });
 
         // We need that.wrapper for visible/invisible bindings
@@ -620,7 +618,10 @@ const Stage = DataBoundWidget.extend({
         this._toggleNoPageMessage(!hasPage);
         this._toggleReadOnlyOverlay(isReadOnly);
         this._togglePropertyBindings(bindUserEntries);
-        this._initAdorner(enabledDesignMode);
+        this._toggleAdorner(enabledDesignMode);
+        this._toggleUserEvents(enabledDesignMode);
+        this._toggleVisualDebugElements(enabledDesignMode);
+        this._toggleKeyboardEvents(enabledDesignMode);
         this._toggleTransformEventHandlers(designMode);
         this._initContextMenu(enabledDesignMode);
     },
@@ -640,15 +641,20 @@ const Stage = DataBoundWidget.extend({
     },
 
     /**
-     * Toggles a message when there is no page to display
+     * Initializes a message when there is no page to display
+     * @method _toggleNoPageMessage
+     * @param enable
      * @private
      */
     _toggleNoPageMessage(enable) {
-        // clear
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+
+        // Remove no-page message
         this.wrapper.children(`.${NOPAGE_CLASS}`).remove();
 
-        // Set overlay
-        if (enable) {
+        // Add no-page message
+        if (enabled) {
             $(`<${CONSTANTS.DIV}/>`)
                 .addClass(NOPAGE_CLASS)
                 .text(this.options.messages.noPage)
@@ -663,16 +669,20 @@ const Stage = DataBoundWidget.extend({
     },
 
     /**
-     * Toggles the readonly overlay
+     * Toggle the readonly overlay
+     * @method _toggleReadOnlyOverlay
      * @param enable
      * @private
      */
     _toggleReadOnlyOverlay(enable) {
-        // clear
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+
+        // Remove overlay
         this.wrapper.children(`.${OVERLAY_CLASS}`).remove();
 
-        // set overlay
-        if (enable) {
+        // Add overlay
+        if (enabled) {
             // Add overlay to disable all controls (including audio and video controls)
             $(`<${CONSTANTS.DIV}/>`)
                 .addClass(OVERLAY_CLASS)
@@ -689,24 +699,34 @@ const Stage = DataBoundWidget.extend({
     },
 
     /**
-     *
+     * Toggle the loading overlay
+     * @method _toggleLoadingOverlay
      * @param enable
      * @private
      */
     _toggleLoadingOverlay(enable) {
-        // TODO
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+
+        if (enabled) {
+            // TODO
+        }
     },
 
     /**
      * Toggle property bindings
+     * @method _togglePropertyBindings
      * @param enable
      * @private
      */
     _togglePropertyBindings(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+
         const that = this;
 
         // TODO: We might not need a PROPERTYBINDING event for that because this is all internal to ui.Stage
-        if (enable) {
+        if (enabled) {
             debugger;
         }
 
@@ -715,7 +735,7 @@ const Stage = DataBoundWidget.extend({
             that.unbind(PROPERTYBINDING, that._propertyBinding);
         }
 
-        if (enable) {
+        if (enabled) {
             // Bind properties
             that._propertyBinding = $.proxy(function() {
                 const widget = this;
@@ -733,32 +753,20 @@ const Stage = DataBoundWidget.extend({
     },
 
     /**
-     * Toggle handle box
-     * Note:
+     * Toggle the adorner and handles
+     * @method _toggleAdorner
      * @param enable
      * @private
      */
-    _initAdorner(enable) {
-        assert.instanceof(
-            $,
-            this.wrapper,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.wrapper',
-                'jQuery'
-            )
-        );
-        const { wrapper } = this;
+    _toggleAdorner(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
 
-        // Clear adorner
-        if ($.isFunction(this._removeDebugVisualElements)) {
-            this._removeDebugVisualElements(wrapper);
-        }
-        $(document).off(NS);
+        // Remove adorner
         this._getAdorner().remove();
 
-        // Setup adorner
-        if (enable) {
+        // Add adorner if enabled
+        if (enabled) {
             // Note: without touch-action: none,
             // touch gestures won't work in Internet Explorer
             const handle = `<span class="${HANDLE_CLASS}" ${attr(
@@ -775,61 +783,106 @@ const Stage = DataBoundWidget.extend({
                 .append(format(handle, ACTIONS.RESIZE))
                 .append(format(handle, ACTIONS.ROTATE))
                 .append(format(handle, ACTIONS.MENU))
-                .appendTo(wrapper);
+                .appendTo(this.wrapper);
+        }
+    },
 
-            // Add stage event handlers
+    /**
+     * Initialize user events in design mode
+     * @method _toggleUserEvents
+     * @param enable
+     * @private
+     */
+    _toggleUserEvents(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+
+        // $(document).off(NS);
+        if (this.userEvents instanceof UserEvents) {
+            this.userEvents.destroy();
+            this.userEvents = undefined;
+        }
+
+        if (enabled) {
+            // Add mouse event handlers
             /*
             $(document)
                 .on(MOUSEDOWN, this._onMouseDown.bind(this))
                 .on(MOUSEMOVE, this._onMouseMove.bind(this))
                 .on(MOUSEUP, this._onMouseUp.bind(this));
-
-            // Add debug visual elements
-            if ($.isFunction(this._addDebugVisualElements)) {
-                this._addDebugVisualElements(wrapper);
-            }
             */
-        }
-    },
-
-    /**
-     * TODO
-     * @private
-     */
-    _initUserEvents() {
-        if ($.type(this.userEvents) === CONSTANTS.UNDEFINED) {
             this.userEvents = new UserEvents(this.wrapper, {
                 global: true,
-                filter: '.kj-handle',
-                // press: $.noop,
-                start: this._onMouseDown.bind(this),
+                // filter: '.kj-handle',
+                press: this._onMousePress.bind(this),
+                start: this._onMouseStart.bind(this),
                 move: this._onMouseMove.bind(this),
-                end: this._onMouseUp.bind(this)
+                end: this._onMouseEnd.bind(this)
             });
         }
     },
 
     /**
-     * Toggle transform event handlers
+     * Toggle visual debug elements
+     * @method _toggleVisualDebugElements
+     * @param enable
+     * @private
+     */
+    _toggleVisualDebugElements(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+
+        // Remove debug visual elements
+        if ($.isFunction(Stage._removeDebugVisualElements)) {
+            Stage._removeDebugVisualElements(this.wrapper);
+        }
+
+        if (enabled && $.isFunction(Stage._addDebugVisualElements)) {
+            Stage._addDebugVisualElements(this.wrapper);
+        }
+    },
+
+    /**
+     * Toggle keyboard events
+     * @method _toggleKeyboardEvents
+     * @param enable
+     * @private
+     */
+    _toggleKeyboardEvents(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+
+        this.stage
+            .prop('tabIndex', -1)
+            .off(CONSTANTS.KEYDOWN + NS)
+            .off(CONSTANTS.KEYUP + NS);
+
+        if (enabled) {
+            this.stage
+                .prop('tabIndex', 0)
+                .on(CONSTANTS.KEYDOWN + NS, this._onKeyDown.bind(this))
+                .on(CONSTANTS.KEYUP + NS, this._onKeyUp.bind(this));
+        }
+    },
+
+    /**
+     * TODO Toggle transform event handlers
      * @param enable
      * @private
      */
     _toggleTransformEventHandlers(enable) {
-        assert.instanceof(
-            $,
-            this.stage,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.stage',
-                'jQuery'
-            )
-        );
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
 
-        // Clear
-        this.stage.off(NS);
+        // Disable events (Beware KeyUp)
+        this.stage
+            .off(ENABLE + NS) // TODO uis ENABLE an event????
+            .off(MOVE + NS)
+            .off(RESIZE + NS)
+            .off(ROTATE + NS);
 
         // Enable event handlers (also in navigation in design mode)
-        if (enable) {
+        if (enabled) {
             this.stage
                 .on(
                     ENABLE + NS,
@@ -1117,6 +1170,8 @@ const Stage = DataBoundWidget.extend({
      * @private
      */
     _getStageElementByUid(uid) {
+        /*
+        // uid may be undefined
         assert.match(
             CONSTANTS.RX_GUID,
             uid,
@@ -1126,6 +1181,7 @@ const Stage = DataBoundWidget.extend({
                 CONSTANTS.RX_GUID
             )
         );
+        */
         return this.stage.children(
             format(
                 `${CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS}[${attr(
@@ -1643,39 +1699,50 @@ const Stage = DataBoundWidget.extend({
     },
 
     /**
-     * Start dragging an element
+     * Event handler triggered for the `press` user event
+     * Note: simply show the adorner on the closest stage element
+     * @method _onMousePress
      * @param e
      * @private
      */
-    _onMouseDown(e) {
-        assert.instanceof(
-            $.Event,
+    _onMousePress(e) {
+        assert.isPlainObject(
             e,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e',
-                'jQuery.Event'
+            assert.format(assert.messages.isPlainObject.default, 'e')
+        );
+        const active = this.options.tools.get(CONSTANTS.ACTIVE);
+        const target = $((e.touch || {}).initialTouch);
+        // Close any context menu left opened
+        if (
+            this.menu instanceof ContextMenu &&
+            !target.is(
+                `${CONSTANTS.DOT + HANDLE_CLASS}[${attr(CONSTANTS.ACTION)}="${
+                    ACTIONS.MENU
+                }"]`
             )
-        );
-        const that = this;
-        const tools = that.options.tools;
-        const activeToolId = tools.get(CONSTANTS.ACTIVE);
-        const target = $(e.target);
-        const mouse = getMousePosition(e, that.stage);
-        let stageElement = target.closest(
-            CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS
-        );
-        const handle = target.closest(CONSTANTS.DOT + HANDLE_CLASS);
-        let uid;
-
-        // Close any context menu left opened if not selecting a menu item
-        if (that.menu instanceof ContextMenu && !target.is('.k-link')) {
-            that.menu.close();
+        ) {
+            this.menu.close();
         }
-
-        if (activeToolId !== CONSTANTS.POINTER) {
-            // When clicking the stage with an active tool, add a new element
-            const tool = tools[activeToolId];
+        if (active === CONSTANTS.POINTER) {
+            // The active tool is the pointer
+            // target can possibly be a child of a kj-element
+            // or something else (kj-adorner, kj-handle) that is ignored
+            const stageElement = target.closest(
+                CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS
+            );
+            const uid = stageElement.attr(attr(CONSTANTS.UID));
+            const component = this.dataSource.getByUid(uid);
+            if (component instanceof PageComponent) {
+                this.value(component);
+                this.trigger(CONSTANTS.SELECT, { value: component });
+            } else if (this._getAdorner().find(target).length === 0) {
+                this.value(null);
+                this.trigger(CONSTANTS.SELECT, { value: null });
+            }
+        } else if (active !== CONSTANTS.POINTER) {
+            e.preventDefault();
+            // Find the selected tool
+            const tool = tools[active];
             assert.instanceof(
                 BaseTool,
                 tool,
@@ -1685,10 +1752,11 @@ const Stage = DataBoundWidget.extend({
                     'BaseTool'
                 )
             );
-            const scale = getTransformScale(that.wrapper);
-            const left = mouse.x / scale;
-            const top = mouse.y / scale;
-
+            // Find the mouse/touch position and add a component
+            const scale = getTransformScale(this.wrapper);
+            const offset = this.stage.offset();
+            const left = (e.x.location - offset.left) / scale;
+            const top = (e.y.location - offset.top) / scale;
             // Check that the mousedown occured within the boundaries of the stage
             if (
                 left >= 0 &&
@@ -1696,109 +1764,111 @@ const Stage = DataBoundWidget.extend({
                 top >= 0 &&
                 top <= this.stage.height()
             ) {
-                const item = new PageComponent({
+                const component = new PageComponent({
                     // id: kendo.guid(),
                     tool: tool.id,
                     left,
                     top,
                     width: tool.width,
                     height: tool.height
-                    // rotate: tool.rotate?
+                    // rotate: tool.rotate
                 });
-                that.dataSource.add(item);
-                // Add triggers the change event on the dataSource which calls the refresh method
+                // Add triggers the change event on the dataSource
+                // which calls the refresh method
+                this.dataSource.add(component);
+                this.trigger(CONSTANTS.SELECT, { value: component });
 
+                // Reset the pointer tool
                 tools.set(CONSTANTS.ACTIVE, CONSTANTS.POINTER);
             }
-
-            e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
-            e.stopPropagation();
-        } else if (handle.length) {
-            // When hitting a handle with the pointer tool
-            const action = handle.attr(attr(CONSTANTS.ACTION));
-            if (action === ACTIONS.MENU) {
-                $.noop(); // TODO: contextual menu here
-            } else {
-                const adorner = that._getAdorner();
-                uid = adorner.attr(attr(CONSTANTS.UID)); // the uid of the stageElement which is being selected before hitting the handle
-                stageElement = that._getStageElementByUid(uid);
-                adorner.data(STATE, {
-                    action,
-                    top: parseFloat(stageElement.css(CONSTANTS.TOP)) || 0, // stageElement.position().top does not work when scaled
-                    left: parseFloat(stageElement.css(CONSTANTS.LEFT)) || 0, // stageElement.position().left does not work when scaled
-                    height: stageElement.height(),
-                    width: stageElement.width(),
-                    angle: getTransformRotation(stageElement),
-                    scale: getTransformScale(that.wrapper),
-                    snapGrid: 0, // TODO
-                    snapAngle: 0, // TODO
-                    mouseX: mouse.x,
-                    mouseY: mouse.y,
-                    uid
-                });
-
-                // log(adorner.data(STATE));
-                $(document.body).css(CURSOR, target.css(CURSOR));
-            }
-            e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
-            e.stopPropagation();
-        } else if (
-            stageElement.length ||
-            target.is(CONSTANTS.DOT + ADORNER_CLASS)
-        ) {
-            // When hitting a stage element or the handle box with the pointer tool
-            uid = stageElement.attr(attr(CONSTANTS.UID));
-            if (isGuid(uid)) {
-                const component = that.dataSource.getByUid(uid);
-                if (component instanceof PageComponent) {
-                    that.value(component);
-                }
-            }
-        } else if (that.wrapper.find(target).length) {
-            // When hitting anything else in the wrapper with the pointer tool
-            that.value(null);
-            e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
-            e.stopPropagation();
         }
 
-        // Otherwise, let the event propagate
+        // Focus on the stage to receive keyboard events
+        this.stage.focus();
     },
 
     /**
-     * While dragging an element on stage
+     * Event handler triggered for the `start` user event
+     * Note: Start dragging a handle
+     * @method _onMouseStart
+     * @param e
+     * @private
+     */
+    _onMouseStart(e) {
+        assert.isPlainObject(
+            e,
+            assert.format(assert.messages.isPlainObject.default, 'e')
+        );
+        const active = this.options.tools.get(CONSTANTS.ACTIVE);
+        const target = $((e.touch || {}).initialTouch);
+        const action = target.attr(attr(CONSTANTS.ACTION));
+        if (
+            active === CONSTANTS.POINTER &&
+            target.is(CONSTANTS.DOT + HANDLE_CLASS) &&
+            action !== ACTIONS.MENU
+        ) {
+            e.preventDefault();
+
+            // Find the mouse/touch position and add a component
+            const scale = getTransformScale(this.wrapper);
+            const offset = this.stage.offset();
+            const x = (e.x.location - offset.left) / scale;
+            const y = (e.y.location - offset.top) / scale;
+            const adorner = this._getAdorner();
+            const uid = adorner.attr(attr(CONSTANTS.UID));
+            const stageElement = this._getStageElementByUid(uid);
+            adorner.data(STATE, {
+                action,
+                // top: stageElement.position().top does not work when scaled
+                top: parseFloat(stageElement.css(CONSTANTS.TOP)) || 0,
+                // left: stageElement.position().left does not work when scaled
+                left: parseFloat(stageElement.css(CONSTANTS.LEFT)) || 0,
+                height: stageElement.height(),
+                width: stageElement.width(),
+                angle: getTransformRotation(stageElement),
+                scale,
+                snapGrid: 0, // TODO
+                snapAngle: 0, // TODO
+                x,
+                y,
+                uid
+            });
+
+            // log(adorner.data(STATE));
+            // $(document.body).css(CURSOR, target.css(CURSOR));
+        }
+    },
+
+    /**
+     * Event handler triggered for the `move` user event
+     * Note: While dragging a handle
      * @param e
      * @private
      */
     _onMouseMove(e) {
-        assert.instanceof(
-            $.Event,
+        assert.isPlainObject(
             e,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e',
-                'jQuery.Event'
-            )
+            assert.format(assert.messages.isPlainObject.default, 'e')
         );
-        const that = this;
         const adorner = this._getAdorner();
-        const startState = adorner.data(STATE);
+        const state = adorner.data(STATE);
 
-        // With a startState, we are dragging a handle
-        if ($.isPlainObject(startState)) {
-            const mouse = getMousePosition(e, that.stage);
-            const stageElement = that._getStageElementByUid(startState.uid);
-            const item = that.dataSource.getByUid(startState.uid);
+        // With a state, we are dragging a handle
+        if ($.isPlainObject(state)) {
+            e.preventDefault();
+
+            const { uid } = state;
+            const stageElement = this._getStageElementByUid(uid);
+            const component = this.dataSource.getByUid(state.uid);
             const rect = stageElement[0].getBoundingClientRect();
+            const offset = this.stage.offset();
+            const doc = $(this.stage[0].ownerDocument);
+            // Find the stage element bounds and the center of rotation
+            // Note: these calculations depend on the transformOrigin attribute of this.wrapper
+            // ideally we should introduce transformOrigin in the calculation
             const bounds = {
-                // TODO these calculations depend on the transformOrigin attribute of that.wrapper - ideally we should introduce transformOrigin in the calculation
-                left:
-                    rect.left -
-                    that.stage.offset().left +
-                    $(that.stage.get(0).ownerDocument).scrollLeft(),
-                top:
-                    rect.top -
-                    that.stage.offset().top +
-                    $(that.stage.get(0).ownerDocument).scrollTop(),
+                left: rect.left - offset.left + doc.scrollLeft(),
+                top: rect.top - offset.top + doc.scrollTop(),
                 height: rect.height,
                 width: rect.width
             };
@@ -1806,39 +1876,34 @@ const Stage = DataBoundWidget.extend({
                 x: bounds.left + bounds.width / 2,
                 y: bounds.top + bounds.height / 2
             };
+            // Find the mouse/touch position and add a component
+            const scale = getTransformScale(this.wrapper);
+            const x = (e.x.location - offset.left) / scale;
+            const y = (e.y.location - offset.top) / scale;
+            const dx = x - state.x; // / state.scale; // horizontal distance from S to S'
+            const dy = y - state.y; // / state.scale; // vertical distance from S to S'
 
-            if ($.isFunction(that._updateDebugVisualElements)) {
-                that._updateDebugVisualElements({
-                    wrapper: that.wrapper,
-                    mouse,
+            if ($.isFunction(Stage._updateDebugVisualElements)) {
+                Stage._updateDebugVisualElements({
+                    wrapper: this.wrapper,
+                    mouse: { x, y },
                     center,
                     bounds,
-                    scale: startState.scale
+                    scale
                 });
             }
-
-            if (startState.action === ACTIONS.MOVE) {
-                item.set(
+            if (state.action === ACTIONS.MOVE) {
+                component.set(
                     CONSTANTS.LEFT,
-                    snap(
-                        startState.left +
-                            (mouse.x - startState.mouseX) / startState.scale,
-                        that._snapGrid
-                    )
+                    snap(state.left + dx, this._snapGrid)
                 );
-                item.set(
+                component.set(
                     CONSTANTS.TOP,
-                    snap(
-                        startState.top +
-                            (mouse.y - startState.mouseY) / startState.scale,
-                        that._snapGrid
-                    )
+                    snap(state.top + dy, this._snapGrid)
                 );
                 // Set triggers the change event on the dataSource which calls the refresh method to update the stage
-            } else if (startState.action === ACTIONS.RESIZE) {
+            } else if (state.action === ACTIONS.RESIZE) {
                 // See https://github.com/Memba/Kidoju-Widgets/blob/master/test/samples/move-resize-rotate.md
-                const dx = (mouse.x - startState.mouseX) / startState.scale; // horizontal distance from S to S'
-                const dy = (mouse.y - startState.mouseY) / startState.scale; // vertical distance from S to S'
                 const centerAfterMove = {
                     // Also C'
                     x: center.x + dx / 2,
@@ -1846,67 +1911,94 @@ const Stage = DataBoundWidget.extend({
                 };
                 const topLeft = {
                     // Also T
-                    x: startState.left,
-                    y: startState.top
+                    x: state.left,
+                    y: state.top
                 };
-                const alpha = deg2rad(startState.angle);
+                const alpha = deg2rad(state.angle);
                 const mmprime = getRotatedPoint(topLeft, center, alpha); // Also M=M'
                 const topLeftAfterMove = getRotatedPoint(
                     mmprime,
                     centerAfterMove,
                     -alpha
                 ); // Also T'
-
-                // TODO these calculations depend on the transformOrigin attribute of that.wrapper - ideally we should introduce transformOrigin in the calculation
-                item.set(CONSTANTS.LEFT, Math.round(topLeftAfterMove.x));
-                item.set(CONSTANTS.TOP, Math.round(topLeftAfterMove.y));
-                item.set(
+                component.set(CONSTANTS.LEFT, topLeftAfterMove.x);
+                component.set(CONSTANTS.TOP, topLeftAfterMove.y);
+                component.set(
                     CONSTANTS.HEIGHT,
                     snap(
-                        startState.height -
+                        state.height -
                             dx * Math.sin(alpha) +
                             dy * Math.cos(alpha),
-                        that._snapGrid
+                        this._snapGrid
                     )
                 );
-                item.set(
+                component.set(
                     CONSTANTS.WIDTH,
                     snap(
-                        startState.width +
+                        state.width +
                             dx * Math.cos(alpha) +
                             dy * Math.sin(alpha),
-                        that._snapGrid
+                        this._snapGrid
                     )
                 );
                 // Set triggers the change event on the dataSource which calls the refresh method to update the stage
-            } else if (startState.action === ACTIONS.ROTATE) {
+            } else if (state.action === ACTIONS.ROTATE) {
                 const rad = getRadiansBetweenPoints(
                     center,
                     {
-                        x: startState.mouseX,
-                        y: startState.mouseY
+                        x: state.x,
+                        y: state.y
                     },
-                    mouse
+                    { x, y }
                 );
                 const deg = snap(
-                    (360 + startState.angle + rad2deg(rad)) % 360,
-                    that._snapAngle
+                    (360 + state.angle + rad2deg(rad)) % 360,
+                    this._snapAngle
                 );
-                item.set(ROTATE, deg);
+                component.set(ROTATE, deg);
                 // Set triggers the change event on the dataSource which calls the refresh method to update the stage
             }
-
-            e.preventDefault();
-            e.stopPropagation();
         }
     },
 
     /**
-     * At the end of dragging an element on stage
+     * Event handler triggered for the `end` user event
+     * Note: Stop dragging a handle
      * @param e
      * @private
      */
-    _onMouseUp(e) {
+    _onMouseEnd(e) {
+        assert.isPlainObject(
+            e,
+            assert.format(assert.messages.isPlainObject.default, 'e')
+        );
+        const adorner = this._getAdorner();
+        const state = adorner.data(STATE);
+
+        // With a startState, we are dragging a handle
+        if ($.isPlainObject(state)) {
+            e.preventDefault();
+
+            // Remove drag start state
+            adorner.removeData(STATE);
+
+            // Reset cursor
+            $(document.body).css(CURSOR, '');
+
+            // Hide debug visual elements
+            if ($.isFunction(Stage._hideDebugVisualElements)) {
+                Stage._hideDebugVisualElements(this.wrapper);
+            }
+        }
+    },
+
+    /**
+     * Event handler triggered when pressing down a key
+     * @method _onKeyDown
+     * @param e
+     * @private
+     */
+    _onKeyDown(e) {
         assert.instanceof(
             $.Event,
             e,
@@ -1916,29 +2008,126 @@ const Stage = DataBoundWidget.extend({
                 'jQuery.Event'
             )
         );
+        if (
+            [
+                keys.DOWN,
+                keys.END,
+                keys.HOME,
+                keys.LEFT,
+                keys.PAGEDOWN,
+                keys.PAGEUP,
+                keys.RIGHT,
+                keys.SPACE,
+                keys.UP
+            ].indexOf(e.which) > -1
+        ) {
+            // Prevent scrolling (does not prevent keyup)
+            e.preventDefault();
+        }
+    },
+
+    /**
+     * Event handler triggered when pressing up a key
+     * @method _onKeyUp
+     * @param e
+     * @private
+     */
+    _onKeyUp(e) {
         assert.instanceof(
-            Stage,
-            this,
+            $.Event,
+            e,
             assert.format(
                 assert.messages.instanceof.default,
-                'this',
-                'kendo.ui.Stage'
+                'e',
+                'jQuery.Event'
             )
         );
-        const that = this;
-        const adorner = this._getAdorner();
-        const startState = adorner.data(STATE);
-
-        if ($.isPlainObject(startState)) {
-            // Remove drag start state
-            adorner.removeData(STATE);
-
-            // Reset cursor
-            $(document.body).css(CURSOR, '');
-
-            // Hide debug visual elements
-            if ($.isFunction(that._hideDebugVisualElements)) {
-                that._hideDebugVisualElements(that.wrapper);
+        const smallStep = 1;
+        const altKey = e.altKey || e.ctrlKey || e.metaKey || e.shiftKey;
+        const uid = this._getSelectedUid();
+        // If uid is undefined, component is undefined
+        const component = this.dataSource.getByUid(uid);
+        if (component instanceof PageComponent) {
+            switch (e.which) {
+                case keys.DELETE:
+                    this.dataSource.remove(component);
+                    // TODO: remove adorner
+                    break;
+                case keys.DOWN:
+                    if (altKey) {
+                        // TODO snap
+                        component.set(
+                            CONSTANTS.HEIGHT,
+                            component.get(CONSTANTS.HEIGHT) - smallStep
+                        );
+                    } else {
+                        component.set(
+                            CONSTANTS.TOP,
+                            component.get(CONSTANTS.TOP) + smallStep
+                        );
+                    }
+                    break;
+                case keys.END:
+                    break;
+                case keys.LEFT:
+                    if (altKey) {
+                        component.set(
+                            CONSTANTS.WIDTH,
+                            component.get(CONSTANTS.WIDTH) - smallStep
+                        );
+                    } else {
+                        component.set(
+                            CONSTANTS.LEFT,
+                            component.get(CONSTANTS.LEFT) - smallStep
+                        );
+                    }
+                    break;
+                case keys.PAGEDOWN:
+                    break;
+                case keys.PAGEUP:
+                    break;
+                case keys.RIGHT:
+                    if (altKey) {
+                        component.set(
+                            CONSTANTS.WIDTH,
+                            component.get(CONSTANTS.WIDTH) + smallStep
+                        );
+                    } else {
+                        component.set(
+                            CONSTANTS.LEFT,
+                            component.get(CONSTANTS.LEFT) + smallStep
+                        );
+                    }
+                    break;
+                case keys.SPACE:
+                    break;
+                case keys.TAB:
+                    break;
+                case keys.UP:
+                    if (altKey) {
+                        component.set(
+                            CONSTANTS.HEIGHT,
+                            component.get(CONSTANTS.HEIGHT) + smallStep
+                        );
+                    } else {
+                        component.set(
+                            CONSTANTS.TOP,
+                            component.get(CONSTANTS.TOP) - smallStep
+                        );
+                    }
+                    break;
+                case 77: // m for menu
+                    if (altKey && this.menu instanceof ContextMenu) {
+                        this.menu.open();
+                    }
+                    break;
+                case 82: // r for rotate
+                    if (altKey) {
+                        // TODO
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     },
@@ -2092,7 +2281,7 @@ if (window.app && window.app.DEBUG) {
      * Add debug visual eleemnts
      * @param wrapper
      */
-    Stage.fn._addDebugVisualElements = function(wrapper) {
+    Stage._addDebugVisualElements = function(wrapper) {
         // Add bounding rectangle
         $(DEBUG_BOUNDS)
             .css({
@@ -2135,7 +2324,7 @@ if (window.app && window.app.DEBUG) {
      * Update debug visual elements
      * @param options
      */
-    Stage.fn._updateDebugVisualElements = function(options) {
+    Stage._updateDebugVisualElements = function(options) {
         if ($.isPlainObject(options) && options.scale > 0) {
             // Display center of rotation
             options.wrapper.children(CONSTANTS.DOT + DEBUG_CENTER_CLASS).css({
@@ -2166,29 +2355,25 @@ if (window.app && window.app.DEBUG) {
      * Hide debug visual elements
      * @param wrapper
      */
-    Stage.fn._hideDebugVisualElements = function(wrapper) {
-        if (window.app && window.app.DEBUG) {
-            wrapper
-                .children(CONSTANTS.DOT + DEBUG_CENTER_CLASS)
-                .css({ display: CONSTANTS.NONE });
-            wrapper
-                .children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS)
-                .css({ display: CONSTANTS.NONE });
-            wrapper
-                .children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS)
-                .css({ display: CONSTANTS.NONE });
-        }
+    Stage._hideDebugVisualElements = function(wrapper) {
+        wrapper
+            .children(CONSTANTS.DOT + DEBUG_CENTER_CLASS)
+            .css({ display: CONSTANTS.NONE });
+        wrapper
+            .children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS)
+            .css({ display: CONSTANTS.NONE });
+        wrapper
+            .children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS)
+            .css({ display: CONSTANTS.NONE });
     };
 
     /**
      * Remove debug visual elements
      * @param wrapper
      */
-    Stage.fn._removeDebugVisualElements = function(wrapper) {
-        if (window.app && window.app.DEBUG) {
-            wrapper.children(CONSTANTS.DOT + DEBUG_CENTER_CLASS).remove();
-            wrapper.children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS).remove();
-            wrapper.children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS).remove();
-        }
+    Stage._removeDebugVisualElements = function(wrapper) {
+        wrapper.children(CONSTANTS.DOT + DEBUG_CENTER_CLASS).remove();
+        wrapper.children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS).remove();
+        wrapper.children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS).remove();
     };
 }

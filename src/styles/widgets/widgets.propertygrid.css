@@ -5,6 +5,10 @@
 .kj-propertygrid.k-grid tbody .k-button {
   min-width: initial;
 }
+.kj-propertygrid.k-grid tbody .k-icon.k-i-help {
+  float: right;
+  margin-top: 0.4em;
+}
 .kj-propertygrid > .k-resize-handle {
   cursor: col-resize;
   position: absolute;

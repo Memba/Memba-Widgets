@@ -146,12 +146,10 @@ const Stage = DataBoundWidget.extend({
         DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._mode = this.options.mode;
-        // Note: CSS styles are entirely discarded
         this._scale = this.options.scale;
         this._height = this.options.height;
         this._width = this.options.width;
-        this._enabled = this.options.enabled; // TODO was `disabled`
-        this._readonly = this.options.readonly;
+        this._enabled = this.options.enabled;
         this._snapAngle = this.options.snapAngle;
         this._snapGrid = this.options.snapGrid;
         this._render();
@@ -190,7 +188,6 @@ const Stage = DataBoundWidget.extend({
         tools,
         dataSource: undefined,
         enabled: true,
-        readonly: false,
         snapAngle: 0,
         snapGrid: 0,
         messages: {
@@ -437,7 +434,10 @@ const Stage = DataBoundWidget.extend({
      * @method items
      */
     items() {
-        return this.stage.children(CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS);
+        // TODO Do not return .kj-connector-surface
+        return $.makeArray(
+            this.stage.children(CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS)
+        );
     },
 
     /**
@@ -608,11 +608,10 @@ const Stage = DataBoundWidget.extend({
         } = this;
 
         const hasPage = !!dataSource; // TODO and data.length
-        const isReadOnly = !hasPage || this._disabled || this._readonly;
+        const isReadOnly = !hasPage || !this._enabled;
         const bindUserEntries = hasPage && this.mode() !== modes.DESIGN;
         const designMode = hasPage && this.mode() === modes.DESIGN;
-        const enabledDesignMode =
-            designMode && !this._disabled && !this._readonly;
+        const enabledDesignMode = designMode && this._enabled;
 
         // Set mode
         this._toggleNoPageMessage(!hasPage);
@@ -2053,117 +2052,118 @@ const Stage = DataBoundWidget.extend({
                 'jQuery.Event'
             )
         );
-        const smallStep = 1;
+        const angleStep = this._snapAngle || 1;
+        const gridStep = this._snapGrid || 1;
         const altKey = e.altKey || e.ctrlKey || e.metaKey || e.shiftKey;
         const uid = this._getSelectedUid();
         // If uid is undefined, component is undefined
         const component = this.dataSource.getByUid(uid);
-        if (component instanceof PageComponent) {
+        const that = this;
+        const openMenu = () => {
+            if (that.menu instanceof ContextMenu) {
+                that.menu.open();
+                // Focus on menu - https://www.telerik.com/forums/how-to-focus-on-contextmenu
+                that.menu.wrapper.focus();
+            }
+        };
+        const incrementPos = (prop, inc) => {
+            component.set(
+                prop,
+                snap(component.get(prop) + inc, that._snapGrid)
+            );
+        };
+        const rotate = inc => {
+            component.set(
+                'rotate',
+                snap(component.get('rotate') + inc, that._snapAngle)
+            );
+        };
+        if (e.which === keys.TAB || component instanceof PageComponent) {
             switch (e.which) {
+                case keys.BACKSPACE:
                 case keys.DELETE:
                     this.dataSource.remove(component);
-                    // TODO: remove adorner
+                    this.value(null);
                     break;
                 case keys.DOWN:
+                case keys.PAGEDOWN:
                     if (altKey) {
-                        // TODO snap
-                        component.set(
-                            CONSTANTS.HEIGHT,
-                            component.get(CONSTANTS.HEIGHT) - smallStep
-                        );
+                        incrementPos(CONSTANTS.HEIGHT, gridStep);
                     } else {
-                        component.set(
-                            CONSTANTS.TOP,
-                            component.get(CONSTANTS.TOP) + smallStep
-                        );
+                        incrementPos(CONSTANTS.TOP, gridStep);
                     }
                     break;
                 case keys.END:
+                    this.index(this.dataSource.total() - 1);
+                    this.trigger(CONSTANTS.SELECT, {
+                        value: this.dataSource.getByUid(this._getSelectedUid())
+                    });
+                    this.stage.focus(); // Otherwise it loses focus
+                    break;
+                case keys.HOME:
+                    this.index(0);
+                    this.trigger(CONSTANTS.SELECT, {
+                        value: this.dataSource.getByUid(this._getSelectedUid())
+                    });
+                    this.stage.focus(); // Otherwise it loses focus
                     break;
                 case keys.LEFT:
                     if (altKey) {
-                        component.set(
-                            CONSTANTS.WIDTH,
-                            component.get(CONSTANTS.WIDTH) - smallStep
-                        );
+                        incrementPos(CONSTANTS.WIDTH, -gridStep);
                     } else {
-                        component.set(
-                            CONSTANTS.LEFT,
-                            component.get(CONSTANTS.LEFT) - smallStep
-                        );
+                        incrementPos(CONSTANTS.LEFT, -gridStep);
                     }
-                    break;
-                case keys.PAGEDOWN:
-                    break;
-                case keys.PAGEUP:
                     break;
                 case keys.RIGHT:
                     if (altKey) {
-                        component.set(
-                            CONSTANTS.WIDTH,
-                            component.get(CONSTANTS.WIDTH) + smallStep
-                        );
+                        incrementPos(CONSTANTS.WIDTH, gridStep);
                     } else {
-                        component.set(
-                            CONSTANTS.LEFT,
-                            component.get(CONSTANTS.LEFT) + smallStep
-                        );
+                        incrementPos(CONSTANTS.LEFT, gridStep);
+                    }
+                    break;
+                case keys.TAB:
+                    // There is nothing we can do with altKey here
+                    // because any altKey + Tab is captured by the OS or browser
+                    this.index(
+                        (this.index() + 1) % (this.dataSource.total() || 1)
+                    );
+                    this.trigger(CONSTANTS.SELECT, {
+                        value: this.dataSource.getByUid(this._getSelectedUid())
+                    });
+                    this.stage.focus(); // Otherwise it loses focus
+                    break;
+                case keys.UP:
+                case keys.PAGEUP:
+                    if (altKey) {
+                        incrementPos(CONSTANTS.HEIGHT, -gridStep);
+                    } else {
+                        incrementPos(CONSTANTS.TOP, -gridStep);
                     }
                     break;
                 case keys.SPACE:
+                    openMenu();
                     break;
-                case keys.TAB:
+                case keys.NUMPAD_MINUS:
+                    rotate(-angleStep);
                     break;
-                case keys.UP:
-                    if (altKey) {
-                        component.set(
-                            CONSTANTS.HEIGHT,
-                            component.get(CONSTANTS.HEIGHT) + smallStep
-                        );
-                    } else {
-                        component.set(
-                            CONSTANTS.TOP,
-                            component.get(CONSTANTS.TOP) - smallStep
-                        );
-                    }
-                    break;
-                case 77: // m for menu
-                    if (altKey && this.menu instanceof ContextMenu) {
-                        this.menu.open();
-                    }
-                    break;
-                case 82: // r for rotate
-                    if (altKey) {
-                        // TODO
-                    }
+                case keys.NUMPAD_PLUS:
+                    rotate(angleStep);
                     break;
                 default:
+                    if (
+                        altKey &&
+                        String.fromCharCode(e.which).toLowerCase() === 'm'
+                    ) {
+                        openMenu();
+                    } else if (
+                        altKey &&
+                        String.fromCharCode(e.which).toLowerCase() === 'r'
+                    ) {
+                        rotate(angleStep);
+                    }
                     break;
             }
         }
-    },
-
-    /**
-     *
-     * @param options
-     * @private
-     */
-    _editable(options) {
-        const that = this;
-        const wrapper = that.wrapper;
-        const disabled = (that._disabled = options.disabled);
-        const readonly = (that._readonly = options.readonly);
-
-        // Clear
-
-        // Set
-        /*
-        if (!disabled && !readonly) {
-            // TODO iterate through components and call onEnable
-        } else {
-
-        }
-        */
     },
 
     /**
@@ -2171,21 +2171,11 @@ const Stage = DataBoundWidget.extend({
      * @param enable
      */
     enable(enable) {
-        this._editable({
-            readonly: false,
-            disabled: !(enable = enable === undefined ? true : enable)
-        });
-    },
-
-    /**
-     * Make the widget readonly
-     * @param readonly
-     */
-    readonly(readonly) {
-        this._editable({
-            readonly: readonly === undefined ? true : readonly,
-            disabled: false
-        });
+        this._enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        debugger;
+        // TODO iterate through components and call onEnable
+        // TODO _initializeMode
     },
 
     /**
@@ -2222,18 +2212,6 @@ const Stage = DataBoundWidget.extend({
                 that._hideAdorner();
             }
         }
-    },
-
-    /**
-     * Stage Elements
-     * @method items
-     * @returns {*}
-     */
-    items() {
-        // TODO Do not return .kj-connector-surface
-        return $.makeArray(
-            this.stage.children(CONSTANTS.DOT + CONSTANTS.ELEMENT_CLASS)
-        );
     },
 
     /**

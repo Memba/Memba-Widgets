@@ -118,8 +118,9 @@ const CONSTANTS = {
     INPUT: 'input',
     LI: 'li',
     // SELECT: 'select',
-    UL: 'ul',
-    SPAN: 'span'
+    SPAN: 'span',
+    TBODY: 'tbody',
+    UL: 'ul'
 };
 
 /**

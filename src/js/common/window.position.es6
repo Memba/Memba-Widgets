@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO use kendo.getTouches and consider specializing UserEvents
+// TODO use kendo.getTouches
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -50,7 +50,7 @@ export function containerBoundaries(container, element) {
     const styles = getComputedStyles(container.parent()[0], ['transform']);
     // https://www.michael1e.com/get-scale-value-css-javascript/
     // https://stackoverflow.com/questions/5603615/get-the-scale-value-of-an-element
-    const matrix = new Matrix(styles.transform);
+    const matrix = new Matrix(styles.transform); // TODO
     const scaleX = matrix.a;
     const scaleY = matrix.d;
     // END Added by JLC
@@ -151,6 +151,7 @@ export function getElementCenter(element, stage, scale) {
  * @returns {{x: *, y: *}}
  */
 export function getMousePosition(e, stage) {
+    // TODO use kendo.getTouches(e)
     assert.instanceof(
         $.Event,
         e,

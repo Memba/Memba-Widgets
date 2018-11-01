@@ -681,7 +681,8 @@ if (MediaPlayer) {
 if (MultiInput) {
     const { options } = MultiInput.prototype;
     options.messages = $.extend(true, options.messages, {
-        delete: 'Effacer'
+        clear: 'Effacer',
+        delete: 'Supprimer'
     });
 }
 

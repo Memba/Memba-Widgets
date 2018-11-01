@@ -2,16 +2,17 @@
 <html class="k-default">
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.multiquiz</title>
+    <title>widgets.multiquiz</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.multiquiz stylesheet -->
-    <link href="./styles/kidoju.widgets.multiquiz.css" rel="stylesheet">
+    <!-- widgets.multiquiz stylesheet -->
+    <link href="../../styles/widgets/widgets.multiquiz.css" rel="stylesheet">
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -192,7 +193,7 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/kidoju.widgets.multiquiz.js').then(function (kendo) {
+            SystemJS.import('./js/widgets.multiquiz.js').then(function (kendo) {
                 var data = [
                     { text: 'question 1', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg' },
                     { text: 'question 2', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg' },
@@ -296,7 +297,7 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.multiquiz</h1>
+<h1>widgets.multiquiz</h1>
 
 <h2>MultiQuiz initiated from code</h2>
 <div id="multiquiz1" style="font-size:60px; border: solid 1px black;"></div>

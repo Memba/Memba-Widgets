@@ -33,7 +33,7 @@
         var Surface = drawing.Surface;
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.connector');
+        var logger = new window.Logger('widgets.connector');
         var util = window.kidoju.util;
         var STRING = 'string';
         var NULL = 'null';

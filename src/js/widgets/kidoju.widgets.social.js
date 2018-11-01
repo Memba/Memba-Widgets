@@ -59,7 +59,7 @@
         var Widget = ui.Widget;
         var NS = '.kendoSocial';
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.sharing');
+        var logger = new window.Logger('widgets.sharing');
         var NUMBER = 'number';
         var STRING = 'string';
         var CONTENT = 'content';

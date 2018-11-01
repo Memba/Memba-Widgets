@@ -2,18 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.propertygrid</title>
+    <title>widgets.propertygrid</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.propertygrid stylesheet -->
-    <link href="./styles/kidoju.widgets.propertygrid.css" rel="stylesheet">
-    <!-- kidoju.widgets.propertygrid stylesheet -->
-    <link href="./styles/kidoju.widgets.propertygrid.css" rel="stylesheet">
+    <!-- widgets.propertygrid stylesheet -->
+    <link href="../../styles/widgets/widgets.propertygrid.css" rel="stylesheet">
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -195,8 +194,8 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
-                SystemJS.import('./js/kidoju.widgets.rating.js'),
-                SystemJS.import('./js/kidoju.widgets.propertygrid.js')
+                SystemJS.import('./js/widgets.rating.js'),
+                SystemJS.import('./js/widgets.propertygrid.js')
             ]).then(function () {
                 var kendo = window.kendo;
                 var Properties = kendo.data.Model.define({
@@ -341,7 +340,7 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.propertygrid</h1>
+<h1>widgets.propertygrid</h1>
 <p>TODO: Implement a style selector (combo box with kendo styles that loads corresponding styles). We also want controls to change sizes, make grids readonly, ...</p>
 <h2>Preferred configuration</h2>
 <h3>Property grid bound to an object with schema and with row metadata</h3>

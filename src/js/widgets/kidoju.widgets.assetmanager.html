@@ -2,21 +2,22 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.assetmanager</title>
+    <title>widgets.assetmanager</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.mobile.all.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.vectordrawing stylesheet -->
+    <!-- widgets.vectordrawing stylesheet -->
     <link href="../../styles/fonts/kidoju.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.vectordrawing.css" rel="stylesheet">
-    <!-- kidoju.widgets.assetmanager stylesheets -->
+    <link href="../../styles/widgets/widgets.vectordrawing.css" rel="stylesheet">
+    <!-- widgets.assetmanager stylesheets -->
     <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.splitbutton.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.assetmanager.css" rel="stylesheet">
+    <link href="../../styles/widgets/widgets.splitbutton.css" rel="stylesheet">
+    <link href="../../styles/widgets/widgets.assetmanager.css" rel="stylesheet">
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -200,8 +201,8 @@
             SystemJS.import('kendo.dataviz.diagram') // This is a workaround to force the correct load order
                 .then(function () {
                     return Promise.all([
-                        SystemJS.import('./js/kidoju.widgets.vectordrawing.js'),
-                        SystemJS.import('./js/kidoju.widgets.assetmanager.js')]);
+                        SystemJS.import('./js/widgets.vectordrawing.js'),
+                        SystemJS.import('./js/widgets.assetmanager.js')]);
                 })
                 .then(function () {
                     var kendo = window.kendo;
@@ -397,7 +398,7 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.assetmanager</h1>
+<h1>widgets.assetmanager</h1>
 <div id="assets" data-bind="visible: visible, enabled: enabled"></div>
 
 <div>

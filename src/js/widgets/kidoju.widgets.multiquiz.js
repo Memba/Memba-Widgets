@@ -31,7 +31,7 @@
         var DataSource = kendo.data.DataSource;
         var ObservableArray = kendo.data.ObservableArray;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.multiquiz');
+        var logger = new window.Logger('widgets.multiquiz');
         var util = window.kidoju.util;
         var NS = '.kendoMultiQuiz';
         var STRING = 'string';

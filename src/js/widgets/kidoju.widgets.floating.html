@@ -3,16 +3,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.floating</title>
+    <title>widgets.floating</title>
     <!--link href="http://kendo.cdn.telerik.com/2018.1.117/styles/kendo.common.min.css" rel="stylesheet">
     <link href="http://kendo.cdn.telerik.com/2018.1.117/styles/kendo.flat.min.css" rel="stylesheet">
     <link href="http://kendo.cdn.telerik.com/2018.1.117/styles/kendo.flat.mobile.min.css" rel="stylesheet"-->
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.floating stylesheet -->
-    <link href="./styles/kidoju.widgets.floating.css" rel="stylesheet">
+    <!-- widgets.floating stylesheet -->
+    <link href="../../styles/widgets/widgets.floating.css" rel="stylesheet">
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -195,7 +196,7 @@
             });
             Promise.all([
                 SystemJS.import('./js/vendor/kendo/kendo.toolbar.js'),
-                SystemJS.import('./js/kidoju.widgets.floating.js')
+                SystemJS.import('./js/widgets.floating.js')
             ]).then(function () {
             	var kendo = window.kendo;
             	$(function() {
@@ -235,7 +236,7 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.floating</h1>
+<h1>widgets.floating</h1>
 <div>
     <input type="checkbox" checked />Toolbar 1,&nbsp;
     <input type="checkbox" checked />Toolbar 2

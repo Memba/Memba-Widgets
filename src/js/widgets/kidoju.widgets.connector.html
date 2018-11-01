@@ -2,16 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.connector</title>
+    <title>widgets.connector</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.connector stylesheet -->
-    <!--link href="./styles/kidoju.widgets.connector.css" rel="stylesheet"-->
+    <!-- widgets.connector stylesheet -->
+    <!--link href="../../styles/widgets/widgets.connector.css" rel="stylesheet"-->
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -194,7 +195,7 @@
             });
             SystemJS.import('kendo.drawing') // This is a workaround to force the correct load order
                 .then(function () {
-                    return SystemJS.import('./js/kidoju.widgets.connector.js');
+                    return SystemJS.import('./js/widgets.connector.js');
                 })
                 .then(function () {
                     var kendo = window.kendo;
@@ -223,7 +224,7 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.connector</h1>
+<h1>widgets.connector</h1>
 <div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.75);">
     <div data-role="stage" style="height:300px;width:300px;">
         <div class="kj-element" style="position:absolute;top:10px;left:10px;height:40px;width:40px;">

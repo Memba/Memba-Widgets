@@ -19,7 +19,7 @@
         './vendor/kendo/kendo.tabstrip',
         './vendor/kendo/kendo.window',
         // './vendor/kendo/kendo.upload' // <--- does not work with AWS S3
-        './kidoju.widgets.vectordrawing',
+        './widgets.vectordrawing',
         './dialogs/dialogs.alert.es6'
     ], f);
 })(function () {
@@ -43,7 +43,7 @@
         var Window = kendo.ui.Window;
         // var deepExtend = kendo.deepExtend;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.assetmanager');
+        var logger = new window.Logger('widgets.assetmanager');
         var NUMBER = 'number';
         var STRING = 'string';
         var OBJECT = 'object';

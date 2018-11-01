@@ -24,7 +24,7 @@
         var Widget = kendo.ui.Widget;
         var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.floating');
+        var logger = new window.Logger('widgets.floating');
         // var UNDEFINED = 'undefined';
         var WIDGET_CLASS = 'k-toolbar kj-floating';
 
@@ -84,7 +84,7 @@
                 that.wrapper = that.window.wrapper;
                 // Add draggable
                 element.kendoDraggable({
-                    group: 'kidoju.widgets.floating',
+                    group: 'widgets.floating',
                     ignore: '.kj-floating-content, .kj-floating-content *',
                     hint: $.proxy(that._hint, that),
                     dragstart: $.proxy(that._onDragStart, that),

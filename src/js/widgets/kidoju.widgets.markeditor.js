@@ -15,7 +15,7 @@
         './common/window.logger.es6',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.window',
-        './kidoju.widgets.markeditor.toolbar'
+        './widgets.markeditor.toolbar'
     ], f);
 })(function (CodeMirror) {
 
@@ -31,7 +31,7 @@
         var ui = kendo.ui;
         var Widget = ui.Widget;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.markeditor');
+        var logger = new window.Logger('widgets.markeditor');
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var NULL = 'null';

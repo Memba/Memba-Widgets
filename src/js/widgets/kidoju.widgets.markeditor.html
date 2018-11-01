@@ -2,29 +2,30 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.markeditor</title>
+    <title>widgets.markeditor</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.markeditor stylesheet -->
+    <!-- widgets.markeditor stylesheet -->
     <link href="../../styles/fonts/kidoju.css" rel="stylesheet">
     <link href="../../styles/vendor/highlight/codepen-embed.css" rel="stylesheet">
     <link href="../../styles/vendor/khan/katex.css" rel="stylesheet">
     <link href="../../styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
     <link href="../../styles/vendor/codemirror/theme/monokai.css" rel="stylesheet">
     <link href="../../styles/vendor/mathquill/mathquill.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.mathinput.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.markdown.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.markeditor.css" rel="stylesheet">
+    <link href="../../styles/widgets/widgets.mathinput.css" rel="stylesheet">
+    <link href="../../styles/widgets/widgets.markdown.css" rel="stylesheet">
+    <link href="../../styles/widgets/widgets.markeditor.css" rel="stylesheet">
     <style>
         body {
             font: 14px Arial, Helvetica, sans-serif;
         }
     </style>
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -205,7 +206,7 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/kidoju.widgets.markeditor.js').then(function (kendo) {
+            SystemJS.import('./js/widgets.markeditor.js').then(function (kendo) {
                 var viewModel = window.viewModel = kendo.observable({
                     markdown: '',
                     visible: true,

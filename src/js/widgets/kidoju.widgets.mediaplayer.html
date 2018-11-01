@@ -2,16 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.mediaplayer</title>
+    <title>widgets.mediaplayer</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.mediaplayer stylesheet -->
-    <link href="./styles/kidoju.widgets.mediaplayer.css" rel="stylesheet">
+    <!-- widgets.mediaplayer stylesheet -->
+    <link href="../../styles/widgets/widgets.mediaplayer.css" rel="stylesheet">
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -192,7 +193,7 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/kidoju.widgets.mediaplayer.js').then(function (kendo) {
+            SystemJS.import('./js/widgets.mediaplayer.js').then(function (kendo) {
                 var viewModel = kendo.observable({
                     visible: true,
                     enabled: true
@@ -211,7 +212,7 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.mediaplayer</h1>
+<h1>widgets.mediaplayer</h1>
 <!--h2> Check audio support</h2-->
 <!-- Note: prefer media files delivered from AWS S3 for Chrome and Safari otherwise the page might not load  -->
 <!--audio controls style="width: 100%;">

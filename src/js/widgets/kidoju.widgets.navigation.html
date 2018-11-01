@@ -2,17 +2,18 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.navigation</title>
+    <title>widgets.navigation</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.navigation stylesheet -->
-    <link href="./styles/kidoju.widgets.stage.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.navigation.css" rel="stylesheet">
+    <!-- widgets.navigation stylesheet -->
+    <link href="../../styles/widgets/widgets.stage.css" rel="stylesheet">
+    <link href="../../styles/widgets/widgets.navigation.css" rel="stylesheet">
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -195,7 +196,7 @@
             });
             Promise.all([
                 SystemJS.import('./js/vendor/kendo/kendo.splitter.js'),
-                SystemJS.import('./js/kidoju.widgets.navigation.js')
+                SystemJS.import('./js/widgets.navigation.js')
             ]).then(function () {
                 var kendo = window.kendo;
                 var kidoju = window.kidoju;

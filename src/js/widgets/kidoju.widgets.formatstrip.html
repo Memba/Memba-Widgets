@@ -2,16 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.formatstrip</title>
+    <title>widgets.formatstrip</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.formatstrip stylesheet -->
-    <link href="./styles/kidoju.widgets.formatstrip.css" rel="stylesheet">
+    <!-- widgets.formatstrip stylesheet -->
+    <link href="../../styles/widgets/widgets.formatstrip.css" rel="stylesheet">
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -192,7 +193,7 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/kidoju.widgets.formatstrip.js').then(function (kendo) {
+            SystemJS.import('./js/widgets.formatstrip.js').then(function (kendo) {
                 // var kendo = window.kendo;
                 var kidoju = window.kidoju;
                 var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
@@ -234,7 +235,7 @@
     </style>
 </head>
 <body>
-<h1>kidoju.widgets.formatbar</h1>
+<h1>widgets.formatbar</h1>
 <!--div data-role="formatbar" data-bind="value: style, visible: visible, enabled: enabled"></div-->
 <div style="padding:20px">
     <input type="text" data-bind="value: style" class="k-textbox" style="width: 100%;">
@@ -244,7 +245,7 @@
     </div>
 </div>
 <div style="padding:20px"><div data-bind="attr: { style: style }">Sample Text</div></div>
-<h1>kidoju.widgets.formatstrip</h1>
+<h1>widgets.formatstrip</h1>
 <button data-bind="click: reset">Clear Selection</button><br/>
 <input data-role="dropdownlist" data-bind="source: components, value: selectedComponent" data-text-field="tool" data-value-field="id" style="width: 300px"></select>
 <div>&nbsp;</div>

@@ -2,16 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.dropzone</title>
+    <title>widgets.dropzone</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.dropzone stylesheet -->
-    <!-- link href="./styles/kidoju.widgets.dropzone.css" rel="stylesheet" -->
+    <!-- widgets.dropzone stylesheet -->
+    <!-- link href="../../styles/widgets/widgets.dropzone.css" rel="stylesheet" -->
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <style>
         .kj-stage {
@@ -20,7 +21,7 @@
     </style>
 </head>
 <body>
-<h1>kidoju.widgets.dropzone</h1>
+<h1>widgets.dropzone</h1>
 <div class="kj-stage" style="height: 600px; width: 800px; transform: scale(0.75);">
     <div data-role="stage" style="position:relative;height: 600px; width: 800px;">
         <div class="kj-element" style="position:absolute;top:100px;left:150px;width:250px;height:250px;">
@@ -267,7 +268,7 @@ SystemJS.config({
     },
     transpiler: 'plugin-babel'
 });
-SystemJS.import('./js/kidoju.widgets.dropzone.js').then(function (kendo) {
+SystemJS.import('./js/widgets.dropzone.js').then(function (kendo) {
     function formatValue(value) {
         return function () {
             return (this.get(value) || []).join(',');

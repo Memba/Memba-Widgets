@@ -30,7 +30,7 @@
         var DropDownList = ui.DropDownList;
         var DataSource = kendo.data.DataSource;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.quiz');
+        var logger = new window.Logger('widgets.quiz');
         var util = window.kidoju.util;
         var NS = '.kendoQuiz';
         var NULL = 'null';

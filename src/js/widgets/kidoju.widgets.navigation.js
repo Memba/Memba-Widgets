@@ -15,7 +15,7 @@
         './vendor/kendo/kendo.sortable',
         './kidoju.data',
         './kidoju.tools',
-        './kidoju.widgets.stage'
+        './widgets.stage'
     ], f);
 })(function () {
 
@@ -34,7 +34,7 @@
         var Page = kidoju.data.Page;
         var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.navigation');
+        var logger = new window.Logger('widgets.navigation');
         var NULL = null;
         var NUMBER = 'number';
         var STRING = 'string';

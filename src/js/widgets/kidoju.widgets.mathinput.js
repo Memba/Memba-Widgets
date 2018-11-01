@@ -14,7 +14,7 @@
         './common/window.logger.es6',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.window',
-        './kidoju.widgets.mathinput.toolbar'
+        './widgets.mathinput.toolbar'
     ], f);
 })(function (mq) {
 
@@ -33,7 +33,7 @@
         var MathInputToolBar = ui.MathInputToolBar;
         var MQ = mq.getInterface(mq.getInterface.MAX);
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.mathinput');
+        var logger = new window.Logger('widgets.mathinput');
         var STRING = 'string';
         var NULL = 'null';
         var UNDEFINED = 'undefined';
@@ -217,7 +217,7 @@
              */
             _stringValue: function (value) {
                 // We should only update if value has changed because this triggers _onEdit and a CHANGE event
-                // which breaks that.trigger(DATABOUND); in kidoju.widgets.stage
+                // which breaks that.trigger(DATABOUND); in widgets.stage
                 var latex = this.mathFields[0].latex();
                 if ($.type(value) === STRING) {
                     if (value !== latex) {

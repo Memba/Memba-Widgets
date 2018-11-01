@@ -13,7 +13,7 @@
         './common/window.logger.es6',
         './vendor/kendo/kendo.binder',
         './kidoju.util'
-        // './kidoju.widgets.stage'
+        // './widgets.stage'
     ], f);
 })(function () {
 
@@ -31,7 +31,7 @@
         var Widget = ui.Widget;
         var DataBoundWidget = ui.DataBoundWidget;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.dropzone');
+        var logger = new window.Logger('widgets.dropzone');
         var util = window.kidoju.util;
         var STRING = 'string';
         var NUMBER = 'number';
@@ -332,8 +332,8 @@
                 autoBind: true,
                 dataSource: [],
                 value: [],
-                scaler: 'div.kj-stage', // that.wrapper in kidoju.widgets.stage
-                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]', // that.stage in kidoju.widgets.stage
+                scaler: 'div.kj-stage', // that.wrapper in widgets.stage
+                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]', // that.stage in widgets.stage
                 draggable: 'div.kj-element:has([data-' + kendo.ns + 'behavior="draggable"])', // a stage element containing a draggable
                 center: false,
                 empty: '', // to force a value when empty

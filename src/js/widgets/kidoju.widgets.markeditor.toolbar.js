@@ -18,9 +18,9 @@
         // './vendor/kendo/kendo.validator',
         './vendor/kendo/kendo.popup',
         './vendor/kendo/kendo.window',
-        './kidoju.widgets.markdown',
-        // './kidoju.widgets.markeditor', <-- cyclical dependency
-        './kidoju.widgets.mathinput'
+        './widgets.markdown',
+        // './widgets.markeditor', <-- cyclical dependency
+        './widgets.mathinput'
     ], f);
 })(function () {
 
@@ -32,7 +32,7 @@
     (function ($, undefined) {
 
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.markeditor.toolbar');
+        var logger = new window.Logger('widgets.markeditor.toolbar');
         var kendo = window.kendo;
         // var deepExtend = kendo.deepExtend;
         // var isFunction = kendo.isFunction;

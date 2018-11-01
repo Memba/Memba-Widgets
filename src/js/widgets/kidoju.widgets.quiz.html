@@ -2,16 +2,17 @@
 <html class="k-default">
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.quiz</title>
+    <title>widgets.quiz</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.quiz stylesheet -->
-    <link href="./styles/kidoju.widgets.quiz.css" rel="stylesheet">
+    <!-- widgets.quiz stylesheet -->
+    <link href="../../styles/widgets/widgets.quiz.css" rel="stylesheet">
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -192,7 +193,7 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/kidoju.widgets.quiz.js').then(function (kendo) {
+            SystemJS.import('./js/widgets.quiz.js').then(function (kendo) {
                 var data = [
                     {
                         text: 'question 1',
@@ -305,7 +306,7 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.quiz</h1>
+<h1>widgets.quiz</h1>
 
 <h2>Quiz initiated from code</h2>
 <div id="quiz1" style="font-size:60px; border: solid 1px black;"></div>

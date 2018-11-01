@@ -2,16 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.playbar</title>
+    <title>widgets.playbar</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.playbar stylesheet -->
-    <link href="./styles/kidoju.widgets.playbar.css" rel="stylesheet">
+    <!-- widgets.playbar stylesheet -->
+    <link href="../../styles/widgets/widgets.playbar.css" rel="stylesheet">
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -195,7 +196,7 @@
             Promise.all([
                 SystemJS.import('./js/vendor/kendo/kendo.dropdownlist.js'),
                 SystemJS.import('./js/vendor/kendo/kendo.toolbar.js'),
-                SystemJS.import('./js/kidoju.widgets.playbar.js')
+                SystemJS.import('./js/widgets.playbar.js')
             ]).then(function () {
                 var kendo = window.kendo;
             	var kidoju = window.kidoju;

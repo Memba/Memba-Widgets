@@ -28,7 +28,7 @@
         var Widget = ui.Widget;
         var Slider = ui.Slider;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.mediaplayer');
+        var logger = new window.Logger('widgets.mediaplayer');
         var NS = '.kendoMediaPlayer';
         var ARRAY = 'array';
         var STRING = 'string';

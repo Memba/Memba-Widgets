@@ -15,7 +15,7 @@
         './vendor/kendo/kendo.drawing',
         './vendor/kendo/kendo.dataviz.diagram',
         './kidoju.image',
-        './kidoju.widgets.vectordrawing.toolbar'
+        './widgets.vectordrawing.toolbar'
     ], f);
 })(function () {
 
@@ -28,7 +28,7 @@
 
         var kidoju = window.kidoju;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.vectordrawing');
+        var logger = new window.Logger('widgets.vectordrawing');
         var kendo = window.kendo;
         var deepExtend = kendo.deepExtend;
         var getDataUriAndSize = kidoju.image.getDataUriAndSize;
@@ -1459,7 +1459,7 @@
                             data: { name: name, ext: extension }
                         });
                         // Important: imgData is actually the result of getImageData for exportImage and it needs to be encoded to make a imgData
-                        // Beware any error here will be caught in the try/catch of kendo.drawing.canvas.Surface.prototype.getImageData defined in kidoju.widgets.vectordrawing.js
+                        // Beware any error here will be caught in the try/catch of kendo.drawing.canvas.Surface.prototype.getImageData defined in widgets.vectordrawing.js
                         var dataURI = imgData; // For SVG(+)
                         if (extension === 'jpg') {
                             // Default quality is 50 which is a bit low

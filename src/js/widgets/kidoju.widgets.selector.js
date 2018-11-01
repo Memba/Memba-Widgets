@@ -37,7 +37,7 @@
         var DataBoundWidget = kendo.ui.DataBoundWidget;
         var ToolBar = kendo.ui.ToolBar;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.selection');
+        var logger = new window.Logger('widgets.selection');
         var util = window.kidoju.util;
         // var NUMBER = 'number';
         var OBJECT = 'object';

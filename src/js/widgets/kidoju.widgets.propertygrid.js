@@ -34,7 +34,7 @@
         var Widget = ui.Widget;
         var kidoju = window.kidoju = window.kidoju || {};
         // var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.propertygrid');
+        var logger = new window.Logger('widgets.propertygrid');
         var NS = '.kendoPropertyGrid';
         var OBJECT = 'object';
         var STRING = 'string';

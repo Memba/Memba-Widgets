@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.social</title>
+    <title>widgets.social</title>
     <meta property="og:title" content="Social Widget Test" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="test" />
@@ -17,9 +17,10 @@
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.social stylesheet -->
-    <!--link href="./styles/kidoju.widgets.social.css" rel="stylesheet"-->
+    <!-- widgets.social stylesheet -->
+    <!--link href="../../styles/widgets/widgets.social.css" rel="stylesheet"-->
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -200,7 +201,7 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/kidoju.widgets.social.js').then(function (kendo) {
+            SystemJS.import('./js/widgets.social.js').then(function (kendo) {
                 var viewModel = kendo.observable({
                     visible: true,
                     enabled: true
@@ -213,7 +214,7 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.social</h1>
+<h1>widgets.social</h1>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled

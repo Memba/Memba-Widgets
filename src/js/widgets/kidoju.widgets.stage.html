@@ -2,16 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.stage</title>
+    <title>widgets.stage</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.stage stylesheet -->
-    <link href="./styles/kidoju.widgets.stage.css" rel="stylesheet">
+    <!-- widgets.stage stylesheet -->
+    <link href="../../styles/widgets/widgets.stage.css" rel="stylesheet">
     <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
@@ -195,8 +196,8 @@
             Promise.all([
                 SystemJS.import('./js/vendor/kendo/kendo.slider'),
                 SystemJS.import('./js/vendor/kendo/kendo.grid.js'),
-                SystemJS.import('./js/kidoju.widgets.toolbox.js'),
-                SystemJS.import('./js/kidoju.widgets.stage.js')
+                SystemJS.import('./js/widgets.toolbox.js'),
+                SystemJS.import('./js/widgets.stage.js')
             ]).then(function () {
                 var kendo = window.kendo;
                 var kidoju = window.kidoju;

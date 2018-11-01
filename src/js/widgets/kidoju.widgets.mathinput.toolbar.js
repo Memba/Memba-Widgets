@@ -27,7 +27,7 @@
         var kendo = window.kendo;
         var ToolBar = kendo.ui.ToolBar;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.mathinput.toolbar');
+        var logger = new window.Logger('widgets.mathinput.toolbar');
         var TOOLBAR = [
             'backspace',
             'field',
@@ -770,7 +770,7 @@
         kendo.toolbar.registerComponent('keypad', KeyPadTool, KeyPadButton);
 
         /**
-         * BasicTool and BasicButton (compatible with kidoju.widgets.mathgraph)
+         * BasicTool and BasicButton (compatible with widgets.mathgraph)
          * @see http://www.rapidtables.com/math/symbols/Basic_Math_Symbols.htm
          */
         var BasicTool = PopupTool.extend({

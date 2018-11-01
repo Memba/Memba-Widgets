@@ -5,7 +5,6 @@
 
 // TODO: validators
 // TODO: highlight selection from API
-// TODO: help tooltips - row.help
 // TODO: set/get resize position handle
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
@@ -56,7 +55,7 @@ const PropertyGrid = Widget.extend({
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
-        this._addValidator();
+        this.validation(this.options.validation);
         this.value(this.options.value);
     },
 
@@ -240,7 +239,7 @@ const PropertyGrid = Widget.extend({
         this._resize();
 
         // Add tooltips (rows need to be added for tooltips to work)
-        this._addTooltip();
+        this._enableTooltip();
 
         logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
@@ -694,28 +693,33 @@ const PropertyGrid = Widget.extend({
     },
 
     /**
-     * @method _addTooltip
+     * @method _enableTooltip
+     * @param enable
      * @private
      */
-    _addTooltip() {
+    _enableTooltip(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         const tbody = this.element.find(CONSTANTS.TBODY).first();
         if (this.tooltip instanceof Tooltip) {
             this.tooltip.destroy();
-            this.tooltip = undeifned;
+            this.tooltip = undefined;
         }
-        this.tooltip = tbody
-            .kendoTooltip({
-                filter: 'span.k-icon.k-i-help[title]',
-                width: 120,
-                position: 'top',
-                animation: {
-                    open: {
-                        effects: 'zoom',
-                        duration: 150
+        if (enabled) {
+            this.tooltip = tbody
+                .kendoTooltip({
+                    filter: 'span.k-icon.k-i-help[title]',
+                    width: 120,
+                    position: 'top',
+                    animation: {
+                        open: {
+                            effects: 'zoom',
+                            duration: 150
+                        }
                     }
-                }
-            })
-            .data('kendoTooltip');
+                })
+                .data('kendoTooltip');
+        }
     },
 
     /**
@@ -725,22 +729,23 @@ const PropertyGrid = Widget.extend({
      * @returns {*}
      */
     validation(validation) {
-        if (
-            $.type(validation) === CONSTANTS.OBJECT ||
-            $.type(validation) === CONSTANTS.NULL
-        ) {
-            if (validation !== this.options.validation) {
-                this.options.validation = validation;
-                this._removeValidator();
-                this._addValidator();
-            }
-        } else if ($.type(validation) !== CONSTANTS.UNDEFINED) {
-            return this.options.validation;
-        } else {
-            throw new TypeError(
-                '`validation` is expected to be an object if not null or undefined'
-            );
+        assert.nullableTypeOrUndef(
+            CONSTANTS.OBJECT,
+            validation,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                'validation',
+                CONSTANTS.OBJECT
+            )
+        );
+        let ret;
+        if ($.type(validation) === CONSTANTS.UNDEFINED) {
+            ret = this.options.validation;
+        } else if (validation !== this._validation) {
+            this._validation = validation;
+            this._enableValidator();
         }
+        return ret;
     },
 
     /**
@@ -748,21 +753,17 @@ const PropertyGrid = Widget.extend({
      * See http://docs.telerik.com/kendo-ui/api/javascript/ui/validator
      * @private
      */
-    _addValidator() {
-        if (!(this._validator instanceof Validator)) {
-            this._validator = this.element
-                .kendoValidator(this.options.validation)
-                .data('kendoValidator');
+    _enableValidator(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        if (this.validator instanceof Validator) {
+            this.validator.destroy();
+            this.validator = undefined;
         }
-    },
-
-    /**
-     * Remove validator
-     * @private
-     */
-    _removeValidator() {
-        if (this._validator instanceof Validator) {
-            this._validator.destroy();
+        if (enabled) {
+            this.validator = this.element
+                .kendoValidator(this._validation)
+                .data('kendoValidator');
         }
     },
 
@@ -772,8 +773,8 @@ const PropertyGrid = Widget.extend({
      */
     errors() {
         let ret;
-        if (this._validator instanceof Validator) {
-            ret = this._validator.errors();
+        if (this.validator instanceof Validator) {
+            ret = this.validator.errors();
         }
         return ret;
     },
@@ -784,8 +785,8 @@ const PropertyGrid = Widget.extend({
      */
     hideMessages() {
         let ret;
-        if (this._validator instanceof Validator) {
-            ret = this._validator.hideMessages();
+        if (this.validator instanceof Validator) {
+            ret = this.validator.hideMessages();
         }
         return ret;
     },
@@ -796,8 +797,8 @@ const PropertyGrid = Widget.extend({
      */
     validate() {
         let ret;
-        if (this._validator instanceof Validator) {
-            ret = this._validator.validate();
+        if (this.validator instanceof Validator) {
+            ret = this.validator.validate();
         }
         return ret;
     },
@@ -809,8 +810,8 @@ const PropertyGrid = Widget.extend({
      */
     validateInput(input) {
         let ret;
-        if (this._validator instanceof Validator) {
-            ret = this._validator.validateInput(input);
+        if (this.validator instanceof Validator) {
+            ret = this.validator.validateInput(input);
         }
         return ret;
     },
@@ -821,8 +822,9 @@ const PropertyGrid = Widget.extend({
      */
     destroy() {
         const { element } = this;
-        this._removeValidator();
-        element.off(NS).removeClass(WIDGET_CLASS);
+        this._enableTooltip(false);
+        this._enableValidator(false);
+        // element.off(NS).removeClass(WIDGET_CLASS);
         // Destroy
         Widget.fn.destroy.call(this);
         destroy(element);

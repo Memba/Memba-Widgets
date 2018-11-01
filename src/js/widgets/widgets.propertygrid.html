@@ -202,7 +202,7 @@
                 SystemJS.import('kendo.mobile.switch'),
                 SystemJS.import('kendo.numerictextbox'),
                 SystemJS.import('kendo.slider'),
-                // SystemJS.import('./kidoju.widgets.multiinput'),
+                // SystemJS.import('./widgets.multiinput'),
                 SystemJS.import('./widgets.propertygrid.es6'),
                 SystemJS.import('./widgets.rating.es6')
             ]).then(function () {
@@ -326,18 +326,18 @@
                         rows: rows
                     });
 
-                    //Property grid bound to nothing (should gracefully fallback)
-                    $('#grid2').kendoPropertyGrid();
-
                     //Read-only property grid
-                    $('#grid3').kendoPropertyGrid({
+                    $('#grid2').kendoPropertyGrid({
                         value: viewModel,
                         rows: rows,
-                        readonly: true
+                        enabled: false
                     });
 
+                    //Property grid bound to nothing (should gracefully fallback)
+                    $('#grid3').kendoPropertyGrid();
+
                     //Property grid initialized with an object without schema and without row metadata (best guesses based on value types)
-                    $('#grid5').kendoPropertyGrid({
+                    $('#grid4').kendoPropertyGrid({
                         value: {
                             string: 'Hello',
                             number: 100,
@@ -345,6 +345,26 @@
                             date: new Date(),
                             object: { oops: true }
                         }
+                    });
+
+                    // Property grid bound to an object with row metadata but without schema (best guesses based on value types)
+                    $('#grid5').kendoPropertyGrid({
+                        value: {
+                            string: 'Hello',
+                            number: 100,
+                            boolean: false,
+                            date: new Date(),
+                            object: { oops: true }
+                        },
+                        rows: [
+                            { field: 'number', title: 'Count' },
+                            { field: 'boolean', title: 'Approved' }
+                        ]
+                    });
+
+                    // Property grid bound to an object with schema but without row metadata (property names used has titles)
+                    $('#grid6').kendoPropertyGrid({
+                        value: viewModel
                     });
                 });
             });
@@ -357,15 +377,15 @@
 <h3>Property grid bound to an object with schema and with row metadata</h3>
 <div id="grid1"></div>
 <h2>Other configurations</h2>
-<h3>Property grid withount initialization (should gracefully fallback)</h3>
-<div id="grid2"></div>
 <h3>Read-only property grid</h3>
+<div id="grid2"></div>
+<h3>Property grid withount initialization (should gracefully fallback)</h3>
 <div id="grid3"></div>
 <h3>Property grid bound to an object without schema and without row metadata (best guesses based on value types)</h3>
 <div id="grid4"></div>
-<h3>Property grid bound to an object with schema but without row metadata (property names used has titles)</h3>
-<div id="grid5"></div>
 <h3>Property grid bound to an object with row metadata but without schema (best guesses based on value types)</h3>
+<div id="grid5"></div>
+<h3>Property grid bound to an object with schema but without row metadata (property names used has titles)</h3>
 <div id="grid6"></div>
 </body>
 </html>

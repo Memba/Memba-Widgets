@@ -49,7 +49,7 @@ export function isAnyArray(a) {
     return (
         typeof a === 'object' && // an array is an object
         a !== null && // because null is an object
-        // Symbol.iterator in Object(a) &&
+        // Symbol.iterator in Object(a) && // not supported in old browsers including IE
         typeof a.length === 'number' &&
         typeof a.forEach === 'function' &&
         typeof a.join === 'function' &&

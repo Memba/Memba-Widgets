@@ -48,6 +48,8 @@ export function isAnyArray(a) {
     // return Array.isArray(a) || a instanceof kendo.data.ObservableArray;
     return (
         typeof a === 'object' && // an array is an object
+        a !== null && // because null is an object
+        // Symbol.iterator in Object(a) &&
         typeof a.length === 'number' &&
         typeof a.forEach === 'function' &&
         typeof a.join === 'function' &&
@@ -56,19 +58,24 @@ export function isAnyArray(a) {
 }
 
 /**
- * Compare string arrays
- * @function compareStringArrays
+ * Compare basic type arrays
+ * @function compareBasicArrays
  * @param a
  * @param b
  * @returns {boolean}
  */
-export function compareStringArrays(a, b) {
-    return (
-        isAnyArray(a) &&
-        isAnyArray(b) &&
-        a.length === b.length &&
-        a.join(';') === b.join(';')
-    );
+export function compareBasicArrays(a, b) {
+    let ret = false;
+    if (isAnyArray(a) && isAnyArray(b) && a.length === b.length) {
+        ret = true;
+        for (let i = 0, { length } = a; i < length; i++) {
+            if (a[i] !== b[i]) {
+                ret = false;
+                break;
+            }
+        }
+    }
+    return ret;
 }
 
 /**

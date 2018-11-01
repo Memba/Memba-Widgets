@@ -12,7 +12,7 @@ import {
     dateReviver,
     escapeRegExp,
     isAnyArray,
-    compareStringArrays,
+    compareBasicArrays,
     isGuid,
     jsonClone,
     randomHexString,
@@ -70,9 +70,29 @@ describe('window.util', () => {
         });
     });
 
-    describe('compareStringArrays', () => {
-        xit('TODO', () => {
-            expect(true).to.be.false;
+    describe('compareBasicArrays', () => {
+        it('It should compare string arrays', () => {
+            const a = JSC.array(JSC.integer(10), JSC.string())();
+            const b = new ObservableArray(a);
+            expect(compareBasicArrays(a, b)).to.be.true;
+        });
+
+        it('It should compare number arrays', () => {
+            const a = JSC.array(JSC.integer(10), JSC.number(100))();
+            const b = new ObservableArray(a);
+            expect(compareBasicArrays(b, a)).to.be.true;
+        });
+
+        it('It should compare boolean arrays', () => {
+            const a = JSC.array(JSC.integer(10), JSC.boolean())();
+            const b = new ObservableArray(a);
+            expect(compareBasicArrays(b, a)).to.be.true;
+        });
+
+        it('It should compare mismatched arrays', () => {
+            expect(compareBasicArrays([true, false], [false, true])).to.be.false;
+            expect(compareBasicArrays([0, 1, 2, 3, 4], [3, 2, 1])).to.be.false;
+            expect(compareBasicArrays(['a', 'b', 'c'], ['d', 'e', 'f'])).to.be.false;
         });
     });
 

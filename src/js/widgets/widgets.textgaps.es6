@@ -10,7 +10,7 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import { compareStringArrays, getSelection, isAnyArray, setSelection } from '../common/window.util.es6';
+import { compareBasicArrays, getSelection, isAnyArray, setSelection } from '../common/window.util.es6';
 
 const {
     destroy,
@@ -78,7 +78,7 @@ const TextGaps = Widget.extend({
             return that._value;
         }
         if (isAnyArray(value)) {
-            if (!compareStringArrays(that._value, value)) {
+            if (!compareBasicArrays(that._value, value)) {
                 that._value = value;
                 that.refresh();
             }

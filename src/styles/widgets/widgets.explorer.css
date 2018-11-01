@@ -4,7 +4,6 @@
  */
 .kj-explorer .k-list .kj-placeholder {
   opacity: 0.2;
-  filter: alpha(opacity=20);
 }
 .kj-item {
   height: 32px;

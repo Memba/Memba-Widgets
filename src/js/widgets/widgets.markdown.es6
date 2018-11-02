@@ -113,7 +113,7 @@ const Markdown = Widget.extend({
 
     /**
      * Value for MVVM binding
-     * Returns either a JS function as a string or a library formula name prefixed as a Javascript comment
+     * @method value
      * @param value
      */
     value(value) {
@@ -126,28 +126,13 @@ const Markdown = Widget.extend({
             )
         );
         let ret;
-
-        if (
-            $.type(value) === CONSTANTS.STRING ||
-            $.type(value) === CONSTANTS.NULL
-        ) {
-            if (this._value !== value) {
-                this._value = value;
-                this.refresh();
-            }
-        } else if ($.type(value) === CONSTANTS.UNDEFINED) {
-            if (
-                $.type(this._value) === CONSTANTS.STRING ||
-                $.type(this._value) === CONSTANTS.NULL
-            ) {
-                return this._value;
-            }
-            return undefined;
-        } else {
-            throw new TypeError(
-                '`value` is expected to be a string if not undefined'
-            );
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._value;
+        } else if (value !== this._value) {
+            this._value = value;
+            this.refresh();
         }
+        return ret;
     },
 
     /**
@@ -378,10 +363,10 @@ const Markdown = Widget.extend({
             // TODO
         } else if ($.type(url) === CONSTANTS.STRING) {
             $.get(url)
-                .done(data => {
+                .then(data => {
                     this.value(data);
                 })
-                .fail(() => {
+                .catch(() => {
                     this.value(null);
                 });
         } else {

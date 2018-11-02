@@ -31,7 +31,7 @@
         var geometry = kendo.geometry;
         var DataSource = data.DataSource;
         var Surface = drawing.Surface;
-        var Widget = kendo.ui.Widget;
+        var DataBoundWidget = kendo.ui.DataBoundWidget;
         var assert = window.assert;
         var logger = new window.Logger('widgets.connector');
         var util = window.kidoju.util;
@@ -64,7 +64,7 @@
          * Connector
          * @class Connector Widget (kendoConnector)
          */
-        var Connector = Widget.extend({
+        var Connector = DataBoundWidget.extend({
 
             /**
              * Init
@@ -74,7 +74,7 @@
             init: function (element, options) {
                 var that = this;
                 options = options || {};
-                Widget.fn.init.call(that, element, options);
+                DataBoundWidget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
                 that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 that._layout();
@@ -503,7 +503,7 @@
                 var element = that.element;
                 var container = element.closest(that.options.container);
                 var surface = container.data(SURFACE);
-                Widget.fn.destroy.call(that);
+                DataBoundWidget.fn.destroy.call(that);
                 // unbind document events
                 $(document).off(NS);
                 // unbind and destroy all descendants

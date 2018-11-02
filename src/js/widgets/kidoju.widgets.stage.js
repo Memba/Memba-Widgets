@@ -141,6 +141,7 @@
             },
             destroy: function () {
                 this.widget.unbind(CHANGE, this._change);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
         });
 
@@ -1545,6 +1546,7 @@
                 that.setDataSource(NULL);
                 that._clear();
                 kendo.destroy(that.element);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
 
         });

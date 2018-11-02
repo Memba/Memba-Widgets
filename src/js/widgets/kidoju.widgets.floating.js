@@ -213,6 +213,7 @@
                 if (that.observer instanceof MutationObserver) {
                     that.observer.disconnect();
                 }
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
 
         });

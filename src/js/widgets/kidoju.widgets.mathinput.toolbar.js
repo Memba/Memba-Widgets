@@ -500,6 +500,7 @@
                     }
                 });
                 ToolBar.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
         });
         kendo.ui.plugin(MathInputToolBar);
@@ -527,6 +528,7 @@
             },
             destroy: function () {
                 this.popup.destroy();
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             open: function (ev) {
                 ev.preventDefault();
@@ -740,6 +742,7 @@
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             _commandPalette: function () {
                 var buttons = this.buttons;
@@ -867,6 +870,7 @@
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             _commandPalette: function () {
                 var buttons = this.buttons;
@@ -1176,6 +1180,7 @@
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             _commandPalette: function () {
                 var buttons = this.buttons;
@@ -1367,6 +1372,7 @@
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             _commandPalette: function () {
                 var buttons = this.buttons;
@@ -1523,6 +1529,7 @@
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             _commandPalette: function () {
                 var buttons = this.buttons;
@@ -1676,6 +1683,7 @@
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             _commandPalette: function () {
                 var buttons = this.buttons;
@@ -1779,6 +1787,7 @@
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             _commandPalette: function () {
                 var buttons = this.buttons;
@@ -1845,6 +1854,7 @@
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             _commandPalette: function () {
                 var buttons = this.buttons;
@@ -1912,6 +1922,7 @@
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             _commandPalette: function () {
                 var buttons = this.buttons;
@@ -2234,6 +2245,7 @@
                     this._dialog.destroy();
                     this._dialog = null;
                 }
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             open: function () {
                 this.dialog().open();

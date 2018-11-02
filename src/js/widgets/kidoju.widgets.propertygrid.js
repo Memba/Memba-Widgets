@@ -543,6 +543,7 @@
                     .removeClass(WIDGET_CLASS);
                 Widget.fn.destroy.call(this);
                 kendo.destroy(element);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
 
         });

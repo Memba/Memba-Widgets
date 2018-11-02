@@ -441,6 +441,7 @@
                     }
                 });
                 ToolBar.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
         });
         kendo.ui.plugin(MarkEditorToolBar);
@@ -530,6 +531,7 @@
             },
             destroy: function () {
                 this.popup.destroy();
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             open: function (e) {
                 e.preventDefault();
@@ -615,6 +617,7 @@
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             update: function (selected) {
                 var headings = selected && selected.options && selected.options.startCap && selected.options.startCap.type;
@@ -797,6 +800,7 @@
                     this._dialog.destroy();
                     this._dialog = null;
                 }
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             },
             open: function () {
                 this.dialog().open();

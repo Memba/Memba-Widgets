@@ -407,6 +407,7 @@
                 // Destroy
                 ToolBar.fn.destroy.call(this);
                 kendo.destroy(element);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
 
         });
@@ -845,6 +846,7 @@
                 kendo.destroy(this.element);
                 // Remove widget class
                 // element.removeClass(SURFACE_CLASS);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
         });
 
@@ -1147,6 +1149,7 @@
                 // Destroy kendo
                 Widget.fn.destroy.call(this);
                 kendo.destroy(this.element);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
         });
 

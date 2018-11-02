@@ -756,6 +756,7 @@
                     .off(NS);
                 Widget.fn.destroy.call(that);
                 kendo.destroy(element);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
 
         });

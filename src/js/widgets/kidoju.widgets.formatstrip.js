@@ -807,6 +807,7 @@
                 var that = this;
                 this._clearTabs();
                 Widget.fn.destroy.call(this);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
         });
 

@@ -522,6 +522,7 @@
                     surface.element.remove();
                     container.removeData(SURFACE);
                 }
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
         });
 

@@ -568,6 +568,7 @@ var Navigation = DataBoundWidget.extend({
         that._clear();
         that.setDataSource(null);
         kendo.destroy(that.element);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });
 

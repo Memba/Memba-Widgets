@@ -1367,6 +1367,7 @@
                 kendo.destroy(wrapper);
                 // Remove widget class
                 // wrapper.removeClass(WIDGET_CLASS);
+                logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
 
         });

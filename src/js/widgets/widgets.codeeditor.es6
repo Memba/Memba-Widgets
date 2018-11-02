@@ -525,17 +525,17 @@ const CodeEditor = DataBoundWidget.extend({
         ) {
             // Download the worker lib
             $.ajax({ url: options.workerLib, cache: true, dataType: 'text' })
-                .done(workerLib => {
+                .then(workerLib => {
                     $.proxy(that._runTest, that)(workerLib)
-                        .done($.proxy(that._showResult, that))
-                        .fail($.proxy(that._showError, that));
+                        .then($.proxy(that._showResult, that))
+                        .catch($.proxy(that._showError, that));
                 })
-                .fail($.proxy(that._showError, that));
+                .catch($.proxy(that._showError, that));
         } else {
             // No worker lib to download
             that._runTest()
-                .done($.proxy(that._showResult, that))
-                .fail($.proxy(that._showError, that));
+                .then($.proxy(that._showResult, that))
+                .catch($.proxy(that._showError, that));
         }
     },
 

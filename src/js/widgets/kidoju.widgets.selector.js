@@ -340,7 +340,7 @@
                 // https://docs.telerik.com/kendo-ui/api/javascript/drawing/methods/exportsvg
                 // drawing.exportSVG(root)
                 drawing.exportImage(root, { width: iconSize, height: iconSize })
-                    .done(function (dataUri) {
+                    .then(function (dataUri) {
                         dfd.resolve ({
                             group: 'selectors',
                             id: BUTTON_PREFIX + selector.options.id,
@@ -351,7 +351,7 @@
                             type: 'button'
                         });
                     })
-                    .fail(dfd.reject);
+                    .catch(dfd.reject);
                 return dfd.promise();
             },
 
@@ -378,7 +378,7 @@
                     for (var i = 0; i < length; i++) {
                         promises.push(that._createButton(selectorSurface.selectors[i]));
                     }
-                    $.when.apply(that, promises).done(function () {
+                    $.when.apply(that, promises).then(function () {
                         // Remove buttons
                         removeButtonGroup();
                         // Add buttons

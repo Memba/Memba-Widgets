@@ -1452,7 +1452,7 @@
                     data: { name: name, ext: extension }
                 });
                 exportFile.bind(this)({ json: json }) // json: true only applies to exportSVG
-                    .done(function (imgData) {
+                    .then(function (imgData) {
                         logger.debug({
                             message: 'exporFile successful',
                             method: '_onToolbarSave',
@@ -1473,7 +1473,7 @@
                             fileName: name + '.' + extension
                         });
                     })
-                    .fail(function (error) {
+                    .catch(function (error) {
                         // TODO Trigger error
                         logger.error({
                             message: 'exportFile failed',
@@ -1673,7 +1673,7 @@
                     promise = that._downloadFile(source);
                 }
                 return promise
-                    .done(function (meta) {
+                    .then(function (meta) {
                         that._source = (source instanceof window.File ? source.name : source.split('/').pop());
                         that._artboard.height = meta.height;
                         that._artboard.width = meta.width;
@@ -1705,7 +1705,7 @@
                     promise = getDataUriAndSize(source);
                 }
                 return promise
-                    .done(function (image) {
+                    .then(function (image) {
                         that._loadDataUri(image.dataUri, image.height, image.width);
                         that.resize(true);
                     })
@@ -1727,7 +1727,7 @@
                 if ((file.type || '').match(/^image\//)) {
                     var reader = new FileReader();
                     reader.onload = function (e) {
-                        getDataUriAndSize(e.target.result).done(dfd.resolve).fail(dfd.reject);
+                        getDataUriAndSize(e.target.result).then(dfd.resolve).catch(dfd.reject);
                     };
                     reader.onerror = function (err) {
                         dfd.reject(err);
@@ -1759,15 +1759,15 @@
                     // crossDomain: true,
                     dataType: 'arraybuffer'
                 })
-                    .done(function (response, status, xhr) {
+                    .then(function (response, status, xhr) {
                         if (xhr.status === 200) {
                             var dataUri = kidoju.image.response2DataUri(response, xhr.getResponseHeader('content-type'));
-                            getDataUriAndSize(dataUri).done(dfd.resolve).fail(dfd.reject);
+                            getDataUriAndSize(dataUri).then(dfd.resolve).catch(dfd.reject);
                         } else {
                             dfd.reject(new Error('TODO')); // TODO raise error event
                         }
                     })
-                    .fail(function (xhr, status, error) {
+                    .catch(function (xhr, status, error) {
                         // Note: cross domain $.get from localhost is not allowed in Google Chrome and will end up here
                         dfd.reject(new Error('TODO'));  // TODO raise error event
                     });

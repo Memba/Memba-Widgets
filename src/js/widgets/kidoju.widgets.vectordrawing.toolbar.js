@@ -2302,7 +2302,7 @@
                             model.url = null;
                         }
                         getDataUriAndSize(model.url)
-                            .done(function (imgData) {
+                            .then(function (imgData) {
                                 self.trigger('action', {
                                     command: 'DrawingToolChangeCommand',
                                     params: {
@@ -2318,7 +2318,7 @@
                                 });
                                 self.close();
                             })
-                            .fail(function (err) {
+                            .catch(function (err) {
                                 // TODO raise error event
                                 // debugger;
                             });

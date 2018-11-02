@@ -173,7 +173,7 @@
                     }
                 }
                 // Treat google classroom specifically
-                that._waitForGapi().done(function () {
+                that._waitForGapi().then(function () {
                     var shareToClassroom = wrapper.find('div.g-sharetoclassroom');
                     if (shareToClassroom.length > 0 && shareToClassroom[0] instanceof window.HTMLElement) {
                         window.gapi.sharetoclassroom.render(

@@ -735,7 +735,7 @@
                         title: options.messages.dialogs.confirm,
                         message: kendo.format(options.messages.dialogs.warningOverwrite, found.join('`, `'))
                     })
-                        .done(function (e) {
+                        .then(function (e) {
                             if (e.action === 'ok') {
                                 execUpload();
                             }

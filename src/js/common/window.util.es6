@@ -152,6 +152,34 @@ export function round(value, precision = 2) {
 }
 
 /**
+ * Fisher-Yates shuffle
+ * @see https://bost.ocks.org/mike/shuffle/
+ * @param array
+ * @returns {*}
+ */
+export function shuffle(array) {
+    let m = array.length;
+    let t;
+    let i;
+
+    // While there remain elements to shuffle…
+    while (m) {
+        // Pick a remaining element…
+        // eslint-disable-next-line no-plusplus
+        i = Math.floor(Math.random() * m--);
+
+        // And swap it with the current element.
+        t = array[m];
+        // eslint-disable-next-line no-param-reassign
+        array[m] = array[i];
+        // eslint-disable-next-line no-param-reassign
+        array[i] = t;
+    }
+
+    return array;
+}
+
+/**
  * Gets a selection
  * @function getSelection
  * @param htmlElement

@@ -36,7 +36,7 @@ chai.use(sinonChai);
 describe('widgets.rating', () => {
     before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
-            $('body').append('<div id="fixtures"></div>');
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
@@ -44,7 +44,7 @@ describe('widgets.rating', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoRating).to.be.an.instanceof(Function);
+            expect($.fn.kendoRating).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

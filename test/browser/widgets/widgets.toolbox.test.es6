@@ -3,23 +3,48 @@
  * Sources at https://github.com/Memba
  */
 
-var expect = window.chai.expect;
-var sinon = window.sinon;
-var kendo = window.kendo;
-var ui = kendo.ui;
-var ToolBox = ui.ToolBox;
+/* eslint-disable no-unused-expressions */
+
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'jquery.simulate';
+import 'kendo.binder';
+import chai from 'chai';
+import chaiJquery from 'chai-jquery';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import '../../../src/js/widgets/widgets.toolbox.es6';
+
+const { afterEach, before, beforeEach, describe, it } = window;
+const { expect } = chai;
+const {
+    attr,
+    bind,
+    data: { DataSource },
+    destroy,
+    init,
+    observable,
+    ui: { ToolBox }
+} = window.kendo;
+const FIXTURES = '#fixtures';
+const ELEMENT = '<input>';
+const ROLE = 'toolbox';
+
+chai.use((c, u) => chaiJquery(c, u, $));
+chai.use(sinonChai);
+
 var kidoju = window.kidoju;
 var CLICK = 'click';
-var FIXTURES = '#fixtures';
 var ICON_PATH = '../../src/styles/images/';
-var TOOLBOX1 = '<div id="toolbox1"></div>';
 var TOOLBOX2 = '<div id="toolbox2" data-role="toolbox" data-size="48" data-icon-path="' + ICON_PATH + '"></div>';
 
 describe('widgets.toolbox', function () {
 
     before(function () {
         if (window.__karma__ && $(FIXTURES).length === 0) {
-            $('body').append('<div id="fixtures"></div>');
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
@@ -31,7 +56,7 @@ describe('widgets.toolbox', function () {
             expect(kendo.version).to.be.a('string');
             expect(kidoju).not.to.be.undefined;
             expect(kidoju.tools).not.to.be.undefined;
-            expect($.fn.kendoToolBox).to.be.an.instanceof(Function);
+            expect($.fn.kendoToolBox).to.be.a(CONSTANTS.FUNCTION);
         });
 
     });
@@ -39,7 +64,7 @@ describe('widgets.toolbox', function () {
     describe('Initialization', function () {
 
         it('from code', function () {
-            var element = $(TOOLBOX1).appendTo(FIXTURES);
+            var element = $(ELEMENT).appendTo(FIXTURES);
             var toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
             expect(toolbox).to.be.an.instanceof(ToolBox);
             expect(element.hasClass('k-widget')).to.be.true;
@@ -50,7 +75,7 @@ describe('widgets.toolbox', function () {
         });
 
         it('from code with options', function () {
-            var element = $(TOOLBOX1).appendTo(FIXTURES);
+            var element = $(ELEMENT).appendTo(FIXTURES);
             var toolbox = element.kendoToolBox({ iconPath: ICON_PATH, size: 64 }).data('kendoToolBox');
             expect(toolbox).to.be.an.instanceof(ToolBox);
             expect(element.hasClass('k-widget')).to.be.true;
@@ -80,7 +105,7 @@ describe('widgets.toolbox', function () {
         var toolbox;
 
         beforeEach(function () {
-            element = $(TOOLBOX1).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(FIXTURES);
             toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
         });
 
@@ -128,7 +153,7 @@ describe('widgets.toolbox', function () {
         var toolbox;
 
         beforeEach(function () {
-            element = $(TOOLBOX1).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(FIXTURES);
             toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
         });
 
@@ -161,7 +186,7 @@ describe('widgets.toolbox', function () {
         var toolbox;
 
         beforeEach(function () {
-            element = $(TOOLBOX1).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(FIXTURES);
             toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
         });
 

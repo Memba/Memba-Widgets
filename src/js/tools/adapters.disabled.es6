@@ -8,6 +8,7 @@
 import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
+import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
 const {
@@ -24,7 +25,7 @@ const ATTR_CONTAIN_SELECTOR = '[{0}*="{1}"]';
  */
 const DisabledAdapter = BaseAdapter.extend({
     /**
-     * Constructor
+     * Init
      * @constructor init
      * @param options
      */

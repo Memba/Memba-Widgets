@@ -36,7 +36,7 @@ chai.use(sinonChai);
 describe('widgets.license', () => {
     before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
-            $('body').append('<div id="fixtures"></div>');
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
@@ -44,7 +44,7 @@ describe('widgets.license', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoRating).to.be.an.instanceof(Function);
+            expect($.fn.kendoLicense).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
@@ -64,7 +64,7 @@ describe('widgets.license', () => {
                     step
                 })
                 .data('kendoRating');
-            expect(widget).to.be.an.instanceof(Rating);
+            expect(widget).to.be.an.instanceof(License);
             const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
             expect(wrapper).not.to.have.class('k-widget');
@@ -96,7 +96,7 @@ describe('widgets.license', () => {
             expect(min).to.equal(0);
             expect(max).to.equal(5);
             expect(step).to.equal(1);
-            expect(widget).to.be.an.instanceof(Rating);
+            expect(widget).to.be.an.instanceof(License);
             expect(wrapper).not.to.have.class('k-widget');
             expect(wrapper).to.have.class('kj-rating');
             expect(wrapper.children('input')).to.exist;
@@ -120,7 +120,7 @@ describe('widgets.license', () => {
             expect(element).to.match('input');
             bind(FIXTURES, viewModel);
             const widget = element.data('kendoRating');
-            expect(widget).to.be.an.instanceof(Rating);
+            expect(widget).to.be.an.instanceof(License);
             const {
                 options: { min, max, step },
                 wrapper
@@ -158,13 +158,13 @@ describe('widgets.license', () => {
         });
 
         it('value (get)', () => {
-            expect(widget).to.be.an.instanceof(Rating);
+            expect(widget).to.be.an.instanceof(License);
             expect(widget.value()).to.equal(value1);
             expect(parseFloat(widget.element.val())).to.equal(value1);
         });
 
         it('value (set)', () => {
-            expect(widget).to.be.an.instanceof(Rating);
+            expect(widget).to.be.an.instanceof(License);
             widget.value(value2);
             expect(widget.value()).to.equal(value2);
             expect(parseFloat(widget.element.val())).to.equal(value2);
@@ -174,12 +174,12 @@ describe('widgets.license', () => {
             const fn = function() {
                 widget.value(100);
             };
-            expect(widget).to.be.an.instanceof(Rating);
+            expect(widget).to.be.an.instanceof(License);
             expect(fn).to.throw(RangeError);
         });
 
         it('enable/readonly', () => {
-            expect(widget).to.be.an.instanceof(Rating);
+            expect(widget).to.be.an.instanceof(License);
             const { wrapper } = widget;
             expect(wrapper)
                 .to.be.an.instanceof($)
@@ -191,7 +191,7 @@ describe('widgets.license', () => {
         });
 
         // it('visible', function () {
-        // expect(widget).to.be.an.instanceof(Rating);
+        // expect(widget).to.be.an.instanceof(License);
         // expect(widget.wrapper).to.be.an.instanceof($).with.property('length', 1);
         // TODO
         // });
@@ -227,7 +227,7 @@ describe('widgets.license', () => {
         });
 
         it('Changing the value in the viewModel changes the number of plain/selected stars', () => {
-            expect(widget).to.be.an.instanceof(Rating);
+            expect(widget).to.be.an.instanceof(License);
             const {
                 options: { min, max, step }
             } = widget;
@@ -259,7 +259,7 @@ describe('widgets.license', () => {
         });
 
         it('Clicking a star updates the value in the viewModel', () => {
-            expect(widget).to.be.an.instanceof(Rating);
+            expect(widget).to.be.an.instanceof(License);
             const {
                 options: { min, max, step }
             } = widget;
@@ -302,7 +302,7 @@ describe('widgets.license', () => {
         });
 
         it('mouseover', () => {
-            expect(widget).to.be.an.instanceof(Rating);
+            expect(widget).to.be.an.instanceof(License);
             const {
                 options: { min, max, step }
             } = widget;
@@ -345,7 +345,7 @@ describe('widgets.license', () => {
                     }
                 })
                 .data('kendoRating');
-            expect(widget).to.be.an.instanceof(Rating);
+            expect(widget).to.be.an.instanceof(License);
             const {
                 options: { min, max, step }
             } = widget;

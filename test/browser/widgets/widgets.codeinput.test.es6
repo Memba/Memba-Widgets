@@ -93,13 +93,13 @@ const SOLUTION = '0';
 describe('widgets.codeinput', () => {
     before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
-            $('body').append('<div id="fixtures"></div>');
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
     describe('Availability', () => {
         it('requirements', () => {
-            expect($.fn.kendoCodeInput).to.be.an.instanceof(Function);
+            expect($.fn.kendoCodeInput).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
@@ -516,7 +516,6 @@ describe('widgets.codeinput', () => {
         afterEach(() => {
             const fixtures = $(FIXTURES);
             destroy(fixtures);
-            fixtures.find('*').off();
             fixtures.empty();
         });
     });

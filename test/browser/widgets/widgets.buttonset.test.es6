@@ -35,18 +35,16 @@ const ROLE = 'buttonset';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-describe('kidoju.widgets.buttonset', () => {
+describe('widgets.buttonset', () => {
     before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
-            $('body').append('<div id="fixtures"></div>');
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
     describe('Availability', () => {
         it('requirements', () => {
-            expect($.fn.kendoButtonSet).to.be.a('function');
-            expect($.fn).to.respondTo('kendoButtonSet');
-            expect($.fn.kendoButtonSet).to.be.an.instanceof(Function);
+            expect($.fn.kendoButtonSet).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
@@ -145,12 +143,6 @@ describe('kidoju.widgets.buttonset', () => {
                 .that.is.an.instanceof(DataSource);
             expect(element.text()).to.include(attributes['data-value']);
         });
-
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
-        });
     });
 
     describe('Methods', () => {
@@ -167,6 +159,10 @@ describe('kidoju.widgets.buttonset', () => {
             expect(widget).to.be.an.instanceof(ButtonSet);
         });
 
+        xit('refresh', done => {
+            expect(widget).to.be.an.instanceof(ButtonSet);
+        });
+
         xit('setOptions', () => {
             // TODO especially regarding filters (to be enforced)
         });
@@ -175,12 +171,6 @@ describe('kidoju.widgets.buttonset', () => {
             expect(widget).to.be.an.instanceof(ButtonSet);
             widget.destroy();
             expect(widget.element).to.be.empty;
-        });
-
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
         });
     });
 
@@ -203,12 +193,6 @@ describe('kidoju.widgets.buttonset', () => {
         });
 
         xit('TODO', () => {});
-
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
-        });
     });
 
     describe('Events', () => {
@@ -224,11 +208,11 @@ describe('kidoju.widgets.buttonset', () => {
         });
 
         xit('TODO', () => {});
+    });
 
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
-        });
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        destroy(fixtures);
+        fixtures.empty();
     });
 });

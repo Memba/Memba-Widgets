@@ -8,6 +8,7 @@
 import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
+import openCharGrid from '../dialogs/dialogs.chargrid.es6';
 import BaseAdapter from './adapters.base.es6';
 
 const { attr, format } = window.kendo;
@@ -19,8 +20,8 @@ const { attr, format } = window.kendo;
  */
 const CharGridAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      */
     init(options /* , attributes */) {

@@ -17,7 +17,7 @@ import BaseAdapter from './adapters.base.es6';
  */
 const TextAreaAdapter = BaseAdapter.extend({
     /**
-     * Constructor
+     * Init
      * @constructor init
      * @param options
      * @param attributes

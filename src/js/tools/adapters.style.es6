@@ -8,17 +8,24 @@
 import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
+import { getValueBinding } from '../data/data.util.es6';
+import openStyleEditor from '../dialogs/dialogs.styleeditor.es6';
+import '../dialogs/widgets.basedialog.es6';
 import BaseAdapter from './adapters.base.es6';
 
-const { attr, format } = window.kendo;
+const {
+    ui: { BaseDialog }
+} = window.kendo;
 
 /**
+ * StyleAdapter
  * @class StyleAdapter
+ * @extends BaseAdapter
  */
 const StyleAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */
@@ -40,7 +47,13 @@ const StyleAdapter = BaseAdapter.extend({
                     width: '100%' // 'auto' seems to imply a min-width
                 })
                 .prop({ readonly: true })
-                .attr($.extend({}, settings.attributes, getValueBinding(settings.field)))
+                .attr(
+                    $.extend(
+                        {},
+                        settings.attributes,
+                        getValueBinding(settings.field)
+                    )
+                )
                 .appendTo(wrapper);
             $('<button/>')
                 .text('...')
@@ -55,17 +68,17 @@ const StyleAdapter = BaseAdapter.extend({
     },
     showDialog(options /* , e */) {
         // TODO wrap in import('./dialogs/kidoju.dialogs.styleedtor.es6').then(function () {...});
-        kidoju.dialogs
-            .openStyleEditor({
-                title: options.title,
-                data: {
-                    value: options.model.get(options.field)
-                }
-            })
+        openStyleEditor({
+            title: options.title,
+            data: {
+                value: options.model.get(options.field)
+            }
+        })
             .then(result => {
+                debugger;
                 if (
                     result.action ===
-                    kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
+                    BaseDialog.fn.options.messages.actions.ok.action
                 ) {
                     options.model.set(options.field, result.data.value);
                 }

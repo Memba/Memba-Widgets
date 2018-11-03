@@ -20,7 +20,7 @@ const { attr } = window.kendo;
  */
 const BooleanAdapter = BaseAdapter.extend({
     /**
-     * Constructor
+     * Init
      * @constructor init
      * @param options
      * @param attributes

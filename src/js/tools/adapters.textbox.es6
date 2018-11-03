@@ -12,12 +12,13 @@ import BaseAdapter from './adapters.base.es6';
 
 /**
  * TextBoxAdapter
- * @class
+ * @class TextBoxAdapter
+ * @extends BaseAdapter
  */
 const TextBoxAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */

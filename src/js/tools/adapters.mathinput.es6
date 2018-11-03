@@ -8,17 +8,20 @@
 import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
+import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
 const { attr } = window.kendo;
 
 /**
+ * MathInputAdapter
  * @class MathInputAdapter
+ * @extends BaseAdapter
  */
 const MathInputAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */

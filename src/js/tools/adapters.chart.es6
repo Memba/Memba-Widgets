@@ -13,12 +13,14 @@ import BaseAdapter from './adapters.base.es6';
 // TODO consider a generic OpenDialogAdapter????
 
 /**
+ * ChartAdapter
  * @class ChartAdapter
+ * @extends BaseAdapter
  */
 const ChartAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */

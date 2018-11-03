@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Use ImageDataSource and DataBoundWidget
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -709,7 +711,7 @@ const Quiz = DataBoundWidget.extend({
         element.off(NS);
         if (enable) {
             element.on(
-                CONSTANTS.CLICK + NS,
+                `${CONSTANTS.CLICK}${NS} ${CONSTANTS.TOUCHEND}${NS}`,
                 BUTTON_SELECTOR,
                 this._onButtonClick.bind(this)
             );
@@ -745,7 +747,7 @@ const Quiz = DataBoundWidget.extend({
         element.off(NS);
         if (enable) {
             element.on(
-                CONSTANTS.CLICK + NS,
+                `${CONSTANTS.CLICK}${NS} ${CONSTANTS.TOUCHEND}${NS}`,
                 IMAGE_SELECTOR,
                 this._onImageClick.bind(this)
             );
@@ -763,7 +765,7 @@ const Quiz = DataBoundWidget.extend({
         element.off(NS);
         if (enable) {
             element.on(
-                CONSTANTS.CLICK + NS,
+                `${CONSTANTS.CLICK}${NS} ${CONSTANTS.TOUCHEND}${NS}`,
                 LINK_SELECTOR,
                 this._onLinkClick.bind(this)
             );
@@ -781,7 +783,7 @@ const Quiz = DataBoundWidget.extend({
         element.off(NS);
         if (enable) {
             element.on(
-                CONSTANTS.CLICK + NS,
+                `${CONSTANTS.CLICK}${NS} ${CONSTANTS.TOUCHEND}${NS}`,
                 RADIO_SELECTOR,
                 this._onRadioClick.bind(this)
             );
@@ -789,10 +791,14 @@ const Quiz = DataBoundWidget.extend({
             // Because input are readonly and not disabled, we need to prevent default (checking options)
             // and let it bubble to the stage element to display the handle box
             element
-                .on(CONSTANTS.CLICK + NS, RADIO_SELECTOR, e => {
-                    e.preventDefault();
-                })
-                .on(CONSTANTS.CHANGE + NS, RADIO_SELECTOR, e => {
+                .on(
+                    `${CONSTANTS.CLICK}${NS} ${CONSTANTS.TOUCHEND}${NS}`,
+                    RADIO_SELECTOR,
+                    e => {
+                        e.preventDefault();
+                    }
+                )
+                .on(`${CONSTANTS.CHANGE}${NS}`, RADIO_SELECTOR, e => {
                     // In the very specific case of iOS and only when all radio buttons are unchecked
                     // a CONSTANTS.CHANGE event is triggered before the CONSTANTS.CLICK event and the radio CONSTANTS.CLICKed is checked
                     // like if iOS wanted one radio to always be checked
@@ -815,15 +821,14 @@ const Quiz = DataBoundWidget.extend({
      */
     destroy() {
         const { element } = this;
-        // TODO Destroy dropdownlist
-        this.dropDownList = CONSTANTS.UNDEFINED;
+        if (this.dropDownList instanceof DropDownList) {
+            this.dropDownList.destroy();
+            this.dropDownList = CONSTANTS.UNDEFINED;
+        }
         if (this._refreshHandler) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
         }
-        element
-            .removeClass(WIDGET_CLASS)
-            .removeClass(INTERACTIVE_CLASS)
-            .off(NS);
+        element.off(NS);
         DataBoundWidget.fn.destroy.call(this);
         destroy(element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });

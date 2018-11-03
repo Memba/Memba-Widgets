@@ -19,7 +19,7 @@ const { attr } = window.kendo;
  */
 const ColorAdapter = BaseAdapter.extend({
     /**
-     * Constructor
+     * Init
      * @constructor init
      * @param options
      * @param attributes

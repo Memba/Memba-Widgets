@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.rating.es6';
+import '../../../src/js/widgets/widgets.imageset.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -24,29 +24,23 @@ const {
     bind,
     destroy,
     observable,
-    ui: { Rating }
+    ui: { ImageSet }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
-const ROLE = 'rating';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
+const ROLE = 'imageset';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-var expect = window.chai.expect;
-var sinon = window.sinon;
-var kendo = window.kendo;
-var ui = kendo.ui;
-var ImageSet = ui.ImageSet;
-var FIXTURES = '#fixtures';
 var IMAGESET1 = '<div id="imageset1"></div>';
 var IMAGESET2 = '<div id="imageset2" data-role="imageset"></div>';
 
-describe('kidoju.widgets.imageset', function () {
+describe('widgets.imageset', function () {
 
     before(function () {
         if (window.__karma__ && $(FIXTURES).length === 0) {
-            $('body').append('<div id="fixtures"></div>');
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
@@ -56,7 +50,7 @@ describe('kidoju.widgets.imageset', function () {
             expect($).not.to.be.undefined;
             expect(kendo).not.to.be.undefined;
             expect(kendo.version).to.be.a('string');
-            expect($.fn.kendoImageSet).to.be.an.instanceof(Function);
+            expect($.fn.kendoImageSet).to.be.a(CONSTANTS.FUNCTION);
         });
 
     });

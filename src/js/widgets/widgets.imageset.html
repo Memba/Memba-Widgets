@@ -195,25 +195,33 @@
             });
             Promise.all([
                 SystemJS.import('kendo.binder'),
+                SystemJS.import('kendo.dropdownlist'),
                 SystemJS.import('./widgets.imageset.es6')
             ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
                     visible: true,
                     enabled: true,
-                    image: 'fire_engine'
+                    image: 'fire_engine',
+                    images: [
+                        { text: 'ambulance', url: 'https://cdn.kidoju.com/images/twemoji/svg/all/ambulance.svg' },
+                        { text: 'oncoming_police_car',url: 'https://cdn.kidoju.com/images/twemoji/svg/all/oncoming_police_car.svg' },
+                        { text: 'fire_engine',url: 'https://cdn.kidoju.com/images/twemoji/svg/all/fire_engine.svg'}
+                    ]
                 });
                 $(function() {
                     $('#imageset').kendoImageSet({
+                        dataSource: [
+                            { text: 'aubergine', url: 'https://cdn.kidoju.com/images/twemoji/svg/all/aubergine.svg' },
+                            { text: 'banana', url: 'https://cdn.kidoju.com/images/twemoji/svg/all/banana.svg' },
+                            { text: 'cherries', url: 'https://cdn.kidoju.com/images/twemoji/svg/all/cherries.svg' },
+                            { text: 'green_apple', url: 'https://cdn.kidoju.com/images/twemoji/svg/all/green_apple.svg' },
+                            { text: 'pear', url: 'https://cdn.kidoju.com/images/twemoji/svg/all/pear.svg' },
+                            { text: 'tomato', url: 'https://cdn.kidoju.com/images/twemoji/svg/all/tomato.svg' }
+                        ],
+                        height: 200,
                         value: 'cherries',
-                        images: [
-                            { text: 'aubergine', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/aubergine.svg' },
-                            { text: 'banana', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/banana.svg' },
-                            { text: 'cherries', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/cherries.svg' },
-                            { text: 'green_apple', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/green_apple.svg' },
-                            { text: 'pear', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/pear.svg' },
-                            { text: 'tomato', image: 'https://cdn.kidoju.com/images/twemoji/svg/all/tomato.svg' }
-                        ]
+                        width: 200
                     });
                     kendo.bind('body', viewModel);
                 });
@@ -225,16 +233,17 @@
 <h1>widgets.imageset</h1>
 
 <h2>Bound to observable</h2>
-<div data-role="imageset" data-bind="value: image, visible: visible, enabled: enabled" data-images="[{&quot;text&quot;:&quot;ambulance&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/ambulance.svg&quot;},{&quot;text&quot;:&quot;oncoming_police_car&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/oncoming_police_car.svg&quot;},{&quot;text&quot;:&quot;fire_engine&quot;,&quot;image&quot;:&quot;https://cdn.kidoju.com/images/twemoji/svg/all/fire_engine.svg&quot;}]" style="height:100px; width:100px;"></div>
+<!--input data-role="dropdownlist" data-bind="value: image, source: images, visible: visible, enabled: enabled" data-text-field="text" data-value-field="text"-->
+<input data-role="imageset" data-bind="value: image, source: images, visible: visible, enabled: enabled">
 
 <div>
     <input type="text" data-bind="value: image"><br/>
-    Visible: &nbsp;<input type="checkbox" data-bind="checked: visible">
-    Enabled: &nbsp;<input type="checkbox" data-bind="checked: enabled">
+    <input type="checkbox" data-bind="checked: visible">Visible
+    <input type="checkbox" data-bind="checked: enabled">Enabled
 </div>
 
 <h2>JavaScript code</h2>
-<div id="imageset" style="height:100px; width:100px"></div>
+<input id="imageset">
 
 </body>
 </html>

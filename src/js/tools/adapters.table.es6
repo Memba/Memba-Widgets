@@ -13,12 +13,14 @@ import BaseAdapter from './adapters.base.es6';
 const { format } = window.kendo;
 
 /**
+ * TableAdapter
  * @class TableAdapter
+ * @extends BaseAdapter
  */
 const TableAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */

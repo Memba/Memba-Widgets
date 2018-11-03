@@ -3,17 +3,42 @@
  * Sources at https://github.com/Memba
  */
 
-var expect = window.chai.expect;
-var sinon = window.sinon;
-var kendo = window.kendo;
-var ui = kendo.ui;
-var PropertyGrid = ui.PropertyGrid;
-// ObservableArray = kendo.data.ObservableArray,
+/* eslint-disable no-unused-expressions */
+
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'jquery.simulate';
+import 'kendo.binder';
+import chai from 'chai';
+import chaiJquery from 'chai-jquery';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import '../../../src/js/widgets/widgets.buttonset.es6';
+
+const { afterEach, before, beforeEach, describe, it } = window;
+const { expect } = chai;
+const {
+    attr,
+    bind,
+    data: { DataSource, ObservableArray },
+    destroy,
+    init,
+    observable,
+    ui: { PropertyGrid }
+} = window.kendo;
+const FIXTURES = '#fixtures';
+const ELEMENT = '<div/>';
+const ROLE = 'playbar';
+
+chai.use((c, u) => chaiJquery(c, u, $));
+chai.use(sinonChai);
+
 var kidoju = window.kidoju;
 var tools = kidoju.tools;
 var Page = kidoju.data.Page;
 var PageComponent = kidoju.data.PageComponent;
-var FIXTURES = '#fixtures';
 var PROPERTYGRID1 = '<div></div>';
 var PROPERTYGRID2 = '<div data-role="propertygrid" data-bind="value: current"></div>';
 
@@ -32,11 +57,11 @@ function validateGridHtml(element, rowCount) {
     }
 }
 
-describe('kidoju.widgets.propertygrid', function () {
+describe('widgets.propertygrid', function () {
 
     before(function () {
         if (window.__karma__ && $(FIXTURES).length === 0) {
-            $('body').append('<div id="fixtures"></div>');
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
@@ -50,7 +75,7 @@ describe('kidoju.widgets.propertygrid', function () {
             expect(tools).not.to.be.undefined;
             expect(Page).not.to.be.undefined;
             expect(PageComponent).not.to.be.undefined;
-            expect($.fn.kendoPropertyGrid).to.be.an.instanceof(Function);
+            expect($.fn.kendoPropertyGrid).to.be.a(CONSTANTS.FUNCTION);
         });
 
     });

@@ -11,12 +11,14 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
 /**
+ * StringArrayAdapter
  * @class StringArrayAdapter
+ * @extends BaseAdapter
  */
 const StringArrayAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */

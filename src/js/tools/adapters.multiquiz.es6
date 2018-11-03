@@ -8,6 +8,7 @@
 import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
+import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
 const { attr, format } = window.kendo;
@@ -15,12 +16,14 @@ const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
 // TODO Rename into checkboxes
 
 /**
+ * MultiQuizAdapter
  * @class MultiQuizAdapter
+ * @extends BaseAdapter
  */
 const MultiQuizAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */

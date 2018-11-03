@@ -158,6 +158,32 @@ export function extendQueryWithPartition(query, partition) {
 }
 
 /**
+ * Returns a Kendo UI role data binding
+ * @fiuncton getRoleBinding
+ * @param role
+ */
+export function getRoleBinding(role) {
+    const binding = {};
+    if ($.type(role) === CONSTANTS.STRING && role.length) {
+        binding[attr('role')] = role;
+    }
+    return binding;
+}
+
+/**
+ * Returns a Kendo UI text data binding
+ * @fiuncton getTextBinding
+ * @param field
+ */
+export function getTextBinding(field) {
+    const binding = {};
+    if ($.type(field) === CONSTANTS.STRING && field.length) {
+        binding[attr('bind')] = `text: ${field}`;
+    }
+    return binding;
+}
+
+/**
  * Returns a Kendo UI value data binding (with optional source binding)
  * @function getValueBinding
  * @param field
@@ -172,19 +198,6 @@ export function getValueBinding(field, source) {
         binding[attr('bind')] = binding[attr('bind')]
             ? `${binding[attr('bind')]}, source: ${source}`
             : `source: ${source}`;
-    }
-    return binding;
-}
-
-/**
- * Returns a Kendo UI text data binding
- * @fiuncton getTextBinding
- * @param field
- */
-export function getTextBinding(field) {
-    const binding = {};
-    if ($.type(field) === CONSTANTS.STRING && field.length) {
-        binding[attr('bind')] = `text: ${field}`;
     }
     return binding;
 }

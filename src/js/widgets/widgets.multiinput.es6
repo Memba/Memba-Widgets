@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO keys
+// TODO touchend for click
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -233,7 +236,28 @@ const MultiInput = Widget.extend({
     },
 
     /**
+     * Event handler triggered when the mousedown event occurs on the wrapper
+     * @method _onWrapperMouseDown
+     * @param e
+     * @private
+     */
+    _onWrapperMouseDown(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        e.preventDefault();
+        this.focus();
+    },
+
+    /**
      * Give the widget focus
+     * @method focus
      */
     focus() {
         this.input.focus();
@@ -260,9 +284,20 @@ const MultiInput = Widget.extend({
     /**
      * Event handler triggered when clicking the clear button
      * @method _onClearClick
+     * @param e
      * @private
      */
-    _onClearClick() {
+    _onClearClick(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        e.preventDefault();
         const value = [];
         this.value(value);
         this._hideClear();
@@ -291,7 +326,10 @@ const MultiInput = Widget.extend({
                     }${NS}`}`,
                     this._toggleHover.bind(this)
                 )
-                .on(`${CONSTANTS.CLICK}${NS}`, this.focus.bind(this));
+                .on(
+                    `${CONSTANTS.MOUSEDOWN}${NS} ${CONSTANTS.TOUCHSTART}${NS}`,
+                    this._onWrapperMouseDown.bind(this)
+                );
 
             input
                 .removeAttr(DISABLED)
@@ -562,7 +600,7 @@ const MultiInput = Widget.extend({
         this._innerWrapper = undefined;
         this.tagList = undefined;
         // Destroy widget
-        Widget.fn.destroy.call(this.element);
+        Widget.fn.destroy.call(this);
         destroy(this.wrapper);
         // log
         logger.debug({ method: 'destroyed', message: 'widget destroyed' });

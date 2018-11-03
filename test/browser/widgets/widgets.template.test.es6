@@ -43,13 +43,13 @@ const SCRIPT2 =
 describe('widgets.template', () => {
     before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
-            $('body').append('<div id="fixtures"></div>');
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
     describe('Availability', () => {
         it('requirements', () => {
-            expect($.fn.kendoTemplate).to.be.an.instanceof(Function);
+            expect($.fn.kendoTemplate).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
@@ -215,7 +215,6 @@ describe('widgets.template', () => {
         afterEach(() => {
             const fixtures = $(FIXTURES);
             destroy(fixtures);
-            fixtures.find('*').off();
             fixtures.empty();
         });
     });
@@ -237,7 +236,6 @@ describe('widgets.template', () => {
         afterEach(() => {
             const fixtures = $(FIXTURES);
             destroy(fixtures);
-            fixtures.find('*').off();
             fixtures.empty();
         });
     });

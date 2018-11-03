@@ -14,14 +14,14 @@ import editors from './util.editors.es6';
 const { Class } = window.kendo;
 
 /**
- * BaseAdapter (abstract)
+ * BaseAdapter
  * @class BaseAdapter
  * @extends Class
  */
 const BaseAdapter = Class.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */

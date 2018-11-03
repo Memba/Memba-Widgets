@@ -128,7 +128,7 @@ const BaseTool = Class.extend({
     i18n: i18n(),
 
     /**
-     * Constructor
+     * Init
      * @constructor init
      * @param options
      */

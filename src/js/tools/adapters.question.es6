@@ -9,6 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.combobox';
 import CONSTANTS from '../common/window.constants.es6';
+import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
 // TODO make it a generic combobox adapter with a generic fill callback/open event  handler
@@ -21,7 +22,7 @@ const { attr } = window.kendo;
  */
 const QuestionAdapter = BaseAdapter.extend({
     /**
-     * Constructor
+     * Init
      * @constructor init
      * @param options
      * @param attributes

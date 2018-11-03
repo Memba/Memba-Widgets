@@ -14,7 +14,9 @@ import BaseTool from './tools.base.es6';
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).pointer || {
-            description: 'Pointer'
+            name: 'Pointer',
+            description: 'Pointer',
+            help: ''
         }
     );
 }
@@ -25,8 +27,10 @@ function i18n() {
 const PointerTool = BaseTool.extend({
     id: CONSTANTS.POINTER,
     icon: 'mouse_pointer',
-    description: i18n().description,
     cursor: CONSTANTS.DEFAULT_CURSOR,
+    name: i18n().name,
+    description: i18n().description,
+    help: i18n().help,
     height: 0,
     width: 0,
     getHtmlContent: undefined

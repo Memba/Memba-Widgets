@@ -13,12 +13,13 @@ import BaseAdapter from './adapters.base.es6';
 /**
  * ReadOnlyAdapter
  * Note: We could have used TextBoxAdapter with attributes
- * @class
+ * @class ReadOnlyAdapter
+ * @extends BaseAdapter
  */
 const ReadOnlyAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */

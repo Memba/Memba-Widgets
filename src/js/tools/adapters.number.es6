@@ -16,12 +16,14 @@ import BaseAdapter from './adapters.base.es6';
 const { attr } = window.kendo;
 
 /**
+ * NumberAdapter
  * @class NumberAdapter
+ * @extends BaseAdapter
  */
 const NumberAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */

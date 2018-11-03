@@ -3,11 +3,39 @@
  * Sources at https://github.com/Memba
  */
 
-var expect = window.chai.expect;
-var sinon = window.sinon;
-var kendo = window.kendo;
-var ui = kendo.ui;
-var Stage = ui.Stage;
+/* eslint-disable no-unused-expressions */
+
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'jquery.simulate';
+import 'kendo.binder';
+import chai from 'chai';
+import chaiJquery from 'chai-jquery';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import '../../../src/js/widgets/widgets.splibutton.es6';
+
+const { afterEach, before, beforeEach, describe, it } = window;
+const { expect } = chai;
+const {
+    attr,
+    bind,
+    data: { DataSource },
+    destroy,
+    init,
+    observable,
+    ui: { Stage }
+} = window.kendo;
+const FIXTURES = '#fixtures';
+const ELEMENT = '<input>';
+const ROLE = 'buttonset';
+
+chai.use((c, u) => chaiJquery(c, u, $));
+chai.use(sinonChai);
+
+
 var ObservableArray = kendo.data.ObservableArray;
 var kidoju = window.kidoju;
 var tools = kidoju.tools;
@@ -16,7 +44,6 @@ var Page = kidoju.data.Page;
 var PageComponent = kidoju.data.PageComponent;
 var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
 var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
-var FIXTURES = '#fixtures';
 var STAGE1 = '<div></div>';
 var STAGE2 = '<div data-role="stage" data-bind="source: components, value: current" data-mode="design"></div>';
 
@@ -40,7 +67,7 @@ describe('widgets.stage', function () {
 
     before(function () {
         if (window.__karma__ && $(FIXTURES).length === 0) {
-            $('body').append('<div id="fixtures"></div>');
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
@@ -54,7 +81,7 @@ describe('widgets.stage', function () {
             expect(tools).not.to.be.undefined;
             expect(Page).not.to.be.undefined;
             expect(PageComponent).not.to.be.undefined;
-            expect($.fn.kendoStage).to.be.an.instanceof(Function);
+            expect($.fn.kendoStage).to.be.a(CONSTANTS.FUNCTION);
         });
 
     });

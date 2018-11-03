@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.rating.es6';
+import '../../../src/js/widgets/widgets.explorer.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -24,26 +24,20 @@ const {
     bind,
     destroy,
     observable,
-    ui: { Rating }
+    ui: { Explorer }
 } = window.kendo;
 const FIXTURES = '#fixtures';
 const ELEMENT = '<input>';
-const ROLE = 'rating';
+const ROLE = 'explorer';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-var expect = window.chai.expect;
-var sinon = window.sinon;
-var kendo = window.kendo;
-var ui = kendo.ui;
-var Explorer = ui.Explorer;
 var kidoju = window.kidoju;
 var tools = kidoju.tools;
 var Page = kidoju.data.Page;
 var PageComponent = kidoju.data.PageComponent;
 var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
-var FIXTURES = '#fixtures';
 var ICON_PATH = '../../src/styles/images/';
 var EXPLORER1 = '<div id="explorer1"></div>';
 var EXPLORER2 = '<div id="explorer2"></div>';
@@ -60,7 +54,7 @@ describe('widgets.explorer', function () {
 
     before(function () {
         if (window.__karma__ && $(FIXTURES).length === 0) {
-            $('body').append('<div id="fixtures"></div>');
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
@@ -74,7 +68,7 @@ describe('widgets.explorer', function () {
             expect(tools).not.to.be.undefined;
             expect(Page).not.to.be.undefined;
             expect(PageComponent).not.to.be.undefined;
-            expect($.fn.kendoExplorer).to.be.an.instanceof(Function);
+            expect($.fn.kendoExplorer).to.be.a(CONSTANTS.FUNCTION);
         });
 
     });

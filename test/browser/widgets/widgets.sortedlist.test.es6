@@ -5,14 +5,35 @@
 
 /* eslint-disable no-unused-expressions */
 
-// import $ from 'jquery';
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'jquery.simulate';
+import 'kendo.binder';
 import chai from 'chai';
-// import sinon from 'sinon';
-// import 'sinon-chai';
-// import 'jquery.mockjax';
+import chaiJquery from 'chai-jquery';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import '../../../src/js/widgets/widgets.buttonset.es6';
 
-const { describe, it } = window;
+const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
+const {
+    attr,
+    bind,
+    data: { DataSource, ObservableArray },
+    destroy,
+    init,
+    observable,
+    ui: { Social }
+} = window.kendo;
+const FIXTURES = '#fixtures';
+const ELEMENT = '<div/>';
+const ROLE = 'social';
+
+chai.use((c, u) => chaiJquery(c, u, $));
+chai.use(sinonChai);
 
 describe('widgets.sortedlist', () => {
     describe('Test', () => {

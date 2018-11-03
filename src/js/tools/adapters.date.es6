@@ -15,12 +15,13 @@ const { attr } = window.kendo;
 
 /**
  * DateAdapter
- * @class
+ * @class DateAdapter
+ * @extends BaseAdapter
  */
 const DateAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */

@@ -113,7 +113,9 @@ const CONSTANTS = {
     },
     UID: 'uid',
     // HTML tags
+    A: 'a',
     BODY: 'body',
+    BUTTON: 'button',
     CANVAS: 'canvas',
     DIV: 'div',
     IMG: 'img',

@@ -9,6 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { getValueBinding } from '../data/data.util.es6';
 import openCodeEditor from '../dialogs/dialogs.codeeditor.es6';
 import '../widgets/widgets.codeinput.es6';
 import BaseAdapter from './adapters.base.es6';
@@ -35,8 +36,8 @@ const CUSTOM = {
  */
 const ValidationAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */

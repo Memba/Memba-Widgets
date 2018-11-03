@@ -7,24 +7,32 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.data';
+import 'kendo.dropdownlist';
+import assets from '../app/app.assets.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
+import '../widgets/widgets.quiz.es6';
 
-// TODO Make it a generic DropDownAdapter with a source ofr valkues (see enum also)
-const { attr, format } = window.kendo;
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
+const {
+    data: { DataSource, Model },
+    ui: { Quiz }
+} = window.kendo;
 
 // Important: kj-quiz-item kj-quiz-dropdown defines background-position:vover;background-position:center,display:inline-block;height:1.1em;width:1.1em;
 const QUIZSOLUTION_TMPL =
     '<span class="kj-quiz-item kj-quiz-dropdown"># if (data.image) { #<span class="k-image" style="background-image:url(#: data.image$() #);"></span># } #<span class="k-text">#: data.text #</span></span>';
 
 /**
+ * QuizAdapter
  * @class QuizAdapter
+ * @extends BaseAdapter
  */
 const QuizAdapter = BaseAdapter.extend({
     /**
-     * Constructor
-     * @constructor
+     * Init
+     * @constructor init
      * @param options
      * @param attributes
      */
@@ -35,23 +43,29 @@ const QuizAdapter = BaseAdapter.extend({
         // this.editor = 'input';
         // $.extend(this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
-            const input = $('<input/>')
+            const input = $(`<${CONSTANTS.INPUT}/>`)
                 .css({ width: '100%' })
-                .attr($.extend({}, settings.attributes, getValueBinding(settings.field)))
+                .attr(
+                    $.extend(
+                        {},
+                        settings.attributes,
+                        getValueBinding(settings.field)
+                    )
+                )
                 .appendTo(container);
             input.kendoDropDownList({
                 autoWidth: true,
-                dataSource: new kendo.data.DataSource({
+                dataSource: new DataSource({
                     data: settings.model.get('attributes.data'),
                     schema: {
-                        model: kendo.data.Model.define({
+                        model: Model.define({
                             id: 'text',
                             fields: {
-                                text: { type: STRING },
-                                image: { type: STRING }
+                                text: { type: CONSTANTS.STRING },
+                                image: { type: CONSTANTS.STRING }
                             },
                             image$() {
-                                let image = this.get('image');
+                                const image = this.get('image');
                                 return assets.image.scheme2http(image);
                             }
                         })
@@ -59,7 +73,7 @@ const QuizAdapter = BaseAdapter.extend({
                 }),
                 dataTextField: 'text',
                 dataValueField: 'text',
-                optionLabel: kendo.ui.Quiz.fn.options.messages.optionLabel,
+                optionLabel: Quiz.fn.options.messages.optionLabel,
                 template: QUIZSOLUTION_TMPL,
                 valueTemplate: QUIZSOLUTION_TMPL
             });

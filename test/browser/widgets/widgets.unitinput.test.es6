@@ -27,20 +27,17 @@ const { expect } = chai;
 const {
     attr,
     bind,
-    data: { DataSource },
     destroy,
     init,
     observable,
     ui: { UnitInput }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
+const ELEMENT = `<${CONSTANTS.INPUT}>`;
 const ROLE = 'unitinput';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
-
-const UNITINPUT2 = '<input id="unitinput2" data-role="unitinput">';
 
 describe('widgets.unitinput', () => {
     before(() => {
@@ -58,11 +55,11 @@ describe('widgets.unitinput', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(FIXTURES);
-            const unitInput = element.kendoUnitInput().data('kendoUnitInput');
-            expect(unitInput).to.be.an.instanceof(UnitInput);
+            const widget = element.kendoUnitInput().data('kendoUnitInput');
+            expect(widget).to.be.an.instanceof(UnitInput);
             // expect(element).to.have.class('k-widget');
-            // expect(element).to.have.class('kj-unitinput');
-            expect(unitInput.wrapper).to.have.class('kj-unitinput');
+            // expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
         });
 
         it('from code with options', () => {
@@ -71,49 +68,44 @@ describe('widgets.unitinput', () => {
                 units: ['%', 'px'],
                 nonUnits: ['auto', 'inherit', 'initial']
             };
-            const unitInput = element
+            const widget = element
                 .kendoUnitInput(options)
                 .data('kendoUnitInput');
-            expect(unitInput).to.be.an.instanceof(UnitInput);
+            expect(widget).to.be.an.instanceof(UnitInput);
             // expect(element).to.have.class('k-widget');
-            // expect(element).to.have.class('kj-unitinput');
-            expect(unitInput.wrapper).to.have.class('kj-unitinput');
+            // expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
         });
 
         it('from markup', () => {
-            const element = $(UNITINPUT2).appendTo(FIXTURES);
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .appendTo(FIXTURES);
             init(FIXTURES);
-            const unitInput = element.data('kendoUnitInput');
-            expect(unitInput).to.be.an.instanceof(UnitInput);
+            const widget = element.data('kendoUnitInput');
+            expect(widget).to.be.an.instanceof(UnitInput);
             // expect(element).to.have.class('k-widget');
-            // expect(element).to.have.class('kj-unitinput');
-            expect(unitInput.wrapper).to.have.class('kj-unitinput');
+            // expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
         });
 
         xit('from markup with attributes', () => {
             // TODO
         });
-
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
     });
 
     describe('Methods', () => {
         let element;
-        let unitInput;
+        let widget;
         const options = {};
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            unitInput = element.kendoUnitInput(options).data('kendoUnitInput');
+            widget = element.kendoUnitInput(options).data('kendoUnitInput');
         });
 
         xit('value', done => {
-            expect(unitInput).to.be.an.instanceof(UnitInput);
+            expect(widget).to.be.an.instanceof(UnitInput);
         });
 
         xit('setOptions', () => {
@@ -121,22 +113,15 @@ describe('widgets.unitinput', () => {
         });
 
         xit('destroy', () => {
-            expect(unitInput).to.be.an.instanceof(UnitInput);
-            unitInput.destroy();
-            expect(unitInput.element).to.be.empty;
-        });
-
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
+            expect(widget).to.be.an.instanceof(UnitInput);
+            widget.destroy();
+            expect(widget.element).to.be.empty;
         });
     });
 
     describe('MVVM (and UI interactions)', () => {
         let element;
-        let unitInput;
+        let widget;
         const options = {};
         let viewModel;
         let change;
@@ -144,7 +129,7 @@ describe('widgets.unitinput', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            unitInput = element.kendoUnitInput(options).data('kendoUnitInput');
+            widget = element.kendoUnitInput(options).data('kendoUnitInput');
             viewModel = observable({
                 // TODO
             });
@@ -153,33 +138,26 @@ describe('widgets.unitinput', () => {
         });
 
         xit('TODO', () => {});
-
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
     });
 
     describe('Events', () => {
         let element;
-        let unitInput;
+        let widget;
         const options = {};
         let event;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            unitInput = element.kendoUnitInput(options).data('kendoUnitInput');
+            widget = element.kendoUnitInput(options).data('kendoUnitInput');
             event = sinon.spy();
         });
 
         xit('TODO', () => {});
+    });
 
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
-        });
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        destroy(fixtures);
+        fixtures.empty();
     });
 });

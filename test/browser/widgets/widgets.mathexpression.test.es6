@@ -21,11 +21,14 @@ const { afterEach, before, describe, it } = window;
 const { expect } = chai;
 const {
     attr,
+    bind,
     destroy,
+    init,
+    observable,
     ui: { MathExpression }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<div/>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'mathexpression';
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -52,6 +55,7 @@ describe('widgets.mathexpression', () => {
                 .data('kendoMathExpression');
             expect(widget).to.be.an.instanceof(MathExpression);
             // expect(element).to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         it('from code with options', () => {
@@ -62,18 +66,18 @@ describe('widgets.mathexpression', () => {
                 .data('kendoMathExpression');
             expect(widget).to.be.an.instanceof(MathExpression);
             // expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-mathexpression');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         it('from markup', () => {
             const element = $(ELEMENT)
-                .attr()
+                .attr(attr('role'), ROLE)
                 .appendTo(FIXTURES);
             init(FIXTURES);
-            const dropZone = element.data('kendoMathExpression');
-            expect(dropZone).to.be.an.instanceof(MathExpression);
+            const widget = element.data('kendoMathExpression');
+            expect(widget).to.be.an.instanceof(MathExpression);
             // expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-mathexpression');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         xit('from markup with attributes', () => {
@@ -112,12 +116,6 @@ describe('widgets.mathexpression', () => {
             widget.destroy();
             expect(widget.element).to.be.empty;
         });
-
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
-        });
     });
 
     describe('MVVM (and UI interactions)', () => {
@@ -141,12 +139,6 @@ describe('widgets.mathexpression', () => {
         });
 
         xit('TODO', () => {});
-
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
-        });
     });
 
     describe('Events', () => {
@@ -164,11 +156,11 @@ describe('widgets.mathexpression', () => {
         });
 
         xit('TODO', () => {});
+    });
 
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
-        });
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        destroy(fixtures);
+        fixtures.empty();
     });
 });

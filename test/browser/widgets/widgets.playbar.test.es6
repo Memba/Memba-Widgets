@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.buttonset.es6';
+import '../../../src/js/widgets/widgets.playbar.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -24,198 +24,345 @@ const {
     bind,
     data: { DataSource, ObservableArray },
     destroy,
+    guid,
     init,
     observable,
     ui: { PlayBar }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<div/>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'playbar';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-var kidoju = window.kidoju;
-var tools = kidoju.tools;
-var Page = kidoju.data.Page;
-var PageComponent = kidoju.data.PageComponent;
-var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
-var PLAYBAR1 = '<div></div>';
-var PLAYBAR2 = '<div data-role="playbar" data-bind="source: pages, value: current"></div>';
+const kidoju = window.kidoju;
+const tools = kidoju.tools;
+const Page = kidoju.data.Page;
+const PageComponent = kidoju.data.PageComponent;
+const PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+const PLAYBAR2 =
+    '<div data-role="playbar" data-bind="source: pages, value: current"></div>'; // TODO use getRoleBinding and getValueBinding
 
-var pageCollectionData1 = [
+const pageCollectionData1 = [
     {
-        id: kendo.guid(),
+        id: guid(),
         components: [
-            { id: kendo.guid(), tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-            { id: kendo.guid(), tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
-            { id: kendo.guid(), tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield1' } }
+            {
+                id: guid(),
+                tool: 'image',
+                top: 50,
+                left: 370,
+                height: 250,
+                width: 250,
+                rotate: 0,
+                attributes: {
+                    src:
+                        'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png'
+                }
+            },
+            {
+                id: guid(),
+                tool: 'label',
+                top: 300,
+                left: 300,
+                height: 100,
+                width: 300,
+                rotate: 0,
+                attributes: {
+                    style: 'font-family: Georgia, serif; color: #0000FF;',
+                    text: 'Company?'
+                }
+            },
+            {
+                id: guid(),
+                tool: 'textbox',
+                top: 450,
+                left: 350,
+                height: 100,
+                width: 300,
+                rotate: 0,
+                attributes: {},
+                properties: { name: 'textfield1' }
+            }
         ]
     },
     {
-        id: kendo.guid(),
+        id: guid(),
         components: [
-            { id: kendo.guid(), tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
-            { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield2' } }
+            {
+                id: guid(),
+                tool: 'label',
+                top: 150,
+                left: 280,
+                height: 100,
+                width: 300,
+                rotate: 0,
+                attributes: {
+                    style: 'font-family: Georgia, serif; color: #FF0000;',
+                    text: 'Marignan?'
+                }
+            },
+            {
+                id: guid(),
+                tool: 'textbox',
+                top: 300,
+                left: 330,
+                height: 100,
+                width: 300,
+                rotate: 0,
+                attributes: {},
+                properties: { name: 'textfield2' }
+            }
         ]
     },
     {
-        id: kendo.guid(),
+        id: guid(),
         components: [
-            { id: kendo.guid(), tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
-            { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
+            {
+                id: guid(),
+                tool: 'label',
+                top: 120,
+                left: 280,
+                height: 150,
+                width: 400,
+                rotate: 0,
+                attributes: {
+                    style: 'font-family: Georgia, serif; color: #00FF00;',
+                    text: "Couleur du cheval blanc d'Henri IV?"
+                }
+            },
+            {
+                id: guid(),
+                tool: 'textbox',
+                top: 300,
+                left: 330,
+                height: 100,
+                width: 300,
+                rotate: 0,
+                attributes: {},
+                properties: { name: 'textfield3' }
+            }
         ]
     }
 ];
 
-var pageCollectionData2 = [];
-for (var i = 0; i < 30; i++) {
-    pageCollectionData2.push({ id: kendo.guid(), components: [] });
+const pageCollectionData2 = [];
+for (let i = 0; i < 30; i++) {
+    pageCollectionData2.push({ id: guid(), components: [] });
 }
 
-describe('widgets.playbar', function () {
-
-    before(function () {
+describe('widgets.playbar', () => {
+    before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
-    describe('Availability', function () {
-
-        it('requirements', function () {
-            expect($).not.to.be.undefined;
-            expect(kendo).not.to.be.undefined;
-            expect(kendo.version).to.be.a('string');
-            expect(kidoju).not.to.be.undefined;
-            expect(tools).not.to.be.undefined;
-            expect(Page).not.to.be.undefined;
-            expect(PageComponent).not.to.be.undefined;
+    describe('Availability', () => {
+        it('requirements', () => {
             expect($.fn.kendoPlayBar).to.be.a(CONSTANTS.FUNCTION);
         });
-
     });
 
-    describe('Initialization', function () {
-
-        it('from code with all options', function () {
-            var element = $(PLAYBAR1).appendTo(FIXTURES);
-            var playbar = element.kendoPlayBar({
-                input: true
-            }).data('kendoPlayBar');
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            expect(playbar.dataSource.total()).to.equal(0);
+    describe('Initialization', () => {
+        it('from code with all options', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element
+                .kendoPlayBar({
+                    input: true
+                })
+                .data('kendoPlayBar');
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
+            expect(widget.dataSource.total()).to.equal(0);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-playbar');
-            expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
-            expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', 2);
-            expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 1);
-            expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
-            expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 1);
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element.find('a.k-pager-nav'))
+                .to.be.an.instanceof($)
+                .with.property('length', 4);
+            expect(element.find('ul>li'))
+                .to.be.an.instanceof($)
+                .with.property('length', 2);
+            expect(element.find('span.k-pager-input>input'))
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
+            expect(element.find('a.k-pager-refresh'))
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
+            expect(element.find('span.k-pager-info'))
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
         });
 
-        it('from code with minimal options', function () {
-            var element = $(PLAYBAR1).appendTo(FIXTURES);
-            var playbar = element.kendoPlayBar({
-                numeric: false,
-                info: false,
-                input: false,
-                previousNext: false,
-                tick: false,
-                refresh: false
-            }).data('kendoPlayBar');
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            expect(playbar.dataSource.total()).to.equal(0);
+        it('from code with minimal options', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element
+                .kendoPlayBar({
+                    numeric: false,
+                    info: false,
+                    input: false,
+                    previousNext: false,
+                    tick: false,
+                    refresh: false
+                })
+                .data('kendoPlayBar');
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
+            expect(widget.dataSource.total()).to.equal(0);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-playbar');
-            expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 0);
-            expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', 0);
-            expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 0);
-            expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 0);
-            expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 0);
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element.find('a.k-pager-nav'))
+                .to.be.an.instanceof($)
+                .with.property('length', 0);
+            expect(element.find('ul>li'))
+                .to.be.an.instanceof($)
+                .with.property('length', 0);
+            expect(element.find('span.k-pager-input>input'))
+                .to.be.an.instanceof($)
+                .with.property('length', 0);
+            expect(element.find('a.k-pager-refresh'))
+                .to.be.an.instanceof($)
+                .with.property('length', 0);
+            expect(element.find('span.k-pager-info'))
+                .to.be.an.instanceof($)
+                .with.property('length', 0);
             expect(element).to.be.empty;
         });
 
-        it('from code with dataSource', function () {
-            var element = $(PLAYBAR1).appendTo(FIXTURES);
-            var playbar = element.kendoPlayBar({
-                dataSource: pageCollectionData1
-            }).data('kendoPlayBar');
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            expect(playbar.dataSource.total()).to.equal(pageCollectionData1.length);
+        it('from code with dataSource', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element
+                .kendoPlayBar({
+                    dataSource: pageCollectionData1
+                })
+                .data('kendoPlayBar');
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
+            expect(widget.dataSource.total()).to.equal(
+                pageCollectionData1.length
+            );
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-playbar');
-            expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
-            expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', pageCollectionData1.length + 1);
-            expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 0);
-            expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
-            expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 1);
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element.find('a.k-pager-nav'))
+                .to.be.an.instanceof($)
+                .with.property('length', 4);
+            expect(element.find('ul>li'))
+                .to.be.an.instanceof($)
+                .with.property('length', pageCollectionData1.length + 1);
+            expect(element.find('span.k-pager-input>input'))
+                .to.be.an.instanceof($)
+                .with.property('length', 0);
+            expect(element.find('a.k-pager-refresh'))
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
+            expect(element.find('span.k-pager-info'))
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
         });
 
-        it('from code with large dataSource and options.buttonCount', function () {
-            var element = $(PLAYBAR1).appendTo(FIXTURES);
-            var playbar = element.kendoPlayBar({
-                dataSource: pageCollectionData2
-            }).data('kendoPlayBar');
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            expect(playbar.dataSource.total()).to.equal(pageCollectionData2.length);
+        it('from code with large dataSource and options.buttonCount', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element
+                .kendoPlayBar({
+                    dataSource: pageCollectionData2
+                })
+                .data('kendoPlayBar');
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
+            expect(widget.dataSource.total()).to.equal(
+                pageCollectionData2.length
+            );
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-playbar');
-            expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
-            expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', playbar.options.buttonCount + 2);
-            expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 0);
-            expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
-            expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 1);
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element.find('a.k-pager-nav'))
+                .to.be.an.instanceof($)
+                .with.property('length', 4);
+            expect(element.find('ul>li'))
+                .to.be.an.instanceof($)
+                .with.property('length', widget.options.buttonCount + 2);
+            expect(element.find('span.k-pager-input>input'))
+                .to.be.an.instanceof($)
+                .with.property('length', 0);
+            expect(element.find('a.k-pager-refresh'))
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
+            expect(element.find('span.k-pager-info'))
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
         });
 
-        it('from markup', function () {
-            var viewModel = kendo.observable({
-                    pages: new PageCollectionDataSource({ data: pageCollectionData1 }),
-                    current: undefined
-                });
-            var element =  $(PLAYBAR2).appendTo(FIXTURES);
-            kendo.bind(FIXTURES, viewModel);
-            var playbar = element.data('kendoPlayBar');
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            expect(playbar.dataSource.total()).to.equal(pageCollectionData1.length);
+        it('from markup', () => {
+            const viewModel = observable({
+                pages: new PageCollectionDataSource({
+                    data: pageCollectionData1
+                }),
+                current: undefined
+            });
+            const element = $(PLAYBAR2).appendTo(FIXTURES);
+            bind(FIXTURES, viewModel);
+            const widget = element.data('kendoPlayBar');
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
+            expect(widget.dataSource.total()).to.equal(
+                pageCollectionData1.length
+            );
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-playbar');
-            expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
-            expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', pageCollectionData1.length + 1);
-            expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 0);
-            expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
-            expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 1);
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element.find('a.k-pager-nav'))
+                .to.be.an.instanceof($)
+                .with.property('length', 4);
+            expect(element.find('ul>li'))
+                .to.be.an.instanceof($)
+                .with.property('length', pageCollectionData1.length + 1);
+            expect(element.find('span.k-pager-input>input'))
+                .to.be.an.instanceof($)
+                .with.property('length', 0);
+            expect(element.find('a.k-pager-refresh'))
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
+            expect(element.find('span.k-pager-info'))
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
         });
     });
 
-    describe('Methods', function () {
+    describe('Methods', () => {
+        let element;
+        let widget;
 
-        var element;
-        var playbar;
-
-        beforeEach(function () {
-            element = $(PLAYBAR1).appendTo(FIXTURES);
-            playbar = element.kendoPlayBar({
-                dataSource: pageCollectionData1
-            }).data('kendoPlayBar');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element
+                .kendoPlayBar({
+                    dataSource: pageCollectionData1
+                })
+                .data('kendoPlayBar');
         });
 
-        it('length', function () {
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            expect(playbar.length()).to.equal(pageCollectionData1.length);
+        it('length', () => {
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
+            expect(widget.length()).to.equal(pageCollectionData1.length);
         });
 
         /*
         it('items', function () {
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            var items = playbar.items();
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(PageCollectionDataSource);
+            var items = widget.items();
             expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
             var check = sinon.spy();
             $.each(items, function (index, item) {
@@ -227,137 +374,167 @@ describe('widgets.playbar', function () {
         });
         */
 
-        it('value', function () {
-            var fn = function () {
-                playbar.value(0);
+        it('value', () => {
+            const fn = function() {
+                widget.value(0);
             };
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
             expect(fn).to.throw(TypeError);
-            for (var idx = 0; idx < pageCollectionData1.length; idx++) {
-                var page = playbar.dataSource.at(idx);
-                playbar.value(page);
-                expect(playbar.index()).to.equal(idx);
-                expect(playbar.id()).to.equal(page.id);
+            for (let idx = 0; idx < pageCollectionData1.length; idx++) {
+                const page = widget.dataSource.at(idx);
+                widget.value(page);
+                expect(widget.index()).to.equal(idx);
+                expect(widget.id()).to.equal(page.id);
             }
         });
 
-        it('index', function () {
-            var fn1 = function () {
-                playbar.index('not a number');
+        it('index', () => {
+            const fn1 = function() {
+                widget.index('not a number');
             };
-            var fn2 = function () {
-                playbar.index(300); // not in range
+            const fn2 = function() {
+                widget.index(300); // not in range
             };
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(RangeError);
-            for (var idx = 0; idx < pageCollectionData1.length; idx++) {
-                var page = playbar.dataSource.at(idx);
-                playbar.index(idx);
-                expect(playbar.value()).to.equal(page);
-                expect(playbar.id()).to.equal(page.id);
+            for (let idx = 0; idx < pageCollectionData1.length; idx++) {
+                const page = widget.dataSource.at(idx);
+                widget.index(idx);
+                expect(widget.value()).to.equal(page);
+                expect(widget.id()).to.equal(page.id);
             }
         });
 
-        it('id', function () {
-            var fn = function () {
-                playbar.id({});
+        it('id', () => {
+            const fn = function() {
+                widget.id({});
             };
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
             expect(fn).to.throw(TypeError);
-            for (var idx = 0; idx < pageCollectionData1.length; idx++) {
-                var page = playbar.dataSource.at(idx);
-                playbar.id(page.id);
-                expect(playbar.value()).to.equal(page);
-                expect(playbar.index()).to.equal(idx);
+            for (let idx = 0; idx < pageCollectionData1.length; idx++) {
+                const page = widget.dataSource.at(idx);
+                widget.id(page.id);
+                expect(widget.value()).to.equal(page);
+                expect(widget.index()).to.equal(idx);
             }
         });
 
         // TODO refresh
         // TODO: sorting.....................
-
     });
 
-    describe('MVVM', function () {
-
-        var element;
-        var playbar;
-        var viewModel;
+    describe('MVVM', () => {
+        let element;
+        let widget;
+        let viewModel;
 
         /*
          // For obscure reasons, setting the viewModel here does not work
-         viewModel = kendo.observable({
+         viewModel = observable({
          pages: new PageCollectionDataSource({ data: pageCollectionArray }),
          current: undefined
          });
          */
 
-        beforeEach(function () {
+        beforeEach(() => {
             element = $(PLAYBAR2).appendTo(FIXTURES);
-            viewModel = kendo.observable({
-                pages: new PageCollectionDataSource({ data: pageCollectionData1 }),
+            viewModel = observable({
+                pages: new PageCollectionDataSource({
+                    data: pageCollectionData1
+                }),
                 current: undefined
             });
-            kendo.bind(FIXTURES, viewModel);
-            playbar = element.data('kendoPlayBar');
+            bind(FIXTURES, viewModel);
+            widget = element.data('kendoPlayBar');
         });
 
-        it('Adding a page to the viewModel adds the corresponding item to the playbar', function () {
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            expect(playbar.items()).to.be.an.instanceof(Array).with.property('length', pageCollectionData1.length);
-            viewModel.pages.add(new Page({
-                id: kendo.guid(),
-                style: 'font-family: Georgia, serif; color: #FF0000;'
-            }));
-            expect(playbar.items()).to.be.an.instanceof(Array).with.property('length', pageCollectionData1.length + 1);
+        it('Adding a page to the viewModel adds the corresponding item to the widget', () => {
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
+            expect(widget.items())
+                .to.be.an.instanceof(Array)
+                .with.property('length', pageCollectionData1.length);
+            viewModel.pages.add(
+                new Page({
+                    id: guid(),
+                    style: 'font-family: Georgia, serif; color: #FF0000;'
+                })
+            );
+            expect(widget.items())
+                .to.be.an.instanceof(Array)
+                .with.property('length', pageCollectionData1.length + 1);
         });
 
-        it('Removing a page from the viewModel removes the corresponding item from the playbar', function () {
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            expect(playbar.items()).to.be.an.instanceof(Array).with.property('length', pageCollectionData1.length);
+        it('Removing a page from the viewModel removes the corresponding item from the widget', () => {
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
+            expect(widget.items())
+                .to.be.an.instanceof(Array)
+                .with.property('length', pageCollectionData1.length);
             viewModel.pages.remove(viewModel.pages.at(0));
-            expect(playbar.items()).to.be.an.instanceof(Array).with.property('length', pageCollectionData1.length - 1);
+            expect(widget.items())
+                .to.be.an.instanceof(Array)
+                .with.property('length', pageCollectionData1.length - 1);
         });
 
         // Note: Since PlayBar is a collection of kendo.ui.Stage, we are assuming that
         // if kendo.ui.Stage properly handles a change of page content, PlayBar also properly handles a change of page content
 
-        it('Changing the selected page in the viewModel changes the corresponding item in the playbar', function () {
+        it('Changing the selected page in the viewModel changes the corresponding item in the widget', () => {
             // TODO: also test binding on id and index?
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            expect(playbar.items()).to.be.an.instanceof(Array).with.property('length', pageCollectionData1.length);
-            var check = sinon.spy();
-            $.each(viewModel.pages.data(), function (index, page) {
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
+            expect(widget.items())
+                .to.be.an.instanceof(Array)
+                .with.property('length', pageCollectionData1.length);
+            const check = sinon.spy();
+            $.each(viewModel.pages.data(), (index, page) => {
                 check();
                 viewModel.set('current', page);
-                expect($(playbar.items()[index]).find('span')).to.have.class('k-state-selected');
+                expect($(widget.items()[index]).find('span')).to.have.class(
+                    'k-state-selected'
+                );
             });
             expect(check).to.have.callCount(pageCollectionData1.length);
         });
 
-        it('Changing the selected page by clicking a number in the playbar, changes the corresponding page in the viewModel', function () {
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            var check = sinon.spy();
+        it('Changing the selected page by clicking a number in the widget, changes the corresponding page in the viewModel', () => {
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
+            const check = sinon.spy();
             /*
             // For whatever reason , second click does not work
             $.each(element.find('ul.k-pager-numbers>li>a.k-link'), function (index, item) {
                 check();
                 $(item).simulate('click');
-                expect(playbar.dataSource.indexOf(viewModel.get('current'))).to.equal(parseInt($(item).attr(kendo.attr('index')), 10));
+                expect(widget.dataSource.indexOf(viewModel.get('current'))).to.equal(parseInt($(item).attr(attr('index')), 10));
             });
             expect(check).to.have.callCount(pageCollectionData1.length - 1);
             */
-            var items = element.find('ul.k-pager-numbers>li>a.k-link');
+            const items = element.find('ul.k-pager-numbers>li>a.k-link');
             // $(items[0]).simulate('click');
             $(items[1]).simulate('click');
-            expect(playbar.dataSource.indexOf(viewModel.get('current'))).to.equal(parseInt($(items[1]).attr(kendo.attr('index')), 10));
+            expect(
+                widget.dataSource.indexOf(viewModel.get('current'))
+            ).to.equal(parseInt($(items[1]).attr(attr('index')), 10));
         });
 
         // TODO: first
@@ -367,65 +544,69 @@ describe('widgets.playbar', function () {
         // TODO: last
         // TODO: input
         // TODO: refresh button
-
     });
 
-    describe('Events', function () {
+    describe('Events', () => {
+        let element;
+        let widget;
 
-        var element;
-        var playbar;
-
-        beforeEach(function () {
-            element = $(PLAYBAR1).appendTo(FIXTURES);
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
         });
 
-        it('dataBinding & dataBound', function () {
-            var dataBinding = sinon.spy();
-            var dataBound = sinon.spy();
-            playbar = element.kendoPlayBar({
-                dataSource: pageCollectionData2,
-                dataBinding: function (e) {
-                    dataBinding(e.sender);
-                },
-                dataBound: function (e) {
-                    dataBound(e.sender);
-                }
-            }).data('kendoPlayBar');
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
+        it('dataBinding & dataBound', () => {
+            const dataBinding = sinon.spy();
+            const dataBound = sinon.spy();
+            widget = element
+                .kendoPlayBar({
+                    dataSource: pageCollectionData2,
+                    dataBinding(e) {
+                        dataBinding(e.sender);
+                    },
+                    dataBound(e) {
+                        dataBound(e.sender);
+                    }
+                })
+                .data('kendoPlayBar');
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
             expect(dataBinding).to.have.been.calledOnce;
-            expect(dataBinding).to.have.been.calledWith(playbar);
+            expect(dataBinding).to.have.been.calledWith(widget);
             expect(dataBound).to.have.been.calledOnce;
-            expect(dataBound).to.have.been.calledWith(playbar);
+            expect(dataBound).to.have.been.calledWith(widget);
             expect(dataBinding).to.have.been.calledBefore(dataBound);
         });
 
-        it('change', function () {
-            var change = sinon.spy();
-            playbar = element.kendoPlayBar({
-                dataSource: pageCollectionData1,
-                change: function (e) {
-                    change(e.value);
-                }
-            }).data('kendoPlayBar');
-            expect(playbar).to.be.an.instanceof(PlayBar);
-            expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-            expect(playbar.dataSource.data()).to.be.an.instanceof(ObservableArray).with.property('length', pageCollectionData1.length);
-            var page = playbar.dataSource.at(1);
+        it('change', () => {
+            const change = sinon.spy();
+            widget = element
+                .kendoPlayBar({
+                    dataSource: pageCollectionData1,
+                    change(e) {
+                        change(e.value);
+                    }
+                })
+                .data('kendoPlayBar');
+            expect(widget).to.be.an.instanceof(PlayBar);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageCollectionDataSource
+            );
+            expect(widget.dataSource.data())
+                .to.be.an.instanceof(ObservableArray)
+                .with.property('length', pageCollectionData1.length);
+            const page = widget.dataSource.at(1);
             expect(page).to.be.an.instanceof(Page);
-            playbar.value(page);
+            widget.value(page);
             expect(change).to.have.been.calledOnce;
             expect(change).to.have.been.calledWith(page);
         });
-
     });
 
-    afterEach(function () {
-        var fixtures = $(FIXTURES);
-        kendo.unbind(fixtures);
-        kendo.destroy(fixtures);
-        fixtures.find('*').off();
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        destroy(fixtures);
         fixtures.empty();
     });
-
 });

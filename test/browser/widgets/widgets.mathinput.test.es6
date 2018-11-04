@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.buttonset.es6';
+import '../../../src/js/widgets/widgets.mathinput.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -29,168 +29,128 @@ const {
     ui: { MathInput }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<div/>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'mathinput';
+const TOOLBAR = '<div id="toolbar"></div>';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-var TOOLBAR = '<div id="toolbar"></div>';
-var MATHINPUT1 = '<div id="mathinput1"></div>';
-var MATHINPUT2 = '<div id="mathinput2" data-role="mathinput"></div>';
-
-describe('widgets.mathinput', function () {
-
-    before(function () {
+describe('widgets.mathinput', () => {
+    before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
-    describe('Availability', function () {
-
-        it('requirements', function () {
-            expect($).not.to.be.undefined;
-            expect(kendo).not.to.be.undefined;
-            expect(kendo.version).to.be.a('string');
+    describe('Availability', () => {
+        it('requirements', () => {
             expect($.fn.kendoMathInput).to.be.a(CONSTANTS.FUNCTION);
             expect($.fn.kendoMathInputToolBar).to.be.a(CONSTANTS.FUNCTION);
         });
-
     });
 
-    describe('Initialization', function () {
-
-        it('from code', function () {
-            var element = $(MATHINPUT1).appendTo(FIXTURES);
-            var mathInput = element.kendoMathInput().data('kendoMathInput');
-            expect(mathInput).to.be.an.instanceof(MathInput);
+    describe('Initialization', () => {
+        it('from code', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element.kendoMathInput().data('kendoMathInput');
+            expect(widget).to.be.an.instanceof(MathInput);
             // expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-mathinput');
-            // TODO expect(mathInput).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
-        it('from code with options', function () {
-            var toolbar = $(TOOLBAR).appendTo(FIXTURES);
-            var element = $(MATHINPUT1).appendTo(FIXTURES);
-            var options = {};
-            var mathInput = element.kendoMathInput(options).data('kendoMathInput');
-            expect(mathInput).to.be.an.instanceof(MathInput);
+        it('from code with options', () => {
+            const toolbar = $(TOOLBAR).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const options = {};
+            const widget = element
+                .kendoMathInput(options)
+                .data('kendoMathInput');
+            expect(widget).to.be.an.instanceof(MathInput);
             // expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-mathinput');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
-        it('from markup', function () {
-            var element = $(MATHINPUT2).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            var mathInput = element.data('kendoMathInput');
-            expect(mathInput).to.be.an.instanceof(MathInput);
+        it('from markup', () => {
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .appendTo(FIXTURES);
+            init(FIXTURES);
+            const widget = element.data('kendoMathInput');
+            expect(widget).to.be.an.instanceof(MathInput);
             // expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-mathinput');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
-        xit('from markup with attributes', function () {
+        xit('from markup with attributes', () => {
             // TODO: AssetManager might be a bit complex to initialize with attributes...
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
-    describe('Methods', function () {
+    describe('Methods', () => {
+        let element;
+        let widget;
+        const options = {};
 
-        var element;
-        var mathInput;
-        var options = {};
-
-        beforeEach(function () {
-            element = $(MATHINPUT1).appendTo(FIXTURES);
-            mathInput = element.kendoMathInput(options).data('kendoMathInput');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoMathInput(options).data('kendoMathInput');
         });
 
-        xit('value', function (done) {
-            expect(mathInput).to.be.an.instanceof(MathInput);
+        xit('value', done => {
+            expect(widget).to.be.an.instanceof(MathInput);
         });
 
-        xit('setOptions', function () {
+        xit('setOptions', () => {
             // TODO especially regarding filters (to be enforced)
         });
 
-        xit('destroy', function () {
-            expect(mathInput).to.be.an.instanceof(MathInput);
-            mathInput.destroy();
-            expect(mathInput.element).to.be.empty;
+        xit('destroy', () => {
+            expect(widget).to.be.an.instanceof(MathInput);
+            widget.destroy();
+            expect(widget.element).to.be.empty;
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
-    describe('MVVM (and UI interactions)', function () {
+    describe('MVVM (and UI interactions)', () => {
+        let element;
+        let widget;
+        const options = {};
+        let viewModel;
+        let change;
+        let destroy;
 
-        var element;
-        var mathInput;
-        var options = {};
-        var viewModel;
-        var change;
-        var destroy;
-
-        beforeEach(function () {
-            element = $(MATHINPUT1).appendTo(FIXTURES);
-            mathInput = element.kendoMathInput(options).data('kendoMathInput');
-            viewModel = kendo.observable({
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoMathInput(options).data('kendoMathInput');
+            viewModel = observable({
                 // TODO
             });
             change = sinon.spy();
             destroy = sinon.spy();
         });
 
-        xit('TODO', function () {
-
-        });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
+        xit('TODO', () => {});
     });
 
-    describe('Events', function () {
+    describe('Events', () => {
+        let element;
+        let widget;
+        const options = {};
+        let event;
 
-        var element;
-        var mathInput;
-        var options = {};
-        var event;
-
-        beforeEach(function () {
-            element = $(MATHINPUT1).appendTo(FIXTURES);
-            mathInput = element.kendoMathInput(options).data('kendoMathInput');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoMathInput(options).data('kendoMathInput');
             event = sinon.spy();
         });
 
-        xit('TODO', function () {
+        xit('TODO', () => {});
+    });
 
-        });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        destroy(fixtures);
+        fixtures.empty();
     });
 });

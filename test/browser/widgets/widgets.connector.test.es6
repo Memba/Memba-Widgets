@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.buttonset.es6';
+import '../../../src/js/widgets/widgets.connector.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -30,8 +30,8 @@ const {
     ui: { Connector }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
-const ROLE = 'connector';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
+const ROLE = 'connnector';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -42,8 +42,7 @@ const ELEMENT_DIV =
     '<div class="kj-element" style="position:absolute;top:50px;left:50px;height:50px;width:50px;">' +
     '</div></div></div>';
 const STAGE = `${FIXTURES} div${roleSelector('stage')}`;
-var ELEMENT = `${STAGE}>div.kj-element`;
-const CONNECTOR2 = '<div id="connector2" data-role="connector"></div>';
+// TODO const ELEMENT = `${STAGE}>div.kj-element`;
 
 describe('widgets.connector', () => {
     before(() => {
@@ -65,77 +64,80 @@ describe('widgets.connector', () => {
 
         it('from code', () => {
             const element = $(ELEMENT).appendTo(ELEMENT);
-            const connector = element.kendoConnector().data('kendoConnector');
-            expect(connector).to.be.an.instanceof(Connector);
+            const widget = element.kendoConnector().data('kendoConnector');
+            expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
-            expect(connector)
+            expect(widget)
                 .to.have.property('wrapper')
-                .that.is.an.instanceof(jQuery);
-            expect(connector.value()).to.be.null;
+                .that.is.an.instanceof($);
+            expect(widget.value()).to.be.null;
         });
 
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(ELEMENT);
-            const connector = element
+            const widget = element
                 .kendoConnector({ color: '#000000' })
                 .data('kendoConnector');
-            expect(connector).to.be.an.instanceof(Connector);
+            expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
-            expect(connector)
+            expect(widget)
                 .to.have.property('wrapper')
-                .that.is.an.instanceof(jQuery);
-            // expect(connector).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
-            // expect(connector.dataSource.total()).to.equal(LIBRARY.length);
-            // expect(connector.dataSource.data()).to.deep.equal(LIBRARY);
-            expect(connector.value()).to.be.null;
+                .that.is.an.instanceof($);
+            // expect(widget).to.have.property('dataSource').that.is.an.instanceof(DataSource);
+            // expect(widget.dataSource.total()).to.equal(LIBRARY.length);
+            // expect(widget.dataSource.data()).to.deep.equal(LIBRARY);
+            expect(widget.value()).to.be.null;
         });
 
         it('from markup', () => {
-            const element = $(CONNECTOR2).appendTo(ELEMENT);
-            kendo.init(FIXTURES);
-            const connector = element.data('kendoConnector');
-            expect(connector).to.be.an.instanceof(Connector);
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .appendTo(ELEMENT);
+            init(FIXTURES);
+            const widget = element.data('kendoConnector');
+            expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
-            expect(connector)
+            expect(widget)
                 .to.have.property('wrapper')
-                .that.is.an.instanceof(jQuery);
-            // expect(connector).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
-            // expect(connector.dataSource.total()).to.equal(0);
-            expect(connector.value()).to.be.null;
+                .that.is.an.instanceof($);
+            // expect(widget).to.have.property('dataSource').that.is.an.instanceof(DataSource);
+            // expect(widget.dataSource.total()).to.equal(0);
+            expect(widget.value()).to.be.null;
         });
 
         it('from markup with data attributes', () => {
             const attr = {
                 'data-color': '#000000'
             };
-            const element = $(CONNECTOR2)
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
                 .attr(attr)
                 .appendTo(ELEMENT);
-            kendo.init(FIXTURES);
-            const connector = element.data('kendoConnector');
-            expect(connector).to.be.an.instanceof(Connector);
+            init(FIXTURES);
+            const widget = element.data('kendoConnector');
+            expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
-            expect(connector)
+            expect(widget)
                 .to.have.property('wrapper')
-                .that.is.an.instanceof(jQuery);
-            // expect(connector).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
-            // expect(connector.dataSource.total()).to.equal(LIBRARY.length);
-            // expect(connector.dataSource.data()).to.deep.equal(LIBRARY);
-            expect(connector.value()).to.be.null;
+                .that.is.an.instanceof($);
+            // expect(widget).to.have.property('dataSource').that.is.an.instanceof(DataSource);
+            // expect(widget.dataSource.total()).to.equal(LIBRARY.length);
+            // expect(widget.dataSource.data()).to.deep.equal(LIBRARY);
+            expect(widget.value()).to.be.null;
         });
     });
 
     xdescribe('Methods', () => {
         let element;
-        let connector;
+        let widget;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            connector = element
+            widget = element
                 .kendoConnector({
                     // TODO
                 })
@@ -153,54 +155,55 @@ describe('widgets.connector', () => {
 
     xdescribe('MVVM (and UI interactions)', () => {
         let element;
-        let connector;
+        let widget;
         let change;
-        const viewModel = kendo.observable({
+        const viewModel = observable({
             // TODO
         });
 
         beforeEach(() => {
-            element = $(CONNECTOR2)
+            element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
                 .attr({
                     // 'data-bind': 'source: library, value: code',
                     // 'data-default': NAME
                 })
                 .appendTo(FIXTURES);
-            kendo.bind(FIXTURES, viewModel);
-            connector = element.data('kendoConnector');
+            bind(FIXTURES, viewModel);
+            widget = element.data('kendoConnector');
             change = sinon.spy();
             // viewModel.bind(CHANGE, change);
         });
 
         it('A change of widget value raises a change in the viewModel', () => {
             expect(change).not.to.have.been.called;
-            expect(connector).to.be.an.instanceof(Connector);
-            // expect(connector.value()).to.equal(JS_COMMENT + NAME);
-            expect(viewModel.get('code')).to.equal(connector.value());
+            expect(widget).to.be.an.instanceof(Connector);
+            // expect(widget.value()).to.equal(JS_COMMENT + NAME);
+            expect(viewModel.get('code')).to.equal(widget.value());
             // Change the widget value
-            // connector.value(JS_COMMENT + EQ_NAME);
+            // widget.value(JS_COMMENT + EQ_NAME);
             expect(change).to.have.been.calledOnce;
-            // expect(connector.value()).to.equal(JS_COMMENT + EQ_NAME);
-            expect(viewModel.get('code')).to.equal(connector.value());
+            // expect(widget.value()).to.equal(JS_COMMENT + EQ_NAME);
+            expect(viewModel.get('code')).to.equal(widget.value());
         });
 
         it('A change in the viewModel raises a change of widget value', () => {
             expect(change).not.to.have.been.called;
-            expect(connector).to.be.an.instanceof(Connector);
-            // expect(connector.value()).to.equal(JS_COMMENT + NAME);
-            expect(viewModel.get('code')).to.equal(connector.value());
+            expect(widget).to.be.an.instanceof(Connector);
+            // expect(widget.value()).to.equal(JS_COMMENT + NAME);
+            expect(viewModel.get('code')).to.equal(widget.value());
             // Change in the view Model
             // viewModel.set('code', JS_COMMENT + EQ_NAME);
             expect(change).to.have.been.calledOnce;
-            // expect(connector.value()).to.equal(JS_COMMENT + EQ_NAME);
-            expect(viewModel.get('code')).to.equal(connector.value());
+            // expect(widget.value()).to.equal(JS_COMMENT + EQ_NAME);
+            expect(viewModel.get('code')).to.equal(widget.value());
         });
 
         it('A change of dropdownlist value raises a change of viewModel', () => {
             expect(change).not.to.have.been.called;
-            expect(connector).to.be.an.instanceof(Connector);
+            expect(widget).to.be.an.instanceof(Connector);
             const clickable = element
-                .find(kendo.roleSelector('dropdownlist'))
+                .find(roleSelector('dropdownlist'))
                 .parent();
             expect(clickable).to.match('span');
             // clickable.simulate(CLICK);
@@ -212,8 +215,8 @@ describe('widgets.connector', () => {
             // item.simulate(CLICK);
             // a second click closes the list and sets a new value
             expect(change).to.have.been.calledOnce;
-            // expect(connector.value()).to.equal(JS_COMMENT + EQ_NAME);
-            expect(viewModel.get('code')).to.equal(connector.value());
+            // expect(widget.value()).to.equal(JS_COMMENT + EQ_NAME);
+            expect(viewModel.get('code')).to.equal(widget.value());
         });
 
         afterEach(() => {
@@ -227,7 +230,7 @@ describe('widgets.connector', () => {
 
     xdescribe('Events', () => {
         let element;
-        let connector;
+        let widget;
         let change;
         const DUMMY = 'dummy';
         // var EQ_NAME = LIBRARY[1].name;
@@ -238,7 +241,7 @@ describe('widgets.connector', () => {
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT).appendTo(FIXTURES);
-            connector = element
+            widget = element
                 .kendoConnector({
                     // dataSource: LIBRARY,
                     // value: NAME,
@@ -249,15 +252,15 @@ describe('widgets.connector', () => {
         });
 
         it('Change event', () => {
-            expect(connector).to.be.an.instanceof(Connector);
-            // connector.bind(CHANGE, function (e) {
+            expect(widget).to.be.an.instanceof(Connector);
+            // widget.bind(CHANGE, function (e) {
             //     change(e.value);
             // });
-            // connector.value(JS_COMMENT + EQ_NAME);
+            // widget.value(JS_COMMENT + EQ_NAME);
             // expect(change).to.have.been.calledWith(JS_COMMENT + EQ_NAME);
-            connector.value(FORMULA2);
+            widget.value(FORMULA2);
             expect(change).to.have.been.calledWith(FORMULA2);
-            connector.value(DUMMY);
+            widget.value(DUMMY);
             // expect(change).to.have.been.calledWith(JS_COMMENT + NAME);
         });
     });

@@ -22,7 +22,6 @@ const { expect } = chai;
 const {
     attr,
     bind,
-    data: { DataSource },
     destroy,
     init,
     observable,
@@ -51,8 +50,8 @@ describe('widgets.chargrid', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(FIXTURES);
-            const charGrid = element.kendoCharGrid().data('kendoCharGrid');
-            expect(charGrid).to.be.an.instanceof(CharGrid);
+            const widget = element.kendoCharGrid().data('kendoCharGrid');
+            expect(widget).to.be.an.instanceof(CharGrid);
             // expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-chargrid');
         });
@@ -62,19 +61,19 @@ describe('widgets.chargrid', () => {
             const options = {
                 // TODO
             };
-            const charGrid = element
-                .kendoCharGrid(options)
-                .data('kendoCharGrid');
-            expect(charGrid).to.be.an.instanceof(CharGrid);
+            const widget = element.kendoCharGrid(options).data('kendoCharGrid');
+            expect(widget).to.be.an.instanceof(CharGrid);
             // expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-chargrid');
         });
 
         it('from markup', () => {
-            const element = $(ELEMENT).attr(attr('role'), ROLE).appendTo(FIXTURES);
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .appendTo(FIXTURES);
             init(FIXTURES);
-            const charGrid = element.data('kendoCharGrid');
-            expect(charGrid).to.be.an.instanceof(CharGrid);
+            const widget = element.data('kendoCharGrid');
+            expect(widget).to.be.an.instanceof(CharGrid);
             // expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-chargrid');
         });
@@ -86,38 +85,38 @@ describe('widgets.chargrid', () => {
 
     describe('Methods', () => {
         let element;
-        let charGrid;
+        let widget;
         const options = {};
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            charGrid = element.kendoCharGrid(options).data('kendoCharGrid');
+            widget = element.kendoCharGrid(options).data('kendoCharGrid');
         });
 
         xit('destroy', () => {
-            expect(charGrid).to.be.an.instanceof(CharGrid);
-            charGrid.destroy();
-            expect(charGrid.element).to.be.empty;
+            expect(widget).to.be.an.instanceof(CharGrid);
+            widget.destroy();
+            expect(widget.element).to.be.empty;
         });
 
         xit('refresh', () => {
-            expect(charGrid).to.be.an.instanceof(CharGrid);
+            expect(widget).to.be.an.instanceof(CharGrid);
             // TODO
         });
 
         xit('setOptions', () => {
-            expect(charGrid).to.be.an.instanceof(CharGrid);
+            expect(widget).to.be.an.instanceof(CharGrid);
             // TODO
         });
 
         xit('value', () => {
-            expect(charGrid).to.be.an.instanceof(CharGrid);
+            expect(widget).to.be.an.instanceof(CharGrid);
         });
     });
 
     describe('MVVM (and UI interactions)', () => {
         let element;
-        let charGrid;
+        let widget;
         const options = {};
         let viewModel;
         let change;
@@ -125,8 +124,8 @@ describe('widgets.chargrid', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            charGrid = element.kendoCharGrid(options).data('kendoCharGrid');
-            viewModel = kendo.observable({
+            widget = element.kendoCharGrid(options).data('kendoCharGrid');
+            viewModel = observable({
                 // TODO
             });
             change = sinon.spy();
@@ -138,13 +137,13 @@ describe('widgets.chargrid', () => {
 
     describe('Events', () => {
         let element;
-        let charGrid;
+        let widget;
         const options = {};
         let event;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            charGrid = element.kendoCharGrid(options).data('kendoCharGrid');
+            widget = element.kendoCharGrid(options).data('kendoCharGrid');
             event = sinon.spy();
         });
 

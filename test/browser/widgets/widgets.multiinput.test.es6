@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.buttonset.es6';
+import '../../../src/js/widgets/widgets.multiinput.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -29,336 +29,333 @@ const {
     ui: { MultiInput }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
+const ELEMENT = `<${CONSTANTS.INPUT}>`;
 const ROLE = 'multiinput';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-var CLICK = 'click';
-var MULTIINPUT1 = '<input id="multiinput1">';
-var MULTIINPUT2 = '<input id="multiinput2" data-role="multiinput">';
-
-describe('widgets.multiinput', function () {
-
-    before(function () {
+describe('widgets.multiinput', () => {
+    before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
-    describe('Availability', function () {
-
-        it('requirements', function () {
-            expect($).not.to.be.undefined;
-            expect(kendo).not.to.be.undefined;
-            expect(kendo.version).to.be.a('string');
+    describe('Availability', () => {
+        it('requirements', () => {
             expect($.fn.kendoMultiInput).to.be.a(CONSTANTS.FUNCTION);
         });
-
     });
 
-    describe('Initialization', function () {
-
-        it('from code', function () {
-            var element = $(MULTIINPUT1).appendTo(FIXTURES);
-            var multiInput = element.kendoMultiInput().data('kendoMultiInput');
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            expect(multiInput).to.have.property('tagList').that.is.an.instanceof($);
-            var tagList = multiInput.tagList;
+    describe('Initialization', () => {
+        it('from code', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element.kendoMultiInput().data('kendoMultiInput');
+            expect(widget).to.be.an.instanceof(MultiInput);
+            expect(widget)
+                .to.have.property('tagList')
+                .that.is.an.instanceof($);
+            const tagList = widget.tagList;
             expect(tagList).to.match('ul');
             expect(tagList).to.be.empty;
-            expect(multiInput).to.have.property('wrapper').that.is.an.instanceof($);
-            var wrapper = multiInput.wrapper;
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
+            const wrapper = widget.wrapper;
             expect(wrapper).to.match('div');
             expect(wrapper).to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-multiinput');
+            expect(wrapper).to.have.class(`kj-${ROLE}`);
         });
 
-        it('from code with options', function () {
-            var element = $(MULTIINPUT1).appendTo(FIXTURES);
-            var options = {
+        it('from code with options', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const options = {
                 match: '^[a-z]+$',
                 value: ['alpha', 'beta', 'gamma']
             };
-            var multiInput = element.kendoMultiInput(options).data('kendoMultiInput');
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            expect(multiInput).to.have.property('tagList').that.is.an.instanceof($);
-            var tagList = multiInput.tagList;
+            const widget = element
+                .kendoMultiInput(options)
+                .data('kendoMultiInput');
+            expect(widget).to.be.an.instanceof(MultiInput);
+            expect(widget)
+                .to.have.property('tagList')
+                .that.is.an.instanceof($);
+            const tagList = widget.tagList;
             expect(tagList).to.match('ul');
             expect(tagList).to.have.descendants('>li');
-            expect(tagList.children('li')).to.be.an.instanceof($).with.property('length', options.value.length);
+            expect(tagList.children('li'))
+                .to.be.an.instanceof($)
+                .with.property('length', options.value.length);
             // TODO: We could check that each li contains the correct value
-            expect(multiInput).to.have.property('wrapper').that.is.an.instanceof($);
-            var wrapper = multiInput.wrapper;
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
+            const wrapper = widget.wrapper;
             expect(wrapper).to.match('div');
             expect(wrapper).to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-multiinput');
+            expect(wrapper).to.have.class(`kj-${ROLE}`);
         });
 
-        it('from markup', function () {
-            var options = {};
-            var element = $(MULTIINPUT2).attr(options).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            var multiInput = element.data('kendoMultiInput');
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            expect(multiInput).to.have.property('tagList').that.is.an.instanceof($);
-            var tagList = multiInput.tagList;
+        it('from markup', () => {
+            const options = {};
+            const element = $(ELEMENT).attr(attr('role'), ROLE)
+                .attr(options)
+                .appendTo(FIXTURES);
+            init(FIXTURES);
+            const widget = element.data('kendoMultiInput');
+            expect(widget).to.be.an.instanceof(MultiInput);
+            expect(widget)
+                .to.have.property('tagList')
+                .that.is.an.instanceof($);
+            const tagList = widget.tagList;
             expect(tagList).to.match('ul');
             expect(tagList).to.be.empty;
-            expect(multiInput).to.have.property('wrapper').that.is.an.instanceof($);
-            var wrapper = multiInput.wrapper;
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
+            const wrapper = widget.wrapper;
             expect(wrapper).to.match('div');
             expect(wrapper).to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-multiinput');
+            expect(wrapper).to.have.class(`kj-${ROLE}`);
         });
 
-        it('from markup with attributes', function () {
-            var attributes = {
+        it('from markup with attributes', () => {
+            const attributes = {
                 'data-match': '^[a-z]+$',
                 // value: JSON.stringify(['alpha', 'beta', 'gamma']) // <-- Does not work
                 'data-value': JSON.stringify(['alpha', 'beta', 'gamma'])
             };
-            var element = $(MULTIINPUT2).attr(attributes).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            var multiInput = element.data('kendoMultiInput');
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            expect(multiInput).to.have.property('tagList').that.is.an.instanceof($);
-            var tagList = multiInput.tagList;
+            const element = $(ELEMENT).attr(attr('role'), ROLE)
+                .attr(attributes)
+                .appendTo(FIXTURES);
+            init(FIXTURES);
+            const widget = element.data('kendoMultiInput');
+            expect(widget).to.be.an.instanceof(MultiInput);
+            expect(widget)
+                .to.have.property('tagList')
+                .that.is.an.instanceof($);
+            const tagList = widget.tagList;
             expect(tagList).to.match('ul');
             expect(tagList).to.have.descendants('>li');
-            expect(tagList.children('li')).to.be.an.instanceof($).with.property('length', JSON.parse(attributes['data-value']).length);
+            expect(tagList.children('li'))
+                .to.be.an.instanceof($)
+                .with.property(
+                    'length',
+                    JSON.parse(attributes['data-value']).length
+                );
             // TODO: We could check that each li contains the correct value
-            expect(multiInput).to.have.property('wrapper').that.is.an.instanceof($);
-            var wrapper = multiInput.wrapper;
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
+            const wrapper = widget.wrapper;
             expect(wrapper).to.match('div');
             expect(wrapper).to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-multiinput');
-        });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
+            expect(wrapper).to.have.class(`kj-${ROLE}`);
         });
     });
 
-    describe('Methods', function () {
-
-        var element;
-        var multiInput;
-        var options = {
+    describe('Methods', () => {
+        let element;
+        let widget;
+        const options = {
             match: '^[a-z]+$',
             value: ['alpha', 'beta', 'gamma']
         };
 
-        beforeEach(function () {
-            element = $(MULTIINPUT1).appendTo(FIXTURES);
-            multiInput = element.kendoMultiInput(options).data('kendoMultiInput');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoMultiInput(options).data('kendoMultiInput');
         });
 
-        it('value', function () {
-            var fn = function () {
-                multiInput.value('alpha');
+        it('value', () => {
+            const fn = function() {
+                widget.value('alpha');
             };
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            expect(multiInput.value()).to.deep.equal(options.value);
-            expect(multiInput.tagList).to.exist;
-            expect(multiInput.tagList.children('li').length).to.equal(options.value.length);
+            expect(widget).to.be.an.instanceof(MultiInput);
+            expect(widget.value()).to.deep.equal(options.value);
+            expect(widget.tagList).to.exist;
+            expect(widget.tagList.children('li').length).to.equal(
+                options.value.length
+            );
             expect(fn).to.throw;
-            var value = ['omega', 'psi'];
-            multiInput.value(value);
-            expect(multiInput.value()).to.deep.equal(value);
-            expect(multiInput.tagList.children('li').length).to.equal(value.length);
+            const value = ['omega', 'psi'];
+            widget.value(value);
+            expect(widget.value()).to.deep.equal(value);
+            expect(widget.tagList.children('li').length).to.equal(value.length);
             // TODO test match option
         });
 
-        it('focus', function (done) {
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            var focus = sinon.spy();
-            multiInput.element.on('focus', function () {
+        it('focus', done => {
+            expect(widget).to.be.an.instanceof(MultiInput);
+            const focus = sinon.spy();
+            widget.element.on('focus', () => {
                 focus();
             });
-            multiInput.focus();
+            widget.focus();
             // Create a new timer to ensure the expectation is executed after the focus event handler
-            setTimeout(function () {
+            setTimeout(() => {
                 expect(focus).to.have.been.calledOnce;
                 done();
             }, 0);
         });
 
-        xit('readonly', function () {
-            expect(multiInput).to.be.an.instanceof(MultiInput);
+        xit('readonly', () => {
+            expect(widget).to.be.an.instanceof(MultiInput);
             // TODO
-
         });
 
-        it('enable', function () {
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            expect(multiInput.wrapper).to.exist;
-            expect(multiInput.element).to.exist;
-            multiInput.enable(false);
-            expect(multiInput.wrapper).to.match('.k-state-disabled');
-            expect(multiInput.element).to.match('input:disabled');
-            multiInput.enable(true);
-            expect(multiInput.wrapper).not.to.match('.k-state-disabled');
-            expect(multiInput.element).not.to.match('input:disabled');
+        it('enable', () => {
+            expect(widget).to.be.an.instanceof(MultiInput);
+            expect(widget.wrapper).to.exist;
+            expect(widget.element).to.exist;
+            widget.enable(false);
+            expect(widget.wrapper).to.match('.k-state-disabled');
+            expect(widget.element).to.match('input:disabled');
+            widget.enable(true);
+            expect(widget.wrapper).not.to.match('.k-state-disabled');
+            expect(widget.element).not.to.match('input:disabled');
         });
 
-        it('refresh', function () {
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            expect(multiInput.value()).to.deep.equal(options.value);
-            expect(multiInput.tagList).to.exist;
-            expect(multiInput.tagList.children('li').length).to.equal(options.value.length);
-            var values = ['omega', 'psi'];
-            multiInput._values = values;
-            multiInput.refresh();
-            expect(multiInput.value()).to.deep.equal(values);
-            expect(multiInput.tagList.children('li').length).to.equal(values.length);
+        it('refresh', () => {
+            expect(widget).to.be.an.instanceof(MultiInput);
+            expect(widget.value()).to.deep.equal(options.value);
+            expect(widget.tagList).to.exist;
+            expect(widget.tagList.children('li').length).to.equal(
+                options.value.length
+            );
+            const values = ['omega', 'psi'];
+            widget._values = values;
+            widget.refresh();
+            expect(widget.value()).to.deep.equal(values);
+            expect(widget.tagList.children('li').length).to.equal(
+                values.length
+            );
         });
 
-        it('destroy', function () {
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            multiInput.destroy();
+        it('destroy', () => {
+            expect(widget).to.be.an.instanceof(MultiInput);
+            widget.destroy();
             expect(element.parent()).to.match(FIXTURES);
             expect(element.data('kendoMultiInput')).to.be.undefined;
             expect(element).to.be.empty;
             expect(element).not.to.have.class('k-widget');
-            expect(element).not.to.have.class('kj-multiinput');
-
+            expect(element).not.to.have.class(`kj-${ROLE}`);
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
-    describe('MVVM (and UI interactions)', function () {
-
-        var element;
-        var multiInput;
-        var attributes = {
+    describe('MVVM (and UI interactions)', () => {
+        let element;
+        let widget;
+        const attributes = {
             'data-match': '^[a-z]+$',
             'data-bind': 'value: value'
         };
-        var change;
-        var viewModel;
+        let change;
+        let viewModel;
 
-        beforeEach(function () {
-            element = $(MULTIINPUT2).attr(attributes).appendTo(FIXTURES);
+        beforeEach(() => {
+            element = $(ELEMENT).attr(attr('role'), ROLE)
+                .attr(attributes)
+                .appendTo(FIXTURES);
             change = sinon.spy();
-            viewModel = kendo.observable({
+            viewModel = observable({
                 value: ['alpha', 'beta', 'gamma']
             });
-            kendo.bind(FIXTURES, viewModel);
-            multiInput = element.data('kendoMultiInput');
-            viewModel.bind('change', function (e) {
+            bind(FIXTURES, viewModel);
+            widget = element.data('kendoMultiInput');
+            viewModel.bind('change', e => {
                 change();
             });
         });
 
-        it('change of viewModel changes widget value', function () {
-            var length = viewModel.value.length;
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            expect(multiInput.tagList).to.exist;
-            expect(multiInput.tagList.children('li').length).to.equal(length);
+        it('change of viewModel changes widget value', () => {
+            const length = viewModel.value.length;
+            expect(widget).to.be.an.instanceof(MultiInput);
+            expect(widget.tagList).to.exist;
+            expect(widget.tagList.children('li').length).to.equal(length);
             viewModel.value.pop(); // TODO: This triggers 2 changes
             expect(change).to.have.callCount(2);
-            expect(multiInput.tagList.children('li').length).to.equal(length - 1);
+            expect(widget.tagList.children('li').length).to.equal(length - 1);
             viewModel.value.push('omega'); // TODO: This triggers 2 changes
             expect(change).to.have.callCount(4);
-            expect(multiInput.tagList.children('li').length).to.equal(length);
+            expect(widget.tagList.children('li').length).to.equal(length);
         });
 
-        it('change of widget value changes the viewModel', function () {
-            var length = viewModel.value.length;
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            expect(multiInput.tagList).to.exist;
-            expect(multiInput.tagList.children('li').length).to.equal(length);
-            var value = multiInput.value().slice();
+        it('change of widget value changes the viewModel', () => {
+            const length = viewModel.value.length;
+            expect(widget).to.be.an.instanceof(MultiInput);
+            expect(widget.tagList).to.exist;
+            expect(widget.tagList.children('li').length).to.equal(length);
+            let value = widget.value().slice();
             value.pop();
-            multiInput.value(value);
+            widget.value(value);
             expect(change).to.have.callCount(1);
             expect(viewModel.value.length).to.equal(length - 1);
-            value = multiInput.value().slice();
+            value = widget.value().slice();
             value.push('omega');
-            multiInput.value(value);
+            widget.value(value);
             expect(change).to.have.callCount(2);
             expect(viewModel.value.length).to.equal(length);
         });
 
-        it('input', function () {
-            var length = viewModel.value.length;
-            var input = multiInput.element;
+        it('input', () => {
+            const length = viewModel.value.length;
+            const input = widget.element;
             expect(input).to.match('input');
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            multiInput.focus();
+            expect(widget).to.be.an.instanceof(MultiInput);
+            widget.focus();
             input.val('omega');
             input.simulate('keypress', { keyCode: 44 }); // comma
             expect(viewModel.value.length).to.equal(length + 1);
-            expect(multiInput.tagList.children('li').length).to.equal(length + 1);
-            multiInput.focus();
+            expect(widget.tagList.children('li').length).to.equal(length + 1);
+            widget.focus();
             input.val('psi');
             input.simulate('keypress', { keyCode: 59 }); // semi-colon
             expect(viewModel.value.length).to.equal(length + 2);
-            expect(multiInput.tagList.children('li').length).to.equal(length + 2);
+            expect(widget.tagList.children('li').length).to.equal(length + 2);
         });
 
-        it('delete', function () {
-            var length = viewModel.value.length;
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            var closeButtons = multiInput.tagList.find('.k-i-close');
+        it('delete', () => {
+            const length = viewModel.value.length;
+            expect(widget).to.be.an.instanceof(MultiInput);
+            const closeButtons = widget.tagList.find('.k-i-close');
             expect(closeButtons.length).to.equal(length);
-            closeButtons.last().simulate(CLICK);
+            closeButtons.last().simulate(CONSTANTS.CLICK);
             expect(viewModel.value.length).to.equal(length - 1);
-            expect(multiInput.tagList.children('li').length).to.equal(length - 1);
-            closeButtons.first().simulate(CLICK);
+            expect(widget.tagList.children('li').length).to.equal(length - 1);
+            closeButtons.first().simulate(CONSTANTS.CLICK);
             expect(viewModel.value.length).to.equal(length - 2);
-            expect(multiInput.tagList.children('li').length).to.equal(length - 2);
+            expect(widget.tagList.children('li').length).to.equal(length - 2);
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
-    describe('Events', function () {
+    describe('Events', () => {
+        let element;
+        let widget;
+        let change;
 
-        var element;
-        var multiInput;
-        var change;
-
-        beforeEach(function () {
-            element = $(MULTIINPUT1).appendTo(FIXTURES);
-            multiInput = element.kendoMultiInput().data('kendoMultiInput');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoMultiInput().data('kendoMultiInput');
             change = sinon.spy();
         });
 
-        it('Change event', function () {
-            expect(multiInput).to.be.an.instanceof(MultiInput);
-            multiInput.bind('change', function (e) {
+        it('Change event', () => {
+            expect(widget).to.be.an.instanceof(MultiInput);
+            widget.bind('change', e => {
                 change(e.sender.value().join(','));
             });
-            multiInput.value(['alpha', 'beta', 'gamma']);
-            expect(change).to.have.been.calledWith(['alpha', 'beta', 'gamma'].join(','));
+            widget.value(['alpha', 'beta', 'gamma']);
+            expect(change).to.have.been.calledWith(
+                ['alpha', 'beta', 'gamma'].join(',')
+            );
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        destroy(fixtures);
+        fixtures.empty();
+    });
 });

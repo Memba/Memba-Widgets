@@ -29,7 +29,7 @@ const {
     ui: { ButtonSet }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'textgaps';
 
 chai.use((c, u) => chaiJquery(c, u, $));

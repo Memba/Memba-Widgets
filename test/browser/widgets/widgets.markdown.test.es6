@@ -78,12 +78,6 @@ describe('widgets.markdown', () => {
         });
 
         xit('from markup with attributes', () => {});
-
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
-        });
     });
 
     describe('Methods', () => {
@@ -96,23 +90,17 @@ describe('widgets.markdown', () => {
             widget = element.kendoMarkdown(options).data('kendoMarkdown');
         });
 
-        xit('value', done => {
-            expect(widget).to.be.an.instanceof(Markdown);
-        });
-
-        xit('setOptions', () => {});
-
         xit('destroy', () => {
             expect(widget).to.be.an.instanceof(Markdown);
             widget.destroy();
             expect(widget.element).to.be.empty;
         });
 
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
+        xit('value', done => {
+            expect(widget).to.be.an.instanceof(Markdown);
         });
+
+        xit('setOptions', () => {});
     });
 
     describe('MVVM (and UI interactions)', () => {
@@ -134,12 +122,6 @@ describe('widgets.markdown', () => {
         });
 
         xit('TODO', () => {});
-
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
-        });
     });
 
     describe('Events', () => {
@@ -155,11 +137,11 @@ describe('widgets.markdown', () => {
         });
 
         xit('TODO', () => {});
+    });
 
-        afterEach(() => {
-            const fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.empty();
-        });
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        destroy(fixtures);
+        fixtures.empty();
     });
 });

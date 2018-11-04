@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.buttonset.es6';
+import '../../../src/js/widgets/widgets.dropzone.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -35,8 +35,6 @@ const ROLE = 'dropzone';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const DROPZONE2 = '<div id="dropzone2" data-role="dropzone"></div>';
-
 describe('widgets.dropzone', () => {
     before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
@@ -53,28 +51,28 @@ describe('widgets.dropzone', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(FIXTURES);
-            const dropZone = element.kendoDropZone().data('kendoDropZone');
-            expect(dropZone).to.be.an.instanceof(DropZone);
+            const widget = element.kendoDropZone().data('kendoDropZone');
+            expect(widget).to.be.an.instanceof(DropZone);
             // expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-dropzone');
-            // TODO expect(dropZone).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
+            // TODO expect(widget).to.have.property('dataSource').that.is.an.instanceof(DataSource);
         });
 
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(FIXTURES);
             const options = {};
-            const dropZone = element.kendoDropZone().data('kendoDropZone');
-            expect(dropZone).to.be.an.instanceof(DropZone);
+            const widget = element.kendoDropZone().data('kendoDropZone');
+            expect(widget).to.be.an.instanceof(DropZone);
             // expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-dropzone');
-            // TODO expect(assetManager).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
+            // TODO expect(assetManager).to.have.property('dataSource').that.is.an.instanceof(DataSource);
         });
 
         it('from markup', () => {
-            const element = $(DROPZONE2).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            const dropZone = element.data('kendoDropZone');
-            expect(dropZone).to.be.an.instanceof(DropZone);
+            const element = $(ELEMENT).attr(attr('role'), ROLE).appendTo(FIXTURES);
+            init(FIXTURES);
+            const widget = element.data('kendoDropZone');
+            expect(widget).to.be.an.instanceof(DropZone);
             // expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-dropzone');
         });
@@ -86,16 +84,16 @@ describe('widgets.dropzone', () => {
 
     describe('Methods', () => {
         let element;
-        let dropZone;
+        let widget;
         const options = {};
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            dropZone = element.kendoDropZone(options).data('kendoDropZone');
+            widget = element.kendoDropZone(options).data('kendoDropZone');
         });
 
         xit('value', done => {
-            expect(dropZone).to.be.an.instanceof(DropZone);
+            expect(widget).to.be.an.instanceof(DropZone);
         });
 
         xit('setOptions', () => {
@@ -103,15 +101,15 @@ describe('widgets.dropzone', () => {
         });
 
         xit('destroy', () => {
-            expect(dropZone).to.be.an.instanceof(DropZone);
-            dropZone.destroy();
-            expect(dropZone.element).to.be.empty;
+            expect(widget).to.be.an.instanceof(DropZone);
+            widget.destroy();
+            expect(widget.element).to.be.empty;
         });
     });
 
     describe('MVVM (and UI interactions)', () => {
         let element;
-        let dropZone;
+        let widget;
         const options = {};
         let viewModel;
         let change;
@@ -119,8 +117,8 @@ describe('widgets.dropzone', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            dropZone = element.kendoDropZone(options).data('kendoDropZone');
-            viewModel = kendo.observable({
+            widget = element.kendoDropZone(options).data('kendoDropZone');
+            viewModel = observable({
                 // TODO
             });
             change = sinon.spy();
@@ -132,13 +130,13 @@ describe('widgets.dropzone', () => {
 
     describe('Events', () => {
         let element;
-        let dropZone;
+        let widget;
         const options = {};
         let event;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            dropZone = element.kendoDropZone(options).data('kendoDropZone');
+            widget = element.kendoDropZone(options).data('kendoDropZone');
             event = sinon.spy();
         });
 

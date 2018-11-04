@@ -29,132 +29,117 @@ const {
     ui: { SplitButton }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
-const ROLE = 'buttonset';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
+const ROLE = 'splitbutton';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-var SPLITBUTTON2 = '<div data-role="splitbutton"></div>';
-
-describe('widgets.splitbutton', function () {
-
-    before(function () {
+describe('widgets.splitbutton', () => {
+    before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
-    describe('Availability', function () {
-
-        it('requirements', function () {
-            expect($).not.to.be.undefined;
-            expect(kendo).not.to.be.undefined;
-            expect(kendo.version).to.be.a('string');
+    describe('Availability', () => {
+        it('requirements', () => {
             expect($.fn.kendoSplitButton).to.be.a(CONSTANTS.FUNCTION);
         });
-
     });
 
-    describe('Initialization', function () {
-
-        it('from code', function () {
-            var element = $(ELEMENT).appendTo(FIXTURES);
-            var splitButton = element.kendoSplitButton().data('kendoSplitButton');
-            expect(splitButton).to.be.an.instanceof(SplitButton);
+    describe('Initialization', () => {
+        it('from code', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element.kendoSplitButton().data('kendoSplitButton');
+            expect(widget).to.be.an.instanceof(SplitButton);
             // expect(element).to.have.class('k-widget');
-            // expect(element).to.have.class('kj-splitbutton');
-            expect(splitButton.wrapper).to.have.class('kj-splitbutton');
+            // expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
         });
 
-        it('from code with options', function () {
-            var element = $(ELEMENT).appendTo(FIXTURES);
-            var options = {
+        it('from code with options', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const options = {
                 command: 'align',
                 icon: 'align-justify',
                 text: 'Align',
                 menuButtons: [
                     { command: 'left', icon: 'align-left', text: 'Align Left' },
-                    { command: 'center', icon: 'align-center', text: 'Align Center' },
-                    { command: 'right', icon: 'align-right', text: 'Align Right' }
+                    {
+                        command: 'center',
+                        icon: 'align-center',
+                        text: 'Align Center'
+                    },
+                    {
+                        command: 'right',
+                        icon: 'align-right',
+                        text: 'Align Right'
+                    }
                 ]
             };
-            var splitButton = element.kendoSplitButton(options).data('kendoSplitButton');
-            expect(splitButton).to.be.an.instanceof(SplitButton);
+            const widget = element
+                .kendoSplitButton(options)
+                .data('kendoSplitButton');
+            expect(widget).to.be.an.instanceof(SplitButton);
             // expect(element).to.have.class('k-widget');
-            // expect(element).to.have.class('kj-splitbutton');
-            expect(splitButton.wrapper).to.have.class('kj-splitbutton');
+            // expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
         });
 
-        it('from markup', function () {
-            var element = $(SPLITBUTTON2).appendTo(FIXTURES);
+        it('from markup', () => {
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .appendTo(FIXTURES);
             init(FIXTURES);
-            var splitButton = element.data('kendoSplitButton');
-            expect(splitButton).to.be.an.instanceof(SplitButton);
+            const widget = element.data('kendoSplitButton');
+            expect(widget).to.be.an.instanceof(SplitButton);
             // expect(element).to.have.class('k-widget');
-            // expect(element).to.have.class('kj-splitbutton');
-            expect(splitButton.wrapper).to.have.class('kj-splitbutton');
+            // expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
         });
 
-        xit('from markup with attributes', function () {
+        xit('from markup with attributes', () => {
             // TODO
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
-    describe('Methods', function () {
+    describe('Methods', () => {
+        let element;
+        let widget;
+        const options = {};
 
-        var element;
-        var splitButton;
-        var options = {};
-
-        beforeEach(function () {
+        beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            splitButton = element.kendoSplitButton(options).data('kendoSplitButton');
+            widget = element.kendoSplitButton(options).data('kendoSplitButton');
         });
 
-        xit('value', function (done) {
-            expect(splitButton).to.be.an.instanceof(SplitButton);
+        xit('value', done => {
+            expect(widget).to.be.an.instanceof(SplitButton);
         });
 
-        xit('setOptions', function () {
+        xit('setOptions', () => {
             // TODO especially regarding filters (to be enforced)
         });
 
-        xit('destroy', function () {
-            expect(splitButton).to.be.an.instanceof(SplitButton);
-            splitButton.destroy();
-            expect(splitButton.element).to.be.empty;
+        xit('destroy', () => {
+            expect(widget).to.be.an.instanceof(SplitButton);
+            widget.destroy();
+            expect(widget.element).to.be.empty;
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
-    describe('MVVM (and UI interactions)', function () {
+    describe('MVVM (and UI interactions)', () => {
+        let element;
+        let widget;
+        const options = {};
+        let viewModel;
+        let change;
+        let destroy;
 
-        var element;
-        var splitButton;
-        var options = {};
-        var viewModel;
-        var change;
-        var destroy;
-
-        beforeEach(function () {
+        beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            splitButton = element.kendoSplitButton(options).data('kendoSplitButton');
+            widget = element.kendoSplitButton(options).data('kendoSplitButton');
             viewModel = observable({
                 // TODO
             });
@@ -162,42 +147,27 @@ describe('widgets.splitbutton', function () {
             destroy = sinon.spy();
         });
 
-        xit('TODO', function () {
-
-        });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
+        xit('TODO', () => {});
     });
 
-    describe('Events', function () {
+    describe('Events', () => {
+        let element;
+        let widget;
+        const options = {};
+        let event;
 
-        var element;
-        var splitButton;
-        var options = {};
-        var event;
-
-        beforeEach(function () {
+        beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            splitButton = element.kendoSplitButton(options).data('kendoSplitButton');
+            widget = element.kendoSplitButton(options).data('kendoSplitButton');
             event = sinon.spy();
         });
 
-        xit('TODO', function () {
+        xit('TODO', () => {});
+    });
 
-        });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        destroy(fixtures);
+        fixtures.empty();
     });
 });

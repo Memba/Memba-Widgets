@@ -22,9 +22,13 @@ const { expect } = chai;
 const {
     attr,
     bind,
+    data: { DataSource, ObservableArray },
     destroy,
+    init,
     observable,
-    ui: { AssetManager }
+    Observable, // TODO CHeck
+    support,
+    ui: { AssetManager, DropDownList, ListView, Pager, TabStrip }
 } = window.kendo;
 const FIXTURES = '#fixtures';
 const ELEMENT = '<div/>';
@@ -33,7 +37,6 @@ const ROLE = 'assetmanager';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const ASSETMANAGER2 = '<div id="assetmanager2" data-role="assetmanager"></div>';
 const O_COLLECTIONS = [
     {
         name: 'Dark Grey',
@@ -110,79 +113,102 @@ describe('widgets.assetmanager', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            var element = $(ELEMENT).appendTo(FIXTURES);
-            var assetManager = element.kendoAssetManager().data('kendoAssetManager');
-            expect(assetManager).to.be.an.instanceof(AssetManager);
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element
+                .kendoAssetManager()
+                .data('kendoAssetManager');
+            expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-assetmanager');
-            expect(assetManager).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
-            expect(assetManager).to.have.property('dropDownList').that.is.an.instanceof(kendo.ui.DropDownList);
-            expect(assetManager).to.have.property('fileBrowser').that.is.an.instanceof(jQuery);
-            expect(assetManager).to.have.property('listView').that.is.an.instanceof(kendo.ui.ListView);
-            expect(assetManager).to.have.property('pager').that.is.an.instanceof(kendo.ui.Pager);
-            expect(assetManager).to.have.property('searchInput').that.is.an.instanceof(jQuery);
-            expect(assetManager).to.have.property('tabStrip').that.is.an.instanceof(kendo.ui.TabStrip);
-            expect(assetManager).to.have.property('wrapper').that.is.an.instanceof(jQuery);
-            expect(assetManager.tabStrip).to.have.property('contentElements').that.is.an.instanceof(jQuery).with.property('length', 1);
-            expect(assetManager.tabStrip.tabGroup.children(':nth-child(1)').text()).to.equal(assetManager.options.messages.tabs.default);
+            expect(widget)
+                .to.have.property('dataSource')
+                .that.is.an.instanceof(DataSource);
+            expect(widget)
+                .to.have.property('dropDownList')
+                .that.is.an.instanceof(DropDownList);
+            expect(widget)
+                .to.have.property('fileBrowser')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('listView')
+                .that.is.an.instanceof(ListView);
+            expect(widget)
+                .to.have.property('pager')
+                .that.is.an.instanceof(Pager);
+            expect(widget)
+                .to.have.property('searchInput')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('tabStrip')
+                .that.is.an.instanceof(TabStrip);
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
+            expect(widget.tabStrip)
+                .to.have.property('contentElements')
+                .that.is.an.instanceof($)
+                .with.property('length', 1);
+            expect(
+                widget.tabStrip.tabGroup.children(':nth-child(1)').text()
+            ).to.equal(widget.options.messages.tabs.default);
         });
 
         it('from code with options: collections', () => {
-            let element = $(ELEMENT).appendTo(FIXTURES);
-            let options = {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const options = {
                 collections: O_COLLECTIONS
             };
-            let assetManager = element
+            const widget = element
                 .kendoAssetManager(options)
                 .data('kendoAssetManager');
-            expect(assetManager).to.be.an.instanceof(AssetManager);
+            expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-assetmanager');
-            expect(assetManager)
+            expect(widget)
                 .to.have.property('dataSource')
-                .that.is.an.instanceof(kendo.data.DataSource);
-            expect(assetManager)
+                .that.is.an.instanceof(DataSource);
+            expect(widget)
                 .to.have.property('dropDownList')
-                .that.is.an.instanceof(kendo.ui.DropDownList);
-            expect(assetManager)
+                .that.is.an.instanceof(DropDownList);
+            expect(widget)
                 .to.have.property('fileBrowser')
-                .that.is.an.instanceof(jQuery);
-            expect(assetManager)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('listView')
-                .that.is.an.instanceof(kendo.ui.ListView);
-            expect(assetManager)
+                .that.is.an.instanceof(ListView);
+            expect(widget)
                 .to.have.property('pager')
-                .that.is.an.instanceof(kendo.ui.Pager);
-            expect(assetManager)
+                .that.is.an.instanceof(Pager);
+            expect(widget)
                 .to.have.property('searchInput')
-                .that.is.an.instanceof(jQuery);
-            expect(assetManager)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('tabStrip')
-                .that.is.an.instanceof(kendo.ui.TabStrip);
-            expect(assetManager)
+                .that.is.an.instanceof(TabStrip);
+            expect(widget)
                 .to.have.property('wrapper')
-                .that.is.an.instanceof(jQuery);
-            expect(assetManager.tabStrip)
+                .that.is.an.instanceof($);
+            expect(widget.tabStrip)
                 .to.have.property('contentElements')
-                .that.is.an.instanceof(jQuery)
+                .that.is.an.instanceof($)
                 .with.property('length', 4);
             expect(
-                assetManager.tabStrip.tabGroup.children(':nth-child(1)').text()
-            ).to.equal(assetManager.options.messages.tabs.default);
+                widget.tabStrip.tabGroup.children(':nth-child(1)').text()
+            ).to.equal(widget.options.messages.tabs.default);
             expect(
-                assetManager.tabStrip.tabGroup.children(':nth-child(2)').text()
+                widget.tabStrip.tabGroup.children(':nth-child(2)').text()
             ).to.equal(options.collections[0].name);
             expect(
-                assetManager.tabStrip.tabGroup.children(':nth-child(3)').text()
+                widget.tabStrip.tabGroup.children(':nth-child(3)').text()
             ).to.equal(options.collections[1].name);
             expect(
-                assetManager.tabStrip.tabGroup.children(':nth-child(4)').text()
+                widget.tabStrip.tabGroup.children(':nth-child(4)').text()
             ).to.equal(options.collections[2].name);
         });
 
         it('from code with options: sub-collections', () => {
-            let element = $(ELEMENT).appendTo(FIXTURES);
-            let options = {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const options = {
                 collections: [
                     {
                         name: 'Collection1',
@@ -195,57 +221,59 @@ describe('widgets.assetmanager', () => {
                 ],
                 schemes: SCHEMES
             };
-            let assetManager = element
+            const widget = element
                 .kendoAssetManager(options)
                 .data('kendoAssetManager');
-            expect(assetManager).to.be.an.instanceof(AssetManager);
+            expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-assetmanager');
-            expect(assetManager)
+            expect(widget)
                 .to.have.property('dataSource')
-                .that.is.an.instanceof(kendo.data.DataSource);
-            expect(assetManager)
+                .that.is.an.instanceof(DataSource);
+            expect(widget)
                 .to.have.property('dropDownList')
-                .that.is.an.instanceof(kendo.ui.DropDownList);
-            expect(assetManager)
+                .that.is.an.instanceof(DropDownList);
+            expect(widget)
                 .to.have.property('fileBrowser')
-                .that.is.an.instanceof(jQuery);
-            expect(assetManager)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('listView')
-                .that.is.an.instanceof(kendo.ui.ListView);
-            expect(assetManager)
+                .that.is.an.instanceof(ListView);
+            expect(widget)
                 .to.have.property('pager')
-                .that.is.an.instanceof(kendo.ui.Pager);
-            expect(assetManager)
+                .that.is.an.instanceof(Pager);
+            expect(widget)
                 .to.have.property('searchInput')
-                .that.is.an.instanceof(jQuery);
-            expect(assetManager)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('tabStrip')
-                .that.is.an.instanceof(kendo.ui.TabStrip);
-            expect(assetManager)
+                .that.is.an.instanceof(TabStrip);
+            expect(widget)
                 .to.have.property('wrapper')
-                .that.is.an.instanceof(jQuery);
-            expect(assetManager.tabStrip)
+                .that.is.an.instanceof($);
+            expect(widget.tabStrip)
                 .to.have.property('contentElements')
-                .that.is.an.instanceof(jQuery)
+                .that.is.an.instanceof($)
                 .with.property('length', 3);
             expect(
-                assetManager.tabStrip.tabGroup.children(':nth-child(1)').text()
-            ).to.equal(assetManager.options.messages.tabs.default);
+                widget.tabStrip.tabGroup.children(':nth-child(1)').text()
+            ).to.equal(widget.options.messages.tabs.default);
             expect(
-                assetManager.tabStrip.tabGroup.children(':nth-child(2)').text()
+                widget.tabStrip.tabGroup.children(':nth-child(2)').text()
             ).to.equal(options.collections[0].name);
             expect(
-                assetManager.tabStrip.tabGroup.children(':nth-child(3)').text()
+                widget.tabStrip.tabGroup.children(':nth-child(3)').text()
             ).to.equal(options.collections[1].name);
-            // expect(assetManager.tabStrip.tabGroup.children(':nth-child(4)').text()).to.equal(options.collections[2].name);
+            // expect(widget.tabStrip.tabGroup.children(':nth-child(4)').text()).to.equal(options.collections[2].name);
         });
 
         it('from markup', () => {
-            var element = $(ASSETMANAGER2).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            let assetManager = element.data('kendoAssetManager');
-            expect(assetManager).to.be.an.instanceof(AssetManager);
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .appendTo(FIXTURES);
+            init(FIXTURES);
+            const widget = element.data('kendoAssetManager');
+            expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-assetmanager');
         });
@@ -253,19 +281,12 @@ describe('widgets.assetmanager', () => {
         xit('from markup with attributes', () => {
             // TODO: AssetManager might be a bit complex to initialize with attributes...
         });
-
-        afterEach(() => {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
     });
 
     describe('Methods', () => {
         let element;
-        let assetManager;
-        let options = {
+        let widget;
+        const options = {
             collections: [
                 {
                     name: 'Collection1',
@@ -282,36 +303,55 @@ describe('widgets.assetmanager', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            assetManager = element.kendoAssetManager(options).data('kendoAssetManager');
+            widget = element
+                .kendoAssetManager(options)
+                .data('kendoAssetManager');
         });
 
         it('value and select', done => {
             if (window.PHANTOMJS) {
                 return done(); // TODO: Does not work on Travis-CI
             }
-            expect(assetManager).to.be.an.instanceof(AssetManager);
-            expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(assetManager.dropDownList).to.be.an.instanceof(kendo.ui.DropDownList);
-            expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
-            expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
-            expect(assetManager.value()).to.be.undefined;
-            assetManager.listView.bind('dataBound', (e) => {
-                    if (assetManager.tabStrip.select().index() === 1 && assetManager.dropDownList.text() === '32x32') {
-                        setTimeout(function () {
-                            assetManager.select(0);
-                            expect(assetManager.value()).to.equal('cdn://images/v_collection/png/32x32/3d_glasses.png');
-                            assetManager.select(1);
-                            expect(assetManager.value()).to.equal('cdn://images/v_collection/png/32x32/about.png');
-                            assetManager.select(2);
-                            expect(assetManager.value()).to.equal('cdn://images/v_collection/png/32x32/add.png');
-                            done();
-                        }, 0);
-                    }
-                });
+            expect(widget).to.be.an.instanceof(AssetManager);
+            expect(widget.dataSource).to.be.an.instanceof(
+                DataSource
+            );
+            expect(widget.dropDownList).to.be.an.instanceof(
+                DropDownList
+            );
+            expect(widget.listView).to.be.an.instanceof(
+                ListView
+            );
+            expect(widget.tabStrip).to.be.an.instanceof(
+                TabStrip
+            );
+            expect(widget.value()).to.be.undefined;
+            widget.listView.bind('dataBound', e => {
+                if (
+                    widget.tabStrip.select().index() === 1 &&
+                    widget.dropDownList.text() === '32x32'
+                ) {
+                    setTimeout(() => {
+                        widget.select(0);
+                        expect(widget.value()).to.equal(
+                            'cdn://images/v_collection/png/32x32/3d_glasses.png'
+                        );
+                        widget.select(1);
+                        expect(widget.value()).to.equal(
+                            'cdn://images/v_collection/png/32x32/about.png'
+                        );
+                        widget.select(2);
+                        expect(widget.value()).to.equal(
+                            'cdn://images/v_collection/png/32x32/add.png'
+                        );
+                        done();
+                    }, 0);
+                }
+            });
             // Yield some time for collections to load
             setTimeout(() => {
-                    assetManager.tabStrip.select(1);
-                }, TTL);
+                widget.tabStrip.select(1);
+            }, TTL);
         });
 
         xit('setOptions', () => {
@@ -321,39 +361,32 @@ describe('widgets.assetmanager', () => {
         // We could also consider a search method
 
         it('destroy', () => {
-            expect(assetManager).to.be.an.instanceof(AssetManager);
-            assetManager.destroy();
-            expect(assetManager.tabStrip).to.be.undefined;
-            expect(assetManager.dropDownList).to.be.undefined;
-            expect(assetManager.progressBar).to.be.undefined;
-            expect(assetManager.searchInput).to.be.undefined;
-            expect(assetManager.toolbar).to.be.undefined;
-            expect(assetManager.listView).to.be.undefined;
-            expect(assetManager.pager).to.be.undefined;
-            expect(assetManager.fileBrowser).to.be.undefined;
-            expect(assetManager.dropZone).to.be.undefined;
-            expect(assetManager.dataSource).to.be.undefined;
-            expect(assetManager._errorHandler).to.be.undefined;
-        });
-
-        afterEach(() => {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
+            expect(widget).to.be.an.instanceof(AssetManager);
+            widget.destroy();
+            expect(widget.tabStrip).to.be.undefined;
+            expect(widget.dropDownList).to.be.undefined;
+            expect(widget.progressBar).to.be.undefined;
+            expect(widget.searchInput).to.be.undefined;
+            expect(widget.toolbar).to.be.undefined;
+            expect(widget.listView).to.be.undefined;
+            expect(widget.pager).to.be.undefined;
+            expect(widget.fileBrowser).to.be.undefined;
+            expect(widget.dropZone).to.be.undefined;
+            expect(widget.dataSource).to.be.undefined;
+            expect(widget._errorHandler).to.be.undefined;
         });
     });
 
     describe('MVVM (and UI interactions)', () => {
         let element;
-        let assetManager;
+        let widget;
         let viewModel;
         let change;
         let destroy;
-        let options = {
-            change (e) {
-                var url = e.sender.value();
-                if (viewModel instanceof kendo.Observable) {
+        const options = {
+            change(e) {
+                const url = e.sender.value();
+                if (viewModel instanceof Observable) {
                     viewModel.set('url', url);
                 }
                 if ($.isFunction(change)) {
@@ -373,30 +406,37 @@ describe('widgets.assetmanager', () => {
             extensions: EXTENSIONS,
             schemes: SCHEMES,
             transport: {
-                read (options) {
+                read(options) {
                     options.success({
                         total: 3,
                         data: [
                             { url: 'data://Elvis.jpg', size: 69057 },
                             { url: 'data://France-Fleuves-1.png', size: 35886 },
-                            { url: 'data://self-portrait-1907.jpg', size: 292974 }
+                            {
+                                url: 'data://self-portrait-1907.jpg',
+                                size: 292974
+                            }
                         ]
                     });
                 },
-                create (options) {
+                create(options) {
                     // Note: if there is an error, this is the place where to display notifications...
                     // options.error(new Error('Oops'));
-                    if (options.data && options.data.file instanceof window.File) {
+                    if (
+                        options.data &&
+                        options.data.file instanceof window.File
+                    ) {
                         // Make sure we are asynchronous to simulate a file upload...
                         setTimeout(() => {
-                                options.data.file = null;
-                                options.data.url = 'https://cdn.kidoju.com/images/o_collection/svg/office/add.svg';
-                                // VERY IMPORTANT: it won't work without total + data which are both expected
-                                options.success({ total: 1, data: [options.data] });
-                            }, 2 * TTL);
+                            options.data.file = null;
+                            options.data.url =
+                                'https://cdn.kidoju.com/images/o_collection/svg/office/add.svg';
+                            // VERY IMPORTANT: it won't work without total + data which are both expected
+                            options.success({ total: 1, data: [options.data] });
+                        }, 2 * TTL);
                     }
                 },
-                destroy (options) {
+                destroy(options) {
                     // options.error(new Error('Oops'));
                     options.success({ total: 1, data: [options.data] });
                     destroy();
@@ -406,10 +446,10 @@ describe('widgets.assetmanager', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            assetManager = element
+            widget = element
                 .kendoAssetManager(options)
                 .data('kendoAssetManager');
-            viewModel = kendo.observable({ url: undefined });
+            viewModel = observable({ url: undefined });
             change = sinon.spy();
             destroy = sinon.spy();
         });
@@ -419,28 +459,46 @@ describe('widgets.assetmanager', () => {
                 // TODO: Does not work on Travis-CI
                 return done();
             }
-            expect(assetManager).to.be.an.instanceof(AssetManager);
-            expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(assetManager.dropDownList).to.be.an.instanceof(kendo.ui.DropDownList);
-            expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
-            expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
+            expect(widget).to.be.an.instanceof(AssetManager);
+            expect(widget.dataSource).to.be.an.instanceof(
+                DataSource
             );
-            expect(assetManager.value()).to.equal('data://Elvis.jpg');
-            assetManager.listView.bind('dataBound', (e) => {
-                    setTimeout(function () {
-                        if (assetManager.tabStrip.select().index() === 1 && assetManager.dropDownList.text() === 'Dark Grey') {
-                            expect(assetManager.dataSource.at(0).id).to.equal('cdn://images/o_collection/svg/dark_grey/3d_glasses.svg');
-                            expect(assetManager.dataSource.at(1).id).to.equal('cdn://images/o_collection/svg/dark_grey/about.svg');
-                            expect(assetManager.dataSource.at(2).id).to.equal('cdn://images/o_collection/svg/dark_grey/add.svg');
-                            done();
-                        }
-                    }, 0);
-                });
+            expect(widget.dropDownList).to.be.an.instanceof(
+                DropDownList
+            );
+            expect(widget.listView).to.be.an.instanceof(
+                ListView
+            );
+            expect(widget.tabStrip).to.be.an.instanceof(
+                TabStrip
+            );
+            expect(widget.value()).to.equal('data://Elvis.jpg');
+            widget.listView.bind('dataBound', e => {
+                setTimeout(() => {
+                    if (
+                        widget.tabStrip.select().index() === 1 &&
+                        widget.dropDownList.text() === 'Dark Grey'
+                    ) {
+                        expect(widget.dataSource.at(0).id).to.equal(
+                            'cdn://images/o_collection/svg/dark_grey/3d_glasses.svg'
+                        );
+                        expect(widget.dataSource.at(1).id).to.equal(
+                            'cdn://images/o_collection/svg/dark_grey/about.svg'
+                        );
+                        expect(widget.dataSource.at(2).id).to.equal(
+                            'cdn://images/o_collection/svg/dark_grey/add.svg'
+                        );
+                        done();
+                    }
+                }, 0);
+            });
             // Clicking a collection tab needs to be delayed until collections are loaded
             setTimeout(() => {
-                    var tab = assetManager.element.find('ul.k-tabstrip-items > li.k-item:nth-child(2)');
-                    tab.simulate(CLICK);
-                }, TTL);
+                const tab = widget.element.find(
+                    'ul.k-tabstrip-items > li.k-item:nth-child(2)'
+                );
+                tab.simulate(CLICK);
+            }, TTL);
         });
 
         it('Change collection in drop down list', done => {
@@ -448,42 +506,66 @@ describe('widgets.assetmanager', () => {
                 // TODO: Does not work on Travis-CI
                 return done();
             }
-            expect(assetManager).to.be.an.instanceof(AssetManager);
-            expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(assetManager.dropDownList).to.be.an.instanceof(kendo.ui.DropDownList);
-            expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
-            expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
-            expect(assetManager.value()).to.equal('data://Elvis.jpg');
-            assetManager.dropDownList.bind('dataBound', (e) => {
-                    // 2) Second, select `White` in the subcollection drop down list
-                    if (e.sender.dataSource.total() > 0 && e.sender.text() !== 'White') {
-                        setTimeout(function () {
-                            $(e.sender.element).simulate(CLICK);
-                            var list = $('.k-list-container ul.k-list');
-                            var item = list.find('li:contains("White")');
-                            expect(item).to.be.an.instanceof($).with.property('length', 1);
-                            expect(item).to.have.text('White');
-                            item.simulate(CLICK);
-                        }, 0);
-                    }
-                });
-            assetManager.listView.bind('dataBound', (e) => {
-                    // 3) Third, check list view once loaded
-                    if (assetManager.tabStrip.select().index() === 1 && assetManager.dropDownList.text() === 'White') {
-                        setTimeout(function () {
-                            expect(assetManager.dataSource.at(0).id).to.equal('cdn://images/o_collection/svg/white/3d_glasses.svg');
-                            expect(assetManager.dataSource.at(1).id).to.equal('cdn://images/o_collection/svg/white/about.svg');
-                            expect(assetManager.dataSource.at(2).id).to.equal('cdn://images/o_collection/svg/white/add.svg');
-                            done();
-                        }, TTL);
-                    }
-                });
+            expect(widget).to.be.an.instanceof(AssetManager);
+            expect(widget.dataSource).to.be.an.instanceof(
+                DataSource
+            );
+            expect(widget.dropDownList).to.be.an.instanceof(
+                DropDownList
+            );
+            expect(widget.listView).to.be.an.instanceof(
+                ListView
+            );
+            expect(widget.tabStrip).to.be.an.instanceof(
+                TabStrip
+            );
+            expect(widget.value()).to.equal('data://Elvis.jpg');
+            widget.dropDownList.bind('dataBound', e => {
+                // 2) Second, select `White` in the subcollection drop down list
+                if (
+                    e.sender.dataSource.total() > 0 &&
+                    e.sender.text() !== 'White'
+                ) {
+                    setTimeout(() => {
+                        $(e.sender.element).simulate(CLICK);
+                        const list = $('.k-list-container ul.k-list');
+                        const item = list.find('li:contains("White")');
+                        expect(item)
+                            .to.be.an.instanceof($)
+                            .with.property('length', 1);
+                        expect(item).to.have.text('White');
+                        item.simulate(CLICK);
+                    }, 0);
+                }
+            });
+            widget.listView.bind('dataBound', e => {
+                // 3) Third, check list view once loaded
+                if (
+                    widget.tabStrip.select().index() === 1 &&
+                    widget.dropDownList.text() === 'White'
+                ) {
+                    setTimeout(() => {
+                        expect(widget.dataSource.at(0).id).to.equal(
+                            'cdn://images/o_collection/svg/white/3d_glasses.svg'
+                        );
+                        expect(widget.dataSource.at(1).id).to.equal(
+                            'cdn://images/o_collection/svg/white/about.svg'
+                        );
+                        expect(widget.dataSource.at(2).id).to.equal(
+                            'cdn://images/o_collection/svg/white/add.svg'
+                        );
+                        done();
+                    }, TTL);
+                }
+            });
             // Clicking a collection tab needs to be delayed until collections are loaded
             setTimeout(() => {
-                    // 1) First, click the `Collection 1` tab
-                    var tab = assetManager.element.find('ul.k-tabstrip-items > li.k-item:nth-child(2)');
-                    tab.simulate(CLICK);
-                }, TTL);
+                // 1) First, click the `Collection 1` tab
+                const tab = widget.element.find(
+                    'ul.k-tabstrip-items > li.k-item:nth-child(2)'
+                );
+                tab.simulate(CLICK);
+            }, TTL);
         });
 
         it('Search input', done => {
@@ -491,38 +573,64 @@ describe('widgets.assetmanager', () => {
                 // TODO: Does not work on Travis-CI
                 return done();
             }
-            expect(assetManager).to.be.an.instanceof(AssetManager);
-            expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
-            expect(assetManager.searchInput).to.be.an.instanceof($);
-            expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
+            expect(widget).to.be.an.instanceof(AssetManager);
+            expect(widget.dataSource).to.be.an.instanceof(
+                DataSource
             );
-            expect(assetManager.value()).to.equal('data://Elvis.jpg');
-            assetManager.listView.bind('dataBound', (e) => {
-                    if (assetManager.tabStrip.select().index() === 1 && assetManager.dropDownList.text() === 'Dark Grey') {
-                        if (assetManager.searchInput.val() === '') {
-                            assetManager.searchInput.val('apple');
-                            // assetManager.searchInput.simulate('keydown', { keyCode: 13 });
-                            assetManager.searchInput.trigger('change');
-                        } else {
-                            setTimeout(function () {
-                                expect(assetManager.searchInput.val()).to.equal('apple');
-                                // We need to check the view() because we have applied a filter to data
-                                expect(assetManager.dataSource.view()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', 3);
-                                expect(assetManager.dataSource.view()[0].id).to.equal('cdn://images/o_collection/svg/dark_grey/apple.svg');
-                                expect(assetManager.dataSource.view()[1].id).to.equal('cdn://images/o_collection/svg/dark_grey/apple_bite.svg');
-                                expect(assetManager.dataSource.view()[2].id).to.equal('cdn://images/o_collection/svg/dark_grey/pineapple.svg');
-                                // TODO: Search clear (X button within input)
-                                done();
-                            }, TTL);
-                        }
+            expect(widget.listView).to.be.an.instanceof(
+                ListView
+            );
+            expect(widget.searchInput).to.be.an.instanceof($);
+            expect(widget.tabStrip).to.be.an.instanceof(
+                TabStrip
+            );
+            expect(widget.value()).to.equal('data://Elvis.jpg');
+            widget.listView.bind('dataBound', e => {
+                if (
+                    widget.tabStrip.select().index() === 1 &&
+                    widget.dropDownList.text() === 'Dark Grey'
+                ) {
+                    if (widget.searchInput.val() === '') {
+                        widget.searchInput.val('apple');
+                        // widget.searchInput.simulate('keydown', { keyCode: 13 });
+                        widget.searchInput.trigger('change');
+                    } else {
+                        setTimeout(() => {
+                            expect(widget.searchInput.val()).to.equal(
+                                'apple'
+                            );
+                            // We need to check the view() because we have applied a filter to data
+                            expect(widget.dataSource.view())
+                                .to.be.an.instanceof(ObservableArray)
+                                .with.property('length', 3);
+                            expect(
+                                widget.dataSource.view()[0].id
+                            ).to.equal(
+                                'cdn://images/o_collection/svg/dark_grey/apple.svg'
+                            );
+                            expect(
+                                widget.dataSource.view()[1].id
+                            ).to.equal(
+                                'cdn://images/o_collection/svg/dark_grey/apple_bite.svg'
+                            );
+                            expect(
+                                widget.dataSource.view()[2].id
+                            ).to.equal(
+                                'cdn://images/o_collection/svg/dark_grey/pineapple.svg'
+                            );
+                            // TODO: Search clear (X button within input)
+                            done();
+                        }, TTL);
                     }
-                });
+                }
+            });
             // Clicking a collection tab needs to be delayed until collections are loaded
             setTimeout(() => {
-                    var tab = assetManager.element.find('ul.k-tabstrip-items > li.k-item:nth-child(2)');
-                    tab.simulate(CLICK);
-                }, TTL);
+                const tab = widget.element.find(
+                    'ul.k-tabstrip-items > li.k-item:nth-child(2)'
+                );
+                tab.simulate(CLICK);
+            }, TTL);
         });
 
         xit('Paging', () => {
@@ -530,33 +638,51 @@ describe('widgets.assetmanager', () => {
         });
 
         it('Select items', done => {
-            expect(assetManager).to.be.an.instanceof(AssetManager);
-            expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
-            expect(assetManager.searchInput).to.be.an.instanceof($);
-            expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
-            expect(assetManager.value()).to.equal('data://Elvis.jpg');
-            assetManager.listView.bind('dataBound', (e) => {
-                    // setTimeout(function () {
-                    var list = $('div.k-filebrowser ul.k-tiles');
-                    for (var i = 0; i < assetManager.listView.dataSource.total(); i++) {
-                        var item = list.children('li.k-tile:nth-child(' + (i + 1) + ')');
-                        expect(item).to.be.an.instanceof($).with.property('length', 1);
-                        if (kendo.support.click === CLICK) {
-                            item.simulate(CLICK);
-                            // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
-                            // item.simulate('mousedown');
-                            // item.simulate('mouseup');
-                            expect(assetManager.value()).to.equal(assetManager.listView.dataSource.at(i).id);
-                            expect(change).to.have.been.calledWith(assetManager.value());
-                            expect(viewModel.get('url')).to.equal(assetManager.value());
-                        }
+            expect(widget).to.be.an.instanceof(AssetManager);
+            expect(widget.dataSource).to.be.an.instanceof(
+                DataSource
+            );
+            expect(widget.listView).to.be.an.instanceof(
+                ListView
+            );
+            expect(widget.searchInput).to.be.an.instanceof($);
+            expect(widget.tabStrip).to.be.an.instanceof(
+                TabStrip
+            );
+            expect(widget.value()).to.equal('data://Elvis.jpg');
+            widget.listView.bind('dataBound', e => {
+                // setTimeout(function () {
+                const list = $('div.k-filebrowser ul.k-tiles');
+                for (
+                    let i = 0;
+                    i < widget.listView.dataSource.total();
+                    i++
+                ) {
+                    const item = list.children(`li.k-tile:nth-child(${i + 1})`);
+                    expect(item)
+                        .to.be.an.instanceof($)
+                        .with.property('length', 1);
+                    if (support.click === CLICK) {
+                        item.simulate(CLICK);
+                        // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
+                        // item.simulate('mousedown');
+                        // item.simulate('mouseup');
+                        expect(widget.value()).to.equal(
+                            widget.listView.dataSource.at(i).id
+                        );
+                        expect(change).to.have.been.calledWith(
+                            widget.value()
+                        );
+                        expect(viewModel.get('url')).to.equal(
+                            widget.value()
+                        );
                     }
-                    done();
-                    // }, 0);
-                });
+                }
+                done();
+                // }, 0);
+            });
             // Make sure we hit the dataBound handler
-            assetManager.listView.refresh();
+            widget.listView.refresh();
         });
 
         xit('Upload', () => {
@@ -564,112 +690,125 @@ describe('widgets.assetmanager', () => {
         });
 
         it('Delete', done => {
-            expect(assetManager).to.be.an.instanceof(AssetManager);
-            expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
+            expect(widget).to.be.an.instanceof(AssetManager);
+            expect(widget.dataSource).to.be.an.instanceof(
+                DataSource
             );
-            expect(assetManager.searchInput).to.be.an.instanceof($);
-            expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
-            var doneCalled = false;
-            let count = assetManager.listView.dataSource.total();
-            assetManager.listView.bind('dataBound', (e) => {
-                    // Without this timeout the dataBound eveneyt handler is called before teh destroy transport
-                    // and we then need two clicks two delete the last item causing a mismatch in count at the end
-                    setTimeout(function () {
-                        var list = $('div.k-filebrowser ul.k-tiles');
-                        if (assetManager.listView.dataSource.total() > 0) {
-                            var deleteButton = $('button.k-button span.k-i-close').parent();
-                            // expect(deleteButton).to.be.hidden;
+            expect(widget.listView).to.be.an.instanceof(
+                ListView
+            );
+            expect(widget.searchInput).to.be.an.instanceof($);
+            expect(widget.tabStrip).to.be.an.instanceof(
+                TabStrip
+            );
+            let doneCalled = false;
+            const count = widget.listView.dataSource.total();
+            widget.listView.bind('dataBound', e => {
+                // Without this timeout the dataBound eveneyt handler is called before teh destroy transport
+                // and we then need two clicks two delete the last item causing a mismatch in count at the end
+                setTimeout(() => {
+                    const list = $('div.k-filebrowser ul.k-tiles');
+                    if (widget.listView.dataSource.total() > 0) {
+                        const deleteButton = $(
+                            'button.k-button span.k-i-close'
+                        ).parent();
+                        // expect(deleteButton).to.be.hidden;
+                        expect(deleteButton).to.be.visible;
+                        const item = list.children('li.k-tile:first');
+                        expect(item)
+                            .to.be.an.instanceof($)
+                            .with.property('length', 1);
+                        const src = item.find('img').attr('src');
+                        const url = widget.value();
+                        const scheme = /^(\w+):\/\//.exec(url);
+                        expect(
+                            url.replace(scheme[0], options.schemes[scheme[1]])
+                        ).to.equal(src);
+                        if (support.click === CLICK) {
+                            item.simulate(CLICK);
+                            // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
+                            // item.simulate('mousedown');
+                            // item.simulate('mouseup');
+                            expect(url).to.equal(
+                                widget.listView.dataSource.at(0).id
+                            );
                             expect(deleteButton).to.be.visible;
-                            var item = list.children('li.k-tile:first');
-                            expect(item).to.be.an.instanceof($).with.property('length', 1);
-                            var src = item.find('img').attr('src');
-                            var url = assetManager.value();
-                            var scheme = /^(\w+):\/\//.exec(url);
-                            expect(url.replace(scheme[0], options.schemes[scheme[1]])).to.equal(src);
-                            if (kendo.support.click === CLICK) {
-                                item.simulate(CLICK);
-                                // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
-                                // item.simulate('mousedown');
-                                // item.simulate('mouseup');
-                                expect(url).to.equal(assetManager.listView.dataSource.at(0).id);
-                                expect(deleteButton).to.be.visible;
-                                setTimeout(function () {
-                                    deleteButton.simulate(CLICK);
-                                }, 0);
-                                // Deleting a dataSource item causes a refresh which triggers the dataBound event
-                                // so we are deleting all items until dataSource.total() === 0
-                                // but to avoid nesting delete events into delete events we need to call setTimout to trigger the next delete event on its own timer
-                            } else {
-                                done(); // This is for IE and edge
-                            }
-                        } else if (assetManager.listView.dataSource.total() === 0) {
-                            // If not added to the timer queue, this is executed before the last delete and misses one count
-                            setTimeout(function () {
-                                expect(destroy).to.have.callCount(count);
-                                if (!doneCalled) {
-                                    done();
-                                    doneCalled = true;
-                                }
+                            setTimeout(() => {
+                                deleteButton.simulate(CLICK);
                             }, 0);
+                            // Deleting a dataSource item causes a refresh which triggers the dataBound event
+                            // so we are deleting all items until dataSource.total() === 0
+                            // but to avoid nesting delete events into delete events we need to call setTimout to trigger the next delete event on its own timer
+                        } else {
+                            done(); // This is for IE and edge
                         }
-                    }, 0);
-                });
+                    } else if (widget.listView.dataSource.total() === 0) {
+                        // If not added to the timer queue, this is executed before the last delete and misses one count
+                        setTimeout(() => {
+                            expect(destroy).to.have.callCount(count);
+                            if (!doneCalled) {
+                                done();
+                                doneCalled = true;
+                            }
+                        }, 0);
+                    }
+                }, 0);
+            });
             // Make sure we hit the dataBound handler
-            assetManager.listView.refresh();
-        });
-
-        afterEach(() => {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
+            widget.listView.refresh();
         });
     });
 
     describe('Events', () => {
         let element;
-        let assetManager;
+        let widget;
         let change;
         let error;
         const OOPS = 'Oops!';
-        let options = {
-            change (e) {
-                let url = e.sender.value();
+        const options = {
+            change(e) {
+                const url = e.sender.value();
                 if ($.isFunction(change)) {
                     change(url);
                 }
             },
-            error (e) {
+            error(e) {
                 error(e.xhr.message);
             },
             extensions: EXTENSIONS,
             schemes: SCHEMES,
             transport: {
-                read (options) {
+                read(options) {
                     options.success({
                         total: 3,
                         data: [
                             { url: 'data://Elvis.jpg', size: 69057 },
                             { url: 'data://France-Fleuves-1.png', size: 35886 },
-                            { url: 'data://self-portrait-1907.jpg', size: 292974 }
+                            {
+                                url: 'data://self-portrait-1907.jpg',
+                                size: 292974
+                            }
                         ]
                     });
                 },
-                create (options) {
+                create(options) {
                     // Note: if there is an error, this is the place where to display notifications...
                     // options.error(new Error('Oops'));
-                    if (options.data && options.data.file instanceof window.File) {
+                    if (
+                        options.data &&
+                        options.data.file instanceof window.File
+                    ) {
                         // Make sure we are asynchronous to simulate a file upload...
                         setTimeout(() => {
-                                options.data.file = null;
-                                options.data.url = 'https://cdn.kidoju.com/images/o_collection/svg/office/add.svg';
-                                // VERY IMPORTANT: it won't work without total + data which are both expected
-                                options.success({ total: 1, data: [options.data] });
-                            }, 2 * TTL);
+                            options.data.file = null;
+                            options.data.url =
+                                'https://cdn.kidoju.com/images/o_collection/svg/office/add.svg';
+                            // VERY IMPORTANT: it won't work without total + data which are both expected
+                            options.success({ total: 1, data: [options.data] });
+                        }, 2 * TTL);
                     }
                 },
-                destroy (options) {
+                destroy(options) {
                     options.error(new Error(OOPS));
                 }
             }
@@ -677,46 +816,64 @@ describe('widgets.assetmanager', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            assetManager = element.kendoAssetManager(options).data('kendoAssetManager');
+            widget = element
+                .kendoAssetManager(options)
+                .data('kendoAssetManager');
             change = sinon.spy();
             error = sinon.spy();
         });
 
         it('Change event', done => {
-            expect(assetManager).to.be.an.instanceof(AssetManager);
-            expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
-            expect(assetManager.value()).to.equal('data://Elvis.jpg');
-            assetManager.listView.bind('dataBound', (e) => {
-                    assetManager.select(0);
-                    expect(assetManager.value()).to.equal(assetManager.dataSource.at(0).id);
-                    expect(change).to.have.been.calledWith(assetManager.value());
-                    done();
-                });
+            expect(widget).to.be.an.instanceof(AssetManager);
+            expect(widget.dataSource).to.be.an.instanceof(
+                DataSource
+            );
+            expect(widget.listView).to.be.an.instanceof(
+                ListView
+            );
+            expect(widget.value()).to.equal('data://Elvis.jpg');
+            widget.listView.bind('dataBound', e => {
+                widget.select(0);
+                expect(widget.value()).to.equal(
+                    widget.dataSource.at(0).id
+                );
+                expect(change).to.have.been.calledWith(widget.value());
+                done();
+            });
             // Make sure we hit the dataBound handler
-            assetManager.listView.refresh();
+            widget.listView.refresh();
         });
 
         it('Error event', done => {
-            expect(assetManager).to.be.an.instanceof(AssetManager);
-            expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
-            expect(assetManager.value()).to.equal('data://Elvis.jpg');
-            assetManager.listView.bind('dataBound', (e) => {
-                    if (error.callCount > 0) {
-                        expect(error).to.have.been.calledWith(OOPS);
-                        done();
-                    }
-                });
-            assetManager.dataSource.remove(assetManager.dataSource.at(0));
-            assetManager.dataSource.sync();
+            expect(widget).to.be.an.instanceof(AssetManager);
+            expect(widget.dataSource).to.be.an.instanceof(
+                DataSource
+            );
+            expect(widget.listView).to.be.an.instanceof(
+                ListView
+            );
+            expect(widget.value()).to.equal('data://Elvis.jpg');
+            widget.listView.bind('dataBound', e => {
+                if (error.callCount > 0) {
+                    expect(error).to.have.been.calledWith(OOPS);
+                    done();
+                }
+            });
+            widget.dataSource.remove(widget.dataSource.at(0));
+            widget.dataSource.sync();
         });
 
         afterEach(() => {
-            let fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
+            const fixtures = $(FIXTURES);
+            destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
+    });
+
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        destroy(fixtures);
+        fixtures.empty();
     });
 });

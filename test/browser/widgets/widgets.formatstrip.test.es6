@@ -63,7 +63,7 @@ describe('widgets.formatstrip', () => {
         it('from code with all options', () => {
             const element = $(ELEMENT).appendTo(FIXTURES);
             expect(element).to.match('div');
-            const formatStrip = element
+            const widget = element
                 .kendoFormatStrip({
                     // value: value,
                     // min: min,
@@ -71,75 +71,72 @@ describe('widgets.formatstrip', () => {
                     // step: step
                 })
                 .data('kendoFormatStrip');
-            expect(formatStrip).to.be.an.instanceof(FormatStrip);
-            const wrapper = formatStrip.wrapper;
+            expect(widget).to.be.an.instanceof(FormatStrip);
+            const wrapper = widget.wrapper;
             expect(wrapper).to.be.an.instanceof($);
             // expect(wrapper).not.to.have.class('k-widget');
-            // expect(wrapper).to.have.class('kj-formatStrip');
-            // expect(wrapper.find('input')).to.be.an.instanceof($).with.property('length', 1);
-            // expect(wrapper.find('span.kj-formatStrip-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
-            // expect(wrapper.find('span.kj-formatStrip-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
+            // expect(wrapper).to.have.class(`kj-${ROLE}`);
         });
 
         xit('from code with minimal options', () => {
             const value = 2;
             const element = $(ELEMENT).appendTo(FIXTURES);
             expect(element).to.match('input');
-            const formatStrip = element
+            const widget = element
                 .kendoFormatStrip({
                     value
                 })
                 .data('kendoFormatStrip');
-            const min = formatStrip.options.min;
-            const max = formatStrip.options.max;
-            const step = formatStrip.options.step;
+            const min = widget.options.min;
+            const max = widget.options.max;
+            const step = widget.options.step;
             expect(min).to.equal(0);
             expect(max).to.equal(5);
             expect(step).to.equal(1);
-            expect(formatStrip).to.be.an.instanceof(FormatStrip);
-            const wrapper = formatStrip.wrapper;
+            expect(widget).to.be.an.instanceof(FormatStrip);
+            const wrapper = widget.wrapper;
             expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-formatStrip');
+            expect(wrapper).to.have.class(`kj-${ROLE}`);
             expect(wrapper.find('input'))
                 .to.be.an.instanceof($)
                 .with.property('length', 1);
-            expect(wrapper.find('span.kj-formatStrip-star'))
+            expect(wrapper.find('span.kj-widget-star'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-formatStrip-star.k-state-selected'))
+            expect(wrapper.find('span.kj-widget-star.k-state-selected'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round(value / step));
         });
 
         xit('from markup', () => {
             const viewModel = observable({
-                formatStrip: undefined
+                widget: undefined
             });
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .appendTo(FIXTURES);
             expect(element).to.match('input');
             bind(FIXTURES, viewModel);
-            const formatStrip = element.data('kendoFormatStrip');
-            expect(formatStrip).to.be.an.instanceof(FormatStrip);
-            const min = formatStrip.options.min;
-            const max = formatStrip.options.max;
-            const step = formatStrip.options.step;
-            const value = formatStrip.value();
+            const widget = element.data('kendoFormatStrip');
+            expect(widget).to.be.an.instanceof(FormatStrip);
+            const min = widget.options.min;
+            const max = widget.options.max;
+            const step = widget.options.step;
+            const value = widget.value();
             expect(min).to.equal(0);
             expect(max).to.equal(10);
             expect(step).to.equal(1);
             expect(value).to.equal(0);
-            const wrapper = formatStrip.wrapper;
+            const wrapper = widget.wrapper;
             expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-formatStrip');
+            expect(wrapper).to.have.class(`kj-${ROLE}`);
             expect(wrapper.find('input'))
                 .to.be.an.instanceof($)
                 .with.property('length', 1);
-            expect(wrapper.find('span.kj-formatStrip-star'))
+            expect(wrapper.find('span.kj-widget-star'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-formatStrip-star.k-state-selected'))
+            expect(wrapper.find('span.kj-widget-star.k-state-selected'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round(value / step));
         });
@@ -147,13 +144,13 @@ describe('widgets.formatstrip', () => {
 
     xdescribe('Methods', () => {
         let element;
-        let formatStrip;
+        let widget;
         const value1 = 1;
         const value2 = 2;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            formatStrip = element
+            widget = element
                 .kendoFormatStrip({
                     value: value1
                 })
@@ -161,40 +158,40 @@ describe('widgets.formatstrip', () => {
         });
 
         it('value (get)', () => {
-            expect(formatStrip).to.be.an.instanceof(FormatStrip);
-            expect(formatStrip.value()).to.equal(value1);
-            expect(parseFloat(formatStrip.element.val())).to.equal(value1);
+            expect(widget).to.be.an.instanceof(FormatStrip);
+            expect(widget.value()).to.equal(value1);
+            expect(parseFloat(widget.element.val())).to.equal(value1);
         });
 
         it('value (set)', () => {
-            expect(formatStrip).to.be.an.instanceof(FormatStrip);
-            formatStrip.value(value2);
-            expect(formatStrip.value()).to.equal(value2);
-            expect(parseFloat(formatStrip.element.val())).to.equal(value2);
+            expect(widget).to.be.an.instanceof(FormatStrip);
+            widget.value(value2);
+            expect(widget.value()).to.equal(value2);
+            expect(parseFloat(widget.element.val())).to.equal(value2);
         });
 
         it('value (range error)', () => {
             const fn = function() {
-                formatStrip.value(100);
+                widget.value(100);
             };
-            expect(formatStrip).to.be.an.instanceof(FormatStrip);
+            expect(widget).to.be.an.instanceof(FormatStrip);
             expect(fn).to.throw(RangeError);
         });
 
         it('enable/readonly', () => {
-            expect(formatStrip).to.be.an.instanceof(FormatStrip);
-            expect(formatStrip.wrapper)
+            expect(widget).to.be.an.instanceof(FormatStrip);
+            expect(widget.wrapper)
                 .to.be.an.instanceof($)
                 .with.property('length', 1);
-            formatStrip.enable(false);
-            expect(formatStrip.wrapper).to.have.class('k-state-disabled');
-            formatStrip.enable(true);
-            expect(formatStrip.wrapper).not.to.have.class('k-state-disabled');
+            widget.enable(false);
+            expect(widget.wrapper).to.have.class('k-state-disabled');
+            widget.enable(true);
+            expect(widget.wrapper).not.to.have.class('k-state-disabled');
         });
 
         // it('visible', function () {
-        // expect(formatStrip).to.be.an.instanceof(FormatStrip);
-        // expect(formatStrip.wrapper).to.be.an.instanceof($).with.property('length', 1);
+        // expect(widget).to.be.an.instanceof(FormatStrip);
+        // expect(widget.wrapper).to.be.an.instanceof($).with.property('length', 1);
         // TODO
         // });
 
@@ -205,13 +202,13 @@ describe('widgets.formatstrip', () => {
 
     xdescribe('MVVM', () => {
         let element;
-        let formatStrip;
+        let widget;
         let viewModel;
 
         /*
          // For obscure reasons, setting the viewModel here does not work
          viewModel = observable({
-         formatStrip: undefined
+         widget: undefined
          });
          */
 
@@ -223,20 +220,20 @@ describe('widgets.formatstrip', () => {
                 current: undefined
             });
             bind(FIXTURES, viewModel);
-            formatStrip = element.data('kendoFormatStrip');
+            widget = element.data('kendoFormatStrip');
         });
 
         it('Changing the value in the viewModel changes the number of plain/selected stars', () => {
-            expect(formatStrip).to.be.an.instanceof(FormatStrip);
-            const min = formatStrip.options.min;
-            const max = formatStrip.options.max;
-            const step = formatStrip.options.step;
+            expect(widget).to.be.an.instanceof(FormatStrip);
+            const min = widget.options.min;
+            const max = widget.options.max;
+            const step = widget.options.step;
             const count = Math.round((max - min) / step);
-            const input = formatStrip.wrapper.find('input');
+            const input = widget.wrapper.find('input');
             expect(input)
                 .to.be.an.instanceof($)
                 .with.property('length', 1);
-            const stars = formatStrip.wrapper.find('span.kj-formatStrip-star');
+            const stars = widget.wrapper.find('span.kj-widget-star');
             expect(stars)
                 .to.be.an.instanceof($)
                 .with.property('length', count);
@@ -259,16 +256,16 @@ describe('widgets.formatstrip', () => {
         });
 
         it('Clicking a star updates the value in the viewModel', () => {
-            expect(formatStrip).to.be.an.instanceof(FormatStrip);
-            const min = formatStrip.options.min;
-            const max = formatStrip.options.max;
-            const step = formatStrip.options.step;
+            expect(widget).to.be.an.instanceof(FormatStrip);
+            const min = widget.options.min;
+            const max = widget.options.max;
+            const step = widget.options.step;
             const count = Math.round((max - min) / step);
-            const input = formatStrip.wrapper.find('input');
+            const input = widget.wrapper.find('input');
             expect(input)
                 .to.be.an.instanceof($)
                 .with.property('length', 1);
-            const stars = formatStrip.wrapper.find('span.kj-formatStrip-star');
+            const stars = widget.wrapper.find('span.kj-widget-star');
             expect(stars)
                 .to.be.an.instanceof($)
                 .with.property('length', count);
@@ -294,20 +291,20 @@ describe('widgets.formatstrip', () => {
 
     xdescribe('UI Interactions', () => {
         let element;
-        let formatStrip;
+        let widget;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            formatStrip = element.kendoFormatStrip().data('kendoFormatStrip');
+            widget = element.kendoFormatStrip().data('kendoFormatStrip');
         });
 
         it('mouseover', () => {
-            expect(formatStrip).to.be.an.instanceof(FormatStrip);
-            const min = formatStrip.options.min;
-            const max = formatStrip.options.max;
-            const step = formatStrip.options.step;
+            expect(widget).to.be.an.instanceof(FormatStrip);
+            const min = widget.options.min;
+            const max = widget.options.max;
+            const step = widget.options.step;
             const count = Math.round((max - min) / step);
-            const stars = formatStrip.wrapper.find('span.kj-formatStrip-star');
+            const stars = widget.wrapper.find('span.kj-widget-star');
             expect(stars)
                 .to.be.an.instanceof($)
                 .with.property('length', count);
@@ -328,7 +325,7 @@ describe('widgets.formatstrip', () => {
 
     xdescribe('Events', () => {
         let element;
-        let formatStrip;
+        let widget;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
@@ -336,23 +333,23 @@ describe('widgets.formatstrip', () => {
 
         it('change', () => {
             const change = sinon.spy();
-            formatStrip = element
+            widget = element
                 .kendoFormatStrip({
                     change(e) {
                         change(e.value);
                     }
                 })
                 .data('kendoFormatStrip');
-            expect(formatStrip).to.be.an.instanceof(FormatStrip);
-            const min = formatStrip.options.min;
-            const max = formatStrip.options.max;
-            const step = formatStrip.options.step;
-            const value = formatStrip.value();
+            expect(widget).to.be.an.instanceof(FormatStrip);
+            const min = widget.options.min;
+            const max = widget.options.max;
+            const step = widget.options.step;
+            const value = widget.value();
             expect(min).to.equal(0);
             expect(max).to.equal(5);
             expect(step).to.equal(1);
             for (let i = min; i <= max; i += step) {
-                formatStrip.value(i);
+                widget.value(i);
                 expect(change).to.have.callCount(i + 1);
                 expect(change).to.have.been.calledWith(i);
             }

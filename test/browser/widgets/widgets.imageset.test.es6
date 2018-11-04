@@ -23,6 +23,7 @@ const {
     attr,
     bind,
     destroy,
+    init,
     observable,
     ui: { ImageSet }
 } = window.kendo;
@@ -33,114 +34,104 @@ const ROLE = 'imageset';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-var IMAGESET1 = '<div id="imageset1"></div>';
-var IMAGESET2 = '<div id="imageset2" data-role="imageset"></div>';
-
-describe('widgets.imageset', function () {
-
-    before(function () {
+describe('widgets.imageset', () => {
+    before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
-    describe('Availability', function () {
-
-        it('requirements', function () {
-            expect($).not.to.be.undefined;
-            expect(kendo).not.to.be.undefined;
-            expect(kendo.version).to.be.a('string');
+    describe('Availability', () => {
+        it('requirements', () => {
             expect($.fn.kendoImageSet).to.be.a(CONSTANTS.FUNCTION);
         });
-
     });
 
-    describe('Initialization', function () {
-
-        it('from code', function () {
-            var element = $(IMAGESET1).appendTo(FIXTURES);
-            var imageset = element.kendoImageSet().data('kendoImageSet');
-            expect(imageset).to.be.an.instanceof(ImageSet);
+    describe('Initialization', () => {
+        it('from code', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element.kendoImageSet().data('kendoImageSet');
+            expect(widget).to.be.an.instanceof(ImageSet);
             // expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-imageset');
+            expect(element).to.have.class('kj-widget');
         });
 
-        it('from code with options', function () {
-            var element = $(IMAGESET1).appendTo(FIXTURES);
-            var options = {
-                imageset: 'script1',
+        it('from code with options', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const options = {
+                imageset: 'script1', // TODO Review
                 value: 'Todd'
             };
-            var imageset = element.kendoImageSet(options).data('kendoImageSet');
-            expect(imageset).to.be.an.instanceof(ImageSet);
+            const widget = element
+                .kendoImageSet(options)
+                .data('kendoImageSet');
+            expect(widget).to.be.an.instanceof(ImageSet);
             // expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-imageset');
+            expect(element).to.have.class('kj-widget');
         });
 
-        it('from markup', function () {
-            var element = $(IMAGESET2).appendTo(FIXTURES);
+        it('from markup', () => {
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .appendTo(FIXTURES);
             init(FIXTURES);
-            var imageset = element.data('kendoImageSet');
-            expect(imageset).to.be.an.instanceof(ImageSet);
+            const widget = element.data('kendoImageSet');
+            expect(widget).to.be.an.instanceof(ImageSet);
             // expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-imageset');
+            expect(element).to.have.class('kj-widget');
         });
 
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
+        afterEach(() => {
+            const fixtures = $(FIXTURES);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
-
     });
 
-    describe('Methods', function () {
+    describe('Methods', () => {
+        let element;
+        let widget;
+        const options = {};
 
-        var element;
-        var imageset;
-        var options = {};
-
-        beforeEach(function () {
-            element = $(IMAGESET1).appendTo(FIXTURES);
-            imageset = element.kendoImageSet(options).data('kendoImageSet');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoImageSet(options).data('kendoImageSet');
         });
 
-        xit('value', function (done) {
-            expect(imageset).to.be.an.instanceof(ImageSet);
+        xit('value', done => {
+            expect(widget).to.be.an.instanceof(ImageSet);
         });
 
-        xit('setOptions', function () {
+        xit('setOptions', () => {
             // TODO especially regarding filters (to be enforced)
         });
 
-        xit('destroy', function () {
-            expect(imageset).to.be.an.instanceof(ImageSet);
-            imageset.destroy();
-            expect(imageset.element).to.be.empty;
+        xit('destroy', () => {
+            expect(widget).to.be.an.instanceof(ImageSet);
+            widget.destroy();
+            expect(widget.element).to.be.empty;
         });
 
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
+        afterEach(() => {
+            const fixtures = $(FIXTURES);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
-
     });
 
-    describe('MVVM (and UI interactions)', function () {
+    describe('MVVM (and UI interactions)', () => {
+        let element;
+        let widget;
+        const options = {};
+        let viewModel;
+        let change;
+        let destroy;
 
-        var element;
-        var imageset;
-        var options = {};
-        var viewModel;
-        var change;
-        var destroy;
-
-        beforeEach(function () {
-            element = $(IMAGESET1).appendTo(FIXTURES);
-            imageset = element.kendoImageSet(options).data('kendoImageSet');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoImageSet(options).data('kendoImageSet');
             viewModel = observable({
                 // TODO
             });
@@ -148,42 +139,35 @@ describe('widgets.imageset', function () {
             destroy = sinon.spy();
         });
 
-        xit('TODO', function () {
+        xit('TODO', () => {});
 
-        });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
+        afterEach(() => {
+            const fixtures = $(FIXTURES);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
-
     });
 
-    describe('Events', function () {
+    describe('Events', () => {
+        let element;
+        let widget;
+        const options = {};
+        let event;
 
-        var element;
-        var imageset;
-        var options = {};
-        var event;
-
-        beforeEach(function () {
-            element = $(IMAGESET1).appendTo(FIXTURES);
-            imageset = element.kendoImageSet(options).data('kendoImageSet');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoImageSet(options).data('kendoImageSet');
             event = sinon.spy();
         });
 
-        xit('TODO', function () {
+        xit('TODO', () => {});
 
-        });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
+        afterEach(() => {
+            const fixtures = $(FIXTURES);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
-
     });
 });

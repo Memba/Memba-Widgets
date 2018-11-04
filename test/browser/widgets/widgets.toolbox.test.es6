@@ -22,205 +22,233 @@ const { expect } = chai;
 const {
     attr,
     bind,
-    data: { DataSource },
+    data: { DataSource, ObservableObject },
     destroy,
     init,
     observable,
     ui: { ToolBox }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'toolbox';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-var kidoju = window.kidoju;
-var CLICK = 'click';
-var ICON_PATH = '../../src/styles/images/';
-var TOOLBOX2 = '<div id="toolbox2" data-role="toolbox" data-size="48" data-icon-path="' + ICON_PATH + '"></div>';
+const kidoju = window.kidoju;
+const CLICK = 'click';
+const ICON_PATH = '../../src/styles/images/';
+const TOOLBOX2 = `<div id="toolbox2" data-role="widget" data-size="48" data-icon-path="${ICON_PATH}"></div>`;
 
-describe('widgets.toolbox', function () {
-
-    before(function () {
+describe('widgets.toolbox', () => {
+    before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
-    describe('Availability', function () {
-
-        it('requirements', function () {
-            expect($).not.to.be.undefined;
-            expect(kendo).not.to.be.undefined;
-            expect(kendo.version).to.be.a('string');
-            expect(kidoju).not.to.be.undefined;
-            expect(kidoju.tools).not.to.be.undefined;
+    describe('Availability', () => {
+        it('requirements', () => {
             expect($.fn.kendoToolBox).to.be.a(CONSTANTS.FUNCTION);
         });
-
     });
 
-    describe('Initialization', function () {
-
-        it('from code', function () {
-            var element = $(ELEMENT).appendTo(FIXTURES);
-            var toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
-            expect(toolbox).to.be.an.instanceof(ToolBox);
+    describe('Initialization', () => {
+        it('from code', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element
+                .kendoToolBox({ iconPath: ICON_PATH })
+                .data('kendoToolBox');
+            expect(widget).to.be.an.instanceof(ToolBox);
             expect(element.hasClass('k-widget')).to.be.true;
-            expect(element.hasClass('kj-toolbox')).to.be.true;
-            expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-            expect(Math.round(10 * element.find('a.kj-tool > img').width()) / 10).to.equal(32);
-            expect(Math.round(10 * element.find('a.kj-tool > img').height()) / 10).to.equal(32);
+            expect(element.hasClass(`kj-${ROLE}`)).to.be.true;
+            expect(element.find('a.kj-tool'))
+                .to.be.an.instanceof($)
+                .with.property('length')
+                .that.is.gte(1);
+            expect(
+                Math.round(10 * element.find('a.kj-tool > img').width()) / 10
+            ).to.equal(32);
+            expect(
+                Math.round(10 * element.find('a.kj-tool > img').height()) / 10
+            ).to.equal(32);
         });
 
-        it('from code with options', function () {
-            var element = $(ELEMENT).appendTo(FIXTURES);
-            var toolbox = element.kendoToolBox({ iconPath: ICON_PATH, size: 64 }).data('kendoToolBox');
-            expect(toolbox).to.be.an.instanceof(ToolBox);
+        it('from code with options', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element
+                .kendoToolBox({ iconPath: ICON_PATH, size: 64 })
+                .data('kendoToolBox');
+            expect(widget).to.be.an.instanceof(ToolBox);
             expect(element.hasClass('k-widget')).to.be.true;
-            expect(element.hasClass('kj-toolbox')).to.be.true;
-            expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-            expect(Math.round(10 * element.find('a.kj-tool > img').width()) / 10).to.equal(64);
-            expect(Math.round(10 * element.find('a.kj-tool > img').height()) / 10).to.equal(64);
+            expect(element.hasClass(`kj-${ROLE}`)).to.be.true;
+            expect(element.find('a.kj-tool'))
+                .to.be.an.instanceof($)
+                .with.property('length')
+                .that.is.gte(1);
+            expect(
+                Math.round(10 * element.find('a.kj-tool > img').width()) / 10
+            ).to.equal(64);
+            expect(
+                Math.round(10 * element.find('a.kj-tool > img').height()) / 10
+            ).to.equal(64);
         });
 
-        it('from markup', function () {
-            var element = $(TOOLBOX2).appendTo(FIXTURES);
+        it('from markup', () => {
+            const element = $(TOOLBOX2).appendTo(FIXTURES);
             init(FIXTURES);
-            var toolbox = element.data('kendoToolBox');
-            expect(toolbox).to.be.an.instanceof(ToolBox);
+            const widget = element.data('kendoToolBox');
+            expect(widget).to.be.an.instanceof(ToolBox);
             expect(element.hasClass('k-widget')).to.be.true;
-            expect(element.hasClass('kj-toolbox')).to.be.true;
-            expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-            expect(Math.round(10 * element.find('a.kj-tool > img').width()) / 10).to.equal(48);
-            expect(Math.round(10 * element.find('a.kj-tool > img').height()) / 10).to.equal(48);
+            expect(element.hasClass(`kj-${ROLE}`)).to.be.true;
+            expect(element.find('a.kj-tool'))
+                .to.be.an.instanceof($)
+                .with.property('length')
+                .that.is.gte(1);
+            expect(
+                Math.round(10 * element.find('a.kj-tool > img').width()) / 10
+            ).to.equal(48);
+            expect(
+                Math.round(10 * element.find('a.kj-tool > img').height()) / 10
+            ).to.equal(48);
         });
-
     });
 
-    describe('Methods', function () {
+    describe('Methods', () => {
+        let element;
+        let widget;
 
-        var element;
-        var toolbox;
-
-        beforeEach(function () {
+        beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
+            widget = element
+                .kendoToolBox({ iconPath: ICON_PATH })
+                .data('kendoToolBox');
         });
 
-        it('Set/Get the current tool with valid values', function () {
-            expect(toolbox).to.be.an.instanceof(ToolBox);
-            expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
-            expect(toolbox.tool()).to.equal('pointer');
-            toolbox.tool('label');
-            expect(toolbox.tool()).to.equal('label');
+        it('Set/Get the current tool with valid values', () => {
+            expect(widget).to.be.an.instanceof(ToolBox);
+            expect(kidoju.tools)
+                .to.be.an.instanceof(ObservableObject)
+                .with.property('active', 'pointer');
+            expect(widget.tool()).to.equal('pointer');
+            widget.tool('label');
+            expect(widget.tool()).to.equal('label');
             expect(kidoju.tools).to.have.property('active', 'label');
-            toolbox.tool('textbox');
-            expect(toolbox.tool()).to.equal('textbox');
+            widget.tool('textbox');
+            expect(widget.tool()).to.equal('textbox');
             expect(kidoju.tools).to.have.property('active', 'textbox');
         });
 
-        it('Set/Get the current tool with invalid values', function () {
+        it('Set/Get the current tool with invalid values', () => {
             function fn1() {
-                toolbox.tool(0);
+                widget.tool(0);
             }
             function fn2() {
-                toolbox.tool('dummy');
+                widget.tool('dummy');
             }
-            expect(toolbox).to.be.an.instanceof(ToolBox);
+            expect(widget).to.be.an.instanceof(ToolBox);
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(RangeError);
         });
 
-        it('Reset', function () {
-            expect(toolbox).to.be.an.instanceof(ToolBox);
-            toolbox.tool('label');
+        it('Reset', () => {
+            expect(widget).to.be.an.instanceof(ToolBox);
+            widget.tool('label');
             expect(kidoju.tools).to.have.property('active', 'label');
-            toolbox.reset();
+            widget.reset();
             expect(kidoju.tools).to.have.property('active', 'pointer');
-            toolbox.tool('textbox');
+            widget.tool('textbox');
             expect(kidoju.tools).to.have.property('active', 'textbox');
-            toolbox.reset();
+            widget.reset();
             expect(kidoju.tools).to.have.property('active', 'pointer');
         });
-
     });
 
-    describe('MVVM (and UI interactions)', function () {
+    describe('MVVM (and UI interactions)', () => {
+        let element;
+        let widget;
 
-        var element;
-        var toolbox;
-
-        beforeEach(function () {
+        beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
+            widget = element
+                .kendoToolBox({ iconPath: ICON_PATH })
+                .data('kendoToolBox');
         });
 
-        it('A change of tool raises a change in the toolbox', function () {
-            expect(toolbox).to.be.an.instanceof(ToolBox);
-            toolbox.reset();
-            expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
-            expect(toolbox.tool()).to.equal('pointer');
+        it('A change of tool raises a change in the widget', () => {
+            expect(widget).to.be.an.instanceof(ToolBox);
+            widget.reset();
+            expect(kidoju.tools)
+                .to.be.an.instanceof(ObservableObject)
+                .with.property('active', 'pointer');
+            expect(widget.tool()).to.equal('pointer');
             kidoju.tools.set('active', 'label');
-            expect(toolbox.tool()).to.equal('label');
-            expect(element.find('a.k-state-selected').attr(kendo.attr('tool'))).to.equal('label');
+            expect(widget.tool()).to.equal('label');
+            expect(
+                element.find('a.k-state-selected').attr(attr('tool'))
+            ).to.equal('label');
         });
 
-        it('A selection in the toolbox raises a change of tool', function () {
-            expect(toolbox).to.be.an.instanceof(ToolBox);
-            toolbox.reset();
-            expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
-            expect(toolbox.tool()).to.equal('pointer');
+        it('A selection in the widget raises a change of tool', () => {
+            expect(widget).to.be.an.instanceof(ToolBox);
+            widget.reset();
+            expect(kidoju.tools)
+                .to.be.an.instanceof(ObservableObject)
+                .with.property('active', 'pointer');
+            expect(widget.tool()).to.equal('pointer');
             element.find('[data-tool="label"]').simulate(CLICK);
             expect(kidoju.tools.get('active')).to.equal('label');
-            expect(toolbox.tool()).to.equal('label');
-            expect(element.find('a.k-state-selected').attr(kendo.attr('tool'))).to.equal('label');
+            expect(widget.tool()).to.equal('label');
+            expect(
+                element.find('a.k-state-selected').attr(attr('tool'))
+            ).to.equal('label');
         });
-
     });
 
-    describe('Events', function () {
+    describe('Events', () => {
+        let element;
+        let widget;
 
-        var element;
-        var toolbox;
-
-        beforeEach(function () {
+        beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
+            widget = element
+                .kendoToolBox({ iconPath: ICON_PATH })
+                .data('kendoToolBox');
         });
 
-        it('Change event', function () {
-            var change = sinon.spy();
-            expect(toolbox).to.be.an.instanceof(ToolBox);
-            toolbox.reset();
-            expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
-            toolbox.bind('change', function (e) {
+        it('Change event', () => {
+            const change = sinon.spy();
+            expect(widget).to.be.an.instanceof(ToolBox);
+            widget.reset();
+            expect(kidoju.tools)
+                .to.be.an.instanceof(ObservableObject)
+                .with.property('active', 'pointer');
+            widget.bind('change', e => {
                 change(e.value);
             });
-            toolbox.tool('label');
+            widget.tool('label');
             expect(change).to.have.been.calledWith('label');
         });
 
-        it('Click event', function () {
-            var click = sinon.spy();
-            expect(toolbox).to.be.an.instanceof(ToolBox);
-            toolbox.reset();
-            expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
-            toolbox.bind('click', function (e) {
+        it('Click event', () => {
+            const click = sinon.spy();
+            expect(widget).to.be.an.instanceof(ToolBox);
+            widget.reset();
+            expect(kidoju.tools)
+                .to.be.an.instanceof(ObservableObject)
+                .with.property('active', 'pointer');
+            widget.bind('click', e => {
                 click(e.value);
             });
             element.find('a[data-tool=textbox]').simulate('click');
             expect(click).to.have.been.calledWith('textbox');
         });
-
     });
 
-    afterEach(function () {
-        var fixtures = $(FIXTURES);
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
         destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();
     });
-
 });

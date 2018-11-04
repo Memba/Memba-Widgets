@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.chargrid.es6';
+import '../../../src/js/widgets/widgets.codeeditor.es6';
 
 const { afterEach, before, beforeEach, CodeMirror, describe, it } = window;
 const { expect } = chai;
@@ -26,19 +26,18 @@ const {
     destroy,
     init,
     observable,
-    ui: { CodeEditor }
+    roleSelector,
+    ui: { CodeEditor, DropDownList }
 } = window.kendo;
 const FIXTURES = '#fixtures';
 const ELEMENT = '<div/>';
-const ROLE = 'chargrid';
+const ROLE = 'codeeditor';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
 const CHANGE = 'change';
 const CLICK = 'click';
-const CODEEDITOR1 = '<div id="codeeditor1"></div>';
-const CODEEDITOR2 = '<div id="codeeditor2" data-role="codeeditor"></div>';
 const LIBRARY = [
     {
         name: 'custom',
@@ -113,137 +112,137 @@ describe('widgets.codeeditor', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(CODEEDITOR1).appendTo(FIXTURES);
-            const codeEditor = element
-                .kendoCodeEditor()
-                .data('kendoCodeEditor');
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element.kendoCodeEditor().data('kendoCodeEditor');
+            expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-codeeditor');
-            expect(codeEditor)
+            expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
-            expect(codeEditor)
+            expect(widget)
                 .to.have.property('dataSource')
-                .that.is.an.instanceof(kendo.data.DataSource);
-            expect(codeEditor)
+                .that.is.an.instanceof(DataSource);
+            expect(widget)
                 .to.have.property('dropDownList')
-                .that.is.an.instanceof(kendo.ui.DropDownList);
-            expect(codeEditor)
+                .that.is.an.instanceof(DropDownList);
+            expect(widget)
                 .to.have.property('paramInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('solutionInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('valueInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('testButton')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('messageWrap')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('wrapper')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor.dataSource.total()).to.equal(0);
-            expect(codeEditor.value()).to.be.undefined;
-            // expect(codeEditor.paramInput.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
-            expect(codeEditor.paramInput.val()).to.equal('');
-            expect(codeEditor.solutionInput.val()).to.equal('');
-            expect(codeEditor.valueInput.val()).to.equal('');
+                .that.is.an.instanceof($);
+            expect(widget.dataSource.total()).to.equal(0);
+            expect(widget.value()).to.be.undefined;
+            // expect(widget.paramInput.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
+            expect(widget.paramInput.val()).to.equal('');
+            expect(widget.solutionInput.val()).to.equal('');
+            expect(widget.valueInput.val()).to.equal('');
         });
 
         it('from code with options', () => {
-            const element = $(CODEEDITOR1).appendTo(FIXTURES);
-            const codeEditor = element
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element
                 .kendoCodeEditor({
                     dataSource: LIBRARY,
                     value: LIB_COMMENT + NAME,
                     solution: SOLUTION
                 })
                 .data('kendoCodeEditor');
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
+            expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-codeeditor');
-            expect(codeEditor)
+            expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
-            expect(codeEditor)
+            expect(widget)
                 .to.have.property('dataSource')
-                .that.is.an.instanceof(kendo.data.DataSource);
-            expect(codeEditor)
+                .that.is.an.instanceof(DataSource);
+            expect(widget)
                 .to.have.property('dropDownList')
-                .that.is.an.instanceof(kendo.ui.DropDownList);
-            expect(codeEditor)
+                .that.is.an.instanceof(DropDownList);
+            expect(widget)
                 .to.have.property('paramInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('solutionInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('valueInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('testButton')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('messageWrap')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('wrapper')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor.dataSource.total()).to.equal(LIBRARY.length);
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
-            expect(codeEditor.paramInput.attr('placeholder')).to.equal(
+                .that.is.an.instanceof($);
+            expect(widget.dataSource.total()).to.equal(LIBRARY.length);
+            expect(widget.value()).to.equal(LIB_COMMENT + NAME);
+            expect(widget.paramInput.attr('placeholder')).to.equal(
                 CodeEditor.fn.options.messages.notApplicable
             );
-            expect(codeEditor.paramInput.val()).to.equal('');
-            expect(codeEditor.solutionInput.val()).to.equal(SOLUTION);
-            expect(codeEditor.valueInput.val()).to.equal('');
+            expect(widget.paramInput.val()).to.equal('');
+            expect(widget.solutionInput.val()).to.equal(SOLUTION);
+            expect(widget.valueInput.val()).to.equal('');
         });
 
         it('from markup', () => {
-            const element = $(CODEEDITOR2).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            const codeEditor = element.data('kendoCodeEditor');
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .appendTo(FIXTURES);
+            init(FIXTURES);
+            const widget = element.data('kendoCodeEditor');
+            expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-codeeditor');
-            expect(codeEditor)
+            expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
-            expect(codeEditor)
+            expect(widget)
                 .to.have.property('dataSource')
-                .that.is.an.instanceof(kendo.data.DataSource);
-            expect(codeEditor)
+                .that.is.an.instanceof(DataSource);
+            expect(widget)
                 .to.have.property('dropDownList')
-                .that.is.an.instanceof(kendo.ui.DropDownList);
-            expect(codeEditor)
+                .that.is.an.instanceof(DropDownList);
+            expect(widget)
                 .to.have.property('paramInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('solutionInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('valueInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('testButton')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('messageWrap')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('wrapper')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor.dataSource.total()).to.equal(0);
-            expect(codeEditor.value()).to.be.undefined;
-            // expect(codeEditor.paramInput.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
-            expect(codeEditor.paramInput.val()).to.equal('');
-            expect(codeEditor.solutionInput.val()).to.equal('');
-            expect(codeEditor.valueInput.val()).to.equal('');
+                .that.is.an.instanceof($);
+            expect(widget.dataSource.total()).to.equal(0);
+            expect(widget.value()).to.be.undefined;
+            // expect(widget.paramInput.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
+            expect(widget.paramInput.val()).to.equal('');
+            expect(widget.solutionInput.val()).to.equal('');
+            expect(widget.valueInput.val()).to.equal('');
         });
 
         it('from markup with attributes', () => {
@@ -254,58 +253,57 @@ describe('widgets.codeeditor', () => {
                 'data-value':
                     'function validate(value, solution) {\\n\\treturn true;\\n}'
             };
-            const element = $(CODEEDITOR2)
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
                 .attr(attr)
                 .appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            const codeEditor = element.data('kendoCodeEditor');
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
+            init(FIXTURES);
+            const widget = element.data('kendoCodeEditor');
+            expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-codeeditor');
-            expect(codeEditor)
+            expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
-            expect(codeEditor)
+            expect(widget)
                 .to.have.property('dataSource')
-                .that.is.an.instanceof(kendo.data.DataSource);
-            expect(codeEditor)
+                .that.is.an.instanceof(DataSource);
+            expect(widget)
                 .to.have.property('dropDownList')
-                .that.is.an.instanceof(kendo.ui.DropDownList);
-            expect(codeEditor)
+                .that.is.an.instanceof(DropDownList);
+            expect(widget)
                 .to.have.property('paramInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('solutionInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('valueInput')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('testButton')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('messageWrap')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor)
+                .that.is.an.instanceof($);
+            expect(widget)
                 .to.have.property('wrapper')
-                .that.is.an.instanceof(jQuery);
-            expect(codeEditor.dataSource.total()).to.equal(LIBRARY.length);
-            expect(codeEditor.value()).to.equal(
+                .that.is.an.instanceof($);
+            expect(widget.dataSource.total()).to.equal(LIBRARY.length);
+            expect(widget.value()).to.equal(
                 attr['data-value'].replace(/\\\\/g, '\\')
             );
-            expect(codeEditor.paramInput.attr('placeholder')).to.equal(
+            expect(widget.paramInput.attr('placeholder')).to.equal(
                 CodeEditor.fn.options.messages.notApplicable
             );
-            expect(codeEditor.paramInput.val()).to.equal('');
-            expect(codeEditor.solutionInput.val()).to.equal(
-                attr['data-solution']
-            );
-            expect(codeEditor.valueInput.val()).to.equal('');
+            expect(widget.paramInput.val()).to.equal('');
+            expect(widget.solutionInput.val()).to.equal(attr['data-solution']);
+            expect(widget.valueInput.val()).to.equal('');
         });
 
         afterEach(() => {
             const fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
+            destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
@@ -313,7 +311,7 @@ describe('widgets.codeeditor', () => {
 
     describe('Methods', () => {
         let element;
-        let codeEditor;
+        let widget;
         const DUMMY = 'dummy';
         const EQ_NAME = LIBRARY[1].name;
         const EQ_FORMULA = LIBRARY[1].formula;
@@ -324,8 +322,8 @@ describe('widgets.codeeditor', () => {
             'function validate(value,solution,all){\nreturn true;\n}';
 
         beforeEach(() => {
-            element = $(CODEEDITOR1).appendTo(FIXTURES);
-            codeEditor = element
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element
                 .kendoCodeEditor({
                     dataSource: LIBRARY,
                     default: LIB_COMMENT + NAME,
@@ -337,78 +335,69 @@ describe('widgets.codeeditor', () => {
 
         it('_isCustom: private method to check custom formula', () => {
             function fn() {
-                codeEditor._isCustom(100);
+                widget._isCustom(100);
             }
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
+            expect(widget).to.be.an.instanceof(CodeEditor);
             expect(fn).to.throw(TypeError);
-            expect(codeEditor._isCustom(LIB_COMMENT)).to.be.undefined;
-            expect(codeEditor._isCustom(EQ_NAME)).to.be.undefined;
-            expect(codeEditor._isCustom(LIB_COMMENT + EQ_NAME)).to.be.undefined;
-            expect(codeEditor._isCustom(FORMULA1)).to.be.undefined;
-            expect(codeEditor._isCustom(FORMULA2)).to.equal(FORMULA2);
-            expect(codeEditor._isCustom(FORMULA3)).to.equal(FORMULA3);
+            expect(widget._isCustom(LIB_COMMENT)).to.be.undefined;
+            expect(widget._isCustom(EQ_NAME)).to.be.undefined;
+            expect(widget._isCustom(LIB_COMMENT + EQ_NAME)).to.be.undefined;
+            expect(widget._isCustom(FORMULA1)).to.be.undefined;
+            expect(widget._isCustom(FORMULA2)).to.equal(FORMULA2);
+            expect(widget._isCustom(FORMULA3)).to.equal(FORMULA3);
         });
 
         it('_parseLibraryValue: private method to check library formula', () => {
             function fn() {
-                codeEditor._parseLibraryValue(100);
+                widget._parseLibraryValue(100);
             }
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
+            expect(widget).to.be.an.instanceof(CodeEditor);
             expect(fn).to.throw(TypeError);
-            expect(codeEditor._parseLibraryValue(LIB_COMMENT).item).to.be
+            expect(widget._parseLibraryValue(LIB_COMMENT).item).to.be.undefined;
+            expect(widget._parseLibraryValue(DUMMY).item).to.be.undefined;
+            expect(widget._parseLibraryValue(LIB_COMMENT + DUMMY).item).to.be
                 .undefined;
-            expect(codeEditor._parseLibraryValue(DUMMY).item).to.be.undefined;
-            expect(codeEditor._parseLibraryValue(LIB_COMMENT + DUMMY).item).to
+            expect(widget._parseLibraryValue(EQ_NAME).item).to.be.undefined;
+            expect(widget._parseLibraryValue(FORMULA1).item).to.be.undefined;
+            expect(widget._parseLibraryValue(FORMULA2).item).to.be.undefined;
+            expect(widget._parseLibraryValue(FORMULA3).item).to.be.undefined;
+            expect(widget._parseLibraryValue(LIB_COMMENT + EQ_NAME).item).not.to
                 .be.undefined;
-            expect(codeEditor._parseLibraryValue(EQ_NAME).item).to.be.undefined;
-            expect(codeEditor._parseLibraryValue(FORMULA1).item).to.be
-                .undefined;
-            expect(codeEditor._parseLibraryValue(FORMULA2).item).to.be
-                .undefined;
-            expect(codeEditor._parseLibraryValue(FORMULA3).item).to.be
-                .undefined;
-            expect(codeEditor._parseLibraryValue(LIB_COMMENT + EQ_NAME).item)
-                .not.to.be.undefined;
             expect(
-                codeEditor._parseLibraryValue(LIB_COMMENT + EQ_NAME).item.name
+                widget._parseLibraryValue(LIB_COMMENT + EQ_NAME).item.name
             ).to.equal(EQ_NAME);
             expect(
-                codeEditor._parseLibraryValue(LIB_COMMENT + EQ_NAME).item
-                    .formula
+                widget._parseLibraryValue(LIB_COMMENT + EQ_NAME).item.formula
             ).to.equal(EQ_FORMULA);
         });
 
         it('setDataSource', () => {
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
-            expect(codeEditor)
+            expect(widget).to.be.an.instanceof(CodeEditor);
+            expect(widget)
                 .to.have.property('dataSource')
-                .that.is.an.instanceof(kendo.data.DataSource);
-            expect(codeEditor)
+                .that.is.an.instanceof(DataSource);
+            expect(widget)
                 .to.have.property('dropDownList')
-                .that.is.an.instanceof(kendo.ui.DropDownList);
-            expect(codeEditor.dropDownList)
+                .that.is.an.instanceof(DropDownList);
+            expect(widget.dropDownList)
                 .to.have.property('dataSource')
-                .that.is.an.instanceof(kendo.data.DataSource);
-            expect(codeEditor.dataSource).to.equal(
-                codeEditor.dropDownList.dataSource
-            );
-            expect(codeEditor.dataSource.total()).to.equal(LIBRARY.length);
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
-            codeEditor.setDataSource([LIBRARY[0], LIBRARY[1], LIBRARY[4]]);
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
-            expect(codeEditor)
+                .that.is.an.instanceof(DataSource);
+            expect(widget.dataSource).to.equal(widget.dropDownList.dataSource);
+            expect(widget.dataSource.total()).to.equal(LIBRARY.length);
+            expect(widget.value()).to.equal(LIB_COMMENT + NAME);
+            widget.setDataSource([LIBRARY[0], LIBRARY[1], LIBRARY[4]]);
+            expect(widget.value()).to.equal(LIB_COMMENT + NAME);
+            expect(widget)
                 .to.have.property('dataSource')
-                .that.is.an.instanceof(kendo.data.DataSource);
-            expect(codeEditor)
+                .that.is.an.instanceof(DataSource);
+            expect(widget)
                 .to.have.property('dropDownList')
-                .that.is.an.instanceof(kendo.ui.DropDownList);
-            expect(codeEditor.dropDownList)
+                .that.is.an.instanceof(DropDownList);
+            expect(widget.dropDownList)
                 .to.have.property('dataSource')
-                .that.is.an.instanceof(kendo.data.DataSource);
-            expect(codeEditor.dataSource).to.equal(
-                codeEditor.dropDownList.dataSource
-            );
-            expect(codeEditor.dataSource.total()).to.equal(3);
+                .that.is.an.instanceof(DataSource);
+            expect(widget.dataSource).to.equal(widget.dropDownList.dataSource);
+            expect(widget.dataSource.total()).to.equal(3);
         });
 
         /* This function has too many statements. */
@@ -417,80 +406,70 @@ describe('widgets.codeeditor', () => {
         it('value', () => {
             // TODO: paramInput
             function fn1() {
-                codeEditor.value(100);
+                widget.value(100);
             }
             function fn2() {
-                codeEditor.value(null);
+                widget.value(null);
             }
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
-            expect(codeEditor)
+            expect(widget).to.be.an.instanceof(CodeEditor);
+            expect(widget)
                 .to.have.property('dropDownList')
-                .that.is.an.instanceof(kendo.ui.DropDownList);
-            expect(codeEditor)
+                .that.is.an.instanceof(DropDownList);
+            expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(TypeError);
-            codeEditor.value(undefined);
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
-            expect(codeEditor.dropDownList.text()).to.equal(NAME);
-            expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(FORMULA);
-            codeEditor.value(LIB_COMMENT);
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
-            expect(codeEditor.dropDownList.text()).to.equal(NAME);
-            expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(FORMULA);
-            codeEditor.value(LIB_COMMENT + EQ_NAME);
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + EQ_NAME);
-            expect(codeEditor.dropDownList.text()).to.equal(EQ_NAME);
-            expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(
-                EQ_FORMULA
-            );
-            // If the value is stupid it uses codeEditor.options.default
-            codeEditor.value(LIB_COMMENT + DUMMY);
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
-            expect(codeEditor.dropDownList.text()).to.equal(NAME);
-            expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(FORMULA);
-            codeEditor.value(FORMULA2);
-            expect(codeEditor.value()).to.equal(FORMULA2);
-            expect(codeEditor.dropDownList.text()).to.equal(
-                codeEditor.options.custom
-            );
-            expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(
-                FORMULA2
-            );
-            // If the value is stupid it uses codeEditor.options.default
-            codeEditor.value(FORMULA1);
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
-            expect(codeEditor.dropDownList.text()).to.equal(NAME);
-            expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(FORMULA);
-            codeEditor.value(FORMULA3);
-            expect(codeEditor.value()).to.equal(FORMULA3);
-            expect(codeEditor.dropDownList.text()).to.equal(
-                codeEditor.options.custom
-            );
-            expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(
-                FORMULA3
-            );
+            widget.value(undefined);
+            expect(widget.value()).to.equal(LIB_COMMENT + NAME);
+            expect(widget.dropDownList.text()).to.equal(NAME);
+            expect(widget.codeMirror.getDoc().getValue()).to.equal(FORMULA);
+            widget.value(LIB_COMMENT);
+            expect(widget.value()).to.equal(LIB_COMMENT + NAME);
+            expect(widget.dropDownList.text()).to.equal(NAME);
+            expect(widget.codeMirror.getDoc().getValue()).to.equal(FORMULA);
+            widget.value(LIB_COMMENT + EQ_NAME);
+            expect(widget.value()).to.equal(LIB_COMMENT + EQ_NAME);
+            expect(widget.dropDownList.text()).to.equal(EQ_NAME);
+            expect(widget.codeMirror.getDoc().getValue()).to.equal(EQ_FORMULA);
+            // If the value is stupid it uses widget.options.default
+            widget.value(LIB_COMMENT + DUMMY);
+            expect(widget.value()).to.equal(LIB_COMMENT + NAME);
+            expect(widget.dropDownList.text()).to.equal(NAME);
+            expect(widget.codeMirror.getDoc().getValue()).to.equal(FORMULA);
+            widget.value(FORMULA2);
+            expect(widget.value()).to.equal(FORMULA2);
+            expect(widget.dropDownList.text()).to.equal(widget.options.custom);
+            expect(widget.codeMirror.getDoc().getValue()).to.equal(FORMULA2);
+            // If the value is stupid it uses widget.options.default
+            widget.value(FORMULA1);
+            expect(widget.value()).to.equal(LIB_COMMENT + NAME);
+            expect(widget.dropDownList.text()).to.equal(NAME);
+            expect(widget.codeMirror.getDoc().getValue()).to.equal(FORMULA);
+            widget.value(FORMULA3);
+            expect(widget.value()).to.equal(FORMULA3);
+            expect(widget.dropDownList.text()).to.equal(widget.options.custom);
+            expect(widget.codeMirror.getDoc().getValue()).to.equal(FORMULA3);
         });
 
         /* jshint +W071 */
 
         it('destroy', () => {
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
-            codeEditor.destroy();
-            expect(codeEditor.codeMirror).to.be.undefined;
-            expect(codeEditor.dataSource).to.be.undefined;
-            expect(codeEditor.dropDownList).to.be.undefined;
-            expect(codeEditor.paramInput).to.be.undefined;
-            expect(codeEditor.solutionInput).to.be.undefined;
-            expect(codeEditor.valueInput).to.be.undefined;
-            expect(codeEditor.testButton).to.be.undefined;
-            expect(codeEditor.messageWrap).to.be.undefined;
+            expect(widget).to.be.an.instanceof(CodeEditor);
+            widget.destroy();
+            expect(widget.codeMirror).to.be.undefined;
+            expect(widget.dataSource).to.be.undefined;
+            expect(widget.dropDownList).to.be.undefined;
+            expect(widget.paramInput).to.be.undefined;
+            expect(widget.solutionInput).to.be.undefined;
+            expect(widget.valueInput).to.be.undefined;
+            expect(widget.testButton).to.be.undefined;
+            expect(widget.messageWrap).to.be.undefined;
         });
 
         afterEach(() => {
             const fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
+            destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
@@ -498,57 +477,58 @@ describe('widgets.codeeditor', () => {
 
     describe('MVVM (and UI interactions)', () => {
         let element;
-        let codeEditor;
+        let widget;
         let change;
         const EQ_NAME = LIBRARY[1].name;
         // var EQ_FORMULA = LIBRARY[1].formula;
-        const viewModel = kendo.observable({
+        const viewModel = observable({
             library: LIBRARY,
             code: ''
         });
 
         beforeEach(() => {
-            element = $(CODEEDITOR2)
+            element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
                 .attr({
                     'data-bind': 'source: library, value: code',
                     'data-default': LIB_COMMENT + NAME
                 })
                 .appendTo(FIXTURES);
-            kendo.bind(FIXTURES, viewModel);
-            codeEditor = element.data('kendoCodeEditor');
+            bind(FIXTURES, viewModel);
+            widget = element.data('kendoCodeEditor');
             change = sinon.spy();
             viewModel.bind(CHANGE, change);
         });
 
         it('A change of widget value raises a change in the viewModel', () => {
             expect(change).not.to.have.been.called;
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
-            expect(viewModel.get('code')).to.equal(codeEditor.value());
+            expect(widget).to.be.an.instanceof(CodeEditor);
+            expect(widget.value()).to.equal(LIB_COMMENT + NAME);
+            expect(viewModel.get('code')).to.equal(widget.value());
             // Change the widget value
-            codeEditor.value(LIB_COMMENT + EQ_NAME);
+            widget.value(LIB_COMMENT + EQ_NAME);
             expect(change).to.have.been.calledOnce;
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + EQ_NAME);
-            expect(viewModel.get('code')).to.equal(codeEditor.value());
+            expect(widget.value()).to.equal(LIB_COMMENT + EQ_NAME);
+            expect(viewModel.get('code')).to.equal(widget.value());
         });
 
         it('A change in the viewModel raises a change of widget value', () => {
             expect(change).not.to.have.been.called;
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
-            expect(viewModel.get('code')).to.equal(codeEditor.value());
+            expect(widget).to.be.an.instanceof(CodeEditor);
+            expect(widget.value()).to.equal(LIB_COMMENT + NAME);
+            expect(viewModel.get('code')).to.equal(widget.value());
             // Change in the view Model
             viewModel.set('code', LIB_COMMENT + EQ_NAME);
             expect(change).to.have.been.calledOnce;
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + EQ_NAME);
-            expect(viewModel.get('code')).to.equal(codeEditor.value());
+            expect(widget.value()).to.equal(LIB_COMMENT + EQ_NAME);
+            expect(viewModel.get('code')).to.equal(widget.value());
         });
 
         it('A change of dropdownlist value raises a change of viewModel', () => {
             expect(change).not.to.have.been.called;
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
+            expect(widget).to.be.an.instanceof(CodeEditor);
             const clickable = element
-                .find(kendo.roleSelector('dropdownlist'))
+                .find(roleSelector('dropdownlist'))
                 .parent();
             expect(clickable).to.match('span');
             clickable.simulate(CLICK);
@@ -560,8 +540,8 @@ describe('widgets.codeeditor', () => {
             item.simulate(CLICK);
             // a second click closes the list and sets a new value
             expect(change).to.have.been.calledOnce;
-            expect(codeEditor.value()).to.equal(LIB_COMMENT + EQ_NAME);
-            expect(viewModel.get('code')).to.equal(codeEditor.value());
+            expect(widget.value()).to.equal(LIB_COMMENT + EQ_NAME);
+            expect(viewModel.get('code')).to.equal(widget.value());
         });
 
         xit('A change of codemirror value raises a change of viewModel', () => {
@@ -583,7 +563,7 @@ describe('widgets.codeeditor', () => {
              });
              };
              */
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
+            expect(widget).to.be.an.instanceof(CodeEditor);
             const scroll = $('div.CodeMirror div.CodeMirror-scroll');
             expect(scroll).to.exist;
             const lines = scroll.find('pre.CodeMirror-line');
@@ -617,7 +597,7 @@ describe('widgets.codeeditor', () => {
 
     describe('Events', () => {
         let element;
-        let codeEditor;
+        let widget;
         let change;
         const DUMMY = 'dummy';
         const EQ_NAME = LIBRARY[1].name;
@@ -627,8 +607,8 @@ describe('widgets.codeeditor', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(CODEEDITOR1).appendTo(FIXTURES);
-            codeEditor = element
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element
                 .kendoCodeEditor({
                     dataSource: LIBRARY,
                     value: LIB_COMMENT + NAME,
@@ -639,15 +619,15 @@ describe('widgets.codeeditor', () => {
         });
 
         it('Change event', () => {
-            expect(codeEditor).to.be.an.instanceof(CodeEditor);
-            codeEditor.bind(CHANGE, e => {
+            expect(widget).to.be.an.instanceof(CodeEditor);
+            widget.bind(CHANGE, e => {
                 change(e.value);
             });
-            codeEditor.value(LIB_COMMENT + EQ_NAME);
+            widget.value(LIB_COMMENT + EQ_NAME);
             expect(change).to.have.been.calledWith(LIB_COMMENT + EQ_NAME);
-            codeEditor.value(FORMULA2);
+            widget.value(FORMULA2);
             expect(change).to.have.been.calledWith(FORMULA2);
-            codeEditor.value(DUMMY);
+            widget.value(DUMMY);
             expect(change).to.have.been.calledWith(LIB_COMMENT + NAME);
         });
 

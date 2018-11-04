@@ -26,245 +26,256 @@ const {
     destroy,
     init,
     observable,
-    ui: { StyleEditor }
+    ui: { ComboBox, Grid, StyleEditor }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<div/>';
-const ROLE = 'buttonset';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
+const ROLE = 'styleeditor';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-
-var STYLEEDITOR2 = '<div id="styleeditor2" data-role="styleeditor"></div>';
-
-describe('widgets.styleeditor', function () {
-
-    before(function () {
+describe('widgets.styleeditor', () => {
+    before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
-    describe('Availability', function () {
-
-        it('requirements', function () {
-            expect($).not.to.be.undefined;
-            expect(kendo).not.to.be.undefined;
-            expect(kendo.version).to.be.a('string');
+    describe('Availability', () => {
+        it('requirements', () => {
             expect($.fn.kendoComboBox).to.be.a(CONSTANTS.FUNCTION);
             expect($.fn.kendoGrid).to.be.a(CONSTANTS.FUNCTION);
             expect($.fn.kendoStyleEditor).to.be.a(CONSTANTS.FUNCTION);
         });
-
     });
 
-    describe('Initialization', function () {
-
-        it('from code', function () {
-            var element = $(ELEMENT).appendTo(FIXTURES);
-            var styleEditor = element.kendoStyleEditor().data('kendoStyleEditor');
-            expect(styleEditor).to.be.an.instanceof(StyleEditor);
-            expect(styleEditor.value()).to.equal('');
-            expect(styleEditor.grid).to.be.an.instanceof(kendo.ui.Grid);
-            expect(styleEditor.grid.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(styleEditor.grid.dataSource.total()).to.equal(0);
-            expect(styleEditor.grid.columns).to.be.an.instanceof(Array).with.property('length', 2);
+    describe('Initialization', () => {
+        it('from code', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element.kendoStyleEditor().data('kendoStyleEditor');
+            expect(widget).to.be.an.instanceof(StyleEditor);
+            expect(widget.value()).to.equal('');
+            expect(widget.grid).to.be.an.instanceof(Grid);
+            expect(widget.grid.dataSource).to.be.an.instanceof(DataSource);
+            expect(widget.grid.dataSource.total()).to.equal(0);
+            expect(widget.grid.columns)
+                .to.be.an.instanceof(Array)
+                .with.property('length', 2);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('k-grid');
-            expect(element).to.have.class('kj-styleeditor');
-            expect(styleEditor.wrapper.height()).to.equal(styleEditor.options.height);
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add')).to.exist;
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')).to.exist;
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper.height()).to.equal(widget.options.height);
+            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add'))
+                .to.exist;
+            expect(
+                element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')
+            ).to.exist;
         });
 
-        it('from code with options', function () {
-            var options = {
+        it('from code with options', () => {
+            const options = {
                 value: 'color:#FF0000;border:1px solid rgb(255, 0, 0);',
                 height: 500
             };
-            var element = $(ELEMENT).appendTo(FIXTURES);
-            var styleEditor = element.kendoStyleEditor(options).data('kendoStyleEditor');
-            expect(styleEditor).to.be.an.instanceof(StyleEditor);
-            expect(styleEditor.value()).to.equal(options.value);
-            expect(styleEditor.grid).to.be.an.instanceof(kendo.ui.Grid);
-            expect(styleEditor.grid.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(styleEditor.grid.dataSource.total()).to.equal(2);
-            expect(styleEditor.grid.columns).to.be.an.instanceof(Array).with.property('length', 2);
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element
+                .kendoStyleEditor(options)
+                .data('kendoStyleEditor');
+            expect(widget).to.be.an.instanceof(StyleEditor);
+            expect(widget.value()).to.equal(options.value);
+            expect(widget.grid).to.be.an.instanceof(Grid);
+            expect(widget.grid.dataSource).to.be.an.instanceof(DataSource);
+            expect(widget.grid.dataSource.total()).to.equal(2);
+            expect(widget.grid.columns)
+                .to.be.an.instanceof(Array)
+                .with.property('length', 2);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('k-grid');
-            expect(element).to.have.class('kj-styleeditor');
-            expect(styleEditor.wrapper.height()).to.equal(options.height);
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add')).to.exist;
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')).to.exist;
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper.height()).to.equal(options.height);
+            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add'))
+                .to.exist;
+            expect(
+                element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')
+            ).to.exist;
         });
 
-        it('from markup', function () {
-            var element = $(STYLEEDITOR2).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            var styleEditor = element.data('kendoStyleEditor');
-            expect(styleEditor).to.be.an.instanceof(StyleEditor);
-            expect(styleEditor.value()).to.equal('');
-            expect(styleEditor.grid).to.be.an.instanceof(kendo.ui.Grid);
-            expect(styleEditor.grid.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(styleEditor.grid.dataSource.total()).to.equal(0);
-            expect(styleEditor.grid.columns).to.be.an.instanceof(Array).with.property('length', 2);
+        it('from markup', () => {
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .appendTo(FIXTURES);
+            init(FIXTURES);
+            const widget = element.data('kendoStyleEditor');
+            expect(widget).to.be.an.instanceof(StyleEditor);
+            expect(widget.value()).to.equal('');
+            expect(widget.grid).to.be.an.instanceof(Grid);
+            expect(widget.grid.dataSource).to.be.an.instanceof(DataSource);
+            expect(widget.grid.dataSource.total()).to.equal(0);
+            expect(widget.grid.columns)
+                .to.be.an.instanceof(Array)
+                .with.property('length', 2);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('k-grid');
-            expect(element).to.have.class('kj-styleeditor');
-            expect(styleEditor.wrapper.height()).to.equal(styleEditor.options.height);
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add')).to.exist;
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')).to.exist;
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper.height()).to.equal(widget.options.height);
+            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add'))
+                .to.exist;
+            expect(
+                element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')
+            ).to.exist;
         });
 
-        it('from markup with attributes', function () {
-            var attributes = {
+        it('from markup with attributes', () => {
+            const attributes = {
                 'data-value': 'color:#FF0000;border:1px solid rgb(255, 0, 0);',
                 'data-height': 500
             };
-            var element = $(STYLEEDITOR2).attr(attributes).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            var styleEditor = element.data('kendoStyleEditor');
-            expect(styleEditor).to.be.an.instanceof(StyleEditor);
-            expect(styleEditor.value()).to.equal(attributes['data-value']);
-            expect(styleEditor.grid).to.be.an.instanceof(kendo.ui.Grid);
-            expect(styleEditor.grid.dataSource).to.be.an.instanceof(kendo.data.DataSource);
-            expect(styleEditor.grid.dataSource.total()).to.equal(2);
-            expect(styleEditor.grid.columns).to.be.an.instanceof(Array).with.property('length', 2);
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .attr(attributes)
+                .appendTo(FIXTURES);
+            init(FIXTURES);
+            const widget = element.data('kendoStyleEditor');
+            expect(widget).to.be.an.instanceof(StyleEditor);
+            expect(widget.value()).to.equal(attributes['data-value']);
+            expect(widget.grid).to.be.an.instanceof(Grid);
+            expect(widget.grid.dataSource).to.be.an.instanceof(DataSource);
+            expect(widget.grid.dataSource.total()).to.equal(2);
+            expect(widget.grid.columns)
+                .to.be.an.instanceof(Array)
+                .with.property('length', 2);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('k-grid');
-            expect(element).to.have.class('kj-styleeditor');
-            expect(styleEditor.wrapper.height()).to.equal(styleEditor.options.height);
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add')).to.exist;
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')).to.exist;
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper.height()).to.equal(widget.options.height);
+            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add'))
+                .to.exist;
+            expect(
+                element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')
+            ).to.exist;
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
-    describe('Methods', function () {
-
-        var element;
-        var styleEditor;
-        var options = {
+    describe('Methods', () => {
+        let element;
+        let widget;
+        const options = {
             value: 'color:#FF0000;border:1px solid rgb(255, 0, 0);'
         };
 
-        beforeEach(function () {
+        beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
-            styleEditor = element.kendoStyleEditor(options).data('kendoStyleEditor');
+            widget = element.kendoStyleEditor(options).data('kendoStyleEditor');
         });
 
-        it('value', function () {
+        it('value', () => {
             function fn1() {
-                styleEditor.value(0);
+                widget.value(0);
             }
-            expect(styleEditor).to.be.an.instanceof(StyleEditor);
-            expect(styleEditor.value()).to.equal(options.value);
-            expect(styleEditor.grid.dataSource.total()).to.equal(2);
+            expect(widget).to.be.an.instanceof(StyleEditor);
+            expect(widget.value()).to.equal(options.value);
+            expect(widget.grid.dataSource.total()).to.equal(2);
             expect(fn1).to.throw(TypeError);
-            styleEditor.value('dummy');
-            expect(styleEditor.value()).to.equal('');
-            expect(styleEditor.grid.dataSource.total()).to.equal(0);
-            var value = 'background-color:#0000FF;opacity:0.5;font-size:normal;';
-            styleEditor.value(value);
-            expect(styleEditor.value()).to.equal(value);
-            expect(styleEditor.grid.dataSource.total()).to.equal(3);
+            widget.value('dummy');
+            expect(widget.value()).to.equal('');
+            expect(widget.grid.dataSource.total()).to.equal(0);
+            const value =
+                'background-color:#0000FF;opacity:0.5;font-size:normal;';
+            widget.value(value);
+            expect(widget.value()).to.equal(value);
+            expect(widget.grid.dataSource.total()).to.equal(3);
         });
 
-        it('destroy', function () {
-            expect(styleEditor).to.be.an.instanceof(StyleEditor);
-            styleEditor.destroy();
-            expect(element).not.to.have.class('kj-styleeditor');
+        it('destroy', () => {
+            expect(widget).to.be.an.instanceof(StyleEditor);
+            widget.destroy();
+            expect(element).not.to.have.class(`kj-${ROLE}`);
             expect(element.data('kendoStyleEditor')).to.be.undefined;
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
-    describe('MVVM (and UI Interactions)', function () {
-
-        var element;
-        var styleEditor;
-        var viewModel;
-        var change;
-        var attributes = {
+    describe('MVVM (and UI Interactions)', () => {
+        let element;
+        let widget;
+        let viewModel;
+        let change;
+        const attributes = {
             'data-bind': 'value: style',
             'data-height': 500
         };
 
-        beforeEach(function () {
+        beforeEach(() => {
             change = sinon.spy();
-            element = $(STYLEEDITOR2).attr(attributes).appendTo(FIXTURES);
-            viewModel = kendo.observable({
+            element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .attr(attributes)
+                .appendTo(FIXTURES);
+            viewModel = observable({
                 style: 'color:#FF0000;border:1px solid rgb(255, 0, 0);'
             });
-            kendo.bind(FIXTURES, viewModel);
-            styleEditor = element.data('kendoStyleEditor');
-            viewModel.bind('change', function () {
+            bind(FIXTURES, viewModel);
+            widget = element.data('kendoStyleEditor');
+            viewModel.bind('change', () => {
                 change();
             });
         });
 
-        it('A change in the viewModel raises a change of widget value', function () {
-            expect(styleEditor).to.be.an.instanceof(StyleEditor);
-            expect(styleEditor.value()).to.equal(viewModel.get('style'));
-            expect(styleEditor.grid.dataSource.total()).to.equal(2);
+        it('A change in the viewModel raises a change of widget value', () => {
+            expect(widget).to.be.an.instanceof(StyleEditor);
+            expect(widget.value()).to.equal(viewModel.get('style'));
+            expect(widget.grid.dataSource.total()).to.equal(2);
             expect(change).to.have.not.been.called;
-            var value = 'background-color:#0000FF;opacity:0.5;font-size:normal;';
+            const value =
+                'background-color:#0000FF;opacity:0.5;font-size:normal;';
             viewModel.set('style', value);
             expect(viewModel.get('style')).to.equal(value);
-            expect(styleEditor.value()).to.equal(value);
-            expect(styleEditor.grid.dataSource.total()).to.equal(3);
+            expect(widget.value()).to.equal(value);
+            expect(widget.grid.dataSource.total()).to.equal(3);
             expect(change).to.have.been.calledOnce;
         });
 
-        it('A change of widget value raises a change in the viewModel', function () {
-            expect(styleEditor).to.be.an.instanceof(StyleEditor);
-            expect(styleEditor.value()).to.equal(viewModel.get('style'));
-            expect(styleEditor.grid.dataSource.total()).to.equal(2);
+        it('A change of widget value raises a change in the viewModel', () => {
+            expect(widget).to.be.an.instanceof(StyleEditor);
+            expect(widget.value()).to.equal(viewModel.get('style'));
+            expect(widget.grid.dataSource.total()).to.equal(2);
             expect(change).to.have.not.been.called;
-            var value = 'background-color:#0000FF;opacity:0.5;font-size:normal;';
-            styleEditor.value(value);
+            const value =
+                'background-color:#0000FF;opacity:0.5;font-size:normal;';
+            widget.value(value);
             expect(viewModel.get('style')).to.equal(value);
-            expect(styleEditor.value()).to.equal(value);
-            expect(styleEditor.grid.dataSource.total()).to.equal(3);
+            expect(widget.value()).to.equal(value);
+            expect(widget.grid.dataSource.total()).to.equal(3);
             expect(change).to.have.been.calledOnce;
         });
 
-        it('New style', function (done) {
-            var oldStyle = viewModel.get('style');
-            var newStyle = { name: 'opacity', value: '0.5' };
-            expect(styleEditor).to.be.an.instanceof(StyleEditor);
+        it('New style', done => {
+            const oldStyle = viewModel.get('style');
+            const newStyle = { name: 'opacity', value: '0.5' };
+            expect(widget).to.be.an.instanceof(StyleEditor);
             expect(change).not.to.have.been.called;
-            var rows = styleEditor.grid.tbody.find('tr[role="row"]').length;
+            const rows = widget.grid.tbody.find('tr[role="row"]').length;
             // Click add button
-            element.find('div.k-grid-toolbar > a.k-button.k-grid-add').simulate('click');
+            element
+                .find('div.k-grid-toolbar > a.k-button.k-grid-add')
+                .simulate('click');
             // Wait for the click to process (since jQuery 3.2.1)
-            setTimeout(function () {
+            setTimeout(() => {
                 // Fill name cell in new row
-                var nameCell = styleEditor.grid.tbody.find('td[role="gridcell"]:eq(0)');
+                const nameCell = widget.grid.tbody.find(
+                    'td[role="gridcell"]:eq(0)'
+                );
                 nameCell.simulate('click');
-                var nameInput = nameCell.find('input[role="combobox"]');
+                const nameInput = nameCell.find('input[role="combobox"]');
                 nameInput.focus();
                 nameInput.val(newStyle.name);
                 nameInput.simulate('keydown', { keyCode: 13 });
                 // Fill second cell in new row
-                var valueCell = styleEditor.grid.tbody.find('td[role="gridcell"]:eq(1)');
+                const valueCell = widget.grid.tbody.find(
+                    'td[role="gridcell"]:eq(1)'
+                );
                 valueCell.simulate('click');
-                var valueInput = valueCell.find('input');
+                const valueInput = valueCell.find('input');
                 valueInput.val(newStyle.value);
                 valueInput.simulate('keydown', { keyCode: 13 });
                 // None of the following triggers a change event on the grid, and therefore on the widget to update value bindings
@@ -272,13 +283,15 @@ describe('widgets.styleeditor', function () {
                 // valueInput.focusout();
                 // So we need to force the change event
                 valueInput.trigger('change');
-                setTimeout(function () {
+                setTimeout(() => {
                     // Check value
-                    var expectedStyle = newStyle.name + ':' + newStyle.value + ';' + oldStyle;
-                    expect(styleEditor.value()).to.equal(expectedStyle);
+                    const expectedStyle = `${newStyle.name}:${
+                        newStyle.value
+                    };${oldStyle}`;
+                    expect(widget.value()).to.equal(expectedStyle);
                     // Check data
-                    expect(styleEditor._dataSource.total()).to.equal(rows + 1);
-                    var data = styleEditor._dataSource.data();
+                    expect(widget._dataSource.total()).to.equal(rows + 1);
+                    const data = widget._dataSource.data();
                     expect(data[0].name).to.equal(newStyle.name);
                     expect(data[0].value).to.equal(newStyle.value);
                     // Check viewModel
@@ -289,18 +302,25 @@ describe('widgets.styleeditor', function () {
             }, 0);
         });
 
-        it('Delete', function (done) {
-            var count = styleEditor.grid.dataSource.total();
-            expect(styleEditor).to.be.an.instanceof(StyleEditor);
+        it('Delete', done => {
+            const count = widget.grid.dataSource.total();
+            expect(widget).to.be.an.instanceof(StyleEditor);
             expect(change).not.to.have.been.called;
-            var remove = function () {
+            var remove = function() {
                 // Since jQuery 3.2.1 we need setTimout to allow time for processing clicks
-                setTimeout(function () {
-                    if (styleEditor.grid.dataSource.total() > 0) {
+                setTimeout(() => {
+                    if (widget.grid.dataSource.total() > 0) {
                         // Click row
-                        styleEditor.grid.tbody.find('td[role="gridcell"]').first().simulate('click');
+                        widget.grid.tbody
+                            .find('td[role="gridcell"]')
+                            .first()
+                            .simulate('click');
                         // Click delete button
-                        element.find('div.k-grid-toolbar > a.k-button.k-grid-delete').simulate('click');
+                        element
+                            .find(
+                                'div.k-grid-toolbar > a.k-button.k-grid-delete'
+                            )
+                            .simulate('click');
                         // remove next row
                         remove();
                     } else {
@@ -311,46 +331,35 @@ describe('widgets.styleeditor', function () {
             };
             remove();
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
-    describe('Events', function () {
+    describe('Events', () => {
+        let element;
+        let widget;
+        let options;
+        let change;
 
-        var element;
-        var styleEditor;
-        var options;
-        var change;
-
-        beforeEach(function () {
+        beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT).appendTo(FIXTURES);
-            styleEditor = element.kendoStyleEditor(options).data('kendoStyleEditor');
+            widget = element.kendoStyleEditor(options).data('kendoStyleEditor');
         });
 
-        it('Change', function () {
-            expect(styleEditor).to.be.an.instanceof(StyleEditor);
+        it('Change', () => {
+            expect(widget).to.be.an.instanceof(StyleEditor);
             expect(change).not.to.have.been.called;
-            styleEditor.bind('change', function () {
+            widget.bind('change', () => {
                 change();
             });
-            styleEditor.value('background-color:#0000FF;');
+            widget.value('background-color:#0000FF;');
             expect(change).to.have.been.calledOnce;
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        destroy(fixtures);
+        fixtures.find('*').off();
+        fixtures.empty();
+    });
 });

@@ -42,14 +42,40 @@ describe('widgets.license', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
-            expect($).not.to.be.undefined;
-            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoLicense).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
     describe('Initialization', () => {
-        it('from code with all options', () => {
+        it('from code', () => {
+            const value = 2;
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            expect(element).to.match('input');
+            const widget = element
+            .kendoRating({
+                value
+            })
+            .data('kendoRating');
+            const {
+                options: { min, max, step },
+                wrapper
+            } = widget;
+            expect(min).to.equal(0);
+            expect(max).to.equal(5);
+            expect(step).to.equal(1);
+            expect(widget).to.be.an.instanceof(License);
+            expect(wrapper).not.to.have.class('k-widget');
+            expect(wrapper).to.have.class('kj-rating');
+            expect(wrapper.children('input')).to.exist;
+            expect(wrapper.find('span.kj-rating-star'))
+            .to.be.an.instanceof($)
+            .with.property('length', Math.round((max - min) / step));
+            expect(wrapper.find('span.kj-rating-star.k-state-selected'))
+            .to.be.an.instanceof($)
+            .with.property('length', Math.round(value / step));
+        });
+
+        it('from code with options', () => {
             const value = 4;
             const min = 0;
             const max = 10;
@@ -72,34 +98,6 @@ describe('widgets.license', () => {
             expect(wrapper.find('input'))
                 .to.be.an.instanceof($)
                 .with.property('length', 1);
-            expect(wrapper.find('span.kj-rating-star'))
-                .to.be.an.instanceof($)
-                .with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-rating-star.k-state-selected'))
-                .to.be.an.instanceof($)
-                .with.property('length', Math.round(value / step));
-        });
-
-        it('from code with minimal options', () => {
-            const value = 2;
-            const element = $(ELEMENT).appendTo(FIXTURES);
-            expect(element).to.match('input');
-            const widget = element
-                .kendoRating({
-                    value
-                })
-                .data('kendoRating');
-            const {
-                options: { min, max, step },
-                wrapper
-            } = widget;
-            expect(min).to.equal(0);
-            expect(max).to.equal(5);
-            expect(step).to.equal(1);
-            expect(widget).to.be.an.instanceof(License);
-            expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-rating');
-            expect(wrapper.children('input')).to.exist;
             expect(wrapper.find('span.kj-rating-star'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round((max - min) / step));
@@ -139,6 +137,10 @@ describe('widgets.license', () => {
             expect(wrapper.find('span.kj-rating-star.k-state-selected'))
                 .to.be.an.instanceof($)
                 .with.property('length', Math.round(value / step));
+        });
+
+        it('from markup with attributes', () => {
+            expect(true).to.be.false;
         });
     });
 

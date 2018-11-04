@@ -29,7 +29,7 @@ const {
     ui: { Template }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<div/>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'template';
 
 chai.use((c, u) => chaiJquery(c, u, $));

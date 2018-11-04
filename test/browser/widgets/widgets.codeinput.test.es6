@@ -26,10 +26,11 @@ const {
     destroy,
     init,
     observable,
+    roleSelector,
     ui: { CodeInput, DropDownList }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<div/>'; // TODO should be an input field
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'codeinput';
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -451,7 +452,7 @@ describe('widgets.codeinput', () => {
             expect(change).not.to.have.been.called;
             expect(codeInput).to.be.an.instanceof(CodeInput);
             const clickable = element
-                .find(kendo.roleSelector('dropdownlist'))
+                .find(roleSelector('dropdownlist'))
                 .parent();
             expect(clickable).to.match('span');
             clickable.simulate(CLICK);

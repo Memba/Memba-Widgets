@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.buttonset.es6';
+import '../../../src/js/widgets/widgets.mediaplayer.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -26,285 +26,404 @@ const {
     destroy,
     init,
     observable,
-    ui: { MediaPlayer }
+    ui: { MediaPlayer, Slider }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<div/>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'mediaplayer';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-var CLICK = 'click';
-var MEDIAPLAYER1 = '<div id="mediaplayer1"></div>';
-var MEDIAPLAYER2 = '<div id="mediaplayer2" data-role="mediaplayer"></div>';
-var AUDIO_FILES = ['../data/audio/audio.ogg', '../data/audio/audio.mp3'];
-var VIDEO_FILES = ['../data/video/video.mp4', '../data/video/video.webm'];
-var TTL = 250;
+const CLICK = 'click';
+const AUDIO_FILES = ['../data/audio/audio.ogg', '../data/audio/audio.mp3'];
+const VIDEO_FILES = ['../data/video/video.mp4', '../data/video/video.webm'];
+const TTL = 250;
 
 /**
  * HTMLMediaElement is not supported in PhantomJS
  * @see https://github.com/ariya/phantomjs/issues/10839
  */
-if (window.PHANTOMJS) { // TODO user Modernizr
+if (window.PHANTOMJS) {
+    // TODO user Modernizr
     return;
 }
 
-describe('widgets.mediaplayer', function () {
-
-    before(function () {
+describe('widgets.mediaplayer', () => {
+    before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
-    describe('Availability', function () {
-
-        it('requirements', function () {
+    describe('Availability', () => {
+        it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(kendo).not.to.be.undefined;
             expect(kendo.version).to.be.a('string');
             expect($.fn.kendoMediaPlayer).to.be.a(CONSTANTS.FUNCTION);
         });
-
     });
 
-    describe('Initialization', function () {
-
-        it('from code', function () {
-            var element = $(MEDIAPLAYER1).appendTo(FIXTURES);
-            var mediaPlayer = element.kendoMediaPlayer().data('kendoMediaPlayer');
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
+    describe('Initialization', () => {
+        it('from code', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const widget = element.kendoMediaPlayer().data('kendoMediaPlayer');
+            expect(widget).to.be.an.instanceof(MediaPlayer);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-mediaplayer');
-            expect(mediaPlayer).to.have.property('media').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('toolbar').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('seekerSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('volumeSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('wrapper').that.is.an.instanceof(jQuery);
+            expect(widget)
+                .to.have.property('media')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('toolbar')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('seekerSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('volumeSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
         });
 
-        it('from code with options: audio', function () {
-            var element = $(MEDIAPLAYER1).appendTo(FIXTURES);
-            var options = {
+        it('from code with options: audio', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const options = {
                 mode: 'audio',
                 files: AUDIO_FILES
             };
-            var mediaPlayer = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
+            const widget = element
+                .kendoMediaPlayer(options)
+                .data('kendoMediaPlayer');
+            expect(widget).to.be.an.instanceof(MediaPlayer);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-mediaplayer');
-            expect(mediaPlayer).to.have.property('media').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('toolbar').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('seekerSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('volumeSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('wrapper').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer.media.get(0)).to.be.an.instanceof(window.HTMLAudioElement);
-            expect(mediaPlayer.toolbar.find('a.k-button')).to.be.an.instanceof(jQuery).with.property('length', 2);
+            expect(widget)
+                .to.have.property('media')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('toolbar')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('seekerSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('volumeSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
+            expect(widget.media.get(0)).to.be.an.instanceof(
+                window.HTMLAudioElement
+            );
+            expect(widget.toolbar.find('a.k-button'))
+                .to.be.an.instanceof($)
+                .with.property('length', 2);
         });
 
-        it('from code with options: video', function () {
-            var element = $(MEDIAPLAYER1).appendTo(FIXTURES);
-            var options = {
+        it('from code with options: video', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
+            const options = {
                 mode: 'video',
                 files: VIDEO_FILES
             };
-            var mediaPlayer = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
+            const widget = element
+                .kendoMediaPlayer(options)
+                .data('kendoMediaPlayer');
+            expect(widget).to.be.an.instanceof(MediaPlayer);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-mediaplayer');
-            expect(mediaPlayer).to.have.property('media').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('toolbar').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('seekerSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('volumeSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('wrapper').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer.media.get(0)).to.be.an.instanceof(window.HTMLVideoElement);
-            expect(mediaPlayer.toolbar.find('a.k-button')).to.be.an.instanceof(jQuery).with.property('length', 3);
+            expect(widget)
+                .to.have.property('media')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('toolbar')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('seekerSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('volumeSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
+            expect(widget.media.get(0)).to.be.an.instanceof(
+                window.HTMLVideoElement
+            );
+            expect(widget.toolbar.find('a.k-button'))
+                .to.be.an.instanceof($)
+                .with.property('length', 3);
         });
 
-        it('from markup', function () {
-            var element = $(MEDIAPLAYER2).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            var mediaPlayer = element.data('kendoMediaPlayer');
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
+        it('from markup', () => {
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .appendTo(FIXTURES);
+            init(FIXTURES);
+            const widget = element.data('kendoMediaPlayer');
+            expect(widget).to.be.an.instanceof(MediaPlayer);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-mediaplayer');
-            expect(mediaPlayer).to.have.property('media').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('toolbar').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('seekerSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('volumeSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('wrapper').that.is.an.instanceof(jQuery);
+            expect(widget)
+                .to.have.property('media')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('toolbar')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('seekerSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('volumeSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
         });
 
-        it('from markup with attributes: audio', function () {
-            var element = $(MEDIAPLAYER2).attr({ 'data-mode': 'audio', 'data-files': JSON.stringify(AUDIO_FILES) }).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            var mediaPlayer = element.data('kendoMediaPlayer');
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
+        it('from markup with attributes: audio', () => {
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .attr({
+                    'data-mode': 'audio',
+                    'data-files': JSON.stringify(AUDIO_FILES)
+                })
+                .appendTo(FIXTURES);
+            init(FIXTURES);
+            const widget = element.data('kendoMediaPlayer');
+            expect(widget).to.be.an.instanceof(MediaPlayer);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-mediaplayer');
-            expect(mediaPlayer).to.have.property('media').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('toolbar').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('seekerSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('volumeSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('wrapper').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer.media.get(0)).to.be.an.instanceof(window.HTMLAudioElement);
-            expect(mediaPlayer.toolbar.find('a.k-button')).to.be.an.instanceof(jQuery).with.property('length', 2);
+            expect(widget)
+                .to.have.property('media')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('toolbar')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('seekerSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('volumeSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
+            expect(widget.media.get(0)).to.be.an.instanceof(
+                window.HTMLAudioElement
+            );
+            expect(widget.toolbar.find('a.k-button'))
+                .to.be.an.instanceof($)
+                .with.property('length', 2);
         });
 
-        it('from markup with attributes: video', function () {
-            var element = $(MEDIAPLAYER2).attr({ 'data-mode': 'video', 'data-files': JSON.stringify(VIDEO_FILES) }).appendTo(FIXTURES);
-            kendo.init(FIXTURES);
-            var mediaPlayer = element.data('kendoMediaPlayer');
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
+        it('from markup with attributes: video', () => {
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .attr({
+                    'data-mode': 'video',
+                    'data-files': JSON.stringify(VIDEO_FILES)
+                })
+                .appendTo(FIXTURES);
+            init(FIXTURES);
+            const widget = element.data('kendoMediaPlayer');
+            expect(widget).to.be.an.instanceof(MediaPlayer);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-mediaplayer');
-            expect(mediaPlayer).to.have.property('media').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('toolbar').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer).to.have.property('seekerSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('volumeSlider').that.is.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer).to.have.property('wrapper').that.is.an.instanceof(jQuery);
-            expect(mediaPlayer.media.get(0)).to.be.an.instanceof(window.HTMLVideoElement);
-            expect(mediaPlayer.toolbar.find('a.k-button')).to.be.an.instanceof(jQuery).with.property('length', 3);
+            expect(widget)
+                .to.have.property('media')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('toolbar')
+                .that.is.an.instanceof($);
+            expect(widget)
+                .to.have.property('seekerSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('volumeSlider')
+                .that.is.an.instanceof(Slider);
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
+            expect(widget.media.get(0)).to.be.an.instanceof(
+                window.HTMLVideoElement
+            );
+            expect(widget.toolbar.find('a.k-button'))
+                .to.be.an.instanceof($)
+                .with.property('length', 3);
         });
 
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
+        afterEach(() => {
+            const fixtures = $(FIXTURES);
+            destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
-
     });
 
-    describe('Methods', function () {
-
-        var element;
-        var mediaPlayer;
-        var options = {
+    describe('Methods', () => {
+        let element;
+        let widget;
+        const options = {
             mode: 'audio',
             files: AUDIO_FILES
         };
 
-        beforeEach(function () {
-            element = $(MEDIAPLAYER1).appendTo(FIXTURES);
-            mediaPlayer = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
         });
 
-        it('togglePlayPause', function (done) {
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
-            expect(mediaPlayer).to.have.property('media').that.is.an.instanceof(jQuery);
-            var mediaElement = mediaPlayer.media.get(0);
+        it('togglePlayPause', done => {
+            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget)
+                .to.have.property('media')
+                .that.is.an.instanceof($);
+            const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLAudioElement);
             // Yield some time for media files to load
-            setTimeout(function () {
+            setTimeout(() => {
                 expect(mediaElement.readyState).to.be.gte(3);
                 expect(mediaElement.paused).to.be.true;
-                mediaPlayer.togglePlayPause();
+                widget.togglePlayPause();
                 expect(mediaElement.paused).to.be.false;
-                mediaPlayer.togglePlayPause();
+                widget.togglePlayPause();
                 expect(mediaElement.paused).to.be.true;
                 done();
             }, TTL);
         });
 
-        it('toggleMute', function (done) {
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
-            expect(mediaPlayer).to.have.property('media').that.is.an.instanceof(jQuery);
-            var mediaElement = mediaPlayer.media.get(0);
+        it('toggleMute', done => {
+            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget)
+                .to.have.property('media')
+                .that.is.an.instanceof($);
+            const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLAudioElement);
             // Yield some time for media files to load
-            setTimeout(function () {
+            setTimeout(() => {
                 expect(mediaElement.readyState).to.be.gte(3);
                 expect(mediaElement.muted).to.be.false;
-                mediaPlayer.toggleMute();
+                widget.toggleMute();
                 expect(mediaElement.muted).to.be.true;
-                mediaPlayer.toggleMute();
+                widget.toggleMute();
                 expect(mediaElement.muted).to.be.false;
                 done();
             }, TTL);
         });
 
         // Failed to execute 'requestFullScreen' on 'Element': API can only be initiated by a user gesture.
-        xit('toggleFullScreen', function (done) {
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
-            expect(mediaPlayer).to.have.property('media').that.is.an.instanceof(jQuery);
-            var mediaElement = mediaPlayer.media.get(0);
+        xit('toggleFullScreen', done => {
+            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget)
+                .to.have.property('media')
+                .that.is.an.instanceof($);
+            const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLVideoElement);
 
             /* This function's cyclomatic complexity is too high */
             /* jshint -W074 */
 
             // Yield some time for media files to load
-            setTimeout(function () {
+            setTimeout(() => {
                 expect(mediaElement.readyState).to.be.gte(3);
-                expect(!!document.fullScreen || !!document.webkitIsFullScreen|| !!document.msFullScreen || !!document.mozFullScreen).to.be.false;
-                mediaPlayer.toggleFullScreen();
-                expect(!!document.fullScreen || !!document.webkitIsFullScreen|| !!document.msFullScreen || !!document.mozFullScreen).to.be.true;
-                mediaPlayer.toggleFullScreen();
-                expect(!!document.fullScreen || !!document.webkitIsFullScreen|| !!document.msFullScreen || !!document.mozFullScreen).to.be.false;
+                expect(
+                    !!document.fullScreen ||
+                        !!document.webkitIsFullScreen ||
+                        !!document.msFullScreen ||
+                        !!document.mozFullScreen
+                ).to.be.false;
+                widget.toggleFullScreen();
+                expect(
+                    !!document.fullScreen ||
+                        !!document.webkitIsFullScreen ||
+                        !!document.msFullScreen ||
+                        !!document.mozFullScreen
+                ).to.be.true;
+                widget.toggleFullScreen();
+                expect(
+                    !!document.fullScreen ||
+                        !!document.webkitIsFullScreen ||
+                        !!document.msFullScreen ||
+                        !!document.mozFullScreen
+                ).to.be.false;
                 done();
             }, TTL);
 
             /* jshint +W074 */
-
         });
 
-        it('volume', function (done) {
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
-            expect(mediaPlayer).to.have.property('media').that.is.an.instanceof(jQuery);
-            var mediaElement = mediaPlayer.media.get(0);
+        it('volume', done => {
+            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget)
+                .to.have.property('media')
+                .that.is.an.instanceof($);
+            const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLAudioElement);
             // Yield some time for media files to load
-            setTimeout(function () {
+            setTimeout(() => {
                 expect(mediaElement.readyState).to.be.gte(3);
                 expect(mediaElement.volume).to.equal(1);
-                var volume = Math.round(100 * Math.random()) / 100;
-                mediaPlayer.volume(volume);
+                const volume = Math.round(100 * Math.random()) / 100;
+                widget.volume(volume);
                 expect(mediaElement.volume).to.equal(volume);
                 done();
             }, TTL);
         });
 
-        it('seek', function (done) {
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
-            expect(mediaPlayer).to.have.property('media').that.is.an.instanceof(jQuery);
-            var mediaElement = mediaPlayer.media.get(0);
+        it('seek', done => {
+            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget)
+                .to.have.property('media')
+                .that.is.an.instanceof($);
+            const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLAudioElement);
             if (kendo.support.browser.chrome) {
                 // This does not work in Chrome
                 return done();
             }
             // Yield some time for media files to load
-            setTimeout(function () {
+            setTimeout(() => {
                 expect(mediaElement.readyState).to.be.gte(3);
-                expect(mediaElement).to.have.property('duration').that.is.gt(1);
+                expect(mediaElement)
+                    .to.have.property('duration')
+                    .that.is.gt(1);
                 expect(mediaElement.currentTime).to.equal(0);
-                var seek = Math.round(100 * mediaElement.duration * Math.random()) / 100;
-                mediaPlayer.seek(seek);
+                const seek =
+                    Math.round(100 * mediaElement.duration * Math.random()) /
+                    100;
+                widget.seek(seek);
                 expect(mediaElement.currentTime).to.equal(seek);
                 done();
             }, TTL);
         });
 
-        xit('resize', function () {
+        xit('resize', () => {
             // TODO
         });
 
-        it('enable', function () {
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
-            expect(mediaPlayer.toolbar).to.be.an.instanceof(jQuery);
-            expect(mediaPlayer.seekerSlider).to.be.an.instanceof(kendo.ui.Slider);
-            expect(mediaPlayer.volumeSlider).to.be.an.instanceof(kendo.ui.Slider);
-            mediaPlayer.enable(false);
-            expect(mediaPlayer.toolbar).to.have.class('k-state-disabled');
-            expect(mediaPlayer.seekerSlider.wrapper).to.have.class('k-state-disabled');
-            expect(mediaPlayer.volumeSlider.wrapper).to.have.class('k-state-disabled');
+        it('enable', () => {
+            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget.toolbar).to.be.an.instanceof($);
+            expect(widget.seekerSlider).to.be.an.instanceof(Slider);
+            expect(widget.volumeSlider).to.be.an.instanceof(Slider);
+            widget.enable(false);
+            expect(widget.toolbar).to.have.class('k-state-disabled');
+            expect(widget.seekerSlider.wrapper).to.have.class(
+                'k-state-disabled'
+            );
+            expect(widget.volumeSlider.wrapper).to.have.class(
+                'k-state-disabled'
+            );
         });
 
-        it('destroy', function () {
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
-            mediaPlayer.destroy();
+        it('destroy', () => {
+            expect(widget).to.be.an.instanceof(MediaPlayer);
+            widget.destroy();
             expect(element.parent()).to.match(FIXTURES);
             expect(element.data('kendoMediaPlayer')).to.be.undefined;
             expect(element).to.be.empty;
@@ -312,54 +431,58 @@ describe('widgets.mediaplayer', function () {
             expect(element).not.to.have.class('kj-mediaplayer');
         });
 
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
+        afterEach(() => {
+            const fixtures = $(FIXTURES);
+            destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
-
     });
 
-    describe('MVVM (and UI interactions)', function () {
-
-        var element;
-        var mediaPlayer;
+    describe('MVVM (and UI interactions)', () => {
+        let element;
+        let widget;
         // var viewModel;
-        var options = {
+        const options = {
             mode: 'video',
             files: VIDEO_FILES
         };
 
-        beforeEach(function () {
-            element = $(MEDIAPLAYER1).appendTo(FIXTURES);
-            mediaPlayer = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
-            // viewModel = kendo.observable({ url: undefined });
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
+            // viewModel = observable({ url: undefined });
         });
 
-        it('togglePlayPause', function (done) {
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
-            expect(mediaPlayer.media).to.be.an.instanceof(jQuery);
-            expect(mediaPlayer.toolbar).to.be.an.instanceof(jQuery);
-            var playButton = mediaPlayer.toolbar.find('a.k-button[data-command="play"]');
-            expect(playButton).to.be.an.instanceof(jQuery).with.property('length', 1);
-            var play = sinon.spy();
-            mediaPlayer.media.on('play', function () {
+        it('togglePlayPause', done => {
+            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget.media).to.be.an.instanceof($);
+            expect(widget.toolbar).to.be.an.instanceof($);
+            const playButton = widget.toolbar.find(
+                'a.k-button[data-command="play"]'
+            );
+            expect(playButton)
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
+            const play = sinon.spy();
+            widget.media.on('play', () => {
                 play();
             });
-            var pause = sinon.spy();
-            mediaPlayer.media.on('pause', function () {
+            const pause = sinon.spy();
+            widget.media.on('pause', () => {
                 pause();
             });
             // Yield some time for media files to load
-            setTimeout(function () {
-                var mediaElement = mediaPlayer.media.get(0);
-                expect(mediaElement).to.be.an.instanceof(window.HTMLVideoElement);
+            setTimeout(() => {
+                const mediaElement = widget.media.get(0);
+                expect(mediaElement).to.be.an.instanceof(
+                    window.HTMLVideoElement
+                );
                 expect(mediaElement.readyState).to.be.gte(3);
                 playButton.simulate(CLICK);
                 playButton.simulate(CLICK);
                 // Wait for events
-                setTimeout(function () {
+                setTimeout(() => {
                     expect(play).to.have.been.calledOnce;
                     expect(pause).to.have.been.calledOnce;
                     done();
@@ -367,25 +490,31 @@ describe('widgets.mediaplayer', function () {
             }, TTL);
         });
 
-        it('toggleMute', function (done) {
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
-            expect(mediaPlayer.media).to.be.an.instanceof(jQuery);
-            expect(mediaPlayer.toolbar).to.be.an.instanceof(jQuery);
-            var muteButton = mediaPlayer.toolbar.find('a.k-button[data-command="mute"]');
-            expect(muteButton).to.be.an.instanceof(jQuery).with.property('length', 1);
-            var volume = sinon.spy();
-            mediaPlayer.media.on('volumechange', function () {
+        it('toggleMute', done => {
+            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget.media).to.be.an.instanceof($);
+            expect(widget.toolbar).to.be.an.instanceof($);
+            const muteButton = widget.toolbar.find(
+                'a.k-button[data-command="mute"]'
+            );
+            expect(muteButton)
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
+            const volume = sinon.spy();
+            widget.media.on('volumechange', () => {
                 volume();
             });
             // Yield some time for media files to load
-            setTimeout(function () {
-                var mediaElement = mediaPlayer.media.get(0);
-                expect(mediaElement).to.be.an.instanceof(window.HTMLVideoElement);
+            setTimeout(() => {
+                const mediaElement = widget.media.get(0);
+                expect(mediaElement).to.be.an.instanceof(
+                    window.HTMLVideoElement
+                );
                 expect(mediaElement.readyState).to.be.gte(3);
                 muteButton.simulate(CLICK);
                 muteButton.simulate(CLICK);
                 // Wait for events
-                setTimeout(function () {
+                setTimeout(() => {
                     expect(volume).to.have.been.calledTwice;
                     done();
                 }, 0);
@@ -393,71 +522,76 @@ describe('widgets.mediaplayer', function () {
         });
 
         // Failed to execute 'requestFullScreen' on 'Element': API can only be initiated by a user gesture.
-        xit('toggleFullScreen', function (done) {
-            expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
-            expect(mediaPlayer.media).to.be.an.instanceof(jQuery);
-            expect(mediaPlayer.toolbar).to.be.an.instanceof(jQuery);
-            var fullScreenButton = mediaPlayer.toolbar.find('a.k-button[data-command="full"]');
-            expect(fullScreenButton).to.be.an.instanceof(jQuery).with.property('length', 1);
-            var fullScreen = sinon.spy();
-            $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', function () {
-                fullScreen();
-            });
+        xit('toggleFullScreen', done => {
+            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget.media).to.be.an.instanceof($);
+            expect(widget.toolbar).to.be.an.instanceof($);
+            const fullScreenButton = widget.toolbar.find(
+                'a.k-button[data-command="full"]'
+            );
+            expect(fullScreenButton)
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
+            const fullScreen = sinon.spy();
+            $(document).on(
+                'webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange',
+                () => {
+                    fullScreen();
+                }
+            );
             // Yield some time for media files to load
-            setTimeout(function () {
-                var mediaElement = mediaPlayer.media.get(0);
-                expect(mediaElement).to.be.an.instanceof(window.HTMLVideoElement);
+            setTimeout(() => {
+                const mediaElement = widget.media.get(0);
+                expect(mediaElement).to.be.an.instanceof(
+                    window.HTMLVideoElement
+                );
                 expect(mediaElement.readyState).to.be.gte(3);
                 fullScreenButton.simulate(CLICK);
                 fullScreenButton.simulate(CLICK);
                 // Wait for events
-                setTimeout(function () {
+                setTimeout(() => {
                     expect(fullScreen).to.have.been.calledTwice;
                     done();
                 }, 0);
             }, TTL);
         });
 
-        xit('volume', function () {
+        xit('volume', () => {
             // TODO
         });
 
-        xit('seek', function () {
+        xit('seek', () => {
             // TODO
         });
 
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
+        afterEach(() => {
+            const fixtures = $(FIXTURES);
+            destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
-
     });
 
-    xdescribe('Events', function () {
+    xdescribe('Events', () => {
+        let element;
+        let widget;
+        const options = {};
 
-        var element;
-        var mediaPlayer;
-        var options = {};
-
-        beforeEach(function () {
-            element = $(MEDIAPLAYER1).appendTo(FIXTURES);
-            mediaPlayer = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
             // change = sinon.spy();
         });
 
-        it('event', function (done) {
+        it('event', done => {
             // TODO: No event at this stage
         });
 
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.destroy(fixtures);
+        afterEach(() => {
+            const fixtures = $(FIXTURES);
+            destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
         });
-
     });
-
 });

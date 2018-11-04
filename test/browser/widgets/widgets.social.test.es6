@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.buttonset.es6';
+import '../../../src/js/widgets/widgets.social.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -24,18 +24,19 @@ const {
     bind,
     data: { DataSource, ObservableArray },
     destroy,
+    format,
     init,
     observable,
     ui: { Social }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<div/>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'social';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-var ACTION = {
+const ACTION = {
     CLASSROOM: 'classroom',
     FACEBOOK: 'facebook',
     GOOGLE: 'google',
@@ -43,64 +44,61 @@ var ACTION = {
     PINTEREST: 'pinterest',
     TWITTER: 'twitter'
 };
-var LENGTH = Object.keys(ACTION).length;
-var META_TAG = '<meta property="{0}" content="{1}" />';
-var SOCIAL1 = '<div></div>';
-var SOCIAL2 = '<div data-role="social">';
-var SIZE = 64;
-var LANGUAGE = 'fr';
-var TITLE = 'A sample title';
-var DESCRIPTION = 'A sample description';
-var URL = 'http://www.example.com';
-var IMAGE = 'https://avatars0.githubusercontent.com/u/12049626?v=3&s=400';
-var SOURCE = 'example';
-var FACEBOOK_APPID = '9876543210';
-var TWITTER_ACCOUNT = 'example';
+const LENGTH = Object.keys(ACTION).length;
+const META_TAG = '<meta property="{0}" content="{1}" />';
+const SIZE = 64;
+const LANGUAGE = 'fr';
+const TITLE = 'A sample title';
+const DESCRIPTION = 'A sample description';
+const URL = 'http://www.example.com';
+const IMAGE = 'https://avatars0.githubusercontent.com/u/12049626?v=3&s=400';
+const SOURCE = 'example';
+const FACEBOOK_APPID = '9876543210';
+const TWITTER_ACCOUNT = 'example';
 
-describe('widgets.social', function () {
-
-    before(function () {
+describe('widgets.social', () => {
+    before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 
-    describe('Availability', function () {
-
-        it('requirements', function () {
-            expect($).not.to.be.undefined;
-            expect(kendo).not.to.be.undefined;
-            expect(kendo.version).to.be.a('string');
+    describe('Availability', () => {
+        it('requirements', () => {
             expect($.fn.kendoSocial).to.be.a(CONSTANTS.FUNCTION);
         });
-
     });
 
-    describe('Initialization', function () {
-
-        it('from code with all options', function () {
-            var element = $(SOCIAL1).appendTo(FIXTURES);
+    describe('Initialization', () => {
+        it('from code with all options', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
             expect(element).to.match('div');
-            var social = element.kendoSocial({
-                description: DESCRIPTION,
-                disabled: false,
-                facebookAppId: FACEBOOK_APPID,
-                image: IMAGE,
-                language: LANGUAGE,
-                size: SIZE,
-                source: SOURCE,
-                title: TITLE,
-                twitterAccount: TWITTER_ACCOUNT,
-                url: URL
-            }).data('kendoSocial');
-            expect(social).to.be.an.instanceof(Social);
-            var wrapper = social.wrapper;
+            const widget = element
+                .kendoSocial({
+                    description: DESCRIPTION,
+                    disabled: false,
+                    facebookAppId: FACEBOOK_APPID,
+                    image: IMAGE,
+                    language: LANGUAGE,
+                    size: SIZE,
+                    source: SOURCE,
+                    title: TITLE,
+                    twitterAccount: TWITTER_ACCOUNT,
+                    url: URL
+                })
+                .data('kendoSocial');
+            expect(widget).to.be.an.instanceof(Social);
+            const wrapper = widget.wrapper;
             expect(wrapper).to.be.an.instanceof($);
             expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-social');
-            expect(wrapper.find('a[role="button"]')).to.be.an.instanceof($).with.property('length', LENGTH);
-            expect(wrapper.find('svg')).to.be.an.instanceof($).with.property('length', LENGTH - 1);
-            var options = social.options;
+            expect(wrapper).to.have.class(`kj-${ROLE}`);
+            expect(wrapper.find('a[role="button"]'))
+                .to.be.an.instanceof($)
+                .with.property('length', LENGTH);
+            expect(wrapper.find('svg'))
+                .to.be.an.instanceof($)
+                .with.property('length', LENGTH - 1);
+            const options = widget.options;
             expect(options.description).to.equal(DESCRIPTION);
             expect(options.disabled).to.be.false;
             expect(options.facebookAppId).to.equal(FACEBOOK_APPID);
@@ -113,19 +111,22 @@ describe('widgets.social', function () {
             expect(options.url).to.equal(URL);
         });
 
-        it('from code with minimal options', function () {
-            var element =  $(SOCIAL1).appendTo(FIXTURES);
+        it('from code with minimal options', () => {
+            const element = $(ELEMENT).appendTo(FIXTURES);
             expect(element).to.match('div');
-            var social = element.kendoSocial({
-            }).data('kendoSocial');
-            expect(social).to.be.an.instanceof(Social);
-            var wrapper = social.wrapper;
+            const widget = element.kendoSocial({}).data('kendoSocial');
+            expect(widget).to.be.an.instanceof(Social);
+            const wrapper = widget.wrapper;
             expect(wrapper).to.be.an.instanceof($);
             expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-social');
-            expect(wrapper.find('a[role="button"]')).to.be.an.instanceof($).with.property('length', LENGTH);
-            expect(wrapper.find('svg')).to.be.an.instanceof($).with.property('length', LENGTH - 1);
-            var options = social.options;
+            expect(wrapper).to.have.class(`kj-${ROLE}`);
+            expect(wrapper.find('a[role="button"]'))
+                .to.be.an.instanceof($)
+                .with.property('length', LENGTH);
+            expect(wrapper.find('svg'))
+                .to.be.an.instanceof($)
+                .with.property('length', LENGTH - 1);
+            const options = widget.options;
             expect(options.description).to.be.undefined;
             expect(options.disabled).to.be.false;
             expect(options.facebookAppId).to.be.undefined;
@@ -138,30 +139,39 @@ describe('widgets.social', function () {
             expect(options.url).to.equal(window.location.href);
         });
 
-        it('from markup with meta properties', function () {
+        it('from markup with meta properties', () => {
             // Set metatags
             $('html').attr('lang', LANGUAGE);
             $('head')
-                .append(kendo.format(META_TAG, 'fb:app_id', FACEBOOK_APPID))
-                .append(kendo.format(META_TAG, 'og:description', DESCRIPTION))
-                .append(kendo.format(META_TAG, 'og:image', IMAGE))
-                .append(kendo.format(META_TAG, 'og:site_name', SOURCE))
-                .append(kendo.format(META_TAG, 'og:title', TITLE))
-                .append(kendo.format(META_TAG, 'og:url', URL))
-                .append(kendo.format(META_TAG, 'twitter:site', TWITTER_ACCOUNT));
+                .append(format(META_TAG, 'fb:app_id', FACEBOOK_APPID))
+                .append(format(META_TAG, 'og:description', DESCRIPTION))
+                .append(format(META_TAG, 'og:image', IMAGE))
+                .append(format(META_TAG, 'og:site_name', SOURCE))
+                .append(format(META_TAG, 'og:title', TITLE))
+                .append(format(META_TAG, 'og:url', URL))
+                .append(
+                    format(META_TAG, 'twitter:site', TWITTER_ACCOUNT)
+                );
             // Init and test widget
-            var element = $(SOCIAL2).attr(kendo.attr('size'), SIZE).appendTo(FIXTURES);
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .attr(attr('size'), SIZE)
+                .appendTo(FIXTURES);
             expect(element).to.match('div');
-            kendo.init(FIXTURES);
-            var social = element.data('kendoSocial');
-            expect(social).to.be.an.instanceof(Social);
-            var wrapper = social.wrapper;
+            init(FIXTURES);
+            const widget = element.data('kendoSocial');
+            expect(widget).to.be.an.instanceof(Social);
+            const wrapper = widget.wrapper;
             expect(wrapper).to.be.an.instanceof($);
             expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-social');
-            expect(wrapper.find('a[role="button"]')).to.be.an.instanceof($).with.property('length', LENGTH);
-            expect(wrapper.find('svg')).to.be.an.instanceof($).with.property('length', LENGTH - 1);
-            var options = social.options;
+            expect(wrapper).to.have.class(`kj-${ROLE}`);
+            expect(wrapper.find('a[role="button"]'))
+                .to.be.an.instanceof($)
+                .with.property('length', LENGTH);
+            expect(wrapper.find('svg'))
+                .to.be.an.instanceof($)
+                .with.property('length', LENGTH - 1);
+            const options = widget.options;
             expect(options.description).to.equal(DESCRIPTION);
             expect(options.disabled).to.be.false;
             expect(options.facebookAppId).to.equal(FACEBOOK_APPID);
@@ -173,122 +183,113 @@ describe('widgets.social', function () {
             expect(options.twitterAccount).to.equal(TWITTER_ACCOUNT);
             expect(options.url).to.equal(URL);
         });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.unbind(fixtures);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
-    describe('Methods', function () {
+    describe('Methods', () => {
+        let element;
+        let widget;
 
-        var element;
-        var social;
-
-        beforeEach(function () {
-            element = $(SOCIAL1).appendTo(FIXTURES);
-            social = element.kendoSocial().data('kendoSocial');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoSocial().data('kendoSocial');
         });
 
-        it('enable/readonly', function () {
-            expect(social).to.be.an.instanceof(Social);
-            expect(social.wrapper).to.be.an.instanceof($).with.property('length', 1);
-            social.enable(false);
-            expect(social.wrapper).to.have.class('k-state-disabled');
-            social.enable(true);
-            expect(social.wrapper).not.to.have.class('k-state-disabled');
+        it('enable/readonly', () => {
+            expect(widget).to.be.an.instanceof(Social);
+            expect(widget.wrapper)
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
+            widget.enable(false);
+            expect(widget.wrapper).to.have.class('k-state-disabled');
+            widget.enable(true);
+            expect(widget.wrapper).not.to.have.class('k-state-disabled');
         });
 
         // it('visible', function () {
-        // expect(social).to.be.an.instanceof(Social);
-        // expect(social.wrapper).to.be.an.instanceof($).with.property('length', 1);
+        // expect(widget).to.be.an.instanceof(Social);
+        // expect(widget.wrapper).to.be.an.instanceof($).with.property('length', 1);
         // TODO
         // });
 
         // it('destroy', function () {
         // TODO
         // });
-
-        afterEach(function () {
-            var fixtures = $(FIXTURES);
-            kendo.unbind(fixtures);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
-
     });
 
     // describe('MVVM', function () {
     // });
 
-    describe('UI Interactions', function () {
-
-        var element;
-        var social;
+    describe('UI Interactions', () => {
+        let element;
+        let widget;
 
         function test(command) {
-            expect(social).to.be.an.instanceof(Social);
-            var wrapper = social.wrapper;
+            expect(widget).to.be.an.instanceof(Social);
+            const wrapper = widget.wrapper;
             expect(wrapper).to.be.an.instanceof($);
-            var button = social.wrapper.find('a[role="button"][data-command="' + command + '"]');
-            expect(button).to.be.an.instanceof($).with.property('length', 1);
-            expect(social._window).to.be.null;
+            const button = widget.wrapper.find(
+                `a[role="button"][data-command="${command}"]`
+            );
+            expect(button)
+                .to.be.an.instanceof($)
+                .with.property('length', 1);
+            expect(widget._window).to.be.null;
             button.simulate('click');
-            // expect(social._window).to.be.an.instanceof(Window); // <-- does not work in Chrome
-            // expect(social._window.constructor.name).to.equal('Window'); // <-- does not work in PhantomJS
-            // expect(social._window).to.be.an('object'); // <-- does not work in Chrome
-            expect(social._window).not.to.be.null;
-            expect(social._window).not.to.be.undefined;
-            expect(social._window.close).to.be.a('function');
-            var rx = new RegExp('^https://(www.|plus.|)' + command + '.com/');
-            expect(social._url).to.match(rx);
+            // expect(widget._window).to.be.an.instanceof(Window); // <-- does not work in Chrome
+            // expect(widget._window.constructor.name).to.equal('Window'); // <-- does not work in PhantomJS
+            // expect(widget._window).to.be.an('object'); // <-- does not work in Chrome
+            expect(widget._window).not.to.be.null;
+            expect(widget._window).not.to.be.undefined;
+            expect(widget._window.close).to.be.a('function');
+            const rx = new RegExp(`^https://(www.|plus.|)${command}.com/`);
+            expect(widget._url).to.match(rx);
             // TODO: there is more we could to to test the url
         }
 
-        beforeEach(function () {
-            element = $(SOCIAL1).appendTo(FIXTURES);
-            social = element.kendoSocial().data('kendoSocial');
+        beforeEach(() => {
+            element = $(ELEMENT).appendTo(FIXTURES);
+            widget = element.kendoSocial().data('kendoSocial');
         });
 
-        it('click facebook', function () {
+        it('click facebook', () => {
             test(ACTION.FACEBOOK);
         });
 
-        it('click google', function () {
+        it('click google', () => {
             test(ACTION.GOOGLE);
         });
 
-        it('click linkedin', function () {
+        it('click linkedin', () => {
             test(ACTION.LINKEDIN);
         });
 
-        it('click pinterest', function () {
+        it('click pinterest', () => {
             test(ACTION.PINTEREST);
         });
 
-        it('click twitter', function () {
+        it('click twitter', () => {
             test(ACTION.TWITTER);
         });
 
-        afterEach(function () {
-            if (social && social._window && $.isFunction(social._window.close)) {
-                social._window.close();
+        afterEach(() => {
+            if (
+                widget &&
+                widget._window &&
+                $.isFunction(widget._window.close)
+            ) {
+                widget._window.close();
             }
-            var fixtures = $(FIXTURES);
-            kendo.unbind(fixtures);
-            kendo.destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
         });
-
     });
 
     // describe('Events', function () {
     // });
 
+    afterEach(() => {
+        const fixtures = $(FIXTURES);
+        // unbind(fixtures);
+        destroy(fixtures);
+        // fixtures.find('*').off();
+        fixtures.empty();
+    });
 });

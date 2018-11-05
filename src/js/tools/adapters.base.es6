@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import editors from './util.editors.es6';
+import editors from '../editors/index.es6';
 
 const { Class } = window.kendo;
 

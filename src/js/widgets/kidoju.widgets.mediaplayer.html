@@ -193,7 +193,8 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/widgets.mediaplayer.js').then(function (kendo) {
+            SystemJS.import('./js/widgets.mediaplayer.js').then(function () {
+                var kendo = window.kendo;
                 var viewModel = kendo.observable({
                     visible: true,
                     enabled: true

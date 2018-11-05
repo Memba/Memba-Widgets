@@ -199,9 +199,9 @@
                 SystemJS.import('../tools/index.es6'),
                 SystemJS.import('./widgets.explorer.es6')
             ])
-                .then(function (res) {
+                .then(function (modules) {
                     var kendo = window.kendo;
-                    var PageComponentDataSource = res[1].default;
+                    var PageComponentDataSource = modules[1].default;
                     var pageComponentDataSource = new PageComponentDataSource({
                         data: [
                             { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },

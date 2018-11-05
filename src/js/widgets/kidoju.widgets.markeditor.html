@@ -206,7 +206,8 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/widgets.markeditor.js').then(function (kendo) {
+            SystemJS.import('./js/widgets.markeditor.js').then(function () {
+                var kendo = window.kendo;
                 var viewModel = window.viewModel = kendo.observable({
                     markdown: '',
                     visible: true,

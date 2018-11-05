@@ -204,12 +204,12 @@
                 SystemJS.import('../tools/index.es6'),
                 SystemJS.import('./widgets.toolbox.es6'),
                 SystemJS.import('./widgets.stage.es6')
-            ]).then(function (res) {
+            ]).then(function (modules) {
                 var kendo = window.kendo;
-                var PageComponent = res[3].default;
-                var PageComponentDataSource = res[4].default;
-                var tools = res[5].default;
-                var BaseTool = res[6].default;
+                var PageComponent = modules[3].default;
+                var PageComponentDataSource = modules[4].default;
+                var tools = modules[5].default;
+                var BaseTool = modules[6].default;
 
                 /**
                  * New square tool for testing

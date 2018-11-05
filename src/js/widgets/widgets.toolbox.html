@@ -199,10 +199,10 @@
                 SystemJS.import('../tools/tools.base.es6'),
                 SystemJS.import('../tools/index.es6'),
                 SystemJS.import('./widgets.toolbox.es6')
-            ]).then(function (res) {
+            ]).then(function (modules) {
                 var kendo = window.kendo;
-                var tools = res[0].default;
-                var BaseTool = res[1].default;
+                var tools = modules[0].default;
+                var BaseTool = modules[1].default;
                 // Use tools as viewModel for bindings
                 tools.set('visible', true);
                 tools.set('enabled', true);

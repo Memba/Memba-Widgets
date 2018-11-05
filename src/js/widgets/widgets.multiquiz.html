@@ -193,7 +193,8 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/widgets.multiquiz.js').then(function (kendo) {
+            SystemJS.import('./js/widgets.multiquiz.js').then(function () {
+                var kendo = winow.kendo;
                 var data = [
                     { text: 'question 1', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg' },
                     { text: 'question 2', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg' },

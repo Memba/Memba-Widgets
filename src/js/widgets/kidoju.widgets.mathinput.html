@@ -197,7 +197,8 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./js/widgets.mathinput.js').then(function (kendo) {
+            SystemJS.import('./js/widgets.mathinput.js').then(function () {
+                var kendo = window.kendo;
                 var viewModel = kendo.observable({
                     fields: [],
                     fields$: function () { return '\t' + this.get('fields').join(', '); },

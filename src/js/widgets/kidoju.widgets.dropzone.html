@@ -268,7 +268,8 @@ SystemJS.config({
     },
     transpiler: 'plugin-babel'
 });
-SystemJS.import('./js/widgets.dropzone.js').then(function (kendo) {
+SystemJS.import('./js/widgets.dropzone.js').then(function () {
+    var kendo = window.kendo;
     function formatValue(value) {
         return function () {
             return (this.get(value) || []).join(',');

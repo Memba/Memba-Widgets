@@ -17,7 +17,7 @@ import 'kendo.validator';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import editors from '../tools/util.editors.es6';
+import editors from '../editors/index.es6';
 
 const {
     attr,

@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: use the scheme2http function ot ToolAssets
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -29,12 +31,7 @@ const RX_KEYVAL = /([^:\n]+):([^\n]+)/g;
 const KEY_BLACKLIST = /[-\s]/g;
 const SCRIPT_SELECTOR = 'script[type="text/plain"]';
 const SCRIPT_TAG = '<script type="text/plain"></script>';
-const WRAP_TAG = '<wrap></wrap>';
-
-/** *******************************************************************************
- * Helpers
- * See https://github.com/Memba/Memba-Blog/blob/master/webapp/lib/markdown.js#L60
- ******************************************************************************** */
+const WRAP_TAG = '<wrap/>';
 
 /**
  * Return the yml metadata in value
@@ -58,8 +55,7 @@ function head(content) {
                     .substr(0, pos)
                     .trim()
                     .replace(KEY_BLACKLIST, '_');
-                const val = keyval.substr(pos + 1).trim();
-                yml[key] = val;
+                yml[key] = keyval.substr(pos + 1).trim();
             }
         }
     }
@@ -243,46 +239,49 @@ const Markdown = Widget.extend({
     },
 
     /**
+     * Converts a url starting with a scheme into an http(s) url
+     * @method _scheme2http
+     * @param uri
+     * @private
+     */
+    _scheme2http(uri) {
+        const { schemes } = this.options;
+        let ret = uri;
+        if ($.type(uri) === CONSTANTS.STRING) {
+            Object.keys(schemes).some(scheme => {
+                let done = false;
+                if (uri.indexOf(`${scheme}://`) === 0) {
+                    const root = schemes[scheme];
+                    ret =
+                        root +
+                        (root.charAt(root.length - 1) === '/' ? '' : '/') +
+                        uri.substr(`${scheme}://`.length);
+                    done = true;
+                }
+                return done;
+            });
+        }
+        return ret;
+    },
+
+    /**
      * Init the image rule
      * Adds the .img-responsive class to all images
      * @see https://github.com/markdown-it/markdown-it/blob/master/docs/architecture.md
      * @private
      */
     _initImageRule() {
-        const {
-            md,
-            options: { schemes }
-        } = this;
+        const { md } = this;
         const defaultRender =
             md.renderer.rules.image ||
-            function(tokens, idx, options, env, self) {
-                return self.renderToken(tokens, idx, options);
-            };
-        md.renderer.rules.image = function image(
-            tokens,
-            idx,
-            options,
-            env,
-            self
-        ) {
+            ((tokens, idx, options, env, self) =>
+                self.renderToken(tokens, idx, options));
+        md.renderer.rules.image = (tokens, idx, options, env, self) => {
             // Replace schemes
             const srcIndex = tokens[idx].attrIndex('src');
-            let src = tokens[idx].attrs[srcIndex][1];
-            // TODO use the scheme2http function ot ToolAssets
-            Object.keys(schemes).forEach(scheme => {
-                let done = false;
-                if (src.indexOf(`${scheme}://`) === 0) {
-                    const root = schemes[scheme];
-                    src =
-                        root +
-                        (root.charAt(root.length - 1) === '/' ? '' : '/') +
-                        src.substr(`${scheme}://`.length);
-                    done = true;
-                }
-                return done;
-            });
+            const src = tokens[idx].attrs[srcIndex][1];
             // eslint-disable-next-line no-param-reassign
-            tokens[idx].attrs[srcIndex][1] = src;
+            tokens[idx].attrs[srcIndex][1] = this._scheme2http(src);
 
             // Add img-responsive class
             const classIndex = tokens[idx].attrIndex('class');
@@ -318,9 +317,8 @@ const Markdown = Widget.extend({
         }
         // use much nicer twemojis
         if (twemoji) {
-            this.md.renderer.rules.emoji = function(token, idx) {
-                return twemoji.parse(token[idx].content);
-            };
+            this.md.renderer.rules.emoji = (token, idx) =>
+                twemoji.parse(token[idx].content);
         }
     },
 

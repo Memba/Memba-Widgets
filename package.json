@@ -77,10 +77,10 @@
     "stylelint": "^9.7.1",
     "stylelint-config-standard": "^18.2.0",
     "systemjs-plugin-babel": "0.0.25",
-    "webpack": "^4.24.0"
+    "webpack": "^4.25.0"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=6"
   },
   "config": {
     "msvs_version": "2015"

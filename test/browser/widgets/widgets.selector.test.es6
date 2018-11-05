@@ -29,7 +29,7 @@ const {
     ui: { PropertyGrid }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<div/>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'selector';
 
 chai.use((c, u) => chaiJquery(c, u, $));

@@ -27,7 +27,7 @@ const {
     ui: { License }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
+const ELEMENT = `<${CONSTANTS.INPUT}>`;
 const ROLE = 'license';
 
 chai.use((c, u) => chaiJquery(c, u, $));

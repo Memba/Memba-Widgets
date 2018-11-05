@@ -30,7 +30,7 @@ const {
     ui: { CodeEditor, DropDownList }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<div/>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'codeeditor';
 
 chai.use((c, u) => chaiJquery(c, u, $));

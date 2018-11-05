@@ -27,7 +27,7 @@ const {
     ui: { Rating }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
+const ELEMENT = `<${CONSTANTS.INPUT}>`;
 const ROLE = 'rating';
 
 chai.use((c, u) => chaiJquery(c, u, $));

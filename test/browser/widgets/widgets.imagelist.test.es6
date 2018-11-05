@@ -29,7 +29,7 @@ const {
     ui: { ImageList }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'imagelist';
 
 chai.use((c, u) => chaiJquery(c, u, $));

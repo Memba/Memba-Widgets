@@ -29,7 +29,7 @@ const {
     ui: { HighLighter }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'highlighter';
 
 chai.use((c, u) => chaiJquery(c, u, $));

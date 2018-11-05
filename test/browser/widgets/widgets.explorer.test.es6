@@ -30,7 +30,7 @@ const {
     ui: { Explorer }
 } = window.kendo;
 const FIXTURES = '#fixtures';
-const ELEMENT = '<input>';
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'explorer';
 
 chai.use((c, u) => chaiJquery(c, u, $));

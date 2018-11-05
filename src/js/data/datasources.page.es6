@@ -90,7 +90,6 @@ const PageDataSource = DataSource.extend({
             this,
             $.extend(
                 true,
-                {},
                 {
                     schema: {
                         modelBase: Page,

@@ -20,7 +20,7 @@ const {
     format,
     roleSelector,
     template,
-    ui: { DataBoundWidget, plugin, Stage }
+    ui: { DataBoundWidget, plugin, Stage },
     unbind
 } = window.kendo;
 const logger = new Logger('widgets.navigation');
@@ -325,23 +325,23 @@ const Navigation = DataBoundWidget.extend({
         that.wrapper = that.element;
         // Define element
         that.element
-            .addClass(WIDGET_CLASS)
-            .attr('role', 'listbox')
-            .on(
-                `${CONSTANTS.MOUSEENTER + NS} ${CONSTANTS.MOUSELEAVE}${NS}`,
-                ALL_ITEMS_SELECTOR,
-                that._toggleHover
-            )
-            .on(
-                `${CONSTANTS.FOCUS + NS} ${CONSTANTS.BLUR}${NS}`,
-                ALL_ITEMS_SELECTOR,
-                that._toggleFocus
-            )
-            .on(
-                CONSTANTS.CLICK + NS,
-                ALL_ITEMS_SELECTOR,
-                $.proxy(that._click, that)
-            );
+        .addClass(WIDGET_CLASS)
+        .attr('role', 'listbox')
+        .on(
+            `${CONSTANTS.MOUSEENTER + NS} ${CONSTANTS.MOUSELEAVE}${NS}`,
+            ALL_ITEMS_SELECTOR,
+            that._toggleHover
+        )
+        .on(
+            `${CONSTANTS.FOCUS + NS} ${CONSTANTS.BLUR}${NS}`,
+            ALL_ITEMS_SELECTOR,
+            that._toggleFocus
+        )
+        .on(
+            CONSTANTS.CLICK + NS,
+            ALL_ITEMS_SELECTOR,
+            $.proxy(that._click, that)
+        );
         kendo.notify(that);
     },
 
@@ -500,14 +500,14 @@ const Navigation = DataBoundWidget.extend({
      */
     _toggleSelection() {
         this.element
-            .find(ALL_ITEMS_SELECTOR)
-            .removeClass(CONSTANTS.SELECTED_CLASS)
-            .removeProp(ARIA_SELECTED);
+        .find(ALL_ITEMS_SELECTOR)
+        .removeClass(CONSTANTS.SELECTED_CLASS)
+        .removeProp(ARIA_SELECTED);
 
         this.element
-            .find(kendo.format(ITEM_BYUID_SELECTOR, this._selectedUid))
-            .addClass(CONSTANTS.SELECTED_CLASS)
-            .prop(ARIA_SELECTED, true);
+        .find(kendo.format(ITEM_BYUID_SELECTOR, this._selectedUid))
+        .addClass(CONSTANTS.SELECTED_CLASS)
+        .prop(ARIA_SELECTED, true);
     },
 
     /**
@@ -540,15 +540,15 @@ const Navigation = DataBoundWidget.extend({
         // we actually need the widget's outerWidth and outerHeight
         // becaus a border might be added to pageWidth and pageHeight
         navigation
-            .find(ALL_ITEMS_SELECTOR)
-            .width(scale * parseInt(that.options.pageWidth, 10))
-            .height(scale * parseInt(that.options.pageHeight, 10));
+        .find(ALL_ITEMS_SELECTOR)
+        .width(scale * parseInt(that.options.pageWidth, 10))
+        .height(scale * parseInt(that.options.pageHeight, 10));
 
         let stages = navigation.find(kendo.roleSelector('stage'));
         for (let i = 0; i < stages.length; i++) {
             $(stages[i])
-                .data('kendoStage')
-                .scale(scale);
+            .data('kendoStage')
+            .scale(scale);
         }
     },
 
@@ -627,13 +627,13 @@ const Navigation = DataBoundWidget.extend({
     _clear() {
         let that = this;
         // unbind kendo
-        kendo.unbind(that.element);
+        unbind(that.element);
         // unbind all other events
         that.element.find('*').off();
         that.element
-            .off()
-            .empty()
-            .removeClass(WIDGET_CLASS);
+        .off()
+        .empty()
+        .removeClass(WIDGET_CLASS);
     },
 
     /**
@@ -644,7 +644,7 @@ const Navigation = DataBoundWidget.extend({
         DataBoundWidget.fn.destroy.call(that);
         that._clear();
         that.setDataSource(null);
-        kendo.destroy(that.element);
+        destroy(that.element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });

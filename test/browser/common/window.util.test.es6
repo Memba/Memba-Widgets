@@ -15,6 +15,7 @@ import {
     compareBasicArrays,
     isGuid,
     jsonClone,
+    randomColor,
     randomHexString,
     randomId,
     randomVal,
@@ -116,6 +117,13 @@ describe('window.util', () => {
                 d: new Date()
             };
             expect(jsonClone(obj)).to.deep.equal(obj);
+        });
+    });
+
+    describe('randomColor', () => {
+        it('It should return a random color', () => {
+            const color = randomColor();
+            expect(color).to.match(/#[a-f0-9]{6}/);
         });
     });
 

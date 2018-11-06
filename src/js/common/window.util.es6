@@ -103,6 +103,17 @@ export function jsonClone(obj) {
 }
 
 /**
+ * Get a random pastel color to draw connections
+ * @returns {string}
+ */
+export function randomColor() {
+    const r = (Math.round(Math.random() * 127) + 127).toString(16);
+    const g = (Math.round(Math.random() * 127) + 127).toString(16);
+    const b = (Math.round(Math.random() * 127) + 127).toString(16);
+    return `#${r}${g}${b}`;
+}
+
+/**
  * Build a random hex string of length characters
  * @function randomHexString
  * @param length

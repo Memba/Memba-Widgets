@@ -11,14 +11,18 @@ import 'kendo.sortable';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
+import Page from '../data/models.page.es6';
+import PageDataSource from '../data/datasources.page.es6';
 import './widgets.stage.es6';
 
 const {
     attr,
-    data: { DataSource, ObservableArray },
+    data: { ObservableArray },
     destroy,
     format,
+    ns,
     roleSelector,
+    support,
     template,
     ui: { DataBoundWidget, plugin, Stage },
     unbind
@@ -46,17 +50,15 @@ const Navigation = DataBoundWidget.extend({
      * @param options
      */
     init(element, options) {
-        let that = this;
-        // base call to widget initialization
         DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         // By default, no page is selected
-        that._selectedUid = null;
-        that._templates();
-        that._layout();
-        that._addSorting();
-        that._dataSource();
-        // that.refresh();
+        this._selectedUid = null;
+        this._templates();
+        this._render();
+        this._addSorting();
+        this._dataSource();
+        // this.refresh();
     },
 
     /**
@@ -105,7 +107,7 @@ const Navigation = DataBoundWidget.extend({
      * @returns {*}
      */
     index(index) {
-        let that = this;
+        const that = this;
         let page;
         if ($.type(index) === CONSTANTS.NUMBER) {
             if (index % 1 !== 0 || index < -1 || index >= that.length()) {
@@ -123,7 +125,6 @@ const Navigation = DataBoundWidget.extend({
                 return that.dataSource.indexOf(page);
             }
             return -1;
-
         } else {
             throw new TypeError();
         }
@@ -136,7 +137,7 @@ const Navigation = DataBoundWidget.extend({
      * @returns {*}
      */
     id(id) {
-        let that = this;
+        const that = this;
         let page;
         if (
             $.type(id) === CONSTANTS.STRING ||
@@ -167,7 +168,7 @@ const Navigation = DataBoundWidget.extend({
      * @returns {*}
      */
     value(page) {
-        let that = this;
+        const that = this;
         if (page === null || page instanceof Page) {
             let hasChanged = false;
             if (page === null && that._selectedUid !== null) {
@@ -182,7 +183,7 @@ const Navigation = DataBoundWidget.extend({
                 that._selectedUid = page.uid;
             }
             if (hasChanged) {
-                logger.debug(`selected page uid set to ${  that._selectedUid}`);
+                logger.debug(`selected page uid set to ${that._selectedUid}`);
                 that._toggleSelection();
                 that.trigger(CONSTANTS.CHANGE, { value: page });
             }
@@ -191,7 +192,6 @@ const Navigation = DataBoundWidget.extend({
                 return null;
             }
             return that.dataSource.getByUid(that._selectedUid) || null; // getByUid returns undefined if not found
-
         } else {
             throw new TypeError();
         }
@@ -223,7 +223,7 @@ const Navigation = DataBoundWidget.extend({
      * @returns {string}
      */
     height(value) {
-        let that = this;
+        const that = this;
         if (value) {
             if ($.type(value) !== CONSTANTS.NUMBER) {
                 throw new TypeError();
@@ -245,7 +245,7 @@ const Navigation = DataBoundWidget.extend({
      * @returns {string}
      */
     width(value) {
-        let that = this;
+        const that = this;
         if (value) {
             if ($.type(value) !== CONSTANTS.NUMBER) {
                 throw new TypeError();
@@ -266,7 +266,7 @@ const Navigation = DataBoundWidget.extend({
      * @private
      */
     _templates() {
-        this._itemTemplate = kendo.template(this.options.itemTemplate);
+        this._itemTemplate = template(this.options.itemTemplate);
     },
 
     /**
@@ -288,7 +288,7 @@ const Navigation = DataBoundWidget.extend({
      * @private
      */
     _dataSource() {
-        let that = this;
+        const that = this;
         // if the DataSource is defined and the _refreshHandler is wired up, unbind because
         // we need to rebuild the DataSource
 
@@ -319,29 +319,29 @@ const Navigation = DataBoundWidget.extend({
      * Builds the widget layout
      * @private
      */
-    _layout() {
+    _render() {
         const that = this;
         // Define wrapper for visible bindings
         that.wrapper = that.element;
         // Define element
         that.element
-        .addClass(WIDGET_CLASS)
-        .attr('role', 'listbox')
-        .on(
-            `${CONSTANTS.MOUSEENTER + NS} ${CONSTANTS.MOUSELEAVE}${NS}`,
-            ALL_ITEMS_SELECTOR,
-            that._toggleHover
-        )
-        .on(
-            `${CONSTANTS.FOCUS + NS} ${CONSTANTS.BLUR}${NS}`,
-            ALL_ITEMS_SELECTOR,
-            that._toggleFocus
-        )
-        .on(
-            CONSTANTS.CLICK + NS,
-            ALL_ITEMS_SELECTOR,
-            $.proxy(that._click, that)
-        );
+            .addClass(WIDGET_CLASS)
+            .attr('role', 'listbox')
+            .on(
+                `${CONSTANTS.MOUSEENTER + NS} ${CONSTANTS.MOUSELEAVE}${NS}`,
+                ALL_ITEMS_SELECTOR,
+                that._toggleHover
+            )
+            .on(
+                `${CONSTANTS.FOCUS + NS} ${CONSTANTS.BLUR}${NS}`,
+                ALL_ITEMS_SELECTOR,
+                that._toggleFocus
+            )
+            .on(
+                CONSTANTS.CLICK + NS,
+                ALL_ITEMS_SELECTOR,
+                $.proxy(that._click, that)
+            );
         kendo.notify(that);
     },
 
@@ -350,22 +350,46 @@ const Navigation = DataBoundWidget.extend({
      * @private
      */
     _addSorting() {
-        let that = this;
+        const that = this;
         that.element.kendoSortable({
             filter: ALL_ITEMS_SELECTOR,
-            holdToDrag: kendo.support.touch,
-            hint (element) {
-                return element.clone().addClass(HINT_CLASS);  // Note: note used
+            holdToDrag: support.touch,
+            hint(element) {
+                return element.clone().addClass(HINT_CLASS); // Note: note used
             },
-            placeholder (element) {
+            placeholder(element) {
                 return element.clone().addClass(PLACEHOLDER_CLASS);
             },
-            change (e) {
-                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kidoju.data.PageDataSource, that.dataSource, assert.format(assert.messages.instanceof.default, 'that.dataSource', 'kidoju.data.PageDataSource'));
-                if (e.action === 'sort' && e.item instanceof $ && $.type(e.oldIndex) === CONSTANTS.NUMBER && $.type(e.newIndex) === CONSTANTS.NUMBER) {
-                    var page = that.dataSource.at(e.oldIndex);
-                    assert.equal(e.item.attr(kendo.attr('uid')), page.uid, assert.format(assert.messages.equal.default, 'page.uid', 'e.item.attr("data-uid")'));
+            change(e) {
+                assert.isPlainObject(
+                    e,
+                    assert.format(assert.messages.isPlainObject.default, 'e')
+                );
+                assert.instanceof(
+                    PageDataSource,
+                    that.dataSource,
+                    assert.format(
+                        assert.messages.instanceof.default,
+                        'that.dataSource',
+                        'PageDataSource'
+                    )
+                );
+                if (
+                    e.action === 'sort' &&
+                    e.item instanceof $ &&
+                    $.type(e.oldIndex) === CONSTANTS.NUMBER &&
+                    $.type(e.newIndex) === CONSTANTS.NUMBER
+                ) {
+                    const page = that.dataSource.at(e.oldIndex);
+                    assert.equal(
+                        e.item.attr(attr(CONSTANTS.UID)),
+                        page.uid,
+                        assert.format(
+                            assert.messages.equal.default,
+                            'page.uid',
+                            'e.item.attr("data-uid")'
+                        )
+                    );
                     // console.log(page.instructions + ': ' + e.oldIndex + '-->' + e.newIndex);
                     that.dataSource.remove(page);
                     that.dataSource.insert(e.newIndex, page);
@@ -381,19 +405,18 @@ const Navigation = DataBoundWidget.extend({
      * @private
      */
     _addItem(page, index) {
-        let that = this;
+        const that = this;
         const navigation = that.element;
 
         // Check that we get a page that is not already in navigation
         if (
             page instanceof Page &&
-            navigation.find(kendo.format(ITEM_BYUID_SELECTOR, page.uid))
+            navigation.find(format(ITEM_BYUID_SELECTOR, page.uid))
                 .length === 0
         ) {
             // Create navigation item (actually a selection frame around the thumbnail stage)
-            let navigationItem = $(
-                that._itemTemplate({ uid: page.uid, ns: kendo.ns })
-                .css({
+            const navigationItem = $(
+                that._itemTemplate({ uid: page.uid, ns }).css({
                     boxSizing: 'border-box',
                     position: 'relative',
                     padding: parseInt(that.options.selectionBorder, 10),
@@ -404,11 +427,11 @@ const Navigation = DataBoundWidget.extend({
             );
 
             // Add to navigation
-            let nextIndex =
+            const nextIndex =
                 $.type(index) === CONSTANTS.NUMBER
                     ? index
                     : navigation.children(ALL_ITEMS_SELECTOR).length;
-            let nextNavigationItem = navigation.children(
+            const nextNavigationItem = navigation.children(
                 `${ALL_ITEMS_SELECTOR}:eq(${nextIndex})`
             );
             if (nextNavigationItem.length) {
@@ -418,7 +441,7 @@ const Navigation = DataBoundWidget.extend({
             }
 
             // Make the stage and bind to components
-            navigationItem.find(kendo.roleSelector('stage')).kendoStage({
+            navigationItem.find(roleSelector('stage')).kendoStage({
                 mode: that.options.mode,
                 enable: false,
                 readonly: true,
@@ -435,9 +458,9 @@ const Navigation = DataBoundWidget.extend({
      */
     _removeItemByUid(uid) {
         // Find and remove navigation item containing stage
-        const item = this.element.find(kendo.format(ITEM_BYUID_SELECTOR, uid));
+        const item = this.element.find(format(ITEM_BYUID_SELECTOR, uid));
         // kendo.unbind(item);
-        kendo.destroy(item);
+        destroy(item);
         item.off().remove();
     },
 
@@ -446,7 +469,7 @@ const Navigation = DataBoundWidget.extend({
      * @param e
      */
     refresh(e) {
-        let that = this;
+        const that = this;
         let selectedIndex = that.index();
         if (e && e.action === undefined) {
             that.trigger(CONSTANTS.DATABINDING);
@@ -500,14 +523,14 @@ const Navigation = DataBoundWidget.extend({
      */
     _toggleSelection() {
         this.element
-        .find(ALL_ITEMS_SELECTOR)
-        .removeClass(CONSTANTS.SELECTED_CLASS)
-        .removeProp(ARIA_SELECTED);
+            .find(ALL_ITEMS_SELECTOR)
+            .removeClass(CONSTANTS.SELECTED_CLASS)
+            .removeProp(ARIA_SELECTED);
 
         this.element
-        .find(kendo.format(ITEM_BYUID_SELECTOR, this._selectedUid))
-        .addClass(CONSTANTS.SELECTED_CLASS)
-        .prop(ARIA_SELECTED, true);
+            .find(format(ITEM_BYUID_SELECTOR, this._selectedUid))
+            .addClass(CONSTANTS.SELECTED_CLASS)
+            .prop(ARIA_SELECTED, true);
     },
 
     /**
@@ -532,23 +555,23 @@ const Navigation = DataBoundWidget.extend({
      * @method resize
      */
     resize() {
-        let that = this;
+        const that = this;
         const navigation = that.element;
-        let scale = that._getStageScale();
+        const scale = that._getStageScale();
 
         // TODO: we are not clear with borders here
         // we actually need the widget's outerWidth and outerHeight
         // becaus a border might be added to pageWidth and pageHeight
         navigation
-        .find(ALL_ITEMS_SELECTOR)
-        .width(scale * parseInt(that.options.pageWidth, 10))
-        .height(scale * parseInt(that.options.pageHeight, 10));
+            .find(ALL_ITEMS_SELECTOR)
+            .width(scale * parseInt(that.options.pageWidth, 10))
+            .height(scale * parseInt(that.options.pageHeight, 10));
 
-        let stages = navigation.find(kendo.roleSelector('stage'));
+        const stages = navigation.find(roleSelector('stage'));
         for (let i = 0; i < stages.length; i++) {
             $(stages[i])
-            .data('kendoStage')
-            .scale(scale);
+                .data('kendoStage')
+                .scale(scale);
         }
     },
 
@@ -613,27 +636,13 @@ const Navigation = DataBoundWidget.extend({
             )
         );
         e.preventDefault();
-        let target = $(e.currentTarget);
-        if (!target.is(`.${CONSTANTS.SELECTED_CLASS}`)) {
-            const page = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
+        const target = $(e.currentTarget);
+        if (!target.is(`${CONSTANTS.DOT}${CONSTANTS.SELECTED_CLASS}`)) {
+            const page = this.dataSource.getByUid(
+                target.attr(attr(CONSTANTS.UID))
+            );
             this.value(page);
         }
-    },
-
-    /**
-     * @method _clear
-     * @private
-     */
-    _clear() {
-        let that = this;
-        // unbind kendo
-        unbind(that.element);
-        // unbind all other events
-        that.element.find('*').off();
-        that.element
-        .off()
-        .empty()
-        .removeClass(WIDGET_CLASS);
     },
 
     /**
@@ -641,9 +650,16 @@ const Navigation = DataBoundWidget.extend({
      */
     destroy() {
         const that = this;
-        DataBoundWidget.fn.destroy.call(that);
-        that._clear();
+        // unbind kendo
+        unbind(that.element);
+        // unbind all other events
+        that.element.find('*').off();
+        that.element
+            .off()
+            .empty()
+            .removeClass(WIDGET_CLASS);
         that.setDataSource(null);
+        DataBoundWidget.fn.destroy.call(that);
         destroy(that.element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }

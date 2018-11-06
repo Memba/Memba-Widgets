@@ -4,11 +4,22 @@
  */
 
 // TODO Use StyleDataSource
+// TODO export editors
+// TODO Consider extending Grid
+// TODO Add whitelist
+
+// TODO add background-image and other background styles - https://github.com/kidoju/Kidoju-Widgets/issues/250
+// TODO share the kidoju.Style class with kidoju.widgets.formatStrip - https://github.com/kidoju/Kidoju-Widgets/issues/113
+// TODO load and use web fonts - https://github.com/kidoju/Kidoju-Widgets/issues/68
+// TODO review height in options - https://github.com/kidoju/Kidoju-Widgets/issues/54
+// TODO whitelist/blacklist styles - https://github.com/kidoju/Kidoju-Widgets/issues/43
+// TODO improve validation of style entries - https://github.com/kidoju/Kidoju-Widgets/issues/24
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.data';
 import 'kendo.button';
 import 'kendo.colorpicker';
 import 'kendo.combobox';
@@ -20,8 +31,12 @@ import Logger from '../common/window.logger.es6';
 import './widgets.unitinput.es6';
 
 const {
+    data: { DataSource },
     destroy,
-    ui: { plugin, Grid, Widget }
+    ns,
+    roleSelector,
+    unbind,
+    ui: { DataBoundWidget, ComboBox, Grid, plugin }
 } = window.kendo;
 const logger = new Logger('widgets.styleeditor');
 
@@ -206,7 +221,7 @@ function unitInput(container, options, widgetOptions) {
     // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
     // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + this.options.messages.validation.value + '">')
     const unitinput = $(
-        `<input data-${kendo.ns}bind="value: ${
+        `<input data-${ns}bind="value: ${
             options.field
         }" required data-required-msg="${
             this.options.messages.validation.value
@@ -265,9 +280,11 @@ const CSS_STYLES = [
 ];
 
 /**
- * @class StyleEditor Widget (kendoStyleEditor)
+ * StyleEditor
+ * @class StyleEditor
+ * @extends DataBoundWidget
  */
-const StyleEditor = Widget.extend({
+const StyleEditor = DataBoundWidget.extend({
     /**
      * Init
      * @param element
@@ -276,7 +293,7 @@ const StyleEditor = Widget.extend({
     init(element, options) {
         const that = this;
         options = options || {};
-        Widget.fn.init.call(that, element, options);
+        DataBoundWidget.fn.init.call(that, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         // if ($.isFunction($.fn.kendoGrid)) {
         that._setDataSource();
@@ -467,14 +484,14 @@ const StyleEditor = Widget.extend({
                     // The change event handler assigns a default value depending on the style name
                     if (
                         e /* instanceof $.Event */ &&
-                        e.sender instanceof kendo.ui.ComboBox
+                        e.sender instanceof ComboBox
                     ) {
                         const dataItem = e.sender.dataItem();
                         // var grid = container.closest('.k-grid').data('kendoGrid');
                         const grid = that.element.data('kendoGrid');
-                        const uid = container.parent().attr(kendo.attr('uid'));
+                        const uid = container.parent().attr(attr(CONSTANTS.UID));
                         if (
-                            grid instanceof kendo.ui.Grid &&
+                            grid instanceof Grid &&
                             $.type(uid) === 'string' &&
                             $.type(dataItem) !== CONSTANTS.UNDEFINED
                         ) {
@@ -595,9 +612,9 @@ const StyleEditor = Widget.extend({
         if (e.container.is('td:eq(0)')) {
             // Find the combobox and update dataSource with a list of styles that does not contain styles already defined
             const comboBox = e.container
-                .find(kendo.roleSelector('combobox'))
+                .find(roleSelector('combobox'))
                 .data('kendoComboBox');
-            if (comboBox instanceof kendo.ui.ComboBox) {
+            if (comboBox instanceof ComboBox) {
                 const rows = e.sender.dataSource.data();
                 const css = [];
                 for (let i = 0; i < CSS_STYLES.length; i++) {
@@ -628,7 +645,7 @@ const StyleEditor = Widget.extend({
     _setDataSource() {
         const that = this;
         // This dataSource is private to the widget because data is assigned through value binding instead of source binding
-        that._dataSource = new kendo.data.DataSource({
+        that._dataSource = new DataSource({
             autoSync: true,
             change(e) {
                 // triggers the change event on the widget for value binding
@@ -663,7 +680,7 @@ const StyleEditor = Widget.extend({
      */
     refresh() {
         const that = this;
-        if (that.grid instanceof kendo.ui.Grid) {
+        if (that.grid instanceof Grid) {
             that.grid.refresh();
         }
     },
@@ -722,7 +739,7 @@ const StyleEditor = Widget.extend({
         if (selected instanceof $ && selected.length) {
             // although shorter, the following displays an alert to confirm deletion, which we do not want
             // grid.removeRow(selected);
-            const uid = selected.attr(kendo.attr('uid'));
+            const uid = selected.attr(attr(CONSTANTS.UID));
             const dataItem = grid.dataSource.getByUid(uid);
             grid.dataSource.remove(dataItem);
         }
@@ -780,13 +797,13 @@ const StyleEditor = Widget.extend({
         wrapper.find(TABLE_SELECTOR).off(CONSTANTS.KEYPRESS + NS);
         wrapper.find(TOOLBAR_SELECTOR).off(CONSTANTS.CLICK + NS);
         that._dataSource.unbind(CONSTANTS.CHANGE);
-        kendo.unbind(wrapper);
+        unbind(wrapper);
         // Clear references
         that.grid = undefined;
         that._dataSource = undefined;
         // Destroy kendo
-        Widget.fn.destroy.call(that);
-        kendo.destroy(wrapper);
+        DataBoundWidget.fn.destroy.call(that);
+        destroy(wrapper);
         // Remove widget class
         // wrapper.removeClass(WIDGET_CLASS);
     }

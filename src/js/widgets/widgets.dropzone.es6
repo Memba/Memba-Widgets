@@ -3,9 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO review templates to match new buttongroup - seee https://demos.telerik.com/kendo-ui/buttongroup/index
-// TODO: Add keyboard events to check buttons with Tab + Space or Tab + Enter
-// TODO add imageUrl (we already have icons) - see splitButton
+// TODO test and review calculations with rotated draggables and dropzones - https://github.com/kidoju/Kidoju-Widgets/issues/147
+// TODO consider adding layout modes - https://github.com/kidoju/Kidoju-Widgets/issues/173
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved

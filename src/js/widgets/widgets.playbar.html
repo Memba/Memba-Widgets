@@ -2,16 +2,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>widgets.navigation</title>
+    <title>widgets.playbar</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- widgets.navigation stylesheet -->
-    <link href="../../styles/widgets/widgets.stage.css" rel="stylesheet">
-    <link href="../../styles/widgets/widgets.navigation.css" rel="stylesheet">
+    <!-- widgets.playbar stylesheet -->
+    <link href="../../styles/widgets/widgets.playbar.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
@@ -196,134 +195,62 @@
             });
             Promise.all([
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('kendo.splitter'),
-                SystemJS.import('../data/models.page.es6'),
+                SystemJS.import('kendo.dropdownlist'),
+                SystemJS.import('kendo.toolbar'),
                 SystemJS.import('../data/datasources.page.es6'),
-                SystemJS.import('./widgets.navigation.es6')
+                SystemJS.import('./widgets.playbar.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                var Page = modules[2].default;
                 var PageDataSource = modules[3].default;
-                var data = [
-                    {
+                var data = [];
+                for (var i = 0; i < 16; i++) {
+                    data.push({
                         id: kendo.guid(),
-                        instructions: 'Company?',
-                        components: [
-                            { id: kendo.guid(), tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                            { id: kendo.guid(), tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
-                            { id: kendo.guid(), tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield1' } }
-                        ]
-                    },
-                    {
-                        id: kendo.guid(),
-                        instructions: 'Marignan?',
-                        components: [
-                            { id: kendo.guid(), tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
-                            { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield2' } }
-                        ]
-                    },
-                    {
-                        id: kendo.guid(),
-                        instructions: 'Cheval IV?',
-                        components: [
-                            { id: kendo.guid(), tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
-                            { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                        ]
-                    }
-                ];
+                        components: []
+                    });
+                }
                 var pageDataSource = new PageDataSource({ data });
-                var viewModel = window.viewModel = kendo.observable({
+                var viewModel = kendo.observable({
+                    pages: pageDataSource,
                     current: undefined,
-                    pages: pageDataSource
+                    isVisible: true,
+                    reset: function() {
+                        this.set('current', null);
+                    }
                 });
-                var onResize = window.onResize = function() {
-                    var navigationWidget = $('[data-role="navigation"]').data('kendoNavigation'),
-                        stage = $('#right [data-role="stage"]'),
-                        stageWidget = stage.data('kendoStage');
-                    if (navigationWidget instanceof kendo.ui.Navigation) {
-                        navigationWidget.resize();
-                    }
-                    if (stageWidget instanceof kendo.ui.Stage) {
-                        var width = $('#right').width();
-                        var height = $('#right').height();
-                        var scale = Math.min(0.90*width/1024, 0.90*height/768);
-                        stageWidget.scale(scale);
-                        $('.centered')
-                            .width(scale*stage.outerWidth())
-                            .height(scale*stage.outerHeight())
-                            .css('position', 'absolute')
-                            .css('top', '50%')
-                            .css('left', '50%')
-                            .css('margin-left', '-' + scale*stage.outerWidth()/2 + 'px')
-                            .css('margin-top', '-' + scale*stage.outerHeight()/2 + 'px');
-                    }
-                };
-
                 $(function() {
-                    var splitter = $('.kj-splitter').kendoSplitter({
-                        orientation: 'horizontal',
-                        resize: window.onResize,
-                        panes: [
-                            { size: '300px' /*, min: '50px', max: '500px'*/ },
-                            {}
-                        ]
-                    }).data("kendoSplitter");
-
-                    kendo.bind('body', viewModel);
-
-                    $(window).on('resize', window.onResize);
-
-                    $(document).on('keypress', function(e) {
-                        //Add empty pages when pressing the space bar
-                        if (e.type === 'keypress' && e.keyCode === 32) {
-                            var page = new Page();
-                            viewModel.pages.add(page);
+                    $('#toolbar').kendoToolBar({
+                        items: [
+                            { template: '<div id="playbar" data-role="playbar" data-bind="source: pages, value: page, visible: isVisible" data-button-count="5" class="kj-top" style="border:none; background:none;" ></div>' },
+                            { type: "separator" },
+                            { type: "button", text: "Submit" },
+                            { type: "button", text: "Review" }
+                        ],
+                        click: function (e) {
+                            window.alert($(e.target).text());
                         }
                     });
-
-                    pageDataSource.fetch(function() {
-                        window.viewModel.set('current', pageDataSource.at(0));
-                        window.onResize();
-                    });
+                    // kendo.bind('body', viewModel);
+                    kendo.bind('body', viewModel, kendo.ui, kendo.mobile.ui);
                 });
             });
         }());
     </script>
     <style>
-        html {
-            /* See: http://www.telerik.com/forums/100-window-height-splitter */
-            overflow: hidden;
+        body > div:first-of-type {
+            height: 22px;
         }
 
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-        }
-
-        .kj-splitter {
-            height: 100%;
-            border: 0;
-        }
-
-        #left,
-        [data-role="navigation"] {
-            height: 100%;
-            border: 0;
+        button {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
-<div class="kj-splitter">
-    <div id="left">
-        <div data-role="navigation" data-bind="source: pages, value: current"></div>
-    </div>
-    <div id="right">
-        <div class="centered">
-            <div data-role="stage" data-bind="source: current.components"></div>
-        </div>
-    </div>
-</div>
+<div data-bind="text: current.id"></div>
+<button data-bind="click: reset">Clear Selection</button><br/>
+<div><input type="checkbox" data-bind="checked: isVisible" />Visible</div>
+<div id="toolbar" style="overflow: visible;"></div>
+<input data-role="dropdownlist" data-bind="source: pages, value: page" data-text-field="id" data-value-field="id" style="width: 400px;"></select>
 </body>
 </html>

@@ -9,6 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import Asset from '../data/models.asset.es6';
 
 const { Class } = window.kendo;
 
@@ -63,22 +64,7 @@ const ToolAssets = Class.extend({
      * @param uri
      */
     scheme2http(uri) {
-        let ret = uri;
-        if ($.type(uri) === CONSTANTS.STRING) {
-            Object.keys(this.schemes).some(scheme => {
-                let done = false;
-                if (uri.indexOf(`${scheme}://`) === 0) {
-                    const root = this.schemes[scheme];
-                    ret =
-                        root +
-                        (root.charAt(root.length - 1) === '/' ? '' : '/') +
-                        uri.substr(`${scheme}://`.length);
-                    done = true;
-                }
-                return done;
-            });
-        }
-        return ret;
+        return Asset.scheme2http(uri, this.schemes);
     }
 });
 

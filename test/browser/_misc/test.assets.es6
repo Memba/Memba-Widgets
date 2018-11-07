@@ -12,6 +12,7 @@ const ROOT = window.__karma__
     }`; // eslint-disable-line prettier/prettier
 const TTL = 100;
 const CDN = 'https://cdn.kidoju.com';
+
 const SCHEMES = {
     cdn: `${CDN}/`,
     data: `${ROOT}/test/data/images/miscellaneous/`
@@ -150,7 +151,7 @@ const GOOGLE_SEARCH = {
                     data.filter.filters[1] &&
                     data.filter.filters[1].value;
                 ret = {
-                    // CHeck parameters at https://developers.google.com/custom-search/json-api/v1/reference/cse/list
+                    // Check parameters at https://developers.google.com/custom-search/json-api/v1/reference/cse/list
                     // Check API key at https://console.developers.google.com/apis/credentials?project=www-kidoju-com&authuser=1
                     alt: 'json',
                     cx: '003237092945897440411:olzsejrw28u',
@@ -230,69 +231,98 @@ const SIMPLE_PROJECT = {
     }
 };
 
-/*
-var COMPLEX_PROJECT = {
+const COMPLEX_PROJECT = {
     name: 'Project',
     tools: ['upload', 'create', 'edit', 'destroy'],
     editor: {
-
         // template: '<div><img alt="image" data-bind="attr: { src: url }"></img></div>' +
         // '<div><button data-bind="events: { click: click }">Save</button><button data-bind="events: { click: click }">Add</button></div>',
-
-        template: '<div data-role="vectordrawing" data-bind="events: { command: onCommand, dialog: onDialog }"></div>', // TODO remove new and open menu items (data-tools?)
+        template:
+            '<div data-role="vectordrawing" data-bind="events: { command: onCommand, dialog: onDialog }"></div>', // TODO remove new and open menu items (data-tools?)
         maximize: true,
-        openImageDialog: function () {
-            assert.instanceof(kendo.ui.Window, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
-            var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
+        openImageDialog() {
+            assert.instanceof(
+                kendo.ui.Window,
+                this,
+                assert.format(
+                    assert.messages.instanceof.default,
+                    'this',
+                    'kendo.ui.Window'
+                )
+            );
+            const vectorDrawingWidget = this.element
+                .find(kendo.roleSelector('vectordrawing'))
+                .data('kendoVectorDrawing');
             debugger;
-
         },
-        openUrl: function (url) {
-            assert.instanceof(kendo.ui.Window, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
-            var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
-            url = $('<a/>').attr('href', url).get(0).href; // Note: a simple way to resolve a relative url
+        openUrl(url) {
+            assert.instanceof(
+                kendo.ui.Window,
+                this,
+                assert.format(
+                    assert.messages.instanceof.default,
+                    'this',
+                    'kendo.ui.Window'
+                )
+            );
+            const vectorDrawingWidget = this.element
+                .find(kendo.roleSelector('vectordrawing'))
+                .data('kendoVectorDrawing');
+            url = $('<a/>')
+                .attr('href', url)
+                .get(0).href; // Note: a simple way to resolve a relative url
             return vectorDrawingWidget.open(url);
             // TODO promise????? app.notification of errors ????
         },
-        resize: function (e) {
-            assert.instanceof(kendo.ui.Window, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
-            var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
-            var container = e.sender.element;
+        resize(e) {
+            assert.instanceof(
+                kendo.ui.Window,
+                this,
+                assert.format(
+                    assert.messages.instanceof.default,
+                    'this',
+                    'kendo.ui.Window'
+                )
+            );
+            const vectorDrawingWidget = this.element
+                .find(kendo.roleSelector('vectordrawing'))
+                .data('kendoVectorDrawing');
+            const container = e.sender.element;
             vectorDrawingWidget.element
-            .outerWidth(container.width())
-            .outerHeight(container.height());
+                .outerWidth(container.width())
+                .outerHeight(container.height());
             vectorDrawingWidget.resize();
         },
-        saveAs: function (name, assetManager) {
+        saveAs(name, assetManager) {
             debugger;
         }
     },
     transport: {
-        create: function (options) {
-
+        create(options) {
+            debugger;
         },
-        destroy: function (options) {
+        destroy(options) {
             // options.error(new Error('Oops'));
             options.success({ total: 1, data: [options.data] });
         },
-        read: function (options) {
+        read(options) {
             options.success({
                 total: 3,
                 data: [
-                    { "url": "data://Elvis.jpg", "size": 69057 },
-                    { "url": "data://France-Fleuves-1.png", "size": 35886 },
-                    { "url": "data://self-portrait-1907.jpg", "size": 292974 }
+                    { url: 'data://Elvis.jpg', size: 69057 },
+                    { url: 'data://France-Fleuves-1.png', size: 35886 },
+                    { url: 'data://self-portrait-1907.jpg', size: 292974 }
                 ]
             });
         },
-        upload: function (options) {
+        upload(options) {
             // TODO: What if there is already a file with the same name?
             // TODO: Where do we check the file extension and file size and reject inadequate files?
             // Note: if there is an error, this is the place where to display notifications...
             // options.error(new Error('Oops'));
             if (options.data && options.data.file instanceof window.File) {
                 // Make sure we are asynchronous to simulate a file upload...
-                setTimeout(function () {
+                setTimeout(() => {
                     options.data.file = null;
                     options.data.url = `${CDN}/images/o_collection/svg/office/add.svg`;
                     // VERY IMPORTANT: it won't work without total + data which are both expected
@@ -300,15 +330,14 @@ var COMPLEX_PROJECT = {
                 }, 1000);
             }
         },
-        import: function (options) {
+        import(options) {
             debugger;
         },
-        stream: function (options) {
+        stream(options) {
             debugger;
         }
     }
 };
-*/
 
 const ASSETS = {
     CDN,
@@ -323,6 +352,7 @@ const ASSETS = {
     V_COLLECTION,
     X_COLLECTION,
     SIMPLE_PROJECT,
+    COMPLEX_PROJECT,
     GOOGLE_SEARCH
 };
 

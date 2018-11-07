@@ -41,6 +41,11 @@ const Asset = BaseModel.define({
     },
     // Note: replace schemes by defining a sub-model
     schemes: {},
+
+    /**
+     * @method mime$
+     * @returns {*}
+     */
     mime$() {
         const mime = this.get('mime');
         if (mime) {
@@ -52,12 +57,27 @@ const Asset = BaseModel.define({
         }
         return 'application/octet-stream';
     },
+
+    /**
+     * @method mame$
+     * @returns {*}
+     */
     name$() {
         return Asset.nameFormatter(this.get('url'));
     },
+
+    /**
+     * @method size$
+     * @returns {*}
+     */
     size$() {
         return Asset.sizeFormatter(this.get('size'));
     },
+
+    /**
+     * @method url$
+     * @returns {*}
+     */
     url$() {
         return Asset.scheme2http(this.get('url'), this.schemes);
     }
@@ -65,6 +85,7 @@ const Asset = BaseModel.define({
 
 /**
  * Extracts file name from url
+ * @function nameFormatter
  * @param url
  * @returns {*}
  */
@@ -83,6 +104,7 @@ Asset.nameFormatter = url => {
 
 /**
  * Returns a file size formatted with bytes, KB, MB, GB
+ * @function sizeFormatter
  * @param size
  * @returns {*}
  */
@@ -113,6 +135,7 @@ Asset.sizeFormatter = size => {
 /**
  * Convert file extension to mime type
  * @see http://hul.harvard.edu/ois/systems/wax/wax-public-help/mimetypes.htm
+ * @function typeFormatter
  * @param url
  * @returns {*}
  */
@@ -122,7 +145,10 @@ Asset.typeFormatter = url => {
         url,
         assert.format(assert.messages.type.default, 'url', CONSTANTS.STRING)
     );
-    const ext = url.split('.').pop().toLowerCase();
+    const ext = url
+        .split('.')
+        .pop()
+        .toLowerCase();
     switch (ext) {
         case 'gif':
             return 'image/gif';
@@ -158,6 +184,7 @@ Asset.typeFormatter = url => {
  * Assuming this.options.schemes = { cdn: 'https://s3.amazonaws.com/account/bucket/' }
  * Then this function return ret = https://s3.amazonaws.com/account/bucket/photo.jpg from uri = cdn://photo.jpg
  * This allows us to switch between sources especially for our web and mobile applications
+ * @function scheme2http
  * @param uri
  * @param schemes
  */

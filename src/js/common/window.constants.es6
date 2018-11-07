@@ -45,6 +45,7 @@ const CONSTANTS = {
     POINTEROUT: 'pointerout',
     POINTEROVER: 'pointerover',
     POINTERUP: 'pointerup',
+    PROGRESS: 'progress',
     SELECT: 'select',
     TAP: 'tap',
     TOUCHEND: 'touchend',

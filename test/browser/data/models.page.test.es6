@@ -16,9 +16,9 @@ import sinonChai from 'sinon-chai';
 import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
 import {
     getComponentArray,
-    getPage,
-    getErrorTransport
+    getPage
 } from '../_misc/test.components.es6';
+import { getErrorTransport } from '../_misc/test.transports.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
 import Page from '../../../src/js/data/models.page.es6';

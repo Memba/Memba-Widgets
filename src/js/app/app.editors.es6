@@ -3,10 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
-import input from './editors.input.es6';
-import span from './editors.span.es6';
-import template from './editors.template.es6';
-import textarea from './editors.textarea.es6';
+import input from '../editors/editors.input.es6';
+import span from '../editors/editors.span.es6';
+import template from '../editors/editors.template.es6';
+import textarea from '../editors/editors.textarea.es6';
 
 /**
  * Standard editors

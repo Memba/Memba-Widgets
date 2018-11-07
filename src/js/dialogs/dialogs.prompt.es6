@@ -68,10 +68,3 @@ export default function openPrompt(options = {}) {
 
     return dfd.promise();
 }
-
-/**
- * Legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openPrompt = openPrompt;

@@ -266,10 +266,3 @@ export default function openQuizWizard(options = {}) {
 
     return dfd.promise();
 }
-
-/**
- * Legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openQuizWizard = openQuizWizard;

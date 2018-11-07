@@ -73,10 +73,3 @@ export default function openStyleEditor(options = {}) {
 
     return dfd.promise();
 }
-
-/**
- * Legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openStyleEditor = openStyleEditor;

@@ -92,12 +92,3 @@ export function openYesNoAlert(options = {}) {
         })
     );
 }
-
-/**
- * Legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openAlert = openAlert;
-window.kidoju.dialogs.openOKCancelAlert = openOKCancelAlert;
-window.kidoju.dialogs.openYesNoAlert = openYesNoAlert;

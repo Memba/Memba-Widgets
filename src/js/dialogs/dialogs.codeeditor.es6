@@ -83,10 +83,3 @@ export default function openCodeEditor(options = {}) {
 
     return dfd.promise();
 }
-
-/**
- * Legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openCodeEditor = openCodeEditor;

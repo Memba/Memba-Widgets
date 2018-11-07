@@ -98,10 +98,3 @@ export default function openSignIn(options = {}) {
 
     return dfd.promise();
 }
-
-/**
- * Legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openSignIn = openSignIn;

@@ -152,8 +152,8 @@ export default function openAssetManager(options = {}) {
 }
 
 /**
- * Legacy code
+ * Global access to change i18n values with locale
  */
-window.kidoju = window.kidoju || {};
-window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openAssetManager = openAssetManager;
+window.kendo.ex = window.kendo.ex || {};
+window.kendo.ex.dialogs = window.kendo.ex.dialogs || {};
+window.kendo.ex.dialogs.openAssetManager = openAssetManager;

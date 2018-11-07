@@ -96,10 +96,3 @@ export default function openSpreadsheet(options = {}) {
 
     return dfd.promise();
 }
-
-/**
- * Legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.dialogs = window.kidoju.dialogs || {};
-window.kidoju.dialogs.openSpreadsheet = openSpreadsheet;

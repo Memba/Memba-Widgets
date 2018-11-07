@@ -11,7 +11,7 @@ import '../app/app.tools.es6';
 
 /**
  * getComponentArray
- * @function getComponentArray1
+ * @function getComponentArray
  */
 export function getComponentArray() {
     return [
@@ -58,6 +58,7 @@ export function getComponentArray() {
                 text: 'World'
             }
         },
+        /*
         {
             id: new ObjectId().toString(),
             tool: 'quiz',
@@ -73,6 +74,7 @@ export function getComponentArray() {
                 groupStyle: 'font-size: 30px; text-decoration: underline;'
             }
         },
+        */
         {
             id: new ObjectId().toString(),
             tool: 'textbox',

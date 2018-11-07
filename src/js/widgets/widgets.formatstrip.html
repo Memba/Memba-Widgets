@@ -195,35 +195,30 @@
             });
             Promise.all([
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('./widgets.formatstrip.es6')
-            ]).then(function () {
+                SystemJS.import('../data/datasources.pagecomponent.es6'),
+                SystemJS.import('./widgets.formatstrip.es6'),
+                SystemJS.import('./common.data.es6')
+            ]).then(function (modules) {
                 var kendo = window.kendo;
-                var kidoju = window.kidoju;
-                var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
-                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
-                        data: [
-                            // { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                            { id: kendo.guid(), tool : 'audio',top: 300, left : 500, height: 100, width: 500, rotate: 0, attributes: { autoplay: false, mp3: '', ogg: '' } },
-                            { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia; font-style: italic; color: #FF0000;', text: 'World' } },
-                            { id: kendo.guid(), tool : 'quiz', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { data: 'a\nb\nc\nd\n', activeStyle: '', itemStyle: '', groupStyle: 'font-size: 30px; text-decoration: underline;' } }
-                            // { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                        ]
-                    }),
-                    viewModel = window.viewModel = kendo.observable({
-                        components: pageComponentCollectionDataSource,
-                        selectedComponent: null, // For the formatstrip
-                        style: null, // For the formatbar
-                        enabled: true,
-                        visible: true,
-                        reset: function(e) {
-                            this.set('selectedComponent', null);
-                        }
-                    });
+                var PageComponentDataSource = modules[1].default;
+                var data = modules[3].getComponentArray();
+                var pageComponentDataSource = new PageComponentDataSource({ data });
+                var viewModel = window.viewModel = kendo.observable({
+                    components: pageComponentDataSource,
+                    selectedComponent: null, // For the formatstrip
+                    style: null, // For the formatbar
+                    enabled: true,
+                    visible: true,
+                    reset: function(e) {
+                        this.set('selectedComponent', null);
+                    }
+                });
                 $(function() {
                     kendo.bind('body', viewModel);
-                    pageComponentCollectionDataSource.fetch(function() {
-                        // viewModel.set('selectedComponent', pageComponentCollectionDataSource.at(1));
-                    });
+                    pageComponentDataSource.fetch();
+                    //    .then(function() {
+                    //        viewModel.set('selectedComponent', pageComponentDataSource.at(0));
+                    //    });
                 });
             });
         }());
@@ -240,7 +235,7 @@
 </head>
 <body>
 <h1>widgets.formatstrip</h1>
-<!--div data-role="formatbar" data-bind="value: style, visible: visible, enabled: enabled"></div-->
+<div data-role="formatbar" data-bind="value: style, visible: visible, enabled: enabled"></div>
 <div style="padding:20px;">
     <input type="text" data-bind="value: style" class="k-textbox" style="width: 100%;">
     <div>

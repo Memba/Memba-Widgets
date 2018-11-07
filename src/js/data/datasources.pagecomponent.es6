@@ -8,10 +8,11 @@
 import $ from 'jquery';
 import 'kendo.data';
 import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from './models.pagecomponent.es6';
 
 const {
-    data: { DataSource, Model, ObservableArray }
+    data: { DataSource, ObservableArray }
 } = window.kendo;
 
 /**
@@ -51,7 +52,7 @@ const PageComponentDataSource = DataSource.extend({
     init(options) {
         if (options && options.schema) {
             assert.ok(
-                !(options.schema.model instanceof Model) ||
+                $.type(options.schema.model) === CONSTANTS.UNDEFINED ||
                     Object.prototype.isPrototypeOf.call(
                         PageComponent.prototype,
                         options.schema.model.prototype
@@ -59,7 +60,7 @@ const PageComponentDataSource = DataSource.extend({
                 '`model` should derive from PageComponent'
             );
             assert.ok(
-                !(options.schema.modelBase instanceof Model) ||
+                $.type(options.schema.modelBase) === CONSTANTS.UNDEFINED ||
                     Object.prototype.isPrototypeOf.call(
                         PageComponent.prototype,
                         options.schema.modelBase.prototype
@@ -68,18 +69,17 @@ const PageComponentDataSource = DataSource.extend({
             );
 
             // Propagates Page options to PageComponentDataSource
-            // especially in the case where the wtream is defined with
+            // especially in the case where the stream is defined with
             // a hierarchy of CRUD transports
             if ($.isPlainObject(options.schema.model)) {
                 $.extend(true, options, {
                     schema: {
-                        modelBase: PageComponent.define({
-                            model:
-                                options.schema.modelBase || options.schema.model
-                        }),
-                        model: PageComponent.define({
-                            model: options.schema.model
-                        })
+                        modelBase: PageComponent.define(
+                            $.isPlainObject(options.schema.modelBase)
+                                ? options.schema.modelBase
+                                : options.schema.model
+                        ),
+                        model: PageComponent.define(options.schema.model)
                     }
                 });
             }

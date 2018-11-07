@@ -108,6 +108,7 @@ describe('datasources.pagecomponent', () => {
                     }
                 ];
                 function test() {
+                    debugger;
                     const dataSource = new PageComponentDataSource({
                         data: books,
                         schema: {

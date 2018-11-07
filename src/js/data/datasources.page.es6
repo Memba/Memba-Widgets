@@ -8,11 +8,11 @@
 import $ from 'jquery';
 import 'kendo.data';
 import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
 import Page from './models.page.es6';
-// import PageComponent from './models.pagecomponent.es6';
 
 const {
-    data: { DataSource, Model, ObservableArray }
+    data: { DataSource, ObservableArray }
 } = window.kendo;
 
 /**
@@ -52,7 +52,7 @@ const PageDataSource = DataSource.extend({
     init(options) {
         if (options && options.schema) {
             assert.ok(
-                !(options.schema.model instanceof Model) ||
+                $.type(options.schema.model) === CONSTANTS.UNDEFINED ||
                     Object.prototype.isPrototypeOf.call(
                         Page.prototype,
                         options.schema.model.prototype
@@ -60,7 +60,7 @@ const PageDataSource = DataSource.extend({
                 '`model` should derive from Page'
             );
             assert.ok(
-                !(options.schema.modelBase instanceof Model) ||
+                $.type(options.schema.modelBase) === CONSTANTS.UNDEFINED ||
                     Object.prototype.isPrototypeOf.call(
                         Page.prototype,
                         options.schema.modelBase.prototype
@@ -74,13 +74,12 @@ const PageDataSource = DataSource.extend({
             if ($.isPlainObject(options.schema.model)) {
                 $.extend(true, options, {
                     schema: {
-                        modelBase: Page.define({
-                            model:
-                                options.schema.modelBase || options.schema.model
-                        }),
-                        model: Page.define({
-                            model: options.schema.model
-                        })
+                        modelBase: Page.define(
+                            $.isPlainObject(options.schema.modelBase)
+                                ? options.schema.modelBase
+                                : options.schema.model
+                        ),
+                        model: Page.define(options.schema.model)
                     }
                 });
             }
@@ -137,7 +136,7 @@ PageDataSource.create = options => {
         dataSource instanceof DataSource
     ) {
         throw new Error(
-            'Incorrect DataSource type. Only PagetDataSource instances are supported'
+            'Incorrect DataSource type. Only PageDataSource instances are supported'
         );
     }
     return dataSource instanceof PageDataSource

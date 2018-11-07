@@ -252,26 +252,26 @@ const Page = BaseModel.define({
      * @returns {{audio: Array, image: Array, video: Array}}
      */
     assets() {
-        const assets = {
+        const ret = {
             audio: [],
             image: [],
             video: []
         };
         // Iterate through components
         this.components.data().forEach(component => {
-            const media = component.assets();
-            // Iterate through asset classes (medium)
-            Object.keys(media).forEach(medium => {
-                // Iterate through assets
-                media[medium].forEach(a => {
-                    // Only add if not a duplicate
-                    if (assets[media].indexOf(a) === -1) {
-                        assets[media].push(a);
+            const assets = component.assets();
+            // Iterate through asset classes (media audio, image, video)
+            Object.keys(assets).forEach(media => {
+                // Iterate through component assets
+                assets[media].forEach(a => {
+                    // Only add to ret if not a duplicate
+                    if (ret[media].indexOf(a) === -1) {
+                        ret[media].push(a);
                     }
                 });
             });
         });
-        return assets;
+        return ret;
     },
 
     /**

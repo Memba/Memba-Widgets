@@ -220,7 +220,25 @@ describe('models.pagecomponent', () => {
                     expect(clone).to.be.an.instanceof(BaseModel);
                     expect(clone).to.be.an.instanceof(Model);
                     const result = clone.toJSON();
+                    // Cloned component has no id
                     delete json.id;
+                    // Components with name and validation are modified
+                    if (
+                        result.properties.name &&
+                        result.properties.validation
+                    ) {
+                        // Cloned component has a different name
+                        delete json.properties.name;
+                        delete result.properties.name;
+                        // Clone component should have these values
+                        json.properties.failure = 0;
+                        json.properties.omit = 0;
+                        json.properties.question = '';
+                        json.properties.solution = '';
+                        json.properties.success = 1;
+                        // json.properties.validation = '// equal';
+                    }
+                    // Compare
                     expect(result).to.deep.equal(json);
                 }
                 getComponentArray().forEach(test);

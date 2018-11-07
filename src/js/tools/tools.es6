@@ -73,9 +73,3 @@ const tools = observable({
  * Default export
  */
 export default tools;
-
-/**
- * Legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.tools = tools;

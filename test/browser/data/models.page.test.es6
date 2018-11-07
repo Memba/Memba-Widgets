@@ -23,7 +23,7 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
 import Page from '../../../src/js/data/models.page.es6';
 import Stream from '../../../src/js/data/models.stream.es6';
-import '../../../src/js/tools/index.es6';
+import '../../../src/js/app/app.tools.es6';
 
 const { describe, it, xit } = window;
 const {

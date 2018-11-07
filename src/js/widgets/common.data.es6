@@ -5,7 +5,7 @@
 
 import ObjectId from '../common/pongodb.objectid.es6';
 import { randomVal } from '../common/window.util.es6';
-import '../tools/index.es6';
+import '../app/app.tools.es6';
 // import tools from '../tools/tools.es6';
 // import BaseTool from '../tools/tools.base.es6';
 

@@ -15,7 +15,7 @@ import Page from './js/data/models.page.es6';
 import tools from './js/tools/tools.es6';
 import BaseTool from './js/tools/tools.base.es6';
 import './js/widgets/widgets.explorer.es6';
-import './js/widgets/widgets.navigation.es6';
+import './js/widgets/widgets.navigation2.es6';
 import './js/widgets/widgets.stage.es6';
 
 const { location } = window;

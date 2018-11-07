@@ -8,7 +8,7 @@
 import $ from 'jquery';
 import 'kendo.core';
 import Stream from './js/data/models.stream.es6';
-import './js/tools/index.es6'; // Load tools
+import './js/app/app.tools.es6'; // Load tools
 import ToolAssets from './js/tools/util.assets.es6';
 
 const { localStorage, location } = window;

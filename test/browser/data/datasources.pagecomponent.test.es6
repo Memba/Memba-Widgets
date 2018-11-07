@@ -22,7 +22,7 @@ import { normalizeSchema } from '../../../src/js/data/data.util.es6';
 import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
-import '../../../src/js/tools/index.es6';
+import '../../../src/js/app/app.tools.es6';
 
 const { describe, it } = window;
 const { expect } = chai;

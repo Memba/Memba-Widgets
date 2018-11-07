@@ -193,7 +193,7 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
-                SystemJS.import('../tools/index.es6'),
+                SystemJS.import('../app/app.tools.es6'),
                 SystemJS.import('./widgets.toolbox.es6'),
                 SystemJS.import('./widgets.stage.es6')
             ]).then(function () {

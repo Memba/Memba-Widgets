@@ -17,7 +17,7 @@ import './js/widgets/widgets.styleeditor.es6';
 import './js/widgets/widgets.propertygrid.es6';
 
 import PageComponentDataSource from './js/data/datasources.pagecomponent.es6';
-import './js/tools/index.es6';
+import './js/app/app.tools.es6';
 import tools from './js/tools/tools.es6';
 
 const {

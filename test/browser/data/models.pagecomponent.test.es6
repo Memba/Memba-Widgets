@@ -20,7 +20,7 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import Page from '../../../src/js/data/models.page.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
-import '../../../src/js/tools/index.es6';
+import '../../../src/js/app/app.tools.es6';
 
 const { describe, it } = window;
 const {

@@ -7,13 +7,16 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 
-if (window.kidoju && window.kidoju.dialogs) {
-    window.kidoju.dialogs.messages = $.extend(
+if (window.kendo && window.kendo.ex && window.kendo.ex.dialogs) {
+    window.kendo.ex.dialogs.messages = $.extend(
         true,
         {},
-        window.kidoju.dialogs.messages,
+        window.kendo.ex.dialogs.messages,
         {
-            /* kidoju.dialogs.chargrid */
+            /* dialogs.assetmanager */
+            assetmanager: {},
+
+            /* dialogs.chargrid */
             chargrid: {
                 layout:
                     '<h3>Design the grid layout</h3><p>Any character you enter in the grid is locked and cannot be changed in play mode.</p><p>Use `{0}` to blank out empty cells.</p>',
@@ -21,7 +24,10 @@ if (window.kidoju && window.kidoju.dialogs) {
                     '<h3>Enter the solution</h3><p>Use any whitelisted character, i.e. `{0}`.</p>'
             },
 
-            /* kidoju.dialogs.finder */
+            /* dialogs.codeeditor */
+            codeeditor: {},
+
+            /* dialogs.finder */
             finder: {
                 language: 'Language',
                 me: 'My projects',
@@ -29,13 +35,13 @@ if (window.kidoju && window.kidoju.dialogs) {
                 search: 'Search'
             },
 
-            /* kidoju.dialogs.newsummary */
+            /* dialogs.newsummary */
             newsummary: {},
 
-            /* kidoju.dialogs.publish */
+            /* dialogs.publish */
             publish: {},
 
-            /* kidoju.dialogs.quizwizard */
+            /* dialogs.quizwizard */
             quizwizard: {
                 add: 'Add',
                 message:
@@ -51,10 +57,16 @@ if (window.kidoju && window.kidoju.dialogs) {
                 }
             },
 
-            /* kidoju.dialogs.signin */
+            /* dialogs.signin */
             signin: {},
 
-            /* kidoju.dialogs.textboxwizard */
+            /* dialogs.speeadsheet */
+            speeadsheet: {},
+
+            /* dialogs.styleeditor */
+            styleeditor: {},
+
+            /* dialogs.textboxwizard */
             textboxwizard: {
                 message:
                     'Please enter a question and solutions (one per line) to compare answers with.',

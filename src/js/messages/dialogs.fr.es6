@@ -7,21 +7,27 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 
-if (window.kidoju && window.kidoju.dialogs) {
-    window.kidoju.dialogs.messages = $.extend(
+if (window.kendo && window.kendo.ex && window.kendo.ex.dialogs) {
+    window.kendo.ex.dialogs.messages = $.extend(
         true,
         {},
-        window.kidoju.dialogs.messages,
+        window.kendo.ex.dialogs.messages,
         {
-            /* kidoju.dialogs.chargrid */
+            /* dialogs.assetmanager */
+            assetmanager: {},
+
+            /* dialogs.chargrid */
             chargrid: {
                 layout:
-                    '<h3>Concevez la grille</h3><p>Chaque caractère saisi dans la grille est verrouillé et ne peut être modifié  en mode d’exécution.</p><p>Utilisez le caractère `{0}` pour désigner les cellules vides.</p>',
+                    '<h3>Concevez la grille</h3><p>Chaque caractère saisi dans la grille est verrouillé et ne peut être modifié en mode d’exécution.</p><p>Utilisez le caractère `{0}` pour désigner les cellules vides.</p>',
                 solution:
                     '<h3>Saisissez la solution</h3><p>Utilisez les caractères autorisés de la liste blanche, i.e. `{0}`.</p>'
             },
 
-            /* kidoju.dialogs.finder */
+            /* dialogs.codeeditor */
+            codeeditor: {},
+
+            /* dialogs.finder */
             finder: {
                 language: 'Langue',
                 me: 'Mes projets',
@@ -29,13 +35,13 @@ if (window.kidoju && window.kidoju.dialogs) {
                 search: 'Recherche'
             },
 
-            /* kidoju.dialogs.newsummary */
+            /* dialogs.newsummary */
             newsummary: {},
 
-            /* kidoju.dialogs.publish */
+            /* dialogs.publish */
             publish: {},
 
-            /* kidoju.dialogs.quizwizard */
+            /* dialogs.quizwizard */
             quizwizard: {
                 add: 'Ajouter',
                 message:
@@ -51,10 +57,16 @@ if (window.kidoju && window.kidoju.dialogs) {
                 }
             },
 
-            /* kidoju.dialogs.signin */
+            /* dialogs.signin */
             signin: {},
 
-            /* kidoju.dialogs.textboxwizard */
+            /* dialogs.speeadsheet */
+            speeadsheet: {},
+
+            /* dialogs.styleeditor */
+            styleeditor: {},
+
+            /* dialogs.textboxwizard */
             textboxwizard: {
                 message:
                     'Veuillez saisir une question et des solutions (une par ligne) à comparer aux réponses',

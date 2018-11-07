@@ -9,6 +9,7 @@ import $ from 'jquery';
 // import 'kendo.core';
 
 // No need to import 'kendo.core';
+// TODO kendo.ex
 const { markeditor, mathinput, ui } = window.kendo || {};
 const {
     AssetManager,
@@ -48,7 +49,7 @@ const {
     // ToolBox
     // UnitInput
     // VectorDrawing
-} = ui;
+} = ui || {};
 
 /* kidoju.widgets.assetmanager */
 if (AssetManager) {

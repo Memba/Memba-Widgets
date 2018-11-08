@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
+import ObjectId from '../../../src/js/common/window.objectid.es6';
 import { error2xhr } from '../../../src/js/data/data.util.es6';
 
 /**

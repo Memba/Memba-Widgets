@@ -1176,7 +1176,7 @@ const Stage = DataBoundWidget.extend({
             uid,
             assert.format(
                 assert.messages.match.default,
-                'uid',
+                CONSTANTS.UID,
                 CONSTANTS.RX_GUID
             )
         );
@@ -1203,7 +1203,7 @@ const Stage = DataBoundWidget.extend({
             uid,
             assert.format(
                 assert.messages.match.default,
-                'uid',
+                CONSTANTS.UID,
                 CONSTANTS.RX_GUID
             )
         );
@@ -1241,7 +1241,7 @@ const Stage = DataBoundWidget.extend({
         );
         assert.equal(
             component.uid,
-            stageElement.attr(attr('uid')),
+            stageElement.attr(attr(CONSTANTS.UID)),
             'The stageElement data-uid attribute is expected to equal the component uid'
         );
 

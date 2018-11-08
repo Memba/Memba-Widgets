@@ -3,7 +3,12 @@
  * Sources at https://github.com/Memba
  */
 
-import tools from '../tools/tools.es6';
+/**
+ * IMPORTANT! Do not use this file in production
+ * ==============================================
+ * This is not the same code as in Kidoju-WebApp
+ * This code also loads pending experimentations
+ */
 
 /**
  * Load pointer tool (always required)
@@ -11,7 +16,7 @@ import tools from '../tools/tools.es6';
 import '../tools/tools.pointer.es6';
 
 /**
- * Load all tools
+ * Load all released tools
  */
 // import '../tools/tools.audio.es6';
 // import '../tools/tools.chargrid.es6';
@@ -36,7 +41,5 @@ import '../tools/tools.textbox.es6';
 // import '../tools/tools.video.es6';
 
 /**
- * Global access to change i18n values with locale
+ * Load pending experimentations
  */
-window.app = window.app || {};
-window.app.tools = tools;

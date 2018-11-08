@@ -12,7 +12,7 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import network from '../../../src/js/common/window.network.es6';
+import Network from '../../../src/js/common/window.network.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
@@ -33,6 +33,15 @@ if (fixtures.length) {
 }
 
 describe('window.network', () => {
+    const network = new Network({
+        ajax: {
+            url: 'https://www.kidoju.com/api/ping',
+            timeout: 5000
+        },
+        enabled: true,
+        global: false
+    });
+
     describe('using default options', () => {
         it('check', done => {
             network

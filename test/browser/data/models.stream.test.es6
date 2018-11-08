@@ -19,7 +19,7 @@ import {
     getComponentArray
 } from '../_misc/test.components.es6';
 import { getSpyingTransport } from '../_misc/test.transports.es6';
-import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
+import ObjectId from '../../../src/js/common/window.objectid.es6';
 import { normalizeSchema } from '../../../src/js/data/data.util.es6';
 import PageDataSource from '../../../src/js/data/datasources.page.es6';
 // import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';

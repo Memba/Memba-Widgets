@@ -4,7 +4,7 @@
  */
 
 import JSC from 'jscheck';
-import ObjectId from '../../../src/js/common/pongodb.objectid.es6';
+import ObjectId from '../../../src/js/common/window.objectid.es6';
 import { randomVal } from '../../../src/js/common/window.util.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';

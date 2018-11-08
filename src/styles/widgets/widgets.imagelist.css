@@ -3,35 +3,35 @@
  * Sources at https://github.com/Memba
  */
 .kj-imagelist > .k-toolbar {
-  border-top: none;
   border-left: none;
   border-right: none;
+  border-top: none;
 }
 .kj-imagelist > .k-listview {
-  margin: 0;
-  padding: 0;
   border: none;
+  padding: 0;
+  margin: 0;
 }
 .kj-imagelist > .k-listview .k-icon {
   color: inherit;
 }
 body > .k-list-item,
 .kj-imagelist > .k-listview > .k-list-item {
+  align-items: center;
   display: flex;
   flex-flow: row nowrap;
-  align-items: center;
   padding: 2px;
 }
 body > .k-list-item > .kj-handle,
 .kj-imagelist > .k-listview > .k-list-item > .kj-handle {
-  width: 1em;
   cursor: move;
+  width: 1em;
 }
 body > .k-list-item > .kj-text,
 .kj-imagelist > .k-listview > .k-list-item > .kj-text {
-  position: relative;
   flex: 1 1 auto;
   overflow: hidden;
+  position: relative;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -42,18 +42,38 @@ body > .k-list-item > .kj-text input,
 body > .k-list-item > .kj-text .k-tooltip-validation,
 .kj-imagelist > .k-listview > .k-list-item > .kj-text .k-tooltip-validation {
   position: absolute;
-  top: 0;
   right: 0;
+  top: 0;
 }
 body > .k-list-item > .kj-buttons,
 .kj-imagelist > .k-listview > .k-list-item > .kj-buttons {
+  align-items: center;
   display: flex;
   flex: 0 0 auto;
   flex-flow: row nowrap;
-  align-items: center;
 }
 body > .k-list-item > .kj-buttons .k-image,
 .kj-imagelist > .k-listview > .k-list-item > .kj-buttons .k-image {
   height: 2em;
   width: 2em;
+}
+body > .k-list-item > .kj-buttons .k-button,
+.kj-imagelist > .k-listview > .k-list-item > .kj-buttons .k-button {
+  height: 2em;
+}
+.k-tooltip .kj-imagelist-tooltip {
+  background-position: center;
+  background-size: cover;
+  height: 150px;
+  width: 150px;
+}
+.k-tooltip .kj-imagelist-tooltip .kj-imagelist-title {
+  background-color: rgba(255, 255, 255, 0.5);
+  bottom: 0;
+  color: #000;
+  left: 0;
+  padding: 1em;
+  position: absolute;
+  right: 0;
+  text-overflow: ellipsis;
 }

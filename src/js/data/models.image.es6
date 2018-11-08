@@ -21,6 +21,7 @@ const Image = BaseModel.define({
             type: CONSTANTS.STRING
         }
     }
+    // TODO Add validation
 });
 
 /**

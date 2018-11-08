@@ -14,7 +14,7 @@ import 'kendo.core';
 import 'kendo.resizable';
 import 'kendo.tooltip';
 import 'kendo.validator';
-import editors from '../app/app.editors.es6';
+import editors from '../tools/util.editors.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';

@@ -4,56 +4,91 @@
  */
 
 .kj-imagelist {
-    >.k-toolbar {
-        border-top: none;
+    > .k-toolbar {
+        // border-bottom: none;
         border-left: none;
         border-right: none;
-        // border-bottom: none;
+        border-top: none;
     }
-    >.k-listview {
-        margin: 0;
-        padding: 0;
+
+    > .k-listview {
         border: none;
+        padding: 0;
+        margin: 0;
+
         .k-icon {
             color: inherit;
         }
     }
 }
-// we need body > k-list-item for drgaggable hints
-body, .kj-imagelist>.k-listview {
-    >.k-list-item {
+
+// we also need body > k-list-item for draggable hints
+body,
+.kj-imagelist > .k-listview {
+    > .k-list-item {
+        align-items: center;
         display: flex;
         flex-flow: row nowrap;
-        align-items: center;
         padding: 2px;
-        >.kj-handle {
-            width: 1em;
+
+        > .kj-handle {
             cursor: move;
+            width: 1em;
         }
-        >.kj-text {
-            position: relative;
+
+        > .kj-text {
             flex: 1 1 auto;
             overflow: hidden;
+            position: relative;
             text-overflow: ellipsis;
             white-space: nowrap;
+
             input {
                 width: 100%;
             }
+
             .k-tooltip-validation {
                 position: absolute;
-                top: 0;
                 right: 0;
+                top: 0;
             }
         }
-        >.kj-buttons {
+
+        > .kj-buttons {
+            align-items: center;
             display: flex;
             flex: 0 0 auto;
             flex-flow: row nowrap;
-            align-items: center;
+
             .k-image {
                 height: 2em;
                 width: 2em;
             }
+
+            .k-button {
+                height: 2em;
+            }
+        }
+    }
+}
+
+// Tooltips
+.k-tooltip {
+    .kj-imagelist-tooltip {
+        background-position: center;
+        background-size: cover;
+        height: 150px;
+        width: 150px;
+
+        .kj-imagelist-title {
+            background-color: rgba(255, 255, 255, 0.5);
+            bottom: 0;
+            color: #000;
+            left: 0;
+            padding: 1em;
+            position: absolute;
+            right: 0;
+            text-overflow: ellipsis;
         }
     }
 }

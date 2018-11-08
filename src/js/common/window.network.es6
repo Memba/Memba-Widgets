@@ -189,13 +189,4 @@ const Network = Observable.extend({
 /**
  * Default export
  */
-export default new Network({
-    // @ see http://api.jquery.com/jquery.ajax/
-    ajax: {
-        // TODO Use app.uris.rapi.ping
-        url: 'https://www.kidoju.com/api/ping',
-        timeout: 5000
-    },
-    enabled: true,
-    global: false
-});
+export default Network;

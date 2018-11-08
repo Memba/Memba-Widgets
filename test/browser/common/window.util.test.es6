@@ -13,6 +13,7 @@ import {
     escapeRegExp,
     isAnyArray,
     compareBasicArrays,
+    getLocation,
     isGuid,
     jsonClone,
     randomColor,
@@ -91,9 +92,57 @@ describe('window.util', () => {
         });
 
         it('It should compare mismatched arrays', () => {
-            expect(compareBasicArrays([true, false], [false, true])).to.be.false;
+            expect(compareBasicArrays([true, false], [false, true])).to.be
+                .false;
             expect(compareBasicArrays([0, 1, 2, 3, 4], [3, 2, 1])).to.be.false;
-            expect(compareBasicArrays(['a', 'b', 'c'], ['d', 'e', 'f'])).to.be.false;
+            expect(compareBasicArrays(['a', 'b', 'c'], ['d', 'e', 'f'])).to.be
+                .false;
+        });
+    });
+
+    describe('getLocation', () => {
+        const protocol = 'http:';
+        const username = 'joe';
+        const password = 'zzz';
+        const hostname = 'www.example.com';
+        const port = '8080';
+        const pathname = '/a/b/c';
+        const search = '?p=1&q=2';
+        const hash = '#1234567890';
+        const host = `${hostname}:${port}`;
+        const origin = `${protocol}//${host}`;
+
+        it('Absolute url', () => {
+            const url = `${protocol}//${username}:${password}@${hostname}:${port}${pathname}${search}${hash}`;
+            const location = getLocation(url);
+            expect(location.hash).to.equal(hash);
+            expect(location.host).to.equal(host);
+            expect(location.hostname).to.equal(hostname);
+            expect(location.href).to.equal(url);
+            expect(location.origin).to.equal(origin);
+            expect(location.password).to.equal(password);
+            expect(location.pathname).to.equal(pathname);
+            expect(location.port).to.equal(port);
+            expect(location.protocol).to.equal(protocol);
+            expect(location.search).to.equal(search);
+            expect(location.username).to.equal(username);
+        });
+
+        it('Relative url', () => {
+            const url = `${pathname}${search}${hash}`;
+            const href = `${window.location.protocol}//${window.location.host}${url}`;
+            const location = getLocation(url);
+            expect(location.hash).to.equal(hash);
+            expect(location.host).to.equal(window.location.host);
+            expect(location.hostname).to.equal(window.location.hostname);
+            expect(location.href).to.equal(href);
+            expect(location.origin).to.equal(window.location.origin);
+            expect(location.password).to.equal(window.location.password);
+            expect(location.pathname).to.equal(pathname);
+            expect(location.port).to.equal(window.location.port);
+            expect(location.protocol).to.equal(window.location.protocol);
+            expect(location.search).to.equal(search);
+            expect(location.username).to.equal(window.location.username);
         });
     });
 

@@ -79,6 +79,37 @@ export function compareBasicArrays(a, b) {
 }
 
 /**
+ * getLocation
+ * @function getLocation
+ * @see https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+ * @param url
+ */
+export function getLocation(url) {
+    const location = document.createElement(CONSTANTS.A);
+    location.href = url;
+    // IE doesn't populate all link properties when setting .href with a relative URL,
+    // however .href will return an absolute URL which then can be used on itself
+    // to populate these additional fields.
+    if (location.host === '') {
+        location.href = location.href;
+    }
+    return {
+        // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLHyperlinkElementUtils
+        href: location.href,
+        protocol: location.protocol,
+        host: location.host,
+        hostname: location.hostname,
+        port: location.port,
+        pathname: location.pathname,
+        search: location.search,
+        hash: location.hash,
+        username: location.username ? location.username : undefined,
+        password: location.password ? location.password : undefined,
+        origin: location.origin
+    };
+}
+
+/**
  * isGuid
  * @function isGuid
  * @param value

@@ -1620,7 +1620,7 @@ export function pngEncode(imgData, options) {
 /**
  * getImageData
  * @param source (dataUri or url)
- * @paran options [ height, width ]
+ * @param options [ height, width ]
  * @private
  */
 export function getImageData(source, options) {
@@ -1631,36 +1631,38 @@ export function getImageData(source, options) {
     );
     const dfd = $.Deferred();
     const img = $(`<${CONSTANTS.IMG}>`)
-        // crossOrigin prevents Uncaught DOMException: Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported.
+        // crossOrigin prevents
+        // Uncaught DOMException: Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported.
         .attr('crossOrigin', 'Anonymous')
         .css({
             position: 'absolute',
             top: 0,
             left: -10000
         })
+        // Appending to body prevents
+        // Error: Uncaught IndexSizeError: Failed to execute 'getImageData' on 'CanvasRenderingContext2D': The source width is 0.
         .appendTo(CONSTANTS.BODY)
         .on(CONSTANTS.LOAD, () => {
-            const sHeight = img.height();
-            const sWidth = img.width();
-            const dHeight = (options || {}).height || sHeight;
-            const dWidth = (options || {}).width || sWidth;
+            const h = img.height();
+            const w = img.width();
+            const height = (options || {}).height || h;
+            const width = (options || {}).width || w;
             const canvas = $(`<${CONSTANTS.CANVAS}>`).prop({
-                height: dHeight,
-                width: dWidth
+                height,
+                width
             });
-            const ctx = canvas[0].getContext('2d');
+            const c = canvas[0];
+            const ctx = c.getContext('2d');
             // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
-            ctx.drawImage(img[0], 0, 0, sWidth, sHeight, 0, 0, dWidth, dHeight);
-            const imageData = ctx.getImageData(
-                0,
-                0,
-                canvas.width,
-                canvas.height
-            );
+            ctx.drawImage(img[0], 0, 0, w, h, 0, 0, width, height);
+            const imageData = ctx.getImageData(0, 0, c.width, c.height);
             img.off().remove();
             dfd.resolve(imageData);
         })
-        .on(CONSTANTS.ERROR, err => {
+        .on(CONSTANTS.ERROR, e => {
+            const err = new Error('Error loading image');
+            err.event = e;
+            err.image = source;
             img.off().remove();
             dfd.reject(err);
         })
@@ -1694,17 +1696,21 @@ export function getDataUriAndSize(source) {
                 height: img.height(),
                 width: img.width()
             });
-            const ctx = canvas[0].getContext('2d');
+            const c = canvas[0];
+            const ctx = c.getContext('2d');
             ctx.drawImage(img[0], 0, 0);
-            const dataUri = canvas.toDataURL('image/png');
+            const dataUri = c.toDataURL(CONSTANTS.PNG_CONTENT_TYPE);
             img.off().remove();
             dfd.resolve({
                 dataUri,
-                height: canvas.height,
-                width: canvas.width
+                height: c.height,
+                width: c.width
             });
         })
-        .on(CONSTANTS.ERROR, err => {
+        .on(CONSTANTS.ERROR, e => {
+            const err = new Error('Error loading image');
+            err.event = e;
+            err.image = source;
             img.off().remove();
             dfd.reject(err);
         })
@@ -1747,7 +1753,12 @@ export function preload(url) {
     $(`<${CONSTANTS.IMG}>`)
         .attr('crossOrigin', 'Anonymous')
         .on(CONSTANTS.LOAD, dfd.resolve)
-        .on(CONSTANTS.ERROR, dfd.reject)
+        .on(CONSTANTS.ERROR, e => {
+            const err = new Error('Error loading image');
+            err.event = e;
+            err.image = url;
+            dfd.reject(err);
+        })
         .attr('src', window.encodeURI(url));
     return dfd.promise();
 }

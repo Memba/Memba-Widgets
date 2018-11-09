@@ -66,6 +66,8 @@ const CONSTANTS = {
     NOT_IMPLEMENTED_ERR: 'Not implemented',
     // Content types
     JSON_CONTENT_TYPE: 'application/json',
+    JPEG_CONTENT_TYPE: 'image/jpeg',
+    PNG_CONTENT_TYPE: 'image/png',
     // Cursors
     CROSSHAIR_CURSOR: 'crosshair',
     DEFAULT_CURSOR: 'default',
@@ -119,6 +121,7 @@ const CONSTANTS = {
     BUTTON: 'button',
     CANVAS: 'canvas',
     DIV: 'div',
+    H1: 'h1',
     IMG: 'img',
     INPUT: 'input',
     LI: 'li',

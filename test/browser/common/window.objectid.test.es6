@@ -13,7 +13,7 @@ import ObjectId from '../../../src/js/common/window.objectid.es6';
 const { describe, it } = window;
 const { expect } = chai;
 
-describe('pongodb.objectid', () => {
+describe('window.objectid', () => {
     describe('ObjectId', () => {
         it('It should fail to create an ObjectId from invalid values', () => {
             function test1() {

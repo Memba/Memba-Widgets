@@ -197,7 +197,7 @@
                 SystemJS.import('kendo.binder'),
                 SystemJS.import('../data/datasources.pagecomponent.es6'),
                 SystemJS.import('./widgets.formatstrip.es6'),
-                SystemJS.import('./common.data.es6')
+                SystemJS.import('../helpers/helpers.data.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
                 var PageComponentDataSource = modules[1].default;

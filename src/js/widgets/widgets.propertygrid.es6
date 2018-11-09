@@ -3,9 +3,11 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO: validators
-// TODO: highlight selection from API
-// TODO: set/get resize position handle
+// TODO validators
+// TODO highlight selection from API
+// TODO set/get resize position handle
+// TODO disable some attributes/properties
+// Refresh properties when attributes change (see highlighter)
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved

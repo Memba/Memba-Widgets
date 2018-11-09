@@ -9,7 +9,7 @@ import chai from 'chai';
 import tools from '../../../src/js/tools/tools.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';
 import '../../../src/js/app/app.tools.es6';
-import '../../../src/js/messages/tools.fr.es6';
+import '../../../src/js/cultures/tools.fr.es6';
 
 const { describe, it, xit } = window;
 const { expect } = chai;

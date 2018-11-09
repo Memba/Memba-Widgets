@@ -3,17 +3,33 @@
  * Sources at https://github.com/Memba
  */
 .kj-floating {
+  cursor: move;
   display: flex;
   flex-flow: row nowrap;
-  cursor: move;
   max-width: 300px;
+  /* for iPhone 5, but make sure toolbars are not resizable */
 }
-.kj-floating .kj-floating-handle {
-  width: 2em;
+html:not(.km-root) .kj-floating .kj-floating-handle {
+  padding-left: 0.2em;
+  width: 1em;
 }
-.kj-floating .kj-floating-content .k-toolbar.k-widget {
+html:not(.km-root) .kj-floating .kj-floating-handle span.k-icon {
+  margin-top: 0.5em;
+}
+html:not(.km-root) .kj-floating .kj-floating-content .k-toolbar.k-widget {
   border: none;
+  margin-left: 0;
 }
-.kj-floating .kj-floating-content .k-toolbar.k-widget:not(:last-child) {
-  margin-bottom: 0.25em;
+html.km-root .kj-floating .kj-floating-handle {
+  height: auto;
+}
+html.km-root .kj-floating .kj-floating-content {
+  /*
+            .k-toolbar.k-widget:not(:last-child) {
+                margin-bottom: 0.25em;
+            }
+            */
+}
+html.km-root .kj-floating .kj-floating-content .k-toolbar.k-widget {
+  margin: 0.2em;
 }

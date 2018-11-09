@@ -4,19 +4,50 @@
  */
 
 .kj-floating {
+    cursor: move;
     display: flex;
     flex-flow: row nowrap;
-    cursor: move;
-    max-width: 300px; // for iPhone 5, but make sure toolbars are not resizable
-    .kj-floating-handle {
-        width: 2em;
-    }
-    .kj-floating-content {
-        .k-toolbar.k-widget {
-            border: none;
+    max-width: 300px; /* for iPhone 5, but make sure toolbars are not resizable */
+}
+
+// In desktop application
+html:not(.km-root) {
+    .kj-floating {
+        .kj-floating-handle {
+            padding-left: 0.2em;
+            width: 1em;
+
+            span.k-icon {
+                margin-top: 0.5em;
+            }
         }
-        .k-toolbar.k-widget:not(:last-child) {
-            margin-bottom: 0.25em;
+
+        .kj-floating-content {
+            .k-toolbar.k-widget {
+                border: none;
+                margin-left: 0;
+            }
+        }
+    }
+}
+
+// In mobile application
+html.km-root {
+    .kj-floating {
+        .kj-floating-handle {
+            height: auto;
+        }
+
+        .kj-floating-content {
+            .k-toolbar.k-widget {
+                margin: 0.2em;
+            }
+
+            /*
+            .k-toolbar.k-widget:not(:last-child) {
+                margin-bottom: 0.25em;
+            }
+            */
         }
     }
 }

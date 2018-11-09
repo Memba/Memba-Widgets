@@ -3,225 +3,239 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, jquery: true */
-/* globals define: false */
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
-(function (f, define) {
-    'use strict';
-    define([
-        '../common/window.assert.es6',
-        './common/window.logger.es6',
-        './vendor/kendo/kendo.draganddrop',
-        './vendor/kendo/kendo.window'
-    ], f);
-})(function () {
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import 'kendo.draganddrop';
+import 'kendo.window';
+// import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 
-    'use strict';
+const {
+    destroy,
+    resize,
+    ui: { plugin, Widget }
+} = window.kendo;
+const logger = new Logger('widgets.floating');
+// const NS = '.kendoFloating';
+const WIDGET_CLASS = 'k-toolbar kj-floating';
+const CONTENT_CLASS = 'kj-floating-content';
+const HANDLE_CLASS = 'kj-floating-handle';
 
-    (function ($, undefined) {
+const MutationObserver =
+    window.MutationObserver ||
+    window.WebKitMutationObserver ||
+    window.MozMutationObserver;
 
-        var kendo = window.kendo;
-        var Widget = kendo.ui.Widget;
-        var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-        var assert = window.assert;
-        var logger = new window.Logger('widgets.floating');
-        // var UNDEFINED = 'undefined';
-        var WIDGET_CLASS = 'k-toolbar kj-floating';
+/**
+ * Floating
+ * @class Floating
+ * @extends Widget
+ */
+const Floating = Widget.extend({
+    /**
+     * Init
+     * @constructor inti
+     * @param element
+     * @param options
+     */
+    init(element, options) {
+        Widget.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', message: 'widget initialized' });
+        this._render();
+        this._setMutationObserver();
+    },
 
-        /*********************************************************************************
-         * Widget
-         *********************************************************************************/
+    /**
+     * Options
+     * @property options
+     */
+    options: {
+        name: 'Floating',
+        observed: '', // '.k-toolbar:not([style*='display: none']) [data-uid]'
+        attributeFilter: [] // ['style']
+    },
 
-        /**
-         * Floating
-         * @class Floating Widget (kendoFloating)
-         */
-        var Floating = Widget.extend({
+    /**
+     * Widget layout
+     * @private
+     */
+    _render() {
+        const { element } = this;
+        // Add drag handle and content
+        element
+            .addClass(WIDGET_CLASS)
+            .append(
+                $(`<${CONSTANTS.DIV}/>`)
+                    .addClass(HANDLE_CLASS)
+                    .append('<span class="k-icon k-i-handler-drag"></span>')
+            )
+            .append($(`<${CONSTANTS.DIV}/>`).addClass(CONTENT_CLASS));
+        // Create titleless window
+        this.window = element
+            .kendoWindow({
+                resizable: false,
+                scrollable: false,
+                title: false
+            })
+            .data('kendoWindow');
+        this.wrapper = this.window.wrapper;
+        // Add draggable
+        this.draggable = element
+            .kendoDraggable({
+                group: 'widgets.floating',
+                ignore: `${CONSTANTS.DOT}${CONTENT_CLASS}, ${
+                    CONSTANTS.DOT
+                }${CONTENT_CLASS} *`,
+                hint: this._hint.bind(this),
+                dragstart: this._onDragStart.bind(this),
+                dragend: this._onDragEnd.bind(this)
+            })
+            .data('kendoDraggable');
+    },
 
-            /**
-             * Init
-             * @param element
-             * @param options
-             */
-            init: function (element, options) {
-                var that = this;
-                options = options || {};
-                Widget.fn.init.call(that, element, options);
-                logger.debug({ method: 'init', message: 'widget initialized' });
-                that._layout();
-                that._setMutationObserver();
-                kendo.notify(that);
-            },
+    /**
+     * Get dragging hint (the thing that moves around on top of everything thanks to a high zIndex)
+     * Note: The original element is not modified and should be hidden or displayed with a low opacity
+     * @private
+     */
+    _hint() {
+        // element.clone() always sets top=0, left=0 which cannot be updated until the clone is added to the document body
+        // which occurs in kendoDraggable before calling _onDragStart
+        return this.wrapper.clone();
+    },
 
-            /**
-             * Options
-             * @property options
-             */
-            options: {
-                name: 'Floating',
-                observed: '', // '.k-toolbar:not([style*='display: none']) [data-uid]'
-                attributeFilter: [] // ['style']
-            },
+    /**
+     * Drag start event handler
+     * @private
+     */
+    _onDragStart() {
+        // hint (the clone) is now added to the document body and its position can be set via CSS
+        const {
+            draggable: { hint },
+            wrapper
+        } = this;
+        const position = wrapper.position();
+        // hide the original element
+        wrapper.hide();
+        // position the hint on top of the original element
+        hint.css({
+            // position: 'absolute',
+            // zIndex: 15000,
+            top: position.top,
+            left: position.left
+        });
+        // show the hint
+        hint.show();
+    },
 
-            /**
-             * Widget layout
-             * @private
-             */
-            _layout: function () {
-                var that = this;
-                var element = this.element;
-                element.addClass(WIDGET_CLASS);
-                // Add drag handle
-                element.append('<div class="kj-floating-handle"><span class="k-icon k-i-handler-drag"></span></div>');
-                element.append('<div class="kj-floating-content"></div>');
-                // Create titleless window
-                element.kendoWindow({
-                    resizable: false,
-                    scrollable: false,
-                    title: false
-                });
-                that.window = element.data('kendoWindow');
-                that.wrapper = that.window.wrapper;
-                // Add draggable
-                element.kendoDraggable({
-                    group: 'widgets.floating',
-                    ignore: '.kj-floating-content, .kj-floating-content *',
-                    hint: $.proxy(that._hint, that),
-                    dragstart: $.proxy(that._onDragStart, that),
-                    dragend: $.proxy(that._onDragEnd, that)
-                });
-                that.draggable = element.data('kendoDraggable');
-            },
+    /**
+     * Drag end event handler
+     * @private
+     */
+    _onDragEnd() {
+        const {
+            draggable: { hint },
+            wrapper
+        } = this;
+        const position = hint.position();
+        // hide the hint which has been moved around
+        hint.hide();
+        // set the position of the original element to the position of the hint
+        wrapper.css({
+            position: 'absolute',
+            zIndex: 15000,
+            top: position.top,
+            left: position.left
+        });
+        // show the original element
+        wrapper.show();
+    },
 
-            /**
-             * Get dragging hint (the thing that moves around on top of everything thanks to a high zIndex)
-             * Note: The original element is not modified and should be hidden or displayed with a low opacity
-             * @private
-             */
-            _hint: function () {
-                // element.clone() always sets top=0, left=0 which cannot be updated until the clone is added to the document body
-                // which occurs in kendoDraggable before calling _onDragStart
-                return this.window.wrapper.clone();
-            },
-
-            /**
-             * Drag start event handler
-             * @private
-             */
-            _onDragStart: function () {
-                // hint (the clone) is now added to the document body and its position can be set via CSS
-                var hint = this.draggable.hint;
-                var wrapper = this.window.wrapper;
-                var position = wrapper.position();
-                // hide the original element
-                wrapper.hide();
-                // position the hint on top of the original element
-                hint.css({
-                    // position: 'absolute',
-                    // zIndex: 15000,
-                    top: position.top,
-                    left: position.left
-                });
-                // show the hint
-                hint.show();
-            },
-
-            /**
-             * Drag end event handler
-             * @private
-             */
-            _onDragEnd: function () {
-                var hint = this.draggable.hint;
-                var wrapper = this.window.wrapper;
-                var position = hint.position();
-                // hide the hint which has been moved around
-                hint.hide();
-                // set the position of the original element to the position of the hint
-                wrapper.css({
-                    position: 'absolute',
-                    zIndex: 15000,
-                    top: position.top,
-                    left: position.left
-                });
-                // show the original element
-                wrapper.show();
-            },
-
-            /**
-             * Set Mutation Observer
-             * to show/hide the floating whether there is relevant content
-             * @see https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
-             * @private
-             */
-            _setMutationObserver: function () {
-                var that = this;
-                var wrapper = that.wrapper;
-                var content = wrapper.find('.kj-floating-content');
-                var options = that.options;
-                var observed = options.observed;
-                var attributeFilter = options.attributeFilter;
-                if (observed) {
+    /**
+     * Set Mutation Observer
+     * to show/hide the floating whether there is relevant content
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+     * @private
+     */
+    _setMutationObserver() {
+        const {
+            options: { attributeFilter, observed },
+            wrapper
+        } = this;
+        const content = wrapper.find(`${CONSTANTS.DOT}${CONTENT_CLASS}`);
+        if (observed) {
+            wrapper.hide();
+            // create an observer instance (show only if there are observed nodes)
+            this.observer = new MutationObserver(() => {
+                // this.wrapper.toggle(!!content.find(observed).length);
+                // creates an infinite loop because display attribute is always modified
+                // so we need to only apply if there is a change
+                if (wrapper.is(':visible') && !content.find(observed).length) {
                     wrapper.hide();
-                    // create an observer instance (show only if there are observed nodes)
-                    that.observer = new MutationObserver(function () {
-                        // that.wrapper.toggle(!!content.find(observed).length);
-                        // creates an infinite loop because display attribute is always modified
-                        // so we need to only apply if there is a change
-                        if (wrapper.is(':visible') && !content.find(observed).length) {
-                            wrapper.hide();
-                        } else if (wrapper.is(':not(:visible)') && content.find(observed).length) {
-                            wrapper.show();
-                        }
-                    });
-                    // To observe node additions and removals (e.g. toolbar buttons)
-                    var config = { childList: true, subtree: true };
-                    // To also observe attributes (e.g. toolbar visibility)
-                    if ($.isArray(attributeFilter) && attributeFilter.length) {
-                        config.attributes = true;
-                        config.attributeFilter = attributeFilter;
-                    }
-                    // pass in the content node to observe, as well as the observer configuration
-                    that.observer.observe(content.get(0), config);
-                } else {
+                } else if (
+                    wrapper.is(':not(:visible)') &&
+                    content.find(observed).length
+                ) {
                     wrapper.show();
                 }
-            },
-
-            /**
-             * Show
-             */
-            show: function () {
-                this.wrapper.show();
-            },
-
-            /**
-             * Hide
-             */
-            hide: function () {
-                this.wrapper.hide();
-            },
-
-            /**
-             * Destroy
-             * @method destroy
-             */
-            destroy: function () {
-                var that = this;
-                Widget.fn.destroy.call(that);
-                kendo.destroy(that.element);
-                // disconnect the mutation observer
-                if (that.observer instanceof MutationObserver) {
-                    that.observer.disconnect();
-                }
-                logger.debug({ method: 'destroy', message: 'widget destroyed' });
+                // with any change, resize
+                resize(wrapper);
+            });
+            // To observe node additions and removals (e.g. toolbar buttons)
+            const config = { childList: true, subtree: true };
+            // To also observe attributes (e.g. toolbar visibility)
+            if ($.isArray(attributeFilter) && attributeFilter.length) {
+                config.attributes = true;
+                config.attributeFilter = attributeFilter;
             }
+            // pass in the content node to observe, as well as the observer configuration
+            this.observer.observe(content.get(0), config);
+        } else {
+            wrapper.show();
+        }
+    },
 
-        });
+    /**
+     * Show
+     */
+    show() {
+        this.wrapper.show();
+    },
 
-        kendo.ui.plugin(Floating);
+    /**
+     * Hide
+     */
+    hide() {
+        this.wrapper.hide();
+    },
 
-    }(window.jQuery));
+    /**
+     * Destroy
+     * @method destroy
+     */
+    destroy() {
+        const that = this;
+        // Remove references
 
-    return window.kendo;
+        Widget.fn.destroy.call(this);
+        destroy(this.wrapper);
+        // disconnect the mutation observer
+        if (that.observer instanceof MutationObserver) {
+            that.observer.disconnect();
+        }
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
+    }
+});
 
-}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
+/**
+ * Registration
+ */
+plugin(Floating);

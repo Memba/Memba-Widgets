@@ -11,6 +11,7 @@ import $ from 'jquery';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { randomVal } from '../../../src/js/common/window.util.es6';
 import span from '../../../src/js/editors/editors.span.es6';
 
@@ -24,7 +25,7 @@ chai.use((c, u) => chaiJquery(c, u, $));
 describe('editors.span', () => {
     before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
-            $('body').append('<div id="fixtures"></div>');
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
     });
 

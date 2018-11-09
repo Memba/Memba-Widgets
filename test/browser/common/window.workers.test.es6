@@ -15,21 +15,17 @@ import $ from 'jquery';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'modernizr';
 import chai from 'chai';
+import { base } from '../_misc/test.util.es6';
 import WorkerPool from '../../../src/js/common/window.workers.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 
-const { before, describe, it, location, Modernizr } = window;
+const { before, describe, it, Modernizr } = window;
 const { expect } = chai;
 
-const root = window.__karma__
-    ? 'base' // Base directory for Karma assets
-    : `${location.protocol}//${location.host}${
-        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '' // eslint-disable-line prettier/prettier
-    }`; // eslint-disable-line prettier/prettier
 const libraries = [
-    `${root}/src/js/vendor/jashkenas/underscore.js`,
-    `${root}/src/js/vendor/khan/kas.js`,
-    `${root}/src/js/kidoju.data.workerlib.js`
+    `${base}/src/js/vendor/jashkenas/underscore.js`,
+    `${base}/src/js/vendor/khan/kas.js`,
+    `${base}/src/js/kidoju.data.workerlib.js`
 ];
 
 function noop() {}

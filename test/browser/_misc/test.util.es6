@@ -10,24 +10,41 @@ import chai from 'chai';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 
+const { __karma__, location } = window;
 const {
     data: { DataSource }
 } = window.kendo;
 const { expect } = chai;
 
 /**
- * Try/catch wrapper
+ * Base directory for Karma path
+ * @type {string}
+ */
+/* eslint-disable prettier/prettier */
+export const base = __karma__
+    ? 'base'
+    : `${location.protocol}//${location.host}${
+        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
+    }`;
+/* eslint-enable prettier/prettier */
+
+/**
+ * Try/catch wrapper for mocha tests
  * @param done
  * @returns {function(*): Function}
  */
 export function tryCatch(done) {
     return function f1(test) {
         return function f2(...args) {
+            const resolve =
+                typeof done.resolve === 'function' ? done.resolve : done;
+            const reject =
+                typeof done.reject === 'function' ? done.reject : done;
             try {
                 test(...args);
-                done();
+                resolve();
             } catch (ex) {
-                done(ex);
+                reject(ex);
             }
         };
     };

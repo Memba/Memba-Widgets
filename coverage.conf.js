@@ -72,14 +72,24 @@ module.exports = config => {
             // Our mocha tests
             {
                 // pattern: 'test/browser/**/*.test.es6',
-                // pattern: 'test/browser/{common,data}/*.test.es6',
+                // pattern: 'test/browser/{app,common,data}/*.test.es6',
+                // pattern: 'test/browser/app/*.test.es6',
                 // pattern: 'test/browser/common/*.test.es6',
-                pattern: 'test/browser/data/*.test.es6',
+                pattern: 'test/browser/common/window.image.test.es6',
+                // pattern: 'test/browser/data/*.test.es6',
                 // pattern: 'test/browser/dialogs/*.test.es6',
+                // pattern: 'test/browser/editors/*.test.es6',
+                // pattern: 'test/browser/experiments/*.test.es6',
                 // pattern: 'test/browser/tools/*.test.es6',
                 // pattern: 'test/browser/widgets/*.test.es6',
                 served: true,
                 included: true // They need to be included!
+            },
+            // Our test data
+            {
+                pattern: 'test/data/**/*',
+                served: true,
+                included: false
             }
         ],
 
@@ -226,7 +236,8 @@ module.exports = config => {
                 base: 'ChromeHeadless',
                 flags: [
                     //  --window-size=1280,1024
-                    '--disable-gpu --disable-software-rasterizer --disable-extensions --disable-infobars --disable-translate'
+                    // --disable-software-rasterizer
+                    '--disable-gpu --disable-extensions --disable-infobars --disable-translate'
                 ]
             }
         },

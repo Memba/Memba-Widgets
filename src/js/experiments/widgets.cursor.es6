@@ -22,8 +22,8 @@ import Logger from '../common/window.logger.es6';
 
 const {
     applyEventMap,
-    destroy,
     caret,
+    destroy,
     getTouches,
     ui: { plugin, Widget },
     support,
@@ -31,7 +31,7 @@ const {
     UserEvents
 } = window.kendo;
 
-const logger = new Logger('kidoju.widgets.cursor');
+const logger = new Logger('widgets.cursor');
 const NS = '.kendoCursor';
 
 /**
@@ -221,10 +221,10 @@ const Cursor = Widget.extend({
      * Utility method to get the cursor position
      * Note: the cursor is the visual element users can drag to positiuon the caret
      * @method _getCursorPosition
-     * @param elementWithFocus
+     * @param input
      * @private
      */
-    _getCursorPosition(elementWithFocus) {},
+    _getCursorPosition(input) {},
 
     /**
      * Utility method to

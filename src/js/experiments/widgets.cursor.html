@@ -193,7 +193,10 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.cursor.es6').then(function () {
+            Promise.all([
+                // SystemJS.import('kendo.binder'),
+                SystemJS.import('./widgets.keypad.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
                 $(function() {
                     kendo.init('body');
@@ -204,7 +207,6 @@
 </head>
 <body>
 <h1>widgets.cursor</h1>
-<div id="toolbar"></div>
 <div class="kj-stage" style="position:relative; height:600px; width:800px; border:solid 1px black; transform: scale(0.75);">
     <div data-role="stage" style="height:600px; width:800px;">
         <div class="kj-element" style="position:absolute; top:50px; left:100px; height:35px; width:150px;">

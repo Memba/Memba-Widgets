@@ -193,13 +193,16 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.whiteboard.es6').then(function () {
+            Promise.all([
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('./widgets.whiteboard.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    visible: true,
+                    enabled: true
+                });
                 $(function () {
-                    var viewModel = kendo.observable({
-                        visible: true,
-                        enabled: true
-                    });
                     kendo.bind(document.body, viewModel);
                     var whiteboard = $('#whiteboard').kendoWhiteboard({}).data('kendoWhiteboard');
                     $('#record').click(function () {
@@ -215,8 +218,8 @@
 </head>
 <body>
 <h1>widgets.whiteboard</h1>
-<h2>Cofe initilization</h2>
-<div id="whiteboard" style="width:640px;height:480px"></div>
+<h2>Code initilization</h2>
+<div id="whiteboard" style="width:640px; height:480px;"></div>
 <button id="record">Record</button>
 <button id="pause">Pause</button>
 <button id="stop">Stop</button>

@@ -27,7 +27,7 @@
         var kendo = window.kendo;
         var ToolBar = kendo.ui.ToolBar;
         var assert = window.assert;
-        var logger = new window.Logger('widgets.mathinput.toolbar');
+        var logger = new Logger('widgets.mathinput.toolbar');
         var TOOLBAR = [
             'backspace',
             'field',

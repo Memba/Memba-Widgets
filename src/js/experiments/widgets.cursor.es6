@@ -8,6 +8,8 @@
 // TODO What if there are two such widgets on the same page?
 // TODO hide cursor with keypresses
 // TODO consider adding mouse/touch events to _onFocusIn and key events to _onFocusOut
+// TODO consider resizable textareas
+// TODO What about CodeMirror and kendoEditor?
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved

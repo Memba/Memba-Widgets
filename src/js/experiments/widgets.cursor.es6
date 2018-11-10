@@ -259,4 +259,7 @@ const Cursor = Widget.extend({
     }
 });
 
+/**
+ * Registration
+ */
 plugin(Cursor);

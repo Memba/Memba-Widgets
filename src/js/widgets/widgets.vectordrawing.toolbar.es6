@@ -34,7 +34,7 @@
 
         var kidoju = window.kidoju;
         var assert = window.assert;
-        var logger = new window.Logger('widgets.vectordrawing.toolbar');
+        var logger = new Logger('widgets.vectordrawing.toolbar');
         var kendo = window.kendo;
         var deepExtend = kendo.deepExtend;
         var isFunction = kendo.isFunction;

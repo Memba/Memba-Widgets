@@ -4,6 +4,7 @@
  */
 
 // TODO Use ImageDataSource and DataBoundWidget
+// TODO Check html encoding and XSS
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -71,7 +72,7 @@ const Quiz = DataBoundWidget.extend({
         this.setOptions(this.options);
         this._render();
         this._dataSource();
-        this.enable(this.options.enable);
+        this.enable(this.options.enabled);
     },
 
     /**
@@ -107,7 +108,7 @@ const Quiz = DataBoundWidget.extend({
         scaler: 'div.kj-stage',
         stageElement: 'div.kj-element',
         value: null,
-        enable: true,
+        enabled: true,
         messages: {
             optionLabel: 'Select...'
         }
@@ -452,7 +453,7 @@ const Quiz = DataBoundWidget.extend({
                 .attr('style', '')
                 .css(
                     $.extend(
-                        {},
+                        {}, // TODO Check remove
                         this._itemStyle.toJSON(),
                         this._selectedStyle.toJSON()
                     )

@@ -293,13 +293,13 @@ const CharGrid = Widget.extend({
             // Note: We need mouseup to occur after the blur event herebelow when changing cells
             element.on(
                 `${CONSTANTS.MOUSEUP + NS} ${CONSTANTS.TOUCHEND}${NS}`,
-                $.proxy(that._onMouseUp, that)
+                that._onMouseUp.bind(that)
             );
             input
-                .on(CONSTANTS.KEYDOWN + NS, $.proxy(that._onKeyDown, that))
-                .on(CONSTANTS.KEYPRESS + NS, $.proxy(that._onKeyPress, that))
-                .on(CONSTANTS.INPUT + NS, $.proxy(that._onInput, that))
-                .on(CONSTANTS.BLUR + NS, $.proxy(that._onBlur, that));
+                .on(CONSTANTS.KEYDOWN + NS, that._onKeyDown.bind(that))
+                .on(CONSTANTS.KEYPRESS + NS, that._onKeyPress.bind(that))
+                .on(CONSTANTS.INPUT + NS, that._onInput.bind(that))
+                .on(CONSTANTS.BLUR + NS, that._onBlur.bind(that));
         }
     },
 

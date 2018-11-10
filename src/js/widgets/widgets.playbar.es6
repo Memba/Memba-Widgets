@@ -411,7 +411,7 @@ const PlayBar = DataBoundWidget.extend({
             playbar.on(
                 CONSTANTS.KEYDOWN + NS,
                 '.k-pager-input input',
-                $.proxy(that._keydown, that)
+                that._keydown.bind(that)
             );
         }
 
@@ -455,7 +455,7 @@ const PlayBar = DataBoundWidget.extend({
             playbar.on(
                 CONSTANTS.CLICK + NS,
                 '.k-pager-refresh',
-                $.proxy(that._refreshClick, that)
+                that._refreshClick.bind(that)
             );
         }
 
@@ -469,11 +469,11 @@ const PlayBar = DataBoundWidget.extend({
         // Add click handler
         playbar
             .addClass(WIDGET_CLASS)
-            .on(CONSTANTS.CLICK + NS, 'a', $.proxy(that._navClick, that))
+            .on(CONSTANTS.CLICK + NS, 'a', that._navClick.bind(that))
             .on(
                 CONSTANTS.CLICK + NS,
                 '.k-current-page',
-                $.proxy(that._toggleDropDown, that)
+                that._toggleDropDown.bind(that)
             );
 
         // if (options.autoBind) {

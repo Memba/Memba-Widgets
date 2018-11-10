@@ -318,12 +318,10 @@ const CodeEditor = DataBoundWidget.extend({
      * @private
      */
     _render() {
-        const that = this;
-        that.wrapper = that.element;
-        that.element.addClass(WIDGET_CLASS);
-        that._setHeader();
-        that._setCodeMirror();
-        that._setFooter();
+        this.wrapper = this.element.addClass(WIDGET_CLASS);
+        this._setHeader();
+        this._setCodeMirror();
+        this._setFooter();
     },
 
     /**
@@ -347,7 +345,7 @@ const CodeEditor = DataBoundWidget.extend({
             .kendoDropDownList({
                 autoBind: options.autoBind,
                 autoWidth: true,
-                change: $.proxy(that._onUserInputChange, that),
+                change: that._onUserInputChange.bind(that),
                 dataTextField: options.nameField,
                 dataValueField: options.formulaField,
                 dataSource: options.dataSource
@@ -357,7 +355,7 @@ const CodeEditor = DataBoundWidget.extend({
         // Add the textbox for validation param
         that.paramInput = $('<input class="k-textbox">')
             .appendTo(paramDiv)
-            .on(CONSTANTS.CHANGE + NS, $.proxy(that._onUserInputChange, that));
+            .on(CONSTANTS.CHANGE + NS, that._onUserInputChange.bind(that));
     },
 
     /**
@@ -499,7 +497,7 @@ const CodeEditor = DataBoundWidget.extend({
                 options.messages.test
             )
         )
-            .on(CONSTANTS.CLICK + NS, $.proxy(that._onTestButtonClick, that))
+            .on(CONSTANTS.CLICK + NS, that._onTestButtonClick.bind(that))
             .appendTo(testDiv);
 
         // Add the message block
@@ -526,16 +524,16 @@ const CodeEditor = DataBoundWidget.extend({
             // Download the worker lib
             $.ajax({ url: options.workerLib, cache: true, dataType: 'text' })
                 .then(workerLib => {
-                    $.proxy(that._runTest, that)(workerLib)
-                        .then($.proxy(that._showResult, that))
-                        .catch($.proxy(that._showError, that));
+                    that._runTest.bind(that)(workerLib)
+                        .then(that._showResult.bind(that))
+                        .catch(that._showError.bind(that));
                 })
-                .catch($.proxy(that._showError, that));
+                .catch(that._showError.bind(that));
         } else {
             // No worker lib to download
             that._runTest()
-                .then($.proxy(that._showResult, that))
-                .catch($.proxy(that._showError, that));
+                .then(that._showResult.bind(that))
+                .catch(that._showError.bind(that));
         }
     },
 

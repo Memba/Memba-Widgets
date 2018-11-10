@@ -135,12 +135,10 @@ const MarkEditor = Widget.extend({
      * @private
      */
     _layout() {
-        const that = this;
-        that.wrapper = that.element;
-        that.element.addClass(WIDGET_CLASS);
-        that._setToolbar();
-        that._setCodeMirror();
-        that._resize(true);
+        this.wrapper = this.element.addClass(WIDGET_CLASS);
+        this._setToolbar();
+        this._setCodeMirror();
+        this._resize(true);
     },
 
     /**

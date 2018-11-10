@@ -266,8 +266,8 @@ var FormatBar = ToolBar.extend({
         this._dialogs = [];
         this._value = new Style();
         // this._FixBorderState();
-        this.bind('action', $.proxy(this._onAction, this));
-        this.bind('dialog', $.proxy(this._onDialog, this));
+        this.bind('action', this._onAction.bind(this));
+        this.bind('dialog', this._onDialog.bind(this));
         this.enable(this.options.enabled);
     },
 

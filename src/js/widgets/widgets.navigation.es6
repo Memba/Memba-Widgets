@@ -304,7 +304,7 @@ const Navigation = DataBoundWidget.extend({
             // returns the datasource OR creates one if using array or configuration object
             that.dataSource = PageDataSource.create(that.options.dataSource);
 
-            that._refreshHandler = $.proxy(that.refresh, that);
+            that._refreshHandler = that.refresh.bind(that);
 
             // bind to the change event to refresh the widget
             that.dataSource.bind(CONSTANTS.CHANGE, that._refreshHandler);
@@ -340,7 +340,7 @@ const Navigation = DataBoundWidget.extend({
             .on(
                 CONSTANTS.CLICK + NS,
                 ALL_ITEMS_SELECTOR,
-                $.proxy(that._click, that)
+                that._click.bind(that)
             );
         kendo.notify(that);
     },

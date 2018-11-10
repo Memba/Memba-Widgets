@@ -112,7 +112,7 @@ binders.widget.properties = Binder.extend({
     init(widget, bindings, options) {
         Binder.fn.init.call(this, widget.element[0], bindings, options);
         this.widget = widget;
-        this._change = $.proxy(this.change, this);
+        this._change = this.change.bind(this);
         this.widget.bind(CONSTANTS.CHANGE, this._change);
     },
     change() {
@@ -736,7 +736,7 @@ const Stage = DataBoundWidget.extend({
 
         if (enabled) {
             // Bind properties
-            that._propertyBinding = $.proxy(function() {
+            that._propertyBinding = (function() {
                 const widget = this;
                 if (widget.properties() instanceof ObservableObject) {
                     widget.stage
@@ -746,7 +746,7 @@ const Stage = DataBoundWidget.extend({
                             bind(stageElement, widget.properties());
                         });
                 }
-            }, that);
+            }.bind(that);
             that.bind(PROPERTYBINDING, that._propertyBinding);
         }
     },

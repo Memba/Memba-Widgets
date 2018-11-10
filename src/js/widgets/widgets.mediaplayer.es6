@@ -271,12 +271,12 @@ const MediaPlayer = Widget.extend({
         // when commands are executed in full screen mode, e.g. a PAUSE in full screen should update the toolbar icon
         that.media
             .append(that.options.messages.notSupported)
-            .on(LOADEDMETADATA, $.proxy(that._onLoadedMetadata, that))
-            .on(PLAY, $.proxy(that._onPlay, that))
-            .on(TIMEUPDATE, $.proxy(that._onTimeUpdate, that))
-            .on(PAUSE, $.proxy(that._onPause, that))
-            .on(ENDED, $.proxy(that._onEnded, that))
-            .on(VOLUMECHANGE, $.proxy(that._onVolumeChange, that));
+            .on(LOADEDMETADATA, that._onLoadedMetadata.bind(that))
+            .on(PLAY, that._onPlaybind(that))
+            .on(TIMEUPDATE, that._onTimeUpdatebind(that))
+            .on(PAUSE, that._onPausebind(that))
+            .on(ENDED, that._onEnded.bind(that))
+            .on(VOLUMECHANGE, that._onVolumeChangebind(that));
 
         // Append media element to widget
         that.element.append(that.media);
@@ -611,7 +611,7 @@ const MediaPlayer = Widget.extend({
                 showButtons: false,
                 tickPlacement: 'none',
                 tooltip: { format: '{0} s.' },
-                change: $.proxy(that._onSeekerSliderChange, that)
+                change: that._onSeekerSliderChange.bind(that)
             })
             .data('kendoSlider');
     },
@@ -639,7 +639,7 @@ const MediaPlayer = Widget.extend({
                 showButtons: false,
                 tickPlacement: 'none',
                 tooltip: { format: '{0:p0}' },
-                change: $.proxy(that._onVolumeSliderChange, that)
+                change: that._onVolumeSliderChange.bind(that)
             })
             .data('kendoSlider');
     },
@@ -1015,7 +1015,7 @@ const MediaPlayer = Widget.extend({
                     .on(
                         CLICK + NS,
                         'a.k-button',
-                        $.proxy(that._onButtonClick, that)
+                        that._onButtonClick.bind(that)
                     );
             } else {
                 that.toolbar.addClass(DISABLE).show();

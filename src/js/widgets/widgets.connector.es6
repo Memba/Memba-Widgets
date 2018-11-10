@@ -406,7 +406,7 @@ var Connector = DataBoundWidget.extend({
         if (that._refreshHandler) {
             that.dataSource.unbind(CONSTANTS.CHANGE, that._refreshHandler);
         }
-        that._refreshHandler = $.proxy(that.refresh, that);
+        that._refreshHandler = that.refresh.bind(that);
         that.dataSource.bind(CONSTANTS.CHANGE, that._refreshHandler);
 
         // Filter dataSource

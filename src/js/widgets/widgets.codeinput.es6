@@ -310,8 +310,8 @@ const CodeInput = DataBoundWidget.extend({
             .kendoDropDownList({
                 autoBind: options.autoBind,
                 autoWidth: true,
-                change: $.proxy(that._onUserInputChange, that),
-                dataBound: $.proxy(that._initValue, that),
+                change: that._onUserInputChange.bind(that),
+                dataBound: that._initValue.bind(that),
                 dataTextField: options.nameField,
                 dataValueField: options.formulaField,
                 dataSource: options.dataSource
@@ -324,7 +324,7 @@ const CodeInput = DataBoundWidget.extend({
             .width('100%')
             .hide()
             .appendTo(that.element)
-            .on(CONSTANTS.CHANGE + NS, $.proxy(that._onUserInputChange, that));
+            .on(CONSTANTS.CHANGE + NS, that._onUserInputChange.bind(that));
     },
 
     /**

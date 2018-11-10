@@ -10,7 +10,7 @@
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- widgets.cursor stylesheet -->
-    <!--link href="./styles/kidoju.widgets.cursir.css" rel="stylesheet"-->
+    <!--link href="../../styles/widgets.cursor.css" rel="stylesheet"-->
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
@@ -193,7 +193,7 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.cursor.js').then(function () {
+            SystemJS.import('./widgets.cursor.es6').then(function () {
                 var kendo = window.kendo;
                 $(function() {
                     kendo.init('body');
@@ -205,13 +205,16 @@
 <body>
 <h1>widgets.cursor</h1>
 <div id="toolbar"></div>
-<div class="kj-stage" style="position:relative;height:600px;width:800px;border:solid 1px black;transform: scale(0.75);">
-    <div data-role="stage" style="height:600px;width:800px;">
-        <div class="kj-element" style="position:absolute;top:50px;left:100px;height:480px;width:640px;">
-            <input type="text">
+<div class="kj-stage" style="position:relative; height:600px; width:800px; border:solid 1px black; transform: scale(0.75);">
+    <div data-role="stage" style="height:600px; width:800px;">
+        <div class="kj-element" style="position:absolute; top:50px; left:100px; height:35px; width:150px;">
+            <input type="text" class="k-textbox">
+        </div>
+        <div class="kj-element" style="position:absolute; top:300px; left:100px; height:200px; width:550px;">
+            <textarea class="k-textbox" style="height:200px; width:550px;"></textarea>
         </div>
     </div>
 </div>
-<div data-role="cursor"></div>
+<span data-role="cursor"></span>
 </body>
 </html>

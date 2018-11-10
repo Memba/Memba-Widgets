@@ -284,8 +284,8 @@
                     .kendoMathGraphToolBar({
                         tools: options.toolbar.tools,
                         resizable: options.toolbar.resizable,
-                        action: $.proxy(that._onToolBarAction, that),
-                        dialog: $.proxy(that._onToolBarDialog, that)
+                        action: that._onToolBarAction.bind(that),
+                        dialog: that._onToolBarDialog.bind(that)
                     })
                     .data('kendoMathGraphToolBar');
                 that._setTool('select');
@@ -371,12 +371,12 @@
                 $(document).off(NS);
                 if (that._enabled) {
                     $(document)
-                        .on(MOUSEDOWN, WIDGET_SELECTOR, data, $.proxy(that._onMouseDown, that))
-                        .on(MOUSEMOVE, WIDGET_SELECTOR, data, $.proxy(that._onMouseMove, that))
+                        .on(MOUSEDOWN, WIDGET_SELECTOR, data, that._onMouseDown.bind(that))
+                        .on(MOUSEMOVE, WIDGET_SELECTOR, data, that._onMouseMove.bind(that))
                         // TODO: test moving outside the boundaries of the widgets with several widgets on the page
-                        // .on(MOUSEMOVE, data, $.proxy(that._onMouseMove, that))
-                        .on(MOUSEUP, WIDGET_SELECTOR, data, $.proxy(that._onMouseUp, that))
-                        .on(MOUSEUP, data, $.proxy(that._onMouseEnd, that));
+                        // .on(MOUSEMOVE, data, that._onMouseMove.bind(that))
+                        .on(MOUSEUP, WIDGET_SELECTOR, data, that._onMouseUp.bind(that))
+                        .on(MOUSEUP, data, that._onMouseEnd.bind(that));
                 }
             },
 
@@ -639,7 +639,7 @@
                 if (that._refreshHandler) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
-                that._refreshHandler = $.proxy(that.refresh, that);
+                that._refreshHandler = that.refresh.bind(that);
                 that.dataSource.bind(CHANGE, that._refreshHandler);
 
                 // trigger a read on the dataSource if one hasn't happened yet

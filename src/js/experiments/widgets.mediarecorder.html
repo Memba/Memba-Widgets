@@ -193,16 +193,19 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./widgets.mediarecorder.es6').then(function () {
+            Promise.all([
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('./widgets.mediarecorder.es6')
+            ]).then(function () {
                 var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    visible: true,
+                    enabled: true
+                });
                 $(function () {
                     // Unbound
                     $('#mediarecorder').kendoMediaRecorder();
                     // Bound to observable
-                    var viewModel = kendo.observable({
-                        visible: true,
-                        enabled: true
-                    });
                     kendo.bind(document.body, viewModel);
                 });
             });

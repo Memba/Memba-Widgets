@@ -11,7 +11,15 @@ import BaseTool from '../../../src/js/tools/tools.base.es6';
 
 // Note: floating numbers generate errors due to changes in the last digit
 const angleGenerator = JSC.integer(0, 360);
+const imageList = () => [
+    // TODO: improve
+    { text: JSC.string()(), url: '' },
+    { text: JSC.string()(), url: '' },
+    { text: JSC.string()(), url: '' },
+    { text: JSC.string()(), url: '' }
+];
 const positionGenerator = JSC.integer(0, 500);
+const quizMode = JSC.one_of(['button', 'dropdown', 'image', 'link', 'radio']);
 const styleGenerator = () =>
     `${[
         'background-color: #ffffff',
@@ -33,6 +41,22 @@ const urlGenerator = ext =>
         JSC.integer(1, 100),
         JSC.one_of('abcdefghijklmnopqrstuvwxyz0123456789-/')
     )()}${JSC.character('a', 'z')()}.${ext}`;
+
+/**
+ * getDummy
+ * @function getDummy
+ */
+export function getDummy() {
+    return {
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        rotate: angleGenerator(),
+        tool: 'square',
+        top: positionGenerator(),
+        width: positionGenerator()
+    };
+}
 
 /**
  * getImage
@@ -107,6 +131,40 @@ export function getTextBox() {
         },
         rotate: angleGenerator(),
         tool: 'textbox',
+        top: positionGenerator(),
+        width: positionGenerator()
+    };
+}
+
+/**
+ * getQuiz
+ * @function getQuiz
+ */
+export function getQuiz() {
+    const data = imageList();
+    return {
+        attributes: {
+            mode: quizMode(),
+            shuffle: JSC.boolean()(),
+            groupStyle: styleGenerator(),
+            itemStyle: styleGenerator(),
+            selectStyle: styleGenerator(),
+            data
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: data[0],
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'quiz',
         top: positionGenerator(),
         width: positionGenerator()
     };

@@ -46,22 +46,22 @@ function i18n() {
 }
 
 /**
- * @class Label
+ * @class LabelTool
  */
-const Label = BaseTool.extend({
+const LabelTool = BaseTool.extend({
     id: 'label',
-    icon: 'font',
-    name: i18n().name,
-    description: i18n().description,
-    help: i18n().help,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    description: i18n().description,
+    height: 80,
+    help: i18n().help,
+    icon: 'font',
     menu: ['attributes.text', 'attributes.style'],
+    name: i18n().name,
+    width: 300,
     templates: {
         default:
             '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'
     },
-    height: 80,
-    width: 300,
     attributes: {
         // text: new TextBoxAdapter({ title: i18n().attributes.text.title, defaultValue: i18n().attributes.text.defaultValue }),
         text: new TextAreaAdapter(
@@ -101,11 +101,6 @@ const Label = BaseTool.extend({
      */
     getHtmlContent(component, mode) {
         const that = this;
-        assert.instanceof(
-            Label,
-            that,
-            assert.format(assert.messages.instanceof.default, 'this', 'Label')
-        );
         assert.instanceof(
             PageComponent,
             component,
@@ -258,4 +253,4 @@ const Label = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Label);
+tools.register(LabelTool);

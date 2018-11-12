@@ -3,24 +3,40 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO help and menu
+
 /* eslint-disable no-unused-expressions */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
 import chai from 'chai';
-import { getLabel } from '../_misc/test.components.es6';
+import chaiJquery from 'chai-jquery';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';
 
-// Load tools
+// Load tool
 import '../../../src/js/tools/tools.label.es6';
+// Load component
+import { getLabel } from '../_misc/test.components.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
 
+chai.use((c, u) => chaiJquery(c, u, $));
+const FIXTURES = '#fixtures';
+
 describe('tools.label', () => {
-    describe('Label', () => {
+    before(() => {
+        if (window.__karma__ && $(FIXTURES).length === 0) {
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        }
+    });
+
+    describe('LabelTool', () => {
         const tool = tools.label;
         const component = new PageComponent(getLabel());
 

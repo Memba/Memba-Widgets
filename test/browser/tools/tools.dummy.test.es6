@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO expect(tool).to.have.property('menu');
+// TODO help and menu
 
 /* eslint-disable no-unused-expressions */
 
@@ -17,7 +17,11 @@ import BaseModel from '../../../src/js/data/models.base.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';
+
+// Load tool
 import '../../../src/js/tools/tools.dummy.es6';
+// Load component
+import { getDummy } from '../_misc/test.components.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
@@ -34,7 +38,7 @@ describe('tools.dummy', () => {
 
     describe('SquareTool', () => {
         const tool = tools.square;
-        const component = new PageComponent({ tool: 'square' });
+        const component = new PageComponent(getDummy());
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);

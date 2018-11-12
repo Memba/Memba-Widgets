@@ -13,6 +13,20 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 
 /**
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).label || {
+            name: 'Square',
+            description: 'Square',
+            help: null
+        }
+    );
+}
+
+/**
  * Dummy square tool without adapters for testing
  * @class SquareTool
  * @extends BaseTool
@@ -20,12 +34,13 @@ import BaseTool from './tools.base.es6';
 const SquareTool = BaseTool.extend({
     id: 'square',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: 'Square',
+    description: i18n().description,
     height: 300,
-    help: '',
+    help: i18n().help,
     icon: 'shapes',
-    // menu
-    name: 'Square',
+    // menu: [],
+    name: i18n().name,
+    width: 300,
     templates: {
         play:
             '<div style="background-color:#0f0; padding: 10px; border: solid 1px #000;">PLAY</div>',
@@ -34,7 +49,6 @@ const SquareTool = BaseTool.extend({
         review:
             '<div style="background-color:#f00; padding: 10px; border: solid 1px #000;">REVIEW</div>'
     },
-    width: 300,
     // attributes: {},
     // properties: {},
 
@@ -133,10 +147,18 @@ const SquareTool = BaseTool.extend({
         ) {
             const content = stageElement.children(CONSTANTS.DIV);
             if ($.type(component.width) === CONSTANTS.NUMBER) {
-                content.width(component.width);
+                content.outerWidth(
+                    component.get('width') -
+                        content.outerWidth(true) +
+                        content.outerWidth()
+                );
             }
             if ($.type(component.height) === CONSTANTS.NUMBER) {
-                content.height(component.height);
+                content.outerHeight(
+                    component.get('height') -
+                        content.outerHeight(true) +
+                        content.outerHeight()
+                );
             }
             // prevent any side effect
             e.preventDefault();

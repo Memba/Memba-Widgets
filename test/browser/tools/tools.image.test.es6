@@ -3,24 +3,40 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO help and menu
+
 /* eslint-disable no-unused-expressions */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
 import chai from 'chai';
-import { getImage } from '../_misc/test.components.es6';
+import chaiJquery from 'chai-jquery';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';
 
-// Load tools
+// Load tool
 import '../../../src/js/tools/tools.image.es6';
+// Load component
+import { getImage } from '../_misc/test.components.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
 
+chai.use((c, u) => chaiJquery(c, u, $));
+const FIXTURES = '#fixtures';
+
 describe('tools.image', () => {
-    describe('Image', () => {
+    before(() => {
+        if (window.__karma__ && $(FIXTURES).length === 0) {
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        }
+    });
+
+    describe('ImageTool', () => {
         const tool = tools.image;
         const component = new PageComponent(getImage());
 
@@ -29,9 +45,11 @@ describe('tools.image', () => {
             expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
             expect(tool).to.have.property('description', 'Image');
             expect(tool).to.have.property('height', 250);
-            expect(tool).to.have.property('help', null); // TODO
+            expect(tool).to.have.property('help', null);
             expect(tool).to.have.property('id', 'image');
             expect(tool).to.have.property('icon', 'painting_landscape');
+            // expect(tool).to.have.property('menu', 0);
+            expect(tool).to.have.property('name', 'Image');
             expect(tool).to.have.property('weight', 0);
             expect(tool).to.have.property('width', 250);
         });

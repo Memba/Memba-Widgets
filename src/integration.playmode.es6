@@ -14,7 +14,6 @@ import LocalStream from './integration.data.es6';
 // TODO import './js/widgets/widgets.playbar.es6';
 import './js/widgets/widgets.stage.es6';
 
-
 const {
     bind,
     data: { DataSource },

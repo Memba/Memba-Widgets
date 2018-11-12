@@ -194,42 +194,18 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            Promise.all([
-                SystemJS.import('./widgets.basedialog.es6'),
-                SystemJS.import('./dialogs.alert.es6'),
-                SystemJS.import('./dialogs.prompt.es6')
-            ]).then(function () {
+            SystemJS.import('./widgets.basedialog.es6').then(function () {
                 var kendo = window.kendo;
-                var openAlert = window.kidoju.dialogs.openAlert;
-                var openPrompt = window.kidoju.dialogs.openPrompt;
                 $(function () {
                     kendo.init('body');
                     // At this stage, there should only be one
                     var messageBox = $(kendo.roleSelector('basedialog')).data('kendoBaseDialog');
                     messageBox.bind('click', function (e) {
                         $("#console1").append(kendo.format("<div>action `{0}` at {1}</div>", e.action, new Date().toLocaleTimeString()));
-                        e.preventDefault(); // Prevents closing
+                        // e.preventDefault(); // Prevents closing
                     });
                     $('#button1').click(function (e) {
                         messageBox.open();
-                    });
-
-                    $('#button2').click(function (e) {
-                        openAlert({
-                            type: 'error',
-                            message: 'Hey Houston, we\'ve got a problem!'
-                        }).then(function(result) {
-                            $("#console2").append(kendo.format("<div>action `{0}` at {1}</div>", result.action, new Date().toLocaleTimeString()));
-                        });
-                    });
-
-                    $('#button3').click(function (e) {
-                        openPrompt({
-                            title: 'Your name',
-                            message: 'Please enter tour name:'
-                        }).then(function(result) {
-                            $("#console3").append(kendo.format("<div>action `{0}` with input `{1}` at {2}</div>", result.action, result.data.input, new Date().toLocaleTimeString()));
-                        });
                     });
                 });
             });
@@ -254,13 +230,6 @@
 <div data-role="basedialog" data-title="Oops!" data-content="Hi! John Doe" data-actions="[{&quot;action&quot;:&quot;close&quot;,&quot;text&quot;:&quot;Close&quot;,&quot;primary&quot;:true}]"></div>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 
-<h2>using openAlert</h2>
-<button id="button2" class="k-button">Show Me!</button>
-<div id="console2" class="highlight-section k-block" style="margin-top:20px;"></div>
-
-<h2>using openPrompt</h2>
-<button id="button3" class="k-button">Show Me!</button>
-<div id="console3" class="highlight-section k-block" style="margin-top:20px;"></div>
 
 </body>
 </html>

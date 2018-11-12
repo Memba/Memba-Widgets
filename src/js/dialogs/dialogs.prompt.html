@@ -1,26 +1,20 @@
 <!DOCTYPE html>
+
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Add test to query string</title>
+    <title>widgets.basedialog</title>
     <script>
         window.app = { DEBUG: true };
     </script>
-    <link href="../../../src/styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="../../../src/styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="../../../src/styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <link href="../../vendor/mocha.css" rel="stylesheet" />
+    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- widgets.basedialog stylesheet -->
-    <link href="../../../src/styles/dialogs/widgets.basedialog.css" rel="stylesheet">
-    <!-- widgets.assetmanager stylesheet -->
-    <link href="../../../src/styles/widgets/widgets.assetmanager.css" rel="stylesheet">
-    <!-- widgets.codeeditor stylesheet -->
-    <link href="../../../src/styles/widgets/widgets.codeeditor.css" rel="stylesheet">
-    <!-- widgets.styleeditor stylesheet -->
-    <link href="../../../src/styles/widgets/widgets.styleeditor.css" rel="stylesheet">
+    <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
     <!-- SystemJS loader -->
-    <script src="../../vendor/polyfill.min.js"></script>
-    <script src="../../vendor/system.js"></script>
+    <script src="../../../test/vendor/polyfill.min.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
@@ -49,7 +43,7 @@
                 },
                 map: {
                     'jquery': 'src/js/vendor/jquery/jquery-3.3.1.js',
-                    // Kendo UI - http://docs.telerik.com/kendo-ui/third-party/systemjs
+                    // http://docs.telerik.com/kendo-ui/third-party/systemjs
                     'kendo.culture.en-GB': 'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',
                     'kendo.messages.en-GB': 'src/js/vendor/kendo/messages/kendo.messages.en-GB.js',
                     'kendo.autocomplete': 'src/js/vendor/kendo/kendo.autocomplete.js',
@@ -167,24 +161,7 @@
                     'kendogrid': 'src/js/vendor/kendo/kendo.grid.js',
                     'kendopdf': 'src/js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'src/js/vendor/kendo/kendo.scheduler.js',
-                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
-                    // Test frameworks
-                    'chai': 'test/vendor/chai.js',
-                    'chai-jquery': 'test/vendor/chai-jquery.js',
-                    'jquery.mockjax': 'test/vendor/jquery.mockjax.js',
-                    'jquery.simulate': 'test/vendor/jquery.simulate.js',
-                    'jscheck': 'test/vendor/jscheck.js',
-                    'mocha': 'test/vendor/mocha.js',
-                    'modernizr': 'src/js/vendor/modernizr/modernizr.js',
-                    'sinon': 'test/vendor/sinon.js',
-                    'sinon-chai': 'test/vendor/sinon-chai.js'
-                },
-                meta: {
-                    'test/vendor/chai-jquery.js': { format: 'cjs' },
-                    'test/vendor/jquery.mockjax.js': { format: 'global' },
-                    'test/vendor/jscheck.js': { format: 'global' },
-                    'test/vendor/mocha.js': { format: 'global' },
-                    'test/vendor/sinon-chai.js': { format: 'cjs' }
+                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js'
                 },
                 packages: {
                     'src/js': {
@@ -217,69 +194,38 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('mocha').then(function (args) {
-                var mocha = args.mocha;
-                // Help SystemJS export mocha globals
-                // https://staxmanade.com/2015/09/browser-only-mochajs-tests-using-systemjs/
-                mocha.suite.on('pre-require', function (context) {
-                    var exports = window;
-                    exports.afterEach = context.afterEach || context.teardown;
-                    exports.after = context.after || context.suiteTeardown;
-                    exports.beforeEach = context.beforeEach || context.setup;
-                    exports.before = context.before || context.suiteSetup;
-                    exports.describe = context.describe || context.suite;
-                    exports.it = context.it || context.test;
-                    exports.setup = context.setup || context.beforeEach;
-                    exports.suiteSetup = context.suiteSetup || context.before;
-                    exports.suiteTeardown = context.suiteTeardown || context.after;
-                    exports.suite = context.suite || context.describe;
-                    exports.teardown = context.teardown || context.afterEach;
-                    exports.test = context.test || context.it;
-                    exports.run = context.run;
-                    const params = 'URLSearchParams' in window ?
-                        new URLSearchParams(window.location.search) :
-                        {
-                            // Especially for Internet Explorer
-                            get: function (name) {
-                                const match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-                                return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-                            }
-                        };
-                    const test = params.get('t');
-                    if (test) {
-                        document.title = test;
-                        document.getElementsByTagName('h1')[0].innerHTML = test;
-                        document.getElementById('menu').style.display = 'none';
-                        // now use SystemJS to load all test files
-                        SystemJS.import('./' + test + '.test.es6').then(function() {
-                            mocha.checkLeaks().globals([]);
-                            mocha.run();
+            SystemJS.import('./dialogs.prompt.es6').then(function (module) {
+                var kendo = window.kendo;
+                $(function () {
+                    $('#button1').click(function (e) {
+                        module.default({
+                            title: 'Your name',
+                            message: 'Please enter tour name:'
+                        }).then(function(result) {
+                            $("#console1").append(kendo.format("<div>action `{0}` with input `{1}` at {2}</div>", result.action, result.data.input, new Date().toLocaleTimeString()));
                         });
-                    }
+                    });
                 });
-                mocha.setup('bdd');
-                mocha.timeout(10000);
             });
         }());
     </script>
+    <style type="text/css">
+        .highlight-section {
+            margin-top: 10px;
+            width: 600px;
+            padding: 7px 7px 7px 7px;
+            min-height: 35px;
+        }
+    </style>
 </head>
+
 <body>
-<h1>Add test to query string ?t=[name] (from [name].test.es6)</h1>
-<ul id="menu">
-    <li><a href="?t=dialogs.alert">dialogs.alert</a><span style="color:red;">*</span></li>
-    <li><a href="?t=dialogs.assetmanager">dialogs.assetmanager</a><span style="color:red;">*</span></li>
-    <li><a href="?t=dialogs.chargrid">dialogs.chargrid</a><span style="color:red;">*</span></li>
-    <li><a href="?t=dialogs.codeeditor">dialogs.codeeditor</a><span style="color:red;">*</span></li>
-    <li><a href="?t=dialogs.prompt">dialogs.prompt</a><span style="color:red;">*</span></li>
-    <li><a href="?t=dialogs.publish">dialogs.publish</a><span style="color:red;">*</span></li>
-    <li><a href="?t=dialogs.quizwizard">dialogs.quizwizard</a><span style="color:red;">*</span></li>
-    <li><a href="?t=dialogs.spreadsheet">dialogs.spreadsheet</a><span style="color:red;">*</span></li>
-    <li><a href="?t=dialogs.styleeditor">dialogs.styleeditor</a><span style="color:red;">*</span></li>
-    <li><a href="?t=dialogs.textboxwizard">dialogs.textboxwizard</a><span style="color:red;">*</span></li>
-    <li><a href="?t=dialogs.vectordrawing">dialogs.vectordrawing</a><span style="color:red;">*</span></li>
-    <li><a href="?t=widgets.basedialog">widgets.basedialog</a><span style="color:red;">*</span></li>
-</ul>
-<div id="mocha"></div>
-<div id="fixtures"></div>
+
+<h1>dialogs.prompt</h1>
+
+<h2>openPrompt</h2>
+<button id="button1" class="k-button">Show Me!</button>
+<div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
+
 </body>
 </html>

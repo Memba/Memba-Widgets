@@ -8,22 +8,25 @@
 import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.dialog';
-import CONSTANTS from '../common/window.constants.es6';
 // import assert from '../common/window.assert.es6';
-// const logger = new window.Logger('widgets.messagebox');
-// const logger = { debug: $.noop }; // TODO Review
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 
 // TODO Review styles including the button container at the bottom consider suggestions to Telerik
 
 const {
     bind,
+    destroy,
+    htmlEncode,
     observable,
     template,
     ui: { Dialog, plugin }
 } = window.kendo;
-// const NS = '.kendoBaseDialog';
 
-const templates = {
+// const NS = '.kendoBaseDialog';
+const logger = new Logger('widgets.basedialog');
+
+const tmpl = {
     action: template(
         '<button type="button" class="k-button# if (data.primary) { # k-primary# } #" role="button"></button>'
     ),
@@ -44,6 +47,7 @@ const WIDGET_CLASS = 'kj-dialog';
  * - a click event handler on button clicks
  * - A viewModel to bind form controls to
  * - buttons with icon images
+ *
  */
 const BaseDialog = Dialog.extend({
     /**
@@ -53,6 +57,7 @@ const BaseDialog = Dialog.extend({
      */
     init(element, options) {
         Dialog.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', message: 'widget initialized' });
         this.element.addClass(WIDGET_CLASS);
         this._initViewModel();
     },
@@ -79,7 +84,7 @@ const BaseDialog = Dialog.extend({
                 warning: 'Warning'
             },
             actions: {
-                // TODO: replace imageUrl by icon with CDN path and buil path when using icons
+                // TODO: replace imageUrl by icon with CDN path and build path when using icons
                 cancel: {
                     action: 'cancel',
                     imageUrl:
@@ -178,7 +183,7 @@ const BaseDialog = Dialog.extend({
         for (var i = 0; i < length; i++) {
             action = actions[i];
             text = that._mergeTextWithOptions(action);
-            var btn = $(templates.action(action))
+            var btn = $(tmpl.action(action))
                 .autoApplyNS(NS)
                 .html(text)
                 .appendTo(actionbar)
@@ -196,16 +201,22 @@ const BaseDialog = Dialog.extend({
         const { actions, buttonLayout } = this.options;
         const actionClick = this._actionClick.bind(this);
         const actionKeyHandler = this._actionKeyHandler.bind(this);
-        let action;
+        let options;
         let text;
         for (let i = 0, { length } = actions; i < length; i++) {
-            action = actions[i];
-            text = this._mergeTextWithOptions(action);
-            const btn = $(templates.action(action))
+            options = {
+                action: actions[i].action,
+                imageUrl: actions[i].imageUrl,
+                primary: actions[i].primary,
+                // Make sure text does not mess with template
+                text: (actions[i].text || '').replace('#', '\\#')
+            };
+            text = this._mergeTextWithOptions(options);
+            const btn = $(tmpl.action(options))
                 // .autoApplyNS(NS)
                 .html(text)
                 .appendTo(actionbar)
-                .data(CONSTANTS.ACTION, action.action)
+                .data(CONSTANTS.ACTION, options.action)
                 .on(CONSTANTS.CLICK, actionClick)
                 .on(CONSTANTS.KEYDOWN, actionKeyHandler);
             if (buttonLayout === 'stretched') {
@@ -227,8 +238,8 @@ const BaseDialog = Dialog.extend({
         return text ? template(text)(this.options) : '';
         */
         return action.imageUrl
-            ? templates.text(action)
-            : template(action.text || '')(this.options);
+            ? tmpl.text(action)
+            : template(htmlEncode(action.text || '').replace('#', '\\#'))(this.options);
     },
 
     /**
@@ -277,15 +288,22 @@ const BaseDialog = Dialog.extend({
     destroy() {
         this.viewModel = undefined;
         Dialog.fn.destroy.call(this);
+        destroy(this.wrapper);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });
 
 /**
  * Static getter for the dialog DOM element
+ * @method getElement
+ * @param cssClass
+ * @returns {jQuery|HTMLElement}
  */
 BaseDialog.getElement = function getElement(cssClass = 'kj-dialog-tools') {
     // If a dialog already exists, remove it
-    let element = $(`.${WIDGET_CLASS}.${cssClass}`);
+    let element = $(
+        `${CONSTANTS.DOT}${WIDGET_CLASS}${CONSTANTS.DOT}${cssClass}`
+    );
     if (element.length > 0) {
         const dialog = element.data('kendoBaseDialog');
         if (dialog instanceof BaseDialog) {
@@ -296,7 +314,9 @@ BaseDialog.getElement = function getElement(cssClass = 'kj-dialog-tools') {
         // Add a div to the html document for the dialog
         // cssClass ensures we do not mess with other dialogs
         // when opening several depths of dialogs
-        element = $(`<div class="${cssClass}"></div>`).appendTo(document.body);
+        element = $(`<${CONSTANTS.DIV}/>`)
+            .addClass(cssClass)
+            .appendTo(document.body);
     }
     return element;
 };

@@ -19,8 +19,10 @@ describe('adapters.color', () => {
 
         it('It should have descriptors', () => {
             expect(Object.keys(adapter)).to.have.lengthOf(13);
-            expect(adapter).to.have.property('attributes').that.is.undefined;
-            expect(adapter).to.have.property('defaultValue', '');
+            expect(adapter)
+                .to.have.property('attributes')
+                .that.deep.equals({ 'data-role': 'colorpicker' });
+            expect(adapter).to.have.property('defaultValue', '#000000');
             expect(adapter).to.have.property('editable').that.is.undefined;
             expect(adapter).to.have.property('editor', 'input');
             expect(adapter).to.have.property('field').that.is.undefined;
@@ -37,7 +39,7 @@ describe('adapters.color', () => {
         it('getField', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
-                defaultValue: '',
+                defaultValue: '#000000',
                 type: CONSTANTS.STRING
             });
         });
@@ -46,6 +48,7 @@ describe('adapters.color', () => {
             const field = randomVal();
             const row = adapter.getRow(field);
             expect(row).to.deep.equal({
+                attributes: { 'data-role': 'colorpicker' },
                 field,
                 editor: 'input'
             });

@@ -736,7 +736,7 @@ const Stage = DataBoundWidget.extend({
 
         if (enabled) {
             // Bind properties
-            that._propertyBinding = (function() {
+            that._propertyBinding = function() {
                 const widget = this;
                 if (widget.properties() instanceof ObservableObject) {
                     widget.stage

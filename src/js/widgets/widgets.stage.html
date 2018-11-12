@@ -160,7 +160,12 @@
                     'kendogrid': 'src/js/vendor/kendo/kendo.grid.js',
                     'kendopdf': 'src/js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'src/js/vendor/kendo/kendo.scheduler.js',
-                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js'
+                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
+                    // Test frameworks
+                    'jscheck': 'test/vendor/jscheck.js'
+                },
+                meta: {
+                    'test/vendor/jscheck.js': { format: 'global' }
                 },
                 packages: {
                     'src/js': {
@@ -196,94 +201,17 @@
             Promise.all([
                 SystemJS.import('kendo.binder'),
                 SystemJS.import('kendo.slider'),
-                SystemJS.import('../helpers/loader.grid.es6'),
-                SystemJS.import('../data/models.pagecomponent.es6'),
-                SystemJS.import('../data/datasources.pagecomponent.es6'),
-                SystemJS.import('../tools/tools.es6'),
-                SystemJS.import('../tools/tools.base.es6'),
-                SystemJS.import('../app/app.tools.es6'),
                 SystemJS.import('./widgets.toolbox.es6'),
-                SystemJS.import('./widgets.stage.es6')
+                SystemJS.import('./widgets.stage.es6'),
+                SystemJS.import('../data/datasources.pagecomponent.es6'),
+                SystemJS.import('../helpers/helpers.data.es6'),
+                SystemJS.import('../helpers/helpers.grid.es6'),
+                SystemJS.import('../app/app.tools.es6'),
+
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                var PageComponent = modules[3].default;
                 var PageComponentDataSource = modules[4].default;
-                var tools = modules[5].default;
-                var BaseTool = modules[6].default;
-
-                /**
-                 * New square tool for testing
-                 */
-                var Square = BaseTool.extend({
-                    id: 'square',
-                    icon: 'shapes',
-                    name: 'Square',
-                    description: 'Square',
-                    cursor: 'progress',
-                    templates: {
-                        play: '<div style="background-color:#00FF00;">PLAY</div>',
-                        design: '<div style="background-color:#0000FF;">DESIGN</div>',
-                        review: '<div style="background-color:#FF0000;">REVIEW</div>'
-                    },
-                    height: 300,
-                    width: 300,
-                    attributes: {
-                        // src: new adapters.AssetAdapter({ title: 'Image', defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
-                        // alt: new adapters.StringAdapter({ title: 'Text', defaultValue: 'Painting Landscape' })
-                    },
-
-                    getHtmlContent: function (component, mode) {
-                        assert.instanceof(Square, this, assert.format(assert.messages.instanceof.default, 'this', 'Square'));
-                        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-                        var modes = kendo.ui.Stage.fn.modes;
-                        assert.enum(Object.values(modes), mode, assert.format(assert.messages.enum.default, 'mode', Object.values(modes)));
-                        return $(this.templates[mode]);
-                    },
-
-                    onEnable: function(e, component, enabled) {
-                        var stageElement = $(e.currentTarget);
-                        if (stageElement.is('.kj-element')) {
-                            var content = stageElement.children('div');
-                            assert.ok(content.length === 1, 'Square elements are expected to be constituted of a single div');
-                            content.off('click');
-                            if (enabled) {
-                                content.on('click', function () {
-                                    window.alert('Hello from ' + component.uid);
-                                });
-                            }
-                        }
-                    },
-
-                    onResize: function (e, component) {
-                        var stageElement = $(e.currentTarget);
-                        if (stageElement.is('.kj-element') && component instanceof PageComponent) {
-                            var content = stageElement.children('div');
-                            if ($.type(component.width) === 'number') {
-                                content.width(component.width);
-                            }
-                            if ($.type(component.height) === 'number') {
-                                content.height(component.height);
-                            }
-                            // prevent any side effect
-                            e.preventDefault();
-                            // prevent event to bubble on stage
-                            e.stopPropagation();
-                        }
-                    }
-
-                });
-                tools.register(Square);
-
-                /**
-                 * Stage content
-                 */
-                var data = [
-                    { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                    { id: kendo.guid(), tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { src: 'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg' } },
-                    { id: kendo.guid(), tool : 'square', top: 500, left: 100, height: 200, width: 200, rotate: 25, attributes: {} },
-                    { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia, serif; color: #FF0000; font-size: 80px;', text: 'World' } },
-                    { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                ];
+                var data = modules[5].getComponentArray();
                 var viewModel = kendo.observable({
                     components: new PageComponentDataSource({ data }),
                     component: null,
@@ -329,10 +257,6 @@
                         }
                     }
                 });
-
-                /**
-                 * Initialization
-                 */
                 $(function() {
                     var mode = window.location.hash.substr(1);
                     mode = mode.length ? mode : 'design';

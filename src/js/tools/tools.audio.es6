@@ -77,7 +77,7 @@ const AudioTool = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         const audio = [];
@@ -109,7 +109,7 @@ const AudioTool = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         assert.enum(
@@ -127,7 +127,7 @@ const AudioTool = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'assets.audio',
-                'kidoju.ToolAssets'
+                'ToolAssets'
             )
         );
         const tmpl = template(that.templates.default);
@@ -175,7 +175,7 @@ const AudioTool = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         const content = stageElement.children(

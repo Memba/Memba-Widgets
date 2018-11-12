@@ -30,9 +30,9 @@ const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).label || {
-            name: 'Label',
             description: 'Label',
             help: null,
+            name: 'Label',
             attributes: {
                 style: { title: 'Style' },
                 text: { title: 'Text', defaultValue: 'Label' }

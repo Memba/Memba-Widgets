@@ -32,8 +32,9 @@ const RX_TEXT = /\S+/i;
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).image || {
-            name: 'Image',
             description: 'Image',
+            help: null,
+            name: 'Image',
             attributes: {
                 alt: { title: 'Text', defaultValue: 'Image' },
                 src: {

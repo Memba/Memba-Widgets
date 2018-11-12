@@ -19,8 +19,8 @@ import BaseTool from './tools.base.es6';
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).label || {
-            name: 'Square',
             description: 'Square',
+            name: 'Square',
             help: null
         }
     );

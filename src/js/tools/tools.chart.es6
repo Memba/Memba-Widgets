@@ -78,10 +78,10 @@ util.resizeSpreadsheetData = function (json, rowMax, columnMax) {
 };
 
 /**
- * Chart tool
- * @class Chart
+ * ChartTool tool
+ * @class ChartTool
  */
-var Chart = BaseTool.extend({
+var ChartTool = BaseTool.extend({
     id: 'chart',
     icon: 'chart_area',
     description: i18n.chart.description,
@@ -137,8 +137,8 @@ var Chart = BaseTool.extend({
             // verticalBullet: { type: 'verticalBullet' },
             verticalLine: { type: 'verticalLine' }
         };
-        assert.instanceof(Chart, that, assert.format(assert.messages.instanceof.default, 'this', 'Chart'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(ChartTool, that, assert.format(assert.messages.instanceof.default, 'this', 'ChartTool'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         var template = kendo.template(that.templates.default);
         var style = component.attributes.get('style');
         // Get font from style - @see http://www.telerik.com/forums/charts---changing-the-default-font
@@ -292,7 +292,7 @@ var Chart = BaseTool.extend({
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         var content = stageElement.children('div' + kendo.roleSelector('chart'));
         var widget = content.data('kendoChart');
         if ($.type(component.width) === CONSTANTS.NUMBER) {
@@ -330,4 +330,4 @@ var Chart = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Chart);
+tools.register(ChartTool);

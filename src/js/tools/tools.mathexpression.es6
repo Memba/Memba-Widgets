@@ -38,9 +38,9 @@ function i18n() {
 }
 
 /**
- * @class MathExpression
+ * @class MathExpressionTool
  */
-const MathExpression = BaseTool.extend({
+const MathExpressionTool = BaseTool.extend({
     id: 'mathexpression',
     icon: 'formula',
     description: i18n.mathexpression.description,
@@ -91,12 +91,12 @@ const MathExpression = BaseTool.extend({
     getHtmlContent(component, mode) {
         const that = this;
         assert.instanceof(
-            MathExpression,
+            MathExpressionTool,
             that,
             assert.format(
                 assert.messages.instanceof.default,
                 'this',
-                'MathExpression'
+                'MathExpressionTool'
             )
         );
         assert.instanceof(
@@ -105,7 +105,7 @@ const MathExpression = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         assert.enum(
@@ -153,7 +153,7 @@ const MathExpression = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         const content = stageElement.children('div');
@@ -226,4 +226,4 @@ const MathExpression = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(MathExpression);
+tools.register(MathExpressionTool);

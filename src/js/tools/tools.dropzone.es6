@@ -39,10 +39,10 @@ function i18n() {
 var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #center="#: attributes.center #"  data-#= ns #empty="#: attributes.empty #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
 // TODO: Check whether DROPZONE requires class="kj-interactive"
 /**
- * @class DropZone tool
+ * @class DropZoneTool tool
  * @type {void|*}
  */
-var DropZone = BaseTool.extend({
+var DropZoneTool = BaseTool.extend({
     id: 'dropzone',
     icon: 'elements_selection',
     description: i18n.dropzone.description,
@@ -109,7 +109,7 @@ var DropZone = BaseTool.extend({
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         var content = stageElement.children('div');
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -152,4 +152,4 @@ var DropZone = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(DropZone);
+tools.register(DropZoneTool);

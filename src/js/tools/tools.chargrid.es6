@@ -214,7 +214,7 @@ const CharGridTool = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         const content = stageElement.children('div.kj-chargrid');

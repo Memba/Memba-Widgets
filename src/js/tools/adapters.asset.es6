@@ -90,7 +90,7 @@ const AssetAdapter = BaseAdapter.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'options.model',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         assert.instanceof(
@@ -99,7 +99,7 @@ const AssetAdapter = BaseAdapter.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'assets[options.model.tool]',
-                'kidoju.ToolAssets'
+                'ToolAssets'
             )
         );
         openAssetManager({

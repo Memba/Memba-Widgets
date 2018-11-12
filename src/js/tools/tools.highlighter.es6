@@ -38,10 +38,10 @@ function i18n() {
 
 var HIGHLIGHTER = '<div class="kj-interactive" data-#= ns #role="highlighter" data-#= ns #text="#: attributes.text #" data-#= ns #split="#: attributes.split #"  data-#= ns #highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>';
 /**
- * @class HighLighter tool
+ * @class HighLighterTool tool
  * @type {void|*}
  */
-var HighLighter = BaseTool.extend({
+var HighLighterTool = BaseTool.extend({
     id: 'highlighter',
     icon: 'marker',
     description: i18n.highlighter.description,
@@ -83,8 +83,8 @@ var HighLighter = BaseTool.extend({
      */
     getHtmlContent: function (component, mode) {
         var that = this;
-        assert.instanceof(HighLighter, that, assert.format(assert.messages.instanceof.default, 'this', 'HighLighter'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(HighLighterTool, that, assert.format(assert.messages.instanceof.default, 'this', 'HighLighterTool'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         assert.enum(Object.values(CONSTANTS.STAGE_MODES), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(CONSTANTS.STAGE_MODES)));
         var template = kendo.template(that.templates[mode]);
         return template($.extend(component, { ns: kendo.ns }));
@@ -99,7 +99,7 @@ var HighLighter = BaseTool.extend({
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         var content = stageElement.children('div');
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -160,4 +160,4 @@ var HighLighter = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(HighLighter);
+tools.register(HighLighterTool);

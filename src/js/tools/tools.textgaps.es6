@@ -52,11 +52,11 @@ function i18n() {
 
 var TEXTGAPS = '<div data-#= ns #role="textgaps" data-#= ns #text="#: attributes.text #" data-#= ns #input-style="#: attributes.inputStyle #" style="#: attributes.style #" {0}></div>';
 /**
- * TextGaps tool
+ * TextGapsTool tool
  * @class MultiQuiz
  * @type {void|*}
  */
-const TextGaps = BaseTool.extend({
+const TextGapsTool = BaseTool.extend({
     id: 'textgaps',
     icon: 'text_gaps',
     description: i18n.textgaps.description,
@@ -97,8 +97,8 @@ const TextGaps = BaseTool.extend({
      */
     getHtmlContent: function (component, mode) {
         var that = this;
-        assert.instanceof(TextGaps, that, assert.format(assert.messages.instanceof.default, 'this', 'TextGaps'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(TextGapsTool, that, assert.format(assert.messages.instanceof.default, 'this', 'TextGapsTool'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         assert.enum(Object.values(CONSTANTS.STAGE_MODES), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(CONSTANTS.STAGE_MODES)));
         var template = kendo.template(that.templates[mode]);
         return template($.extend(component, { ns: kendo.ns }));
@@ -137,7 +137,7 @@ const TextGaps = BaseTool.extend({
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         var content = stageElement.children('div' + kendo.roleSelector('textgaps'));
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -199,4 +199,4 @@ const TextGaps = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(TextGaps);
+tools.register(TextGapsTool);

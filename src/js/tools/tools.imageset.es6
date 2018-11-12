@@ -10,7 +10,7 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
-import ImageListBuilderAdapter from './adapters.imagelist.es6';
+import ImageListAdapter from './adapters.imagelist.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
 import QuizAdapter from './adapters.quiz.es6';
@@ -41,10 +41,10 @@ const IMAGESET =
     '<div data-#= ns #role="imageset" data-#= ns #images="#: data$() #" style="#: attributes.style #" {0}></div>';
 
 /**
- * @class ImageSet tool
+ * @class ImageSetTool tool
  * @type {void|*}
  */
-var ImageSet = BaseTool.extend({
+var ImageSetTool = BaseTool.extend({
     id: 'imageset',
     icon: 'photos',
     description: i18n.imageset.description,
@@ -69,7 +69,7 @@ var ImageSet = BaseTool.extend({
         style: new StyleAdapter({
             title: i18n.imageset.attributes.style.title
         }),
-        data: new ImageListBuilderAdapter({
+        data: new ImageListAdapter({
             title: i18n.imageset.attributes.data.title,
             defaultValue: i18n.imageset.attributes.data.defaultValue
         })
@@ -113,12 +113,12 @@ var ImageSet = BaseTool.extend({
     getHtmlContent(component, mode) {
         const that = this;
         assert.instanceof(
-            ImageSet,
+            ImageSetTool,
             that,
             assert.format(
                 assert.messages.instanceof.default,
                 'this',
-                'ImageSet'
+                'ImageSetTool'
             )
         );
         assert.instanceof(
@@ -127,7 +127,7 @@ var ImageSet = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         assert.enum(
@@ -145,7 +145,7 @@ var ImageSet = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'assets.image',
-                'kidoju.ToolAssets'
+                'ToolAssets'
             )
         );
         const template = kendo.template(that.templates[mode]);
@@ -197,7 +197,7 @@ var ImageSet = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         const content = stageElement.children(
@@ -263,4 +263,4 @@ var ImageSet = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(ImageSet);
+tools.register(ImageSetTool);

@@ -7,20 +7,28 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import assets from '../app/app.assets.es6';
+import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { getValueBinding } from '../data/data.util.es6';
+// import { getValueBinding } from '../data/data.util.es6';
+import { openAssetManager } from '../dialogs/dialogs.assetmanager.es6';
+import '../dialogs/widgets.basedialog.es6';
+import '../widgets/widgets.imagelist.es6';
 import BaseAdapter from './adapters.base.es6';
 
 // TODO Review with imageset
 
-const { attr, format } = window.kendo;
+const {
+    attr,
+    ui: { BaseDialog, ImageList }
+} = window.kendo;
 
 /**
- * ImageListBuilderAdapter
- * @class ImageListBuilderAdapter
+ * ImageListAdapter
+ * @class ImageListAdapter
  * @extends BaseAdapter
  */
-const ImageListBuilderAdapter = BaseAdapter.extend({
+const ImageListAdapter = BaseAdapter.extend({
     /**
      * Init
      * @constructor init
@@ -38,25 +46,25 @@ const ImageListBuilderAdapter = BaseAdapter.extend({
             // TODO: use getValueBinding
             const binding = {};
             binding[attr('bind')] = `source: ${settings.field}`;
-            const imageList = $('<div/>')
+            const element = $('<div/>')
                 .attr(binding)
                 .appendTo(container);
-            const imageListWidget = imageList
+            const widget = element
                 .kendoImageList({
                     schemes: assets.image.schemes,
                     click: $.proxy(that.showDialog, that, settings)
                 })
                 .data('kendoImageList');
             assert.instanceof(
-                kendo.ui.ImageList,
-                imageListWidget,
+                ImageList,
+                widget,
                 assert.format(
                     assert.messages.instanceof.default,
-                    'imageListWidget',
+                    'widget',
                     'kendo.ui.ImageList'
                 )
             );
-            imageListWidget.dataSource.bind('change', e => {
+            widget.dataSource.bind('change', e => {
                 // When the dataSource raises a change event on any of the quiz data items that is added, changed or removed
                 // We need to trigger a change event on the model field to ensure the stage element (which is not databound) is redrawn
                 if ($.type(e.action) === CONSTANTS.STRING) {
@@ -68,26 +76,24 @@ const ImageListBuilderAdapter = BaseAdapter.extend({
     showDialog(options, e) {
         // Note should return a promise to be used with app.notification?
         if (e.action === 'image') {
-            // TODO wrap in import('./dialogs/kidoju.dialogs.assetmanager.es6').then(function () {...});
-            kidoju.dialogs
-                .openAssetManager({
-                    title: options.title,
-                    data: {
-                        value: e.item.get('image')
-                    },
-                    assets: assets.image
-                })
+            // TODO wrap in import('./dialogs/dialogs.assetmanager.es6').then(function () {...});
+            openAssetManager({
+                title: options.title,
+                data: {
+                    value: e.item.get('image')
+                },
+                assets: assets.image
+            })
                 .then(result => {
                     if (
                         result.action ===
-                        kendo.ui.BaseDialog.fn.options.messages.actions.ok
-                            .action
+                        BaseDialog.fn.options.messages.actions.ok.action
                     ) {
                         e.item.set('image', result.data.value);
                     }
                 })
                 .catch(err => {
-                    // TODO
+                    $.noop(err);
                 });
         }
     }
@@ -96,4 +102,4 @@ const ImageListBuilderAdapter = BaseAdapter.extend({
 /**
  * Default export
  */
-export default ImageListBuilderAdapter;
+export default ImageListAdapter;

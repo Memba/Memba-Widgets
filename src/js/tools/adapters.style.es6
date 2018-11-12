@@ -67,7 +67,7 @@ const StyleAdapter = BaseAdapter.extend({
         };
     },
     showDialog(options /* , e */) {
-        // TODO wrap in import('./dialogs/kidoju.dialogs.styleedtor.es6').then(function () {...});
+        // TODO wrap in import('./dialogs/dialogs.styleedtor.es6').then(function () {...});
         openStyleEditor({
             title: options.title,
             data: {

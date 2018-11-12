@@ -28,7 +28,7 @@ function i18n() {
  * @class Static table tool
  * @type {void|*}
  */
-var Table = BaseTool.extend({
+var TableTool = BaseTool.extend({
     id: 'table',
     icon: 'table',
     description: i18n.table.description,
@@ -41,7 +41,7 @@ var Table = BaseTool.extend({
     attributes: {
         columns: new NumberAdapter({ title: i18n.table.attributes.columns.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
         rows: new NumberAdapter({ title: i18n.table.attributes.rows.title, defaultValue: 6 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-        data: new TableAdapter({ title: i18n.table.attributes.data.title, defaultValue: { sheets: [{ rows: [{ index:0, cells: [{ index:0, value: 'Table', fontSize: 48 }] }] }] } })
+        data: new TableAdapter({ title: i18n.table.attributes.data.title, defaultValue: { sheets: [{ rows: [{ index:0, cells: [{ index:0, value: 'TableTool', fontSize: 48 }] }] }] } })
     },
 
     /**
@@ -53,7 +53,7 @@ var Table = BaseTool.extend({
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         var content = stageElement.children(kendo.roleSelector('table'));
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -94,4 +94,4 @@ var Table = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Table);
+tools.register(TableTool);

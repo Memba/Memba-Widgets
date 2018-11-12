@@ -47,8 +47,7 @@ const TableAdapter = BaseAdapter.extend({
             rows,
             columns
         );
-        kidoju.dialogs
-            .openSpreadsheet({
+        openSpreadsheet({
                 title: options.title,
                 data: Object.assign(
                     {

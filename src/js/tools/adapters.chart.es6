@@ -47,9 +47,8 @@ const ChartAdapter = BaseAdapter.extend({
             rows,
             columns
         );
-        // TODO wrap in import('./dialogs/kidoju.dialogs.spreadsheet.es6').then(function () {...});
-        kidoju.dialogs
-            .openSpreadsheet({
+        // TODO wrap in import('./dialogs/dialogs.spreadsheet.es6').then(function () {...});
+        openSpreadsheet({
                 title: options.title,
                 data: Object.assign(data, {
                     columns,

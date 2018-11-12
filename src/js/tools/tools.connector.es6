@@ -38,10 +38,10 @@ function i18n() {
 
 var CONNECTOR = '<div data-#= ns #role="connector" data-#= ns #id="#: properties.name #" data-#= ns #target-value="#: properties.solution #" data-#= ns #color="#: attributes.color #" {0}></div>';
 /**
- * @class Connector tool
+ * @class ConnectorTool tool
  * @type {void|*}
  */
-var Connector = BaseTool.extend({
+var ConnectorTool = BaseTool.extend({
     id: 'connector',
     icon: 'target',
     description: i18n.connector.description,
@@ -81,7 +81,7 @@ var Connector = BaseTool.extend({
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         var content = stageElement.children('div[' + attr('role') + '="connector"]');
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -91,7 +91,7 @@ var Connector = BaseTool.extend({
         }
         // Redraw the connector widget
         var connectorWidget = content.data('kendoConnector');
-        assert.instanceof(kendo.ui.Connector, connectorWidget, assert.format(assert.messages.instanceof.default, 'connectorWidget', 'kendo.ui.Connector'));
+        assert.instanceof(kendo.ui.Connector, connectorWidget, assert.format(assert.messages.instanceof.default, 'connectorWidget', 'kendo.ui.ConnectorTool'));
         connectorWidget._drawConnector();
 
         // prevent any side effect
@@ -135,4 +135,4 @@ var Connector = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Connector);
+tools.register(ConnectorTool);

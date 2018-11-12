@@ -53,9 +53,8 @@ const CharGridAdapter = BaseAdapter.extend({
             layout,
             data
         );
-        // TODO wrap in import('./dialogs/kidoju.dialogs.chargrid.es6').then(function () {...});
-        kidoju.dialogs
-            .openCharGrid({
+        // TODO wrap in import('./dialogs/dialogs.chargrid.es6').then(function () {...});
+        openCharGrid({
                 title: options.title,
                 message:
                     options.field === 'properties.solution'

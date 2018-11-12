@@ -39,10 +39,10 @@ function i18n() {
 
 var MATHINPUT = '<div data-#= ns #role="mathinput" data-#= ns #toolbar="#: JSON.stringify(toolbar$()) #" style="#: attributes.style #" {0}>#: attributes.formula #</div>';
 /**
- * @class MathInput tool
+ * @class MathInputTool tool
  * @type {void|*}
  */
-var MathInput = BaseTool.extend({
+var MathInputTool = BaseTool.extend({
     id: 'mathinput',
     icon: 'formula_input',
     description: i18n.mathinput.description,
@@ -92,8 +92,8 @@ var MathInput = BaseTool.extend({
      */
     getHtmlContent: function (component, mode) {
         var that = this;
-        assert.instanceof(MathInput, that, assert.format(assert.messages.instanceof.default, 'this', 'MathInput'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(MathInputTool, that, assert.format(assert.messages.instanceof.default, 'this', 'MathInputTool'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         assert.enum(Object.values(CONSTANTS.STAGE_MODES), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(CONSTANTS.STAGE_MODES)));
         var template = kendo.template(that.templates[mode]);
         component.toolbar$ = function () {
@@ -148,7 +148,7 @@ var MathInput = BaseTool.extend({
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         var content = stageElement.children('div');
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -201,4 +201,4 @@ var MathInput = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(MathInput);
+tools.register(MathInputTool);

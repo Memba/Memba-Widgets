@@ -62,7 +62,7 @@ const ConnectorAdapter = BaseAdapter.extend({
                         assert.format(
                             assert.messages.instanceof.default,
                             'settings.model',
-                            'kidoju.data.PageModel'
+                            'PageComponet'
                         )
                     );
                     if (

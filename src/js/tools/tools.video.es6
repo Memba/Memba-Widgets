@@ -27,7 +27,7 @@ const { ns, template } = window.kendo;
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).video || {
-            description: 'Video Player',
+            description: 'VideoTool Player',
             attributes: {
                 autoplay: { title: 'Autoplay' },
                 toolbarHeight: { title: 'Toolbar Height' },
@@ -40,10 +40,10 @@ function i18n() {
 }
 
 /**
- * Video tool
- * @class Video
+ * VideoTool tool
+ * @class VideoTool
  */
-var Video = BaseTool.extend({
+var VideoTool = BaseTool.extend({
     id: 'video',
     icon: 'movie',
     description: i18n.video.description,
@@ -78,9 +78,9 @@ var Video = BaseTool.extend({
     getHtmlContent(component, mode) {
         const that = this;
         assert.instanceof(
-            Video,
+            VideoTool,
             that,
-            assert.format(assert.messages.instanceof.default, 'this', 'Video')
+            assert.format(assert.messages.instanceof.default, 'this', 'VideoTool')
         );
         assert.instanceof(
             PageComponent,
@@ -88,7 +88,7 @@ var Video = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         assert.enum(
@@ -106,7 +106,7 @@ var Video = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'assets.video',
-                'kidoju.ToolAssets'
+                'ToolAssets'
             )
         );
         const tmpl = template(this.templates.default);
@@ -160,7 +160,7 @@ var Video = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         const content = stageElement.children(
@@ -220,4 +220,4 @@ var Video = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Video);
+tools.register(VideoTool);

@@ -38,8 +38,9 @@ const RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).textbox || {
-            name: 'TextBox',
             description: 'TextBox',
+            help: null,
+            name: 'TextBox',
             attributes: {
                 mask: { title: 'Mask' },
                 style: { title: 'Style' }

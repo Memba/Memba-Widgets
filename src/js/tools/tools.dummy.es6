@@ -6,43 +6,81 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 
-const { attr, format } = window.kendo;
-
 /**
- * Dummy square tool for testing
- * @class Square
+ * Dummy square tool without adapters for testing
+ * @class SquareTool
  * @extends BaseTool
  */
-var Square = BaseTool.extend({
+const SquareTool = BaseTool.extend({
     id: 'square',
-    icon: 'shapes',
-    name: 'Square',
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
     description: 'Square',
-    cursor: 'progress',
-    templates: {
-        play: '<div style="background-color:#00FF00;">PLAY</div>',
-        design: '<div style="background-color:#0000FF;">DESIGN</div>',
-        review: '<div style="background-color:#FF0000;">REVIEW</div>'
-    },
     height: 300,
-    width: 300,
-    attributes: {
-        // src: new adapters.AssetAdapter({ title: 'Image', defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
-        // alt: new adapters.StringAdapter({ title: 'Text', defaultValue: 'Painting Landscape' })
+    help: '',
+    icon: 'shapes',
+    // menu
+    name: 'Square',
+    templates: {
+        play:
+            '<div style="background-color:#0f0; padding: 10px; border: solid 1px #000;">PLAY</div>',
+        design:
+            '<div style="background-color:#00f; padding: 10px; border: solid 1px #000;">DESIGN</div>',
+        review:
+            '<div style="background-color:#f00; padding: 10px; border: solid 1px #000;">REVIEW</div>'
     },
+    width: 300,
+    // attributes: {},
+    // properties: {},
 
+    /**
+     * getHtmlContent
+     * @method getHtmlContent
+     * @param component
+     * @param mode
+     * @returns {jQuery|HTMLElement}
+     */
     getHtmlContent(component, mode) {
         assert.instanceof(
-            Square,
-            this,
-            assert.format(assert.messages.instanceof.default, 'this', 'Square')
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        assert.enum(
+            Object.values(CONSTANTS.STAGE_MODES),
+            mode,
+            assert.format(
+                assert.messages.enum.default,
+                'mode',
+                Object.values(CONSTANTS.STAGE_MODES)
+            )
+        );
+        return $(this.templates[mode]);
+    },
+
+    /**
+     * onEnable
+     * @method onEnable
+     * @param e
+     * @param component
+     * @param enabled
+     */
+    onEnable(e, component, enabled) {
+        assert.type(
+            CONSTANTS.OBJECT,
+            e,
+            // Note: we are not asserting that e is a $.Event
+            // to call onEnable({ currentTarget: el[0] }, component )
+            assert.format(assert.messages.type.default, 'e', CONSTANTS.OBJECT)
         );
         assert.instanceof(
             PageComponent,
@@ -53,27 +91,9 @@ var Square = BaseTool.extend({
                 'PageComponent'
             )
         );
-        const modes = kendo.ui.Stage.fn.modes;
-        assert.enum(
-            Object.values(modes),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.values(modes)
-            )
-        );
-        return $(this.templates[mode]);
-    },
-
-    onEnable(e, component, enabled) {
         const stageElement = $(e.currentTarget);
-        if (stageElement.is('.kj-element')) {
-            const content = stageElement.children('div');
-            assert.ok(
-                content.length === 1,
-                'Square elements are expected to be constituted of a single div'
-            );
+        if (stageElement.is(CONSTANTS.ELEMENT_CLASS)) {
+            const content = stageElement.children(CONSTANTS.DIV);
             content.off('click');
             if (enabled) {
                 content.on('click', () => {
@@ -83,17 +103,39 @@ var Square = BaseTool.extend({
         }
     },
 
+    /**
+     * onResize
+     * @method onResize
+     * @param e
+     * @param component
+     */
     onResize(e, component) {
+        assert.type(
+            CONSTANTS.OBJECT,
+            e,
+            // Note: we are not asserting that e is a $.Event
+            // to call onEnable({ currentTarget: el[0] }, component )
+            assert.format(assert.messages.type.default, 'e', CONSTANTS.OBJECT)
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
         const stageElement = $(e.currentTarget);
         if (
-            stageElement.is('.kj-element') &&
+            stageElement.is(CONSTANTS.ELEMENT_CLASS) &&
             component instanceof PageComponent
         ) {
-            const content = stageElement.children('div');
-            if ($.type(component.width) === 'number') {
+            const content = stageElement.children(CONSTANTS.DIV);
+            if ($.type(component.width) === CONSTANTS.NUMBER) {
                 content.width(component.width);
             }
-            if ($.type(component.height) === 'number') {
+            if ($.type(component.height) === CONSTANTS.NUMBER) {
                 content.height(component.height);
             }
             // prevent any side effect
@@ -107,4 +149,4 @@ var Square = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Square);
+tools.register(SquareTool);

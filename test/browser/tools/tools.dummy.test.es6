@@ -3,37 +3,49 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO expect(tool).to.have.property('menu');
+
 /* eslint-disable no-unused-expressions */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
 import chai from 'chai';
-import { getLabel } from '../_misc/test.components.es6';
+import chaiJquery from 'chai-jquery';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';
-
-// Load tools
-import '../../../src/js/tools/tools.label.es6';
+import '../../../src/js/tools/tools.dummy.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
 
-describe('tools.label', () => {
-    describe('Label', () => {
-        const tool = tools.label;
-        const component = new PageComponent(getLabel());
+chai.use((c, u) => chaiJquery(c, u, $));
+const FIXTURES = '#fixtures';
+
+describe('tools.dummy', () => {
+    before(() => {
+        if (window.__karma__ && $(FIXTURES).length === 0) {
+            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        }
+    });
+
+    describe('SquareTool', () => {
+        const tool = tools.square;
+        const component = new PageComponent({ tool: 'square' });
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);
             expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
-            expect(tool).to.have.property('description', 'Label');
-            expect(tool).to.have.property('height', 80);
-            expect(tool).to.have.property('help', null); // TODO
-            expect(tool).to.have.property('id', 'label');
-            expect(tool).to.have.property('icon', 'font');
-            // TODO expect(tool).to.have.property('menu', 'Label');
-            expect(tool).to.have.property('name', 'Label');
+            expect(tool).to.have.property('description', 'Square');
+            expect(tool).to.have.property('height', 300);
+            expect(tool).to.have.property('help'); // , '');
+            expect(tool).to.have.property('id', 'square');
+            expect(tool).to.have.property('icon', 'shapes');
+            // TODO expect(tool).to.have.property('menu');
+            expect(tool).to.have.property('name', 'Square');
             expect(tool).to.have.property('weight', 0);
             expect(tool).to.have.property('width', 300);
         });
@@ -46,22 +58,19 @@ describe('tools.label', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('text');
-            expect(Model.fields).to.have.property('style');
+            expect(Model.fields).to.deep.equal({});
         });
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an('array')
-                .with.lengthOf(7);
+                .with.lengthOf(5);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.text');
-            expect(rows[6]).to.have.property('field', 'attributes.style');
         });
 
         it('getPropertyModel', () => {
@@ -72,17 +81,14 @@ describe('tools.label', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('behavior');
-            expect(Model.fields).to.have.property('constant');
+            expect(Model.fields).to.deep.equal({});
         });
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
             expect(rows)
                 .to.be.an('array')
-                .with.lengthOf(2);
-            expect(rows[0]).to.have.property('field', 'properties.behavior');
-            expect(rows[1]).to.have.property('field', 'properties.constant');
+                .with.lengthOf(0);
         });
 
         it('getAssets', () => {
@@ -121,6 +127,8 @@ describe('tools.label', () => {
         });
 
         it('getHtmlContent', () => {
+            let element;
+
             // If we do not submit a page component
             function fn1() {
                 return tool.getHtmlContent({});
@@ -133,11 +141,29 @@ describe('tools.label', () => {
             }
             expect(fn2).to.throw;
 
-            // Test all stage CONSTANTS.STAGE_MODES
-            Object.values(CONSTANTS.STAGE_MODES).forEach(mode => {
-                const html = tool.getHtmlContent(component, mode);
-                expect(html).to.match(/^<div/);
-            });
+            // If we submit a valid page component in design mode
+            element = tool.getHtmlContent(
+                component,
+                CONSTANTS.STAGE_MODES.DESIGN
+            );
+            expect(element).to.be.an.instanceof($);
+            expect(element).to.match(CONSTANTS.DIV);
+
+            // If we submit a valid page component in play mode
+            element = tool.getHtmlContent(
+                component,
+                CONSTANTS.STAGE_MODES.PLAY
+            );
+            expect(element).to.be.an.instanceof($);
+            expect(element).to.match(CONSTANTS.DIV);
+
+            // If we submit a valid page component in review mode
+            element = tool.getHtmlContent(
+                component,
+                CONSTANTS.STAGE_MODES.REVIEW
+            );
+            expect(element).to.be.an.instanceof($);
+            expect(element).to.match(CONSTANTS.DIV);
         });
 
         it('getHtmlCheckMarks', () => {

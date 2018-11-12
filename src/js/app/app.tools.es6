@@ -11,12 +11,18 @@
  */
 
 /**
- * Load pointer tool (always required)
+ * Pointer tool (always required)
  */
 import '../tools/tools.pointer.es6';
 
 /**
- * Load all released tools
+ * A dummy square tool that does not rely on any adapters
+ * which can be used for development and testing
+ */
+import '../tools/tools.dummy.es6';
+
+/**
+ * All released tools
  */
 // import '../tools/tools.audio.es6';
 // import '../tools/tools.chargrid.es6';
@@ -41,5 +47,5 @@ import '../tools/tools.textbox.es6';
 // import '../tools/tools.video.es6';
 
 /**
- * Load pending experimentations
+ * Pending experimentations
  */

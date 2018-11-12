@@ -108,14 +108,19 @@ export function getLabel() {
 }
 
 /**
- * getTextBox
- * @function getTextBox
+ * getMultiQuiz
+ * @function getMultiQuiz
  */
-export function getTextBox() {
+export function getMultiQuiz() {
+    const data = imageList();
     return {
         attributes: {
-            mask: '', // Not bothering
-            style: styleGenerator()
+            mode: quizMode(),
+            shuffle: JSC.boolean()(),
+            groupStyle: styleGenerator(),
+            itemStyle: styleGenerator(),
+            selectStyle: styleGenerator(),
+            data
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -125,12 +130,12 @@ export function getTextBox() {
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
-            solution: textGenerator(),
+            solution: data.filter(JSC.boolean()).join('\n'), // TODO: review
             success: JSC.integer(0, 3)(),
             validation: '// equal'
         },
         rotate: angleGenerator(),
-        tool: 'textbox',
+        tool: 'multiquiz',
         top: positionGenerator(),
         width: positionGenerator()
     };
@@ -170,9 +175,40 @@ export function getQuiz() {
     };
 }
 
+/**
+ * getTextBox
+ * @function getTextBox
+ */
+export function getTextBox() {
+    return {
+        attributes: {
+            mask: '', // Not bothering
+            style: styleGenerator()
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: textGenerator(),
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'textbox',
+        top: positionGenerator(),
+        width: positionGenerator()
+    };
+}
+
 const componentGenerator = {
+    // dummy: getDummy,
     image: getImage,
     label: getLabel, // <- always keep
+    // quiz: getQuiz,
     textbox: getTextBox
 };
 

@@ -35,7 +35,7 @@ import '../tools/tools.image.es6';
 import '../tools/tools.label.es6';
 // import '../tools/tools.mathexpression.es6';
 // import '../tools/tools.mathinput.es6';
-// import '../tools/tools.multiquiz.es6';
+import '../tools/tools.multiquiz.es6';
 // import '../tools/tools.numericbox.es6';
 import '../tools/tools.quiz.es6';
 // import '../tools/tools.random.es6'; */

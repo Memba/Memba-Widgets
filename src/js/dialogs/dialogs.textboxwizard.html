@@ -197,7 +197,8 @@
             SystemJS.import('./dialogs.textboxwizard.es6').then(function (module) {
                 var kendo = window.kendo;
                 var openTextBoxWizard = module.default;
-                SystemJS.import('../messages/dialogs.en.es6').then(function () {
+                debugger;
+                SystemJS.import('../cultures/dialogs.fr.es6').then(function () {
                     $(function () {
                         $('#button1').click(function (e) {
                             openTextBoxWizard({
@@ -236,7 +237,7 @@
 
 <h1>dialogs.textboxwizard</h1>
 
-<h2>using openTextBoxWizard</h2>
+<h2>openTextBoxWizard</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

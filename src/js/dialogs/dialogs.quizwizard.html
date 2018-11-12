@@ -193,24 +193,24 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./dialogs.quizwizard.es6')
-                .then(function (module) {
+            Promise.all([
+                SystemJS.import('./dialogs.quizwizard.es6')
+                // SystemJS.import('../cultures/dialogs.fr.es6')
+            ]).then(function (modules) {
                     var kendo = window.kendo;
-                    var openQuizWizard = module.default;
-                    SystemJS.import('../messages/dialogs.en.es6').then(function () {
-                        $(function () {
-                            $('#button1').click(function (e) {
-                                openQuizWizard({
-                                    title: 'New Quiz'
-                                }).then(function(result) {
-                                    $("#console1").append(
-                                        kendo.format(
-                                            '<div>action `{0}` with data `{1}` at {2}</div>',
-                                            result.action,
-                                            JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
-                                        )
-                                    );
-                                });
+                    var openQuizWizard = modules[0].default;
+                    $(function () {
+                        $('#button1').click(function (e) {
+                            openQuizWizard({
+                                title: 'New Quiz'
+                            }).then(function(result) {
+                                $("#console1").append(
+                                    kendo.format(
+                                        '<div>action `{0}` with data `{1}` at {2}</div>',
+                                        result.action,
+                                        JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
+                                    )
+                                );
                             });
                         });
                     });
@@ -231,7 +231,7 @@
 
 <h1>dialogs.quizwizard</h1>
 
-<h2>using openQuizWizard</h2>
+<h2>openQuizWizard</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

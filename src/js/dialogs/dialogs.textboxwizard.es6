@@ -19,6 +19,21 @@ const {
 } = window.kendo;
 
 /**
+ * Initialize culture
+ */
+BaseDialog.getMessageNameSpace().textboxwizard = BaseDialog.getMessageNameSpace()
+    .textboxwizard || {
+    message:
+        'Please enter a question and solutions (one per line) to compare answers with.',
+    question: 'Question',
+    solution: 'Solution',
+    validation: {
+        question: 'A question is required.',
+        solution: 'A solution is required.'
+    }
+};
+
+/**
  * A shortcut function to display a dialog with a textbox wizard
  * @param options
  * @returns {*}
@@ -32,9 +47,7 @@ export default function openTextBoxWizard(options = {}) {
 
     // Unique ids and culture
     const ids = { question: guid(), solution: guid() };
-    const culture =
-        (((window.kidoju || {}).dialogs || {}).messages || {}).textboxwizard ||
-        {};
+    const culture = BaseDialog.getMessageNameSpace().textboxwizard;
 
     // Create the dialog
     const dialog = $dialog

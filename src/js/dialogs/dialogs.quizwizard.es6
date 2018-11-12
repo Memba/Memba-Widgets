@@ -24,6 +24,25 @@ const {
 } = window.kendo;
 
 /**
+ * Initialize culture
+ */
+BaseDialog.getMessageNameSpace().quizwizard = BaseDialog.getMessageNameSpace()
+    .quizwizard || {
+    add: 'Add',
+    message:
+        'Please enter a question and fill in the grid with multiple choices.',
+    option: 'Option',
+    question: 'Question',
+    solution: 'Solution',
+    text: 'Option 1',
+    validation: {
+        grid:
+            'At least one option and one checked solution are required. Also options cannot be left empty.',
+        question: 'A question is required.'
+    }
+};
+
+/**
  * A shortcut function to display a dialog with a quiz wizard
  * @param options
  * @returns {*}
@@ -37,8 +56,7 @@ export default function openQuizWizard(options = {}) {
 
     // Unique ids and culture
     const ids = { question: guid(), grid: guid() };
-    const culture =
-        (((window.kidoju || {}).dialogs || {}).messages || {}).quizwizard || {};
+    const culture = BaseDialog.getMessageNameSpace().quizwizard;
 
     // Create the dialog
     const dialog = $dialog

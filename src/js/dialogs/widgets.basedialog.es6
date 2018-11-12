@@ -284,8 +284,10 @@ const BaseDialog = Dialog.extend({
 
     /**
      * Destroy method
+     * @method destroy
      */
     destroy() {
+        // TODO unbind
         this.viewModel = undefined;
         Dialog.fn.destroy.call(this);
         destroy(this.wrapper);
@@ -321,5 +323,18 @@ BaseDialog.getElement = function getElement(cssClass = 'kj-dialog-tools') {
     return element;
 };
 
-// Register BaseDialog
+/**
+ * Static getter the message namespace (see ../cultures/dialogs.*)
+ * @method getMessageNameSpace
+ */
+BaseDialog.getMessageNameSpace = () => {
+    window.kendo.ex = window.kendo.ex || {};
+    window.kendo.ex.dialogs = window.kendo.ex.dialogs || {};
+    window.kendo.ex.dialogs.messages = window.kendo.ex.dialogs.messages || {};
+    return window.kendo.ex.dialogs.messages;
+};
+
+/**
+ * Registration
+ */
 plugin(BaseDialog);

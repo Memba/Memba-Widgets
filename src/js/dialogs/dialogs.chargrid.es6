@@ -20,6 +20,11 @@ const {
 } = window.kendo;
 
 /**
+ * Initialize culture
+ */
+// BaseDialog.getMessageNameSpace().chargrid = BaseDialog.getMessageNameSpace().chargrid || {};
+
+/**
  * A shortcut function to display a dialog with a kendo.ui.CodeEditor
  * @param options
  * @returns {*}
@@ -89,4 +94,3 @@ export default function openCharGrid(options = {}) {
 
     return dfd.promise();
 }
-

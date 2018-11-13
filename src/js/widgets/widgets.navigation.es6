@@ -24,13 +24,13 @@ const {
     roleSelector,
     support,
     template,
-    ui: { DataBoundWidget, plugin, Stage },
+    ui: { DataBoundWidget, plugin /* , Stage */ },
     unbind
 } = window.kendo;
 const logger = new Logger('widgets.navigation');
-
 const NS = '.kendoNavigation';
 const WIDGET_CLASS = 'k-widget k-group kj-navigation';
+
 const PLACEHOLDER_CLASS = 'kj-placeholder';
 const HINT_CLASS = 'kj-hint';
 const ALL_ITEMS_SELECTOR = `div.kj-item[${attr(CONSTANTS.UID)}]`;
@@ -67,7 +67,7 @@ const Navigation = DataBoundWidget.extend({
     options: {
         name: 'Navigation',
         autoBind: true,
-        mode: kendo.ui.Stage.fn.modes.design,
+        mode: CONSTANTS.STAGE_MODES.DESIGN,
         itemTemplate:
             '<div data-#: ns #uid="#: uid #" class="kj-item" role="option" aria-selected="false"><div data-#: ns #role="stage"></div></div>',
         pageWidth: 1024, // TODO: assuming page size here: where do we read it from?
@@ -288,29 +288,31 @@ const Navigation = DataBoundWidget.extend({
      * @private
      */
     _dataSource() {
-        const that = this;
         // if the DataSource is defined and the _refreshHandler is wired up, unbind because
         // we need to rebuild the DataSource
 
         // There is no reason why, in its current state, it would not work with any dataSource
-        // if ( that.dataSource instanceof DataSource && that._refreshHandler ) {
-        if (that.dataSource instanceof PageDataSource && that._refreshHandler) {
-            that.dataSource.unbind(CONSTANTS.CHANGE, that._refreshHandler);
+        if (
+            this.dataSource instanceof PageDataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
+            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
         }
 
-        if (that.options.dataSource !== null) {
+        if (this.options.dataSource !== null) {
             // use null to explicitly destroy the dataSource bindings
 
             // returns the datasource OR creates one if using array or configuration object
-            that.dataSource = PageDataSource.create(that.options.dataSource);
+            this.dataSource = PageDataSource.create(this.options.dataSource);
 
-            that._refreshHandler = that.refresh.bind(that);
+            this._refreshHandler = this.refresh.bind(this);
 
             // bind to the change event to refresh the widget
-            that.dataSource.bind(CONSTANTS.CHANGE, that._refreshHandler);
+            this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
 
-            if (that.options.autoBind) {
-                that.dataSource.fetch();
+            if (this.options.autoBind) {
+                this.dataSource.fetch();
             }
         }
     },
@@ -320,29 +322,26 @@ const Navigation = DataBoundWidget.extend({
      * @private
      */
     _render() {
-        const that = this;
-        // Define wrapper for visible bindings
-        that.wrapper = that.element;
-        // Define element
-        that.element
+        this.wrapper = this.element
             .addClass(WIDGET_CLASS)
             .attr('role', 'listbox')
             .on(
-                `${CONSTANTS.MOUSEENTER + NS} ${CONSTANTS.MOUSELEAVE}${NS}`,
+                `${CONSTANTS.MOUSEENTER}${NS} ${CONSTANTS.MOUSELEAVE}${NS}`,
                 ALL_ITEMS_SELECTOR,
-                that._toggleHover
+                this._onToggleHover.bind(this)
             )
             .on(
-                `${CONSTANTS.FOCUS + NS} ${CONSTANTS.BLUR}${NS}`,
+                `${CONSTANTS.FOCUS}${NS} ${CONSTANTS.BLUR}${NS}`,
                 ALL_ITEMS_SELECTOR,
-                that._toggleFocus
+                this._onToggleFocus.bind(this)
             )
             .on(
                 CONSTANTS.CLICK + NS,
                 ALL_ITEMS_SELECTOR,
-                that._click.bind(that)
+                this._onClick.bind(this)
             );
-        kendo.notify(that);
+        // TODO debugger;
+        kendo.notify(this);
     },
 
     /**
@@ -405,26 +404,24 @@ const Navigation = DataBoundWidget.extend({
      * @private
      */
     _addItem(page, index) {
-        const that = this;
-        const navigation = that.element;
+        const navigation = this.element;
 
-        // Check that we get a page that is not already in navigation
+        // Check this we get a page this is not already in navigation
         if (
             page instanceof Page &&
-            navigation.find(format(ITEM_BYUID_SELECTOR, page.uid))
-                .length === 0
+            navigation.find(format(ITEM_BYUID_SELECTOR, page.uid)).length === 0
         ) {
             // Create navigation item (actually a selection frame around the thumbnail stage)
             const navigationItem = $(
-                that._itemTemplate({ uid: page.uid, ns }).css({
-                    boxSizing: 'border-box',
-                    position: 'relative',
-                    padding: parseInt(that.options.selectionBorder, 10),
-                    margin:
-                        parseInt(that.options.pageSpacing, 10) -
-                        parseInt(that.options.selectionBorder, 10)
-                })
-            );
+                this._itemTemplate({ uid: page.uid, ns })
+            ).css({
+                boxSizing: 'border-box',
+                position: 'relative',
+                padding: parseInt(this.options.selectionBorder, 10),
+                margin:
+                    parseInt(this.options.pageSpacing, 10) -
+                    parseInt(this.options.selectionBorder, 10)
+            });
 
             // Add to navigation
             const nextIndex =
@@ -442,11 +439,11 @@ const Navigation = DataBoundWidget.extend({
 
             // Make the stage and bind to components
             navigationItem.find(roleSelector('stage')).kendoStage({
-                mode: that.options.mode,
+                mode: this.options.mode,
                 enable: false,
                 readonly: true,
                 dataSource: page.components,
-                scale: that._getStageScale()
+                scale: this._getStageScale()
             });
         }
     },
@@ -577,11 +574,11 @@ const Navigation = DataBoundWidget.extend({
 
     /**
      * Toggles the hover style when mousing over mavigation items (a stage with ou outer div that acts as a frame)
-     * @method _toggleHover
+     * @method _onToggleHover
      * @param e
      * @private
      */
-    _toggleHover(e) {
+    _onToggleHover(e) {
         assert.instanceof(
             $.Event,
             e,
@@ -599,11 +596,11 @@ const Navigation = DataBoundWidget.extend({
 
     /**
      * Toggles the focus style when an explorer item has focus
-     * @method _toggleFocus
+     * @method _onToggleFocus
      * @param e
      * @private
      */
-    _toggleFocus(e) {
+    _onToggleFocus(e) {
         assert.instanceof(
             $.Event,
             e,
@@ -621,11 +618,11 @@ const Navigation = DataBoundWidget.extend({
 
     /**
      * Click event handler bond to page wrappers to select a page
-     * @method _click
+     * @method _onClick
      * @param e
      * @private
      */
-    _click(e) {
+    _onClick(e) {
         assert.instanceof(
             $.Event,
             e,

@@ -161,7 +161,12 @@
                     'kendogrid': 'src/js/vendor/kendo/kendo.grid.js',
                     'kendopdf': 'src/js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'src/js/vendor/kendo/kendo.scheduler.js',
-                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js'
+                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
+                    // Test frameworks
+                    'jscheck': 'test/vendor/jscheck.js'
+                },
+                meta: {
+                    'test/vendor/jscheck.js': { format: 'global' }
                 },
                 packages: {
                     'src/js': {
@@ -197,40 +202,16 @@
             Promise.all([
                 SystemJS.import('kendo.binder'),
                 SystemJS.import('kendo.splitter'),
+                SystemJS.import('../app/app.tools.es6'),
                 SystemJS.import('../data/models.page.es6'),
                 SystemJS.import('../data/datasources.page.es6'),
+                SystemJS.import('../helpers/helpers.data.es6'),
                 SystemJS.import('./widgets.navigation.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                var Page = modules[2].default;
-                var PageDataSource = modules[3].default;
-                var data = [
-                    {
-                        id: kendo.guid(),
-                        instructions: 'Company?',
-                        components: [
-                            { id: kendo.guid(), tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                            { id: kendo.guid(), tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
-                            { id: kendo.guid(), tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield1' } }
-                        ]
-                    },
-                    {
-                        id: kendo.guid(),
-                        instructions: 'Marignan?',
-                        components: [
-                            { id: kendo.guid(), tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
-                            { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield2' } }
-                        ]
-                    },
-                    {
-                        id: kendo.guid(),
-                        instructions: 'Cheval IV?',
-                        components: [
-                            { id: kendo.guid(), tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
-                            { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                        ]
-                    }
-                ];
+                var Page = modules[3].default;
+                var PageDataSource = modules[4].default;
+                var data = modules[5].getPageArray();
                 var pageDataSource = new PageDataSource({ data });
                 var viewModel = window.viewModel = kendo.observable({
                     current: undefined,

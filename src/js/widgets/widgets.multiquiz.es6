@@ -97,7 +97,7 @@ const MultiQuiz = DataBoundWidget.extend({
         mode: MODES.BUTTON,
         shuffle: false,
         textField: 'text',
-        imageField: 'image',
+        imageField: 'url',
         buttonTemplate: BUTTON_TMPL,
         checkboxTemplate: CHECKBOX_TMPL,
         imageTemplate: IMAGE_TMPL,
@@ -125,34 +125,37 @@ const MultiQuiz = DataBoundWidget.extend({
             assert.format(assert.messages.isPlainObject.default, 'options')
         );
         Widget.fn.setOptions.call(this, options);
-        this._groupStyle = new Style(options.groupStyle || ''); // TODO where is it used?
-        this._itemStyle = new Style(options.itemStyle || '');
-        this._selectedStyle = new Style(options.selectedStyle || '');
+        const {
+            buttonTemplate,
+            checkboxTemplate,
+            groupStyle,
+            imageField,
+            itemStyle,
+            imageTemplate,
+            linkTemplate,
+            multiSelectTemplate,
+            selectedStyle,
+            textField
+        } = this.options;
+        this._groupStyle = new Style(groupStyle || ''); // TODO where is it used?
+        this._itemStyle = new Style(itemStyle || '');
+        this._selectedStyle = new Style(selectedStyle || '');
         this._buttonTemplate = template(
-            format(
-                options.buttonTemplate,
-                options.textField,
-                options.imageField
-            )
+            format(buttonTemplate, textField, imageField)
         );
         this._checkboxTemplate = template(
-            format(
-                options.checkboxTemplate,
-                options.textField,
-                options.imageField,
-                randomId()
-            )
+            format(checkboxTemplate, textField, imageField, randomId())
         );
         this._imageTemplate = template(
-            format(options.imageTemplate, options.textField, options.imageField)
+            format(imageTemplate, textField, imageField)
         );
         this._linkTemplate = template(
-            format(options.linkTemplate, options.textField, options.imageField)
+            format(linkTemplate, textField, imageField)
         );
         this._multiSelectTemplate = format(
-            options.multiSelectTemplate,
-            options.textField,
-            options.imageField
+            multiSelectTemplate,
+            textField,
+            imageField
         ); // ! not a compiled template
     },
 

@@ -202,26 +202,26 @@
                 var data = [
                     {
                         text: 'question 1',
-                        image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg'
+                        url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg'
                     },
                     {
                         text: 'question 2',
-                        image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg'
+                        url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg'
                     },
                     {
                         text: 'question 3',
-                        image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg'
+                        url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg'
                     },
                     {
                         text: 'question 4',
-                        image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg'
+                        url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg'
                     }
                 ];
                 var model = kendo.data.Model.define({
                     id: 'text',
                     fields: {
                         text: {type: 'string'},
-                        image: {type: 'string'}
+                        url: {type: 'string'}
                     }
                 });
                 var viewModel = kendo.observable({
@@ -241,7 +241,7 @@
                             var pos = item.indexOf('[');
                             ret.push({
                                 text: item.substr(0, pos),
-                                image: item.substr(pos + 1, item.length - pos - 2)
+                                url: item.substr(pos + 1, item.length - pos - 2)
                             });
                         }
                         return ret;

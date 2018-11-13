@@ -65,9 +65,11 @@ const CONSTANTS = {
     NOT_FOUND_ERR: 'Not found',
     NOT_IMPLEMENTED_ERR: 'Not implemented',
     // Content types
+    GIF_CONTENT_TYPE: 'image/gif',
     JSON_CONTENT_TYPE: 'application/json',
     JPEG_CONTENT_TYPE: 'image/jpeg',
     PNG_CONTENT_TYPE: 'image/png',
+    TEXT_CONTENT_TYPE: 'plain/text',
     // Cursors
     CROSSHAIR_CURSOR: 'crosshair',
     DEFAULT_CURSOR: 'default',

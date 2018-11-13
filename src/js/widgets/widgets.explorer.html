@@ -160,7 +160,12 @@
                     'kendogrid': 'src/js/vendor/kendo/kendo.grid.js',
                     'kendopdf': 'src/js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'src/js/vendor/kendo/kendo.scheduler.js',
-                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js'
+                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
+                    // Test frameworks
+                    'jscheck': 'test/vendor/jscheck.js'
+                },
+                meta: {
+                    'test/vendor/jscheck.js': { format: 'global' }
                 },
                 packages: {
                     'src/js': {
@@ -197,19 +202,14 @@
                 SystemJS.import('kendo.binder'),
                 SystemJS.import('../data/datasources.pagecomponent.es6'),
                 SystemJS.import('../app/app.tools.es6'),
-                SystemJS.import('./widgets.explorer.es6')
+                SystemJS.import('./widgets.explorer.es6'),
+                SystemJS.import('../helpers/helpers.data.es6')
             ])
                 .then(function (modules) {
                     var kendo = window.kendo;
                     var PageComponentDataSource = modules[1].default;
-                    var pageComponentDataSource = new PageComponentDataSource({
-                        data: [
-                            { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                            { id: kendo.guid(), tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { src: 'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg' } },
-                            { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'World' } },
-                            { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                        ]
-                    });
+                    var data = modules[4].getComponentArray();
+                    var pageComponentDataSource = new PageComponentDataSource({ data });
                     var viewModel = kendo.observable({
                         components: pageComponentDataSource,
                         current: null,
@@ -229,16 +229,21 @@
         }());
     </script>
     <style>
-        body>div:first-of-type {
+        body > div:first-of-type {
             height: 22px;
         }
         button {
-            margin: 5px 0px;
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
 <h1>widgets.explorer</h1>
+<h2>HTML declaration</h2>
+
+<h2>JavaScript code</h2>
+
+<h2>Bound to observable</h2>
 <div data-bind="text: current.uid"></div>
 <button data-bind="click: reset">Clear Selection</button><br/>
 <div id="explorer1" data-role="explorer" data-bind="source: components, value: current" style="width:200px; display:inline-block;" data-auto-bind="false"></div>

@@ -7,7 +7,9 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 
-if (window.kendo && window.kendo.ex && window.kendo.ex.dialogs) {
+if (window.kendo) {
+    window.kendo.ex = window.kendo.ex || {};
+    window.kendo.ex.dialogs = window.kendo.ex.dialogs || {};
     window.kendo.ex.dialogs.messages = $.extend(
         true,
         {},
@@ -61,7 +63,7 @@ if (window.kendo && window.kendo.ex && window.kendo.ex.dialogs) {
             signin: {},
 
             /* dialogs.speeadsheet */
-            speeadsheet: {},
+            spreadsheet: {},
 
             /* dialogs.styleeditor */
             styleeditor: {},

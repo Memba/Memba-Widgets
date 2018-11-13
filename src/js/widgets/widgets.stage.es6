@@ -266,7 +266,7 @@ const Stage = DataBoundWidget.extend({
         );
         let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            ret = this._mode;
+            ret = this._scale;
         } else if (value < 0) {
             throw new RangeError('`value` should be a positive number');
         } else if (value !== this._scale) {

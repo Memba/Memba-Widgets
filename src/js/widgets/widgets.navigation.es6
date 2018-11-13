@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Consider horizontal
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -36,6 +38,8 @@ const HINT_CLASS = 'kj-hint';
 const ALL_ITEMS_SELECTOR = `div.kj-item[${attr(CONSTANTS.UID)}]`;
 const ITEM_BYUID_SELECTOR = `div.kj-item[${attr(CONSTANTS.UID)}="{0}"]`;
 const ARIA_SELECTED = 'aria-selected';
+const ITEM_TEMPLATE =
+    '<div data-#: ns #uid="#: uid #" class="kj-item" role="option" aria-selected="false"><div data-#: ns #role="stage"></div></div>';
 
 /**
  * Navigation
@@ -62,26 +66,28 @@ const Navigation = DataBoundWidget.extend({
     },
 
     /**
-     * Wdiget options
+     * Options
+     * @property options
      */
     options: {
         name: 'Navigation',
         autoBind: true,
+        enabled: true, // TODO readonly
+        itemTemplate: ITEM_TEMPLATE,
+        menuIcon: 'calibration_mark.svg', // TODO not used
         mode: CONSTANTS.STAGE_MODES.DESIGN,
-        itemTemplate:
-            '<div data-#: ns #uid="#: uid #" class="kj-item" role="option" aria-selected="false"><div data-#: ns #role="stage"></div></div>',
         pageWidth: 1024, // TODO: assuming page size here: where do we read it from?
+        pageSpacing: 20, // pageSpacing - selectionBorder determines the margin
         pageHeight: 768,
         selectionBorder: 10, // this is the padding of the page wrapper, which draws a border around it
-        pageSpacing: 20, // pageSpacing - selectionBorder determines the margin
-        menuIcon: 'calibration_mark.svg',
         messages: {
-            empty: 'No item to display' // TODO: add message in UI (see refresh)
+            empty: 'No page to display' // TODO: add message in UI (see refresh)
         }
     },
 
     /**
      * Events
+     * @property events
      */
     events: [
         CONSTANTS.CHANGE,
@@ -91,6 +97,7 @@ const Navigation = DataBoundWidget.extend({
     ],
 
     /**
+     * setOptions
      * @method setOptions
      * @param options
      */
@@ -198,7 +205,8 @@ const Navigation = DataBoundWidget.extend({
     },
 
     /**
-     * @method total()
+     * length
+     * @method length()
      * @returns {*}
      */
     length() {
@@ -219,6 +227,7 @@ const Navigation = DataBoundWidget.extend({
 
     /**
      * Height of navigation
+     * @method height
      * @param value
      * @returns {string}
      */
@@ -241,6 +250,7 @@ const Navigation = DataBoundWidget.extend({
 
     /**
      * Width of navigation
+     * @method width,
      * @param value
      * @returns {string}
      */
@@ -342,6 +352,22 @@ const Navigation = DataBoundWidget.extend({
             );
         // TODO debugger;
         kendo.notify(this);
+    },
+
+    /**
+     * Enable/disable
+     * Note: This allows click slections but no sorting (it is a read-only mode)
+     * @method enable
+     * @param enable
+     */
+    enable(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        if (enabled) {
+            // TODO allow click selections but no sorting
+            // TODO: maybe we need to divide between enabled and readonly
+            $.noop();
+        }
     },
 
     /**
@@ -507,10 +533,10 @@ const Navigation = DataBoundWidget.extend({
         }
         that.index(selectedIndex);
         // TODO Display a message when there is no data to display?
-        that.resize();
         if (e && e.action === undefined) {
             that.trigger(CONSTANTS.DATABOUND);
         }
+        that.resize();
     },
 
     /**
@@ -552,24 +578,26 @@ const Navigation = DataBoundWidget.extend({
      * @method resize
      */
     resize() {
-        const that = this;
-        const navigation = that.element;
-        const scale = that._getStageScale();
+        const scale = this._getStageScale();
 
         // TODO: we are not clear with borders here
         // we actually need the widget's outerWidth and outerHeight
-        // becaus a border might be added to pageWidth and pageHeight
-        navigation
+        // because a border might be added to pageWidth and pageHeight
+        this.element
             .find(ALL_ITEMS_SELECTOR)
-            .width(scale * parseInt(that.options.pageWidth, 10))
-            .height(scale * parseInt(that.options.pageHeight, 10));
-
-        const stages = navigation.find(roleSelector('stage'));
-        for (let i = 0; i < stages.length; i++) {
-            $(stages[i])
-                .data('kendoStage')
-                .scale(scale);
-        }
+            .width(scale * parseInt(this.options.pageWidth, 10))
+            .height(scale * parseInt(this.options.pageHeight, 10))
+            .find(roleSelector('stage'))
+            .each((index, element) => {
+                $(element)
+                    .data('kendoStage')
+                    .scale(scale);
+            });
+        logger.debug({
+            method: 'resize',
+            message: 'widget resized',
+            data: { scale }
+        });
     },
 
     /**

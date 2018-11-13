@@ -331,18 +331,14 @@ const LocalStream = Stream.define({
                     // .map(page => page.components.fetch());
                     .map(page => {
                         const d = $.Deferred();
-                        debugger;
-                        page.components.fetch()
+                        page.components
+                            .fetch()
                             .then(() => {
-                                debugger;
                                 d.resolve();
                             })
                             .catch(d.reject);
-                        console.log('hey!');
-                        debugger;
                         return d.promise();
                     });
-                debugger;
                 $.when(...promises)
                     .then(dfd.resolve)
                     .catch(dfd.reject);

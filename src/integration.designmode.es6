@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
+import 'kendo.panelbar';
 import 'kendo.slider';
 import 'kendo.splitter';
 import 'kendo.toolbar';
@@ -16,7 +17,9 @@ import tools from './js/tools/tools.es6';
 import BaseTool from './js/tools/tools.base.es6';
 import './js/widgets/widgets.explorer.es6';
 import './js/widgets/widgets.navigation.es6';
+import './js/widgets/widgets.propertygrid.es6';
 import './js/widgets/widgets.stage.es6';
+import './js/widgets/widgets.toolbox.es6';
 
 const { location } = window;
 const {
@@ -48,10 +51,10 @@ viewModel.bind('change', e => {
             const grid1 = $('#attributes').data('kendoPropertyGrid');
             const grid2 = $('#properties').data('kendoPropertyGrid');
             if (grid1 instanceof PropertyGrid) {
-                grid1.rows(tool._getAttributeRows());
+                grid1.rows(tool.getAttributeRows());
             }
             if (grid2 instanceof PropertyGrid) {
-                grid2.rows(tool._getPropertyRows());
+                grid2.rows(tool.getPropertyRows());
             }
         }
     }

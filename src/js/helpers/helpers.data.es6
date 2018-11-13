@@ -187,3 +187,123 @@ export function getComponentArray() {
         getTextBox()
     ];
 }
+
+/**
+ * getPage
+ * @function getPage
+ */
+export function getPage() {
+    return {};
+}
+
+/**
+ * getPageArray
+ * @function getPageArray
+ */
+export function getPageArray() {
+    return [
+        {
+            id: new ObjectId().toString(),
+            instructions: 'Company?',
+            components: [
+                {
+                    id: new ObjectId().toString(),
+                    tool: 'image',
+                    top: 50,
+                    left: 370,
+                    height: 250,
+                    width: 250,
+                    rotate: 0,
+                    attributes: {
+                        src:
+                            'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png'
+                    }
+                },
+                {
+                    id: new ObjectId().toString(),
+                    tool: 'label',
+                    top: 300,
+                    left: 300,
+                    height: 100,
+                    width: 300,
+                    rotate: 0,
+                    attributes: {
+                        style: 'font-family: Georgia, serif; color: #0000FF;',
+                        text: 'Company?'
+                    }
+                },
+                {
+                    id: new ObjectId().toString(),
+                    tool: 'textbox',
+                    top: 450,
+                    left: 350,
+                    height: 100,
+                    width: 300,
+                    rotate: 0,
+                    attributes: {},
+                    properties: { name: randomVal() }
+                }
+            ]
+        },
+        {
+            id: new ObjectId().toString(),
+            instructions: 'Marignan?',
+            components: [
+                {
+                    id: new ObjectId().toString(),
+                    tool: 'label',
+                    top: 150,
+                    left: 280,
+                    height: 100,
+                    width: 300,
+                    rotate: 0,
+                    attributes: {
+                        style: 'font-family: Georgia, serif; color: #FF0000;',
+                        text: 'Marignan?'
+                    }
+                },
+                {
+                    id: new ObjectId().toString(),
+                    tool: 'textbox',
+                    top: 300,
+                    left: 330,
+                    height: 100,
+                    width: 300,
+                    rotate: 0,
+                    attributes: {},
+                    properties: { name: randomVal() }
+                }
+            ]
+        },
+        {
+            id: new ObjectId().toString(),
+            instructions: 'Cheval IV?',
+            components: [
+                {
+                    id: new ObjectId().toString(),
+                    tool: 'label',
+                    top: 120,
+                    left: 280,
+                    height: 150,
+                    width: 400,
+                    rotate: 0,
+                    attributes: {
+                        style: 'font-family: Georgia, serif; color: #00FF00;',
+                        text: "Couleur du cheval blanc d'Henri IV?"
+                    }
+                },
+                {
+                    id: new ObjectId().toString(),
+                    tool: 'textbox',
+                    top: 300,
+                    left: 330,
+                    height: 100,
+                    width: 300,
+                    rotate: 0,
+                    attributes: {},
+                    properties: { name: randomVal() }
+                }
+            ]
+        }
+    ];
+}

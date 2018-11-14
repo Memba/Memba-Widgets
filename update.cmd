@@ -5,9 +5,9 @@ REM Copy babel-polyfill
 XCOPY .\node_modules\@babel\polyfill\dist .\test\vendor /C /E /I /R /Y
 
 REM Copy common files from Kidoju-Server
-ATTRIB -R .\src\js\common\pongodb.*.es6
-COPY ..\Kidoju.Server\src\js\common\pongodb.*.es6 .\src\js\common\pongodb.*.es6 /Y
-ATTRIB +R .\src\js\common\pongodb.*.es6
+REM ATTRIB -R .\src\js\common\pongodb.*.es6
+REM COPY ..\Kidoju.Server\src\js\common\pongodb.*.es6 .\src\js\common\pongodb.*.es6 /Y
+REM ATTRIB +R .\src\js\common\pongodb.*.es6
 
 REM Copy Kidoju-WebFonts
 XCOPY ..\Kidoju.WebFonts\dist\fonts\*.* .\src\styles\fonts\ /C /E /I /R /Y

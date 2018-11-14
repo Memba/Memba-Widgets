@@ -8,6 +8,7 @@
   display: flex;
   align-items: flex-start;
   line-height: 2em;
+  /* &.k-header.k-toolbar { */
 }
 .k-dialog .kj-dialog-flexrow.k-toolbar {
   padding: 0.5em 1em;

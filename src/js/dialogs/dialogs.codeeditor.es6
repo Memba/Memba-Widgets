@@ -44,7 +44,7 @@ export default function openCodeEditor(options = {}) {
                     )}"></div>`,
                     data: {
                         value: '',
-                        library: []
+                        library: [] // Do we really need this?
                         // defaultValue: null,
                         // solution: null
                     },
@@ -62,11 +62,11 @@ export default function openCodeEditor(options = {}) {
     // Bind the show event to resize once opened
     dialog.one('show', e => {
         resize(e.sender.element);
-        // IMPORTANT, we need to refresh CodeMirror here otherwise the open animation messes with CodeMirror calculations
-        // and gutter and line numbers are not displayed properly
         const codeEditor = e.sender.element
             .find(roleSelector('codeeditor'))
             .data('kendoCodeEditor');
+        // IMPORTANT, we need to refresh CodeMirror here otherwise the open animation messes with CodeMirror calculations
+        // and gutter and line numbers are not displayed properly
         codeEditor.codeMirror.refresh();
     });
 
@@ -74,7 +74,10 @@ export default function openCodeEditor(options = {}) {
     dialog.bind(CONSTANTS.CLICK, e => {
         dfd.resolve({
             action: e.action,
-            data: e.sender.viewModel.toJSON()
+            // data: e.sender.viewModel.toJSON() <-- we do not need to return the library
+            data: {
+                value: e.sender.viewModel.get('value')
+            }
         });
     });
 

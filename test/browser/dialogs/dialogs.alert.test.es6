@@ -22,7 +22,7 @@ import {
 } from '../../../src/js/dialogs/dialogs.alert.es6';
 
 const { afterEach, describe, it } = window;
-const { destroy, htmlEncode, ns } = window.kendo;
+const { destroy } = window.kendo;
 const { expect } = chai;
 
 // const FIXTURES = '#fixtures';
@@ -52,6 +52,7 @@ describe('dialogs.alert', () => {
                 JSC.character('a', 'z')
             )();
             const text = JSC.string()();
+            expect(['error', 'info', 'success', 'warning']).to.include(type);
             openAlert({
                 type,
                 message,
@@ -78,6 +79,7 @@ describe('dialogs.alert', () => {
                 JSC.integer(1, 8),
                 JSC.character('a', 'z')
             )();
+            expect(['error', 'info', 'success', 'warning']).to.include(type);
             const text = '"><script>alert("Hello");</script><"';
             openAlert({
                 type,
@@ -101,6 +103,7 @@ describe('dialogs.alert', () => {
             const TYPE = JSC.one_of(TYPES)();
             const type = TYPE.name;
             const message = JSC.string()();
+            expect(['error', 'info', 'success', 'warning']).to.include(type);
             openOKCancelAlert({ type, message })
                 .then(
                     tryCatch(done)(resp => {
@@ -117,6 +120,7 @@ describe('dialogs.alert', () => {
             const TYPE = JSC.one_of(TYPES)();
             const type = TYPE.name;
             const message = JSC.string()();
+            expect(['error', 'info', 'success', 'warning']).to.include(type);
             openOKCancelAlert({ type, message })
                 .then(
                     tryCatch(done)(resp => {
@@ -135,6 +139,7 @@ describe('dialogs.alert', () => {
             const TYPE = JSC.one_of(TYPES)();
             const type = TYPE.name;
             const message = JSC.string()();
+            expect(['error', 'info', 'success', 'warning']).to.include(type);
             openYesNoAlert({ type, message })
                 .then(
                     tryCatch(done)(resp => {
@@ -151,6 +156,7 @@ describe('dialogs.alert', () => {
             const TYPE = JSC.one_of(TYPES)();
             const type = TYPE.name;
             const message = JSC.string()();
+            expect(['error', 'info', 'success', 'warning']).to.include(type);
             openYesNoAlert({ type, message })
                 .then(
                     tryCatch(done)(resp => {
@@ -165,7 +171,8 @@ describe('dialogs.alert', () => {
     });
 
     afterEach(() => {
-        const dialog = $(`[data-${ns}role="dialog"]`);
+        // This is the dialog wrapper
+        const dialog = $('.k-dialog');
         destroy(dialog);
         dialog.remove();
     });

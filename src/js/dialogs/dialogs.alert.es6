@@ -11,6 +11,7 @@ import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {
+    deepExtend,
     template,
     ui: { BaseDialog }
 } = window.kendo;
@@ -32,7 +33,8 @@ export function openAlert(options = {}) {
     // Create the dialog
     const dialog = $dialog
         .kendoBaseDialog(
-            Object.assign(
+            deepExtend(
+                {},
                 {
                     title:
                         BaseDialog.fn.options.messages.title[

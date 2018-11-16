@@ -3,16 +3,17 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: replace `imageUrl` by `icon` + add CDN path to options + build path when using icons
+// TODO unbind in destroy
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.dialog';
-// import assert from '../common/window.assert.es6';
+import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-
-// TODO Review styles including the button container at the bottom consider suggestions to Telerik
 
 const {
     bind,
@@ -25,17 +26,15 @@ const {
 
 // const NS = '.kendoBaseDialog';
 const logger = new Logger('widgets.basedialog');
-
+const WIDGET_CLASS = 'kj-dialog';
 const tmpl = {
     action: template(
         '<button type="button" class="k-button# if (data.primary) { # k-primary# } #" role="button"></button>'
     ),
-    text: template(
+    image: template(
         '<img alt="#: data.text #" class="k-image" src="#: data.imageUrl #">#: data.text #'
     )
 };
-
-const WIDGET_CLASS = 'kj-dialog';
 
 /** *******************************************************************************
  * BaseDialog Widget
@@ -56,6 +55,7 @@ const BaseDialog = Dialog.extend({
      * @param options
      */
     init(element, options) {
+        this._fixKarma(element);
         Dialog.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this.element.addClass(WIDGET_CLASS);
@@ -84,7 +84,6 @@ const BaseDialog = Dialog.extend({
                 warning: 'Warning'
             },
             actions: {
-                // TODO: replace imageUrl by icon with CDN path and build path when using icons
                 cancel: {
                     action: 'cancel',
                     imageUrl:
@@ -141,6 +140,22 @@ const BaseDialog = Dialog.extend({
     },
 
     /**
+     * Fix a Karma issue
+     * @param element
+     * @private
+     */
+    _fixKarma(element) {
+        if (window.__karma__) {
+            // The following fixes a bug in Karma where the title is not replaced
+            // but appended to the previous title
+            $(element)
+                .closest('.k-dialog')
+                .find('.k-dialog-titlebar > .k-dialog-title')
+                .html('');
+        }
+    },
+
+    /**
      * Initialize view model
      * @private
      */
@@ -168,6 +183,13 @@ const BaseDialog = Dialog.extend({
      * @private
      */
     _addButtons(actionbar) {
+        assert.instanceof(
+            $,
+            actionbar,
+            assert.messages.instanceof.default,
+            'actionbar',
+            'jQuery'
+        );
         /*
         Originally
         var that = this;
@@ -237,9 +259,13 @@ const BaseDialog = Dialog.extend({
         var text = action.text;
         return text ? template(text)(this.options) : '';
         */
+        /* eslint-disable prettier/prettier */
         return action.imageUrl
-            ? tmpl.text(action)
-            : template(htmlEncode(action.text || '').replace('#', '\\#'))(this.options);
+            ? tmpl.image(action)
+            : template(htmlEncode(action.text || '').replace('#', '\\#'))(
+                this.options
+            );
+        /* eslint-enable prettier/prettier */
     },
 
     /**
@@ -287,7 +313,6 @@ const BaseDialog = Dialog.extend({
      * @method destroy
      */
     destroy() {
-        // TODO unbind
         this.viewModel = undefined;
         Dialog.fn.destroy.call(this);
         destroy(this.wrapper);
@@ -306,12 +331,13 @@ BaseDialog.getElement = function getElement(cssClass = 'kj-dialog-tools') {
     let element = $(
         `${CONSTANTS.DOT}${WIDGET_CLASS}${CONSTANTS.DOT}${cssClass}`
     );
-    if (element.length > 0) {
+    if (element.length) {
         const dialog = element.data('kendoBaseDialog');
         if (dialog instanceof BaseDialog) {
+            dialog.title('');
+            dialog.content('');
             dialog.destroy();
         }
-        // element.empty(); We replace the content anyway
     } else {
         // Add a div to the html document for the dialog
         // cssClass ensures we do not mess with other dialogs

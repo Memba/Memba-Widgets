@@ -18,11 +18,11 @@ import CONSTANTS from '../../../src/js/common/window.constants';
 
 const { afterEach, describe, it } = window;
 const { expect } = chai;
-const { destroy, htmlEncode, ns } = window.kendo;
+const { destroy } = window.kendo;
 
 const FIXTURES = '#fixtures';
 
-describe('kidoju.widgets.basedialog', () => {
+describe('widgets.basedialog', () => {
     before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
@@ -36,8 +36,9 @@ describe('kidoju.widgets.basedialog', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
-        destroy(fixtures);
-        fixtures.empty();
+        // This is the dialog wrapper
+        const dialog = $('.k-dialog');
+        destroy(dialog);
+        dialog.remove();
     });
 });

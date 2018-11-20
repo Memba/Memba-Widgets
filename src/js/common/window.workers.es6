@@ -12,7 +12,6 @@ import Logger from './window.logger.es6';
 
 const logger = new Logger('window.workers');
 const {
-    __karma__,
     Blob,
     console,
     cordova,
@@ -47,7 +46,7 @@ function workerTimeout() {
         Math.floor(100 * Math.random());
     }
     const end = Date.now();
-    const k = devtools.opened || __karma__ ? 4 : 1;
+    const k = devtools.opened || window.__karma__ ? 4 : 1;
     // A minimum of 250ms is required in browsers and 400ms in Phonegap and Karma tests
     const timeout = k * Math.max(cordova ? 400 : 250, 10 * (end - start));
     logger.info({
@@ -323,10 +322,3 @@ export default class WorkerPool {
         }
     }
 }
-
-/**
- * Legacy code
- */
-window.kidoju = window.kidoju || {};
-window.kidoju.models = window.kidoju.models || {};
-window.kidoju.models.WorkerPool = WorkerPool;

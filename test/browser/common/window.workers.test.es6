@@ -32,7 +32,7 @@ function noop() {}
 
 if (!Modernizr.webworkers) {
     document.getElementById('mocha').innerHTML =
-        '<span>Web workers is not supported</span>';
+        '<span>Web workers are not supported</span>';
     // return; // Cannot have a return statement here (check in IE)
 } else {
     describe('window.workers', () => {
@@ -91,7 +91,7 @@ if (!Modernizr.webworkers) {
                     .then(result => {
                         try {
                             expect(result).to.have.property('name', 'dummy');
-                            expect(result).to.have.property('value', 'echo');
+                            expect(result).to.have.property('result', 'echo');
                             done();
                         } catch (ex) {
                             done(ex);
@@ -169,7 +169,7 @@ if (!Modernizr.webworkers) {
                                     `task ${i}`
                                 );
                                 expect(args[i]).to.have.property(
-                                    'value',
+                                    'result',
                                     i + 1
                                 );
                             }
@@ -237,7 +237,7 @@ if (!Modernizr.webworkers) {
                                     'name',
                                     DATA[i]
                                 );
-                                expect(args[i]).to.have.property('value', true);
+                                expect(args[i]).to.have.property('result', true);
                             }
                             done();
                         } catch (ex) {
@@ -249,27 +249,27 @@ if (!Modernizr.webworkers) {
 
             it('soundex', done => {
                 const DATA = [
-                    { name: 'Soundex', value: 'S532' },
-                    { name: 'Example', value: 'E251' },
-                    { name: 'Sownteks', value: 'S532' },
-                    { name: 'Ekzampul', value: 'E251' },
-                    { name: 'Euler', value: 'E460' },
-                    { name: 'Gauss', value: 'G200' },
-                    { name: 'Hilbert', value: 'H416' },
-                    { name: 'Knuth', value: 'K530' },
-                    { name: 'Lloyd', value: 'L300' },
-                    { name: 'Lukasiewicz', value: 'L222' },
-                    { name: 'Ellery', value: 'E460' },
-                    { name: 'Ghosh', value: 'G200' },
-                    { name: 'Heilbronn', value: 'H416' },
-                    { name: 'Kant', value: 'K530' },
-                    { name: 'Ladd', value: 'L300' },
-                    { name: 'Lissajous', value: 'L222' },
-                    { name: 'Wheaton', value: 'W350' },
-                    { name: 'Ashcraft', value: 'A226' },
-                    { name: 'Burroughs', value: 'B622' },
-                    { name: 'Burrows', value: 'B620' },
-                    { name: "O'Hara", value: 'O600' }
+                    { name: 'Soundex', result: 'S532' },
+                    { name: 'Example', result: 'E251' },
+                    { name: 'Sownteks', result: 'S532' },
+                    { name: 'Ekzampul', result: 'E251' },
+                    { name: 'Euler', result: 'E460' },
+                    { name: 'Gauss', result: 'G200' },
+                    { name: 'Hilbert', result: 'H416' },
+                    { name: 'Knuth', result: 'K530' },
+                    { name: 'Lloyd', result: 'L300' },
+                    { name: 'Lukasiewicz', result: 'L222' },
+                    { name: 'Ellery', result: 'E460' },
+                    { name: 'Ghosh', result: 'G200' },
+                    { name: 'Heilbronn', result: 'H416' },
+                    { name: 'Kant', result: 'K530' },
+                    { name: 'Ladd', result: 'L300' },
+                    { name: 'Lissajous', result: 'L222' },
+                    { name: 'Wheaton', result: 'W350' },
+                    { name: 'Ashcraft', result: 'A226' },
+                    { name: 'Burroughs', result: 'B622' },
+                    { name: 'Burrows', result: 'B620' },
+                    { name: "O'Hara", result: 'O600' }
                 ];
                 const promises = [];
                 const script = 'self.postMessage(soundex(e.data));';
@@ -286,8 +286,8 @@ if (!Modernizr.webworkers) {
                                     DATA[i].name
                                 );
                                 expect(args[i]).to.have.property(
-                                    'value',
-                                    DATA[i].value
+                                    'result',
+                                    DATA[i].result
                                 );
                             }
                             done();
@@ -300,10 +300,10 @@ if (!Modernizr.webworkers) {
 
             it('metaphone', done => {
                 const DATA = [
-                    { name: 'Gnu', value: 'N' },
-                    { name: 'bigger', value: 'BKR' },
-                    { name: 'accuracy', value: 'AKKRS' },
-                    { name: 'batch batcher', value: 'BXBXR' }
+                    { name: 'Gnu', result: 'N' },
+                    { name: 'bigger', result: 'BKR' },
+                    { name: 'accuracy', result: 'AKKRS' },
+                    { name: 'batch batcher', result: 'BXBXR' }
                     // TODO we need more...
                 ];
                 const promises = [];
@@ -321,8 +321,8 @@ if (!Modernizr.webworkers) {
                                     DATA[i].name
                                 );
                                 expect(args[i]).to.have.property(
-                                    'value',
-                                    DATA[i].value
+                                    'result',
+                                    DATA[i].result
                                 );
                             }
                             done();
@@ -337,13 +337,13 @@ if (!Modernizr.webworkers) {
                 const DATA = [
                     {
                         name: 'La leçon est terminée',
-                        value: 'La lecon est terminee'
+                        result: 'La lecon est terminee'
                     },
-                    { name: 'Cómo está usted', value: 'Como esta usted' },
-                    { name: 'można zapoznać się', value: 'mozna zapoznac sie' },
+                    { name: 'Cómo está usted', result: 'Como esta usted' },
+                    { name: 'można zapoznać się', result: 'mozna zapoznac sie' },
                     {
                         name: 'Z przyjemnością prezentuje Państwu',
-                        value: 'Z przyjemnoscia prezentuje Panstwu'
+                        result: 'Z przyjemnoscia prezentuje Panstwu'
                     }
                     // TODO we need more...
                 ];
@@ -362,8 +362,8 @@ if (!Modernizr.webworkers) {
                                     DATA[i].name
                                 );
                                 expect(args[i]).to.have.property(
-                                    'value',
-                                    DATA[i].value
+                                    'result',
+                                    DATA[i].result
                                 );
                             }
                             done();
@@ -410,7 +410,7 @@ if (!Modernizr.webworkers) {
                                     `Task ${i}`
                                 );
                                 expect(args[i]).to.have.property(
-                                    'value',
+                                    'result',
                                     DATA[i].result
                                 );
                             }
@@ -458,7 +458,7 @@ if (!Modernizr.webworkers) {
                                     `Task ${i}`
                                 );
                                 expect(args[i]).to.have.property(
-                                    'value',
+                                    'result',
                                     DATA[i].result
                                 );
                             }

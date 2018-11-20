@@ -275,7 +275,7 @@ export default class WorkerPool {
                 workers[thread] = new Worker(task.blobURL);
                 // onmessage event handler
                 workers[thread].onmessage = function onmessage(e) {
-                    task.deferred.resolve({ name: task.name, value: e.data });
+                    task.deferred.resolve({ name: task.name, result: e.data });
                     terminate(thread, task);
                     logger.debug({
                         method: '_next',

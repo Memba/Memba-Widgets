@@ -10,7 +10,7 @@ import tools from '../../../src/js/tools/tools.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';
 
 // Note: floating numbers generate errors due to changes in the last digit
-const angleGenerator = JSC.integer(0, 360);
+const angleGenerator = JSC.integer(0, 359);
 const imageList = () => [
     // TODO: improve
     { text: JSC.string()(), url: '' },
@@ -22,9 +22,15 @@ const positionGenerator = JSC.integer(0, 500);
 const quizMode = JSC.one_of(['button', 'dropdown', 'image', 'link', 'radio']);
 const styleGenerator = () =>
     `${[
-        'background-color: #ffffff',
+        `background-color: #${JSC.string(
+            JSC.integer(6),
+            JSC.one_of('0123456789abcdef')
+        )()}`,
         'border: solid 1px #000000',
-        'color: #ff0000',
+        `color: #${JSC.string(
+            JSC.integer(6),
+            JSC.one_of('0123456789abcdef')
+        )()}`,
         'font-family: Georgia, serif',
         'font-size: 3rem',
         'font-weight: 800',

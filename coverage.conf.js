@@ -75,8 +75,8 @@ module.exports = config => {
                 // pattern: 'test/browser/{app,common,data,editors}/*.test.es6',
                 // pattern: 'test/browser/app/*.test.es6',
                 // pattern: 'test/browser/common/*.test.es6',
-                // pattern: 'test/browser/data/*.test.es6',
-                pattern: 'test/browser/dialogs/*.test.es6',
+                pattern: 'test/browser/data/*.test.es6',
+                // pattern: 'test/browser/dialogs/*.test.es6',
                 // pattern: 'test/browser/editors/*.test.es6',
                 // pattern: 'test/browser/experiments/*.test.es6',
                 // pattern: 'test/browser/tools/*.test.es6',
@@ -221,7 +221,7 @@ module.exports = config => {
 
         // level of logging
         // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-        logLevel: config.LOG_INFO,
+        logLevel: config.LOG_DEBUG, // config.LOG_INFO,
 
         // enable / disable watching file and executing tests whenever any file changes
         autoWatch: false,

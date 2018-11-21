@@ -20,7 +20,6 @@ const { attr, format, htmlEncode, ns, ui } = window.kendo;
 
 // TODO Review where to store that
 const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
-// const LIB_COMMENT = '// ';
 const CUSTOM = {
     name: 'custom', // TODO i18n
     formula: format(
@@ -44,7 +43,7 @@ const ValidationAdapter = BaseAdapter.extend({
     init(options /* , attributes */) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
-        // TODO Assert library
+        that.library = options.library;
         that.type = CONSTANTS.STRING;
         // this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         that.editor = function(container, settings) {

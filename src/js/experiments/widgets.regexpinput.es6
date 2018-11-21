@@ -16,7 +16,6 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import { escapeRegExp } from '../common/window.util.es6';
-import JSHINT from '../vendor/codemirror/addon/lint/jshint';
 
 const {
     destroy,
@@ -84,11 +83,21 @@ const RegExpInput = Widget.extend({
      * @param value
      */
     value(value) {
+        assert.nullableTypeOrUndef(
+            CONSTANTS.STRING,
+            value,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                'value',
+                CONSTANTS.STRING
+            )
+        );
         let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            ret = this.element.val();
-        } else if (this.element.val() !== value) {
-            this.element = value;
+            ret = this.codeMirror.getDoc().getValue();
+        } else if (this.codeMirror.getDoc().getValue() !== value) {
+            // TODO Handle null
+            this.codeMirror.getDoc().setValue(value);
             this.refresh();
         }
         return ret;
@@ -99,53 +108,51 @@ const RegExpInput = Widget.extend({
      * @private
      */
     _render() {
-        this.element.addClass(INPUT_CLASS).wrap(`<${CONSTANTS.DIV}/>`);
-        this.wrapper = this.element.parent().addClass(WIDGET_CLASS);
+        assert.ok(
+            this.element.is(CONSTANTS.DIV),
+            'Please instantiate this widget with a <div/>'
+        );
+        const { element, options } = this;
+        this.wrapper = element.addClass(WIDGET_CLASS);
+        const editorDiv = $(`<${CONSTANTS.DIV}/>`).appendTo(element);
 
-
-
-        const that = this;
-        const { element, options } = that;
-        const div = $(`<${CONSTANTS.DIV}/>`)
-        .addClass('kj-codeeditor-editor')
-        .appendTo(element);
-
-        // Initialize JSHINT
-        window.JSHINT = window.JSHINT || JSHINT;
+        // TODO See correct options at
+        // https://stackoverflow.com/questions/13026285/codemirror-for-just-one-line-textfield
+        // https://github.com/gskinner/regexr/blob/master/dev/src/utils/CMUtils.js
 
         // Initialize CodeMirror
-        that.codeMirror = CodeMirror(div.get(0), {
-            gutters: ['CodeMirror-lint-markers'],
-            lineNumbers: true,
-            lint: true,
-            mode: 'javascript',
-            value: ''
+        this.codeMirror = CodeMirror(editorDiv.get(0), {
+            lineNumbers: false,
+            tabSize: 3,
+            indentWithTabs: true
+            /*
+            extraKeys: {},
+            specialChars: /[ \u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff]/,
+            specialCharPlaceholder: ch =>
+                $.create('span', ch === ' ' ? 'cm-space' : 'cm-special', ' ') // needs to be a space so wrapping works
+            */
         });
 
-        // Prevent from modifying first lines and last line
-        that.codeMirror.on(BEFORECHANGE, (cm, change) => {
-            if (change.origin === 'setValue') {
-                return; // updated using this.value(value)
+
+
+        // Enfore single line
+        this.codeMirror.on(CONSTANTS.BEFORECHANGE, (cm, change) => {
+            if (change.update) {
+                const str = change.text.join('').replace(/(\n|\r)/g, '');
+                change.update(change.from, change.to, [str]);
             }
-            // if updated by typing into the code editor
-            if (
-                change.from.line === 0 || // prevent changing the first line
-                change.from.line === cm.display.renderedView.length - 1 || // prevent changing the last line
-                (change.origin === '+delete' &&
-                    change.to.line === cm.display.renderedView.length - 1)
-            ) {
-                // prevent backspace on the last line or suppr on the previous line
-                // cancel change
-                change.cancel();
-            }
+            return true;
         });
 
-        // Synchronize drop down list with code editor to display `custom` upon any change
-        that.codeMirror.on(CONSTANTS.CHANGE, this._onUserInputChange.bind(this));
+        // TODO
+        this.codeMirror.on(
+            CONSTANTS.CHANGE,
+            this._onUserInputChange.bind(this)
+        );
 
-        // Otherwise gutters and line numbers might be misaligned
-        that.codeMirror.refresh();
-
+        // TODO
+        this.codeMirror.setSize('100%', '100%');
+        this.codeMirror.refresh();
     },
 
     /**
@@ -153,7 +160,6 @@ const RegExpInput = Widget.extend({
      * @method refresh
      */
     refresh() {
-        this.element.val(this._value);
         logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
 
@@ -168,8 +174,18 @@ const RegExpInput = Widget.extend({
         const { element } = this;
 
         if (enabled) {
-
         }
+    },
+
+    /**
+     * Event handler triggered when changing the content
+     * @method _onUserInputChange
+     * @param cm
+     * @param change
+     * @private
+     */
+    _onUserInputChange(cm, change) {
+        this.trigger(CONSTANTS.CHANGE);
     },
 
     /**

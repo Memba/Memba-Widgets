@@ -2,15 +2,16 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>widgets.regexp</title>
+    <title>widgets.regexpinput</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- widgets.regexp stylesheet -->
-    <!--link href="../../styles/widgets/widgets.regexp.css" rel="stylesheet"-->
+    <!-- widgets.regexpinput stylesheet -->
+    <link href="../../styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
+    <link href="../../styles/experiments/widgets.regexpinput.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
@@ -195,11 +196,11 @@
             });
             Promise.all([
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('./widgets.regexp.es6')
+                SystemJS.import('./widgets.regexpinput.es6')
             ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
-                    regexp: null,
+                    regexp: '', // TODO null
                     test: null,
                     visible: true,
                     enabled: true,
@@ -217,7 +218,7 @@
     </script>
 </head>
 <body>
-<h1>widgets.regexp</h1>
+<h1>widgets.regexpinput</h1>
 <h2>HTML Declaration</h2>
 <div data-role="regexpinput" value="^[^@]+@[^@]+\.[^\.]+$"></div>
 <h2>Bound to observable</h2>

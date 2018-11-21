@@ -3,6 +3,12 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO IMPORTANT! use app.uris
+// TODO i18n
+
+// TODO Consider replacer and reviver for RegExp and Date (see ../common/window.util.es6)
+// TODO See https://stackoverflow.com/questions/12075927/serialization-of-regexp
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -12,7 +18,6 @@ import WorkerPool from '../common/window.workers.es6';
 
 const logger = new Logger('data.workers');
 
-// TODO IMPORTANT! use app.uris
 /* eslint-disable prettier/prettier */
 const base = window.__karma__
     ? 'base'
@@ -59,7 +64,18 @@ workerPool
 export default function poolExec(...args) {
     const dfd = $.Deferred();
     loader.then(pool => {
-        pool.exec(...args)
+        pool.exec(
+            // Note: when e.data.value is undefined, we need to specifically call postMessage(undefined) instead of postMessage() otherwise we get the following error:
+            // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
+            `\n${
+                args[0]
+            }\nvar data = JSON.parse(e.data);\nif (typeof data.value === "undefined" || data.value === null) { self.postMessage(null); } else { self.postMessage(validate(data.value, data.solution, data.all)); }\n`,
+            args[0],
+            // JSON.stringify avoids a DataCloneError with complex values
+            // considering script uses JSON.parse(e.data)
+            JSON.stringify(args[1]),
+            args[2] // task name
+        )
             .then(dfd.resolve)
             .catch(dfd.reject);
     });

@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO consider replacer and reviver for RegExp - see https://stackoverflow.com/questions/12075927/serialization-of-regexp
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';

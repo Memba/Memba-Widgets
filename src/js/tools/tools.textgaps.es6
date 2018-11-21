@@ -79,7 +79,7 @@ const TextGapsTool = BaseTool.extend({
         question: new QuestionAdapter({ title: i18n.textgaps.properties.question.title }),
         solution: new StringArrayAdapter({ title: i18n.textgaps.properties.solution.title, defaultValue: [] }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + arrayLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${arrayLibrary.defaultKey}`,
             library: arrayLibrary.library,
             title: i18n.textgaps.properties.validation.title
         }),

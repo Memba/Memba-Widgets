@@ -85,7 +85,7 @@ var ImageSetTool = BaseTool.extend({
             title: i18n.imageset.properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + genericLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
             title: i18n.imageset.properties.validation.title
         }),

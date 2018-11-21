@@ -282,7 +282,8 @@ const Page = BaseModel.define({
         let index;
         if ($.isFunction(this.parent)) {
             const collection = this.parent();
-            if (collection instanceof PageDataSource) {
+            // if (collection instanceof PageDataSource) {
+            if (collection instanceof ObservableArray) {
                 index = collection.indexOf(this);
             }
         }
@@ -298,7 +299,8 @@ const Page = BaseModel.define({
         if ($.isFunction(this.parent)) {
             const collection = this.parent();
             if (
-                collection instanceof PageDataSource &&
+                // collection instanceof PageDataSource &&
+                collection instanceof ObservableArray &&
                 $.isFunction(collection.parent)
                 // We do not check instanceof Stream to avoid a circular dependency
             ) {
@@ -329,7 +331,7 @@ const Page = BaseModel.define({
         }
         // Return clone
         return clone;
-    },
+    }
 
     /**
      * Page validation

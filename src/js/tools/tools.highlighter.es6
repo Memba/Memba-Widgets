@@ -65,7 +65,7 @@ var HighLighterTool = BaseTool.extend({
         question: new QuestionAdapter({ title: i18n.highlighter.properties.question.title }),
         solution: new HighLighterAdapter({ title: i18n.highlighter.properties.solution.title }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + genericLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
             title: i18n.highlighter.properties.validation.title
         }),

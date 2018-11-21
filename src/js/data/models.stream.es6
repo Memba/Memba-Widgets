@@ -10,6 +10,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
+import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { preload } from '../common/window.image.es6';
 import tools from '../tools/tools.es6';
@@ -216,6 +217,7 @@ const Stream = BaseModel.define({
             image: [],
             video: []
         };
+        // TODO: Check _loaded and throw otherwise
         // Iterate through pages
         this.pages.data().forEach(page => {
             const media = page.assets();
@@ -224,8 +226,8 @@ const Stream = BaseModel.define({
                 // Iterate through assets
                 media[medium].forEach(a => {
                     // Only add if not a duplicate
-                    if (assets[media].indexOf(a) === -1) {
-                        assets[media].push(a);
+                    if (assets[medium].indexOf(a) === -1) {
+                        assets[medium].push(a);
                     }
                 });
             });
@@ -238,8 +240,11 @@ const Stream = BaseModel.define({
      * @method preload
      */
     preload() {
-        const assets = this.assets();
+        // TODO https://developers.google.com/web/fundamentals/media/fast-playback-with-video-preload
+        // TODO Consider using https://github.com/CreateJS/PreloadJS
+        // TODO See http://dinbror.dk/blog/how-to-preload-entire-html5-video-before-play-solved/ (see comments especially about CORS)
         // TODO scheme2http !!!!
+        const assets = this.assets();
         const promises = assets.image.map(preload);
         return $.when(...promises);
     },
@@ -252,7 +257,6 @@ const Stream = BaseModel.define({
     time() {
         let time = 0;
         this.pages.data().forEach(page => {
-            debugger;
             time += page.get('time') || Page.fn.defaults.time;
         });
         return time;
@@ -266,19 +270,44 @@ const Stream = BaseModel.define({
      */
     getTestModel() {
         const fields = {};
+
         // TODO: test if(this.loaded()) ???????
+
         this.pages.data().forEach(page => {
-            page.components.forEach(component => {
+            page.components.data().forEach(component => {
                 const { name } = component.properties || {};
-                if ($.type(name) === CONSTANTS.STRING) {
+                if (CONSTANTS.RX_TEST_FIELD_NAME.test(name)) {
                     const tool = tools[component.tool];
-                    // TODO Add page index to each field
-                    debugger;
-                    fields[name] = tool.getTestModelField(component);
+
+                    // TODO What if component.properties.disabled ??????
+
+                    const Field = tool.getTestModelField(component);
+                    fields[name] = {
+                        type: CONSTANTS.OBJECT,
+                        parse(value) {
+                            return value instanceof Field
+                                ? value
+                                : new Field(value);
+                        }
+                    };
                 }
             });
         });
-        return BaseTest.define(fields);
+        return BaseTest.define({
+            fields,
+            init(options) {
+                const that = this;
+                BaseTest.fn.init.call(that, options);
+                Object.keys(that.fields).forEach(key => {
+                    if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
+                        // Note: we need to access the parent model
+                        // so that each field validation function could access
+                        // other field values on the same page
+                        that[key].model = () => that;
+                    }
+                });
+            }
+        });
     }
 
     /**

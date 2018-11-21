@@ -13,12 +13,11 @@ import 'kendo.data';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './models.base.es6';
-import PageComponentDataSource from './datasources.pagecomponent.es6';
 import tools from '../tools/tools.es6';
 import BaseTool from '../tools/tools.base.es6';
 
 const {
-    data: { ObservableObject },
+    data: { ObservableObject, ObservableArray },
     format
 } = window.kendo;
 
@@ -159,16 +158,6 @@ const PageComponent = BaseModel.define({
                 Properties.prototype.defaults,
                 this._options.properties
             );
-            // Add the code library if any, otherwise we will be missing code for any items designated by a name
-            // TODO Temporarily commented to avoid loading ValidationAdapter
-            /*
-            if (
-                tool.properties &&
-                tool.properties.validation instanceof ValidationAdapter
-            ) {
-                this._library = tool.properties.validation.library;
-            }
-            */
             // Cast with Model
             // this.set('properties', new Properties(properties)); // <--- this sets the dirty flag and raises the change event
             return new Properties(properties);
@@ -194,7 +183,9 @@ const PageComponent = BaseModel.define({
         let index;
         if ($.isFunction(this.parent)) {
             const collection = this.parent();
-            if (collection instanceof PageComponentDataSource) {
+            // Note: The parent collection is not the data source but
+            // the observable array return by dataSource.data()
+            if (collection instanceof ObservableArray) {
                 index = collection.indexOf(this);
             }
         }
@@ -209,8 +200,10 @@ const PageComponent = BaseModel.define({
         let page;
         if ($.isFunction(this.parent)) {
             const collection = this.parent();
+            // Note: The parent collection is not the data source but
+            // the observable array return by dataSource.data()
             if (
-                collection instanceof PageComponentDataSource &&
+                collection instanceof ObservableArray &&
                 $.isFunction(collection.parent)
             ) {
                 page = collection.parent();
@@ -288,7 +281,7 @@ const PageComponent = BaseModel.define({
                     'omit'
                 ].indexOf(key) === -1
             ) {
-                // Consider using toJSON on  ObservableObject and ObservableArray
+                // Consider using toJSON on ObservableObject and ObservableArray
                 clone.properties[key] = JSON.parse(
                     JSON.stringify(this.get(`properties.${key}`))
                     // , dateReviver

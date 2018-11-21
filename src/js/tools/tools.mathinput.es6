@@ -16,7 +16,7 @@ import QuestionAdapter from './adapters.question.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, mathLibrary } from './util.libraries';
+import { LIB_COMMENT, mathLibrary} from './util.libraries.es6';
 
 const {
     attr,
@@ -74,7 +74,7 @@ var MathInputTool = BaseTool.extend({
         question: new QuestionAdapter({ title: i18n.mathinput.properties.question.title }),
         solution: new MathInputAdapter({ title: i18n.mathinput.properties.solution.title, defaultValue: '' }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + mathLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${mathLibrary.defaultKey}`,
             library: mathLibrary.library,
             title: i18n.mathinput.properties.validation.title
         }),

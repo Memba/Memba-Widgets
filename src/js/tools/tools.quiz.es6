@@ -150,7 +150,7 @@ const QuizTool = BaseTool.extend({
             title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + genericLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
             title: i18n().properties.validation.title
         }),

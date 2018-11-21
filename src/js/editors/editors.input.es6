@@ -32,11 +32,8 @@ function input(container, options) {
             CONSTANTS.STRING
         )
     );
-    const { attributes } = options;
-    if (
-        attributes &&
-        $.type(attributes[attr('role')]) === CONSTANTS.UNDEFINED
-    ) {
+    const attributes = options.attributes || {};
+    if ($.type(attributes[attr('role')]) === CONSTANTS.UNDEFINED) {
         if (
             [undefined, 'text', 'email', 'search', 'tel', 'url'].indexOf(
                 attributes.type

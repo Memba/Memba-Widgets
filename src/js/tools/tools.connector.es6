@@ -62,7 +62,7 @@ var ConnectorTool = BaseTool.extend({
         question: new QuestionAdapter({ title: i18n.connector.properties.question.title }),
         solution: new ConnectorAdapter({ title: i18n.connector.properties.solution.title }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + genericLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
             title: i18n.connector.properties.validation.title
         }),

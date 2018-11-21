@@ -79,7 +79,7 @@ const TextAreaTool = BaseTool.extend({
             title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + textLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${textLibrary.defaultKey}`,
             library: textLibrary.library,
             title: i18n().properties.validation.title
         }),

@@ -145,7 +145,7 @@ const MultiQuizTool = BaseTool.extend({
             defaultValue: []
         }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + multiQuizLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${multiQuizLibrary.defaultKey}`,
             library: multiQuizLibrary.library,
             title: i18n().properties.validation.title
         }),

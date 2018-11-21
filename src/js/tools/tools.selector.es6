@@ -70,7 +70,7 @@ var SelectorTool = BaseTool.extend({
         question: new QuestionAdapter({ title: i18n.selector.properties.question.title }),
         solution: new StringArrayAdapter({ title: i18n.selector.properties.solution.title }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + arrayLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${arrayLibrary.defaultKey}`,
             library: arrayLibrary.library,
             title: i18n.selector.properties.validation.title
         }),

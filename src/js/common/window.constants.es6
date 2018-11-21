@@ -96,6 +96,7 @@ const CONSTANTS = {
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
     RX_MONGODB_KEY: /^_(i|[a-z]*I)d$/,
     RX_URL: /^https?:\/\//,
+    RX_TEST_FIELD_NAME: /^val_[a-z0-9]{6}$/,
     // Characters
     COLON: ':',
     COMMA: ',',

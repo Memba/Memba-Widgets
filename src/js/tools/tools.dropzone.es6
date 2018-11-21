@@ -66,7 +66,7 @@ var DropZoneTool = BaseTool.extend({
         question: new QuestionAdapter({ title: i18n.dropzone.properties.question.title }),
         solution: new StringArrayAdapter({ title: i18n.dropzone.properties.solution.title }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + arrayLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${arrayLibrary.defaultKey}`,
             library: arrayLibrary.library,
             title: i18n.dropzone.properties.validation.title
         }),

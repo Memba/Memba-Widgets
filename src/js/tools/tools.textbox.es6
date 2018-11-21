@@ -110,7 +110,7 @@ const TextBoxTool = BaseTool.extend({
             title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + stringLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${stringLibrary.defaultKey}`,
             library: stringLibrary.library,
             title: i18n().properties.validation.title
         }),

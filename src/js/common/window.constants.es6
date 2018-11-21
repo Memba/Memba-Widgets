@@ -18,6 +18,7 @@ const CONSTANTS = {
     SYMBOL: 'symbol',
     UNDEFINED: 'undefined',
     // Events
+    BEFORECHANGE: 'beforeChange',
     BLUR: 'blur',
     CHANGE: 'change',
     CLICK: 'click',

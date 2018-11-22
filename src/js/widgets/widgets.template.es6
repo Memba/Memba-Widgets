@@ -136,7 +136,10 @@ const Template = DataBoundWidget.extend({
     _dataSource() {
         // if the DataSource is defined and the _refreshHandler is wired up, unbind because
         // we need to rebuild the DataSource
-        if (this.dataSource instanceof DataSource && this._refreshHandler) {
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHander = undefined;
         }

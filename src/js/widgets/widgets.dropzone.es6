@@ -701,13 +701,15 @@ var DropZone = DataBoundWidget.extend({
      */
     _dataSource() {
         // bind to the change event to refresh the widget
-        if (this.dataSource instanceof DataSource && this._refreshHandler) {
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHandler = undefined;
         }
 
         if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
-
             // returns the datasource OR creates one if using array or configuration
             this.dataSource = DataSource.create(this.options.dataSource);
 

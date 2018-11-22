@@ -569,7 +569,7 @@ const Stage = DataBoundWidget.extend({
         // we need to rebuild the DataSource
         if (
             this.dataSource instanceof PageComponentDataSource &&
-            this._refreshHandler
+            $.isFunction(this._refreshHandler)
         ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHandler = undefined;

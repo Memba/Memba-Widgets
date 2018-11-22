@@ -1628,33 +1628,36 @@ var Selector = DataBoundWidget.extend({
     _dataSource() {
         // TODO Review for null
 
-        const that = this;
-
-        // returns the datasource OR creates one if using array or configuration
-        that.dataSource = DataSource.create(that.options.dataSource);
-        // Note: without that.dataSource, source bindings won't work
-
         // bind to the reset event to reset the dataSource
-        if (that._refreshHandler) {
-            that.dataSource.unbind(CONSTANTS.CHANGE, that._refreshHandler);
-        }
-        that._refreshHandler = that.refresh.bind(that);
-        that.dataSource.bind(CONSTANTS.CHANGE, that._refreshHandler);
-
-        // trigger a read on the dataSource if one hasn't happened yet
-        if (that.options.autoBind) {
-            // that.dataSource.fetch();
-            that.dataSource.filter({
-                field: 'type',
-                operator: 'eq',
-                value: DATA_TYPE
-            });
+        if (this.dataSource instanceof DataSource &&  $.isFunction(this._refreshHandler)) {
+            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
         }
 
-        // We need to trigger a change to recalculate value after source and value bindings
-        setTimeout(() => {
-            that.trigger(CONSTANTS.CHANGE);
-        }, 0);
+        if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
+            // returns the datasource OR creates one if using array or configuration
+            this.dataSource = DataSource.create(this.options.dataSource);
+            // Note: without that.dataSource, source bindings won't work
+
+            this._refreshHandler = this.refresh.bind(this);
+            this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
+
+            // trigger a read on the dataSource if one hasn't happened yet
+            if (this.options.autoBind) {
+                // that.dataSource.fetch();
+                this.dataSource.filter({
+                    field: 'type',
+                    operator: 'eq',
+                    value: DATA_TYPE
+                });
+            }
+
+            // We need to trigger a change to recalculate value after source and value bindings
+            // TODO Review need for that
+            setTimeout(() => {
+                this.trigger(CONSTANTS.CHANGE);
+            }, 0);
+        }
     },
 
     /**
@@ -1682,10 +1685,11 @@ var Selector = DataBoundWidget.extend({
                 'kendo.ui.SelectorSurface'
             )
         );
-        enable = $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         // Register/unregister selector with surface (and toolbar)
-        if (this._enabled !== enable) {
-            this._enabled = enable;
+        if (this._enabled !== enabled) {
+            this._enabled = enabled;
             if (this._enabled) {
                 this.selectorSurface.registerSelector(this);
             } else {
@@ -1786,10 +1790,7 @@ var Selector = DataBoundWidget.extend({
      */
     destroy() {
         // unbind dataSource
-        if ($.isFunction(this._refreshHandler)) {
-            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
-            this._refreshHandler = undefined;
-        }
+        this.setDataSource(null);
         unbind(this.element);
         // dereference selectors and destroy surface
         if (this.selectorSurface instanceof SelectorSurface) {

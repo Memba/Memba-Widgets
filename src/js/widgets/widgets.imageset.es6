@@ -154,7 +154,7 @@ const ImageSet = DataBoundWidget.extend({
         // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
         if (
             this.dataSource instanceof ImageDataSource &&
-            this._refreshHandler
+            $.isFunction(this._refreshHandler)
         ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHandler = undefined;

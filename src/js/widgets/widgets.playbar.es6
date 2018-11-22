@@ -323,7 +323,10 @@ const PlayBar = DataBoundWidget.extend({
 
         // There is no reason why, in its current state, it would not work with any dataSource
         // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
-        if (this.dataSource instanceof PageDataSource && this._refreshHandler) {
+        if (
+            this.dataSource instanceof PageDataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHandler = undefined;
         }

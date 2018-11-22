@@ -633,30 +633,35 @@ const MultiQuiz = DataBoundWidget.extend({
     _dataSource() {
         // TODO review for null
 
-        if (this.dataSource instanceof DataSource && this._refreshHandler) {
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHandler = undefined;
         }
 
-        // returns the datasource OR creates one if using array or configuration
-        this.dataSource = DataSource.create(this.options.dataSource);
+        if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
+            // returns the datasource OR creates one if using array or configuration
+            this.dataSource = DataSource.create(this.options.dataSource);
 
-        // bind to the CONSTANTS.CHANGE event to refresh the widget
-        this._refreshHandler = this.refresh.bind(this);
-        this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
+            // bind to the CONSTANTS.CHANGE event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
+            this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
 
-        // Assign dataSource to multiSelect
-        const { multiSelect } = this;
-        if (
-            multiSelect instanceof MultiSelect &&
-            multiSelect.dataSource !== this.dataSource
-        ) {
-            multiSelect.setDataSource(this.dataSource);
-        }
+            // Assign dataSource to multiSelect
+            const { multiSelect } = this;
+            if (
+                multiSelect instanceof MultiSelect &&
+                multiSelect.dataSource !== this.dataSource
+            ) {
+                multiSelect.setDataSource(this.dataSource);
+            }
 
-        // trigger a read on the dataSource if one hasn't happened yet
-        if (this.options.autoBind) {
-            this.dataSource.fetch();
+            // trigger a read on the dataSource if one hasn't happened yet
+            if (this.options.autoBind) {
+                this.dataSource.fetch();
+            }
         }
     },
 
@@ -885,9 +890,12 @@ const MultiQuiz = DataBoundWidget.extend({
      * Destroy widget
      */
     destroy() {
-        if (this._refreshHandler) {
-            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+        this.setDataSource(null);
+        /*
+        if (this.multiSelect instanceof MultiSelect) {
+            this.multiSelect.destroy();
         }
+        */
         this.enable(false);
         this.element.off(NS); // For disabled checkboxes
         Widget.fn.destroy.call(this);

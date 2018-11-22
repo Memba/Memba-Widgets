@@ -580,32 +580,36 @@ const Quiz = DataBoundWidget.extend({
      * @private
      */
     _dataSource() {
-        // TODO Review for null
-
-        if (this.dataSource instanceof DataSource && this._refreshHandler) {
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHandler = undefined;
         }
 
-        // returns the datasource OR creates one if using array or configuration
-        this.dataSource = DataSource.create(this.options.dataSource);
+        if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
 
-        // bind to the CONSTANTS.CHANGE event to refresh the widget
-        this._refreshHandler = this.refresh.bind(this);
-        this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
+            // returns the datasource OR creates one if using array or configuration
+            this.dataSource = DataSource.create(this.options.dataSource);
 
-        // Assign dataSource to dropDownList
-        const { dropDownList } = this;
-        if (
-            dropDownList instanceof DropDownList &&
-            dropDownList.dataSource !== this.dataSource
-        ) {
-            dropDownList.setDataSource(this.dataSource);
-        }
+            // bind to the CONSTANTS.CHANGE event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
+            this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
 
-        // trigger a read on the dataSource if one hasn't happened yet
-        if (this.options.autoBind) {
-            this.dataSource.fetch();
+            // Assign dataSource to dropDownList
+            const { dropDownList } = this;
+            if (
+                dropDownList instanceof DropDownList &&
+                dropDownList.dataSource !== this.dataSource
+            ) {
+                dropDownList.setDataSource(this.dataSource);
+            }
+
+            // trigger a read on the dataSource if one hasn't happened yet
+            if (this.options.autoBind) {
+                this.dataSource.fetch();
+            }
         }
     },
 
@@ -832,11 +836,9 @@ const Quiz = DataBoundWidget.extend({
         const { element } = this;
         if (this.dropDownList instanceof DropDownList) {
             this.dropDownList.destroy();
-            this.dropDownList = CONSTANTS.UNDEFINED;
+            this.dropDownList = undefined;
         }
-        if (this._refreshHandler) {
-            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
-        }
+        this.setDataSource(null);
         element.off(NS);
         DataBoundWidget.fn.destroy.call(this);
         destroy(element);

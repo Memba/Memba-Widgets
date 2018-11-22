@@ -400,7 +400,10 @@ var Connector = DataBoundWidget.extend({
         // TODO review fro null
 
         // bind to the change event to refresh the widget
-        if (this.dataSource instanceof DataSource && this._refreshHandler) {
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHandler = undefined;
         }

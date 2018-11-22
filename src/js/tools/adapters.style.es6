@@ -75,7 +75,6 @@ const StyleAdapter = BaseAdapter.extend({
             }
         })
             .then(result => {
-                debugger;
                 if (
                     result.action ===
                     BaseDialog.fn.options.messages.actions.ok.action

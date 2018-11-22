@@ -14,6 +14,7 @@ const {
     ui: { plugin, DataBoundWidget }
 } = window.kendo;
 const CHANGE = 'change';
+const NULL = 'null';
 const UNDEFINED = 'undefined';
 // const NS = '.kendoDataSourceWidget';
 const WIDGET_CLASS = 'k-widget kj-data-source-widget';
@@ -92,17 +93,20 @@ const DataSourceWidget = DataBoundWidget.extend({
             $.isFunction(this._refreshHandler)
         ) {
             this.dataSource.unbind(CHANGE, this._refreshHandler);
-        } else {
-            this._refreshHandler = this.refresh.bind(this);
+            this._refreshHandler = undefined;
         }
 
-        // returns the datasource OR creates one if using array or configuration object
-        this.dataSource = DataSource.create(this.options.dataSource);
-        // bind to the change event to refresh the widget
-        this.dataSource.bind(CHANGE, this._refreshHandler);
+        if ($.type(this.options.dataSource) !== NULL) {
+            // returns the datasource OR creates one if using array or configuration object
+            this.dataSource = DataSource.create(this.options.dataSource);
 
-        if (this.options.autoBind) {
-            this.dataSource.fetch();
+            // bind to the change event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
+            this.dataSource.bind(CHANGE, this._refreshHandler);
+
+            if (this.options.autoBind) {
+                this.dataSource.fetch();
+            }
         }
     },
 
@@ -149,13 +153,7 @@ const DataSourceWidget = DataBoundWidget.extend({
      * @method destriy
      */
     destroy() {
-        if (
-            this.dataSource instanceof DataSource &&
-            $.isFunction(this._refreshHandler)
-        ) {
-            this.dataSource.unbind(CHANGE, this._refreshHandler);
-            this._refreshHandler = undefined;
-        }
+        this.setDataSource(null);
         DataBoundWidget.fn.destroy.call(this);
         destroy(this.element);
     }

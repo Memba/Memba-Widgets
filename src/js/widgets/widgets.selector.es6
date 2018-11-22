@@ -1626,6 +1626,8 @@ var Selector = DataBoundWidget.extend({
      * @private
      */
     _dataSource() {
+        // TODO Review for null
+
         const that = this;
 
         // returns the datasource OR creates one if using array or configuration

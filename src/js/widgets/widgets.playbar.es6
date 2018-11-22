@@ -325,6 +325,7 @@ const PlayBar = DataBoundWidget.extend({
         // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
         if (this.dataSource instanceof PageDataSource && this._refreshHandler) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
         }
 
         if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
@@ -332,9 +333,8 @@ const PlayBar = DataBoundWidget.extend({
             // returns the datasource OR creates one if using array or configuration object
             this.dataSource = PageDataSource.create(this.options.dataSource);
 
-            this._refreshHandler = this.refresh.bind(this);
-
             // bind to the change event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
             this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
 
             if (this.options.autoBind) {

@@ -12,11 +12,11 @@ import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.listview';
 import 'kendo.sortable';
-import 'kendo.toolbar';
 import 'kendo.tooltip';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
+import ImageDataSource from '../data/datasources.image.es6';
 
 const {
     attr,
@@ -26,7 +26,7 @@ const {
     htmlEncode,
     support,
     template,
-    ui: { DataBoundWidget, ListView, plugin, Tooltip },
+    ui: { DataBoundWidget, ListView, plugin },
     unbind
 } = window.kendo;
 const logger = new Logger('widgets.imagelist');
@@ -259,6 +259,7 @@ const ImageList = DataBoundWidget.extend({
             // IMPORTANT: This means the dataSource needs to have a calculated field named image$ or equivalent if schemes are implemented
             model[`${options.imageField}$`] = function() {
                 let image = this.get(options.imageField);
+                // TODO use our scheme options
                 for (const scheme in options.schemes) {
                     if (
                         Object.prototype.hasOwnProperty.call(

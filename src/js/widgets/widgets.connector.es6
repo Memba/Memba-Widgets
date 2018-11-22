@@ -397,28 +397,33 @@ var Connector = DataBoundWidget.extend({
      * @private
      */
     _dataSource() {
-        const that = this;
-
-        // returns the datasource OR creates one if using array or configuration
-        that.dataSource = DataSource.create(that.options.dataSource);
+        // TODO review fro null
 
         // bind to the change event to refresh the widget
-        if (that._refreshHandler) {
-            that.dataSource.unbind(CONSTANTS.CHANGE, that._refreshHandler);
+        if (this.dataSource instanceof DataSource && this._refreshHandler) {
+            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
         }
-        that._refreshHandler = that.refresh.bind(that);
-        that.dataSource.bind(CONSTANTS.CHANGE, that._refreshHandler);
 
-        // Filter dataSource
-        that.dataSource.filter({
-            field: 'type',
-            operator: 'eq',
-            value: DATA_TYPE
-        });
+        if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
+            // returns the datasource OR creates one if using array or configuration
+            this.dataSource = DataSource.create(this.options.dataSource);
 
-        // trigger a read on the dataSource if one hasn't happened yet
-        if (that.options.autoBind) {
-            that.dataSource.fetch();
+            this._refreshHandler = this.refresh.bind(this);
+            this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
+
+            // TODO See dropzone - here before fetch
+            // Filter dataSource
+            this.dataSource.filter({
+                field: 'type',
+                operator: 'eq',
+                value: DATA_TYPE
+            });
+
+            // trigger a read on the dataSource if one hasn't happened yet
+            if (this.options.autoBind) {
+                this.dataSource.fetch();
+            }
         }
     },
 

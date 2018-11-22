@@ -572,7 +572,7 @@ const Stage = DataBoundWidget.extend({
             this._refreshHandler
         ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
-            this.dataSource = undefined;
+            this._refreshHandler = undefined;
         }
 
         this._initializeMode();
@@ -585,9 +585,8 @@ const Stage = DataBoundWidget.extend({
                 this.options.dataSource
             );
 
-            this._refreshHandler = this.refresh.bind(this);
-
             // bind to the change event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
             this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
 
             if (this.options.autoBind) {

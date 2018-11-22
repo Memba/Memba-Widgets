@@ -157,6 +157,7 @@ const ImageSet = DataBoundWidget.extend({
             this._refreshHandler
         ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
         }
 
         if (this.options.dataSource !== CONSTANTS.NULL) {
@@ -164,9 +165,8 @@ const ImageSet = DataBoundWidget.extend({
             // returns the datasource OR creates one if using array or configuration object
             this.dataSource = ImageDataSource.create(this.options.dataSource);
 
-            this._refreshHandler = this.refresh.bind(this);
-
             // bind to the change event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
             this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
 
             if (this.options.autoBind) {
@@ -314,6 +314,7 @@ const ImageSet = DataBoundWidget.extend({
     destroy() {
         const { wrapper } = this;
         // Unbind events
+        this.setDataSource(null);
         wrapper.off(NS);
         // Destroy widget
         DataBoundWidget.fn.destroy.call(this);

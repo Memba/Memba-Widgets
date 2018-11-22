@@ -136,22 +136,22 @@ const Template = DataBoundWidget.extend({
     _dataSource() {
         // if the DataSource is defined and the _refreshHandler is wired up, unbind because
         // we need to rebuild the DataSource
-        if (
-            this.dataSource instanceof DataSource &&
-            $.isFunction(this._refreshHandler)
-        ) {
+        if (this.dataSource instanceof DataSource && this._refreshHandler) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
-        } else {
-            this._refreshHandler = this.refresh.bind(this);
+            this._refreshHander = undefined;
         }
 
-        // returns the datasource OR creates one if using array or configuration object
-        this.dataSource = DataSource.create(this.options.dataSource);
-        // bind to the change event to refresh the widget
-        this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
+        if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
+            // returns the datasource OR creates one if using array or configuration object
+            this.dataSource = DataSource.create(this.options.dataSource);
 
-        if (this.options.autoBind) {
-            this.dataSource.fetch();
+            // bind to the change event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
+            this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
+
+            if (this.options.autoBind) {
+                this.dataSource.fetch();
+            }
         }
     },
 
@@ -208,13 +208,7 @@ const Template = DataBoundWidget.extend({
      * @method destroy
      */
     destroy() {
-        if (
-            this.dataSource instanceof DataSource &&
-            $.isFunction(this._refreshHandler)
-        ) {
-            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
-            this._refreshHander = undefined;
-        }
+        this.setDataSource(null);
         this._template = undefined;
         DataBoundWidget.fn.destroy.call(this);
         destroy(this.element);

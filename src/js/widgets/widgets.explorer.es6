@@ -26,7 +26,7 @@ const {
     ns,
     support,
     template,
-    ui: { plugin, DataBoundWidget }
+    ui: { DataBoundWidget, plugin }
 } = window.kendo;
 const logger = new Logger('widgets.explorer');
 
@@ -100,7 +100,7 @@ const Explorer = DataBoundWidget.extend({
      */
     /*
     setOptions: function (options) {
-        Widget.fn.setOptions.call(this, options);
+        DataBoundWidget.fn.setOptions.call(this, options);
         // TODO initialize properly from that.options.index and that.options.id
     },
     */
@@ -501,9 +501,10 @@ const Explorer = DataBoundWidget.extend({
             this._refreshHandler
         ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
         }
 
-        if (this.options.dataSource !== null) {
+        if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
             // use null to explicitly destroy the dataSource bindings
 
             // returns the datasource OR creates one if using array or configuration object
@@ -511,9 +512,8 @@ const Explorer = DataBoundWidget.extend({
                 this.options.dataSource
             );
 
-            this._refreshHandler = this.refresh.bind(this);
-
             // bind to the change event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
             this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
 
             if (this.options.autoBind) {
@@ -655,7 +655,7 @@ const Explorer = DataBoundWidget.extend({
         this.enable(false);
         this.ul = undefined;
         this.wrapper = undefined;
-        Widget.fn.destroy.call(this);
+        DataBoundWidget.fn.destroy.call(this);
         destroy(this.element);
     }
 });

@@ -310,15 +310,14 @@ const Navigation = DataBoundWidget.extend({
             this._refreshHandler = undefined;
         }
 
-        if (this.options.dataSource !== null) {
+        if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
             // use null to explicitly destroy the dataSource bindings
 
             // returns the datasource OR creates one if using array or configuration object
             this.dataSource = PageDataSource.create(this.options.dataSource);
 
-            this._refreshHandler = this.refresh.bind(this);
-
             // bind to the change event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
             this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
 
             if (this.options.autoBind) {

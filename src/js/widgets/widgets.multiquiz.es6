@@ -631,13 +631,17 @@ const MultiQuiz = DataBoundWidget.extend({
      * @private
      */
     _dataSource() {
+        // TODO review for null
+
+        if (this.dataSource instanceof DataSource && this._refreshHandler) {
+            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
+        }
+
         // returns the datasource OR creates one if using array or configuration
         this.dataSource = DataSource.create(this.options.dataSource);
 
-        // bind to the change event to refresh the widget
-        if (this._refreshHandler) {
-            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
-        }
+        // bind to the CONSTANTS.CHANGE event to refresh the widget
         this._refreshHandler = this.refresh.bind(this);
         this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
 

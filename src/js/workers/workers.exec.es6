@@ -5,7 +5,6 @@
 
 // TODO IMPORTANT! use app.uris
 // TODO i18n
-
 // TODO Consider replacer and reviver for RegExp and Date (see ../common/window.util.es6)
 // TODO See https://stackoverflow.com/questions/12075927/serialization-of-regexp
 
@@ -39,6 +38,7 @@ const workerPool = new WorkerPool();
 const loader = $.Deferred();
 workerPool
     .load([
+        // TODO app.uris
         `${base}/src/js/vendor/jashkenas/underscore.js`,
         `${base}/src/js/vendor/khan/kas.js`,
         `${base}/src/js/workers/workers.lib.js`
@@ -64,18 +64,15 @@ workerPool
 export default function poolExec(...args) {
     const dfd = $.Deferred();
     loader.then(pool => {
-        pool.exec(
-            // Note: when e.data.value is undefined, we need to specifically call postMessage(undefined) instead of postMessage() otherwise we get the following error:
-            // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
-            `\n${
-                args[0]
-            }\nvar data = JSON.parse(e.data);\nif (typeof data.value === "undefined" || data.value === null) { self.postMessage(null); } else { self.postMessage(validate(data.value, data.solution, data.all)); }\n`,
-            args[0],
-            // JSON.stringify avoids a DataCloneError with complex values
-            // considering script uses JSON.parse(e.data)
-            JSON.stringify(args[1]),
-            args[2] // task name
-        )
+        // Note: when e.data.value is undefined, we need to specifically call postMessage(undefined) instead of postMessage() otherwise we get the following error:
+        // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
+        // eslint-disable-next-line prettier/prettier
+        const code = `\n${args[0]}\nvar data = JSON.parse(e.data);\nif (typeof data.value === "undefined" || data.value === null) { self.postMessage(null); } else { self.postMessage(validate(data.value, data.solution, data.all)); }\n`;
+        // JSON.stringify avoids a DataCloneError with complex values
+        // considering script uses JSON.parse(e.data)
+        const data = JSON.stringify(args[1]);
+        const name = args[2];
+        pool.exec(code, data, name)
             .then(dfd.resolve)
             .catch(dfd.reject);
     });

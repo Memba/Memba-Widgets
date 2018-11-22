@@ -98,8 +98,9 @@ describe('tools.base', () => {
         });
 
         it('getTestModelField', () => {
-            const field = tool.getTestModelField();
-            expect(field).to.deep.equal({ type: 'string', defaultValue: '' });
+            // Note: see stream for tests
+            expect(tool).to.respondTo('getTestModelField');
+
         });
 
         it('getHtmlContent', () => {

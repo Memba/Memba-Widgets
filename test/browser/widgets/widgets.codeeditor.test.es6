@@ -15,6 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { LIB_COMMENT } from '../../../src/js/tools/util.libraries.es6';
 import '../../../src/js/widgets/widgets.codeeditor.es6';
 
 const { afterEach, before, beforeEach, CodeMirror, describe, it } = window;
@@ -91,7 +92,6 @@ const LIBRARY = [
         param: 'RegExp'
     }
 ];
-const LIB_COMMENT = '// ';
 const NAME = LIBRARY[4].name;
 const FORMULA = LIBRARY[4].formula;
 const SOLUTION = '0';

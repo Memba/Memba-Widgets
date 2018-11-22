@@ -12,6 +12,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import '../widgets/widgets.codeeditor.es6';
 
 const {
+    htmlEncode,
     ns,
     resize,
     roleSelector,
@@ -37,16 +38,14 @@ export default function openCodeEditor(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" data-${ns}default="${JSON.stringify(
-                        (options.data || {}).defaultValue || ''
-                    )}" data-${ns}solution="${JSON.stringify(
-                        (options.data || {}).solution
+                    content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" data-${ns}default="${htmlEncode(
+                        options.default
+                    )}" data-${ns}solution="${htmlEncode(
+                        JSON.stringify(options.solution)
                     )}"></div>`,
                     data: {
                         value: '',
                         library: [] // Do we really need this?
-                        // defaultValue: null,
-                        // solution: null
                     },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,

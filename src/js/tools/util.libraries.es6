@@ -5,6 +5,7 @@
 
 // TODO: Add name to localize algorithm names
 // TODO  Add alternate solutions (array of solutions)
+// TODO consider replacer and reviver to singify and parse library item
 
 /**
  * IMPORTANT
@@ -18,22 +19,132 @@
  * Check how this could work with randomization and solution formulas
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
 import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
 import regexpEditor from '../editors/editors.input.es6';
 
-const { deepExtend, format } = window.kendo;
+const { format } = window.kendo;
 
 export const LIB_COMMENT = '// ';
-export const LIB_PARAMS = ' [{0}]';
-export const RX_VALIDATION_LIBRARY = /^\/\/ ([^\s[\n]+)( \[([^\n]+)])?$/;
-export const RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*{[\s\S]*}$/;
+const LIB_PARAMS = ' [{0}]';
+const RX_VALIDATION_LIBRARY = /^\/\/ ([^\s[\n]+)( \[([^\n]+)])?$/;
+const RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*{[\s\S]*}$/;
 
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
+export const VALIDATION_CUSTOM =
+    'function validate(value, solution, all) {\n\t{0}\n}';
 const VALIDATION_LIBRARY_SOLUTION =
     'function validate(value, solution) {\n\t{0}\n}';
 const VALIDATION_LIBRARY_PARAMS =
     'function validate(value, params) {\n\t{0}\n}';
 // Note: Library functions cannot use page field values and random numbers gathered in `all`
+
+/**
+ * Check that value refers to a custom function and not a library item
+ * i.e. function (value, solution, all) { ... }
+ * @function isCustomFormula
+ * @param value
+ * @returns {boolean}
+ */
+export function isCustomFormula(value) {
+    /*
+    assert.type(
+        CONSTANTS.STRING,
+        value,
+        assert.format(assert.messages.type.default, 'value', CONSTANTS.STRING)
+    );
+    const matches = value.match(RX_VALIDATION_CUSTOM);
+    return Array.isArray(matches) && matches.length === 2;
+    */
+    return RX_VALIDATION_CUSTOM.test(value);
+}
+
+/**
+ * Check that value refers to a library item and params
+ * i.e. // ... [...]
+ * @param value
+ * @returns {boolean}
+ */
+export function isLibraryFormula(value) {
+    /*
+    assert.type(
+        CONSTANTS.STRING,
+        value,
+        assert.format(assert.messages.type.default, 'value', CONSTANTS.STRING)
+    );
+    const matches = value.match(RX_VALIDATION_LIBRARY);
+    return Array.isArray(matches) && matches.length === 4;
+    */
+    return RX_VALIDATION_LIBRARY.test(value);
+}
+
+/**
+ * Serialize a library item
+ * @function serializeLibraryItem
+ * @param item
+ * @param params
+ * @returns {string}
+ */
+export function stringifyLibraryItem(item, params) {
+    assert.type(
+        CONSTANTS.OBJECT,
+        item,
+        assert.format(assert.messages.type.default, 'item', CONSTANTS.OBJECT)
+    );
+    let options = '';
+    if ($.type(params) !== CONSTANTS.UNDEFINED && $.isFunction(item.editor)) {
+        options = format(LIB_PARAMS, JSON.stringify(params));
+    }
+    return `${LIB_COMMENT}${item.key}${options}`;
+}
+
+/**
+ * Returns the library item and parsed params from value
+ * i.e. parsing `// <name> (<params>)`) return { item, item.parse(params) }
+ * @param value
+ * @returns {*}
+ */
+export function parseLibraryItem(value, library) {
+    assert.type(
+        CONSTANTS.STRING,
+        value,
+        assert.format(assert.messages.type.default, 'value', CONSTANTS.STRING)
+    );
+    assert.isDefined(
+        library,
+        assert.format(assert.messages.isDefined.default, 'library')
+    );
+    assert.isFunction(
+        library.filter,
+        assert.format(assert.messages.isFunction.default, 'library.filter')
+    );
+    const ret = {};
+    const libraryMatches = value.match(RX_VALIDATION_LIBRARY);
+    if (Array.isArray(libraryMatches) && libraryMatches.length === 4) {
+        const params = libraryMatches[3];
+        // Add ret.item
+        const found = library.filter(
+            // Array.find is not available in Internet Explorer
+            item => item.key === libraryMatches[1]
+        );
+        if (Array.isArray(found) && found.length) {
+            [ret.item] = found;
+        }
+        // Add ret.params
+        if (
+            ret.item &&
+            $.isFunction(ret.item.editor) &&
+            $.type(params) === CONSTANTS.STRING &&
+            params.length
+        ) {
+            ret.params = JSON.parse(params);
+        }
+    }
+    return ret;
+}
 
 /**
  * Custom entry
@@ -44,7 +155,7 @@ export const CUSTOM = {
     name: 'Custom',
     formula: format(
         VALIDATION_CUSTOM,
-        '// Your code should return true when value is validated against solution.'
+        '// Your code should return true when value is validated against solution.\n\treturn true;'
     )
 };
 

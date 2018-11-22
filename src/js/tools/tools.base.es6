@@ -15,8 +15,10 @@ import CONSTANTS from '../common/window.constants.es6';
 import { randomVal } from '../common/window.util.es6';
 import BaseModel from '../data/models.base.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
+import poolExec from '../workers/workers.exec.es6';
 import BaseAdapter from './adapters.base.es6';
 import NumberAdapter from './adapters.number.es6';
+import { isLibraryFormula, parseLibraryItem } from './util.libraries.es6';
 
 const { attr, Class, format, getter, htmlEncode, ns, template } = window.kendo;
 
@@ -113,10 +115,20 @@ const BaseTool = Class.extend({
     attributes: {},
     cursor: null,
     description: null,
+    field: {
+        // The field definition for building the TestModel (see getTestModelField)
+        type: CONSTANTS.STRING,
+        // defaultValue: null,
+        // editable: true
+        nullable: true
+        // parse(value) { return value; }
+        // from: undefined
+        // validation: {}
+    },
     height: 250,
     help: null,
-    id: null,
     icon: null,
+    id: null,
     properties: {},
     weight: 0,
     width: 250,
@@ -219,10 +231,6 @@ const BaseTool = Class.extend({
                     // This cannot be set as a default value on the adapter
                     // because each instance should have a different name
                     model.fields.name.defaultValue = randomVal();
-                } else if (key === 'validation') {
-                    // We need the code library otherwise we won't have code
-                    // to execute when validation === '// equal' or any other library value
-                    model._library = this.properties.validation.library;
                 }
             }
         });
@@ -251,7 +259,16 @@ const BaseTool = Class.extend({
      * @param component
      * @returns {Array}
      */
-    getAssets(/* component */) {
+    getAssets(component) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
         return {
             audio: [],
             image: [],
@@ -265,8 +282,17 @@ const BaseTool = Class.extend({
      * @param component
      * @returns {Array}
      */
-    getDescription(/* component */) {
-        return this.description;
+    getDescription(component) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        return template(this.description)($.extend(component, { ns }));
     },
 
     /**
@@ -275,8 +301,17 @@ const BaseTool = Class.extend({
      * @param component
      * @returns {Array}
      */
-    getHelp(/* component */) {
-        return this.help;
+    getHelp(component) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        return template(this.help)($.extend(component, { ns }));
     },
 
     /**
@@ -286,18 +321,175 @@ const BaseTool = Class.extend({
      * @returns {{type: string, defaultValue: string}}
      */
     getTestModelField(component) {
-        // TODO check possible problem with undefined which is our default value ????
-        // TODO: we might have to use null!!!
-        return {
-            type: CONSTANTS.STRING,
-            defaultValue: ''
-            // editable: true
-            // nullable: false
-            // parse(value) { return value; }
-            // from: undefined
-            // validation: {}
-            // page: component.page().index()
-        };
+        const tool = this;
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        // The component must belong to a page
+        assert.isDefined(
+            component.page(),
+            assert.format(assert.messages.isDefined.default, 'component.page()')
+        );
+        // It is essential that the tool matches the component
+        assert.equal(
+            this.id,
+            component.tool,
+            assert.format(
+                assert.messages.equal.default,
+                'this.id',
+                'component.tool'
+            )
+        );
+        return BaseModel.define({
+            fields: {
+                value: Object.assign({}, this.field),
+                result: {
+                    type: CONSTANTS.BOOLEAN,
+                    nullable: true
+                },
+                score: {
+                    type: CONSTANTS.NUMBER,
+                    defaultValue: component.get('properties.omit')
+                }
+            },
+            // Bind change event in constructor
+            init(options) {
+                const that = this;
+                BaseModel.fn.init.call(that, options);
+                that.bind(CONSTANTS.CHANGE, e => {
+                    // When value changes
+                    if (e.field === 'value') {
+                        // Reset grading and score calculations
+                        that.set('result', that.defaults.result);
+                        that.set('score', that.defaults.score);
+                    }
+                });
+            },
+            // Related componenet
+            component() {
+                return component;
+            },
+            // Related page
+            page() {
+                return component.page();
+            },
+            // Related tool
+            tool() {
+                return tool;
+            },
+            // Validation formula to pass to the worker pool
+            validation() {
+                let validation = component.get('properties.validation');
+                if (isLibraryFormula(validation)) {
+                    validation = parseLibraryItem(validation);
+                }
+                // Validation is either a string (custom) or an object (library item)
+                return validation;
+            },
+            // Format data for poolExec validation
+            data() {
+                const data = {
+                    value: this.get('value'),
+                    solution: component.get('properties.solution'),
+                    // Other field values on the same page
+                    // assuming this TestModelField is part of a TestModel
+                    all: {}
+                };
+                if ($.isFunction(this.model)) {
+                    // The field is part of a TestModel
+                    const model = this.model();
+                    Object.keys(model.fields).forEach(key => {
+                        if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
+                            // TODO Add random fields
+                            data.all[key] = model[key].get('value');
+                        }
+                    });
+                }
+                return data;
+            },
+            // grade function
+            grade() {
+                const that = this;
+                const dfd = $.Deferred();
+                const name = component.get('properties.name');
+                const data = that.data();
+                let validation = that.validation();
+                if (
+                    $.type(validation) === CONSTANTS.OBJECT &&
+                    $.type(validation.item) === CONSTANTS.OBJECT
+                ) {
+                    // This is a library item
+                    validation = validation.item.formula;
+                    if ($.isFunction(validation.item.editor)) {
+                        data.solution = validation.params;
+                    }
+                } else if ($.type(validation) !== CONSTANTS.STRING) {
+                    // The library item is missing
+                    return dfd
+                        .reject(
+                            new Error(
+                                `Missing validation formula for grading ${name}`
+                            )
+                        )
+                        .promise();
+                }
+                poolExec(validation, data, name)
+                    .then(res => {
+                        if (res.name === name) {
+                            if (res.result === true) {
+                                that.set('result', true);
+                                that.set(
+                                    'score',
+                                    component.get('properties.success')
+                                );
+                            } else if (res.result === false) {
+                                that.set('result', false);
+                                that.set(
+                                    'score',
+                                    component.get('properties.failure')
+                                );
+                            } else {
+                                that.set('result', that.defaults.result);
+                                that.set('score', that.defaults.score);
+                            }
+                            dfd.resolve();
+                        } else {
+                            that.set('result', that.defaults.result);
+                            that.set('score', that.defaults.score);
+                            dfd.reject(
+                                new Error(
+                                    `The grading result pertains to task name ${
+                                        res.name
+                                    } instead of ${name}`
+                                )
+                            );
+                        }
+                    })
+                    .catch(dfd.reject);
+
+                return dfd.promise();
+            },
+            // Html encoded value to display in the score grid
+            value$() {
+                return tool.getHtmlValue(this);
+            },
+            // Html encoded solution to display in the score grid
+            solution$() {
+                return tool.getHtmlSolution(component);
+            },
+            // Conversion to JSON for storage with an activity
+            toJSON() {
+                // TODO Consider eliminating null values
+                const json = BaseModel.fn.toJSON.call(this);
+                return json;
+            }
+        });
     },
 
     /**
@@ -315,6 +507,16 @@ const BaseTool = Class.extend({
                 assert.messages.instanceof.default,
                 'component',
                 'PageComponent'
+            )
+        );
+        // It is essential that the tool matches the component
+        assert.equal(
+            this.id,
+            component.tool,
+            assert.format(
+                assert.messages.equal.default,
+                'this.id',
+                'component.tool'
             )
         );
         assert.enum(
@@ -410,6 +612,16 @@ const BaseTool = Class.extend({
                 'PageComponent'
             )
         );
+        // It is essential that the tool matches the component
+        assert.equal(
+            this.id,
+            component.tool,
+            assert.format(
+                assert.messages.equal.default,
+                'this.id',
+                'component.tool'
+            )
+        );
         // TODO open dialog with property editor
         window.alert(action);
     },
@@ -417,19 +629,57 @@ const BaseTool = Class.extend({
     /**
      * Improved display of value in score grid
      * @method getHtmlValue
-     * @param testItem
+     * @param testField
      */
-    getHtmlValue(testItem) {
-        return htmlEncode(testItem.value || '');
+    getHtmlValue(testField) {
+        assert.instanceof(
+            BaseModel,
+            testField,
+            assert.format(
+                assert.messages.instanceof.default,
+                'testField',
+                'BaseModel'
+            )
+        );
+        // It is essential that the tool matches the component
+        assert.equal(
+            this.id,
+            testField.component().tool,
+            assert.format(
+                assert.messages.equal.default,
+                'this.id',
+                'component.tool'
+            )
+        );
+        return htmlEncode(testField.value || '');
     },
 
     /**
      * Improved display of solution in score grid
      * @method getHtmlSolution
-     * @param testItem
+     * @param component
      */
-    getHtmlSolution(testItem) {
-        return htmlEncode(testItem.solution || '');
+    getHtmlSolution(component) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        // It is essential that the tool matches the component
+        assert.equal(
+            this.id,
+            component.tool,
+            assert.format(
+                assert.messages.equal.default,
+                'this.id',
+                'component.tool'
+            )
+        );
+        return htmlEncode(component.get('properties.solution') || '');
     },
 
     // onEnable

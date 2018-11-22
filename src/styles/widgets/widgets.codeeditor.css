@@ -35,9 +35,9 @@
   width: 50%;
 }
 .kj-codeeditor .kj-codeeditor-footer > div {
-  width: 33.3%;
+  width: 50%;
 }
-.kj-codeeditor .kj-codeeditor-footer > div:nth-child(3) {
+.kj-codeeditor .kj-codeeditor-footer > div:nth-child(2) {
   white-space: nowrap;
 }
 .kj-codeeditor .kj-codeeditor-footer > div .kj-codeeditor-message {
@@ -47,6 +47,7 @@
 }
 .kj-codeeditor .kj-codeeditor-footer > div .kj-codeeditor-message .k-notification-wrap {
   white-space: initial;
+  /* Same line-height and padding as buttons */
   line-height: 1.72em;
   padding: 2px 7px 2px;
 }

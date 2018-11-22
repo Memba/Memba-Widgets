@@ -14,17 +14,16 @@ import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
-import {
-    getStream,
-    getComponentArray
-} from '../_misc/test.components.es6';
+import { getStream, getComponentArray } from '../_misc/test.components.es6';
 import { getSpyingTransport } from '../_misc/test.transports.es6';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import ObjectId from '../../../src/js/common/window.objectid.es6';
 import { normalizeSchema } from '../../../src/js/data/data.util.es6';
 import PageDataSource from '../../../src/js/data/datasources.page.es6';
 // import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
 import BaseModel from '../../../src/js/data/models.base.es6';
 import Page from '../../../src/js/data/models.page.es6';
+import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
 import Stream from '../../../src/js/data/models.stream.es6';
 import '../../../src/js/app/app.tools.es6';
 
@@ -33,9 +32,28 @@ const { observable } = window.kendo;
 const { expect } = chai;
 chai.use(sinonChai);
 
+function loadStream() {
+    const dfd = $.Deferred();
+    const options = getStream();
+    const stream = new Stream(options);
+    const { pages } = stream;
+    pages
+        .fetch()
+        .then(() => {
+            const promises = pages.data().map(page => page.components.fetch());
+            $.when(...promises)
+                .then(() => {
+                    dfd.resolve(stream);
+                })
+                .catch(dfd.reject);
+        })
+        .catch(dfd.reject);
+    return dfd.promise();
+}
+
 describe('models.stream', () => {
-    xdescribe('Stream', () => {
-        describe('When initializing a Stream', () => {
+    describe('Stream', () => {
+        describe('Initialization', () => {
             it('it should initialize without options', done => {
                 // Unfortunately, this is a Kendo UI requirement
                 const stream = new Stream();
@@ -77,7 +95,7 @@ describe('models.stream', () => {
                     pages: [
                         {
                             components: getComponentArray().map(item => ({
-                                item: item.tool
+                                tool: item.tool
                             }))
                         }
                     ]
@@ -126,7 +144,6 @@ describe('models.stream', () => {
                 const stream = new Stream(options);
                 const { pages } = stream;
                 expect(pages).to.be.an.instanceof(PageDataSource);
-                // Only the pages property
                 expect(Object.keys(stream.fields)).to.have.lengthOf(1);
                 pages
                     .fetch()
@@ -173,34 +190,95 @@ describe('models.stream', () => {
         */
 
         describe('assets', () => {
-            xit('TODO', () => {
-                expect(true).to.be.false;
+            it('It should list assets', done => {
+                loadStream()
+                    .then(
+                        tryCatch(done)(stream => {
+                            // TODO find a way to predict the size ????
+                            const assets = stream.assets();
+                            expect(assets.audio).to.be.an('array');
+                            expect(assets.image)
+                                .to.be.an('array')
+                                .with.property('length')
+                                .gt(0);
+                            expect(assets.audio).to.be.an('array');
+                        })
+                    )
+                    .catch(done);
             });
         });
 
         describe('preload', () => {
-            xit('TODO', () => {
+            xit('TODO', done => {
                 expect(true).to.be.false;
+                done();
             });
         });
 
         describe('time', () => {
-            xit('TODO', () => {
-                expect(true).to.be.false;
+            it('It should compute the sum of page times', done => {
+                loadStream()
+                    .then(
+                        tryCatch(done)(stream => {
+                            const time = stream.time();
+                            let sum = 0;
+                            stream.pages.data().forEach(p => {
+                                sum += p.get('time');
+                            });
+                            expect(time).to.equal(sum);
+                        })
+                    )
+                    .catch(done);
             });
         });
 
-        describe('stream.pages.parent', () => {
-            xit('TODO', () => {
-                expect(true).to.be.false;
+        describe('getTestModel', () => {
+            it('It should build a test model for play mode', done => {
+                loadStream()
+                    .then(
+                        tryCatch(done)(stream => {
+                            const TestModel = stream.getTestModel();
+                            const model = new TestModel();
+                            expect(model).to.be.an.instanceof(BaseModel);
+                            stream.pages.data().forEach(page => {
+                                page.components.data().forEach(component => {
+                                    const name = component.get(
+                                        'properties.name'
+                                    );
+                                    if (
+                                        CONSTANTS.RX_TEST_FIELD_NAME.test(name)
+                                    ) {
+                                        expect(
+                                            TestModel.fields
+                                        ).to.have.property(name);
+                                        expect(model).to.have.property(name);
+                                    }
+                                });
+                            });
+                        })
+                    )
+                    .catch(done);
+            });
+        });
+
+        describe('page.stream()', () => {
+            it('It should return the parent stream', done => {
+                loadStream()
+                    .then(
+                        tryCatch(done)(stream => {
+                            stream.pages.data().forEach(page => {
+                                expect(page.stream()).to.equal(stream);
+                            });
+                        })
+                    )
+                    .catch(done);
             });
         });
 
         describe('toJSON', () => {
-            xit('stream.toJSON should return all pages and components', done => {
+            it('It should return all pages and components', done => {
                 const options = getStream();
                 const pageDefaults = new Page().defaults;
-                debugger;
                 const componentDefaults = new PageComponent().defaults;
                 const defaults = {
                     pages: [
@@ -256,7 +334,7 @@ describe('models.stream', () => {
      *
      ******************************************************************************************************** */
 
-    describe('In memory data arrays', () => {
+    describe('In memory arrays', () => {
         const storageKey = 'stream';
         let stream;
         const options = {
@@ -372,21 +450,17 @@ describe('models.stream', () => {
                     const data = that.toJSON(true);
                     $.each(data.pages, (pageIdx, page) => {
                         page.id = page.id || new ObjectId().toString();
-                        $.each(
-                            page.components,
-                            (componentIdx, component) => {
-                                component.id =
-                                    component.id ||
-                                    new ObjectId().toString();
-                            }
-                        );
+                        $.each(page.components, (componentIdx, component) => {
+                            component.id =
+                                component.id || new ObjectId().toString();
+                        });
                     });
                     localStorage.setItem(storageKey, kendo.stringify(data));
                     that.accept(data);
                     return that._fetchAll();
                 }
             });
-            
+
             stream = new SuperStream();
             localStorage.removeItem(storageKey);
             localStorage.setItem(storageKey, JSON.stringify(options));
@@ -405,10 +479,7 @@ describe('models.stream', () => {
                     const page = stream.pages.at(i);
                     expect(page.isNew()).to.be.false;
                     expect(page.dirty).to.be.false;
-                    expect(page).to.have.property(
-                        'id',
-                        options.pages[i].id
-                    );
+                    expect(page).to.have.property('id', options.pages[i].id);
                     expect(page).to.have.property(
                         'style',
                         options.pages[i].style
@@ -448,9 +519,7 @@ describe('models.stream', () => {
             stream.pages.add({});
             stream.pages.at(index).components.add({ tool: 'label' });
             stream.save().always(() => {
-                const update = $.parseJSON(
-                    localStorage.getItem(storageKey)
-                );
+                const update = $.parseJSON(localStorage.getItem(storageKey));
                 // expect(update).to.have.property('id', stream.id);
                 expect(update)
                     .to.have.property('pages')
@@ -493,9 +562,7 @@ describe('models.stream', () => {
                 .components.at(0)
                 .set('rotate', 45);
             stream.save().always(() => {
-                const update = $.parseJSON(
-                    localStorage.getItem(storageKey)
-                );
+                const update = $.parseJSON(localStorage.getItem(storageKey));
                 // expect(update).to.have.property('id', stream.id);
                 expect(update)
                     .to.have.property('pages')
@@ -529,9 +596,7 @@ describe('models.stream', () => {
             const index = stream.pages.total() - 1;
             stream.pages.remove(stream.pages.at(index));
             stream.save().always(() => {
-                const update = $.parseJSON(
-                    localStorage.getItem(storageKey)
-                );
+                const update = $.parseJSON(localStorage.getItem(storageKey));
                 // expect(update).to.have.property('id', stream.id);
                 expect(update)
                     .to.have.property('pages')
@@ -540,7 +605,6 @@ describe('models.stream', () => {
                 done();
             });
         });
-
     });
 
     xdescribe('Hierarchy of CRUD transports', () => {
@@ -643,20 +707,20 @@ describe('models.stream', () => {
                 stream.load().always(() => {
                     debugger;
                     stream.pages
-                    .at(0)
-                    .load()
-                    .then(
-                        tryCatch(done)(() => {
-                            debugger;
-                            expect(pageSpies.read).to.have.been.calledOnce;
-                            expect(stream.pages.total()).to.equal(1);
-                            expect(componentSpies.read).to.have.been
-                                .calledOnce;
-                            expect(
-                                stream.pages.at(0).components.total()
-                            ).to.equal(1);
-                        })
-                    );
+                        .at(0)
+                        .load()
+                        .then(
+                            tryCatch(done)(() => {
+                                debugger;
+                                expect(pageSpies.read).to.have.been.calledOnce;
+                                expect(stream.pages.total()).to.equal(1);
+                                expect(componentSpies.read).to.have.been
+                                    .calledOnce;
+                                expect(
+                                    stream.pages.at(0).components.total()
+                                ).to.equal(1);
+                            })
+                        );
                 });
             });
 
@@ -675,39 +739,39 @@ describe('models.stream', () => {
                 stream.pages.at(2).components.add({ tool: 'textbox' });
                 expect(stream.pages.at(2).components.total()).to.equal(2);
                 stream.pages
-                .sync()
-                .then(() => {
-                    expect(pageSpies.create).to.have.callCount(2);
-                    expect(stream.pages.total()).to.equal(3);
-                    expect(stream.pages.at(0).components.total()).to.equal(
-                        1
-                    );
-                    expect(stream.pages.at(1).components.total()).to.equal(
-                        2
-                    );
-                    expect(stream.pages.at(2).components.total()).to.equal(
-                        2
-                    );
-                    const promises = [];
-                    for (let i = 0; i < stream.pages.total(); i++) {
-                        promises.push(stream.pages.at(i).components.sync());
-                    }
-                    $.when(...promises).always(() => {
-                        expect(componentSpies.create).to.callCount(4);
+                    .sync()
+                    .then(() => {
+                        expect(pageSpies.create).to.have.callCount(2);
                         expect(stream.pages.total()).to.equal(3);
-                        expect(
-                            stream.pages.at(0).components.total()
-                        ).to.equal(1);
-                        expect(
-                            stream.pages.at(1).components.total()
-                        ).to.equal(2);
-                        expect(
-                            stream.pages.at(2).components.total()
-                        ).to.equal(2);
-                        done();
-                    });
-                })
-                .catch(done);
+                        expect(stream.pages.at(0).components.total()).to.equal(
+                            1
+                        );
+                        expect(stream.pages.at(1).components.total()).to.equal(
+                            2
+                        );
+                        expect(stream.pages.at(2).components.total()).to.equal(
+                            2
+                        );
+                        const promises = [];
+                        for (let i = 0; i < stream.pages.total(); i++) {
+                            promises.push(stream.pages.at(i).components.sync());
+                        }
+                        $.when(...promises).always(() => {
+                            expect(componentSpies.create).to.callCount(4);
+                            expect(stream.pages.total()).to.equal(3);
+                            expect(
+                                stream.pages.at(0).components.total()
+                            ).to.equal(1);
+                            expect(
+                                stream.pages.at(1).components.total()
+                            ).to.equal(2);
+                            expect(
+                                stream.pages.at(2).components.total()
+                            ).to.equal(2);
+                            done();
+                        });
+                    })
+                    .catch(done);
             });
 
             it('Updating', done => {
@@ -718,60 +782,60 @@ describe('models.stream', () => {
                 expect(stream.pages.at(2).components.total()).to.equal(2);
                 stream.pages.at(1).set('style', 'background-color: #FF0000;');
                 stream.pages
-                .at(1)
-                .components.at(0)
-                .set('top', 50);
+                    .at(1)
+                    .components.at(0)
+                    .set('top', 50);
                 stream.pages
-                .at(1)
-                .components.at(0)
-                .set('left', 50);
+                    .at(1)
+                    .components.at(0)
+                    .set('left', 50);
                 stream.pages.at(2).set('style', 'background-color: #FF0000;');
                 stream.pages
-                .at(2)
-                .components.at(0)
-                .set('top', 50);
+                    .at(2)
+                    .components.at(0)
+                    .set('top', 50);
                 stream.pages
-                .at(2)
-                .components.at(0)
-                .set('left', 50);
+                    .at(2)
+                    .components.at(0)
+                    .set('left', 50);
                 expect(stream.pages.total()).to.equal(3);
                 expect(stream.pages.at(0).components.total()).to.equal(1);
                 expect(stream.pages.at(1).components.total()).to.equal(2);
                 expect(stream.pages.at(2).components.total()).to.equal(2);
                 stream.pages
-                .sync()
-                .then(() => {
-                    expect(pageSpies.update).to.have.callCount(2);
-                    expect(stream.pages.total()).to.equal(3);
-                    expect(stream.pages.at(0).components.total()).to.equal(
-                        1
-                    );
-                    expect(stream.pages.at(1).components.total()).to.equal(
-                        2
-                    );
-                    expect(stream.pages.at(2).components.total()).to.equal(
-                        2
-                    );
-                    const promises = [];
-                    for (let i = 0; i < stream.pages.total(); i++) {
-                        promises.push(stream.pages.at(i).components.sync());
-                    }
-                    $.when(...promises).always(() => {
-                        expect(componentSpies.update).to.callCount(2);
+                    .sync()
+                    .then(() => {
+                        expect(pageSpies.update).to.have.callCount(2);
                         expect(stream.pages.total()).to.equal(3);
-                        expect(
-                            stream.pages.at(0).components.total()
-                        ).to.equal(1);
-                        expect(
-                            stream.pages.at(1).components.total()
-                        ).to.equal(2);
-                        expect(
-                            stream.pages.at(2).components.total()
-                        ).to.equal(2);
-                        done();
-                    });
-                })
-                .catch(done);
+                        expect(stream.pages.at(0).components.total()).to.equal(
+                            1
+                        );
+                        expect(stream.pages.at(1).components.total()).to.equal(
+                            2
+                        );
+                        expect(stream.pages.at(2).components.total()).to.equal(
+                            2
+                        );
+                        const promises = [];
+                        for (let i = 0; i < stream.pages.total(); i++) {
+                            promises.push(stream.pages.at(i).components.sync());
+                        }
+                        $.when(...promises).always(() => {
+                            expect(componentSpies.update).to.callCount(2);
+                            expect(stream.pages.total()).to.equal(3);
+                            expect(
+                                stream.pages.at(0).components.total()
+                            ).to.equal(1);
+                            expect(
+                                stream.pages.at(1).components.total()
+                            ).to.equal(2);
+                            expect(
+                                stream.pages.at(2).components.total()
+                            ).to.equal(2);
+                            done();
+                        });
+                    })
+                    .catch(done);
             });
 
             it('Destroying', done => {
@@ -784,40 +848,40 @@ describe('models.stream', () => {
                 // because the framework does not call the destroy method on components of removed pageSpies
                 stream.pages.remove(stream.pages.at(0));
                 stream.pages
-                .at(0)
-                .components.remove(stream.pages.at(0).components.at(0)); // page 1 became page 0
+                    .at(0)
+                    .components.remove(stream.pages.at(0).components.at(0)); // page 1 became page 0
                 expect(stream.pages.total()).to.equal(2);
                 expect(stream.pages.at(0).components.total()).to.equal(1);
                 expect(stream.pages.at(1).components.total()).to.equal(2);
                 stream.pages
-                .sync()
-                .then(() => {
-                    expect(pageSpies.destroy).to.have.been.calledOnce;
-                    expect(stream.pages.total()).to.equal(2);
-                    expect(stream.pages.at(0).components.total()).to.equal(
-                        1
-                    );
-                    expect(stream.pages.at(1).components.total()).to.equal(
-                        2
-                    );
-                    const promises = [];
-                    for (let i = 0; i < stream.pages.total(); i++) {
-                        promises.push(stream.pages.at(i).components.sync());
-                    }
-                    $.when(...promises).always(() => {
-                        expect(componentSpies.destroy).to.have.been
-                            .calledOnce;
+                    .sync()
+                    .then(() => {
+                        expect(pageSpies.destroy).to.have.been.calledOnce;
                         expect(stream.pages.total()).to.equal(2);
-                        expect(
-                            stream.pages.at(0).components.total()
-                        ).to.equal(1);
-                        expect(
-                            stream.pages.at(1).components.total()
-                        ).to.equal(2);
-                        done();
-                    });
-                })
-                .catch(done);
+                        expect(stream.pages.at(0).components.total()).to.equal(
+                            1
+                        );
+                        expect(stream.pages.at(1).components.total()).to.equal(
+                            2
+                        );
+                        const promises = [];
+                        for (let i = 0; i < stream.pages.total(); i++) {
+                            promises.push(stream.pages.at(i).components.sync());
+                        }
+                        $.when(...promises).always(() => {
+                            expect(componentSpies.destroy).to.have.been
+                                .calledOnce;
+                            expect(stream.pages.total()).to.equal(2);
+                            expect(
+                                stream.pages.at(0).components.total()
+                            ).to.equal(1);
+                            expect(
+                                stream.pages.at(1).components.total()
+                            ).to.equal(2);
+                            done();
+                        });
+                    })
+                    .catch(done);
             });
         });
 
@@ -942,15 +1006,15 @@ describe('models.stream', () => {
                     expect(componentSpies.read).not.to.have.been.called;
                     expect(stream.pages.total()).to.equal(1);
                     stream.pages
-                    .at(0)
-                    .load()
-                    .always(() => {
-                        expect(componentSpies.read).to.have.been.called;
-                        expect(
-                            stream.pages.at(0).components.total()
-                        ).to.equal(1);
-                        done();
-                    });
+                        .at(0)
+                        .load()
+                        .always(() => {
+                            expect(componentSpies.read).to.have.been.called;
+                            expect(
+                                stream.pages.at(0).components.total()
+                            ).to.equal(1);
+                            done();
+                        });
                 });
             });
 
@@ -968,60 +1032,60 @@ describe('models.stream', () => {
                 stream.pages.at(2).components.add({ tool: 'textbox' });
                 expect(stream.pages.at(2).components.total()).to.equal(2);
                 stream.pages
-                .sync()
-                .then(() => {
-                    expect(pageSpies.create).to.have.been.calledOnce;
-                    expect(stream.pages.total()).to.equal(3);
-                    expect(stream.pages.at(0).components.total()).to.equal(
-                        1
-                    );
-                    expect(stream.pages.at(1).components.total()).to.equal(
-                        2
-                    );
-                    expect(stream.pages.at(2).components.total()).to.equal(
-                        2
-                    );
-                    const promises = [];
-                    for (let i = 0; i < stream.pages.total(); i++) {
-                        promises.push(stream.pages.at(i).components.sync());
-                    }
-                    $.when(...promises).always(() => {
-                        expect(componentSpies.create).to.have.been
-                            .calledTwice;
+                    .sync()
+                    .then(() => {
+                        expect(pageSpies.create).to.have.been.calledOnce;
                         expect(stream.pages.total()).to.equal(3);
-                        expect(
-                            stream.pages.at(0).components.total()
-                        ).to.equal(1);
-                        expect(
-                            stream.pages.at(1).components.total()
-                        ).to.equal(2);
-                        expect(
-                            stream.pages.at(2).components.total()
-                        ).to.equal(2);
-                        done();
-                    });
-                })
-                .catch(done);
+                        expect(stream.pages.at(0).components.total()).to.equal(
+                            1
+                        );
+                        expect(stream.pages.at(1).components.total()).to.equal(
+                            2
+                        );
+                        expect(stream.pages.at(2).components.total()).to.equal(
+                            2
+                        );
+                        const promises = [];
+                        for (let i = 0; i < stream.pages.total(); i++) {
+                            promises.push(stream.pages.at(i).components.sync());
+                        }
+                        $.when(...promises).always(() => {
+                            expect(componentSpies.create).to.have.been
+                                .calledTwice;
+                            expect(stream.pages.total()).to.equal(3);
+                            expect(
+                                stream.pages.at(0).components.total()
+                            ).to.equal(1);
+                            expect(
+                                stream.pages.at(1).components.total()
+                            ).to.equal(2);
+                            expect(
+                                stream.pages.at(2).components.total()
+                            ).to.equal(2);
+                            done();
+                        });
+                    })
+                    .catch(done);
             });
 
             it('Updating', done => {
                 stream.pages.at(1).set('style', 'background-color: #FF0000;');
                 stream.pages
-                .at(1)
-                .components.at(0)
-                .set('top', 50);
+                    .at(1)
+                    .components.at(0)
+                    .set('top', 50);
                 stream.pages
-                .at(1)
-                .components.at(0)
-                .set('left', 50);
+                    .at(1)
+                    .components.at(0)
+                    .set('left', 50);
                 stream.pages
-                .at(2)
-                .components.at(0)
-                .set('top', 50);
+                    .at(2)
+                    .components.at(0)
+                    .set('top', 50);
                 stream.pages
-                .at(2)
-                .components.at(0)
-                .set('left', 50);
+                    .at(2)
+                    .components.at(0)
+                    .set('left', 50);
                 expect(stream.pages.total()).to.equal(3);
                 expect(stream.pages.at(1).components.total()).to.equal(2);
                 const promises = [
@@ -1041,11 +1105,11 @@ describe('models.stream', () => {
                 expect(stream.pages.at(1).components.total()).to.equal(2);
                 expect(stream.pages.at(2).components.total()).to.equal(2);
                 stream.pages
-                .at(1)
-                .components.remove(stream.pages.at(1).components.at(1));
+                    .at(1)
+                    .components.remove(stream.pages.at(1).components.at(1));
                 stream.pages
-                .at(2)
-                .components.remove(stream.pages.at(2).components.at(1));
+                    .at(2)
+                    .components.remove(stream.pages.at(2).components.at(1));
                 expect(stream.pages.at(1).components.total()).to.equal(1);
                 expect(stream.pages.at(2).components.total()).to.equal(1);
                 const promises = [
@@ -1074,30 +1138,30 @@ describe('models.stream', () => {
                 // page 0
                 stream.pages.at(0).set('style', 'border 1px #0000FF;');
                 stream.pages
-                .at(0)
-                .components.at(0)
-                .set('rotate', 45);
+                    .at(0)
+                    .components.at(0)
+                    .set('rotate', 45);
                 stream.pages.at(0).components.add({ tool: 'button' });
                 stream.pages
-                .at(0)
-                .components.at(1)
-                .set('top', 120);
+                    .at(0)
+                    .components.at(1)
+                    .set('top', 120);
                 stream.pages
-                .at(0)
-                .components.at(1)
-                .set('left', 120);
+                    .at(0)
+                    .components.at(1)
+                    .set('left', 120);
                 // page 1
                 stream.pages.remove(stream.pages.at(1));
                 // page 2
                 stream.pages.at(1).set('style', 'padding: 10px');
                 stream.pages
-                .at(1)
-                .components.remove(stream.pages.at(1).components.at(0));
+                    .at(1)
+                    .components.remove(stream.pages.at(1).components.at(0));
                 stream.pages.at(1).components.add({ tool: 'textbox' });
                 stream.pages
-                .at(0)
-                .components.at(0)
-                .set('rotate', 45);
+                    .at(0)
+                    .components.at(0)
+                    .set('rotate', 45);
                 // TODO
             });
         });

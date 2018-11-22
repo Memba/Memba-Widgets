@@ -40,7 +40,7 @@ export function getValidationLibrary() {
             name: 'Custom',
             key: 'custom',
             formula:
-                'function validate(value, solution) {\n\t// Your code should return true when value is validated against solution.\n}'
+                'function validate(value, solution, all) {\n\t// Your code should return true when value is validated against solution.\n}'
         },
         // { // Test another options.default
         //    name: 'equal',
@@ -94,7 +94,7 @@ export function getValidationLibrary() {
             name: 'With parameters',
             key: 'withParam',
             formula:
-                'function validate(value, solution) {\n\treturn /{0}/i.test(value);\n}',
+                'function validate(value, params) {\n\tconsole.log(params);\n\treturn new RegExp(params, "i").test(value);\n}',
             editor: input
         }
     ];

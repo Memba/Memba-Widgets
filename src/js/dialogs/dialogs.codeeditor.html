@@ -165,7 +165,12 @@
                     'kendogrid': 'src/js/vendor/kendo/kendo.grid.js',
                     'kendopdf': 'src/js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'src/js/vendor/kendo/kendo.scheduler.js',
-                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js'
+                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
+                    // Test frameworks
+                    'jscheck': 'test/vendor/jscheck.js'
+                },
+                meta: {
+                    'test/vendor/jscheck.js': { format: 'global' }
                 },
                 packages: {
                     'src/js': {
@@ -198,58 +203,22 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./dialogs.codeeditor.es6').then(function (module) {
+            Promise.all([
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('../helpers/helpers.data.es6'),
+                SystemJS.import('./dialogs.codeeditor.es6')
+            ]).then(function (modules) {
                 var kendo = window.kendo;
-                var openCodeEditor = module.default;
+                var library = modules[1].getValidationLibrary();
+                var openCodeEditor = modules[2].default;
                 $(function () {
                     $('#button1').click(function (e) {
-                        var library = [
-                            {
-                                name: 'custom',
-                                formula: 'function validate(value, solution) {\n\t// Your code should return true when value is validated against solution.\n}'
-                            },
-                            // { // Test another options.default
-                            //    name: 'equal',
-                            //    formula: 'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
-                            // },
-                            {
-                                name: 'intEqual',
-                                formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
-                            },
-                            {
-                                name: 'floatEqual',
-                                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
-                            },
-                            {
-                                name: 'round2DecimalsEqual',
-                                formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
-                            },
-                            {
-                                name: 'greaterThan',
-                                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
-                            },
-                            {
-                                name: 'greaterThanOrEqual',
-                                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
-                            },
-                            {
-                                name: 'lowerThan',
-                                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
-                            },
-                            {
-                                name: 'lowerThanOrEqual',
-                                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
-                            },
-                            {
-                                name: 'withParam',
-                                formula: 'function validate(value, solution) {\n\treturn /{0}/i.test(value);\n}',
-                                param: 'Regular Expression'
-                            }
-                        ];
                         openCodeEditor({
                             title: 'My Code',
+                            default: '// floatEqual',
+                            solution: 0,
                             data: {
-                                value: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === 5 + parseInt(solution, 10);\n}',
+                                value: 'function validate(value, solution, all) {\n\treturn parseInt(value, 10) === 5 + parseInt(solution, 10);\n}',
                                 library: new kendo.data.DataSource({ data: library })
                             },
                             width: 860

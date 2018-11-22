@@ -15,6 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { LIB_COMMENT } from '../../../src/js/tools/util.libraries.es6';
 import '../../../src/js/widgets/widgets.codeinput.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
@@ -36,11 +37,10 @@ const ROLE = 'codeinput';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const CHANGE = 'change';
-const CLICK = 'click';
 const LIBRARY = [
     {
-        name: 'custom',
+        name: 'Custom',
+        key: 'custom',
         formula:
             'function validate(value, solution, all) {\n\t// Your code should return true when value is validated against solution.\n}'
     },
@@ -86,7 +86,6 @@ const LIBRARY = [
         param: 'RegExp'
     }
 ];
-const LIB_COMMENT = '// ';
 const NAME = LIBRARY[4].name;
 const FORMULA = LIBRARY[4].formula;
 const SOLUTION = '0';
@@ -421,7 +420,7 @@ describe('widgets.codeinput', () => {
             bind(FIXTURES, viewModel);
             codeInput = element.data('kendoCodeInput');
             change = sinon.spy();
-            viewModel.bind(CHANGE, change);
+            viewModel.bind(CONSTANTS.CHANGE, change);
         });
 
         it('A change of widget value raises a change in the viewModel', () => {
@@ -455,13 +454,13 @@ describe('widgets.codeinput', () => {
                 .find(roleSelector('dropdownlist'))
                 .parent();
             expect(clickable).to.match('span');
-            clickable.simulate(CLICK);
+            clickable.simulate(CONSTANTS.CLICK);
             // a first click expands the list
             const list = $('div.k-list-container ul.k-list');
             expect(list).to.exist;
             const item = list.find(`li:contains("${EQ_NAME}")`);
             expect(item).to.exist;
-            item.simulate(CLICK);
+            item.simulate(CONSTANTS.CLICK);
             // a second click closes the list and sets a new value
             expect(change).to.have.been.calledOnce;
             expect(codeInput.value()).to.equal(LIB_COMMENT + EQ_NAME);
@@ -469,7 +468,7 @@ describe('widgets.codeinput', () => {
         });
 
         afterEach(() => {
-            viewModel.unbind(CHANGE);
+            viewModel.unbind(CONSTANTS.CHANGE);
             viewModel.set('code', ''); // undefined would not work
             const fixtures = $(FIXTURES);
             destroy(fixtures);
@@ -503,7 +502,7 @@ describe('widgets.codeinput', () => {
 
         it('Change event', () => {
             expect(codeInput).to.be.an.instanceof(CodeInput);
-            codeInput.bind(CHANGE, e => {
+            codeInput.bind(CONSTANTS.CHANGE, e => {
                 change(e.value);
             });
             codeInput.value(LIB_COMMENT + EQ_NAME);

@@ -22,6 +22,12 @@
     }
 }
 
+// Cursor
+body > .k-list-item > .kj-handle,
+.kj-imagelist > .k-listview:not(.k-state-disabled) > .k-list-item > .kj-handle {
+    cursor: move;
+}
+
 // we also need body > k-list-item for draggable hints
 body,
 .kj-imagelist > .k-listview {
@@ -32,7 +38,6 @@ body,
         padding: 2px;
 
         > .kj-handle {
-            cursor: move;
             width: 1em;
         }
 

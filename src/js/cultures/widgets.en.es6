@@ -134,16 +134,13 @@ if (window.kendo && window.kendo.ui) {
             formula: 'Formula:',
             notApplicable: 'N/A',
             solution: 'Solution:',
+            params: 'Params:',
             value: 'Value:',
             test: 'Test',
             success: 'Success',
             failure: 'Failure',
             omit: 'Omit',
-            error: 'Error',
-            ajaxError: 'Error loading worker library.',
-            jsonError:
-                'Error parsing value as json. Wrap strings in double quotes.',
-            timeoutError: 'The execution of a web worker has timed out.'
+            error: 'Error'
         });
     }
 
@@ -163,8 +160,8 @@ if (window.kendo && window.kendo.ui) {
                 add: 'Add'
             },
             validation: {
-                image: 'An image url is required.',
-                text: 'Some text is required.'
+                text: 'An alternate text of 1 to 100 characters is required.',
+                url: 'An image url is required.'
             }
         });
     }

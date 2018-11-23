@@ -15,6 +15,10 @@
 .kj-imagelist > .k-listview .k-icon {
   color: inherit;
 }
+body > .k-list-item > .kj-handle,
+.kj-imagelist > .k-listview:not(.k-state-disabled) > .k-list-item > .kj-handle {
+  cursor: move;
+}
 body > .k-list-item,
 .kj-imagelist > .k-listview > .k-list-item {
   align-items: center;
@@ -24,7 +28,6 @@ body > .k-list-item,
 }
 body > .k-list-item > .kj-handle,
 .kj-imagelist > .k-listview > .k-list-item > .kj-handle {
-  cursor: move;
   width: 1em;
 }
 body > .k-list-item > .kj-text,

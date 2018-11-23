@@ -194,39 +194,20 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
-                SystemJS.import('../vendor/kendo/kendo.grid.js'),
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('../helpers/helpers.grid.es6'),
                 SystemJS.import('./widgets.imagelist.es6')
             ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
-                    quiz: new kendo.data.DataSource({
-                        data: [
-                            { text: 'question 1', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg' },
-                            { text: 'question 2', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg' },
-                            { text: 'question 3', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg' },
-                            { text: 'question 4', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg' }
-                        ],
-                        // Note: Without a schema, the Add button wont'work because otherwise the listView does not know the properties to create a new dataItem with
-                        schema: {
-                            model: {
-                                id: 'text',
-                                fields: {
-                                    text: {
-                                        type: 'string'
-                                    },
-                                    image: {
-                                        type: 'string'
-                                    }
-                                }
-                            }
-                        }
-                    }),
-                    urls: [
-                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg',
-                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg',
-                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg',
-                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg'
+                    quiz: [
+                        { text: 'question 1', url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg' },
+                        { text: 'question 2', url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg' },
+                        { text: 'question 3', url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg' },
+                        { text: 'question 4', url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg' }
                     ],
+                    visible: true,
+                    enabled: true,
                     onClick: function (e) {
                         if (e.action === 'image') {
                             // Note: this is where we should plug our asset manager
@@ -234,7 +215,7 @@
                             var prompt = window.prompt("What's your image?", image);
                             // We need an input to get a validator, and we need to update it before the model otherwise validation fails an the model is not updated
                             // e.sender.element.find('input[type="hidden"][data-bind*="image"]').val(prompt);
-                            e.item.set('image', prompt);
+                            e.item.set('url', prompt);
                         }
                     }
                 });
@@ -247,10 +228,13 @@
 </head>
 <body>
 <h1>widgets.imagelist</h1>
-<div data-role="imagelist" data-bind="source:quiz, events:{ click: onClick }" data-text-field="text" data-image-field="image"></div>
+<h2>Bound to observable</h2>
+<div data-role="imagelist" data-bind="source:quiz, events:{ click: onClick }, visible: visible, enabled: enabled" data-text-field="text" data-image-field="image"></div>
+<div>
+    <input type="checkbox" data-bind="checked: visible">Visible
+    <input type="checkbox" data-bind="checked: enabled">Enabled
+</div>
 <h2>Grid</h2>
 <div id="grid" data-role="grid" data-bind="source:quiz"></div>
-<!--h2>Array of image urls</h2>
-<div data-role="imagelist" data-bind="source:urls, events:{ click: onClick }" data-text-field="text" data-image-field="image"></div-->
 </body>
 </html>

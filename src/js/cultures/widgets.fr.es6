@@ -135,17 +135,13 @@ if (window.kendo && window.kendo.ui) {
             formula: 'Formule:',
             notApplicable: 'N/A',
             solution: 'Solution:',
+            params: 'Params:',
             value: 'Valeur:',
             test: 'Test',
             success: 'Succès',
             failure: 'Échec',
             omit: 'Omission',
-            error: 'Erreur',
-            ajaxError: 'Erreur de chargement de la librairie de validation.',
-            jsonError:
-                'Erreur d’analyse de la valeur par json. Placez les chaînes de caractères entre guillemets.',
-            timeoutError:
-                'L’exécution du processus de validation a pris trop de temps.'
+            error: 'Erreur'
         });
     }
 
@@ -165,8 +161,8 @@ if (window.kendo && window.kendo.ui) {
                 add: 'Ajouter'
             },
             validation: {
-                image: 'Une image est requise.',
-                text: 'Du texte est requis.'
+                text: 'Un texte alternatif de 1 à 100 caractères est requis.',
+                url: 'Une url d’image est requise.'
             }
         });
     }

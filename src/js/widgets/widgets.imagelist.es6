@@ -48,6 +48,7 @@ const EDIT_TMPL =
     '<li class="k-list-item">' +
     '<div class="kj-handle"><span class="k-icon k-i-handler-drag"></span></div>' +
     '<div class="kj-text">' +
+    // Note: pattern validation won't work without type="text" and cannot enforce required="required" which is needed too to prevent empty inputs
     '<input class="k-textbox" type="text" data-bind="value:text" name="text" required="required" pattern="^\\\\S.{0,99}$" validationMessage="{0}"/><span data-for="text" class="k-invalid-msg"></span>' +
     '<input type="hidden" data-bind="value:url$()" name="url" required="required" validationMessage="{1}"/><span data-for="url" class="k-invalid-msg"></span>' +
     '</div><div class="kj-buttons">' +

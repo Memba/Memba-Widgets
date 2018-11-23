@@ -50,7 +50,9 @@ const EDIT_TMPL =
     '<div class="kj-text">' +
     // Note: pattern validation won't work without type="text" and cannot enforce required="required" which is needed too to prevent empty inputs
     '<input class="k-textbox" type="text" data-bind="value:text" name="text" required="required" pattern="^\\\\S.{0,99}$" validationMessage="{0}"/><span data-for="text" class="k-invalid-msg"></span>' +
-    '<input type="hidden" data-bind="value:url$()" name="url" required="required" validationMessage="{1}"/><span data-for="url" class="k-invalid-msg"></span>' +
+    '# if ({1}) { #' +
+    '<input type="hidden" data-bind="value:url$()" name="url" required="required" validationMessage="{2}"/><span data-for="url" class="k-invalid-msg"></span>' +
+    '# } #' +
     '</div><div class="kj-buttons">' +
     '<a class="k-button k-image-button" href="\\#"><span class="k-icon k-i-image-insert"></span></a>' +
     '<a class="k-button k-update-button" href="\\#"><span class="k-icon k-i-check"></span></a>' +
@@ -85,6 +87,7 @@ const ImageList = DataBoundWidget.extend({
         name: 'ImageList',
         dataSource: [],
         enabled: true,
+        requireImages: false, // whether images are required
         messages: {
             toolbar: {
                 add: 'Add'
@@ -145,6 +148,7 @@ const ImageList = DataBoundWidget.extend({
                     format(
                         EDIT_TMPL,
                         this.options.messages.validation.text,
+                        String(!!this.options.requireImages),
                         this.options.messages.validation.url
                     )
                 ),

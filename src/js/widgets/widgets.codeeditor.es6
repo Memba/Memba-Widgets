@@ -3,8 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Add a kendo.ui.validator - https://github.com/kidoju/Kidoju-Widgets/issues/158
 // TODO Add testing of user value against solution
-// TODO Review ../cultures/widgets.*.es6
 // TODO Max lines/size of code
 // TODO Use solutionadapter to make a value editor
 // TODO Limit size of code

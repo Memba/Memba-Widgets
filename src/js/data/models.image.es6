@@ -3,6 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
+import assets from '../app/app.assets.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './models.base.es6';
 
@@ -16,12 +17,28 @@ const Image = BaseModel.define({
     fields: {
         text: {
             type: CONSTANTS.STRING
+            /*
+            // Note: validation is handled in ../widgets/widgets.imagelist
+            validation: {
+                required: true,
+                pattern: '^\\S.{0,99}$'
+            }
+            */
         },
         url: {
             type: CONSTANTS.STRING
+            /*
+            // Note: validation is handled in ../widgets/widgets.imagelist
+            validation: {
+                required: true
+            }
+            */
         }
+    },
+    url$() {
+        const url = this.get('url');
+        return assets.image.scheme2http(url);
     }
-    // TODO Add validation
 });
 
 /**

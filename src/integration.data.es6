@@ -259,7 +259,7 @@ const data = {
                         name: 'val_a8aef1',
                         question: 'French river (south-east)',
                         solution: 'Rhône',
-                        validation: '// ignoreCaseMatch (Rh(o|ô)ne)',
+                        validation: '// ignoreCaseMatch ["(Rh(o|ô)ne)"]',
                         success: 0.25,
                         failure: 0,
                         omit: 0

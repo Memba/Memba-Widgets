@@ -32,6 +32,7 @@ const { format } = window.kendo;
 export const LIB_COMMENT = '// ';
 export const LIB_PARAMS = ' [{0}]';
 const RX_VALIDATION_LIBRARY = /^\/\/ ([^\s[\n]+)( \[([^\n]+)])?$/;
+export const RX_VALIDATION_FORMULA = /^function[\s]+validate[\s]*\([\s]*value[\s]*,/;
 const RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*{[\s\S]*}$/;
 
 export const VALIDATION_CUSTOM =

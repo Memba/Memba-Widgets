@@ -33,21 +33,30 @@ const viewModel = observable({
     selectedPage: undefined,
     test: undefined,
     calculate() {
-        return viewModel.stream.pages
-            .validateTestFromProperties(viewModel.get('test'))
+        return viewModel.test
+            .grade()
             .then(result => {
-                viewModel.set('test', result);
-                const stageWidget = $(roleSelector('stage')).data('kendoStage');
+                debugger;
+                const stageWidget = $(roleSelector('stage')).data(
+                    'kendoStage'
+                );
                 stageWidget.mode(stageWidget.modes.review);
                 const grid = $('div[data-role="grid"]').data('kendoGrid');
                 grid.setDataSource(
                     new DataSource({
-                        data: viewModel.get('test').getScoreArray()
+                        data: viewModel.test.getScoreTable()
                     })
                 );
+            })
+            .catch(err => {
+                debugger;
+                // app.notification//
             });
     }
 });
+
+// For debugging
+window.viewModel = viewModel;
 
 /**
  * Resize event handler
@@ -97,7 +106,6 @@ $(() => {
                     sections.first().css('display', 'none');
                     sections.last().css('display', 'block');
                 });
-                // TODO: fail ???
                 this.enable('#submit', false);
                 this.enable('#review', true);
             } else if (e.id === 'score') {
@@ -124,11 +132,10 @@ $(() => {
         }
     });
 
-    debugger;
     viewModel.stream.load().then(() => {
-        debugger;
+        const TestModel = viewModel.stream.getTestModel();
         viewModel.set('selectedPage', viewModel.stream.pages.at(0));
-        viewModel.set('test', viewModel.stream.pages.getTestFromProperties());
+        viewModel.set('test', new TestModel());
         bind('body', viewModel, ui, mobile.ui, dataviz.ui);
         onResize();
     });

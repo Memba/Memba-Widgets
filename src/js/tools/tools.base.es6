@@ -18,7 +18,7 @@ import PageComponent from '../data/models.pagecomponent.es6';
 import poolExec from '../workers/workers.exec.es6';
 import BaseAdapter from './adapters.base.es6';
 import NumberAdapter from './adapters.number.es6';
-import { isLibraryFormula, parseLibraryItem } from './util.libraries.es6';
+import { isLibraryFormula, parseLibraryItem, RX_VALIDATION_FORMULA } from './util.libraries.es6';
 
 const { attr, Class, format, getter, htmlEncode, ns, template } = window.kendo;
 
@@ -385,11 +385,12 @@ const BaseTool = Class.extend({
             },
             // Validation formula to pass to the worker pool
             validation() {
+                const { library } = tool.properties.validation;
                 let validation = component.get('properties.validation');
                 if (isLibraryFormula(validation)) {
-                    validation = parseLibraryItem(validation);
+                    validation = parseLibraryItem(validation, library);
                 }
-                // Validation is either a string (custom) or an object (library item)
+                // Validation is either a string (custom) or an object ({ item: ..., params: ...})
                 return validation;
             },
             // Format data for poolExec validation
@@ -423,13 +424,18 @@ const BaseTool = Class.extend({
                 if (
                     $.type(validation) === CONSTANTS.OBJECT &&
                     $.type(validation.item) === CONSTANTS.OBJECT
+                    // validation.params are optional
                 ) {
-                    // This is a library item
-                    validation = validation.item.formula;
+                    // Check the editor before replacing validation
                     if ($.isFunction(validation.item.editor)) {
+                        // Replace solution with params
                         data.solution = validation.params;
                     }
-                } else if ($.type(validation) !== CONSTANTS.STRING) {
+                    // This is a library item
+                    validation = validation.item.formula;
+                }
+                if (!RX_VALIDATION_FORMULA.test(validation)) {
+                    debugger;
                     // The library item is missing
                     return dfd
                         .reject(

@@ -1,0 +1,66 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+.kj-basiclist > .k-toolbar {
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+.kj-basiclist > .k-listview {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+.kj-basiclist > .k-listview .k-icon {
+  color: inherit;
+}
+body > .k-list-item > .kj-handle,
+.kj-basiclist > .k-listview:not(.k-state-disabled) > .k-list-item > .kj-handle {
+  cursor: move;
+}
+body > .k-list-item,
+.kj-basiclist > .k-listview > .k-list-item {
+  align-items: center;
+  display: flex;
+  flex-flow: row nowrap;
+  padding: 2px;
+}
+body > .k-list-item > .kj-handle,
+.kj-basiclist > .k-listview > .k-list-item > .kj-handle {
+  width: 1em;
+}
+body > .k-list-item > .kj-inputs,
+.kj-basiclist > .k-listview > .k-list-item > .kj-inputs {
+  flex: 1 1 auto;
+  overflow: hidden;
+  position: relative;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body > .k-list-item > .kj-inputs input,
+.kj-basiclist > .k-listview > .k-list-item > .kj-inputs input {
+  width: 100%;
+}
+body > .k-list-item > .kj-inputs .k-tooltip-validation,
+.kj-basiclist > .k-listview > .k-list-item > .kj-inputs .k-tooltip-validation {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+body > .k-list-item > .kj-buttons,
+.kj-basiclist > .k-listview > .k-list-item > .kj-buttons {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  flex-flow: row nowrap;
+}
+body > .k-list-item > .kj-buttons .k-image,
+.kj-basiclist > .k-listview > .k-list-item > .kj-buttons .k-image {
+  height: 2em;
+  width: 2em;
+}
+body > .k-list-item > .kj-buttons .k-button,
+.kj-basiclist > .k-listview > .k-list-item > .kj-buttons .k-button {
+  height: 2em;
+}

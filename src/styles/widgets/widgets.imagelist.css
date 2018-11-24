@@ -30,20 +30,20 @@ body > .k-list-item > .kj-handle,
 .kj-imagelist > .k-listview > .k-list-item > .kj-handle {
   width: 1em;
 }
-body > .k-list-item > .kj-text,
-.kj-imagelist > .k-listview > .k-list-item > .kj-text {
+body > .k-list-item > .kj-inputs,
+.kj-imagelist > .k-listview > .k-list-item > .kj-inputs {
   flex: 1 1 auto;
   overflow: hidden;
   position: relative;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-body > .k-list-item > .kj-text input,
-.kj-imagelist > .k-listview > .k-list-item > .kj-text input {
+body > .k-list-item > .kj-inputs input,
+.kj-imagelist > .k-listview > .k-list-item > .kj-inputs input {
   width: 100%;
 }
-body > .k-list-item > .kj-text .k-tooltip-validation,
-.kj-imagelist > .k-listview > .k-list-item > .kj-text .k-tooltip-validation {
+body > .k-list-item > .kj-inputs .k-tooltip-validation,
+.kj-imagelist > .k-listview > .k-list-item > .kj-inputs .k-tooltip-validation {
   position: absolute;
   right: 0;
   top: 0;

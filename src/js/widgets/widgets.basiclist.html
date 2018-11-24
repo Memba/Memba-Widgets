@@ -2,15 +2,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>widgets.imagelist</title>
+    <title>widgets.basiclist</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- widgets.imagelist stylesheet -->
-    <link href="../../styles/widgets/widgets.imagelist.css" rel="stylesheet">
+    <!-- widgets.basiclist stylesheet -->
+    <link href="../../styles/widgets/widgets.basiclist.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
@@ -195,31 +195,31 @@
             });
             Promise.all([
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('../helpers/helpers.grid.es6'),
-                SystemJS.import('./widgets.imagelist.es6')
+                SystemJS.import('./widgets.basiclist.es6')
             ]).then(function () {
+                return Promise.all([
+                    SystemJS.import('../vendor/kendo/cultures/kendo.culture.fr-FR'),
+                    SystemJS.import('../vendor/kendo/messages/kendo.messages.fr-FR'),
+                    SystemJS.import('../cultures/widgets.fr.es6')
+                ]);
+            }).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
-                    quiz: [
-                        { text: 'question 1', url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg' },
-                        { text: 'question 2', url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg' },
-                        { text: 'question 3', url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg' },
-                        { text: 'question 4', url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg' }
-                    ],
                     visible: true,
                     enabled: true,
-                    onClick: function (e) {
-                        if (e.action === 'image') {
-                            // Note: this is where we should plug our asset manager
-                            var image = e.item.get('image');
-                            var prompt = window.prompt("What's your image?", image);
-                            // We need an input to get a validator, and we need to update it before the model otherwise validation fails an the model is not updated
-                            // e.sender.element.find('input[type="hidden"][data-bind*="image"]').val(prompt);
-                            e.item.set('url', prompt);
-                        }
-                    }
+                    list: ['a', 'b', 'c']
                 });
                 $(function() {
+                    $('#basiclist').kendoBasicList({
+                        dataSource: [1, 2, 3, 4],
+                        type: 'number',
+                        attributes: {
+                            'data-min': 0,
+                            'data-max': 100,
+                            'data-step': 5,
+                            'data-culture': 'fr-FR'
+                        }
+                    });
                     kendo.bind('body', viewModel);
                 });
             });
@@ -227,18 +227,23 @@
     </script>
 </head>
 <body>
-<h1>widgets.imagelist</h1>
+<h1>widgets.basiclist</h1>
+
+<h2>JavaScript code</h2>
+<div id="basiclist"></div>
 
 <h2>Bound to observable</h2>
-<div data-role="imagelist" data-bind="source:quiz, events:{ click: onClick }, visible: visible, enabled: enabled" data-require-images="true"></div>
+<div data-role="basiclist" data-bind="source: list, visible: visible, enabled: enabled"></div>
 
 <div>
     <input type="checkbox" data-bind="checked: visible">Visible
     <input type="checkbox" data-bind="checked: enabled">Enabled
 </div>
 
-<h2>Grid</h2>
-<div id="grid" data-role="grid" data-bind="source:quiz"></div>
-
+<h2>Data</h2>
+<div data-role="listview" data-bind="source:list" data-template="template"></div>
+<script type="text/kendo-x-tmpl" id="template">
+    <div>#:data#</div>
+ </script>
 </body>
 </html>

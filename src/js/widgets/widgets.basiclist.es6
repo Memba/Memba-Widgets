@@ -3,45 +3,47 @@
  * Sources at https://github.com/Memba
  */
 
+// Note: A DataSource cannot add records without a schema model, which an array does not provide.
+// Also kendo.ui.Editable, which kendo.ui.ListView uses, also requires a schema model
+// In order to build an array editor we have two options:
+// 1. use DataSource and ListView as in widgets.imagelist, but this requires syncing
+//   the widget dataSource wrapping an array to an internal DataSource with a schema model
+// 2. use an ObservableArray as widget value (vs. source) without ListView
+// We have chosen option 1 because it is less work considering widget.imagelist implementation
+// and the syncing is done in the refresh and _onChange methods
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.listview';
 import 'kendo.sortable';
-import 'kendo.tooltip';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import ImageDataSource from '../data/datasources.image.es6';
 
 const {
     attr,
+    data: { DataSource },
     destroy,
     format,
-    htmlEncode,
     ns,
     support,
     template,
-    ui: { DataBoundWidget, ListView, plugin, Sortable, Tooltip },
+    ui: { DataBoundWidget, ListView, plugin, Sortable },
     unbind
 } = window.kendo;
-const logger = new Logger('widgets.imagelist');
-const NS = '.kendoImageList';
-const WIDGET_CLASS = 'k-widget kj-imagelist';
+const logger = new Logger('widgets.basiclist');
+const NS = '.kendoBasicList';
+const WIDGET_CLASS = 'k-widget kj-basiclist';
 
-const TOOLTIP_TMPL =
-    '<div style="background-image:url({1});" class="kj-imagelist-tooltip"><div class="kj-imagelist-title">{0}</div></div>';
 const TOOLBAR_TMPL =
     '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><div class="k-button k-button-icontext"><span class="k-icon k-i-plus"/>{0}</div></div></div>';
 const ITEM_TMPL =
     '<li class="k-list-item">' +
     '<div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>' +
-    '<div class="kj-inputs"><input class="k-textbox k-state-disabled" name="text" value="#:text#" disabled /></div>' +
+    '<div class="kj-inputs"><input class="k-textbox k-state-disabled" type="text" value="#:value#" disabled /></div>' +
     '<div class="kj-buttons">' +
-    '# if (url$().length) { #' +
-    '<img class="k-image" alt="#:text#" src="#:url$()#">' +
-    '# } #' +
     '<a class="k-button k-edit-button" href="\\#"><span class="k-icon k-i-edit"/></a>' +
     '<a class="k-button k-delete-button" href="\\#"><span class="k-icon k-i-delete"/></a>' +
     '</div></li>';
@@ -49,22 +51,41 @@ const EDIT_TMPL =
     '<li class="k-list-item">' +
     '<div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>' +
     '<div class="kj-inputs">' +
-    `<input data-${ns}bind="value:text" name="text" validationMessage="{0}"/><span data-${ns}for="text" class="k-invalid-msg"/>` +
-    '# if ({1}) { #' +
-    `<input type="hidden" data-${ns}bind="value:url$()" name="url" required="required" validationMessage="{2}"/><span data-${ns}for="url" class="k-invalid-msg"/>` +
-    '# } #' +
+    `<input data-${ns}bind="value: value" name="value" validationMessage="{0}"/><span data-${ns}for="value" class="k-invalid-msg"/>` +
     '</div><div class="kj-buttons">' +
-    '<a class="k-button k-image-button" href="\\#"><span class="k-icon k-i-image-insert"/></a>' +
     '<a class="k-button k-update-button" href="\\#"><span class="k-icon k-i-check"/></a>' +
     '<a class="k-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel"/></a>' +
     '</div></li>';
 
+const ATTRIBUTES = {
+    boolean: {
+        class: 'k-checkbox',
+        type: 'checkbox'
+    },
+    date: {
+        style: 'width:100%;',
+        type: 'date'
+    },
+    number: {
+        style: 'width:100%;',
+        type: 'number'
+    },
+    string: {
+        class: 'k-textbox',
+        required: 'required',
+        style: 'width:100%;',
+        type: 'text'
+    }
+};
+ATTRIBUTES.date[attr('role')] = 'datepicker';
+ATTRIBUTES.number[attr('role')] = 'numerictextbox';
+
 /**
- * ImageList
- * @class ImageList
+ * BasicList
+ * @class BasicList
  * @extends DataBoundWidget
  */
-const ImageList = DataBoundWidget.extend({
+const BasicList = DataBoundWidget.extend({
     /**
      * Init
      * @constructor init
@@ -84,32 +105,29 @@ const ImageList = DataBoundWidget.extend({
      * @property options
      */
     options: {
-        name: 'ImageList',
-        attributes: {
-            class: 'k-textbox',
-            // Note: pattern validation won't work without type="text"
-            // Also it cannot enforce required="required" which is also needed to prevent empty inputs
-            type: 'text',
-            required: 'required',
-            pattern: '^\\\\S.{0,99}$'
-        },
+        name: 'BasicList',
+        // Attributes to add to input
+        attributes: {},
         autoBind: true,
         dataSource: [],
         enabled: true,
-        requireImages: false, // whether images are required
         messages: {
             toolbar: {
                 add: 'Add'
             },
             validation: {
-                text: 'An alternate text of 1 to 100 characters is required.',
-                url: 'An image url is required.'
+                value: 'A value is required.'
             }
-        }
+        },
+        // type defines a default set of input attributes
+        // which can be overriden by specifying attributes hereabove
+        type: 'string'
     },
 
     /**
      * Events
+     * Note: the click event is a feature copied from widgets.imagelist
+     * where it is used to plug in the asset manager
      * @property events
      */
     events: [CONSTANTS.CLICK],
@@ -123,6 +141,8 @@ const ImageList = DataBoundWidget.extend({
         this.wrapper = this.element.addClass(WIDGET_CLASS);
         // Build the toolbar
         this._initToolbar();
+        // Build the textarea
+        this._initTextarea();
         // Build the listview
         this._initListView();
     },
@@ -137,6 +157,15 @@ const ImageList = DataBoundWidget.extend({
         this.toolbar = $(
             format(TOOLBAR_TMPL, this.options.messages.toolbar.add)
         ).appendTo(this.element);
+    },
+
+    /**
+     * Initialze textarea
+     * @method _initTextarea
+     * @private
+     */
+    _initTextarea() {
+        // TODO
     },
 
     /**
@@ -158,37 +187,12 @@ const ImageList = DataBoundWidget.extend({
                     // We need to trigger a change and a blur otherwise
                     // the change event might not be raised to induce data bindings
                     e.item
-                        .find('input.k-textbox:not(.k-state-disabled)')
+                        .find('input:not(.k-state-disabled)')
                         .change()
                         .blur();
                 }
             })
             .data('kendoListView');
-
-        // Add tooltips
-        this.tooltip = this.ul
-            .kendoTooltip({
-                filter: 'img.k-image',
-                position: 'left',
-                height: '150px',
-                width: '150px',
-                // showOn: 'mouseenter',
-                // autoHide: true,
-                content(e) {
-                    const { target } = e;
-                    // The following is required to fix https://github.com/kidoju/Kidoju-DataBoundWidgets/issues/175
-                    // Noting that popup is not available until the tooltip has been fully initialized, but there is no init event to hook
-                    e.sender.popup.element
-                        .children('.k-tooltip-content')
-                        .css({ padding: 0 });
-                    return format(
-                        TOOLTIP_TMPL,
-                        htmlEncode(target.attr('alt')),
-                        window.encodeURI(target.attr('src'))
-                    );
-                }
-            })
-            .data('kendoTooltip');
     },
 
     /**
@@ -197,27 +201,19 @@ const ImageList = DataBoundWidget.extend({
      * @private
      */
     _getEditTemplate() {
-        const { attributes, messages, requireImages } = this.options;
-        const t = $(
-            format(
-                EDIT_TMPL,
-                messages.validation.text,
-                String(!!requireImages),
-                messages.validation.url
-            )
-        );
-        const input = t.find(CONSTANTS.INPUT).first();
-        input.attr($.extend({}, attributes));
+        const { attributes, messages, type } = this.options;
+        const t = $(format(EDIT_TMPL, messages.validation.value));
+        const input = t.find(CONSTANTS.INPUT);
+        input.attr($.extend({}, ATTRIBUTES[type], attributes));
         return t[0].outerHTML;
     },
 
     /**
-     * Initialize data source
+     * Initialize dataSource
      * @method _dataSource
      * @private
      */
     _dataSource() {
-        // Set the dataSource on the listview
         assert.instanceof(
             ListView,
             this.listView,
@@ -228,15 +224,32 @@ const ImageList = DataBoundWidget.extend({
             )
         );
 
-        // Note: Without a schema, the Add button won't work because otherwise
-        // the listView does not know the properties to create a new dataItem with
-        this.dataSource = ImageDataSource.create(this.options.dataSource);
+        // if the DataSource is defined and the _refreshHandler is wired up, unbind because
+        // we need to rebuild the DataSource
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
+            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
+        }
 
-        this.listView.setDataSource(this.dataSource);
+        if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
+            // returns the datasource OR creates one if using array or configuration object
+            this.dataSource = DataSource.create(this.options.dataSource);
+
+            // bind to the change event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
+            this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
+
+            if (this.options.autoBind) {
+                this.dataSource.fetch();
+            }
+        }
     },
 
     /**
-     * Set data source
+     * Sets a dataSource
      * @method setDataSource
      * @param dataSource
      */
@@ -306,6 +319,7 @@ const ImageList = DataBoundWidget.extend({
             this.sortable = undefined;
         }
         if (enabled) {
+            // Make the list sortable
             const that = this;
             this.sortable = this.ul
                 .kendoSortable({
@@ -330,7 +344,7 @@ const ImageList = DataBoundWidget.extend({
                         return hint;
                     },
                     change(e) {
-                        const { dataSource } = that;
+                        const { dataSource } = that.listView;
                         const skip = dataSource.skip() || 0;
                         const newIndex = e.newIndex + skip;
                         const dataItem = dataSource.getByUid(
@@ -341,6 +355,89 @@ const ImageList = DataBoundWidget.extend({
                     }
                 })
                 .data('kendoSortable');
+        }
+    },
+
+    /**
+     * Refresh
+     * @method refresh
+     * @param e
+     */
+    refresh(e) {
+        if (
+            $.type(e) === CONSTANTS.UNDEFINED ||
+            $.type(e.action) === CONSTANTS.UNDEFINED
+        ) {
+            if (
+                this.listView instanceof ListView &&
+                this.listView.dataSource instanceof DataSource &&
+                $.isFunction(this._changeHandler)
+            ) {
+                this.listView.dataSource.unbind(
+                    CONSTANTS.CHANGE,
+                    this._changeHandler
+                );
+                this._changeHandler = undefined;
+            }
+            const data = this.dataSource.data().map(item => ({ value: item }));
+            const dataSource = new DataSource({
+                data,
+                schema: {
+                    model: {
+                        id: 'value',
+                        fields: {
+                            value: {
+                                type: this.options.type
+                            }
+                        }
+                    }
+                }
+            });
+            this.listView.setDataSource(dataSource);
+            this._changeHandler = this._onChange.bind(this);
+            this.listView.dataSource.bind(
+                CONSTANTS.CHANGE,
+                this._changeHandler
+            );
+            logger.debug({ method: 'refresh', message: 'widget refreshed' });
+        }
+    },
+
+    /**
+     * Change event handler
+     * @method _onChange
+     * @param e
+     * @private
+     */
+    _onChange(e) {
+        assert.isPlainObject(
+            e,
+            assert.format(assert.messages.isPlainObject.default, 'e')
+        );
+        const { action, index, items } = e;
+        // Note: this is not the dataSource that raised the event
+        // This is the target dataSource we need to sync based on the event
+        // We modify the underlying ObservableArray becasue this dataSource
+        // has no schema model for inserting new records
+        const data = this.dataSource.data();
+        switch (action) {
+            case 'add':
+                data.splice(index, 0, ...items.map(item => item.get('value')));
+                break;
+            case 'remove':
+                data.splice(index, items.length);
+                break;
+            // case 'sync':
+            case 'itemchange':
+                // itemchange and sync have no index, so we need to find it
+                items.forEach(item => {
+                    const idx = this.listView.dataSource.indexOf(item);
+                    const value = item.get('value');
+                    // data[idx] = value; <-- does not raise a change event
+                    data.splice(idx, 1, value);
+                });
+                break;
+            default:
         }
     },
 
@@ -371,7 +468,7 @@ const ImageList = DataBoundWidget.extend({
         );
         e.preventDefault();
         this.listView.cancel();
-        const dataItem = this.dataSource.add({});
+        const dataItem = this.listView.dataSource.add({});
         this.listView.edit(
             this.element.find(`[${attr(CONSTANTS.UID)}="${dataItem.uid}"]`)
         );
@@ -424,11 +521,7 @@ const ImageList = DataBoundWidget.extend({
             this.listView.destroy();
             this.listView = undefined;
         }
-        if (this.tooltip instanceof Tooltip) {
-            this.tooltip.destroy();
-            this.tooltip = undefined;
-        }
-        this.dataSource = undefined;
+        this.dataSource(null);
         // Destroy widget
         DataBoundWidget.fn.destroy.call(this);
         destroy(this.element);
@@ -439,4 +532,4 @@ const ImageList = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(ImageList);
+plugin(BasicList);

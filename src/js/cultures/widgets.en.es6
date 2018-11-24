@@ -14,6 +14,7 @@ if (window.kendo && window.kendo.ui) {
         ui: {
             AssetManager,
             BaseDialog,
+            BasicList,
             // ButtonSet
             // CharGrid
             CodeEditor,
@@ -52,7 +53,7 @@ if (window.kendo && window.kendo.ui) {
         }
     } = window.kendo;
 
-    /* kidoju.widgets.assetmanager */
+    /* widgets.assetmanager */
     if (AssetManager) {
         const { options } = AssetManager.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -72,7 +73,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.basedialog */
+    /* widgets.basedialog */
     if (BaseDialog) {
         const { options } = BaseDialog.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -127,7 +128,20 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.codeeditor */
+    /* widgets.basiclist */
+    if (BasicList) {
+        const { options } = BasicList.prototype;
+        options.messages = $.extend(true, options.messages, {
+            toolbar: {
+                add: 'Add'
+            },
+            validation: {
+                value: 'A value is required.'
+            }
+        });
+    }
+
+    /* widgets.codeeditor */
     if (CodeEditor) {
         const { options } = CodeEditor.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -144,7 +158,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.explorer */
+    /* widgets.explorer */
     if (Explorer) {
         const { options } = Explorer.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -152,7 +166,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.imagelist */
+    /* widgets.imagelist */
     if (ImageList) {
         const { options } = ImageList.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -166,7 +180,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.markeditor */
+    /* widgets.markeditor */
     if (MarkEditor) {
         const { options } = MarkEditor.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -250,7 +264,7 @@ if (window.kendo && window.kendo.ui) {
         );
     }
 
-    /* kidoju.widgets.mathinput */
+    /* widgets.mathinput */
     if (mathinput && mathinput.messages.dialogs) {
         mathinput.messages.dialogs = $.extend(
             true,
@@ -683,7 +697,7 @@ if (window.kendo && window.kendo.ui) {
         );
     }
 
-    /* kidoju.widgets.mediaplayer */
+    /* widgets.mediaplayer */
     if (MediaPlayer) {
         const { options } = MediaPlayer.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -694,7 +708,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.multiinput */
+    /* widgets.multiinput */
     if (MultiInput) {
         const { options } = MultiInput.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -703,7 +717,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.multiquiz */
+    /* widgets.multiquiz */
     if (MultiQuiz) {
         const { options } = MultiQuiz.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -711,7 +725,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.navigation */
+    /* widgets.navigation */
     if (Navigation) {
         const { options } = Navigation.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -719,7 +733,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.playbar */
+    /* widgets.playbar */
     if (PlayBar) {
         const { options } = PlayBar.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -735,7 +749,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.propertygrid */
+    /* widgets.propertygrid */
     if (PropertyGrid) {
         const { options } = PropertyGrid.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -744,7 +758,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.quiz */
+    /* widgets.quiz */
     if (Quiz) {
         const { options } = Quiz.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -752,7 +766,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.social */
+    /* widgets.social */
     if (Social) {
         const { options } = Social.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -765,7 +779,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.stage */
+    /* widgets.stage */
     if (Stage) {
         const { options } = Stage.prototype;
         options.messages = $.extend(true, options.messages, {
@@ -777,7 +791,7 @@ if (window.kendo && window.kendo.ui) {
         });
     }
 
-    /* kidoju.widgets.styleeditor */
+    /* widgets.styleeditor */
     if (StyleEditor) {
         const { options } = StyleEditor.prototype;
         options.messages = $.extend(true, options.messages, {

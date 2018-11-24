@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-.kj-imagelist {
+.kj-basiclist {
     > .k-toolbar {
         // border-bottom: none;
         border-left: none;
@@ -24,13 +24,13 @@
 
 // Cursor
 body > .k-list-item > .kj-handle,
-.kj-imagelist > .k-listview:not(.k-state-disabled) > .k-list-item > .kj-handle {
+.kj-basiclist > .k-listview:not(.k-state-disabled) > .k-list-item > .kj-handle {
     cursor: move;
 }
 
 // we also need body > k-list-item for draggable hints
 body,
-.kj-imagelist > .k-listview {
+.kj-basiclist > .k-listview {
     > .k-list-item {
         align-items: center;
         display: flex;
@@ -73,27 +73,6 @@ body,
             .k-button {
                 height: 2em;
             }
-        }
-    }
-}
-
-// Tooltips
-.k-tooltip {
-    .kj-imagelist-tooltip {
-        background-position: center;
-        background-size: cover;
-        height: 150px;
-        width: 150px;
-
-        .kj-imagelist-title {
-            background-color: rgba(255, 255, 255, 0.5);
-            bottom: 0;
-            color: #000;
-            left: 0;
-            padding: 1em;
-            position: absolute;
-            right: 0;
-            text-overflow: ellipsis;
         }
     }
 }

@@ -20,7 +20,7 @@
             $('div.me').text(userId);
             var ddl = $('select').kendoDropDownList({
                 dataSource: games,
-                change(e) {
+                change: function(e) {
                     if (source instanceof EventSource) {
                         source.close();
                     }

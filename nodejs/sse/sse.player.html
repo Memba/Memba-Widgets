@@ -18,7 +18,7 @@
             $('div.me').text(userId);
             var ddl = $('select').kendoDropDownList({
                 dataSource: games,
-                change(e) {
+                change: function(e) {
                     button.text(0);
                     if (source instanceof EventSource) {
                         source.close();
@@ -39,15 +39,15 @@
                 $.ajax({
                     method: 'POST',
                     url: root + 'game/' + ddl.value(),
-                    data: JSON.stringify ({ value }),
+                    data: JSON.stringify ({ value: value }),
                     headers: {
                         'Authorization': 'Bearer ' + userId
                     }
                 })
-                    .then(() => {
+                    .then(function () {
                         button.text(value);
                     })
-                    .catch((xhr, status, error) => {
+                    .catch(function (xhr, status, error) {
                         $('span.err').text(xhr.responseText);
                     });
             });

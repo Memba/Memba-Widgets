@@ -9,6 +9,7 @@
 
 var http = require('http');
 var fs = require('fs');
+var path = require('path');
 var db = require('./sse/sse.db.es6');
 
 const RX_PLAYER = /^\/player\/([^\?]+)\?id=([\w\-]+)$/
@@ -16,7 +17,6 @@ const RX_MASTER = /^\/master\/([^\?]+)\?id=([\w\-]+)$/
 
 http.createServer(function(req, res) {
     //debugHeaders(req);
-
     if (req.headers.accept && req.headers.accept == 'text/event-stream') {
         // Server-Side Events
         if (RX_PLAYER.test(req.url)) {
@@ -40,17 +40,17 @@ http.createServer(function(req, res) {
     } else if (req.url === '/eventsource.js') {
         // Polyfill for IE
         res.writeHead(200, {'Content-Type': 'text/html'});
-        res.write(fs.readFileSync(__dirname + '/sse/eventsource.js'));
+        res.write(fs.readFileSync(path.join(__dirname, '../src/js/vendor/yaffle/eventsource.js')));
         res.end();
     } else if (req.url === '/player.html') {
         // Player page
         res.writeHead(200, {'Content-Type': 'text/html'});
-        res.write(fs.readFileSync(__dirname + '/sse/sse.player.html'));
+        res.write(fs.readFileSync(path.join(__dirname, '/sse/sse.player.html')));
         res.end();
     } else if (req.url === '/master.html') {
         // Master page
         res.writeHead(200, {'Content-Type': 'text/html'});
-        res.write(fs.readFileSync(__dirname + '/sse/sse.master.html'));
+        res.write(fs.readFileSync(path.join(__dirname, '/sse/sse.master.html')));
         res.end();
     } else if (/^\/game\//.test(req.url) && req.method === 'POST') {
         // Game update post
@@ -76,28 +76,6 @@ http.createServer(function(req, res) {
         res.end();
     }
 }).listen(8080);
-
-function sendSSE(req, res) {
-    res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
-    });
-
-    var id = (new Date()).toLocaleTimeString();
-
-    // Sends a SSE every 5 seconds on a single connection.
-    setInterval(function() {
-        constructSSE(res, id, (new Date()).toLocaleTimeString());
-    }, 5000);
-
-    constructSSE(res, id, (new Date()).toLocaleTimeString());
-}
-
-function constructSSE(res, id, data) {
-    res.write('id: ' + id + '\n');
-    res.write("data: " + data + '\n\n');
-}
 
 function debugHeaders(req) {
    console.log('URL: ' + req.url);

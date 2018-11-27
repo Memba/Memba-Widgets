@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>wsclient</title>
+    <title>sse.client</title>
     <script>
         window.app = { DEBUG: true };
     </script>
@@ -193,7 +193,7 @@
             });
             Promise.all([
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('./wsclient.es6')
+                SystemJS.import('./sse.client.es6')
             ]).then(function () {
                 // var kendo = window.kendo;
                 // var viewModel = kendo.observable({});
@@ -206,7 +206,7 @@
     </script>
 </head>
 <body>
-<h1>wsclient</h1>
+<h1>sse.client</h1>
 <h2>Commands</h2>
 <button id="">Command</button>
 </body>

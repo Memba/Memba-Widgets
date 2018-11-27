@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2018.3.1017/styles/kendo.material-v2.min.css" />
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://kendo.cdn.telerik.com/2018.3.1017/js/kendo.all.min.js"></script>
+    <script src="http://localhost:8080/eventsource.js"></script>
+    <script>
+        var EventSource = window.NativeEventSource || window.EventSourcePolyfill;
+        var userId = kendo.guid();
+        var games = ['g0', 'g1', 'g2'];
+        var root = window.location.protocol + '//' + window.location.host + '/';
+        console.log(root);
+        var source;
+
+        $(function () {
+            $('div.me').text(userId);
+            var ddl = $('select').kendoDropDownList({
+                dataSource: games,
+                change(e) {
+                    button.text(0);
+                    if (source instanceof EventSource) {
+                        source.close();
+                    }
+                    source = new EventSource(root + 'player/' + e.sender.value() + '?id=' + window.encodeURIComponent(userId));
+                    // source = new EventSource(root + 'player/' + e.sender.value(),  { headers: { 'Authorization': 'Bearer ' + userId } });
+                    source.onmessage = function(e) {
+                        $('span.players').text(e.data);
+                    };
+                    source.onerror = function(e) {
+                        console.dir(e);
+                    }
+                }
+            }).data('kendoDropDownList');
+            var button = $('button').click(function (e) {
+                var value = parseInt(button.text() || 0, 10);
+                value += 1;
+                $.ajax({
+                    method: 'POST',
+                    url: root + 'game/' + ddl.value(),
+                    data: JSON.stringify ({ value }),
+                    headers: {
+                        'Authorization': 'Bearer ' + userId
+                    }
+                })
+                    .then(() => {
+                        button.text(value);
+                    })
+                    .catch((xhr, status, error) => {
+                        $('span.err').text(xhr.responseText);
+                    });
+            });
+            // start
+            ddl.trigger('change');
+        });
+    </script>
+</head>
+<body>
+<h1>Player</h1>
+<div class="me"></div>
+<div>
+<select></select>
+<button class="k-button">0</button>
+<span class="players"></span>
+<span class="err"></span>
+</div>
+</body>
+</html>

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
 //http://www.hongkiat.com/blog/node-js-server-side-javascript/
 //http://stackoverflow.com/questions/6084360/node-js-as-a-simple-web-server
 //https://github.com/requirejs/example-jquery-cdn/blob/master/tools/server.js

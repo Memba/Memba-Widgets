@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2018.3.1017/styles/kendo.material-v2.min.css" />
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://kendo.cdn.telerik.com/2018.3.1017/js/kendo.all.min.js"></script>
+    <script src="http://localhost:8080/eventsource.js"></script>
+    <script>
+        var EventSource = window.NativeEventSource || window.EventSourcePolyfill;
+        var userId = kendo.guid();
+        var games = ['g0', 'g1', 'g2'];
+        var root = window.location.protocol + '//' + window.location.host + '/';
+        var source;
+        var viewModel = kendo.observable({
+            source: [],
+        });
+
+        $(function () {
+            $('div.me').text(userId);
+            var ddl = $('select').kendoDropDownList({
+                dataSource: games,
+                change(e) {
+                    if (source instanceof EventSource) {
+                        source.close();
+                    }
+                    grid.setDataSource([]);
+                    source = new EventSource(root + 'master/' + e.sender.value() + '?id=' + window.encodeURIComponent(userId));
+                    // source = new EventSource(root + 'master/' + e.sender.value(),  { headers: { 'Authorization': 'Bearer ' + userId } });
+                    source.onmessage = function(e) {
+                        grid.setDataSource(JSON.parse(e.data));
+                    };
+                    source.onerror = function(e) {
+                        console.dir(e);
+                    }
+                }
+            }).data('kendoDropDownList');
+            var grid = $('div.players').kendoGrid().data('kendoGrid');
+
+            // start
+            ddl.trigger('change');
+        });
+    </script>
+</head>
+<body>
+<h1>Master</h1>
+<div class="me"></div>
+<div>
+<select></select>
+<span class="err"></span>
+<div class="players"></div>
+</div>
+</body>
+</html>

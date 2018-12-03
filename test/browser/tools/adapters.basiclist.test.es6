@@ -8,7 +8,7 @@
 import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { randomVal } from '../../../src/js/common/window.util.es6';
-import StringArrayAdapter from '../../../src/js/tools/adapters.stringarray.es6';
+import StringArrayAdapter from '../../../src/js/tools/adapters.basiclist.es6';
 
 const { describe, it } = window;
 const { expect } = chai;

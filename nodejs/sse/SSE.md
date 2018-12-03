@@ -73,6 +73,6 @@ SSE: student progresses - url includes channel
 ## Questions
 
 How to recover from a lost connection (change of server)?
-How to authenticate with teh event source (Bearer?)
+How to authenticate with the event source (Bearer?)
 https://stackoverflow.com/questions/28176933/http-authorization-header-in-eventsource-server-sent-events
-
+TODO Check CORS

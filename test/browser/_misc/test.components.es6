@@ -210,6 +210,26 @@ export function getTextBox() {
     };
 }
 
+/**
+ * getVariable
+ * @function getVariable
+ */
+export function getVariable() {
+    return {
+        attributes: {
+            variable: JSC.string(JSC.integer(1, 10), JSC.character('a', 'z'))(),
+            expression: 'round(random(0, 100), 2)'
+        },
+        // height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        rotate: angleGenerator(),
+        tool: 'variable',
+        top: positionGenerator()
+        // width: positionGenerator()
+    };
+}
+
 const componentGenerator = {
     // dummy: getDummy,
     image: getImage,

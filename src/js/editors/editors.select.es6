@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.dropdownlist';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
@@ -14,11 +15,11 @@ import { getValueBinding } from '../data/data.util.es6';
 const { attr } = window.kendo;
 
 /**
- * Input
+ * Select
  * @param container
  * @param options
  */
-function input(container, options) {
+function select(container, options) {
     assert.isPlainObject(
         options,
         assert.format(assert.messages.isPlainObject.default, 'options')
@@ -34,23 +35,12 @@ function input(container, options) {
     );
     const attributes = $.extend({}, options.attributes);
     if ($.type(attributes[attr('role')]) === CONSTANTS.UNDEFINED) {
-        if (
-            [undefined, 'text', 'email', 'search', 'tel', 'url'].indexOf(
-                attributes.type
-            ) > -1
-        ) {
-            attributes.class =
-                $.type(attributes.class) === CONSTANTS.STRING
-                    ? attributes.class
-                    : 'k-textbox';
-        } else if (['button', 'reset'].indexOf(attributes.type) > -1) {
-            attributes.class =
-                $.type(attributes.class) === CONSTANTS.STRING
-                    ? attributes.class
-                    : 'k-button';
-        }
+        attributes[attr('role')] = 'dropdownlist';
     }
-    $('<input style="width: 100%;"/>')
+    if (options.source) {
+        attributes[attr('source')] = JSON.stringify(options.source || {});
+    }
+    $('<select style="width: 100%;"/>')
         .attr('name', options.field)
         .attr($.extend(attributes, getValueBinding(options.field)))
         .appendTo(container);
@@ -59,4 +49,4 @@ function input(container, options) {
 /**
  * Default export
  */
-export default input;
+export default select;

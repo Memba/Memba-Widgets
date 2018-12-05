@@ -131,6 +131,7 @@ const CONSTANTS = {
     LI: 'li',
     // SELECT: 'select',
     SPAN: 'span',
+    TABLE: 'table',
     TBODY: 'tbody',
     UL: 'ul'
 };

@@ -3,9 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Consider kendo.getComputedStyle and window.getComputedStyle
-// TODO Develop whitelist with StyleEditor
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -17,22 +14,6 @@ const { toCamelCase, toHyphens } = window.kendo;
 // https://stackoverflow.com/questions/448981/which-characters-are-valid-in-css-class-names-selectors
 // https://www.w3schools.com/cssref/
 const RX_STYLE_KEY = /^-?[a-z]+[a-z-]*$/;
-const WHITELIST = {
-    backgroundColor: value => value,
-    border: value => value,
-    borderColor: value => value,
-    borderStyle: value => value,
-    borderWidth: value => value,
-    font: value => value,
-    fontFamily: value => value,
-    fontSize: value => value,
-    fontWeight: value => value,
-    height: value => value,
-    margin: value => value,
-    padding: value => value,
-    opacity: value => value,
-    width: value => value
-};
 
 /**
  * Style
@@ -46,32 +27,31 @@ export default class Style {
      * @param whitelist
      */
     constructor(options, whitelist) {
-        // Note: the map keys are hyphenated CSS style names, like background-color
-        this._map = new Map();
         this.parse(options, whitelist);
     }
 
     /**
      * Parse a style string (hyphenated) or style plain object (camel cased)
      * e.g. we expect background-color in a string but backgroundColor in an object
-     * @method parse
      * @param styles
      * @param whitelist
+     * @returns {Map<any, any>}
+     * @private
      */
-    parse(styles, whitelist = false) {
-        const map = this._map;
-        map.clear();
+    static parse(styles, whitelist = false) {
+        const map = new Map();
         if ($.type(styles) === CONSTANTS.STRING) {
             styles.split(CONSTANTS.SEMICOLON).forEach(style => {
                 const keyValue = style.split(CONSTANTS.COLON);
                 if (Array.isArray(keyValue) && keyValue.length === 2) {
                     const key = keyValue[0].trim();
-                    const k = toCamelCase(key);
                     let value = keyValue[1].trim();
                     if (RX_STYLE_KEY.test(key) && value.length) {
-                        if (whitelist) {
-                            const parse = WHITELIST[k];
-                            value = $.isFunction(parse) ? parse(value) : value;
+                        if (
+                            Array.isArray(whitelist) &&
+                            whitelist.indexOf(key) === -1
+                        ) {
+                            value = undefined;
                         }
                         if (value) {
                             map.set(key, value);
@@ -89,9 +69,11 @@ export default class Style {
                 ) {
                     value = value.trim();
                     if (value.length) {
-                        if (whitelist) {
-                            const parse = WHITELIST[k];
-                            value = $.isFunction(parse) ? parse(value) : value;
+                        if (
+                            Array.isArray(whitelist) &&
+                            whitelist.indexOf(key) === -1
+                        ) {
+                            value = undefined;
                         }
                         if (value) {
                             map.set(key, value);
@@ -104,6 +86,35 @@ export default class Style {
                 '`styles` should be a string or a plain object'
             );
         }
+        return map;
+    }
+
+    /**
+     * Parse a style string (hyphenated) or style plain object (camel cased)
+     * e.g. we expect background-color in a string but backgroundColor in an object
+     * @method parse
+     * @param styles
+     * @param whitelist
+     */
+    parse(styles, whitelist = false) {
+        // Note: the map keys are hiphenated CSS style names, like background-color
+        this._whitelist = Array.isArray(whitelist) ? whitelist : false;
+        this._map = Style.parse(styles, this._whitelist);
+    }
+
+    /**
+     * Merge additional styles
+     * @method merge
+     * @param styles
+     * @param overwrite existing styles
+     */
+    merge(styles, overwrite = false) {
+        const m = Style.parse(styles, this._whitelist);
+        m.forEach((value, key) => {
+            if (overwrite || !this._map.has(key)) {
+                this._map.set(key, value);
+            }
+        });
     }
 
     /**

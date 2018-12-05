@@ -16,15 +16,15 @@ function noop() {}
 const DATA = [
     {
         // Simple
-        str: 'color: blue;',
-        json: { color: 'blue' },
-        whitelist: false
+        str: 'color: red;',
+        json: { color: 'red' },
+        whitelist: ['color']
     },
     {
         // With hyphen
-        str: 'background-color: powderblue;',
-        json: { backgroundColor: 'powderblue' },
-        whitelist: false
+        str: 'background-color: firebrick;',
+        json: { backgroundColor: 'firebrick' },
+        whitelist: ['background-color']
     },
     {
         // Complex
@@ -83,6 +83,48 @@ describe('window.style', () => {
             const style = new Style(JSC.object()());
             expect(style.toString()).to.equal('');
             expect(style.toJSON()).to.deep.equal({});
+        });
+
+        it('It should apply whitelist', () => {
+            function test(item) {
+                const noise = {};
+                noise[
+                    JSC.string(JSC.integer(3, 25), JSC.character('a', 'z'))()
+                ] = JSC.string(JSC.integer(3, 25), JSC.character('a', 'z'))();
+                const style = new Style(
+                    Object.assign(noise, item.json),
+                    item.whitelist
+                );
+                expect(style.toString()).to.equal(item.str);
+                expect(style.toJSON()).to.deep.equal(item.json);
+            }
+            DATA.filter(data => Array.isArray(data.whitelist)).forEach(test);
+        });
+
+        it('It should merge without overwrite', () => {
+            function test(item) {
+                const style = new Style(item.str, item.whitelist);
+                const merge = { color: '#c0c0c0' };
+                style.merge(merge, false);
+                expect(style.toString()).to.equal(item.str);
+                expect(style.toJSON()).to.deep.equal(item.json);
+            }
+            DATA.filter(data => !data.whitelist).forEach(test);
+        });
+
+        it('It should merge with overwrite', () => {
+            function test(item) {
+                const style = new Style(item.str, item.whitelist);
+                const merge = { color: '#c0c0c0' };
+                style.merge(merge, true);
+                expect(style.toString()).to.equal(
+                    item.str.replace(/\scolor:[^;]+/, ' color: #c0c0c0')
+                );
+                expect(style.toJSON()).to.deep.equal(
+                    Object.assign({}, item.json, merge)
+                );
+            }
+            DATA.filter(data => !data.whitelist).forEach(test);
         });
     });
 });

@@ -54,7 +54,7 @@ class LocalCache {
                     const { sig } = parsed;
                     delete parsed.sig;
                     if (
-                        Date.now() < parsed.ts + 1000 * this._ttl && // Not expired
+                        Date.now() < parsed.ts + 1000 * parsed.ttl && // Not expired
                         md5(JSON.stringify(parsed)) === sig // Not tampered with
                     ) {
                         ({ value } = parsed);
@@ -101,8 +101,7 @@ class LocalCache {
                     ttl: Math.round(ttl) || this._ttl,
                     value
                 };
-                const sig = md5(JSON.stringify(item));
-                item.sig = sig;
+                item.sig = md5(JSON.stringify(item));
                 this._store.setItem(key, JSON.stringify(item));
             }
         } catch (error) {

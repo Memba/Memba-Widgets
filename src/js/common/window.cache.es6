@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Test 'localStorage' in window and private mode!
+// TODO Test 'sessionStorage' in window and private mode!
+
 import assert from './window.assert.es6';
 import CONSTANTS from './window.constants.es6';
 import Logger from './window.logger.es6';

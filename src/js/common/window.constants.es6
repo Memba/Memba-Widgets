@@ -100,10 +100,12 @@ const CONSTANTS = {
     RX_URL: /^https?:\/\//,
     RX_TEST_FIELD_NAME: /^val_[a-z0-9]{6}$/,
     // Characters
+    AMPERSAND: '&',
     COLON: ':',
     COMMA: ',',
     DOT: '.',
     EMPTY: '',
+    EQUAL: '=',
     HASH: '#',
     HYPHEN: '-',
     SEMICOLON: ';',

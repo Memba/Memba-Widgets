@@ -21,6 +21,8 @@ import {
     randomId,
     randomVal,
     round,
+    shuffle,
+    guid,
     getSelection,
     setSelection,
     replaceSelection
@@ -29,8 +31,7 @@ import {
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    data: { ObservableArray },
-    guid
+    data: { ObservableArray }
 } = window.kendo;
 
 describe('window.util', () => {
@@ -202,6 +203,18 @@ describe('window.util', () => {
         it('It should round with precision', () => {
             expect(round(1.23456789)).to.equal(1.23);
             expect(round(2.96754321, 4)).to.equal(2.9675);
+        });
+    });
+
+    describe('shuffle', () => {
+        xit('TODO', () => {
+            expect(true).to.be.false;
+        });
+    });
+
+    describe('guid', () => {
+        it('It should generate a guid', () => {
+            expect(isGuid(guid())).to.be.true;
         });
     });
 

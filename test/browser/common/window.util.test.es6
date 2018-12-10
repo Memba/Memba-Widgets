@@ -22,7 +22,6 @@ import {
     randomVal,
     round,
     shuffle,
-    uuid,
     getSelection,
     setSelection,
     replaceSelection
@@ -210,12 +209,6 @@ describe('window.util', () => {
     describe('shuffle', () => {
         xit('TODO', () => {
             expect(true).to.be.false;
-        });
-    });
-
-    describe('uuid', () => {
-        it('It should generate a guid', () => {
-            expect(isGuid(uuid())).to.be.true;
         });
     });
 

@@ -228,8 +228,8 @@ export function shuffle(array) {
  * @see https://github.com/Memba/Kidoju-Server/issues/31#issuecomment-77665098
  * @returns {number}
  */
-export function guid() {
-    let uuid = '';
+export function uuid() {
+    let uid = '';
     const crypto = window.crypto || window.msCrypto;
     if (
         crypto &&
@@ -273,11 +273,11 @@ export function guid() {
         };
         const seed = Seed();
         for (let i = 0; i < 32; i++) {
-            uuid += seed(i);
+            uid += seed(i);
         }
     } else {
         // see http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-        uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        uid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
             /* eslint-disable no-bitwise */
             const r = (Math.random() * 16) | 0;
             const v = c === 'x' ? r : (r & 0x3) | 0x8;
@@ -285,7 +285,7 @@ export function guid() {
             /* eslint-enable no-bitwise */
         });
     }
-    return uuid;
+    return uid;
 }
 
 /**

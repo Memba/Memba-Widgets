@@ -22,7 +22,7 @@ import {
     randomVal,
     round,
     shuffle,
-    guid,
+    uuid,
     getSelection,
     setSelection,
     replaceSelection
@@ -31,7 +31,8 @@ import {
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    data: { ObservableArray }
+    data: { ObservableArray },
+    guid
 } = window.kendo;
 
 describe('window.util', () => {
@@ -212,9 +213,9 @@ describe('window.util', () => {
         });
     });
 
-    describe('guid', () => {
+    describe('uuid', () => {
         it('It should generate a guid', () => {
-            expect(isGuid(guid())).to.be.true;
+            expect(isGuid(uuid())).to.be.true;
         });
     });
 

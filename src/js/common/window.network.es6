@@ -14,6 +14,19 @@ const { Observable } = window.kendo;
 const EVENTS = { OFFLINE: 'offline', ONLINE: 'online' };
 const GLOBAL = { ERROR: 'ajaxError', SUCCESS: 'ajaxSuccess' };
 
+/*
+// OLD CODE: CAN BE REMOVED after checking opportunity to use below
+if (
+    ('Connection' in window &&
+        window.navigator.connection.type === window.Connection.NONE) ||
+    (window.device &&
+        window.device.platform === 'browser' &&
+        !window.navigator.onLine)
+) {
+    return dfd.resolve(false);
+}
+*/
+
 /**
  * Network
  * @class Network

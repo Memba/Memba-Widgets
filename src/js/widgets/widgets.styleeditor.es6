@@ -31,6 +31,7 @@ import Logger from '../common/window.logger.es6';
 import './widgets.unitinput.es6';
 
 const {
+    attr,
     data: { DataSource },
     destroy,
     ns,

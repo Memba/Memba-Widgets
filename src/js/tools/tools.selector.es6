@@ -31,7 +31,19 @@ const ScoreAdapter = NumberAdapter;
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).selector || {
-            // TODO
+            selector: {
+                // TODO
+                attributes: {
+                    shape: {
+                        title: '',
+                        source: [
+                            { text: 'Circle', value: 'circle' },
+                            { text: 'Cross', value: 'cross' },
+                            { text: 'Rectangle', value: 'rect' }
+                        ]
+                    }
+                }
+            }
         }
     );
 }
@@ -60,7 +72,7 @@ var SelectorTool = BaseTool.extend({
         empty: new TextBoxAdapter({ title: i18n.selector.attributes.empty.title }),
         hitRadius: new NumberAdapter({ title: i18n.selector.attributes.hitRadius.title, defaultValue: 15 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 15, 'data-max': 999 }),
         shape: new DropDownListAdapter(
-            { title: i18n.selector.attributes.shape.title, defaultValue: 'circle', enum: ['circle', 'cross', 'rect'] },
+            { title: i18n.selector.attributes.shape.title, defaultValue: 'circle', source: i18n.selector.attributes.shape.source },
             { style: 'width: 100%;' }
         ),
         strokeWidth: new NumberAdapter({ title: i18n.selector.attributes.strokeWidth.title, defaultValue: 12 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 50 })

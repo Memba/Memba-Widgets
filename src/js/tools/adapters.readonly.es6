@@ -28,13 +28,10 @@ const ReadOnlyAdapter = BaseAdapter.extend({
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'input';
-        $.extend(this.attributes, attributes, {
-            type: 'text',
-            class: 'k-input',
-            readonly: true
-            // TODO check and compare both
-            // class: `k-textbox ${CONSTANTS.DISABLED_CLASS}`,
-            // disabled: true
+        this.attributes = $.extend({}, this.attributes, attributes, {
+            class: `k-textbox ${CONSTANTS.DISABLED_CLASS}`,
+            disabled: true,
+            type: 'text'
         });
     }
 });

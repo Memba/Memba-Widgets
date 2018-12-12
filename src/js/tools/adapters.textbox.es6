@@ -27,7 +27,7 @@ const TextBoxAdapter = BaseAdapter.extend({
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'input';
-        $.extend(this.attributes, attributes, {
+        this.attributes = $.extend({}, this.attributes, attributes, {
             type: 'text',
             class: 'k-textbox'
         });

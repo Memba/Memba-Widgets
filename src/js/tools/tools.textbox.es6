@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO MaskedTextBox localization
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -20,16 +22,19 @@ import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import { LIB_COMMENT, stringLibrary } from './util.libraries.es6';
+import {
+    PATTERNS,
+    questionValidator,
+    scoreValidator,
+    solutionValidator,
+    validationValidator
+} from './util.validators.es6';
 
 const {
     format,
     ui: { MaskedTextBox }
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
-
-// TODO Review RX constants
-const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
-const RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
 
 /**
  * i18n
@@ -104,27 +109,33 @@ const TextBoxTool = BaseTool.extend({
             title: i18n().properties.name.title
         }),
         question: new QuestionAdapter({
-            title: i18n().properties.question.title
+            title: i18n().properties.question.title,
+            validation: questionValidator
         }),
         solution: new TextBoxAdapter({
-            title: i18n().properties.solution.title
+            title: i18n().properties.solution.title,
+            validation: solutionValidator
         }),
         validation: new ValidationAdapter({
             defaultValue: `${LIB_COMMENT}${stringLibrary.defaultKey}`,
             library: stringLibrary.library,
-            title: i18n().properties.validation.title
+            title: i18n().properties.validation.title,
+            validation: validationValidator
         }),
         success: new ScoreAdapter({
             title: i18n().properties.success.title,
-            defaultValue: 1
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
             title: i18n().properties.failure.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
             title: i18n().properties.omit.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         })
     },
 
@@ -186,12 +197,12 @@ const TextBoxTool = BaseTool.extend({
             );
             if (
                 component.attributes &&
-                !RX_FONT_SIZE.test(component.attributes.style)
+                !PATTERNS.RX_FONT_SIZE.test(component.attributes.style)
             ) {
                 content.css('font-size', Math.floor(0.65 * content.height()));
             }
         }
-        // This is a trick because of http://docs.telerik.com/kendo-ui/framework/mvvm/overview#important-notes
+        // This is a trick because of http://docs.telerik.com/kendo-ui/framework/mvvm/overview#imnpm updateportant-notes
         // In other words it is impossible to set a mask that only contains digits declaratively (data-mask attribute)
         // See also http://docs.telerik.com/kendo-ui/api/javascript/ui/maskedtextbox#configuration-mask
         const maskedTextBoxWidget = content.data('kendoMaskedTextBox');

@@ -107,12 +107,15 @@ export default class Style {
      * @method merge
      * @param styles
      * @param overwrite existing styles
+     * @param ignore styles
      */
-    merge(styles, overwrite = false) {
+    merge(styles, overwrite = false, ignore = []) {
         const m = Style.parse(styles, this._whitelist);
         m.forEach((value, key) => {
             if (overwrite || !this._map.has(key)) {
-                this._map.set(key, value);
+                if (!Array.isArray(ignore) || ignore.indexOf(key) === -1) {
+                    this._map.set(key, value);
+                }
             }
         });
     }

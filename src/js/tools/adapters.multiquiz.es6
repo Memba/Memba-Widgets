@@ -32,7 +32,7 @@ const MultiQuizAdapter = BaseAdapter.extend({
         this.type = undefined;
         this.defaultValue = this.defaultValue || [];
         // this.editor = 'input';
-        // $.extend(this.attributes, { type: 'text', style: 'width: 100%;' });
+        // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
             const input = $('<div/>')
                 .attr(getValueBinding(settings.field))

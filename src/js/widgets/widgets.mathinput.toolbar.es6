@@ -10,10 +10,10 @@
     'use strict';
     define([
         '../common/window.assert.es6',
-        './common/window.logger.es6',
-        './vendor/kendo/kendo.popup',
-        './vendor/kendo/kendo.list',
-        './vendor/kendo/kendo.toolbar'
+        '../common/window.logger.es6',
+        '../vendor/kendo/kendo.popup',
+        '../vendor/kendo/kendo.list',
+        '../vendor/kendo/kendo.toolbar'
     ], f);
 })(function () {
 

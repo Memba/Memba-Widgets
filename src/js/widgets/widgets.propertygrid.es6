@@ -25,6 +25,7 @@ const {
     attr,
     bind,
     destroy,
+    getter,
     mobile,
     resize,
     rolesFromNamespaces,
@@ -57,7 +58,6 @@ const PropertyGrid = Widget.extend({
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
-        this.validation(this.options.validation);
         this.value(this.options.value);
     },
 
@@ -120,7 +120,7 @@ const PropertyGrid = Widget.extend({
             ret = this.options.rows;
         } else if (rows !== this.options.rows) {
             this.options.rows = rows;
-            // that.refresh();
+            this.refresh();
         }
         return ret;
     },
@@ -236,6 +236,9 @@ const PropertyGrid = Widget.extend({
 
         // Bind properties of property grid
         bind(tbody, properties, ui, mobile.ui);
+
+        // Add validator
+        this._addValidator(rows);
 
         // Reposition column resizing handle
         this._resize();
@@ -506,21 +509,21 @@ const PropertyGrid = Widget.extend({
                 return;
             }
 
-            // If it designates a kendo UI widget that works with an input
-            const widgets = [
-                'colorpicker',
-                'datepicker',
-                'datetimepicker',
-                'maskedtextbox',
-                'multiinput',
-                'numerictextbox',
-                'rating',
-                'slider',
-                'switch',
-                'timepicker'
-            ];
+            // If it designates a kendo UI widget that works with an input html tag
             if (
-                widgets.indexOf(row.editor) > -1 &&
+                [
+                    'colorpicker',
+                    'datepicker',
+                    'datetimepicker',
+                    'maskedtextbox',
+                    'multicolumncombobox',
+                    'multiinput',
+                    'numerictextbox',
+                    'rating',
+                    'slider',
+                    'switch',
+                    'timepicker'
+                ].indexOf(row.editor) > -1 &&
                 (Object.prototype.hasOwnProperty.call(
                     rolesFromNamespaces(ui),
                     row.editor
@@ -535,7 +538,26 @@ const PropertyGrid = Widget.extend({
                     row.attributes,
                     getRoleBinding(row.editor)
                 );
-                row.editor = editors.input; // editors._kendoInput;
+                row.editor = editors.input;
+                return;
+            }
+
+            // If it designates a kendo UI widget that works with a select html tag
+            if (
+                ['combobox', 'dropdownlist', 'nultiselect'].indexOf(
+                    row.editor
+                ) > -1 &&
+                Object.prototype.hasOwnProperty.call(
+                    rolesFromNamespaces(ui),
+                    row.editor
+                )
+            ) {
+                row.attributes = $.extend(
+                    {},
+                    row.attributes,
+                    getRoleBinding(row.editor)
+                );
+                row.editor = editors.select;
                 return;
             }
         }
@@ -557,7 +579,7 @@ const PropertyGrid = Widget.extend({
                     row.attributes,
                     getRoleBinding('numerictextbox')
                 );
-                row.editor = editors.input; // editors._kendoInput;
+                row.editor = editors.input;
                 break;
             case CONSTANTS.BOOLEAN:
                 row.attributes = $.extend(
@@ -565,7 +587,7 @@ const PropertyGrid = Widget.extend({
                     row.attributes,
                     getRoleBinding('switch')
                 );
-                row.editor = editors.input; // editors._kendoInput;
+                row.editor = editors.input;
                 break;
             case CONSTANTS.DATE:
                 row.attributes = $.extend(
@@ -573,7 +595,7 @@ const PropertyGrid = Widget.extend({
                     row.attributes,
                     getRoleBinding('datepicker')
                 );
-                row.editor = editors.input; // editors._kendoInput;
+                row.editor = editors.input;
                 break;
             default:
                 // CONSTANTS.STRING
@@ -702,13 +724,13 @@ const PropertyGrid = Widget.extend({
     _enableTooltip(enable) {
         const enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
-        const tbody = this.element.find(CONSTANTS.TBODY).first();
+        const table = this.element.find(CONSTANTS.TABLE).first();
         if (this.tooltip instanceof Tooltip) {
             this.tooltip.destroy();
             this.tooltip = undefined;
         }
         if (enabled) {
-            this.tooltip = tbody
+            this.tooltip = table
                 .kendoTooltip({
                     filter: 'span.k-icon.k-i-help[title]',
                     width: 120,
@@ -725,46 +747,76 @@ const PropertyGrid = Widget.extend({
     },
 
     /**
-     * Gets/Set validation rules
-     * See http://docs.telerik.com/kendo-ui/api/javascript/ui/validator
-     * @param validation
-     * @returns {*}
-     */
-    validation(validation) {
-        assert.nullableTypeOrUndef(
-            CONSTANTS.OBJECT,
-            validation,
-            assert.format(
-                assert.messages.nullableTypeOrUndef.default,
-                'validation',
-                CONSTANTS.OBJECT
-            )
-        );
-        let ret;
-        if ($.type(validation) === CONSTANTS.UNDEFINED) {
-            ret = this.options.validation;
-        } else if (validation !== this._validation) {
-            this._validation = validation;
-            this._enableValidator();
-        }
-        return ret;
-    },
-
-    /**
      * Add validator
      * See http://docs.telerik.com/kendo-ui/api/javascript/ui/validator
+     * @param rows
      * @private
      */
-    _enableValidator(enable) {
-        const enabled =
-            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+    _addValidator(rows) {
         if (this.validator instanceof Validator) {
             this.validator.destroy();
             this.validator = undefined;
         }
-        if (enabled) {
+        if (rows) {
+            const rules = {};
+            const value = this.value();
+            // Only add validator rules for property grid rows
+            rows.forEach(row => {
+                // For each row find the validation rules in the data.Model field
+                const name = row.field;
+                let validation;
+                let pos = 0;
+                while ($.type(validation) === CONSTANTS.UNDEFINED && pos > -1) {
+                    // Find the next dot as in `attributes.text` or in `properties.question`
+                    pos = name.indexOf(CONSTANTS.DOT, pos + 1);
+                    if (pos === -1) {
+                        // If there is no dot left to find, try fields.<name>.validation
+                        validation = getter(`fields.${name}.validation`, true)(
+                            value
+                        );
+                    } else {
+                        // If there is a dot left, break the field into prefix.suffix and try prefix.fields.suffix.validation
+                        // as in attributes.fields.text.validation or properties.fields.question.validation
+                        validation = getter(
+                            `${name.substr(0, pos)}.fields${name.substr(
+                                pos
+                            )}.validation`,
+                            true
+                        )(value);
+                    }
+                }
+                if ($.type(validation) === CONSTANTS.OBJECT) {
+                    Object.keys(validation).forEach(key => {
+                        const rule = validation[key];
+                        if ($.isFunction(rule)) {
+                            // Custom validation function names should be unique in a data.Model
+                            assert.isUndefined(
+                                rules[key],
+                                assert.format(
+                                    assert.messages.isUndefined.default,
+                                    `rules.${key}`
+                                )
+                            );
+                            // Note, we cannot use rule.bind(value) because kendo.ui.Validator calls
+                            // rules[rule].call(this, input), where this is the Validator widget
+                            rules[key] = rule;
+                        }
+                    });
+                }
+            });
             this.validator = this.element
-                .kendoValidator(this._validation)
+                .find(CONSTANTS.TBODY)
+                .first()
+                .kendoValidator(
+                    /* eslint-disable prettier/prettier */
+                    $.isEmptyObject(rules)
+                        ? this.options.validation
+                        : {
+                            rules
+                            // messages -> We use a single validationMessage per field
+                        }
+                    /* eslint-enable prettier/prettier */
+                )
                 .data('kendoValidator');
         }
     },
@@ -825,7 +877,7 @@ const PropertyGrid = Widget.extend({
     destroy() {
         const { element } = this;
         this._enableTooltip(false);
-        this._enableValidator(false);
+        this._addValidator(false);
         // element.off(NS).removeClass(WIDGET_CLASS);
         // Destroy
         Widget.fn.destroy.call(this);

@@ -10,18 +10,18 @@
     'use strict';
     define([
         '../vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.popup',
-        './vendor/kendo/kendo.slider',
-        './vendor/kendo/kendo.button',
-        './vendor/kendo/kendo.colorpicker',
-        './vendor/kendo/kendo.combobox',
-        './vendor/kendo/kendo.dropdownlist',
-        './vendor/kendo/kendo.toolbar',
-        './vendor/kendo/kendo.window',
-        './vendor/kendo/kendo.dataviz.diagram',
-        './common/window.assert.es6',
-        './common/window.logger.es6',
-        './kidoju.image'
+        '../vendor/kendo/kendo.popup',
+        '../vendor/kendo/kendo.slider',
+        '../vendor/kendo/kendo.button',
+        '../vendor/kendo/kendo.colorpicker',
+        '../vendor/kendo/kendo.combobox',
+        '../vendor/kendo/kendo.dropdownlist',
+        '../vendor/kendo/kendo.toolbar',
+        '../vendor/kendo/kendo.window',
+        '../vendor/kendo/kendo.dataviz.diagram',
+        '../common/window.assert.es6',
+        '../common/window.logger.es6',
+        '../kidoju.image'
     ], f);
 })(function () {
 

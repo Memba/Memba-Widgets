@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO replace variables in component.text$
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -16,34 +18,34 @@ import TextAreaAdapter from './adapters.textarea.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+import { constantValidator, styleValidator, textValidator } from './util.validators.es6';
 
-const { format, ns, template } = window.kendo;
-
-// TODO Review these constants
-const RX_TEXT = /\S+/i;
-const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
+const { format, htmlEncode, ns, template } = window.kendo;
 
 /**
- * i18n
- * @returns {*|{}}
+ * Init i18n messages
  */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).label || {
-            description: 'Label',
-            help: null,
-            name: 'Label',
-            attributes: {
-                style: { title: 'Style' },
-                text: { title: 'Text', defaultValue: 'Label' }
-            },
-            properties: {
-                behavior: { title: 'Behaviour' },
-                constant: { title: 'Constant' }
-            }
-        }
-    );
-}
+const i18n = BaseTool.getMessageNameSpace();
+i18n.label = i18n.label || {
+    description: 'Label',
+    help: null,
+    name: 'Label',
+    attributes: {
+        style: { title: 'Style' },
+        text: { title: 'Text', defaultValue: 'Label' }
+    },
+    properties: {
+        behavior: {
+            source: [
+                { text: 'None', value: 'none' },
+                { text: 'Draggable', value: 'draggable' },
+                { text: 'Selectable', value: 'selectable' }
+            ],
+            title: 'Behaviour'
+        },
+        constant: { title: 'Constant' }
+    }
+};
 
 /**
  * @class LabelTool
@@ -51,45 +53,61 @@ function i18n() {
 const LabelTool = BaseTool.extend({
     id: 'label',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().description,
+    description: i18n.label.description,
     height: 80,
-    help: i18n().help,
+    help: i18n.label.help,
     icon: 'font',
     menu: ['attributes.text', 'attributes.style'],
-    name: i18n().name,
+    name: i18n.label.name,
     width: 300,
     templates: {
         default:
-            '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'
+            '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">#= text$() #</div>'
     },
     attributes: {
-        // text: new TextBoxAdapter({ title: i18n().attributes.text.title, defaultValue: i18n().attributes.text.defaultValue }),
         text: new TextAreaAdapter(
             {
-                title: i18n().attributes.text.title,
-                defaultValue: i18n().attributes.text.defaultValue
+                title: i18n.label.attributes.text.title,
+                defaultValue: i18n.label.attributes.text.defaultValue,
+                validation: textValidator
             },
-            { rows: 2, style: 'resize:vertical; width: 100%;' }
+            {
+                rows: 2,
+                style: 'resize:vertical; width: 100%;',
+                validationMessage: 'Oops'
+            }
         ),
-        style: new StyleAdapter({
-            title: i18n().attributes.style.title,
-            defaultValue: 'font-size:60px;'
-        })
+        style: new StyleAdapter(
+            {
+                title: i18n.label.attributes.style.title,
+                defaultValue: 'font-size:60px;',
+                validation: styleValidator
+            },
+            {
+                validationMessage: 'Oops'
+            }
+        )
     },
     properties: {
         behavior: new DropDownListAdapter(
             {
-                title: i18n().properties.behavior.title,
+                title: i18n.label.properties.behavior.title,
                 defaultValue: 'none',
-                enum: ['none', 'draggable', 'selectable'] // TODO
+                source: i18n.label.properties.behavior.source
             },
             {
                 style: 'width: 100%;'
             }
         ),
-        constant: new TextBoxAdapter({
-            title: i18n().properties.constant.title
-        })
+        constant: new TextBoxAdapter(
+            {
+                title: i18n.label.properties.constant.title,
+                validation: constantValidator
+            },
+            {
+                validationMessage: 'Oops'
+            }
+        )
     },
 
     /**
@@ -120,25 +138,34 @@ const LabelTool = BaseTool.extend({
             )
         );
         const tmpl = template(that.templates.default);
-        // The class$ function adds the kj-interactive class to draggable components
-        // eslint-disable-next-line no-param-reassign
-        component.class$ = function() {
-            return `kj-label${
-                component.properties.behavior === 'draggable'
-                    ? ` ${CONSTANTS.INTERACTIVE_CLASS}`
-                    : ''
-            }`;
-        };
-        // The id$ function returns the component id for components that have a behavior
-        // eslint-disable-next-line no-param-reassign
-        component.id$ = function() {
-            return component.properties.behavior !== 'none' &&
-                $.type(component.id) === CONSTANTS.STRING &&
-                component.id.length
-                ? component.id
-                : '';
-        };
-        return tmpl($.extend(component, { ns }));
+        $.extend(component, {
+            // The class$ function adds the kj-interactive class to draggable components
+            class$() {
+                return `kj-label${
+                    component.get('properties.behavior') === 'draggable'
+                        ? ` ${CONSTANTS.INTERACTIVE_CLASS}`
+                        : ''
+                }`;
+            },
+            // The id$ function returns the component id for components that have a behavior
+            id$() {
+                return component.get('properties.behavior') !== 'none' &&
+                    $.type(component.id) === CONSTANTS.STRING &&
+                    component.id.length
+                    ? component.id
+                    : '';
+            },
+            // ns is required for data-* declarations
+            ns,
+            // html encode text, then replace line feeds with <br/>
+            text$() {
+                return htmlEncode(
+                    component.get('attributes.text') || ''
+                ).replace(/\n/g, '<br/>');
+            }
+        });
+
+        return tmpl(component);
     },
 
     /**
@@ -222,7 +249,7 @@ const LabelTool = BaseTool.extend({
         if (
             !component.attributes ||
             !component.attributes.text ||
-            component.attributes.text === i18n().attributes.text.defaultValue ||
+            component.attributes.text === i18n.label.attributes.text.defaultValue ||
             !RX_TEXT.test(component.attributes.text)
         ) {
             ret.push({

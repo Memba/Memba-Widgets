@@ -38,8 +38,9 @@ class LocalCache {
     /**
      * Get item from cache
      * @param key
+     * @param raw - return the raw object with ts and ttl
      */
-    getItem(key) {
+    getItem(key, raw = false) {
         assert.type(
             CONSTANTS.STRING,
             key,
@@ -60,7 +61,12 @@ class LocalCache {
                         Date.now() < parsed.ts + 1000 * parsed.ttl && // Not expired
                         md5(JSON.stringify(parsed)) === sig // Not tampered with
                     ) {
-                        ({ value } = parsed);
+                        value = raw ? parsed : parsed.value;
+                        logger.debug({
+                            message: `value read from ${this._storeName} cache`,
+                            method: 'getItem',
+                            data: { key, value }
+                        });
                     } else {
                         // No need to keep an expired or tampered value
                         this._store.removeItem(key);
@@ -85,8 +91,9 @@ class LocalCache {
      * @param key
      * @param value
      * @param ttl
+     * @param ts
      */
-    setItem(key, value, ttl) {
+    setItem(key, value, ttl, ts) {
         assert.type(
             CONSTANTS.STRING,
             key,
@@ -97,15 +104,25 @@ class LocalCache {
             ttl,
             assert.format(assert.messages.type.default, 'ttl', CONSTANTS.NUMBER)
         );
+        assert.typeOrUndef(
+            CONSTANTS.NUMBER,
+            ts,
+            assert.format(assert.messages.type.default, 'ts', CONSTANTS.NUMBER)
+        );
         try {
             if (this._cache) {
                 const item = {
-                    ts: Date.now(),
-                    ttl: Math.round(ttl) || this._ttl,
+                    ts: ts || Date.now(),
+                    ttl: ttl || this._ttl,
                     value
                 };
                 item.sig = md5(JSON.stringify(item));
                 this._store.setItem(key, JSON.stringify(item));
+                logger.debug({
+                    message: `value added to ${this._storeName} cache`,
+                    method: 'setItem',
+                    data: { key, value }
+                });
             }
         } catch (error) {
             logger.error({
@@ -144,6 +161,13 @@ class LocalCache {
                         const key = this._store.key(i);
                         if (rx.test(key)) {
                             this._store.removeItem(key);
+                            logger.debug({
+                                message: `value removed from ${
+                                    this._storeName
+                                } cache`,
+                                method: 'setItem',
+                                data: { key }
+                            });
                         }
                     }
                 }

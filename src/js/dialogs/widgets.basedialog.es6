@@ -350,6 +350,7 @@ BaseDialog.getElement = function getElement(cssClass = 'kj-dialog-tools') {
 };
 
 /**
+ * Global references for i18n
  * Static getter the message namespace (see ../cultures/dialogs.*)
  * @method getMessageNameSpace
  */

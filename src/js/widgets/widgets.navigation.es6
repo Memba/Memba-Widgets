@@ -114,27 +114,29 @@ const Navigation = DataBoundWidget.extend({
      * @returns {*}
      */
     index(index) {
-        const that = this;
+        assert.typeOrUndef(
+            CONSTANTS.NUMBER,
+            index,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'index',
+                CONSTANTS.NUMBER
+            )
+        );
+        let ret;
         let page;
-        if ($.type(index) === CONSTANTS.NUMBER) {
-            if (index % 1 !== 0 || index < -1 || index >= that.length()) {
-                throw new RangeError();
-            }
-            page = that.dataSource.at(index);
-            if (page instanceof Page) {
-                that.value(page);
-            } else {
-                that.value(null);
-            }
-        } else if ($.type(index) === CONSTANTS.UNDEFINED) {
-            page = that.dataSource.getByUid(that._selectedUid);
-            if (page instanceof Page) {
-                return that.dataSource.indexOf(page);
-            }
-            return -1;
+        if ($.type(index) === CONSTANTS.UNDEFINED) {
+            page = this.dataSource.getByUid(this._selectedUid); // TODO check null or undefined
+            ret = page instanceof Page ? this.dataSource.indexOf(page) : -1;
         } else {
-            throw new TypeError();
+            page = this.dataSource.at(index);
+            if (page instanceof Page) {
+                this.value(page);
+            } else {
+                this.value(null);
+            }
         }
+        return ret;
     },
 
     /**
@@ -144,20 +146,19 @@ const Navigation = DataBoundWidget.extend({
      * @returns {*}
      */
     id(id) {
-        const that = this;
         let page;
         if (
             $.type(id) === CONSTANTS.STRING ||
             $.type(id) === CONSTANTS.NUMBER
         ) {
-            page = that.dataSource.get(id);
+            page = this.dataSource.get(id);
             if (page instanceof Page) {
-                that.value(page);
+                this.value(page);
             } else {
-                that.value(null);
+                this.value(null);
             }
         } else if ($.type(id) === CONSTANTS.UNDEFINED) {
-            page = that.dataSource.getByUid(that._selectedUid);
+            page = this.dataSource.getByUid(this._selectedUid);
             if (page instanceof Page) {
                 return page[page.idField];
             }
@@ -175,32 +176,39 @@ const Navigation = DataBoundWidget.extend({
      * @returns {*}
      */
     value(page) {
-        const that = this;
+        assert.nullableInstanceOrUndef(
+            Page,
+            page,
+            assert.format(
+                assert.messages.nullableInstanceOrUndef.default,
+                'page',
+                'Page'
+            )
+        );
+
         if (page === null || page instanceof Page) {
             let hasChanged = false;
-            if (page === null && that._selectedUid !== null) {
+            if (page === null && this._selectedUid !== null) {
                 hasChanged = true;
-                that._selectedUid = null;
+                this._selectedUid = null;
             } else if (
                 page instanceof Page &&
-                that._selectedUid !== page.uid &&
-                that.dataSource.indexOf(page) > -1
+                this._selectedUid !== page.uid &&
+                this.dataSource.indexOf(page) > -1
             ) {
                 hasChanged = true;
-                that._selectedUid = page.uid;
+                this._selectedUid = page.uid;
             }
             if (hasChanged) {
-                logger.debug(`selected page uid set to ${that._selectedUid}`);
-                that._toggleSelection();
-                that.trigger(CONSTANTS.CHANGE, { value: page });
+                logger.debug(`selected page uid set to ${this._selectedUid}`);
+                this._toggleSelection();
+                this.trigger(CONSTANTS.CHANGE, { value: page });
             }
         } else if ($.type(page) === CONSTANTS.UNDEFINED) {
-            if (that._selectedUid === null) {
+            if (this._selectedUid === null) {
                 return null;
             }
-            return that.dataSource.getByUid(that._selectedUid) || null; // getByUid returns undefined if not found
-        } else {
-            throw new TypeError();
+            return this.dataSource.getByUid(this._selectedUid) || null; // getByUid returns undefined if not found
         }
     },
 
@@ -228,47 +236,59 @@ const Navigation = DataBoundWidget.extend({
     /**
      * Height of navigation
      * @method height
-     * @param value
+     * @param height
      * @returns {string}
      */
-    height(value) {
-        const that = this;
-        if (value) {
-            if ($.type(value) !== CONSTANTS.NUMBER) {
-                throw new TypeError();
-            }
-            if (value < 0) {
-                throw new RangeError();
-            }
-            if (value !== that.options.height) {
-                that.options.height = value;
-            }
-        } else {
-            return that.options.height;
+    height(height) {
+        assert.typeOrUndef(
+            CONSTANTS.NUMBER,
+            height,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'height',
+                CONSTANTS.NUMBER
+            )
+        );
+        let ret;
+        if ($.type(height) === CONSTANTS.UNDEFINED) {
+            ret = this.options.height;
+        } else if (height < 0) {
+            throw new RangeError(
+                '`height` is expected to be a positive number.'
+            );
+        } else if (height !== this.options.height) {
+            this.options.height = height;
         }
+        return ret;
     },
 
     /**
      * Width of navigation
      * @method width,
-     * @param value
+     * @param width
      * @returns {string}
      */
-    width(value) {
-        const that = this;
-        if (value) {
-            if ($.type(value) !== CONSTANTS.NUMBER) {
-                throw new TypeError();
-            }
-            if (value < 0) {
-                throw new RangeError();
-            }
-            if (value !== that.options.width) {
-                that.options.width = value;
-            }
-        } else {
-            return that.options.width;
+    width(width) {
+        assert.typeOrUndef(
+            CONSTANTS.NUMBER,
+            width,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'width',
+                CONSTANTS.NUMBER
+            )
+        );
+        let ret;
+        if ($.type(width) === CONSTANTS.UNDEFINED) {
+            ret = this.options.width;
+        } else if (width < 0) {
+            throw new RangeError(
+                '`width` is expected to be a positive number.'
+            );
+        } else if (width !== this.options.width) {
+            this.options.width = width;
         }
+        return ret;
     },
 
     /**
@@ -463,13 +483,16 @@ const Navigation = DataBoundWidget.extend({
             }
 
             // Make the stage and bind to components
-            navigationItem.find(roleSelector('stage')).kendoStage({
+            const stage = navigationItem.find(roleSelector('stage')).kendoStage({
                 mode: this.options.mode,
                 enable: false,
                 readonly: true,
                 dataSource: page.components,
                 scale: this._getStageScale()
-            });
+            }).data('kendoStage');
+
+            // Set page style
+            stage.style(page.style);
         }
     },
 
@@ -503,14 +526,14 @@ const Navigation = DataBoundWidget.extend({
             } else if (e && e.items instanceof ObservableArray) {
                 pages = e.items;
             }
-            $.each(that.element.find(ALL_ITEMS_SELECTOR), (index, item) => {
-                that._removeItemByUid($(item).attr(attr(CONSTANTS.UID)));
+            that.element.find(ALL_ITEMS_SELECTOR).each((index, el) => {
+                that._removeItemByUid($(el).attr(attr(CONSTANTS.UID)));
             });
-            $.each(pages, (index, page) => {
+            pages.forEach(page => {
                 that._addItem(page);
             });
         } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
-            $.each(e.items, (index, page) => {
+            e.items.forEach(page => {
                 selectedIndex = that.dataSource.indexOf(page);
                 that._addItem(page, selectedIndex);
             });
@@ -519,11 +542,19 @@ const Navigation = DataBoundWidget.extend({
             $.isArray(e.items) &&
             e.items.length
         ) {
-            $.each(e.items, (index, page) => {
+            e.items.forEach(page => {
                 that._removeItemByUid(page.uid);
             });
             selectedIndex = e.index || -1;
         } else if (e.action === 'itemchange') {
+            if (e.field === 'style') {
+                e.items.forEach(page => {
+                    // TODO Review
+                    const item = that.element.find(format(ITEM_BYUID_SELECTOR, page.uid));
+                    const stage = item.find(roleSelector('stage')).data('kendoStage');
+                    stage.style(page.style);
+                });
+            }
             return;
         }
         const total = that.dataSource.total();

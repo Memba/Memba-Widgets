@@ -42,12 +42,13 @@ const SquareTool = BaseTool.extend({
     name: i18n().name,
     width: 300,
     templates: {
+        // Note: height 100% won't work with padding
         play:
-            '<div style="background-color:#0f0; padding: 10px; border: solid 1px #000;">PLAY</div>',
+            '<div style="position: absolute; top: 0; left: 0; right:0; bottom: 0; background-color: #0f0; padding: 10px; border: solid 1px #000;">PLAY</div>',
         design:
-            '<div style="background-color:#00f; padding: 10px; border: solid 1px #000;">DESIGN</div>',
+            '<div style="position: absolute; top: 0; left: 0; right:0; bottom: 0; background-color: #00f; padding: 10px; border: solid 1px #000;">DESIGN</div>',
         review:
-            '<div style="background-color:#f00; padding: 10px; border: solid 1px #000;">REVIEW</div>'
+            '<div style="position: absolute; top: 0; left: 0; right:0; bottom: 0; background-color: #f00; padding: 10px; border: solid 1px #000;">REVIEW</div>'
     },
     // attributes: {},
     // properties: {},

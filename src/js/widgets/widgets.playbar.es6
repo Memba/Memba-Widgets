@@ -3,21 +3,24 @@
  * Sources at https://github.com/Memba
  */
 
-/**
- * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
- * Sources at https://github.com/Memba
- */
+// TODO: Display vertical or horizontal - https://github.com/kidoju/Kidoju-Widgets/issues/7
+// TODO: Add timer (play/pause) - https://github.com/kidoju/Kidoju-Widgets/issues/3
+// TODO: Add progress bar - https://github.com/kidoju/Kidoju-Widgets/issues/4
+// TODO: Add tooltips with thumbnails - https://github.com/kidoju/Kidoju-Widgets/issues/18
+
+// TODO issue in toolbar when opening dropdownlist of numbers
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import 'kendo.sortable';
+import 'kendo.tooltip';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import Page from '../data/models.page.es6';
 import PageDataSource from '../data/datasources.page.es6';
+import './widgets.stage.es6';
 
 const {
     attr,
@@ -25,10 +28,10 @@ const {
     format,
     keys,
     ns,
-    roleSelector,
+    // roleSelector,
     template,
-    ui: { DataBoundWidget, plugin },
-    unbind
+    ui: { DataBoundWidget, plugin }
+    // unbind
 } = window.kendo;
 const logger = new Logger('widgets.playbar');
 const NS = '.kendoPlayBar';
@@ -42,18 +45,8 @@ const NEXT = '.k-i-arrow-e';
  * Helpers
  ******************************************************************************** */
 
-function isGuid(value) {
-    // http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
-    return (
-        $.type(value) === CONSTANTS.STRING &&
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(
-            value
-        )
-    );
-}
-
-function button(template, idx, text, numeric, title) {
-    return template({
+function button(tmpl, idx, text, numeric, title) {
+    return tmpl({
         idx,
         text,
         ns,
@@ -62,8 +55,8 @@ function button(template, idx, text, numeric, title) {
     });
 }
 
-function icon(template, className, text, wrapClassName) {
-    return template({
+function icon(tmpl, className, text, wrapClassName) {
+    return tmpl({
         className: className.substring(1),
         text,
         wrapClassName: wrapClassName || ''
@@ -118,14 +111,16 @@ const PlayBar = DataBoundWidget.extend({
     init(element, options) {
         DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
-        // TODO: review how index is set
+        // TODO: review how index is set - probably use this.value()
         this._selectedIndex = this.options.index || 0;
         this._templates();
         this._render();
+        this._initTooltip();
         this._dataSource();
     },
 
     /**
+     * Options
      * @property options
      */
     options: {
@@ -170,6 +165,7 @@ const PlayBar = DataBoundWidget.extend({
     // },
 
     /**
+     * Events
      * @property events
      */
     events: [
@@ -300,7 +296,7 @@ const PlayBar = DataBoundWidget.extend({
     },
 
     /**
-     * Changes the dataSource
+     * Sets the data source
      * @method setDataSource
      * @param dataSource
      */
@@ -312,21 +308,17 @@ const PlayBar = DataBoundWidget.extend({
     },
 
     /**
-     * Binds the widget to the change event of the dataSource
-     * See http://docs.telerik.com/kendo-ui/howto/create-custom-kendo-widget
+     * Initializes the data source
      * @method _dataSource
      * @private
      */
     _dataSource() {
-        // if the DataSource is defined and the _refreshHandler is wired up, unbind because
-        // we need to rebuild the DataSource
-
-        // There is no reason why, in its current state, it would not work with any dataSource
-        // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
         if (
             this.dataSource instanceof PageDataSource &&
             $.isFunction(this._refreshHandler)
         ) {
+            // if the DataSource is defined and the _refreshHandler is wired up, unbind because
+            // we need to rebuild the DataSource
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHandler = undefined;
         }
@@ -352,57 +344,53 @@ const PlayBar = DataBoundWidget.extend({
      * @private
      */
     _render() {
-        /* TODO: Display vertical or horizontal
-         * TODO: Add timer (play/pause)
-         * TODO: Add progress bar
-         * TODO: Add tooltips with thumbnails
-         */
-        const that = this;
-        const playbar = that.element;
-        const options = that.options;
-        const index = that.index();
-        const length = that.length();
+        const { element, iconTemplate, options } = this;
+        const index = this.index();
+        const length = this.length();
+
+        // Required for visible binding
+        this.wrapper = element;
 
         // Add first and previous buttons
         if (options.previousNext) {
-            if (!playbar.find(FIRST).length) {
-                playbar.append(
+            if (!element.find(FIRST).length) {
+                element.append(
                     icon(
-                        that.iconTemplate,
+                        iconTemplate,
                         FIRST,
                         options.messages.first,
                         'k-pager-first'
                     )
                 );
-                first(playbar, index, length);
+                first(element, index, length);
             }
-            if (!playbar.find(PREV).length) {
-                playbar.append(
+            if (!element.find(PREV).length) {
+                element.append(
                     icon(
-                        that.iconTemplate,
+                        iconTemplate,
                         PREV,
                         options.messages.previous,
                         'k-pager-previous'
                     )
                 );
-                prev(playbar, index, length);
+                prev(element, index, length);
             }
         }
 
         // Add numeric buttons
         if (options.numeric) {
-            that.list = playbar.find('.k-pager-numbers');
-            if (!that.list.length) {
-                that.list = $(
-                    '<ul class="k-pager-numbers k-reset" />'
-                ).appendTo(playbar);
+            this.ul = element.find('.k-pager-numbers');
+            if (!this.ul.length) {
+                this.ul = $('<ul class="k-pager-numbers k-reset" />').appendTo(
+                    element
+                );
             }
         }
 
         // Add input
         if (options.input) {
-            if (!playbar.find('.k-pager-input').length) {
-                playbar.append(
+            if (!element.find('.k-pager-input').length) {
+                element.append(
                     `<span class="k-pager-input k-label"><span>${
                         options.messages.page
                     }</span><input class="k-textbox"><span>${format(
@@ -411,43 +399,43 @@ const PlayBar = DataBoundWidget.extend({
                     )}</span></span>`
                 );
             }
-            playbar.on(
+            element.on(
                 CONSTANTS.KEYDOWN + NS,
                 '.k-pager-input input',
-                that._keydown.bind(that)
+                this._keydown.bind(this)
             );
         }
 
         // Add next and last buttons
         if (options.previousNext) {
-            if (!playbar.find(NEXT).length) {
-                playbar.append(
+            if (!element.find(NEXT).length) {
+                element.append(
                     icon(
-                        that.iconTemplate,
+                        iconTemplate,
                         NEXT,
                         options.messages.next,
                         'k-pager-next'
                     )
                 );
-                next(playbar, index, length);
+                next(element, index, length);
             }
-            if (!playbar.find(LAST).length) {
-                playbar.append(
+            if (!element.find(LAST).length) {
+                element.append(
                     icon(
-                        that.iconTemplate,
+                        iconTemplate,
                         LAST,
                         options.messages.last,
                         'k-pager-last'
                     )
                 );
-                last(playbar, index, length);
+                last(element, index, length);
             }
         }
 
         // Add refresh button
         if (options.refresh) {
-            if (!playbar.find('.k-pager-refresh').length) {
-                playbar.append(
+            if (!element.find('.k-pager-refresh').length) {
+                element.append(
                     `<a href="#" class="k-pager-refresh k-link" aria-label="${
                         options.messages.refresh
                     }" title="${
@@ -455,38 +443,69 @@ const PlayBar = DataBoundWidget.extend({
                     }"><span class="k-icon k-i-refresh"></span></a>`
                 );
             }
-            playbar.on(
+            element.on(
                 CONSTANTS.CLICK + NS,
                 '.k-pager-refresh',
-                that._refreshClick.bind(that)
+                this._refreshClick.bind(this)
             );
         }
 
         // Add info
         if (options.info) {
-            if (!playbar.find('.k-pager-info').length) {
-                playbar.append('<span class="k-pager-info k-label" />');
+            if (!element.find('.k-pager-info').length) {
+                element.append('<span class="k-pager-info k-label" />');
             }
         }
 
         // Add click handler
-        playbar
+        element
             .addClass(WIDGET_CLASS)
-            .on(CONSTANTS.CLICK + NS, 'a', that._navClick.bind(that))
+            .on(CONSTANTS.CLICK + NS, 'a', this._navClick.bind(this))
             .on(
                 CONSTANTS.CLICK + NS,
                 '.k-current-page',
-                that._toggleDropDown.bind(that)
+                this._toggleDropDown.bind(this)
             );
+    },
 
-        // if (options.autoBind) {
-        //    that.refresh();
-        // }
-
-        // Required for visible binding
-        that.wrapper = that.element;
-
-        kendo.notify(that);
+    _initTooltip() {
+        const that = this;
+        this.tooltip = this.ul
+            .kendoTooltip({
+                filter: 'span.k-state-selected, a[data-index]',
+                width: 256, // 1024 * 0.25
+                height: 192, // 768 * 0.25
+                position: 'bottom',
+                content(e) {
+                    const { target } = e;
+                    const index =
+                        target.attr(attr('index')) ||
+                        parseInt(target.text(), 10) - 1;
+                    return $(`<${CONSTANTS.DIV}/>`).attr(attr('index'), index);
+                },
+                show(e) {
+                    const element = e.sender.content
+                        .children(CONSTANTS.DIV)
+                        .first();
+                    const index = parseInt(element.attr(attr('index')), 10);
+                    element.kendoStage({
+                        dataSource: that.dataSource.at(index).components,
+                        enabled: false,
+                        mode: 'play',
+                        scale: 0.25
+                    });
+                },
+                hide(e) {
+                    destroy(e.sender.content);
+                },
+                animation: {
+                    open: {
+                        effects: 'zoom',
+                        duration: 150
+                    }
+                }
+            })
+            .data('kendoTooltip');
     },
 
     /**
@@ -495,11 +514,15 @@ const PlayBar = DataBoundWidget.extend({
      * @param e
      */
     refresh(e) {
-        const that = this;
-        // var playbar = that.element;
-        const options = that.options;
-        const index = that.index();
-        const length = that.length();
+        const {
+            currentPageTemplate,
+            element,
+            linkTemplate,
+            options,
+            selectTemplate
+        } = this;
+        const index = this.index();
+        const length = this.length();
         let idx;
         let start = 0;
         let end;
@@ -511,7 +534,7 @@ const PlayBar = DataBoundWidget.extend({
         }
 
         if (e && e.action === undefined) {
-            that.trigger(CONSTANTS.DATABINDING);
+            this.trigger(CONSTANTS.DATABINDING);
         }
 
         // Update numeric buttons
@@ -524,7 +547,7 @@ const PlayBar = DataBoundWidget.extend({
             end = Math.min(start + options.buttonCount - 1, length - 1);
             if (start > 0) {
                 html += button(
-                    that.linkTemplate,
+                    linkTemplate,
                     start - 1,
                     '...',
                     false,
@@ -533,7 +556,7 @@ const PlayBar = DataBoundWidget.extend({
             }
             for (idx = start; idx <= end; idx++) {
                 html += button(
-                    idx === index ? that.selectTemplate : that.linkTemplate,
+                    idx === index ? selectTemplate : linkTemplate,
                     idx,
                     idx + 1,
                     true
@@ -542,7 +565,7 @@ const PlayBar = DataBoundWidget.extend({
             if (end < length - 1) {
                 // idx = end + 1 here
                 html += button(
-                    that.linkTemplate,
+                    linkTemplate,
                     idx,
                     '...',
                     false,
@@ -550,11 +573,11 @@ const PlayBar = DataBoundWidget.extend({
                 );
             }
             if (html === '') {
-                html = that.selectTemplate({ text: 0 });
+                html = selectTemplate({ text: 0 });
             }
             // Add drop down when there is not enough space to display numeric button
-            html = that.currentPageTemplate({ text: index + 1 }) + html;
-            that.list.removeClass('k-state-expanded').html(html);
+            html = currentPageTemplate({ text: index + 1 }) + html;
+            this.ul.removeClass('k-state-expanded').html(html);
         }
 
         // Update info
@@ -570,12 +593,12 @@ const PlayBar = DataBoundWidget.extend({
             } else {
                 html = options.messages.empty;
             }
-            that.element.find('.k-pager-info').html(html);
+            element.find('.k-pager-info').html(html);
         }
 
         // Update input
         if (options.input) {
-            that.element
+            element
                 .find('.k-pager-input')
                 .html(
                     `${options.messages.page}<input class="k-textbox">${format(
@@ -591,16 +614,16 @@ const PlayBar = DataBoundWidget.extend({
 
         // Update first, pervious, next, last buttons
         if (options.previousNext) {
-            first(that.element, index, length);
-            prev(that.element, index, length);
-            next(that.element, index, length);
-            last(that.element, index, length);
+            first(element, index, length);
+            prev(element, index, length);
+            next(element, index, length);
+            last(element, index, length);
         }
 
         if (e && e.action === undefined) {
             // TODO: we are cheating here: we should have in addedDataItems the pages displayed as numbers
             // Without addedDataItems, it fails because all data items are not displayed
-            that.trigger(CONSTANTS.DATABOUND, { addedDataItems: [] });
+            this.trigger(CONSTANTS.DATABOUND, { addedDataItems: [] });
         }
     },
 
@@ -643,7 +666,7 @@ const PlayBar = DataBoundWidget.extend({
      * @private
      */
     _toggleDropDown() {
-        this.list.toggleClass('k-state-expanded');
+        this.ul.toggleClass('k-state-expanded');
     },
 
     /**
@@ -666,32 +689,17 @@ const PlayBar = DataBoundWidget.extend({
     },
 
     /**
-     * @method _clear
-     * @private
-     */
-    _clear() {
-        const that = this;
-        // unbind kendo
-        // unbind($(that.element));
-        // unbind all other events
-        $(that.element)
-            .find('*')
-            .off();
-        $(that.element)
-            .off()
-            .empty()
-            .removeClass(WIDGET_CLASS);
-    },
-
-    /**
      * Destroy
      */
     destroy() {
-        const that = this;
-        DataBoundWidget.fn.destroy.call(that);
-        that._clear();
-        that.setDataSource(null);
-        destroy(that.element);
+        this.element.find('*').off();
+        this.element
+            .off()
+            .empty()
+            .removeClass(WIDGET_CLASS);
+        this.setDataSource(null);
+        DataBoundWidget.fn.destroy.call(this);
+        destroy(this.element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });

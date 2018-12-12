@@ -41,7 +41,7 @@ const QuizAdapter = BaseAdapter.extend({
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         // this.editor = 'input';
-        // $.extend(this.attributes, { type: 'text', style: 'width: 100%;' });
+        // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
             const input = $(`<${CONSTANTS.INPUT}/>`)
                 .css({ width: '100%' })

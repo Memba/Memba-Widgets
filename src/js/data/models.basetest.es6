@@ -144,7 +144,7 @@ const BaseTest = BaseModel.define({
             if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
                 const component = that.get(key).component();
                 if (!component.get('properties.disabled')) {
-                    debugger;
+                    // debugger;
                     score += that.get(`${key}.score`);
                 }
             }

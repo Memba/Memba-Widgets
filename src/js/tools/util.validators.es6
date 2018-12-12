@@ -9,75 +9,128 @@ import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 
-const { getter } = window.kendo;
-const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
+export const PATTERNS = {
+    RX_FONT_SIZE: /font(-size)?:[^;]*[0-9]+px/,
+    RX_STYLE: /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i, // TODO review size length
+    RX_TEXT: /\S[\s\S]{0, 99}/
+};
 
-// TODO: We need a way to redirect to propertygrid when clicking messages in console
-// TODO Check how validation works with kendo ui validators in property grid
+/**
+ * Turn a property name/value into an input which can be tested
+ * in data.Model validation rules
+ * @function makeInput
+ * @param prop
+ * @param value
+ */
+export function makeInput(name, value) {
+    return $(`<${CONSTANTS.INPUT}>`)
+        .attr({ name })
+        .val(value);
+}
+
+/*
+ * Note: Validators shall comply with validation rules
+ * @see https://docs.telerik.com/kendo-ui/api/javascript/data/model/methods/define
+ * Accordingly, we should not use the following names to avoid collisions with built-on rules:
+ * @ see https://docs.telerik.com/kendo-ui/controls/editors/validator/overview#default-validation-rules
+ * @see https://github.com/telerik/kendo-ui-core/blob/master/src/kendo.validator.js#L156
+ * - date
+ * - dateCompare?
+ * - email
+ * - max
+ * - min
+ * - pattern
+ * - required
+ * - step
+ * - url
+ */
+
+/**
+ * Constant validation
+ * @const constantValidator
+ */
+export const constantValidator = {
+    required: true,
+    constant(input) {
+        debugger;
+        return true;
+    }
+};
+
+/**
+ * Question validation
+ * @const questionValidator
+ */
+export const questionValidator = {
+    required: true,
+    pattern: PATTERNS.RX_TEXT
+};
 
 /**
  * Score validation
- * @param component
- * @param pageIdx
+ * @const scoreValidator
  */
-export function validateScores(component, pageIdx) {
-    const ret = [];
-    const { properties } = component;
-    if (
-        $.type(properties.failure) === CONSTANTS.NUMBER &&
-        $.type(properties.omit) === CONSTANTS.NUMBER &&
-        properties.failure > Math.min(properties.omit, 0)
-    ) {
-        ret.push({
-            type: CONSTANTS.WARNING,
-            index: pageIdx,
-            message: format(
-                messages.invalidFailure,
-                description,
-                name,
-                pageIdx + 1
-            )
-        });
+export const scoreValidator = {
+    score(input) {
+        return true;
     }
-    if (
-        $.type(properties.success) === CONSTANTS.NUMBER &&
-        $.type(properties.omit) === CONSTANTS.NUMBER &&
-        properties.success < Math.max(properties.omit, 0)
-    ) {
-        ret.push({
-            type: CONSTANTS.WARNING,
-            index: pageIdx,
-            message: format(
-                messages.invalidSuccess,
-                description,
-                name,
-                pageIdx + 1
-            )
-        });
+};
+
+/**
+ * Solution validation
+ * @const solutionValidator
+ */
+export const solutionValidator = {
+    // TODO depends on the solution
+    solution(input) {
+        debugger;
+        return true;
     }
-}
+};
 
 /**
  * Style validation
- * @param component
- * @param key
- * @param pageIdx
+ * @const styleValidator
  */
-export function validateStyle(component, key, pageIdx) {
-    const value = getter(component, key, true);
-    if (!RX_STYLE.test(value)) {
-        return {
-
+export const styleValidator = {
+    // required: true,
+    // pattern: PATTERNS.RX_STYLE
+    style(input) {
+        if (input.is('[name="attributes.style"]')) {
+            return (
+                input.val() === CONSTANTS.EMPTY ||
+                PATTERNS.RX_STYLE.test(input.val())
+            );
         }
+        return true;
     }
-}
+};
 
 /**
  * Text validation
- * @param component
- * @param key
- * @param pageIdx
+ * @const textValidator
  */
-export function validateText(component, key, pageIdx) {
+export const textValidator = {
+    required: true,
+    // the pattern rule requires type="text" which does not fit textareas
+    // pattern: PATTERNS.RX_TEXT
+    text(input) {
+        if (input.is('[name="attributes.text"]')) {
+            return PATTERNS.RX_TEXT.test(input.val());
+        }
+        return true;
+    }
+};
 
-}
+/**
+ * Validation validator
+ * @const validationValidator
+ * Beware: we have a kind of a mix here between Kendo UI validation
+ * and our own test validation formulas, which are both called validation
+ */
+export const validationValidator = {
+    validation(input) {
+        debugger;
+        return true;
+    }
+};

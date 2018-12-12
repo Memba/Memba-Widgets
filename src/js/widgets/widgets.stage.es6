@@ -27,6 +27,7 @@ import {
     rad2deg,
     snap
 } from '../common/window.position.es6';
+import Style from '../common/window.style.es6';
 import { isGuid } from '../common/window.util.es6';
 import PageComponentDataSource from '../data/datasources.pagecomponent.es6';
 import PageComponent from '../data/models.pagecomponent.es6';
@@ -514,6 +515,56 @@ const Stage = DataBoundWidget.extend({
     },
 
     /**
+     *
+     * @param value
+     * @returns {*}
+     */
+    style(value) {
+        assert.typeOrUndef(
+            CONSTANTS.STRING,
+            value,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'value',
+                CONSTANTS.STRING
+            )
+        );
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._style;
+        } else if (value !== this._style) {
+            this._style = value;
+            const style = new Style(this.wrapper.attr('style'), [
+                'position',
+                'height',
+                'width',
+                'transform',
+                'transform-origin',
+                // -------------------
+                'background',
+                'background-color',
+                'background-image',
+                'background-position',
+                'color',
+                'font',
+                'font-family',
+                'font-size',
+                'font-style',
+                'font-weight'
+            ]);
+            style.merge(value, true, [
+                'position',
+                'height',
+                'width',
+                'transform',
+                'transform-origin'
+            ]);
+            this.wrapper.attr({ style: style.toString() });
+        }
+        return ret;
+    },
+
+    /**
      * Widget layout
      * @method _render
      * @private
@@ -725,7 +776,7 @@ const Stage = DataBoundWidget.extend({
 
         // TODO: We might not need a PROPERTYBINDING event for that because this is all internal to ui.Stage
         if (enabled) {
-            debugger;
+            // TODO debugger;
         }
 
         // Unbind property bindings

@@ -3,7 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO: Consider redesigning ToolBase to only import adapters in designe mode,
+// TODO replace https://cdn.kidoju.com
+// TODO: Consider redesigning ToolBase to only import adapters in design mode,
 // using import('./adapters.*.es6').then(function () {...});
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
@@ -18,7 +19,11 @@ import PageComponent from '../data/models.pagecomponent.es6';
 import poolExec from '../workers/workers.exec.es6';
 import BaseAdapter from './adapters.base.es6';
 import NumberAdapter from './adapters.number.es6';
-import { isLibraryFormula, parseLibraryItem, RX_VALIDATION_FORMULA } from './util.libraries.es6';
+import {
+    isLibraryFormula,
+    parseLibraryItem,
+    RX_VALIDATION_FORMULA
+} from './util.libraries.es6';
 
 const { attr, Class, format, getter, htmlEncode, ns, template } = window.kendo;
 
@@ -40,71 +45,6 @@ const SVG_FAILURE =
 // const SVG_WARNING = '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" clip-rule="evenodd" viewBox="0 0 10240 10240"><path fill="#EDC87E" d="M5680 1282l3846 6712c117 205 117 439 0 644s-319 322-554 322H1281c-234 0-436-117-553-322s-117-439 0-644l3846-6712c117-205 318-322 553-322s436 117 553 322zm-560 318L1280 8320h7680L5120 1600z"/><path fill="gray" d="M5120 6720c353 0 640 287 640 640s-287 640-640 640-640-287-640-640 287-640 640-640zm-320-2880h640c176 0 320 144 320 320v802c0 110-12 204-38 311l-252 1006c-18 72-81 121-155 121h-390c-74 0-137-49-155-121l-252-1006c-26-107-38-201-38-311v-802c0-176 144-320 320-320z"/></svg>';
 const SVG_WARNING =
     'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY2xpcC1ydWxlPSJldmVub2RkIiB2aWV3Qm94PSIwIDAgMTAyNDAgMTAyNDAiPjxwYXRoIGZpbGw9IiNFREM4N0UiIGQ9Ik01NjgwIDEyODJsMzg0NiA2NzEyYzExNyAyMDUgMTE3IDQzOSAwIDY0NHMtMzE5IDMyMi01NTQgMzIySDEyODFjLTIzNCAwLTQzNi0xMTctNTUzLTMyMnMtMTE3LTQzOSAwLTY0NGwzODQ2LTY3MTJjMTE3LTIwNSAzMTgtMzIyIDU1My0zMjJzNDM2IDExNyA1NTMgMzIyem0tNTYwIDMxOEwxMjgwIDgzMjBoNzY4MEw1MTIwIDE2MDB6Ii8+PHBhdGggZmlsbD0iZ3JheSIgZD0iTTUxMjAgNjcyMGMzNTMgMCA2NDAgMjg3IDY0MCA2NDBzLTI4NyA2NDAtNjQwIDY0MC02NDAtMjg3LTY0MC02NDAgMjg3LTY0MCA2NDAtNjQwem0tMzIwLTI4ODBoNjQwYzE3NiAwIDMyMCAxNDQgMzIwIDMyMHY4MDJjMCAxMTAtMTIgMjA0LTM4IDMxMWwtMjUyIDEwMDZjLTE4IDcyLTgxIDEyMS0xNTUgMTIxaC0zOTBjLTc0IDAtMTM3LTQ5LTE1NS0xMjFsLTI1Mi0xMDA2Yy0yNi0xMDctMzgtMjAxLTM4LTMxMXYtODAyYzAtMTc2IDE0NC0zMjAgMzIwLTMyMHoiLz48L3N2Zz4=';
-
-/**
- * i18n
- */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).chargrid || {
-            tool: {
-                top: { title: 'Top' },
-                left: { title: 'Left' },
-                height: { title: 'Height' },
-                width: { title: 'Width' },
-                rotate: { title: 'Rotate' }
-            },
-
-            dialogs: {
-                ok: {
-                    text:
-                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
-                },
-                cancel: {
-                    text:
-                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel'
-                }
-            },
-
-            messages: {
-                invalidAltText:
-                    'A(n) {0} on page {1} requires some alternate text in display attributes.',
-                invalidAudioFile:
-                    'A(n) {0} on page {1} requires an mp3 file in display attributes.',
-                invalidColor:
-                    'A(n) {0} on page {1} has an invalid color in display attributes.',
-                invalidData:
-                    'A(n) {0} on page {1} requires values in display attributes.',
-                invalidDescription:
-                    'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
-                invalidConstant:
-                    'A(n) {0} on page {1} requires a constant in test logic.',
-                invalidFailure:
-                    'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
-                invalidFormula:
-                    'A(n) {0} on page {1} requires a formula in display attributes.',
-                invalidImageFile:
-                    'A(n) {0} on page {1} requires an image file in display attributes.',
-                invalidName:
-                    'A(n) {0} named `{1}` on page {2} has an invalid name.',
-                invalidShape:
-                    'A(n) {0} named `{1}` on page {2} requires a shape in display attributes.',
-                invalidSolution:
-                    'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
-                invalidStyle:
-                    'A(n) {0} on page {1} has an invalid style in display attributes.',
-                invalidSuccess:
-                    'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
-                invalidText:
-                    'A(n) {0} on page {1} requires some text in display attributes.',
-                invalidValidation:
-                    'A(n) {0} named `{1}` on page {2} requires a validation formula in test logic.',
-                invalidVideoFile:
-                    'A(n) {0} on page {1} requires an mp4 file in display attributes.'
-            }
-        }
-    );
-}
 
 /**
  * BaseTool
@@ -137,7 +77,6 @@ const BaseTool = Class.extend({
         failure: SVG_FAILURE,
         warning: SVG_WARNING
     },
-    i18n: i18n(),
 
     /**
      * Init
@@ -172,37 +111,42 @@ const BaseTool = Class.extend({
      * @private
      */
     getAttributeRows() {
+        const i18n = BaseTool.getMessageNameSpace();
         const rows = [];
         const data = {};
         data[attr('decimals')] = 0;
         data[attr('format')] = 'n0';
         // Add top, left, height, width, rotation
         rows.push(
-            new NumberAdapter({ title: this.i18n.tool.top.title }, data).getRow(
+            new NumberAdapter({ title: i18n.base.tool.top.title }, data).getRow(
                 'top'
             )
         );
         rows.push(
             new NumberAdapter(
-                { title: this.i18n.tool.left.title },
+                { title: i18n.base.tool.left.title },
                 data
             ).getRow('left')
         );
         rows.push(
             new NumberAdapter(
-                { title: this.i18n.tool.height.title },
+                {
+                    title: i18n.base.tool.height.title
+                },
                 data
             ).getRow('height')
         );
         rows.push(
             new NumberAdapter(
-                { title: this.i18n.tool.width.title },
+                { title: i18n.base.tool.width.title },
                 data
             ).getRow('width')
         );
         rows.push(
             new NumberAdapter(
-                { title: this.i18n.tool.rotate.title },
+                {
+                    title: i18n.base.tool.rotate.title
+                },
                 data
             ).getRow('rotate')
         );
@@ -843,6 +787,79 @@ const BaseTool = Class.extend({
         return ret;
     }
 });
+
+/**
+ * Global references for i18n
+ * Static getter the message namespace (see ../cultures/tools.*)
+ * @method getMessageNameSpace
+ */
+BaseTool.getMessageNameSpace = () => {
+    window.kendo.ex = window.kendo.ex || {};
+    window.kendo.ex.tools = window.kendo.ex.tools || {};
+    window.kendo.ex.tools.messages = window.kendo.ex.tools.messages || {};
+    return window.kendo.ex.tools.messages;
+};
+
+/**
+ * Init i18n messages
+ */
+const i18n = BaseTool.getMessageNameSpace();
+i18n.base = i18n.base || {
+    tool: {
+        top: { title: 'Top' },
+        left: { title: 'Left' },
+        height: { title: 'Height' },
+        width: { title: 'Width' },
+        rotate: { title: 'Rotate' }
+    },
+
+    dialogs: {
+        ok: {
+            text:
+                '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
+        },
+        cancel: {
+            text:
+                '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel'
+        }
+    },
+
+    messages: {
+        invalidAltText:
+            'A(n) {0} on page {1} requires some alternate text in display attributes.',
+        invalidAudioFile:
+            'A(n) {0} on page {1} requires an mp3 file in display attributes.',
+        invalidColor:
+            'A(n) {0} on page {1} has an invalid color in display attributes.',
+        invalidData:
+            'A(n) {0} on page {1} requires values in display attributes.',
+        invalidDescription:
+            'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
+        invalidConstant:
+            'A(n) {0} on page {1} requires a constant in test logic.',
+        invalidFailure:
+            'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
+        invalidFormula:
+            'A(n) {0} on page {1} requires a formula in display attributes.',
+        invalidImageFile:
+            'A(n) {0} on page {1} requires an image file in display attributes.',
+        invalidName: 'A(n) {0} named `{1}` on page {2} has an invalid name.',
+        invalidShape:
+            'A(n) {0} named `{1}` on page {2} requires a shape in display attributes.',
+        invalidSolution:
+            'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
+        invalidStyle:
+            'A(n) {0} on page {1} has an invalid style in display attributes.',
+        invalidSuccess:
+            'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
+        invalidText:
+            'A(n) {0} on page {1} requires some text in display attributes.',
+        invalidValidation:
+            'A(n) {0} named `{1}` on page {2} requires a validation formula in test logic.',
+        invalidVideoFile:
+            'A(n) {0} on page {1} requires an mp4 file in display attributes.'
+    }
+};
 
 /**
  * Default export

@@ -29,13 +29,15 @@ const DropDownListAdapter = BaseAdapter.extend({
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-        this.editor = 'input';
+        this.editor = 'select';
         this.attributes = $.extend({}, this.attributes, attributes);
         this.attributes[attr('role')] = 'dropdownlist';
-
+        this.attributes[attr('text-field')] = 'text';
+        this.attributes[attr('value-field')] = 'value';
+        this.attributes[attr('value-primitive')] = true;
         this.attributes[attr('source')] = JSON.stringify(
             options && options.source ? options.source : []
-        ); // kendo.htmlEncode??
+        );
     }
 });
 

@@ -135,8 +135,6 @@ const BaseAdapter = Class.extend({
         ) {
             row.editor = this.editor;
         }
-        // TODO: HTML encode????
-        // TODO Validation????
         if ($.isPlainObject(this.attributes)) {
             row.attributes = this.attributes;
         }

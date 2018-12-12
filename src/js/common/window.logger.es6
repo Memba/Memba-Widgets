@@ -7,7 +7,7 @@
 
 import CONSTANTS from './window.constants.es6';
 
-// TODO Review DI to get app.DEBUG, app.level and app.logger
+const plugins = new Set();
 
 /**
  * Format message and data into a log entry object
@@ -218,6 +218,31 @@ export default class Logger {
     }
 
     /**
+     * Add a new plugin
+     */
+    static register(plugin) {
+        /*
+        assert.type(
+            CONSTANTS.OBJECT,
+            plugin,
+            assert.format(
+                assert.messages.type.default,
+                'plugin',
+                CONSTANTS.OBJECT
+            )
+        );
+        assert.isFunction(
+            plugin.log,
+            assert.format(
+                assert.messages.isFunction.default,
+                'plugin.log'
+            )
+        );
+        */
+        plugins.add(plugin);
+    }
+
+    /**
      * Logger levels
      * @returns {{debug: {name: string, value: number}, info: {name: string, value: number}, warn: {name: string, value: number}, error: {name: string, value: number}, crit: {name: string, value: number}}}
      */
@@ -246,26 +271,21 @@ export default class Logger {
                 '`level` should be one of `debug`, `info`, `warn`, `error` or `crit`'
             );
         }
-        // Discard logs as per app settings
-        if (window.app && window.app.level > Logger.levels[lv].value) {
-            return false;
-        }
         // Build log entry
         const entry = preProcess(message, data);
         enhance(entry, this._module, lv);
-        // Log to the console in development environment
-        if (window.app && window.app.DEBUG) {
+        // Log to the console any level above window.DEBUG
+        if (
+            window.DEBUG === true ||
+            (typeof window.DEBUG === 'number' &&
+                window.DEBUG <= Logger.levels[lv].value)
+        ) {
             log2Console(entry, lv);
         }
-        // Use app.logger to send entry to log servers
-        if (
-            window.app &&
-            window.app.logger &&
-            typeof window.app.logger[`_${lv}`] === CONSTANTS.FUNCTION
-        ) {
-            window.app.logger[`_${lv}`](entry);
-        }
-        return true;
+        // Call registered plugins
+        plugins.forEach(plugin => {
+            plugin.log(entry, lv);
+        });
     }
 
     /**

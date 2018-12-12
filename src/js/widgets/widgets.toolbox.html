@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>widgets.toolbox</title>
     <script>
-        window.app = { DEBUG: true };
+        window.DEBUG = true;
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
@@ -201,8 +201,8 @@
                 SystemJS.import('./widgets.toolbox.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                var tools = modules[0].default;
-                var BaseTool = modules[1].default;
+                var tools = modules[1].default;
+                var BaseTool = modules[2].default;
                 // Use tools as viewModel for bindings
                 tools.set('visible', true);
                 tools.set('enabled', true);

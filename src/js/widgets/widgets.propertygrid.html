@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>widgets.propertygrid</title>
     <script>
-        window.app = { DEBUG: true };
+        window.DEBUG = true;
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
@@ -237,16 +237,42 @@
                                 type: 'string',
                                 nullable: true,
                                 validation: {
-                                    required: true
+                                    required: true,
+                                    title: function(input) {
+                                        return !input.is('[name="title"]');
+                                    }
                                 }
                             },
                             description: {
                                 type: 'string',
-                                nullable: true
+                                nullable: true,
+                                validation: {
+                                    required: true,
+                                    description(input) {
+                                        if (input.is('[name="description"]') && input.val() !== '') {
+                                            input.attr('data-description-msg',
+                                                'Description should start with capital letter');
+                                            return /^[A-Z]/.test(input.val());
+                                        }
+                                        return true;
+                                    }
+                                }
                             },
                             category: {
                                 type: 'string',
-                                nullable: true
+                                nullable: true,
+                                validation: {
+                                    required: true,
+                                    category(input) {
+                                        debugger;
+                                        if (input.is('[name="category"]') && input.val() != '') {
+                                            input.attr('data-category-msg',
+                                                'Category should start with A');
+                                            return /^A/.test(input.val());
+                                        }
+                                        return true;
+                                    }
+                                }
                             },
                             tags: {
                                 type: 'string',
@@ -264,22 +290,43 @@
                             },
                             width: {
                                 type: 'number',
-                                defaultValue: 500
+                                defaultValue: 500,
+                                validation: {
+                                    min: 490,
+                                    max: 510
+                                }
                             },
                             height: {
                                 type: 'number',
                                 defaultValue: 300
                             },
                             background: {
-                                type: 'string' //URL?
+                                type: 'string',
+                                validation: {
+                                    pattern: '^B'
+                                }
                             },
                             colour: {
                                 type: 'string',
-                                defaultValue: '#FF0000'
+                                defaultValue: '#FF0000',
+                                validation: {
+                                    required: true
+                                }
                             },
                             creationDate: {
                                 type: 'date',
-                                nullable: false
+                                nullable: false,
+                                validation: {
+                                    creationDate(input) {
+                                        debugger;
+                                        if (input.is('[name="creationDate"]') && input.val() !== '') {
+                                            input.attr('data-creationDate-msg',
+                                                'Product Name should start with capital letter');
+                                            return /^[A-Z]/.test(input.val());
+                                        }
+                                        return true;
+                                    }
+                                }
                             },
                             like: {
                                 type: 'boolean'

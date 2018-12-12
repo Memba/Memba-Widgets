@@ -18,7 +18,7 @@ const { afterEach, beforeEach, describe, it } = window;
 const { expect } = chai;
 chai.use(sinonChai);
 
-const MODULE = 'window.logger.test';
+const MODULE = 'logger.test';
 const MESSAGE = 'My message';
 // const METHOD = 'myMethod';
 const TRACE = '1234567890';
@@ -54,26 +54,22 @@ function errorLog(level, message, data, error) {
 
 describe('window.logger', () => {
     describe('Legacy export', () => {
-        it('Check window.Logger', () => {
-            expect(window.Logger).to.be.a('function');
+        it('Check Logger', () => {
             expect(Logger).to.be.a('function');
+            expect(window.Logger).to.be.a('function');
             if (!window.__karma__) {
                 expect(window.Logger).to.equal(Logger);
             }
         });
     });
 
-    describe('logging without app.logger at level 0', () => {
+    describe('logging without plugin at level 0', () => {
         let logger;
         let console;
-        let ret;
 
         beforeEach(() => {
-            window.app = {
-                DEBUG: true,
-                level: 0
-            };
-            logger = new window.Logger(MODULE);
+            window.DEBUG = 0;
+            logger = new Logger(MODULE);
             console = {
                 log: sinon.spy(),
                 error: sinon.spy()
@@ -90,8 +86,7 @@ describe('window.logger', () => {
 
         it('log messages with level param', () => {
             function test(level) {
-                ret = logger.log(level, { message: MESSAGE, data: DATA });
-                expect(ret).to.be.true;
+                logger.log(level, { message: MESSAGE, data: DATA });
                 expect(console.error).to.have.callCount(0);
                 expect(console.log).to.have.been.calledWith(
                     messageLog(level, MESSAGE, DATA)
@@ -104,8 +99,7 @@ describe('window.logger', () => {
 
         it('log messages with level functions', () => {
             function test(level) {
-                ret = logger[level]({ message: MESSAGE, data: DATA });
-                expect(ret).to.be.true;
+                logger[level]({ message: MESSAGE, data: DATA });
                 expect(console.error).to.have.callCount(0);
                 expect(console.log).to.have.been.calledWith(
                     messageLog(level, MESSAGE, DATA)
@@ -118,12 +112,11 @@ describe('window.logger', () => {
 
         it('log errors with level param', () => {
             function test(level, count) {
-                ret = logger.log(level, {
+                logger.log(level, {
                     message: MESSAGE,
                     data: DATA,
                     error: ERROR
                 });
-                expect(ret).to.be.true;
                 expect(console.error).to.have.callCount(count);
                 expect(console.log).to.have.callCount(count);
                 expect(console.log).to.have.been.calledWith(
@@ -136,12 +129,11 @@ describe('window.logger', () => {
 
         it('log errors with level functions', () => {
             function test(level, count) {
-                ret = logger[level]({
+                logger[level]({
                     message: MESSAGE,
                     data: DATA,
                     error: ERROR
                 });
-                expect(ret).to.be.true;
                 expect(console.error).to.have.callCount(count);
                 expect(console.log).to.have.been.calledWith(
                     errorLog(level, MESSAGE, DATA, ERROR)
@@ -152,24 +144,18 @@ describe('window.logger', () => {
         });
     });
 
-    describe('logging with app.logger at level 2', () => {
+    describe('logging with plugin at level 2', () => {
         let logger;
         let console;
-        let ret;
+        let plugin;
 
         beforeEach(() => {
-            window.app = {
-                DEBUG: true,
-                level: 2,
-                logger: {
-                    _debug: sinon.spy(),
-                    _info: sinon.spy(),
-                    _warn: sinon.spy(),
-                    _error: sinon.spy(),
-                    _crit: sinon.spy()
-                }
+            window.DEBUG = 2;
+            plugin = {
+                log: sinon.spy()
             };
-            logger = new window.Logger(MODULE);
+            Logger.register(plugin);
+            logger = new Logger(MODULE);
             console = {
                 log: sinon.spy(),
                 error: sinon.spy()
@@ -179,15 +165,10 @@ describe('window.logger', () => {
 
         it('debug level should not log', () => {
             function test(level) {
-                ret = logger[level](MESSAGE);
-                expect(ret).to.be.false;
+                logger[level](MESSAGE);
                 expect(console.log).to.have.callCount(0);
                 expect(console.error).to.have.callCount(0);
-                expect(window.app.logger._debug).to.have.callCount(0);
-                expect(window.app.logger._info).to.have.callCount(0);
-                expect(window.app.logger._warn).to.have.callCount(0);
-                expect(window.app.logger._error).to.have.callCount(0);
-                expect(window.app.logger._crit).to.have.callCount(0);
+                expect(plugin.log).to.have.callCount(1);
             }
             test('debug');
             // test('info');
@@ -196,13 +177,17 @@ describe('window.logger', () => {
 
         it('other message levels should log', () => {
             function test(level) {
-                ret = logger[level]({ message: MESSAGE, data: DATA });
-                expect(ret).to.be.true;
+                logger[level]({ message: MESSAGE, data: DATA });
                 expect(console.error).to.have.callCount(0);
                 expect(console.log).to.have.been.calledWith(
                     messageLog(level, MESSAGE, DATA)
                 );
-                expect(window.app.logger[`_${level}`]).to.have.callCount(1);
+                expect(plugin.log).to.have.been.calledWithMatch({
+                    level,
+                    module: MODULE,
+                    message: MESSAGE,
+                    data: DATA
+                });
             }
             // test('debug');
             test('info');
@@ -211,40 +196,39 @@ describe('window.logger', () => {
 
         it('error levels should log', () => {
             function test(level, count) {
-                ret = logger[level]({
+                logger[level]({
                     message: MESSAGE,
                     data: DATA,
                     error: ERROR
                 });
-                expect(ret).to.be.true;
                 expect(console.error).to.have.callCount(count);
                 expect(console.log).to.have.been.calledWith(
                     errorLog(level, MESSAGE, DATA, ERROR)
                 );
+                expect(plugin.log).to.have.been.calledWithMatch({
+                    level,
+                    module: MODULE,
+                    message: MESSAGE,
+                    data: DATA
+                });
             }
             test('error', 1);
             test('crit', 2);
         });
     });
 
-    describe('logging with app.logger at level 4', () => {
+    describe('logging with plugin at level 4', () => {
         let logger;
         let console;
-        let ret;
+        let plugin;
 
         beforeEach(() => {
-            window.app = {
-                DEBUG: true,
-                level: 4,
-                logger: {
-                    _debug: sinon.spy(),
-                    _info: sinon.spy(),
-                    _warn: sinon.spy(),
-                    _error: sinon.spy(),
-                    _crit: sinon.spy()
-                }
+            window.DEBUG = 4;
+            plugin = {
+                log: sinon.spy()
             };
-            logger = new window.Logger(MODULE);
+            Logger.register(plugin);
+            logger = new Logger(MODULE);
             console = {
                 log: sinon.spy(),
                 error: sinon.spy()
@@ -254,15 +238,15 @@ describe('window.logger', () => {
 
         it('debug/info levels should not log', () => {
             function test(level) {
-                ret = logger[level](MESSAGE);
-                expect(ret).to.be.false;
+                logger[level](MESSAGE);
                 expect(console.log).to.have.callCount(0);
                 expect(console.error).to.have.callCount(0);
-                expect(window.app.logger._debug).to.have.callCount(0);
-                expect(window.app.logger._info).to.have.callCount(0);
-                expect(window.app.logger._warn).to.have.callCount(0);
-                expect(window.app.logger._error).to.have.callCount(0);
-                expect(window.app.logger._crit).to.have.callCount(0);
+                expect(plugin.log).to.have.been.calledWithMatch({
+                    level,
+                    module: MODULE,
+                    message: MESSAGE
+                    // data: DATA
+                });
             }
             test('debug');
             test('info');
@@ -271,13 +255,17 @@ describe('window.logger', () => {
 
         it('other message levels should log', () => {
             function test(level) {
-                ret = logger[level]({ message: MESSAGE, data: DATA });
-                expect(ret).to.be.true;
+                logger[level]({ message: MESSAGE, data: DATA });
                 expect(console.error).to.have.callCount(0);
                 expect(console.log).to.have.been.calledWith(
                     messageLog(level, MESSAGE, DATA)
                 );
-                expect(window.app.logger[`_${level}`]).to.have.callCount(1);
+                expect(plugin.log).to.have.been.calledWithMatch({
+                    level,
+                    module: MODULE,
+                    message: MESSAGE,
+                    data: DATA
+                });
             }
             // test('debug');
             // test('info');
@@ -286,40 +274,39 @@ describe('window.logger', () => {
 
         it('error levels should log', () => {
             function test(level, count) {
-                ret = logger[level]({
+                logger[level]({
                     message: MESSAGE,
                     data: DATA,
                     error: ERROR
                 });
-                expect(ret).to.be.true;
                 expect(console.error).to.have.callCount(count);
                 expect(console.log).to.have.been.calledWith(
                     errorLog(level, MESSAGE, DATA, ERROR)
                 );
+                expect(plugin.log).to.have.been.calledWithMatch({
+                    level,
+                    module: MODULE,
+                    message: MESSAGE,
+                    data: DATA
+                });
             }
             test('error', 1);
             test('crit', 2);
         });
     });
 
-    describe('logging with app.logger at level 8', () => {
+    describe('logging with plugin at level 8', () => {
         let logger;
         let console;
-        let ret;
+        let plugin;
 
         beforeEach(() => {
-            window.app = {
-                DEBUG: true,
-                level: 8,
-                logger: {
-                    _debug: sinon.spy(),
-                    _info: sinon.spy(),
-                    _warn: sinon.spy(),
-                    _error: sinon.spy(),
-                    _crit: sinon.spy()
-                }
+            window.DEBUG = 8;
+            plugin = {
+                log: sinon.spy()
             };
-            logger = new window.Logger(MODULE);
+            Logger.register(plugin);
+            logger = new Logger(MODULE);
             console = {
                 log: sinon.spy(),
                 error: sinon.spy()
@@ -329,15 +316,15 @@ describe('window.logger', () => {
 
         it('no level should log', () => {
             function test(level) {
-                ret = logger[level](MESSAGE);
-                expect(ret).to.be.false;
+                logger[level](MESSAGE);
                 expect(console.log).to.have.callCount(0);
                 expect(console.error).to.have.callCount(0);
-                expect(window.app.logger._debug).to.have.callCount(0);
-                expect(window.app.logger._info).to.have.callCount(0);
-                expect(window.app.logger._warn).to.have.callCount(0);
-                expect(window.app.logger._error).to.have.callCount(0);
-                expect(window.app.logger._crit).to.have.callCount(0);
+                expect(plugin.log).to.have.been.calledWithMatch({
+                    level,
+                    module: MODULE,
+                    message: MESSAGE
+                    // data: DATA
+                });
             }
             test('debug');
             test('info');
@@ -350,21 +337,15 @@ describe('window.logger', () => {
     describe('logging with a trace', () => {
         let logger;
         let console;
-        let ret;
+        let plugin;
 
         beforeEach(() => {
-            window.app = {
-                DEBUG: true,
-                level: 0,
-                logger: {
-                    _debug: sinon.spy(),
-                    _info: sinon.spy(),
-                    _warn: sinon.spy(),
-                    _error: sinon.spy(),
-                    _crit: sinon.spy()
-                }
+            window.DEBUG = true;
+            plugin = {
+                log: sinon.spy()
             };
-            logger = new window.Logger(MODULE);
+            Logger.register(plugin);
+            logger = new Logger(MODULE);
             console = {
                 log: sinon.spy(),
                 error: sinon.spy()
@@ -377,13 +358,18 @@ describe('window.logger', () => {
         });
 
         it('Debug should log with a trace', () => {
-            ret = logger.debug(MESSAGE);
-            expect(ret).to.be.true;
+            logger.debug(MESSAGE);
             expect(console.log).to.have.callCount(1);
             expect(console.error).to.have.callCount(0);
             expect(console.log).to.have.been.calledWith(
                 `[DEBUG]${FIRST}message${EQ}${MESSAGE}${SEP}module${EQ}${MODULE}${SEP}trace${EQ}${TRACE}`
             );
+            expect(plugin.log).to.have.been.calledWithMatch({
+                level: 'debug',
+                module: MODULE,
+                message: MESSAGE
+                // data: DATA
+            });
         });
 
         afterEach(() => {

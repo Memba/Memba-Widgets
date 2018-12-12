@@ -6,7 +6,7 @@
     <!-- weinre - see http://people.apache.org/~pmuellr/weinre/docs/latest -->
     <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
     <script>
-        window.app = { DEBUG: true };
+        window.DEBUG = true;
     </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
@@ -24,7 +24,7 @@
     <link href="./styles/fonts/kidoju.css" rel="stylesheet">
     <!-- Kidoju styles -->
     <link href="./styles/dialogs/widgets.basedialog.css" rel="stylesheet">
-    <link href="./styles/widgets/kidoju.tools.css" rel="stylesheet">
+    <link href="styles/dialogs/kidoju.tools.css" rel="stylesheet">
     <link href="./styles/widgets/widgets.assetmanager.css" rel="stylesheet">
     <link href="./styles/widgets/widgets.buttonset.css" rel="stylesheet">
     <link href="./styles/widgets/widgets.codeeditor.css" rel="stylesheet">
@@ -300,43 +300,68 @@
                 <div class="centered">
                     <div data-role="stage" data-bind="source: selectedPage.components, value: selectedComponent" data-mode="design"></div>
                 </div>
+                <div id="console-wrapper" style="position: absolute; bottom: 0; width: 100%;">
+                    <ul id="console-panelbar" data-role="panelbar">
+                        <li><span class="k-link">Console</span>
+                            <div style="padding: 10px; overflow-y: auto; max-height: 200px;">
+                                <div id="refresh" style="text-align: right;"><a><span class="k-icon k-i-refresh">Refresh</span>Refresh</a></div>
+                                <div id="console" class="k-content" data-role="listview" data-bind="source: console" data-template="console-template"></div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <script type="text/kendo-x-template" id="console-template">
+                    # if (type === 'error') { #
+                    <div class="k-widget k-notification k-notification-error" data-index="#: index #">
+                        <div class="k-notification-wrap"><span class="k-icon k-i-error">Error</span>#:message#</div>
+                    </div>
+                    # } else if (type === 'warning') { #
+                    <div class="k-widget k-notification k-notification-warning" data-index="#: index #">
+                        <div class="k-notification-wrap"><span class="k-icon k-i-warning">Warning</span>#:message#</div>
+                    </div>
+                    # } else { #
+                    <div class="k-widget k-notification k-notification-info" data-index="#: index #">
+                        <div class="k-notification-wrap"><span class="k-icon k-i-info">Info</span>#:message#</div>
+                    </div>
+                    # } #
+                </script>
             </div>
             <div id="right-pane">
                 <div class="no-scroll">
                     <ul data-role="panelbar">
-                        <li>
-                            Toolbox
-                            <div data-role="toolbox"></div>
-                        </li>
-                        <li>
-                            Explorer
-                            <div data-role="explorer" data-bind="source: selectedPage.components, value: selectedComponent"></div>
-                        </li>
-                        <li>
-                            Display Attributes
-                            <div id="attributes" data-role="propertygrid" data-bind="value: selectedComponent" data-messages="{ property: null, value: null }"></div>
-                        </li>
-                        <li>
-                            Test Logic
-                            <div id="properties" data-role="propertygrid" data-bind="value: selectedComponent" data-messages="{ property: null, value: null }"></div>
-                        </li>
-                        <li>
-                            Instructions
-                            <div id="instructions">
-                                <div data-role="markeditor" data-bind="value: selectedPage.instructions, enabled: selectedPage" style="width: 100%;border:none;"></div>
+                        <li><span class="k-link">Toolbox</span>
+                            <div class="k-content">
+                                <div data-role="toolbox" data-icon-path="./styles/images/" style="width: 100%; border:none;"></div>
                             </div>
                         </li>
-                        <li>
-                            Explanations
-                            <div id="explanations">
-                                <div data-role="markeditor" data-bind="value: selectedPage.explanations, enabled: selectedPage" style="width: 100%;border:none;"></div>
+                        <li><span class="k-link">Explorer</span>
+                            <div class="k-content">
+                                <div data-role="explorer" data-icon-path="./styles/images/" data-bind="source: selectedPage.components, value: selectedComponent" style="width: 100%; border:none;"></div>
                             </div>
                         </li>
-                        <li>
-                            Snap
-                            <div id="snap" style="padding:0.5em;">
-                                <div><label style="text-align: center;">Grid:</label><input id="snap-grid" type="number" data-role="slider" data-min="0" data-max="50" data-small-step="1" data-large-step="10" data-tick-placement="none"></div>
-                                <div><label>Angle:</label><input id="snap-angle" type="number" data-role="slider" data-min="0" data-max="50" data-small-step="1" data-large-step="10" data-tick-placement="none"></div>
+                        <li><span class="k-link">Display Attributes</span>
+                            <div class="k-content">
+                                <div id="attributes" data-role="propertygrid" data-bind="value: selectedComponent" data-messages="{ property: null, value: null }" style="width: 100%; border:none;"></div>
+                            </div>
+                        </li>
+                        <li><span class="k-link">Test Logic</span>
+                            <div class="k-content">
+                                <div id="properties" data-role="propertygrid" data-bind="value: selectedComponent" data-messages="{ property: null, value: null }" style="width: 100%; border:none;"></div>
+                            </div>
+                        </li>
+                        <li><span class="k-link">Instructions</span>
+                            <div class="k-content">
+                                <div data-role="markeditor" data-bind="value: selectedPage.instructions, enabled: selectedPage" style="width: 100%; border:none;"></div>
+                            </div>
+                        </li>
+                        <li><span class="k-link">Explanations</span>
+                            <div class="k-content">
+                                <div data-role="markeditor" data-bind="value: selectedPage.explanations, enabled: selectedPage" style="width: 100%; border:none;"></div>
+                            </div>
+                        </li>
+                        <li><span class="k-link">Settings</span>
+                            <div class="k-content">
+                                <div id="settings" data-role="propertygrid" data-bind="value: settings" data-messages="{ property: null, value: null }" style="width: 100%; border:none;"></div>
                             </div>
                         </li>
                     </ul>

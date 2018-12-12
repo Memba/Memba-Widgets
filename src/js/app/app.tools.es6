@@ -38,12 +38,12 @@ import '../tools/tools.label.es6';
 import '../tools/tools.multiquiz.es6';
 // import '../tools/tools.numericbox.es6';
 import '../tools/tools.quiz.es6';
-// import '../tools/tools.random.es6'; */
 // import '../tools/tools.selector.es6';
 // import '../tools/tools.table.es6';
 // import '../tools/tools.textarea.es6';
 import '../tools/tools.textbox.es6';
 // import '../tools/tools.textgaps.es6';
+import '../tools/tools.variable.es6';
 // import '../tools/tools.video.es6';
 
 /**

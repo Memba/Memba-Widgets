@@ -6,6 +6,7 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import 'kendo.data';
 import 'kendo.binder';
 import 'kendo.panelbar';
 import 'kendo.slider';
@@ -13,9 +14,11 @@ import 'kendo.splitter';
 import 'kendo.toolbar';
 import LocalStream from './integration.data.es6';
 import Page from './js/data/models.page.es6';
+import StyleAdapter from './js/tools/adapters.style.es6';
 import tools from './js/tools/tools.es6';
 import BaseTool from './js/tools/tools.base.es6';
 import './js/widgets/widgets.explorer.es6';
+import './js/widgets/widgets.markeditor.es6';
 import './js/widgets/widgets.navigation.es6';
 import './js/widgets/widgets.propertygrid.es6';
 import './js/widgets/widgets.stage.es6';
@@ -25,6 +28,7 @@ const { location } = window;
 const {
     bind,
     dataviz,
+    data: { Model },
     mobile,
     observable,
     roleSelector,
@@ -32,19 +36,39 @@ const {
     ui: { Navigation, PropertyGrid, Stage }
 } = window.kendo;
 
+const Settings = Model.define({
+    fields: {
+        snapAngle: {
+            type: 'number'
+        },
+        snapGrid: {
+            type: 'number'
+        },
+        style: {
+            type: 'string'
+        }
+    }
+});
+
 /**
  * viewModel
  */
 const viewModel = observable({
     stream: new LocalStream(),
     selectedPage: undefined,
-    selectedComponent: undefined
+    selectedComponent: undefined,
+    settings: new Settings()
 });
 
 // Bind change event to map rows
 viewModel.bind('change', e => {
+    // debugger;
     if (e.field === 'selectedPage') {
-        viewModel.set('selectedComponent', undefined);
+        e.sender.set('selectedComponent', undefined);
+    } else if (e.field === 'selectedPage.style') {
+        const stage = $('#center-pane').find(roleSelector('stage'));
+        const stageWidget = stage.data('kendoStage');
+        stageWidget.style(e.sender.get('selectedPage.style'));
     } else if (e.field === 'selectedComponent') {
         const tool = tools[e.sender.get('selectedComponent.tool')];
         if (tool instanceof BaseTool) {
@@ -57,6 +81,16 @@ viewModel.bind('change', e => {
                 grid2.rows(tool.getPropertyRows());
             }
         }
+    } else if (e.field === 'settings.snapAngle') {
+        const stage = $('#center-pane').find(roleSelector('stage'));
+        const stageWidget = stage.data('kendoStage');
+        stageWidget.snapAngle(e.sender.get('settings.snapAngle'));
+    } else if (e.field === 'settings.snapGrid') {
+        const stage = $('#center-pane').find(roleSelector('stage'));
+        const stageWidget = stage.data('kendoStage');
+        stageWidget.snapGrid(e.sender.get('settings.snapGrid'));
+    } else if (e.field === 'settings.style') {
+        viewModel.set('selectedPage.style', e.sender.get('settings.style'));
     }
 });
 
@@ -181,20 +215,35 @@ $(() => {
         $(window).on('resize', onResize);
         onResize();
 
-        // Init sliders
-        $('#snap-angle')
-            .data('kendoSlider')
-            .bind('change', e => {
-                const stage = $('#center-pane').find(roleSelector('stage'));
-                const stageWidget = stage.data('kendoStage');
-                stageWidget.snapAngle(e.sender.value());
-            });
-        $('#snap-grid')
-            .data('kendoSlider')
-            .bind('change', e => {
-                const stage = $('#center-pane').find(roleSelector('stage'));
-                const stageWidget = stage.data('kendoStage');
-                stageWidget.snapGrid(e.sender.value());
-            });
+        // Init settings property grid
+        $('#settings')
+            .data('kendoPropertyGrid')
+            .rows([
+                {
+                    field: 'snapAngle',
+                    title: 'Snap Angle',
+                    editor: 'slider',
+                    attributes: {
+                        min: 0,
+                        max: 45,
+                        smallStep: 1,
+                        largeStep: 5,
+                        'data-tick-placement': 'none'
+                    }
+                },
+                {
+                    field: 'snapGrid',
+                    title: 'Snap Grid',
+                    editor: 'slider',
+                    attributes: {
+                        min: 0,
+                        max: 100,
+                        smallStep: 1,
+                        largeStep: 10,
+                        'data-tick-placement': 'none'
+                    }
+                },
+                new StyleAdapter({ title: 'Page Style' }).getRow('style')
+            ]);
     });
 });

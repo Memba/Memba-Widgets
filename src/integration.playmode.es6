@@ -11,7 +11,7 @@ import 'kendo.data';
 import 'kendo.grid';
 import 'kendo.toolbar';
 import LocalStream from './integration.data.es6';
-// TODO import './js/widgets/widgets.playbar.es6';
+import './js/widgets/widgets.playbar.es6';
 import './js/widgets/widgets.stage.es6';
 
 const {
@@ -35,8 +35,7 @@ const viewModel = observable({
     calculate() {
         return viewModel.test
             .grade()
-            .then(result => {
-                debugger;
+            .then(() => {
                 const stageWidget = $(roleSelector('stage')).data(
                     'kendoStage'
                 );

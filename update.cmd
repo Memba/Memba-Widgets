@@ -4,6 +4,9 @@ cd /d %~dp0
 REM Copy babel-polyfill
 XCOPY .\node_modules\@babel\polyfill\dist .\test\vendor /C /E /I /R /Y
 
+REM Copy less
+REM XCOPY .\node_modules\less\dist .\test\vendor /C /E /I /R /Y
+
 REM Copy common files from Kidoju-Server
 REM ATTRIB -R .\src\js\common\pongodb.*.es6
 REM COPY ..\Kidoju.Server\src\js\common\pongodb.*.es6 .\src\js\common\pongodb.*.es6 /Y

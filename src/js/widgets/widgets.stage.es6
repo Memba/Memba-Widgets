@@ -2308,7 +2308,7 @@ plugin(Stage);
  * Visual debug helpers
  ******************************************************************************** */
 
-if (window.app && window.app.DEBUG) {
+if (window.DEBUG) {
     const DEBUG_MOUSE_CLASS = 'debug-mouse';
     const DEBUG_MOUSE_DIV = `<div class="${DEBUG_MOUSE_CLASS}"/>`;
     const DEBUG_BOUNDS_CLASS = 'debug-bounds';

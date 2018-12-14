@@ -665,7 +665,7 @@ var DropZone = DataBoundWidget.extend({
             // One of the difficulties with this Kendo UI widget, is the fact that it needs to sit below draggables for draggables to move above it
             // This means it is instantiated before draggable elements, so we need to bind drop zones to the stage CONSTANTS.DATABOUND event
             stageWidget.bind(CONSTANTS.DATABOUND, this._dataBoundHandler);
-        } else if (window.app && window.app.DEBUG) {
+        } else if (window.DEBUG) {
             // This is essentially for running/testing without a stage widget
             setTimeout(this._dataBoundHandler, 100);
         }

@@ -8,7 +8,6 @@
 import $ from 'jquery';
 import 'kendo.data';
 import assert from '../common/window.assert.es6';
-import CONSTANTS from '../common/window.constants.es6';
 import PageComponent from './models.pagecomponent.es6';
 
 const {

@@ -196,8 +196,7 @@ assert.isNonEmptyPlainObject = (value, message) => {
  * @param value
  * @param message
  */
-assert.isOptionalObject = (value, message) => {
-    // TODO Review
+assert.isNonEmptyPlainObjectOrUndef = (value, message) => {
     if (
         $.type(value) !== 'undefined' &&
         (!$.isPlainObject(value) || $.isEmptyObject(value))
@@ -205,7 +204,6 @@ assert.isOptionalObject = (value, message) => {
         throw new TypeError(message);
     }
 };
-
 /**
  * Assert a plain (incl. empty) object
  * @param value
@@ -345,10 +343,10 @@ assert.messages = {
         default: '`{0}` is expected to be a function'
     },
     isNonEmptyPlainObject: {
-        default: '`{0}` is expected to be a plain non empty object'
+        default: '`{0}` is expected to be a plain non-empty object'
     },
-    isOptionalObject: {
-        default: '`{0}` is expected to be undefined or a plain object'
+    isNonEmptyPlainObjectOrUndef: {
+        default: '`{0}` is expected to be undefined or a plain non-empty object'
     },
     isPlainObject: {
         default: '`{0}` is expected to be a plain or empty object'
@@ -391,10 +389,7 @@ assert.crud = options => {
     );
     assert.isPlainObject(
         options.data,
-        assert.format(
-            assert.messages.isPlainObject.default,
-            'options.data'
-        )
+        assert.format(assert.messages.isPlainObject.default, 'options.data')
     );
     assert.isFunction(
         options.success,

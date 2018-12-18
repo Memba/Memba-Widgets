@@ -194,39 +194,7 @@ describe('window.assert', () => {
 
         xit('isFunction', () => {});
 
-        it('isOptionalObject', () => {
-            expect(assert.messages.isOptionalObject.default).to.be.a(
-                CONSTANTS.STRING
-            );
-            const p = new Person('John', 'Doe');
-            function fn1() {
-                assert.isOptionalObject(null, ERR_MSG);
-            }
-            function fn2() {
-                assert.isOptionalObject(true, ERR_MSG);
-            }
-            function fn3() {
-                assert.isOptionalObject('a', ERR_MSG);
-            }
-            function fn4() {
-                // IMPORTANT: Empty object!!!!!!
-                assert.isOptionalObject({}, ERR_MSG);
-            }
-            function fn5() {
-                // IMPORTANT: Prototyped Object!!!!!!
-                assert.isOptionalObject(p, ERR_MSG);
-            }
-            expect(fn1).to.throw(TypeError, ERR_MSG);
-            expect(fn2).to.throw(TypeError, ERR_MSG);
-            expect(fn3).to.throw(TypeError, ERR_MSG);
-            expect(fn4).to.throw(TypeError, ERR_MSG);
-            expect(fn5).to.throw(TypeError, ERR_MSG);
-            expect(assert.isOptionalObject(undefined, ERR_MSG)).to.be.undefined;
-            expect(assert.isOptionalObject({ prop: true }, ERR_MSG)).to.be
-                .undefined;
-        });
-
-        it('isPlainObject', () => {
+        it('isNonEmptyPlainObject', () => {
             expect(assert.messages.isNonEmptyPlainObject.default).to.be.a(
                 CONSTANTS.STRING
             );
@@ -261,7 +229,40 @@ describe('window.assert', () => {
                 .undefined;
         });
 
-        xit('isPLainOrEmptyObject', () => {});
+        it('isNonEmptyPlainObjectOrUndef', () => {
+            expect(
+                assert.messages.isNonEmptyPlainObjectOrUndef.default
+            ).to.be.a(CONSTANTS.STRING);
+            const p = new Person('John', 'Doe');
+            function fn1() {
+                assert.isNonEmptyPlainObjectOrUndef(null, ERR_MSG);
+            }
+            function fn2() {
+                assert.isNonEmptyPlainObjectOrUndef(true, ERR_MSG);
+            }
+            function fn3() {
+                assert.isNonEmptyPlainObjectOrUndef('a', ERR_MSG);
+            }
+            function fn4() {
+                // IMPORTANT: Empty object!!!!!!
+                assert.isNonEmptyPlainObjectOrUndef({}, ERR_MSG);
+            }
+            function fn5() {
+                // IMPORTANT: Prototyped Object!!!!!!
+                assert.isNonEmptyPlainObjectOrUndef(p, ERR_MSG);
+            }
+            expect(fn1).to.throw(TypeError, ERR_MSG);
+            expect(fn2).to.throw(TypeError, ERR_MSG);
+            expect(fn3).to.throw(TypeError, ERR_MSG);
+            expect(fn4).to.throw(TypeError, ERR_MSG);
+            expect(fn5).to.throw(TypeError, ERR_MSG);
+            expect(assert.isNonEmptyPlainObjectOrUndef(undefined, ERR_MSG)).to
+                .be.undefined;
+            expect(assert.isNonEmptyPlainObjectOrUndef({ prop: true }, ERR_MSG))
+                .to.be.undefined;
+        });
+
+        xit('isPlainOrEmptyObject', () => {});
 
         it('isUndefined', () => {
             expect(assert.messages.isUndefined.default).to.be.a(

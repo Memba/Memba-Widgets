@@ -411,9 +411,9 @@ export default class FileSystem {
             fileEntry.isFile,
             'fileEntry should be a FileEntry and therefore return fileEntry.isFile === true'
         );
-        assert.isOptionalObject(
+        assert.isNonEmptyPlainObjectOrUndef(
             headers,
-            assert.format(assert.messages.isOptionalObject.default, 'headers')
+            assert.format(assert.messages.isNonEmptyPlainObjectOrUndef.default, 'headers')
         );
 
         const dfd = $.Deferred();

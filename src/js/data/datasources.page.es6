@@ -10,6 +10,7 @@ import 'kendo.data';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Page from './models.page.es6';
+import PageComponent from './models.pagecomponent';
 
 const {
     data: { DataSource, ObservableArray }
@@ -51,21 +52,23 @@ const PageDataSource = DataSource.extend({
      */
     init(options) {
         if (options && options.schema) {
-            assert.ok(
-                $.type(options.schema.model) === CONSTANTS.UNDEFINED ||
-                    Object.prototype.isPrototypeOf.call(
-                        Page.prototype,
-                        options.schema.model.prototype
-                    ),
-                '`model` should derive from Page'
+            assert.extendsOrUndef(
+                Page,
+                options.schema.modelBase,
+                assert.format(
+                    assert.messages.extendsOrUndef.default,
+                    'options.schema.model',
+                    'Page'
+                )
             );
-            assert.ok(
-                $.type(options.schema.modelBase) === CONSTANTS.UNDEFINED ||
-                    Object.prototype.isPrototypeOf.call(
-                        Page.prototype,
-                        options.schema.modelBase.prototype
-                    ),
-                '`modelBase` should derive from Page'
+            assert.extendsOrUndef(
+                Page,
+                options.schema.modelBase,
+                assert.format(
+                    assert.messages.extendsOrUndef.default,
+                    'options.schema.modelBase',
+                    'Page'
+                )
             );
 
             // Propagates Page options to PageComponentDataSource

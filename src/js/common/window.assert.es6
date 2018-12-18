@@ -118,6 +118,26 @@ assert.extends = (Parent, Child, message) => {
 };
 
 /**
+ * Assert extendsOrUndef
+ * @param Parent
+ * @param Child
+ * @param message
+ */
+assert.extendsOrUndef = (Parent, Child, message) => {
+    if (
+        !$.isFunction(Parent) ||
+        ($.type(Child) !== 'undefined' &&
+            (!$.isFunction(Child) ||
+                !Object.prototype.isPrototypeOf.call(
+                    Parent.prototype,
+                    Child.prototype
+                )))
+    ) {
+        throw new TypeError(message);
+    }
+};
+
+/**
  * Assert format (note: prefer kendo.format when available)
  * @param message
  * @param values
@@ -342,6 +362,9 @@ assert.messages = {
     },
     extends: {
         default: '`{0}` is expected to extend `{1}`'
+    },
+    extendsOrUndef: {
+        default: '`{0}` is expected to extend `{1}` or be undefined'
     },
     hasLength: {
         default: '`{0}` has neither length nor any item'

@@ -51,21 +51,23 @@ const PageComponentDataSource = DataSource.extend({
      */
     init(options) {
         if (options && options.schema) {
-            assert.ok(
-                $.type(options.schema.model) === CONSTANTS.UNDEFINED ||
-                    Object.prototype.isPrototypeOf.call(
-                        PageComponent.prototype,
-                        options.schema.model.prototype
-                    ),
-                '`model` should derive from PageComponent'
+            assert.extendsOrUndef(
+                PageComponent,
+                options.schema.modelBase,
+                assert.format(
+                    assert.messages.extendsOrUndef.default,
+                    'options.schema.model',
+                    'PageComponent'
+                )
             );
-            assert.ok(
-                $.type(options.schema.modelBase) === CONSTANTS.UNDEFINED ||
-                    Object.prototype.isPrototypeOf.call(
-                        PageComponent.prototype,
-                        options.schema.modelBase.prototype
-                    ),
-                '`modelBase` should derive from PageComponent'
+            assert.extendsOrUndef(
+                PageComponent,
+                options.schema.modelBase,
+                assert.format(
+                    assert.messages.extendsOrUndef.default,
+                    'options.schema.modelBase',
+                    'PageComponent'
+                )
             );
 
             // Propagates Page options to PageComponentDataSource

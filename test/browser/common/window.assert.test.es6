@@ -124,6 +124,38 @@ describe('window.assert', () => {
             expect(assert.extends(Person, Male, ERR_MSG)).to.be.undefined;
         });
 
+        it('extendsOrUndef', () => {
+            class Male extends Person {
+                constructor(firstName, lastName) {
+                    super(firstName, lastName);
+                    this._male = true;
+                }
+            }
+            expect(assert.messages.extendsOrUndef.default).to.be.a(CONSTANTS.STRING);
+            function fn1() {
+                assert.extendsOrUndef(Person, true, ERR_MSG);
+            }
+            function fn2() {
+                assert.extendsOrUndef(Person, 10, ERR_MSG);
+            }
+            function fn3() {
+                assert.extendsOrUndef(Person, 'a', ERR_MSG);
+            }
+            function fn4() {
+                assert.extendsOrUndef(Person, {}, ERR_MSG);
+            }
+            function fn5() {
+                assert.extendsOrUndef(Person, [], ERR_MSG);
+            }
+            expect(fn1).to.throw(TypeError, ERR_MSG);
+            expect(fn2).to.throw(TypeError, ERR_MSG);
+            expect(fn3).to.throw(TypeError, ERR_MSG);
+            expect(fn4).to.throw(TypeError, ERR_MSG);
+            expect(fn5).to.throw(TypeError, ERR_MSG);
+            expect(assert.extendsOrUndef(Person, undefined, ERR_MSG)).to.be.undefined;
+            expect(assert.extendsOrUndef(Person, Male, ERR_MSG)).to.be.undefined;
+        });
+
         it('format', () => {
             expect(assert.format('{0}', 1)).to.equal('1');
             expect(

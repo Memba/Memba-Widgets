@@ -102,6 +102,22 @@ assert.equal = (expected, actual, message) => {
 };
 
 /**
+ * Assert extends as in class Child extends Parent
+ * @param Parent
+ * @param Child
+ * @param message
+ */
+assert.extends = (Parent, Child, message) => {
+    if (
+        !$.isFunction(Parent) ||
+        !$.isFunction(Child) ||
+        !Object.prototype.isPrototypeOf.call(Parent.prototype, Child.prototype)
+    ) {
+        throw new TypeError(message);
+    }
+};
+
+/**
  * Assert format (note: prefer kendo.format when available)
  * @param message
  * @param values
@@ -323,6 +339,9 @@ assert.messages = {
     },
     equal: {
         default: '`{0}` is expected to equal `{1}`'
+    },
+    extends: {
+        default: '`{0}` is expected to extend `{1}`'
     },
     hasLength: {
         default: '`{0}` has neither length nor any item'

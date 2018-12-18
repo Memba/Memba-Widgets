@@ -60,9 +60,9 @@ const ToolBox = Widget.extend({
                 'HTMLElement'
             )
         );
-        assert.isPlainOrEmptyObject(
+        assert.isPlainObject(
             options,
-            assert.format(assert.messages.isPlainObject.default, 'options')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
         );
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });

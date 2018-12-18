@@ -181,6 +181,17 @@ assert.isFunction = (value, message) => {
 };
 
 /**
+ * Assert a non-empty plain object
+ * @param value
+ * @param message
+ */
+assert.isNonEmptyPlainObject = (value, message) => {
+    if (!$.isPlainObject(value) || $.isEmptyObject(value)) {
+        throw new TypeError(message);
+    }
+};
+
+/**
  * Assert optional object (can be undefined but not an empty object, i.e. {})
  * @param value
  * @param message
@@ -196,24 +207,11 @@ assert.isOptionalObject = (value, message) => {
 };
 
 /**
- * Assert a plain object (not empty)
+ * Assert a plain (incl. empty) object
  * @param value
  * @param message
  */
 assert.isPlainObject = (value, message) => {
-    // TODO Review
-    if (!$.isPlainObject(value) || $.isEmptyObject(value)) {
-        throw new TypeError(message);
-    }
-};
-
-/**
- * Assert a plain or empty object
- * @param value
- * @param message
- */
-assert.isPlainOrEmptyObject = (value, message) => {
-    // TODO Review
     if (!$.isPlainObject(value)) {
         throw new TypeError(message);
     }
@@ -346,13 +344,13 @@ assert.messages = {
     isFunction: {
         default: '`{0}` is expected to be a function'
     },
+    isNonEmptyPlainObject: {
+        default: '`{0}` is expected to be a plain non empty object'
+    },
     isOptionalObject: {
         default: '`{0}` is expected to be undefined or a plain object'
     },
     isPlainObject: {
-        default: '`{0}` is expected to be a plain non empty object'
-    },
-    isPlainOrEmptyObject: {
         default: '`{0}` is expected to be a plain or empty object'
     },
     isPoint: {
@@ -387,14 +385,14 @@ assert.messages = {
  * @param options
  */
 assert.crud = options => {
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         options,
-        assert.format(assert.messages.isPlainObject.default, 'options')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
     );
-    assert.isPlainOrEmptyObject(
+    assert.isPlainObject(
         options.data,
         assert.format(
-            assert.messages.isPlainOrEmptyObject.default,
+            assert.messages.isPlainObject.default,
             'options.data'
         )
     );

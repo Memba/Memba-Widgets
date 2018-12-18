@@ -120,9 +120,9 @@ const MultiQuiz = DataBoundWidget.extend({
      * @param options
      */
     setOptions(options) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isPlainObject.default, 'options')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
         );
         Widget.fn.setOptions.call(this, options);
         const {

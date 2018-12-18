@@ -26,10 +26,10 @@ const BaseAdapter = Class.extend({
      * @param attributes
      */
     init(options = {}) {
-        assert.isPlainOrEmptyObject(
+        assert.isPlainObject(
             options,
             assert.format(
-                assert.messages.isPlainOrEmptyObject.default,
+                assert.messages.isPlainObject.default,
                 'options'
             )
         );

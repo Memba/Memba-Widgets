@@ -493,9 +493,9 @@ const Page = BaseModel.define({
  * createTextBoxPage
  */
 Page.createTextBoxPage = options => {
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         options,
-        assert.format(assert.messages.isPlainObject.default, 'options')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
     );
     assert.type(
         CONSTANTS.STRING,
@@ -574,9 +574,9 @@ Page.createTextBoxPage = options => {
  * createQuizPage
  */
 Page.createQuizPage = options => {
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         options,
-        assert.format(assert.messages.isPlainObject.default, 'options')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
     );
     assert.type(
         CONSTANTS.STRING,
@@ -655,9 +655,9 @@ Page.createQuizPage = options => {
  * createMultiQuizPage
  */
 Page.createMultiQuizPage = options => {
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         options,
-        assert.format(assert.messages.isPlainObject.default, 'options')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
     );
     assert.type(
         CONSTANTS.STRING,

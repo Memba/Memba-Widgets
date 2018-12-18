@@ -17,9 +17,9 @@ import { getValueBinding } from '../data/data.util.es6';
  * @param options
  */
 function textarea(container, options) {
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         options,
-        assert.format(assert.messages.isPlainObject.default, 'options')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
     );
     assert.type(
         CONSTANTS.STRING,

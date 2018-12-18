@@ -552,9 +552,9 @@ const AssetManager = Widget.extend({
      * @private
      */
     _onTabSelect(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.instanceof(
             window.HTMLLIElement,
@@ -624,10 +624,10 @@ const AssetManager = Widget.extend({
             this._collections,
             assert.format(assert.messages.isArray.default, 'this._collections')
         );
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             this.collection,
             assert.format(
-                assert.messages.isPlainObject.default,
+                assert.messages.isNonEmptyPlainObject.default,
                 'this.collection'
             )
         );
@@ -673,9 +673,9 @@ const AssetManager = Widget.extend({
      * @private
      */
     _onDropDownListChange(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.instanceof(
             DropDownList,
@@ -1065,10 +1065,10 @@ const AssetManager = Widget.extend({
                 'kendo.data.DataSource'
             )
         );
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             this.listView.dataSource.transport,
             assert.format(
-                assert.messages.isPlainObject.default,
+                assert.messages.isNonEmptyPlainObject.default,
                 'this.listView.dataSource.transport'
             )
         );
@@ -1174,10 +1174,10 @@ const AssetManager = Widget.extend({
      * @private
      */
     _editNew() {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             this.collection,
             assert.format(
-                assert.messages.isPlainObject.default,
+                assert.messages.isNonEmptyPlainObject.default,
                 'this.collection'
             )
         );
@@ -1212,10 +1212,10 @@ const AssetManager = Widget.extend({
      * @private
      */
     _editSelected() {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             this.collection,
             assert.format(
-                assert.messages.isPlainObject.default,
+                assert.messages.isNonEmptyPlainObject.default,
                 'this.collection'
             )
         );
@@ -1283,10 +1283,10 @@ const AssetManager = Widget.extend({
      * @private
      */
     _deleteSelected() {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             this.collection,
             assert.format(
-                assert.messages.isPlainObject.default,
+                assert.messages.isNonEmptyPlainObject.default,
                 'this.collection'
             )
         );
@@ -1328,7 +1328,7 @@ const AssetManager = Widget.extend({
      */
     /*
             _onDropDownListDataBound: function (e) {
-                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
                 assert.instanceof(DropDownList, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
                 // A;ways select the first item in the list
                 e.sender.select(0);
@@ -1559,9 +1559,9 @@ const AssetManager = Widget.extend({
      * @private
      */
     _onListViewDataBound(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.instanceof(
             ListView,

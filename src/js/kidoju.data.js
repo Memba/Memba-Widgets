@@ -974,7 +974,7 @@
          * createTextBoxPage
          */
         Page.createTextBoxPage = function (options) {
-            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
             assert.type(STRING, options.question, assert.format(assert.messages.type.default, options.question, STRING));
             assert.type(STRING, options.solution, assert.format(assert.messages.type.default, options.solution, STRING));
             var solutions = options.solution.split('\n')
@@ -1029,7 +1029,7 @@
          * createQuizPage
          */
         Page.createQuizPage = function (options) {
-            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
             assert.type(STRING, options.question, assert.format(assert.messages.type.default, options.question, STRING));
             assert.isArray(options.data, assert.format(assert.messages.isArray.default, options.data));
             assert.type(STRING, options.solution, assert.format(assert.messages.type.default, options.solution, STRING));
@@ -1083,7 +1083,7 @@
          * createMultiQuizPage
          */
         Page.createMultiQuizPage = function (options) {
-            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
             assert.type(STRING, options.question, assert.format(assert.messages.type.default, options.question, STRING));
             assert.isArray(options.data, assert.format(assert.messages.isArray.default, options.data));
             // TODO Check that options.data has text and image
@@ -1468,7 +1468,7 @@
                                         assert.isArray(found, assert.format(assert.messages.isArray.default, 'found'));
                                         assert.hasLength(found, assert.format(assert.messages.hasLength.default, 'found'));
                                         found = found[0];
-                                        assert.isPlainObject(found, assert.format(assert.messages.isPlainObject.default, 'found'));
+                                        assert.isNonEmptyPlainObject(found, assert.format(assert.messages.isNonEmptyPlainObject.default, 'found'));
                                         assert.type(STRING, found.formula, assert.format(assert.messages.type.default, 'found.formula', STRING));
                                         // libraryMatches[3] is the param value beginning with ` ["` and ending with `"]`
                                         var paramValue = libraryMatches[3];

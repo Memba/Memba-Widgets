@@ -546,7 +546,7 @@ var MathInput = Widget.extend({
      * @private
      */
     _onToolBarDialog: function (e) {
-        assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+        assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
         this._openDialog(e.name, e.options);
     },
 

@@ -20,9 +20,9 @@ const { attr } = window.kendo;
  * @param options
  */
 function select(container, options) {
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         options,
-        assert.format(assert.messages.isPlainObject.default, 'options')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
     );
     assert.type(
         CONSTANTS.STRING,

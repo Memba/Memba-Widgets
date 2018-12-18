@@ -212,7 +212,7 @@
         util.setSelection = function (htmlElement, cursor) {
             assert.instanceof(HTMLDivElement, htmlElement, assert.format(assert.messages.instanceof.default, 'htmlElement', 'HTMLDivElement'));
             assert.ok(htmlElement.childNodes.length === 1 && htmlElement.childNodes[0].nodeType === 3, '`htmlElement` should only have on child node of type #Text');
-            assert.isPlainObject(cursor, assert.format(assert.messages.isPlainObject.default, 'cursor'));
+            assert.isNonEmptyPlainObject(cursor, assert.format(assert.messages.isNonEmptyPlainObject.default, 'cursor'));
             assert.type(NUMBER, cursor.start, assert.format(assert.messages.type.default, 'cursor.start', NUMBER));
             assert.type(NUMBER, cursor.end, assert.format(assert.messages.type.default, 'cursor.end', NUMBER));
             // document.selection && document.selection.createRange were used in IE < 9

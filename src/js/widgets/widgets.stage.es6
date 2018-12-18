@@ -1578,9 +1578,9 @@ const Stage = DataBoundWidget.extend({
      * @private
      */
     _onContextMenuOpen(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.instanceof(
             ContextMenu,
@@ -1626,9 +1626,9 @@ const Stage = DataBoundWidget.extend({
      * @private
      */
     _onContextMenuSelect(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.instanceof(
             ContextMenu,
@@ -1755,9 +1755,9 @@ const Stage = DataBoundWidget.extend({
      * @private
      */
     _onMousePress(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         const active = this.options.tools.get(CONSTANTS.ACTIVE);
         const target = $((e.touch || {}).initialTouch);
@@ -1845,9 +1845,9 @@ const Stage = DataBoundWidget.extend({
      * @private
      */
     _onMouseStart(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         const active = this.options.tools.get(CONSTANTS.ACTIVE);
         const target = $((e.touch || {}).initialTouch);
@@ -1895,9 +1895,9 @@ const Stage = DataBoundWidget.extend({
      * @private
      */
     _onMouseMove(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         const target = $((e.touch || {}).initialTouch);
         const action = target.attr(attr(CONSTANTS.ACTION));
@@ -2021,9 +2021,9 @@ const Stage = DataBoundWidget.extend({
      * @private
      */
     _onMouseEnd(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         const target = $((e.touch || {}).initialTouch);
         const action = target.attr(attr(CONSTANTS.ACTION));

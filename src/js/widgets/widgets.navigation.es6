@@ -405,9 +405,9 @@ const Navigation = DataBoundWidget.extend({
                 return element.clone().addClass(PLACEHOLDER_CLASS);
             },
             change(e) {
-                assert.isPlainObject(
+                assert.isNonEmptyPlainObject(
                     e,
-                    assert.format(assert.messages.isPlainObject.default, 'e')
+                    assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
                 );
                 assert.instanceof(
                     PageDataSource,

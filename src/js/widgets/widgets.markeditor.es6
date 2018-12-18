@@ -223,9 +223,9 @@ const MarkEditor = Widget.extend({
      * @private
      */
     _onToolBarDialog(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         if (!this.trigger('dialog', { name: e.name, options: e.options })) {
             this._openDialog(e.name, e.options);
@@ -241,7 +241,7 @@ const MarkEditor = Widget.extend({
      */
     _openDialog(name, options) {
         // assert.type(CONSTANTS.STRING, name, assert.format(assert.messages.type.default, 'name', CONSTANTS.STRING));
-        // assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+        // assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
         const dialog = markeditor.dialogs.create(name, options);
         if (!$.isArray(this._dialogs)) {
             this._dialogs = [];
@@ -270,9 +270,9 @@ const MarkEditor = Widget.extend({
      * @private
      */
     _onToolBarAction(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         if (
             !this.trigger('command', { command: e.command, params: e.params })

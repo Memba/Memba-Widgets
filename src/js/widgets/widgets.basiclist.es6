@@ -410,9 +410,9 @@ const BasicList = DataBoundWidget.extend({
      * @private
      */
     _onChange(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         const { action, index, items } = e;
         // Note: this is not the dataSource that raised the event

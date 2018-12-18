@@ -450,9 +450,9 @@ const Explorer = DataBoundWidget.extend({
      * @private
      */
     _onChange(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.instanceof(
             PageComponentDataSource,

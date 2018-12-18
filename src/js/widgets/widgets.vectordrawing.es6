@@ -668,7 +668,7 @@ var VectorDrawing = Diagram.extend({
      * @private
      */
     _onToolBarDialog: function (e) {
-        assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+        assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
         if (!this.trigger('dialog', { name: e.name, options: e.options })) {
             this._openDialog(e.name, e.options);
         }
@@ -707,7 +707,7 @@ var VectorDrawing = Diagram.extend({
      * @private
      */
     _onToolBarAction: function (e) {
-        assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+        assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
         if (!this.trigger('command', { command: e.command, params: e.params })) {
             // Note: as long as it is not too complex, we can use a dispatcher as below
             // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
@@ -768,7 +768,7 @@ var VectorDrawing = Diagram.extend({
      * @private
      */
     _onToolbarSave: function (params) {
-        assert.isPlainObject(params, assert.format(assert.messages.isPlainObject.default, 'params'));
+        assert.isNonEmptyPlainObject(params, assert.format(assert.messages.isNonEmptyPlainObject.default, 'params'));
         assert.type(CONSTANTS.STRING, params.value, assert.format(assert.messages.type.default, 'params.value', CONSTANTS.STRING));
         var name = params.value;
         var pos = name.lastIndexOf('.');
@@ -851,7 +851,7 @@ var VectorDrawing = Diagram.extend({
      * @private
      */
     _onPropertyChange: function (params) {
-        assert.isPlainObject(params, assert.format(assert.messages.isPlainObject.default, 'params'));
+        assert.isNonEmptyPlainObject(params, assert.format(assert.messages.isNonEmptyPlainObject.default, 'params'));
         if (params.property === 'background') {
             this._artboard.fill.color = $.type(params.value) === CONSTANTS.STRING ? params.value : this.options.artboard.fill.color;
             this._updateBackgroundLayer();
@@ -872,7 +872,7 @@ var VectorDrawing = Diagram.extend({
      * @private
      */
     _onToolbarArrange: function (params) {
-        assert.isPlainObject(params, assert.format(assert.messages.isPlainObject.default, 'params'));
+        assert.isNonEmptyPlainObject(params, assert.format(assert.messages.isNonEmptyPlainObject.default, 'params'));
         switch (params.value) {
             case 'forward':
                 window.alert('Not yet implemented!'); // TODO

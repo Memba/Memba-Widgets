@@ -1233,9 +1233,9 @@ const PreviewDialog = MarkEditorDialog.extend({
                 */
     },
     _resizeDialog(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.instanceof(
             Window,

@@ -90,7 +90,7 @@ export default function openAssetManager(options = {}) {
 
     // Bind the click event
     dialog.bind(CONSTANTS.CLICK, e => {
-        // assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+        // assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
         // assert.instanceof(kendo.ui.Dialog, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
         const url = e.sender.viewModel.get('value');
         let hasScheme = false;

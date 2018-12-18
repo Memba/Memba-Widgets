@@ -279,9 +279,9 @@ export function setSelection(htmlElement, cursor) {
             htmlElement.childNodes[0].nodeType === 3,
         '`htmlElement` should only have on child node of type #Text'
     );
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         cursor,
-        assert.format(assert.messages.isPlainObject.default, 'cursor')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'cursor')
     );
     assert.type(
         CONSTANTS.NUMBER,

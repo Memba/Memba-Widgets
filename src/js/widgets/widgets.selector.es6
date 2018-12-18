@@ -75,9 +75,9 @@ const SelectorEvents = Class.extend({
      * @constructor
      */
     init(options) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isPlainObject.default, 'options')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
         );
         assert(
             CONSTANTS.STRING,
@@ -362,9 +362,9 @@ const SelectorEvents = Class.extend({
  * @returns {SelectorEvents}
  */
 SelectorEvents.getSingleton = function(options) {
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         options,
-        assert.format(assert.messages.isPlainObject.default, 'options')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
     );
     assert(
         CONSTANTS.STRING,
@@ -461,9 +461,9 @@ const SelectorToolBar = ToolBar.extend({
      * @private
      */
     _onToggle(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.type(
             CONSTANTS.STRING,
@@ -1149,9 +1149,9 @@ var SelectorSurface = Widget.extend({
                 'kendo.geometry.Rect'
             )
         );
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             stroke,
-            assert.format(assert.messages.isPlainObject.default, 'stroke')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'stroke')
         );
         const RECT_RADIUS = 10;
         const path = new Path({ stroke });
@@ -1199,9 +1199,9 @@ var SelectorSurface = Widget.extend({
                 'kendo.geometry.Rect'
             )
         );
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             stroke,
-            assert.format(assert.messages.isPlainObject.default, 'stroke')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'stroke')
         );
         const arcGeometry = new geometry.Arc(
             [
@@ -1236,9 +1236,9 @@ var SelectorSurface = Widget.extend({
                 'kendo.geometry.Rect'
             )
         );
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             stroke,
-            assert.format(assert.messages.isPlainObject.default, 'stroke')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'stroke')
         );
         const CROSS_CURVE = 0.5;
         const path = new Path({ stroke });

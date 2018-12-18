@@ -227,29 +227,29 @@ describe('window.assert', () => {
         });
 
         it('isPlainObject', () => {
-            expect(assert.messages.isPlainObject.default).to.be.a(
+            expect(assert.messages.isNonEmptyPlainObject.default).to.be.a(
                 CONSTANTS.STRING
             );
             const p = new Person('John', 'Doe');
             function fn1() {
-                assert.isPlainObject(null, ERR_MSG);
+                assert.isNonEmptyPlainObject(null, ERR_MSG);
             }
             function fn2() {
-                assert.isPlainObject(true, ERR_MSG);
+                assert.isNonEmptyPlainObject(true, ERR_MSG);
             }
             function fn3() {
-                assert.isPlainObject('a', ERR_MSG);
+                assert.isNonEmptyPlainObject('a', ERR_MSG);
             }
             function fn4() {
                 // IMPORTANT: Empty object!!!!!!
-                assert.isPlainObject({}, ERR_MSG);
+                assert.isNonEmptyPlainObject({}, ERR_MSG);
             }
             function fn5() {
                 // IMPORTANT: Prototyped Object!!!!!!
-                assert.isPlainObject(p, ERR_MSG);
+                assert.isNonEmptyPlainObject(p, ERR_MSG);
             }
             function fn6() {
-                assert.isPlainObject(undefined, ERR_MSG);
+                assert.isNonEmptyPlainObject(undefined, ERR_MSG);
             }
             expect(fn1).to.throw(TypeError, ERR_MSG);
             expect(fn2).to.throw(TypeError, ERR_MSG);
@@ -257,7 +257,7 @@ describe('window.assert', () => {
             expect(fn4).to.throw(TypeError, ERR_MSG);
             expect(fn5).to.throw(TypeError, ERR_MSG);
             expect(fn6).to.throw(TypeError, ERR_MSG);
-            expect(assert.isPlainObject({ prop: true }, ERR_MSG)).to.be
+            expect(assert.isNonEmptyPlainObject({ prop: true }, ERR_MSG)).to.be
                 .undefined;
         });
 

@@ -559,9 +559,9 @@ const StyleEditor = DataBoundWidget.extend({
      * @private
      */
     _onDataBound(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.instanceof(
             Grid,
@@ -584,9 +584,9 @@ const StyleEditor = DataBoundWidget.extend({
      * @private
      */
     _onGridEdit(e) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.instanceof(
             Grid,

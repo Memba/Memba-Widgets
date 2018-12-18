@@ -296,9 +296,9 @@ const HighLighter = Widget.extend({
      */
     _add(selection) {
         // This is always a selection across all spans, whether breaking the sentence into words or characters
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             selection,
-            assert.format(assert.messages.isPlainObject.default, 'selection')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'selection')
         );
         assert.type(
             CONSTANTS.NUMBER,
@@ -359,9 +359,9 @@ const HighLighter = Widget.extend({
      */
     _remove(selection) {
         // This is always a selection across all spans, whether breaking the sentence into words or characters
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             selection,
-            assert.format(assert.messages.isPlainObject.default, 'selection')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'selection')
         );
         assert.type(
             CONSTANTS.NUMBER,
@@ -641,9 +641,9 @@ const HighLighter = Widget.extend({
      * @private
      */
     _highlight(selection, active, hover) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             selection,
-            assert.format(assert.messages.isPlainObject.default, 'selection')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'selection')
         );
         assert.type(
             CONSTANTS.NUMBER,

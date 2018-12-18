@@ -391,7 +391,7 @@ assert.crud = options => {
         options,
         assert.format(assert.messages.isPlainObject.default, 'options')
     );
-    assert.type(
+    assert.isPlainOrEmptyObject(
         options.data,
         assert.format(
             assert.messages.isPlainOrEmptyObject.default,

@@ -240,6 +240,7 @@ assert.isNonEmptyPlainObjectOrUndef = (value, message) => {
         throw new TypeError(message);
     }
 };
+
 /**
  * Assert a plain (incl. empty) object
  * @param value
@@ -247,6 +248,17 @@ assert.isNonEmptyPlainObjectOrUndef = (value, message) => {
  */
 assert.isPlainObject = (value, message) => {
     if (!$.isPlainObject(value)) {
+        throw new TypeError(message);
+    }
+};
+
+/**
+ * Assert a plain (incl. empty) object or undefined
+ * @param value
+ * @param message
+ */
+assert.isPlainObjectOrUndef = (value, message) => {
+    if ($.type(value) !== 'undefined' && !$.isPlainObject(value)) {
         throw new TypeError(message);
     }
 };
@@ -392,6 +404,9 @@ assert.messages = {
     },
     isPlainObject: {
         default: '`{0}` is expected to be a plain or empty object'
+    },
+    isPlainObjectOrUndef: {
+        default: '`{0}` is expected to be a plain or empty object or undefined'
     },
     isPoint: {
         default: '`{0}` is expected to be a point {x, y}'

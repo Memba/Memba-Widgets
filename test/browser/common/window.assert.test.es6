@@ -131,7 +131,9 @@ describe('window.assert', () => {
                     this._male = true;
                 }
             }
-            expect(assert.messages.extendsOrUndef.default).to.be.a(CONSTANTS.STRING);
+            expect(assert.messages.extendsOrUndef.default).to.be.a(
+                CONSTANTS.STRING
+            );
             function fn1() {
                 assert.extendsOrUndef(Person, true, ERR_MSG);
             }
@@ -152,8 +154,10 @@ describe('window.assert', () => {
             expect(fn3).to.throw(TypeError, ERR_MSG);
             expect(fn4).to.throw(TypeError, ERR_MSG);
             expect(fn5).to.throw(TypeError, ERR_MSG);
-            expect(assert.extendsOrUndef(Person, undefined, ERR_MSG)).to.be.undefined;
-            expect(assert.extendsOrUndef(Person, Male, ERR_MSG)).to.be.undefined;
+            expect(assert.extendsOrUndef(Person, undefined, ERR_MSG)).to.be
+                .undefined;
+            expect(assert.extendsOrUndef(Person, Male, ERR_MSG)).to.be
+                .undefined;
         });
 
         it('format', () => {
@@ -352,6 +356,38 @@ describe('window.assert', () => {
             expect(fn5).to.throw(TypeError, ERR_MSG);
             expect(assert.isPlainObject({}, ERR_MSG)).to.be.undefined;
             expect(assert.isPlainObject({ prop: true }, ERR_MSG)).to.be
+                .undefined;
+        });
+
+        it('isPlainObjectOrUndef', () => {
+            expect(assert.messages.isPlainObjectOrUndef.default).to.be.a(
+                CONSTANTS.STRING
+            );
+            const p = new Person('John', 'Doe');
+            function fn1() {
+                assert.isPlainObjectOrUndef(true, ERR_MSG);
+            }
+            function fn2() {
+                assert.isPlainObjectOrUndef(10, ERR_MSG);
+            }
+            function fn3() {
+                assert.isPlainObjectOrUndef('a', ERR_MSG);
+            }
+            function fn4() {
+                assert.isPlainObjectOrUndef([], ERR_MSG);
+            }
+            function fn5() {
+                assert.isPlainObjectOrUndef(p, ERR_MSG);
+            }
+            expect(fn1).to.throw(TypeError, ERR_MSG);
+            expect(fn2).to.throw(TypeError, ERR_MSG);
+            expect(fn3).to.throw(TypeError, ERR_MSG);
+            expect(fn4).to.throw(TypeError, ERR_MSG);
+            expect(fn5).to.throw(TypeError, ERR_MSG);
+            expect(assert.isPlainObjectOrUndef(undefined, ERR_MSG)).to.be
+                .undefined;
+            expect(assert.isPlainObjectOrUndef({}, ERR_MSG)).to.be.undefined;
+            expect(assert.isPlainObjectOrUndef({ prop: true }, ERR_MSG)).to.be
                 .undefined;
         });
 

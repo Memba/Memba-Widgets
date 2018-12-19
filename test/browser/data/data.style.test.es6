@@ -11,13 +11,13 @@ import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
-import StyleDataSource from '../../../src/js/data/data.style.es6';
-import Style from '../../../src/js/data/models.style.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
+import { Style, StyleDataSource } from '../../../src/js/data/data.style.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    data: { DataSource, ObservableArray }
+    data: { DataSource, Model, ObservableArray }
 } = window.kendo;
 chai.use(sinonChai);
 
@@ -36,11 +36,32 @@ const DATA = [
     }
 ];
 const STYLE = {
-    text: 'font-size',
-    url: '30px'
+    name: 'font-size',
+    value: '30px'
 };
 
-describe('datasources.style', () => {
+describe('data.style', () => {
+    describe('Style', () => {
+        it('It should initialize without options', () => {
+            const style = new Style();
+            expect(style).to.be.an.instanceof(Style);
+            expect(style).to.be.an.instanceof(BaseModel);
+            expect(style).to.be.an.instanceof(Model);
+            // Test default values
+            expect(style).to.have.property('name', '');
+            expect(style).to.have.property('value', '');
+        });
+
+        it('It should initialize with options', () => {
+            const style = new Style(STYLE);
+            expect(style).to.be.an.instanceof(Style);
+            expect(style).to.be.an.instanceof(BaseModel);
+            expect(style).to.be.an.instanceof(Model);
+            const json = style.toJSON();
+            expect(json).to.deep.equal(STYLE);
+        });
+    });
+
     describe('StyleDataSource', () => {
         it('It should init', () => {
             const dataSource = new StyleDataSource();

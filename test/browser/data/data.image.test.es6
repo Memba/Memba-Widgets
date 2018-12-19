@@ -11,12 +11,13 @@ import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
 import { Image, ImageDataSource } from '../../../src/js/data/data.image.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    data: { DataSource, ObservableArray }
+    data: { DataSource, Model, ObservableArray }
 } = window.kendo;
 chai.use(sinonChai);
 
@@ -40,7 +41,28 @@ const IMAGE = {
     url: 'https://cdn.kidoju.com/images/o_collection/svg/office/information.svg'
 };
 
-describe('datasources.image', () => {
+describe('data.image', () => {
+    describe('Image', () => {
+        it('It should initialize without options', () => {
+            const image = new Image();
+            expect(image).to.be.an.instanceof(Image);
+            expect(image).to.be.an.instanceof(BaseModel);
+            expect(image).to.be.an.instanceof(Model);
+            // Test default values
+            expect(image).to.have.property('text', '');
+            expect(image).to.have.property('url', '');
+        });
+
+        it('It should initialize with options', () => {
+            const image = new Image(IMAGE);
+            expect(image).to.be.an.instanceof(Image);
+            expect(image).to.be.an.instanceof(BaseModel);
+            expect(image).to.be.an.instanceof(Model);
+            const json = image.toJSON();
+            expect(json).to.deep.equal(IMAGE);
+        });
+    });
+
     describe('ImageDataSource', () => {
         it('It should init', () => {
             const dataSource = new ImageDataSource();

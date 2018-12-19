@@ -1203,7 +1203,7 @@ describe('widgets.propertygrid', () => {
         /*
          // For obscure reasons, setting the viewModel here does not work
          viewModel = observable({
-         components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
+         components: new kidoju.PageComponentDataSource({ data: pageComponentCollectionArray }),
          current: null
          });
          */

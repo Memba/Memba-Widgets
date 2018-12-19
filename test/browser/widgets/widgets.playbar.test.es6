@@ -40,7 +40,7 @@ const kidoju = window.kidoju;
 const tools = kidoju.tools;
 const Page = kidoju.data.Page;
 const PageComponent = kidoju.data.PageComponent;
-const PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+const PageDataSource = kidoju.data.PageDataSource;
 const PLAYBAR2 =
     '<div data-role="playbar" data-bind="source: pages, value: current"></div>'; // TODO use getRoleBinding and getValueBinding
 
@@ -175,7 +175,7 @@ describe('widgets.playbar', () => {
                 .data('kendoPlayBar');
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.dataSource.total()).to.equal(0);
             expect(element).to.have.class('k-widget');
@@ -211,7 +211,7 @@ describe('widgets.playbar', () => {
                 .data('kendoPlayBar');
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.dataSource.total()).to.equal(0);
             expect(element).to.have.class('k-widget');
@@ -243,7 +243,7 @@ describe('widgets.playbar', () => {
                 .data('kendoPlayBar');
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageCollectionData1.length
@@ -276,7 +276,7 @@ describe('widgets.playbar', () => {
                 .data('kendoPlayBar');
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageCollectionData2.length
@@ -302,7 +302,7 @@ describe('widgets.playbar', () => {
 
         it('from markup', () => {
             const viewModel = observable({
-                pages: new PageCollectionDataSource({
+                pages: new PageDataSource({
                     data: pageCollectionData1
                 }),
                 current: undefined
@@ -312,7 +312,7 @@ describe('widgets.playbar', () => {
             const widget = element.data('kendoPlayBar');
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageCollectionData1.length
@@ -353,7 +353,7 @@ describe('widgets.playbar', () => {
         it('length', () => {
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.length()).to.equal(pageCollectionData1.length);
         });
@@ -361,7 +361,7 @@ describe('widgets.playbar', () => {
         /*
         it('items', function () {
             expect(widget).to.be.an.instanceof(PlayBar);
-            expect(widget.dataSource).to.be.an.instanceof(PageCollectionDataSource);
+            expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             var items = widget.items();
             expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
             var check = sinon.spy();
@@ -380,7 +380,7 @@ describe('widgets.playbar', () => {
             };
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(fn).to.throw(TypeError);
             for (let idx = 0; idx < pageCollectionData1.length; idx++) {
@@ -400,7 +400,7 @@ describe('widgets.playbar', () => {
             };
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(RangeError);
@@ -418,7 +418,7 @@ describe('widgets.playbar', () => {
             };
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(fn).to.throw(TypeError);
             for (let idx = 0; idx < pageCollectionData1.length; idx++) {
@@ -441,7 +441,7 @@ describe('widgets.playbar', () => {
         /*
          // For obscure reasons, setting the viewModel here does not work
          viewModel = observable({
-         pages: new PageCollectionDataSource({ data: pageCollectionArray }),
+         pages: new PageDataSource({ data: pageCollectionArray }),
          current: undefined
          });
          */
@@ -449,7 +449,7 @@ describe('widgets.playbar', () => {
         beforeEach(() => {
             element = $(PLAYBAR2).appendTo(FIXTURES);
             viewModel = observable({
-                pages: new PageCollectionDataSource({
+                pages: new PageDataSource({
                     data: pageCollectionData1
                 }),
                 current: undefined
@@ -461,7 +461,7 @@ describe('widgets.playbar', () => {
         it('Adding a page to the viewModel adds the corresponding item to the widget', () => {
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.items())
                 .to.be.an.instanceof(Array)
@@ -480,7 +480,7 @@ describe('widgets.playbar', () => {
         it('Removing a page from the viewModel removes the corresponding item from the widget', () => {
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.items())
                 .to.be.an.instanceof(Array)
@@ -498,7 +498,7 @@ describe('widgets.playbar', () => {
             // TODO: also test binding on id and index?
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.items())
                 .to.be.an.instanceof(Array)
@@ -517,7 +517,7 @@ describe('widgets.playbar', () => {
         it('Changing the selected page by clicking a number in the widget, changes the corresponding page in the viewModel', () => {
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             const check = sinon.spy();
             /*
@@ -570,7 +570,7 @@ describe('widgets.playbar', () => {
                 .data('kendoPlayBar');
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(dataBinding).to.have.been.calledOnce;
             expect(dataBinding).to.have.been.calledWith(widget);
@@ -591,7 +591,7 @@ describe('widgets.playbar', () => {
                 .data('kendoPlayBar');
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)

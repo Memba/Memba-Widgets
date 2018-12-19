@@ -19,11 +19,9 @@ import { getSpyingTransport } from '../_misc/test.transports.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import ObjectId from '../../../src/js/common/window.objectid.es6';
 import { normalizeSchema } from '../../../src/js/data/data.util.es6';
-import PageDataSource from '../../../src/js/data/data.page.es6';
-// import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
-import Page from '../../../src/js/data/models.page.es6';
-import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
+import { Page, PageDataSource } from '../../../src/js/data/data.page.es6';
+import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import Stream from '../../../src/js/data/data.stream.es6';
 import '../../../src/js/app/app.tools.es6';
 
@@ -51,7 +49,7 @@ function loadStream() {
     return dfd.promise();
 }
 
-describe('models.stream', () => {
+describe('data.stream', () => {
     describe('Stream', () => {
         describe('Initialization', () => {
             it('it should initialize without options', done => {

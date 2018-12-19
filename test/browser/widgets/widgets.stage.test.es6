@@ -42,9 +42,9 @@ const tools = kidoju.tools;
 const Tool = kidoju.Tool;
 const Page = kidoju.data.Page;
 const PageComponent = kidoju.data.PageComponent;
-const PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
-const PageComponentCollectionDataSource =
-    kidoju.data.PageComponentCollectionDataSource;
+const PageDataSource = kidoju.data.PageDataSource;
+const PageComponentDataSource =
+    kidoju.data.PageComponentDataSource;
 const STAGE2 =
     '<div data-role="stage" data-bind="source: components, value: current" data-mode="design"></div>';
 
@@ -129,7 +129,7 @@ describe('widgets.widget', () => {
             const widget = element.kendoStage().data('kendoStage');
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(0);
             expect(element.parent()).to.have.class('k-widget');
@@ -148,14 +148,14 @@ describe('widgets.widget', () => {
             const widget = element
                 .kendoStage({
                     mode: Stage.fn.modes.design,
-                    dataSource: new PageComponentCollectionDataSource({
+                    dataSource: new PageComponentDataSource({
                         data: pageComponentCollectionArray
                     })
                 })
                 .data('kendoStage');
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -198,14 +198,14 @@ describe('widgets.widget', () => {
             const widget = element
                 .kendoStage({
                     mode: Stage.fn.modes.play,
-                    dataSource: new PageComponentCollectionDataSource({
+                    dataSource: new PageComponentDataSource({
                         data: pageComponentCollectionArray
                     })
                 })
                 .data('kendoStage');
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -251,14 +251,14 @@ describe('widgets.widget', () => {
             const widget = element
                 .kendoStage({
                     mode: Stage.fn.modes.review,
-                    dataSource: new PageComponentCollectionDataSource({
+                    dataSource: new PageComponentDataSource({
                         data: pageComponentCollectionArray
                     })
                 })
                 .data('kendoStage');
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -301,7 +301,7 @@ describe('widgets.widget', () => {
 
         it('from markup', () => {
             const viewModel = observable({
-                components: new PageComponentCollectionDataSource({
+                components: new PageComponentDataSource({
                     data: pageComponentCollectionArray
                 }),
                 current: undefined
@@ -311,7 +311,7 @@ describe('widgets.widget', () => {
             const widget = element.data('kendoStage');
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -368,7 +368,7 @@ describe('widgets.widget', () => {
         it('length', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.length()).to.equal(
                 pageComponentCollectionArray.length
@@ -378,7 +378,7 @@ describe('widgets.widget', () => {
         it('items', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             const items = widget.items();
             if (window.PHANTOMJS) {
@@ -412,7 +412,7 @@ describe('widgets.widget', () => {
             };
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(fn).to.throw(TypeError);
             for (
@@ -436,7 +436,7 @@ describe('widgets.widget', () => {
             };
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(RangeError);
@@ -458,7 +458,7 @@ describe('widgets.widget', () => {
             };
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(fn).to.throw(TypeError);
             for (
@@ -482,7 +482,7 @@ describe('widgets.widget', () => {
             };
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.mode()).to.equal(Stage.fn.modes.design);
             expect(widget.menu).to.be.an.instanceof(kendo.ui.ContextMenu);
@@ -499,7 +499,7 @@ describe('widgets.widget', () => {
             };
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.height()).to.equal(widget.options.height);
             expect(fn1).to.throw(TypeError);
@@ -515,7 +515,7 @@ describe('widgets.widget', () => {
             };
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.width()).to.equal(widget.options.width);
             expect(fn1).to.throw(TypeError);
@@ -531,7 +531,7 @@ describe('widgets.widget', () => {
             };
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.scale()).to.equal(widget.options.scale);
             expect(fn1).to.throw(TypeError);
@@ -551,7 +551,7 @@ describe('widgets.widget', () => {
         /*
          // For obscure reasons, setting the viewModel here does not work
          viewModel = observable({
-            components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
+            components: new PageComponentDataSource({ data: pageComponentCollectionArray }),
             current: null
          });
          */
@@ -559,7 +559,7 @@ describe('widgets.widget', () => {
         beforeEach(() => {
             element = $(STAGE2).appendTo(FIXTURES);
             viewModel = observable({
-                components: new PageComponentCollectionDataSource({
+                components: new PageComponentDataSource({
                     data: pageComponentCollectionArray
                 }),
                 current: null
@@ -571,7 +571,7 @@ describe('widgets.widget', () => {
         it('Adding a component to the viewModel adds the corresponding element to the widget', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -625,7 +625,7 @@ describe('widgets.widget', () => {
         it('Removing a component from the viewModel removes the corresponding element from the widget', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -665,7 +665,7 @@ describe('widgets.widget', () => {
         it('Changing the selected component in the viewModel changes the corresponding element in the widget', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -701,7 +701,7 @@ describe('widgets.widget', () => {
         it('Changing the selected element in the widget, changes the corresponding component in the viewModel', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -751,7 +751,7 @@ describe('widgets.widget', () => {
         it('Adding a new element to the widget, adds the corresponding component to the viewModel', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -824,7 +824,7 @@ describe('widgets.widget', () => {
         it('Moving an element on widget, updates top & left properties of the corresponding component in the viewModel', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -924,7 +924,7 @@ describe('widgets.widget', () => {
         it('Rotating an element on widget, updates the rotate property of the corresponding component in the viewModel', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -1030,7 +1030,7 @@ describe('widgets.widget', () => {
         it('Resizing an element on widget, updates the top, left, height & width properties of the corresponding component in the viewModel', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(
                 pageComponentCollectionArray.length
@@ -1154,7 +1154,7 @@ describe('widgets.widget', () => {
                 .data('kendoStage');
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(dataBinding).to.have.been.calledOnce;
             expect(dataBinding).to.have.been.calledWith(widget);
@@ -1180,7 +1180,7 @@ describe('widgets.widget', () => {
                 .data('kendoStage');
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(propertyBinding).to.have.been.calledOnce;
             expect(propertyBinding).to.have.been.calledWith(widget);
@@ -1201,7 +1201,7 @@ describe('widgets.widget', () => {
                 .data('kendoStage');
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)

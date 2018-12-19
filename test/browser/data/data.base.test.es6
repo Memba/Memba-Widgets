@@ -29,7 +29,7 @@ const { expect } = chai;
 
 chai.use(sinonChai);
 
-describe('models.base', () => {
+describe('data.base', () => {
     describe('BaseModel', () => {
         describe('Default values', () => {
             const definition = {

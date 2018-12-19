@@ -40,8 +40,8 @@ const kidoju = window.kidoju;
 const tools = kidoju.tools;
 const Page = kidoju.data.Page;
 const PageComponent = kidoju.data.PageComponent;
-const PageComponentCollectionDataSource =
-    kidoju.data.PageComponentCollectionDataSource;
+const PageComponentDataSource =
+    kidoju.data.PageComponentDataSource;
 const ICON_PATH = '../../src/styles/images/';
 const EXPLORER3 = `<div data-role="explorer" data-bind="source: components, value: current" data-icon-path="${ICON_PATH}"></div>`;
 
@@ -117,7 +117,7 @@ describe('widgets.explorer', () => {
             const widget = element.kendoExplorer().data('kendoExplorer');
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(0);
             expect(element).to.have.class('k-widget');
@@ -138,7 +138,7 @@ describe('widgets.explorer', () => {
                 .data('kendoExplorer');
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)
@@ -153,7 +153,7 @@ describe('widgets.explorer', () => {
 
         it('from markup', () => {
             const viewModel = observable({
-                components: new PageComponentCollectionDataSource({
+                components: new PageComponentDataSource({
                     data: pageComponentCollectionArray
                 }),
                 current: undefined
@@ -163,7 +163,7 @@ describe('widgets.explorer', () => {
             const widget = element.data('kendoExplorer');
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)
@@ -194,7 +194,7 @@ describe('widgets.explorer', () => {
         it('length', () => {
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.length()).to.equal(
                 pageComponentCollectionArray.length
@@ -204,7 +204,7 @@ describe('widgets.explorer', () => {
         it('items', () => {
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             const items = widget.items();
             expect(items)
@@ -228,7 +228,7 @@ describe('widgets.explorer', () => {
             };
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(fn).to.throw(TypeError);
             for (
@@ -252,7 +252,7 @@ describe('widgets.explorer', () => {
             };
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(RangeError);
@@ -274,7 +274,7 @@ describe('widgets.explorer', () => {
             };
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(fn).to.throw(TypeError);
             for (
@@ -302,7 +302,7 @@ describe('widgets.explorer', () => {
         /*
          // For obscure reasons, setting the viewModel here does not work
         viewModel = observable({
-            components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
+            components: new PageComponentDataSource({ data: pageComponentCollectionArray }),
             current: null
         });
         */
@@ -310,7 +310,7 @@ describe('widgets.explorer', () => {
         beforeEach(() => {
             element = $(EXPLORER3).appendTo(FIXTURES);
             viewModel = observable({
-                components: new PageComponentCollectionDataSource({
+                components: new PageComponentDataSource({
                     data: pageComponentCollectionArray
                 }),
                 current: null
@@ -322,7 +322,7 @@ describe('widgets.explorer', () => {
         it('Adding a component to the viewModel adds the corresponding item to the widget', () => {
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
@@ -353,7 +353,7 @@ describe('widgets.explorer', () => {
         it('Removing a component from the viewModel removes the corresponding item from the widget', () => {
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
@@ -374,7 +374,7 @@ describe('widgets.explorer', () => {
             // TODO: also test binding on id and index?
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
@@ -401,7 +401,7 @@ describe('widgets.explorer', () => {
         it('Changing the selected item in the widget, changes the corresponding component in the viewModel', () => {
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             const check = sinon.spy();
             $.each(widget.element.find('li.kj-item'), (index, item) => {
@@ -443,7 +443,7 @@ describe('widgets.explorer', () => {
                 .data('kendoExplorer');
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(dataBinding).to.have.been.calledOnce;
             expect(dataBinding).to.have.been.calledWith(widget);
@@ -465,7 +465,7 @@ describe('widgets.explorer', () => {
                 .data('kendoExplorer');
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentCollectionDataSource
+                PageComponentDataSource
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)

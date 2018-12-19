@@ -70,7 +70,7 @@ function assertBaseTest(test) {
     });
 }
 
-describe('models.basetest', () => {
+describe('data.basetest', () => {
     describe('BaseTest', () => {
         describe('Initialization', () => {
             it('It should initialize without options', () => {

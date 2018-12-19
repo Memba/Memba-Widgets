@@ -41,7 +41,7 @@ const kidoju = window.kidoju;
 const tools = kidoju.tools;
 const Page = kidoju.data.Page;
 const PageComponent = kidoju.data.PageComponent;
-const PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+const PageDataSource = kidoju.data.PageDataSource;
 const NAVIGATION2 =
     '<div data-role="navigation" data-bind="source: pages, value: current"></div>';
 
@@ -168,7 +168,7 @@ describe('widgets.navigation', () => {
             const widget = element.kendoNavigation().data('kendoNavigation');
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.dataSource.total()).to.equal(0);
             expect(element).to.have.class('k-widget');
@@ -185,7 +185,7 @@ describe('widgets.navigation', () => {
                 .data('kendoNavigation');
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)
@@ -199,7 +199,7 @@ describe('widgets.navigation', () => {
 
         it('from markup', () => {
             const viewModel = observable({
-                pages: new PageCollectionDataSource({
+                pages: new PageDataSource({
                     data: pageCollectionArray
                 }),
                 current: undefined
@@ -209,7 +209,7 @@ describe('widgets.navigation', () => {
             const widget = element.data('kendoNavigation');
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)
@@ -238,7 +238,7 @@ describe('widgets.navigation', () => {
         it('length', () => {
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.length()).to.equal(pageCollectionArray.length);
         });
@@ -246,7 +246,7 @@ describe('widgets.navigation', () => {
         it('items', () => {
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             const items = widget.items();
             expect(items)
@@ -267,7 +267,7 @@ describe('widgets.navigation', () => {
             };
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(fn).to.throw(TypeError);
             for (let idx = 0; idx < pageCollectionArray.length; idx++) {
@@ -287,7 +287,7 @@ describe('widgets.navigation', () => {
             };
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(RangeError);
@@ -305,7 +305,7 @@ describe('widgets.navigation', () => {
             };
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(fn).to.throw(TypeError);
             for (let idx = 0; idx < pageCollectionArray.length; idx++) {
@@ -330,7 +330,7 @@ describe('widgets.navigation', () => {
         /*
         // For obscure reasons, setting the viewModel here does not work
         viewModel = observable({
-            pages: new PageCollectionDataSource({ data: pageCollectionArray }),
+            pages: new PageDataSource({ data: pageCollectionArray }),
             current: undefined
         });
         */
@@ -338,7 +338,7 @@ describe('widgets.navigation', () => {
         beforeEach(() => {
             element = $(NAVIGATION2).appendTo(FIXTURES);
             viewModel = observable({
-                pages: new PageCollectionDataSource({
+                pages: new PageDataSource({
                     data: pageCollectionArray
                 }),
                 current: undefined
@@ -350,7 +350,7 @@ describe('widgets.navigation', () => {
         it('Adding a page to the viewModel adds the corresponding item to the widget', () => {
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
@@ -369,7 +369,7 @@ describe('widgets.navigation', () => {
         it('Removing a page from the viewModel removes the corresponding item from the widget', () => {
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
@@ -387,7 +387,7 @@ describe('widgets.navigation', () => {
             // TODO: also test binding on id and index?
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
@@ -408,7 +408,7 @@ describe('widgets.navigation', () => {
         it('Changing the selected page in the widget, changes the corresponding page in the viewModel', () => {
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             const check = sinon.spy();
             $.each(widget.element.find('div.kj-item'), (index, item) => {
@@ -447,7 +447,7 @@ describe('widgets.navigation', () => {
                 .data('kendoNavigation');
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(dataBinding).to.have.been.calledOnce;
             expect(dataBinding).to.have.been.calledWith(widget);
@@ -469,7 +469,7 @@ describe('widgets.navigation', () => {
             expect(change).not.to.have.been.called;
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageCollectionDataSource
+                PageDataSource
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)

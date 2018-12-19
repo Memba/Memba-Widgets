@@ -19,8 +19,8 @@ import { getSpyingTransport } from '../_misc/test.transports.es6';
 import ObjectId from '../../../src/js/common/window.objectid.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { normalizeSchema } from '../../../src/js/data/data.util.es6';
-import PageComponentDataSource from '../../../src/js/data/datasources.pagecomponent.es6';
-import BaseModel from '../../../src/js/data/models.base.es6';
+import PageComponentDataSource from '../../../src/js/data/data.pagecomponent.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
 import '../../../src/js/app/app.tools.es6';
 

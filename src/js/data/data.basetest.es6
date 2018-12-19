@@ -9,7 +9,7 @@ import $ from 'jquery';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import BaseModel from './models.base.es6';
+import BaseModel from './data.base.es6';
 
 const logger = new Logger('models.basetest');
 

@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import Stream from './js/data/models.stream.es6';
+import Stream from './js/data/data.stream.es6';
 import './js/app/app.tools.es6'; // Load tools
 import ToolAssets from './js/tools/util.assets.es6';
 

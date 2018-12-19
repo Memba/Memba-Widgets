@@ -6,7 +6,7 @@
 /* eslint-disable no-unused-expressions */
 
 import chai from 'chai';
-import BaseModel from '../../../src/js/data/models.base.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';
 
 const { describe, it } = window;

@@ -10,9 +10,9 @@ import 'kendo.core';
 import './js/widgets/widgets.explorer.es6';
 import './js/widgets/widgets.formatstrip.es6';
 import './js/widgets/widgets.styleeditor.es6';
-import PageComponentDataSource from './js/data/datasources.pagecomponent.es6';
+// import { PageComponentDataSource } from './js/data/data.pagecomponent.es6';
 import './js/app/app.tools.es6';
-import tools from './js/tools/tools.es6';
+// import tools from './js/tools/tools.es6';
 
 const {
     bind,

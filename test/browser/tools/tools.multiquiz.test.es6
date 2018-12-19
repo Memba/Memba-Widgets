@@ -14,7 +14,7 @@ import $ from 'jquery';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import BaseModel from '../../../src/js/data/models.base.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import BaseTool from '../../../src/js/tools/tools.base.es6';

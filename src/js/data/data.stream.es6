@@ -14,10 +14,9 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { preload } from '../common/window.image.es6';
 import tools from '../tools/tools.es6';
-import PageDataSource from './datasources.page.es6';
-import BaseModel from './models.base.es6';
-import Page from './models.page.es6';
-import BaseTest from './models.basetest.es6';
+import BaseModel from './data.base.es6';
+import { Page, PageDataSource } from './data.page.es6';
+import BaseTest from './data.basetest.es6';
 
 const {
     data: { ObservableArray }

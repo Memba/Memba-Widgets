@@ -8,7 +8,7 @@
 import $ from 'jquery';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import PageComponent from '../data/models.pagecomponent.es6';
+import { PageComponent } from '../data/data.pagecomponent.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 

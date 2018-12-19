@@ -8,7 +8,7 @@
 import 'kendo.data';
 import chai from 'chai';
 import JSC from 'jscheck';
-import BaseModel from '../../../src/js/data/models.base.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
 import Asset from '../../../src/js/data/models.asset.es6';
 import ASSETS from '../_misc/test.assets.es6';
 

@@ -27,7 +27,7 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import { isAnyArray } from '../common/window.util.es6';
-import AssetDataSource from '../data/datasources.asset.es6';
+import { AssetDataSource } from '../data/data.asset.es6';
 
 const { FileList } = window;
 const {

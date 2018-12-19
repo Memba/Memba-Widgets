@@ -3,22 +3,42 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO add CSS style parser - see ../common/window.style.es6
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import Image from './models.image.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseModel from './data.base.es6';
 
 const {
     data: { DataSource, ObservableArray }
 } = window.kendo;
 
 /**
- * ImageDataSource
- * @class ImageDataSource
+ * Style
+ * @class Style
+ * @extends BaseModel
+ */
+export const Style = BaseModel.define({
+    id: 'name',
+    fields: {
+        name: {
+            type: CONSTANTS.STRING
+        },
+        value: {
+            type: CONSTANTS.STRING
+        }
+    }
+});
+
+/**
+ * StyleDataSource
+ * @class StyleDataSource
  * @extends DataSource
  */
-const ImageDataSource = DataSource.extend({
+export const StyleDataSource = DataSource.extend({
     /**
      * Init
      * @constructor init
@@ -29,11 +49,27 @@ const ImageDataSource = DataSource.extend({
             this,
             $.extend(true, {}, options, {
                 schema: {
-                    modelBase: Image,
-                    model: Image
+                    modelBase: Style,
+                    model: Style
                 }
             })
         );
+    },
+
+    parseString() {
+
+    },
+
+    toString() {
+
+    },
+
+    parseJSON() {
+
+    },
+
+    toJSON() {
+
     }
 });
 
@@ -42,26 +78,21 @@ const ImageDataSource = DataSource.extend({
  * @method create
  * @param options
  */
-ImageDataSource.create = options => {
+StyleDataSource.create = options => {
     // Note: this code is vey similar to SchedulerDataSource.create
     const dataSource =
         Array.isArray(options) || options instanceof ObservableArray
             ? { data: options }
             : options || {};
     if (
-        !(dataSource instanceof ImageDataSource) &&
+        !(dataSource instanceof StyleDataSource) &&
         dataSource instanceof DataSource
     ) {
         throw new Error(
-            'Incorrect DataSource type. Only ImageDataSource instances are supported'
+            'Incorrect DataSource type. Only StyleDataSource instances are supported'
         );
     }
-    return dataSource instanceof ImageDataSource
+    return dataSource instanceof StyleDataSource
         ? dataSource
-        : new ImageDataSource(dataSource);
+        : new StyleDataSource(dataSource);
 };
-
-/**
- * Default export
- */
-export default ImageDataSource;

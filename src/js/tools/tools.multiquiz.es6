@@ -10,7 +10,7 @@ import 'kendo.core';
 import assets from '../app/app.assets.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import PageComponent from '../data/models.pagecomponent.es6';
+import { PageComponent } from '../data/data.pagecomponent.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
 import ImageListAdapter from './adapters.imagelist.es6';

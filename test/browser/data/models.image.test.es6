@@ -10,8 +10,8 @@ import chai from 'chai';
 // import JSC from 'jscheck';
 // import sinon from 'sinon';
 // import sinonChai from 'sinon-chai';
-import BaseModel from '../../../src/js/data/models.base.es6';
-import Image from '../../../src/js/data/models.image.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
+import { Image } from '../../../src/js/data/data.image.es6';
 
 const { describe, it } = window;
 const { expect } = chai;

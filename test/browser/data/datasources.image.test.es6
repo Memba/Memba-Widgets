@@ -11,8 +11,7 @@ import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
-import ImageDataSource from '../../../src/js/data/datasources.image.es6';
-import Image from '../../../src/js/data/models.image.es6';
+import { Image, ImageDataSource } from '../../../src/js/data/data.image.es6';
 
 const { describe, it } = window;
 const { expect } = chai;

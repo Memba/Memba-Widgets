@@ -11,9 +11,11 @@ import 'kendo.sortable';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import PageDataSource from '../data/datasources.page.es6';
-import PageComponentDataSource from '../data/datasources.pagecomponent.es6';
-import PageComponent from '../data/models.pagecomponent.es6';
+import { PageDataSource } from '../data/data.page.es6';
+import {
+    PageComponent,
+    PageComponentDataSource
+} from '../data/data.pagecomponent.es6';
 import tools from '../tools/tools.es6';
 import BaseTool from '../tools/tools.base.es6';
 
@@ -230,8 +232,10 @@ const Explorer = DataBoundWidget.extend({
      * @method total()
      * @returns {*}
      */
-    length () {
-        return this.dataSource instanceof PageComponentDataSource ? this.dataSource.total() : -1;
+    length() {
+        return this.dataSource instanceof PageComponentDataSource
+            ? this.dataSource.total()
+            : -1;
     },
 
     /**

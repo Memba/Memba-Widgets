@@ -203,15 +203,14 @@
                 SystemJS.import('kendo.binder'),
                 SystemJS.import('kendo.splitter'),
                 SystemJS.import('../app/app.tools.es6'),
-                SystemJS.import('../data/models.page.es6'),
-                SystemJS.import('../data/datasources.page.es6'),
+                SystemJS.import('../data/data.page.es6'),
                 SystemJS.import('../helpers/helpers.data.es6'),
                 SystemJS.import('./widgets.navigation.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                var Page = modules[3].default;
-                var PageDataSource = modules[4].default;
-                var data = modules[5].getPageArray();
+                var Page = modules[3].Page;
+                var PageDataSource = modules[3].PageDataSource;
+                var data = modules[4].getPageArray();
                 var pageDataSource = new PageDataSource({ data });
                 var viewModel = window.viewModel = kendo.observable({
                     current: undefined,

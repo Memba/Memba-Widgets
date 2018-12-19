@@ -197,11 +197,11 @@
                 SystemJS.import('kendo.binder'),
                 SystemJS.import('kendo.dropdownlist'),
                 SystemJS.import('kendo.toolbar'),
-                SystemJS.import('../data/datasources.page.es6'),
+                SystemJS.import('../data/data.page.es6'),
                 SystemJS.import('./widgets.playbar.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                var PageDataSource = modules[3].default;
+                var PageDataSource = modules[3].PageDataSource;
                 var data = [];
                 for (var i = 0; i < 16; i++) {
                     data.push({

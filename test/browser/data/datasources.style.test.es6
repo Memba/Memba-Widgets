@@ -11,7 +11,7 @@ import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
-import StyleDataSource from '../../../src/js/data/datasources.style.es6';
+import StyleDataSource from '../../../src/js/data/data.style.es6';
 import Style from '../../../src/js/data/models.style.es6';
 
 const { describe, it } = window;

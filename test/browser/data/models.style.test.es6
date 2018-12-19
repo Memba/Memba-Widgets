@@ -10,7 +10,7 @@ import chai from 'chai';
 // import JSC from 'jscheck';
 // import sinon from 'sinon';
 // import sinonChai from 'sinon-chai';
-import BaseModel from '../../../src/js/data/models.base.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
 import Style from '../../../src/js/data/models.style.es6';
 
 const { describe, it } = window;

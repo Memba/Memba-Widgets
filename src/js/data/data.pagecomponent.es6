@@ -12,12 +12,12 @@ import $ from 'jquery';
 import 'kendo.data';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import BaseModel from './models.base.es6';
+import BaseModel from './data.base.es6';
 import tools from '../tools/tools.es6';
 import BaseTool from '../tools/tools.base.es6';
 
 const {
-    data: { ObservableObject, ObservableArray },
+    data: { DataSource, ObservableArray, ObservableObject },
     format
 } = window.kendo;
 
@@ -26,7 +26,7 @@ const {
  * @class PageComponent
  * @extends BaseModel
  */
-const PageComponent = BaseModel.define({
+export const PageComponent = BaseModel.define({
     id: CONSTANTS.ID,
     fields: {
         id: {
@@ -346,6 +346,133 @@ const PageComponent = BaseModel.define({
 });
 
 /**
- * Default export
+ * dataMethod
+ * @function dataMethod
+ * Note: as in kendo.data.HierarchicalDataSource
+ * @param name
+ * @returns {function(...[*]=): *}
  */
-export default PageComponent;
+/*
+function dataMethod(name) {
+    return function(...args) {
+        const data = this._data;
+        const result = DataSource.fn[name].apply(
+            this,
+            Array.prototype.slice.call(args)
+        );
+        if (this._data !== data) {
+            this._attachBubbleHandlers();
+        }
+        return result;
+    };
+}
+*/
+
+/**
+ * PageComponentDataSource
+ * @class PageComponentDataSource
+ * @extends DataSource
+ */
+export const PageComponentDataSource = DataSource.extend({
+    /**
+     * Init
+     * @constructor init
+     * @param options
+     */
+    init(options) {
+        if (options && options.schema) {
+            assert.extendsOrUndef(
+                PageComponent,
+                options.schema.modelBase,
+                assert.format(
+                    assert.messages.extendsOrUndef.default,
+                    'options.schema.model',
+                    'PageComponent'
+                )
+            );
+            assert.extendsOrUndef(
+                PageComponent,
+                options.schema.modelBase,
+                assert.format(
+                    assert.messages.extendsOrUndef.default,
+                    'options.schema.modelBase',
+                    'PageComponent'
+                )
+            );
+
+            // Propagates Page options to PageComponentDataSource
+            // especially in the case where the stream is defined with
+            // a hierarchy of CRUD transports
+            if ($.isPlainObject(options.schema.model)) {
+                $.extend(true, options, {
+                    schema: {
+                        modelBase: PageComponent.define(
+                            $.isPlainObject(options.schema.modelBase)
+                                ? options.schema.modelBase
+                                : options.schema.model
+                        ),
+                        model: PageComponent.define(options.schema.model)
+                    }
+                });
+            }
+        }
+
+        DataSource.fn.init.call(
+            this,
+            $.extend(
+                true,
+                {
+                    schema: {
+                        modelBase: PageComponent,
+                        model: PageComponent
+                    }
+                },
+                options
+            )
+        );
+
+        // See https://www.telerik.com/forums/_attachbubblehandlers
+        // this._attachBubbleHandlers();
+    }
+
+    /**
+     * _attachBubbleHandlers
+     * @method _attachBubbleHandlers
+     * @private
+     */
+    /*
+    _attachBubbleHandlers() {
+        const that = this;
+        that._data.bind(CONSTANTS.ERROR, e => {
+            that.trigger(CONSTANTS.ERROR, e);
+        });
+    },
+
+    success: dataMethod('success'),
+    data: dataMethod('data')
+    */
+});
+
+/**
+ * create
+ * @method create
+ * @param options
+ */
+PageComponentDataSource.create = options => {
+    // Note: this code is vey similar to SchedulerDataSource.create
+    const dataSource =
+        Array.isArray(options) || options instanceof ObservableArray
+            ? { data: options }
+            : options || {};
+    if (
+        !(dataSource instanceof PageComponentDataSource) &&
+        dataSource instanceof DataSource
+    ) {
+        throw new Error(
+            'Incorrect DataSource type. Only PageComponentDataSource instances are supported'
+        );
+    }
+    return dataSource instanceof PageComponentDataSource
+        ? dataSource
+        : new PageComponentDataSource(dataSource);
+};

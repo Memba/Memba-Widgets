@@ -6,7 +6,7 @@
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import Asset from '../data/models.asset.es6';
+import { Asset } from '../data/data.asset.es6';
 
 const { Class } = window.kendo;
 

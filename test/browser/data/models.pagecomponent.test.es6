@@ -17,7 +17,7 @@ import sinonChai from 'sinon-chai';
 import { assertBaseModel } from '../_misc/test.util.es6';
 import { getComponentArray, getPage } from '../_misc/test.components.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import BaseModel from '../../../src/js/data/models.base.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
 import Page from '../../../src/js/data/models.page.es6';
 import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
 import '../../../src/js/app/app.tools.es6';

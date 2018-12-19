@@ -17,9 +17,9 @@ import sinonChai from 'sinon-chai';
 import { tryCatch } from '../_misc/test.util.es6';
 import { getStream } from '../_misc/test.components.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import BaseModel from '../../../src/js/data/models.base.es6';
-import BaseTest from '../../../src/js/data/models.basetest.es6';
-import Stream from '../../../src/js/data/models.stream.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
+import BaseTest from '../../../src/js/data/data.basetest.es6';
+import Stream from '../../../src/js/data/data.stream.es6';
 import '../../../src/js/app/app.tools.es6';
 
 const { describe, it, xit } = window;

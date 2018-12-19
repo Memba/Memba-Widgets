@@ -19,7 +19,7 @@ import { getSpyingTransport } from '../_misc/test.transports.es6';
 import ObjectId from '../../../src/js/common/window.objectid.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { normalizeSchema } from '../../../src/js/data/data.util.es6';
-import PageDataSource from '../../../src/js/data/datasources.page.es6';
+import PageDataSource from '../../../src/js/data/data.page.es6';
 import Page from '../../../src/js/data/models.page.es6';
 
 const { describe, it } = window;

@@ -29,8 +29,10 @@ import {
 } from '../common/window.position.es6';
 import Style from '../common/window.style.es6';
 import { isGuid } from '../common/window.util.es6';
-import PageComponentDataSource from '../data/datasources.pagecomponent.es6';
-import PageComponent from '../data/models.pagecomponent.es6';
+import {
+    PageComponent,
+    PageComponentDataSource
+} from '../data/data.pagecomponent.es6';
 import tools from '../tools/tools.es6';
 import BaseTool from '../tools/tools.base.es6';
 

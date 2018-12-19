@@ -13,7 +13,7 @@ import 'kendo.slider';
 import 'kendo.splitter';
 import 'kendo.toolbar';
 import LocalStream from './integration.data.es6';
-import Page from './js/data/models.page.es6';
+import { Page } from './js/data/data.page.es6';
 import StyleAdapter from './js/tools/adapters.style.es6';
 import tools from './js/tools/tools.es6';
 import BaseTool from './js/tools/tools.base.es6';

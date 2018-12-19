@@ -10,7 +10,7 @@ import 'kendo.core';
 import 'kendo.data';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import PageComponent from '../data/models.pagecomponent.es6';
+import { PageComponent } from '../data/data.pagecomponent.es6';
 // TODO import '../widgets/widgets.chargrid.es6';
 import CharGridAdapter from './adapters.chargrid.es6';
 import ColorAdapter from './adapters.color.es6';

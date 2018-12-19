@@ -10,7 +10,7 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import ImageDataSource from '../data/datasources.image.es6';
+import { ImageDataSource } from '../data/data.image.es6';
 
 const {
     destroy,

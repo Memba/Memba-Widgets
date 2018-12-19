@@ -6,9 +6,17 @@
 // TODO : Check whether mime field should be editable
 // TODO localize sizeFormatter
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.data';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import BaseModel from './models.base.es6';
+import BaseModel from './data.base.es6';
+
+const {
+    data: { DataSource, ObservableArray }
+} = window.kendo;
 
 /**
  * Asset
@@ -20,7 +28,7 @@ import BaseModel from './models.base.es6';
  * @class Asset
  * @extends BaseModel
  */
-const Asset = BaseModel.define({
+export const Asset = BaseModel.define({
     id: 'url',
     fields: {
         size: {
@@ -216,6 +224,53 @@ Asset.scheme2http = (uri, schemes) => {
 };
 
 /**
- * Default export
+ * AssetDataSource
+ * @class AssetDataSource
+ * @extends DataSource
  */
-export default Asset;
+export const AssetDataSource = DataSource.extend({
+    /**
+     * Init
+     * @constructor init
+     * @param options
+     */
+    init(options) {
+        const AssetWithSchemes =
+            options && options.schemes
+                ? Asset.define({ schemes: options.schemes })
+                : Asset;
+        DataSource.fn.init.call(
+            this,
+            $.extend(true, {}, options, {
+                schema: {
+                    modelBase: AssetWithSchemes,
+                    model: AssetWithSchemes
+                }
+            })
+        );
+    }
+});
+
+/**
+ * create
+ * @method create
+ * @param options
+ */
+AssetDataSource.create = options => {
+    // Note: this code is vey similar to SchedulerDataSource.create
+    const dataSource =
+        Array.isArray(options) || options instanceof ObservableArray
+            ? { data: options }
+            : options || {};
+    if (
+        !(dataSource instanceof AssetDataSource) &&
+        dataSource instanceof DataSource
+    ) {
+        throw new Error(
+            'Incorrect DataSource type. Only AssetDataSource instances are supported'
+        );
+    }
+    return dataSource instanceof AssetDataSource
+        ? dataSource
+        : new AssetDataSource(dataSource);
+};

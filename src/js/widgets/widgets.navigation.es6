@@ -13,8 +13,7 @@ import 'kendo.sortable';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import Page from '../data/models.page.es6';
-import PageDataSource from '../data/datasources.page.es6';
+import { Page, PageDataSource } from '../data/data.page.es6';
 import './widgets.stage.es6';
 
 const {

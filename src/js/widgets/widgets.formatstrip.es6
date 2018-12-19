@@ -20,7 +20,7 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 // import Style from '../common/window.style.es6';
-import PageComponent from '../data/models.pagecomponent.es6';
+import { PageComponent } from '../data/data.pagecomponent.es6';
 import StyleAdapter from '../tools/adapters.style.es6';
 import tools from '../tools/tools.es6';
 import BaseTool from '../tools/tools.base.es6';

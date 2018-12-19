@@ -7,7 +7,7 @@
 
 import 'kendo.data';
 import chai from 'chai';
-import BaseModel from '../../../src/js/data/models.base.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 
 const { __karma__, location } = window;

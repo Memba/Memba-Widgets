@@ -203,14 +203,14 @@
                 SystemJS.import('kendo.slider'),
                 SystemJS.import('./widgets.toolbox.es6'),
                 SystemJS.import('./widgets.stage.es6'),
-                SystemJS.import('../data/datasources.pagecomponent.es6'),
+                SystemJS.import('../data/data.pagecomponent.es6'),
                 SystemJS.import('../helpers/helpers.data.es6'),
                 SystemJS.import('../helpers/helpers.grid.es6'),
                 SystemJS.import('../app/app.tools.es6'),
 
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                var PageComponentDataSource = modules[4].default;
+                var PageComponentDataSource = modules[4].PageComponentDataSource;
                 var data = modules[5].getComponentArray();
                 var viewModel = kendo.observable({
                     components: new PageComponentDataSource({ data }),

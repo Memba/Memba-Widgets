@@ -173,7 +173,7 @@ const BaseTest = BaseModel.define({
                 json[key] = this.get(key).toJSON(); // .slice();
             }
         });
-        debugger;
+        // debugger;
         return json;
     }
 });

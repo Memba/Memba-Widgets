@@ -28,7 +28,8 @@ export const SYNC_STATE = {
  * @param e
  */
 export function dataSourceErrorHandler(e) {
-    debugger;
+    // TODO debugger;
+    $.noop(e);
 }
 
 /**

@@ -56,21 +56,13 @@ export const StyleDataSource = DataSource.extend({
         );
     },
 
-    parseString() {
+    parseString() {},
 
-    },
+    toString() {},
 
-    toString() {
+    parseJSON() {},
 
-    },
-
-    parseJSON() {
-
-    },
-
-    toJSON() {
-
-    }
+    toJSON() {}
 });
 
 /**

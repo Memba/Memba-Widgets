@@ -16,7 +16,7 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {
-    data: { DataSource, Model, ObservableArray, ObservableObject },
+    data: { DataSource, Model },
     getter
 } = window.kendo;
 
@@ -190,7 +190,7 @@ const BaseModel = Model.define({
                     return exit;
                 });
             }
-        }*/
+        } */
     },
 
     /**

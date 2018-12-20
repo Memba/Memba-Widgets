@@ -10,7 +10,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { preload } from '../common/window.image.es6';
 import tools from '../tools/tools.es6';
@@ -121,9 +121,7 @@ const Stream = BaseModel.define({
             */
 
             // Add parent function
-            that.pages.parent = function() {
-                return that;
-            };
+            that.pages.parent = () => that;
 
             // Bind the change to bubble up
             // DO NOT UNCOMMENT, otherwise change will be raised twice

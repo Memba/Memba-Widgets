@@ -413,7 +413,10 @@ export default class FileSystem {
         );
         assert.isNonEmptyPlainObjectOrUndef(
             headers,
-            assert.format(assert.messages.isNonEmptyPlainObjectOrUndef.default, 'headers')
+            assert.format(
+                assert.messages.isNonEmptyPlainObjectOrUndef.default,
+                'headers'
+            )
         );
 
         const dfd = $.Deferred();

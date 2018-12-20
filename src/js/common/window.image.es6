@@ -966,13 +966,15 @@ function JPEGEncoder(quality) {
         }
 
         // Quantize/descale the coefficients
-        let fDCTQuant;
+        let fDCTQuantize; // renamed from fDCTQuant
         for (i = 0; i < I64; ++i) {
             // Apply the quantization and scaling factor & Round to nearest integer
-            fDCTQuant = data[i] * fdtbl[i];
+            fDCTQuantize = data[i] * fdtbl[i];
             outputfDCTQuant[i] =
-                fDCTQuant > 0.0 ? (fDCTQuant + 0.5) | 0 : (fDCTQuant - 0.5) | 0;
-            // outputfDCTQuant[i] = fround(fDCTQuant);
+                fDCTQuantize > 0.0
+                    ? (fDCTQuantize + 0.5) | 0
+                    : (fDCTQuantize - 0.5) | 0;
+            // outputfDCTQuant[i] = fround(fDCTQuantize);
         }
         return outputfDCTQuant;
     }
@@ -1090,7 +1092,8 @@ function JPEGEncoder(quality) {
             DU[ZigZag[j]] = DU_DCT[j];
         }
         const Diff = DU[0] - DC;
-        DC = DU[0];
+        // DC = DU[0];
+        [DC] = DU;
         // Encode DC
         if (Diff === 0) {
             writeBits(HTDC[0]); // Diff might be 0
@@ -1101,6 +1104,7 @@ function JPEGEncoder(quality) {
         }
         // Encode ACs
         let end0pos = 63; // was const... which is crazy
+        // eslint-disable-next-line no-empty
         for (; end0pos > 0 && DU[end0pos] === 0; end0pos--) {}
         // end0pos = first element in reverse order !=0
         if (end0pos === 0) {
@@ -1111,6 +1115,7 @@ function JPEGEncoder(quality) {
         let lng;
         while (i <= end0pos) {
             const startpos = i;
+            // eslint-disable-next-line no-empty
             for (; DU[i] === 0 && i <= end0pos; ++i) {}
             let nrzeroes = i - startpos;
             if (nrzeroes >= I16) {
@@ -1139,13 +1144,38 @@ function JPEGEncoder(quality) {
         }
     }
 
-    this.encode = function(image, quality) {
+    function setQuality(q) {
+        if (q <= 0) {
+            q = 1;
+        }
+        if (q > 100) {
+            q = 100;
+        }
+
+        if (currentQuality === q) {
+            return; // don't recalc if unchanged
+        }
+
+        let sf = 0;
+        if (q < 50) {
+            sf = Math.floor(5000 / q);
+        } else {
+            sf = Math.floor(200 - q * 2);
+        }
+
+        initQuantTables(sf);
+        currentQuality = q;
+        // console.log('Quality set to: '+q +'%');
+    }
+
+    // this.encode = function(image, quality) {
+    this.encode = (image, q) => {
         // image data object
 
-        const time_start = new Date().getTime();
+        // const time_start = new Date().getTime();
 
-        if (quality) {
-            setQuality(quality);
+        if (q) {
+            setQuality(q);
         }
 
         // Initialize bit writer
@@ -1171,12 +1201,13 @@ function JPEGEncoder(quality) {
 
         this.encode.displayName = '_encode_';
 
-        const imageData = image.data;
-        const width = image.width;
-        const height = image.height;
+        // const imageData = image.data;
+        // const width = image.width;
+        // const height = image.height;
+        const { data, height, width } = image;
 
         const quadWidth = width * 4;
-        const tripleWidth = width * 3;
+        // const tripleWidth = width * 3;
 
         let x;
         let y = 0;
@@ -1211,9 +1242,12 @@ function JPEGEncoder(quality) {
                         p -= x + col - quadWidth + 4;
                     }
 
-                    r = imageData[p++];
-                    g = imageData[p++];
-                    b = imageData[p++];
+                    // r = imageData[p++];
+                    // g = imageData[p++];
+                    // b = imageData[p++];
+                    r = data[p++];
+                    g = data[p++];
+                    b = data[p++];
 
                     /* // calculate YUV values dynamically
                     YDU[pos]=((( 0.29900) * r + ( 0.58700) * g + ( 0.11400) * b)) - 128; //-0x80
@@ -1288,32 +1322,8 @@ function JPEGEncoder(quality) {
         // END Added by JLC
     };
 
-    function setQuality(quality) {
-        if (quality <= 0) {
-            quality = 1;
-        }
-        if (quality > 100) {
-            quality = 100;
-        }
-
-        if (currentQuality === quality) {
-            return; // don't recalc if unchanged
-        }
-
-        let sf = 0;
-        if (quality < 50) {
-            sf = Math.floor(5000 / quality);
-        } else {
-            sf = Math.floor(200 - quality * 2);
-        }
-
-        initQuantTables(sf);
-        currentQuality = quality;
-        // console.log('Quality set to: '+quality +'%');
-    }
-
     function init() {
-        const time_start = new Date().getTime();
+        // const time_start = new Date().getTime();
         if (!quality) {
             quality = 50;
         }
@@ -1324,7 +1334,7 @@ function JPEGEncoder(quality) {
         initRGBYUVTable();
 
         setQuality(quality);
-        const duration = new Date().getTime() - time_start;
+        // const duration = new Date().getTime() - time_start;
         // console.log('Initialization '+ duration + 'ms');
     }
 
@@ -1333,10 +1343,9 @@ function JPEGEncoder(quality) {
 
 /**
  * A PNGEncoder
- * @param options
  * @constructor
  */
-function PNGEncoder(options) {
+function PNGEncoder(/* options */) {
     const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
     const TYPE_IHDR = 0x49484452;
     const TYPE_IEND = 0x49454e44;
@@ -1449,10 +1458,10 @@ function PNGEncoder(options) {
     function filterData(imgData) {
         // TODO no filter for now
         const filterType = 0; // no filter
-        // var {width, height, data} = imageData;
-        const data = imgData.data;
-        const height = imgData.height;
-        const width = imgData.width;
+        // const data = imgData.data;
+        // const height = imgData.height;
+        // const width = imgData.width;
+        const { data, height, width } = imgData;
         const byteWidth = width * 4; // r,g,b,a
         const filter = new Uint8Array((byteWidth + 1) * height);
         let filterTypePos = 0;
@@ -1502,7 +1511,8 @@ function PNGEncoder(options) {
      * Encoder
      * @param image
      */
-    this.encode = function(imgData, options) {
+    // this.encode = function(imgData, options) {
+    this.encode = (imgData, options) => {
         // image data object
         options = options || {};
         const colorType = (options && options.colorType) || 6;
@@ -1598,8 +1608,8 @@ export function jpegEncode(imgData, quality) {
         message: 'Encoding as jpeg',
         data: { quality }
     });
-    const encoder = new JPEGEncoder(quality);
-    return encoder.encode(imgData);
+    const encoder = new JPEGEncoder();
+    return encoder.encode(imgData, quality);
 }
 
 /**
@@ -1608,13 +1618,14 @@ export function jpegEncode(imgData, quality) {
  * @param options include colorType and pako options, especially level
  */
 export function pngEncode(imgData, options) {
+    // TODO assert imgData
     logger.debug({
         method: 'pngEncode',
         message: 'Encoding as png',
         data: { options }
     });
-    const encoder = new PNGEncoder(options);
-    return encoder.encode(imgData);
+    const encoder = new PNGEncoder();
+    return encoder.encode(imgData, options);
 }
 
 /**

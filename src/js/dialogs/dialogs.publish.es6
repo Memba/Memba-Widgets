@@ -12,8 +12,8 @@ import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {
-    guid,
-    ns,
+    // guid,
+    // ns,
     resize,
     ui: { BaseDialog }
 } = window.kendo;
@@ -38,7 +38,7 @@ export default function openPublish(options = {}) {
     const $dialog = BaseDialog.getElement(options.cssClass);
 
     // Unique ids and culture
-    const ids = { question: guid(), solution: guid() };
+    // const ids = { question: guid(), solution: guid() };
     const culture = BaseDialog.getMessageNameSpace().publish;
 
     // Create the dialog

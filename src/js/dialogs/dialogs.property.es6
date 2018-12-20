@@ -38,40 +38,40 @@ export default function openProperty(options = {}) {
 
     // Create the dialog
     const dialog = $dialog
-    .kendoBaseDialog(
-        Object.assign(
-            {
-                title:
-                    BaseDialog.fn.options.messages[options.type || 'info'],
-                content: `<div style="display:flex;flex-direction:row"><div data-${ns}role="chargrid" data-${ns}bind="value:value" style="flex-shrink:0"></div><div class="kj-chargrid-message" style="margin-left:1em;">${
-                    options.message
+        .kendoBaseDialog(
+            Object.assign(
+                {
+                    title:
+                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    content: `<div style="display:flex;flex-direction:row"><div data-${ns}role="chargrid" data-${ns}bind="value:value" style="flex-shrink:0"></div><div class="kj-chargrid-message" style="margin-left:1em;">${
+                        options.message
                     }</div></div>`,
-                data: {
-                    value: []
+                    data: {
+                        value: []
+                    },
+                    actions: [
+                        BaseDialog.fn.options.messages.actions.ok,
+                        BaseDialog.fn.options.messages.actions.cancel
+                    ],
+                    width: 860
                 },
-                actions: [
-                    BaseDialog.fn.options.messages.actions.ok,
-                    BaseDialog.fn.options.messages.actions.cancel
-                ],
-                width: 860
-            },
-            options
+                options
+            )
         )
-    )
-    .data('kendoBaseDialog');
+        .data('kendoBaseDialog');
 
     dialog.unbind('initOpen');
     dialog.one('initOpen', e => {
         const width = 550;
         // Initialize chargrid
         e.sender.element
-        .find(roleSelector('chargrid'))
-        .height(
-            (width * e.sender.options.charGrid.height) /
-            e.sender.options.charGrid.width
-        )
-        .width(width)
-        .kendoCharGrid(options.charGrid);
+            .find(roleSelector('chargrid'))
+            .height(
+                (width * e.sender.options.charGrid.height) /
+                    e.sender.options.charGrid.width
+            )
+            .width(width)
+            .kendoCharGrid(options.charGrid);
         // Bind viewModel
         bind(e.sender.element.children(), e.sender.viewModel);
     });

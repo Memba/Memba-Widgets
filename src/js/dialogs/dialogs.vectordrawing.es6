@@ -7,16 +7,17 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import 'kendo.validator';
 import 'kendo.window';
-import CONSTANTS from '../common/window.constants.es6';
+// import CONSTANTS from '../common/window.constants.es6';
 
+/*
 const {
-    guid,
-    ns,
-    resize,
-    ui: { window }
+    // guid,
+    // ns,
+    // resize,
+    ui: { Window }
 } = window.kendo;
+*/
 
 /**
  * A shortcut function to display a window with vector drawing
@@ -26,5 +27,6 @@ const {
 export default function openVectorDrawing(options = {}) {
     const dfd = $.Deferred();
     // TODO
+    $.noop(options);
     return dfd.promise();
-});
+}

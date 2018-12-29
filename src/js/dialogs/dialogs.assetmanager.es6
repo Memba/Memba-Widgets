@@ -155,10 +155,3 @@ export default function openAssetManager(options = {}) {
 
     return dfd.promise();
 }
-
-/**
- * Global access to change i18n values with locale
- */
-window.kendo.ex = window.kendo.ex || {};
-window.kendo.ex.dialogs = window.kendo.ex.dialogs || {};
-window.kendo.ex.dialogs.openAssetManager = openAssetManager;

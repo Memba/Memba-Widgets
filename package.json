@@ -80,7 +80,7 @@
     "webpack": "^4.28.3"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "config": {
     "msvs_version": "2015"

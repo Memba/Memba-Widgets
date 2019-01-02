@@ -13,6 +13,7 @@ import {
 } from '../../../src/js/common/window.cache.es6';
 import { dateReviver } from '../../../src/js/common/window.util.es6';
 import md5 from '../../../src/js/vendor/blueimp/md5';
+import LZString from '../../../src/js/vendor/pieroxy/lz-string';
 
 const { before, describe, it } = window;
 const { expect } = chai;
@@ -75,7 +76,10 @@ describe('window.cache', () => {
             function test(value, index) {
                 const key = getKey(index);
                 cache.setItem(key, value);
-                const item = JSON.parse(storage.getItem(key), dateReviver);
+                const item = JSON.parse(
+                    LZString.decompressFromUTF16(storage.getItem(key)),
+                    dateReviver
+                );
                 expect(item).to.have.property('sig');
                 expect(item).to.have.property('ts');
                 expect(item).to.have.property('ttl');
@@ -130,11 +134,13 @@ describe('window.cache', () => {
             const lag = 1 + Math.floor(10000 * Math.random()); // in seconds
             storage.setItem(
                 key,
-                JSON.stringify({
-                    ttl: lag,
-                    ts: Date.now() - 1000 * lag - 1,
-                    value: DATA[0]
-                })
+                LZString.compressToUTF16(
+                    JSON.stringify({
+                        ttl: lag,
+                        ts: Date.now() - 1000 * lag - 1,
+                        value: DATA[0]
+                    })
+                )
             );
             const item = cache.getItem(key);
             expect(item).to.be.null;
@@ -149,13 +155,16 @@ describe('window.cache', () => {
                 ts: Date.now(),
                 value: DATA[0]
             };
-            storage.setItem(key, JSON.stringify(data));
+            storage.setItem(
+                key,
+                LZString.compressToUTF16(JSON.stringify(data))
+            );
             const item = cache.getItem(key);
             expect(item).to.be.null;
         });
     });
 
-    describe('sessionCachee', () => {
+    describe('sessionCache', () => {
         const cache = sessionCache;
         const storage = window.sessionStorage;
 
@@ -177,7 +186,10 @@ describe('window.cache', () => {
             function test(value, index) {
                 const key = getKey(index);
                 cache.setItem(key, value);
-                const item = JSON.parse(storage.getItem(key), dateReviver);
+                const item = JSON.parse(
+                    LZString.decompressFromUTF16(storage.getItem(key)),
+                    dateReviver
+                );
                 expect(item).to.have.property('sig');
                 expect(item).to.have.property('ts');
                 expect(item).to.have.property('ttl');
@@ -232,11 +244,13 @@ describe('window.cache', () => {
             const lag = 1 + Math.floor(10000 * Math.random()); // in seconds
             storage.setItem(
                 key,
-                JSON.stringify({
-                    ttl: lag,
-                    ts: Date.now() - 1000 * lag - 1,
-                    value: DATA[0]
-                })
+                LZString.compressToUTF16(
+                    JSON.stringify({
+                        ttl: lag,
+                        ts: Date.now() - 1000 * lag - 1,
+                        value: DATA[0]
+                    })
+                )
             );
             const item = cache.getItem(key);
             expect(item).to.be.null;
@@ -251,7 +265,10 @@ describe('window.cache', () => {
                 ts: Date.now(),
                 value: DATA[0]
             };
-            storage.setItem(key, JSON.stringify(data));
+            storage.setItem(
+                key,
+                LZString.compressToUTF16(JSON.stringify(data))
+            );
             const item = cache.getItem(key);
             expect(item).to.be.null;
         });

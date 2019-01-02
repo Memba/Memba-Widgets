@@ -11,6 +11,7 @@ import CONSTANTS from './window.constants.es6';
 import Logger from './window.logger.es6';
 import { dateReviver } from './window.util.es6';
 import md5 from '../vendor/blueimp/md5';
+import LZString from '../vendor/pieroxy/lz-string';
 
 const logger = new Logger('window.cache');
 const DEFAULTS = {
@@ -33,6 +34,7 @@ class LocalCache {
         this._storeName = 'localStorage';
         this._store = window[this._storeName];
         this._ttl = options.ttl || DEFAULTS.ttl;
+        this._compress = typeof options.compress === 'boolean' || true;
     }
 
     /**
@@ -49,19 +51,22 @@ class LocalCache {
         let value = null; // Key not found returns null
         try {
             if (this._cache) {
-                const json = this._store.getItem(key);
+                let data = this._store.getItem(key);
                 // eslint-disable-next-line valid-typeof
-                if (typeof json === CONSTANTS.STRING) {
-                    // Parse the value found for that key
+                if (typeof data === CONSTANTS.STRING) {
+                    // Decompress data if needed
+                    if (this._compress) {
+                        data = LZString.decompressFromUTF16(data);
+                    }
                     // dateReviver is used to convert ISO strings to dates
-                    const parsed = JSON.parse(json, dateReviver);
-                    const { sig } = parsed;
-                    delete parsed.sig;
+                    const item = JSON.parse(data, dateReviver);
+                    const { sig } = item;
+                    delete item.sig;
                     if (
-                        Date.now() < parsed.ts + 1000 * parsed.ttl && // Not expired
-                        md5(JSON.stringify(parsed)) === sig // Not tampered with
+                        Date.now() < item.ts + 1000 * item.ttl && // Not expired
+                        md5(JSON.stringify(item)) === sig // Not tampered with
                     ) {
-                        value = raw ? parsed : parsed.value;
+                        value = raw ? item : item.value;
                         logger.debug({
                             message: `value read from ${this._storeName} cache`,
                             method: 'getItem',
@@ -117,7 +122,11 @@ class LocalCache {
                     value
                 };
                 item.sig = md5(JSON.stringify(item));
-                this._store.setItem(key, JSON.stringify(item));
+                let data = JSON.stringify(item);
+                if (this._compress) {
+                    data = LZString.compressToUTF16(data);
+                }
+                this._store.setItem(key, data);
                 logger.debug({
                     message: `value added to ${this._storeName} cache`,
                     method: 'setItem',

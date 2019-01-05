@@ -1,8 +1,8 @@
 {
     "name": "kidoju.widgets",
-    "description": "Widgets for the Kidoju learning platform",
-    "version": "0.1.0",
-    "copyright": "Copyright ©2013-2014 Memba® Sarl. All rights reserved.",
+    "description": "Kendo UI Widgets for the Kidoju platform",
+    "version": "0.3.8",
+    "copyright": "Copyright ©2013-2019 Memba® Sarl. All rights reserved.",
     "keywords": ["Memba", "Kidoju", "Kendo UI", "Javascript", "Widgets"],
     "homepage": "http://widgets.kidoju.com",
     "author": "Memba Sarl",
@@ -34,8 +34,8 @@
         "package.json"
     ],
     "dependencies": {
-        "jquery": ">=1.12.3 <=3.2.1",
-        "kendo-ui": ">=2016.1.112"
+        "jquery": ">=1.12.3 <=3.3.1",
+        "kendo-ui": ">=2018.1.117"
     },
     "devDependencies": {
     }

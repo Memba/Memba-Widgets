@@ -68,7 +68,9 @@ class LocalCache {
                     ) {
                         value = raw ? item : item.value;
                         logger.debug({
-                            message: `value read from ${this._storeName} cache`,
+                            message: `${key} value read from ${
+                                this._storeName
+                            } cache`,
                             method: 'getItem',
                             data: { key, value }
                         });
@@ -128,7 +130,7 @@ class LocalCache {
                 }
                 this._store.setItem(key, data);
                 logger.debug({
-                    message: `value added to ${this._storeName} cache`,
+                    message: `${key} value added to ${this._storeName} cache`,
                     method: 'setItem',
                     data: { key, value }
                 });
@@ -165,13 +167,20 @@ class LocalCache {
                 // eslint-disable-next-line valid-typeof
                 if (typeof rx === CONSTANTS.STRING) {
                     this._store.removeItem(rx);
+                    logger.debug({
+                        message: `${rx} value removed from ${
+                            this._storeName
+                        } cache`,
+                        method: 'setItem',
+                        data: { key: rx }
+                    });
                 } else if (rx instanceof RegExp) {
                     for (let i = 0, { length } = this._store; i < length; i++) {
                         const key = this._store.key(i);
                         if (rx.test(key)) {
                             this._store.removeItem(key);
                             logger.debug({
-                                message: `value removed from ${
+                                message: `${key} value removed from ${
                                     this._storeName
                                 } cache`,
                                 method: 'setItem',

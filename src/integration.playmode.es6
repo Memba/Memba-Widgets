@@ -48,7 +48,7 @@ const viewModel = observable({
                 );
             })
             .catch(err => {
-                debugger;
+                // debugger;
                 // app.notification//
             });
     }

@@ -379,7 +379,7 @@ const BaseTool = Class.extend({
                     validation = validation.item.formula;
                 }
                 if (!RX_VALIDATION_FORMULA.test(validation)) {
-                    debugger;
+                    // debugger;
                     // The library item is missing
                     return dfd
                         .reject(

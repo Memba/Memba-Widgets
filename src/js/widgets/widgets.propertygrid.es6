@@ -229,7 +229,7 @@ const PropertyGrid = Widget.extend({
                 const settings = $.extend({}, row, { model: properties });
                 row.editor(container, settings);
             } else {
-                debugger; // TODO can row be undefined?
+                // debugger; // TODO can row be undefined?
                 discarded += 1;
             }
         });

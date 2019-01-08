@@ -110,7 +110,7 @@ const Stream = BaseModel.define({
             const { transport } = pages;
             const { parameterMap } = transport;
             transport.parameterMap = function map(data, type) {
-                debugger;
+                // debugger;
                 let ret = data;
                 ret[that.idField || CONSTANTS.ID] = that.id;
                 if (parameterMap) {
@@ -127,7 +127,7 @@ const Stream = BaseModel.define({
             // DO NOT UNCOMMENT, otherwise change will be raised twice
             /*
             pages.bind(CONSTANTS.CHANGE, e => {
-                debugger;
+                // debugger;
                 e.node = e.node || that;
                 that.trigger(CONSTANTS.CHANGE, e);
             });

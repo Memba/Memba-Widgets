@@ -150,7 +150,7 @@ const Network = Observable.extend({
         /*
         if (e instanceof $.Event) {
             // This is a global ajax event
-            debugger;
+            // debugger;
         }
         */
         if (

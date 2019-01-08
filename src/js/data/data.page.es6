@@ -169,7 +169,7 @@ export const Page = BaseModel.define({
             // DO NOT UNCOMMENT, otherwise change will be raised twice
             /*
             components.bind(CONSTANTS.CHANGE, e => {
-                debugger;
+                // debugger;
                 e.page = e.page || that;
                 that.trigger(CONSTANTS.CHANGE, e);
             });

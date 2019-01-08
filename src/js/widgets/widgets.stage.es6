@@ -2225,7 +2225,7 @@ const Stage = DataBoundWidget.extend({
     enable(enable) {
         this._enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
-        debugger;
+        // debugger;
         // TODO iterate through components and call onEnable
         // TODO _initializeMode
     },

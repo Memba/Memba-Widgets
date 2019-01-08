@@ -883,7 +883,7 @@ const AssetManager = Widget.extend({
      * @private
      */
     _createDataItem(file) {
-        debugger;
+        //debugger;
         assert.type(
             CONSTANTS.OBJECT,
             file,

@@ -9,6 +9,9 @@ import $ from 'jquery';
 import 'kendo.notification';
 import CONSTANTS from '../common/window.constants.es6';
 
+// Note: Element might not exist until page ready event
+// We might have to introduce a promise
+
 /**
  * Notification element
  * @type {string}

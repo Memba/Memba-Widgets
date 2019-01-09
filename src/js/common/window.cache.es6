@@ -39,6 +39,7 @@ class LocalCache {
 
     /**
      * Get item from cache
+     * @method getItem
      * @param key
      * @param raw - return the raw object with ts and ttl
      */
@@ -82,7 +83,9 @@ class LocalCache {
             }
         } catch (error) {
             logger.error({
-                message: `Error getting value from ${this._storeName} cache`,
+                message: `Error getting ${key} value from ${
+                    this._storeName
+                } cache`,
                 method: 'getItem',
                 error
             });
@@ -94,7 +97,31 @@ class LocalCache {
     }
 
     /**
+     * Get items from cache
+     * @method getItems
+     * @param rx
+     * @param raw
+     */
+    getItems(rx, raw = false) {
+        assert.instanceof(
+            RegExp,
+            rx,
+            assert.format(assert.messages.type.default, 'rx', 'RegExp')
+        );
+        const items = [];
+        if (this._cache) {
+            Object.keys(this._store).forEach(key => {
+                if (rx.test(key)) {
+                    items.push(this.getItem(key, raw));
+                }
+            });
+        }
+        return items;
+    }
+
+    /**
      * Set item in cache
+     * @method setItem
      * @param key
      * @param value
      * @param ttl
@@ -137,7 +164,9 @@ class LocalCache {
             }
         } catch (error) {
             logger.error({
-                message: `Error setting value into ${this._storeName} cache`,
+                message: `Error setting ${key} value into ${
+                    this._storeName
+                } cache`,
                 method: 'setItem',
                 error
             });
@@ -148,58 +177,57 @@ class LocalCache {
     }
 
     /**
-     * Remove items from cache
-     * @param rx, a string or regular expression
+     * Remove item from cache
+     * @method removeItem
+     * @param key
      */
-    removeItems(rx) {
-        // eslint-disable-next-line valid-typeof
-        if (typeof rx !== CONSTANTS.STRING && !(rx instanceof RegExp)) {
-            throw new TypeError(
-                assert.format(
-                    assert.messages.type.default,
-                    'rx',
-                    'string or RegExp'
-                )
-            );
-        }
+    removeItem(key) {
+        assert.type(
+            CONSTANTS.STRING,
+            key,
+            assert.format(assert.messages.type.default, 'key', CONSTANTS.STRING)
+        );
         try {
             if (this._cache) {
-                // eslint-disable-next-line valid-typeof
-                if (typeof rx === CONSTANTS.STRING) {
-                    this._store.removeItem(rx);
-                    logger.debug({
-                        message: `${rx} value removed from ${
-                            this._storeName
-                        } cache`,
-                        method: 'setItem',
-                        data: { key: rx }
-                    });
-                } else if (rx instanceof RegExp) {
-                    for (let i = 0, { length } = this._store; i < length; i++) {
-                        const key = this._store.key(i);
-                        if (rx.test(key)) {
-                            this._store.removeItem(key);
-                            logger.debug({
-                                message: `${key} value removed from ${
-                                    this._storeName
-                                } cache`,
-                                method: 'setItem',
-                                data: { key }
-                            });
-                        }
-                    }
-                }
+                this._store.removeItem(key);
+                logger.debug({
+                    message: `${key} value removed from ${
+                        this._storeName
+                    } cache`,
+                    method: 'removeItem',
+                    data: { key }
+                });
             }
         } catch (error) {
             logger.error({
-                message: `Error removing value from ${this._storeName} cache`,
-                method: 'removeItems',
+                message: `Error removing ${key} value from ${
+                    this._storeName
+                } cache`,
+                method: 'removeItem',
                 error
             });
             if (!this._silent) {
                 throw error;
             }
         }
+    }
+
+    /**
+     * Remove items from cache
+     * @method removeItems
+     * @param rx
+     */
+    removeItems(rx) {
+        assert.instanceof(
+            RegExp,
+            rx,
+            assert.format(assert.messages.type.default, 'rx', 'RegExp')
+        );
+        Object.keys(this._store).forEach(key => {
+            if (rx.test(key)) {
+                this.removeItem(key);
+            }
+        });
     }
 }
 

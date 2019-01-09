@@ -109,6 +109,12 @@ describe('window.cache', () => {
             DATA.forEach(test);
         });
 
+        it('It should getItems', () => {
+            const rx = new RegExp(`^${getKey('')}`);
+            const items = cache.getItems(rx);
+            expect(items).to.eql(DATA);
+        });
+
         it('It should fail to removeItems with an invalid key', () => {
             function test(data) {
                 function fn() {
@@ -119,10 +125,21 @@ describe('window.cache', () => {
             INVALID.forEach(test);
         });
 
-        it('It should removeItems', () => {
+        it('It should removeItem', () => {
             function test(value, index) {
                 const key = getKey(index);
-                cache.removeItems(key);
+                cache.removeItem(key);
+                const item = storage.getItem(key);
+                expect(item).to.be.null;
+            }
+            DATA.slice(-2).forEach(test);
+        });
+
+        it('It should removeItems', () => {
+            const rx = new RegExp(`^${getKey('')}`);
+            cache.removeItems(rx);
+            function test(value, index) {
+                const key = getKey(index);
                 const item = storage.getItem(key);
                 expect(item).to.be.null;
             }
@@ -219,6 +236,12 @@ describe('window.cache', () => {
             DATA.forEach(test);
         });
 
+        it('It should getItems', () => {
+            const rx = new RegExp(`^${getKey('')}`);
+            const items = cache.getItems(rx);
+            expect(items).to.eql(DATA);
+        });
+
         it('It should fail to removeItems with an invalid key', () => {
             function test(data) {
                 function fn() {
@@ -229,10 +252,21 @@ describe('window.cache', () => {
             INVALID.forEach(test);
         });
 
-        it('It should removeItems', () => {
+        it('It should removeItem', () => {
             function test(value, index) {
                 const key = getKey(index);
-                cache.removeItems(key);
+                cache.removeItem(key);
+                const item = storage.getItem(key);
+                expect(item).to.be.null;
+            }
+            DATA.slice(-2).forEach(test);
+        });
+
+        it('It should removeItems', () => {
+            const rx = new RegExp(`^${getKey('')}`);
+            cache.removeItems(rx);
+            function test(value, index) {
+                const key = getKey(index);
                 const item = storage.getItem(key);
                 expect(item).to.be.null;
             }

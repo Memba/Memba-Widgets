@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -39,23 +39,13 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, outerWidth = kendo._outerWidth, proxy = $.proxy, isRtl = false, NS = '.kendoGroupable', CHANGE = 'change', indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' + '<a href="\\#" class="k-link">' + '<span class="k-icon k-i-sort-${(data.dir || "asc") == "asc" ? "asc-sm" : "desc-sm"}" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})"></span>' + '${data.title ? data.title: data.field}' + '</a>' + '<a class="k-button k-button-icon k-bare">' + '<span class="k-icon k-i-close"></span>' + '</a>' + '</div>', { useWithBlock: false }), hint = function (target) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, outerWidth = kendo._outerWidth, kendoAttr = kendo.attr, extend = $.extend, each = $.each, proxy = $.proxy, isRtl = false, DIR = 'dir', FIELD = 'field', TITLE = 'title', ASCENDING = 'asc', DESCENDING = 'desc', GROUP_SORT = 'group-sort', NS = '.kendoGroupable', CHANGE = 'change', indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' + '<a href="\\#" class="k-link">' + '<span class="k-icon k-i-sort-${(data.dir || "asc") == "asc" ? "asc-sm" : "desc-sm"}" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})"></span>' + '${data.title ? data.title: data.field}' + '</a>' + '<a class="k-button k-button-icon k-bare">' + '<span class="k-icon k-i-close"></span>' + '</a>' + '</div>', { useWithBlock: false }), hint = function (target) {
                 var title = target.attr(kendo.attr('title'));
                 if (title) {
                     title = kendo.htmlEncode(title);
                 }
-                return $('<div class="k-header k-drag-clue" />').css({
-                    width: target.width(),
-                    paddingLeft: target.css('paddingLeft'),
-                    paddingRight: target.css('paddingRight'),
-                    lineHeight: target.height() + 'px',
-                    paddingTop: target.css('paddingTop'),
-                    paddingBottom: target.css('paddingBottom')
-                }).html(title || target.attr(kendo.attr('field'))).prepend('<span class="k-icon k-drag-status k-i-cancel" />');
+                return $('<div class="k-header k-group-clue k-drag-clue" />').html(title || target.attr(kendo.attr('field'))).prepend('<span class="k-icon k-drag-status k-i-cancel" />');
             }, dropCue = $('<div class="k-grouping-dropclue"/>');
-        function dropCueOffsetTop(element) {
-            return element.position().top + 3;
-        }
         var Groupable = Widget.extend({
             init: function (element, options) {
                 var that = this, group = kendo.guid(), intializePositions = proxy(that._intializePositions, that), draggable, horizontalCuePosition, dropCuePositions = that._dropCuePositions = [];
@@ -72,7 +62,7 @@
                     dragenter: function (e) {
                         if (that._canDrag(e.draggable.currentTarget)) {
                             e.draggable.hint.find('.k-drag-status').removeClass('k-i-cancel').addClass('k-i-plus');
-                            dropCue.css('top', dropCueOffsetTop(that.groupContainer)).css(horizontalCuePosition, 0).appendTo(that.groupContainer);
+                            dropCue.css(horizontalCuePosition, 0).appendTo(that.groupContainer);
                         }
                     },
                     dragleave: function (e) {
@@ -81,6 +71,8 @@
                     },
                     drop: function (e) {
                         var targetElement = e.draggable.currentTarget, field = targetElement.attr(kendo.attr('field')), title = targetElement.attr(kendo.attr('title')), sourceIndicator = that.indicator(field), dropCuePositions = that._dropCuePositions, lastCuePosition = dropCuePositions[dropCuePositions.length - 1], position;
+                        var sortOptions = extend({}, that.options.sort, targetElement.data(GROUP_SORT));
+                        var dir = sortOptions.dir;
                         if (!targetElement.hasClass('k-group-indicator') && !that._canDrag(targetElement)) {
                             return;
                         }
@@ -88,14 +80,16 @@
                             position = that._dropCuePosition(kendo.getOffset(dropCue).left + parseInt(lastCuePosition.element.css('marginLeft'), 10) * (isRtl ? -1 : 1) + parseInt(lastCuePosition.element.css('marginRight'), 10));
                             if (position && that._canDrop($(sourceIndicator), position.element, position.left)) {
                                 if (position.before) {
-                                    position.element.before(sourceIndicator || that.buildIndicator(field, title));
+                                    position.element.before(sourceIndicator || that.buildIndicator(field, title, dir));
                                 } else {
-                                    position.element.after(sourceIndicator || that.buildIndicator(field, title));
+                                    position.element.after(sourceIndicator || that.buildIndicator(field, title, dir));
                                 }
+                                that._setIndicatorSortOptions(field, sortOptions);
                                 that._change();
                             }
                         } else {
-                            that.groupContainer.append(that.buildIndicator(field, title));
+                            that.groupContainer.append(that.buildIndicator(field, title, dir));
+                            that._setIndicatorSortOptions(field, sortOptions);
                             that._change();
                         }
                     }
@@ -107,10 +101,7 @@
                     dragstart: function (e) {
                         var element = e.currentTarget, marginLeft = parseInt(element.css('marginLeft'), 10), elementPosition = element.position(), left = isRtl ? elementPosition.left - marginLeft : elementPosition.left + outerWidth(element);
                         intializePositions();
-                        dropCue.css({
-                            top: dropCueOffsetTop(that.groupContainer),
-                            left: left
-                        }).appendTo(that.groupContainer);
+                        dropCue.css('left', left).appendTo(that.groupContainer);
                         this.hint.find('.k-drag-status').removeClass('k-i-cancel').addClass('k-i-plus');
                     },
                     dragend: function () {
@@ -121,8 +112,9 @@
                     e.preventDefault();
                     that._removeIndicator($(this).parent());
                 }).on('click' + NS, '.k-link', function (e) {
-                    var current = $(this).parent(), newIndicator = that.buildIndicator(current.attr(kendo.attr('field')), current.attr(kendo.attr('title')), current.attr(kendo.attr('dir')) == 'asc' ? 'desc' : 'asc');
-                    current.before(newIndicator).remove();
+                    var indicator = $(this).parent();
+                    var newDir = indicator.attr(kendoAttr(DIR)) === ASCENDING ? DESCENDING : ASCENDING;
+                    indicator.attr(kendoAttr(DIR), newDir);
                     that._change();
                     e.preventDefault();
                 });
@@ -166,15 +158,25 @@
             },
             refresh: function () {
                 var that = this, dataSource = that.dataSource;
+                var groups = dataSource.group() || [];
+                var fieldAttr = kendoAttr(FIELD);
+                var titleAttr = kendoAttr(TITLE);
+                var indicatorHtml;
                 if (that.groupContainer) {
-                    that.groupContainer.empty().append($.map(dataSource.group() || [], function (item) {
-                        var fieldName = item.field;
-                        var attr = kendo.attr('field');
+                    that.groupContainer.empty();
+                    each(groups, function (index, group) {
+                        var field = group.field;
+                        var dir = group.dir;
                         var element = that.element.find(that.options.filter).filter(function () {
-                            return $(this).attr(attr) === fieldName;
+                            return $(this).attr(fieldAttr) === field;
                         });
-                        return that.buildIndicator(item.field, element.attr(kendo.attr('title')), item.dir);
-                    }).join(''));
+                        indicatorHtml = that.buildIndicator(field, element.attr(titleAttr), dir);
+                        that.groupContainer.append(indicatorHtml);
+                        that._setIndicatorSortOptions(field, extend({}, that.options.sort, {
+                            dir: dir,
+                            compare: group.compare
+                        }));
+                    });
                 }
                 that._invalidateGroupContainer();
             },
@@ -202,7 +204,11 @@
                 name: 'Groupable',
                 filter: 'th',
                 draggableElements: 'th',
-                messages: { empty: 'Drag a column header and drop it here to group by that column' }
+                messages: { empty: 'Drag a column header and drop it here to group by that column' },
+                sort: {
+                    dir: ASCENDING,
+                    compare: null
+                }
             },
             indicator: function (field) {
                 var indicators = $('.k-group-indicator', this.groupContainer);
@@ -211,12 +217,18 @@
                 })[0];
             },
             buildIndicator: function (field, title, dir) {
-                return indicatorTmpl({
+                var that = this;
+                var indicator = indicatorTmpl({
+                    ns: kendo.ns,
                     field: field.replace(/"/g, '\''),
-                    dir: dir,
                     title: title,
-                    ns: kendo.ns
+                    dir: dir || (that.options.sort || {}).dir || ASCENDING
                 });
+                return indicator;
+            },
+            _setIndicatorSortOptions: function (field, options) {
+                var indicator = $(this.indicator(field));
+                indicator.data(GROUP_SORT, options);
             },
             aggregates: function () {
                 var that = this;
@@ -243,15 +255,20 @@
                 return $.map(indicators, function (item) {
                     item = $(item);
                     field = item.attr(kendo.attr('field'));
+                    var sortOptions = that.options.sort || {};
+                    var indicatorSortOptions = item.data(GROUP_SORT) || {};
                     return {
                         field: field,
                         dir: item.attr(kendo.attr('dir')),
-                        aggregates: aggregates || []
+                        aggregates: aggregates || [],
+                        compare: indicatorSortOptions.compare || sortOptions.compare
                     };
                 });
             },
             _removeIndicator: function (indicator) {
                 var that = this;
+                indicator.off();
+                indicator.removeData();
                 indicator.remove();
                 that._invalidateGroupContainer();
                 that._change();

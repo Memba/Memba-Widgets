@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -443,8 +443,10 @@
                             field: that.options.dataTextField,
                             ignoreCase: that.ignoreCase
                         }).done(function () {
-                            that._resetFocusItem();
-                            that.popup.open();
+                            if (that._allowOpening()) {
+                                that._resetFocusItem();
+                                that.popup.open();
+                            }
                         });
                     }
                     e.preventDefault();
@@ -611,7 +613,7 @@
                     height: DOMelement.style.height
                 });
                 that._focused = that.element;
-                that.wrapper = wrapper.addClass('k-widget k-autocomplete k-header').addClass(DOMelement.className);
+                that.wrapper = wrapper.addClass('k-widget k-autocomplete').addClass(DOMelement.className);
             }
         });
         ui.plugin(AutoComplete);

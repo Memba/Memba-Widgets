@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -511,18 +511,25 @@
                 var ref = this;
                 var chart = ref.chart;
                 var select = ref.options.select;
-                if (chart.requiresHandlers(['navigatorFilter'])) {
+                if (!chart.requiresHandlers(['navigatorFilter'])) {
+                    return;
+                }
+                var mainAxis = this.mainAxis();
+                var args = {
+                    from: select.from,
+                    to: select.to
+                };
+                if (mainAxis.options.type !== 'category') {
                     var axisOptions = new dataviz.DateCategoryAxis(deepExtend({ baseUnit: 'fit' }, chart.options.categoryAxis[0], {
                         categories: [
                             select.from,
                             select.to
                         ]
                     }), chart.chartService).options;
-                    this.chart.trigger('navigatorFilter', {
-                        from: dataviz.addDuration(axisOptions.min, -axisOptions.baseUnitStep, axisOptions.baseUnit),
-                        to: dataviz.addDuration(axisOptions.max, axisOptions.baseUnitStep, axisOptions.baseUnit)
-                    });
+                    args.from = dataviz.addDuration(axisOptions.min, -axisOptions.baseUnitStep, axisOptions.baseUnit);
+                    args.to = dataviz.addDuration(axisOptions.max, axisOptions.baseUnitStep, axisOptions.baseUnit);
                 }
+                this.chart.trigger('navigatorFilter', args);
             },
             _zoom: function (e) {
                 var ref = this;

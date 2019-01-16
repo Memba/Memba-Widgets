@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -8521,6 +8521,7 @@
                 this.surface.bind('mousemove', this._mousemoveHandler);
                 this.surface.element.on('mouseleave' + NS, this._surfaceLeaveHandler);
                 this.element.on('click' + NS, '.k-tooltip-button', proxy(this._hideClick, this));
+                this.element.on('mouseleave' + NS, proxy(this._tooltipLeave, this));
             },
             getPopup: function () {
                 if (!this.popup) {
@@ -8536,6 +8537,7 @@
                 this.surface.unbind('mousemove', this._mousemoveHandler);
                 this.surface.element.off('mouseleave' + NS, this._surfaceLeaveHandler);
                 this.element.off('click' + NS);
+                this.element.off('mouseleave' + NS);
                 if (popup) {
                     popup.destroy();
                     delete this.popup;
@@ -8753,6 +8755,15 @@
             },
             _popupRelatedTarget: function (e) {
                 return e.relatedTarget && $(e.relatedTarget).closest(this.popup.wrapper).length;
+            },
+            _tooltipLeave: function () {
+                var tooltip = this;
+                var current = tooltip._current;
+                if (current && current.options.autoHide) {
+                    tooltip._timeout = setTimeout(function () {
+                        tooltip.hide();
+                    }, current.options.hideDelay || 0);
+                }
             }
         });
         kendo.drawing.SurfaceTooltip = SurfaceTooltip;

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1760,7 +1760,7 @@
                 }
             },
             _showHandler: function (e) {
-                var ev = e, offset, that = this, options = that.options;
+                var ev = e, offset, that = this, options = that.options, target = $(ev.currentTarget);
                 if (e.event) {
                     ev = e.event;
                     ev.pageX = e.x.location;
@@ -1773,7 +1773,7 @@
                 ev.preventDefault();
                 ev.stopImmediatePropagation();
                 that.element.find('.' + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
-                if (options.filter && kendo.support.matchesSelector.call(ev.currentTarget, options.filter) || !options.filter) {
+                if (options.filter && target.is(options.filter) || !options.filter) {
                     if (options.alignToAnchor) {
                         that.popup.options.anchor = ev.currentTarget;
                         that.open(ev.currentTarget);

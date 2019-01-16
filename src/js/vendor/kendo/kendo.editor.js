@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -82,6 +82,8 @@
         var kendo = window.kendo, Class = kendo.Class, Widget = kendo.ui.Widget, os = kendo.support.mobileOS, browser = kendo.support.browser, extend = $.extend, proxy = $.proxy, deepExtend = kendo.deepExtend, keys = kendo.keys;
         var SELECT = 'select';
         var SELECT_OVERLAY_SELECTOR = 'select.k-select-overlay';
+        var PLACEHOLDER_CLASS = 'k-placeholder';
+        var PLACEHOLDER_TAG_ID = 'placeholder';
         var ToolTemplate = Class.extend({
             init: function (options) {
                 this.options = options;
@@ -393,6 +395,17 @@
                 if (options.tools) {
                     editor.toolbar.bindTo(editor);
                 }
+                this._initializePlaceholder();
+            },
+            _togglePlaceholder: function (show) {
+                var that = this, body = that.body, $body = $(body), placeholder = that.options.placeholder;
+                if (!that.textarea || !placeholder) {
+                    return;
+                }
+                $body.attr('aria-label', function () {
+                    return show ? placeholder : '';
+                });
+                $body.toggleClass(PLACEHOLDER_CLASS, show);
             },
             _endTyping: function () {
                 var keyboard = this.keyboard;
@@ -516,7 +529,7 @@
                     editor.toolbar.decorateFrom(doc.body);
                 });
                 doc.open();
-                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (browser.msie || browser.edge || browser.chrome ? 'height:auto;' : '') + (os.ios ? 'word-break:break-all;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + 'k\\:script{display:none;}' + '</style>' + domainScript + $.map(stylesheets, function (href) {
+                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (browser.msie || browser.edge || browser.chrome ? 'height:auto;' : '') + (os.ios ? 'word-break:break-all;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + '.k-placeholder{color:grey}' + 'k\\:script{display:none;}' + '</style>' + domainScript + $.map(stylesheets, function (href) {
                     return '<link rel=\'stylesheet\' href=\'' + href + '\'>';
                 }).join('') + '</head><body autocorrect=\'off\' contenteditable=\'true\'></body></html>');
                 doc.close();
@@ -646,6 +659,7 @@
                         }
                     });
                 }
+                this._initializePlaceholder();
                 this._spellCorrect(editor);
                 this._registerHandler(editor.body, {
                     'keydown': function (e) {
@@ -729,6 +743,7 @@
                         if (editor.body.hasAttribute('contenteditable')) {
                             $(this).addClass('k-state-active');
                             editor.toolbar.show();
+                            editor._togglePlaceholder(false);
                         }
                     },
                     'focusout': function () {
@@ -746,12 +761,24 @@
                                 $(body).removeClass('k-state-active');
                                 toolbar.hide();
                             }
+                            editor._togglePlaceholder(!editor.value().trim());
                         }, 10);
                     }
                 });
                 editor._initializeColumnResizing();
                 editor._initializeRowResizing();
                 editor._initializeTableResizing();
+            },
+            _initializePlaceholder: function () {
+                var that = this, placeholder = that.options.placeholder, style, $head;
+                if (!that.textarea || !placeholder) {
+                    return;
+                }
+                style = '<style id=\'' + PLACEHOLDER_TAG_ID + '\'>.' + PLACEHOLDER_CLASS + ':before { content: \'' + placeholder + '\'; }' + '</style>';
+                $head = $(that.document.head);
+                $head.find('#' + PLACEHOLDER_TAG_ID).remove();
+                $head.append(style);
+                that._togglePlaceholder(!that.value().trim());
             },
             _initializeImmutables: function () {
                 var that = this, editorNS = kendo.ui.editor;
@@ -768,8 +795,8 @@
                 if (browser.gecko) {
                     return;
                 }
-                var target = $(e.target);
-                if ((e.which == 2 || e.which == 1 && e.ctrlKey) && target.is('a[href]')) {
+                var target = $(e.target).closest('a[href]');
+                if ((e.which == 2 || e.which == 1 && e.ctrlKey) && target) {
                     window.open(target.attr('href'), '_new');
                 }
             },
@@ -823,6 +850,7 @@
             options: {
                 name: 'Editor',
                 messages: messages,
+                placeholder: '',
                 formats: {},
                 encoded: true,
                 domain: null,
@@ -1032,16 +1060,14 @@
                 var documentElement = this.document.documentElement;
                 var activeElement = kendo._activeElement();
                 var scrollTop;
-                if (iframe) {
-                    if (activeElement != body && activeElement != iframe) {
-                        scrollTop = documentElement.scrollTop;
-                        body.focus();
-                        documentElement.scrollTop = scrollTop;
-                    }
-                } else {
+                if (!iframe && body.scrollHeight > body.clientHeight) {
                     scrollTop = body.scrollTop;
                     body.focus();
                     body.scrollTop = scrollTop;
+                } else if (activeElement != body && activeElement != iframe) {
+                    scrollTop = documentElement.scrollTop;
+                    body.focus();
+                    documentElement.scrollTop = scrollTop;
                 }
             },
             restoreSelection: function () {
@@ -1057,6 +1083,7 @@
                 value = value || this.options.encoded ? this.encodedValue() : this.value();
                 if (this.textarea) {
                     this.textarea.val(value);
+                    this._togglePlaceholder(!value.trim());
                 } else {
                     this._oldValue = value;
                 }
@@ -5461,12 +5488,14 @@
                     columns: columns,
                     change: function () {
                         var color = ui.value();
-                        if (that.storedRange) {
+                        if (kendo.support.browser.msie && that.storedRange && that._inputFocused) {
                             editor.selectRange(that.storedRange);
                         }
                         if (color) {
                             Tool.exec(editor, toolName, color);
                         }
+                        delete that.storedRange;
+                        delete that._inputFocused;
                         editor.focus();
                     },
                     open: function (e) {
@@ -5479,12 +5508,14 @@
                             }
                         });
                         if (!picker._popup.element.is('[unselectable=\'on\']')) {
-                            picker._popup.element.attr({ unselectable: 'on' }).find('*:not(input)').attr('unselectable', 'on');
+                            picker._popup.element.attr({ unselectable: 'on' }).find('*:not(input)').attr('unselectable', 'on').end().find('input').on('focus', function () {
+                                that._inputFocused = true;
+                            });
                         }
                     },
                     close: function (e) {
                         e.sender._popup.element.off(MOUSEDOWN_NS);
-                        if (that.storedRange) {
+                        if (kendo.support.browser.msie && that.storedRange && that._inputFocused) {
                             editor.selectRange(that.storedRange);
                         }
                     },
@@ -12301,7 +12332,10 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('editor/table-wizard/table-wizard-dialog', ['editor/table-wizard/table-wizard-command'], f);
+    define('editor/table-wizard/table-wizard-dialog', [
+        'editor/table-wizard/table-wizard-command',
+        'kendo.tabstrip'
+    ], f);
 }(function () {
     (function ($, undefined) {
         var kendo = window.kendo, numericTextBoxSettings = {
@@ -12717,7 +12751,6 @@
         'kendo.window',
         'kendo.colorpicker',
         'kendo.imagebrowser',
-        'kendo.tabstrip',
         'kendo.numerictextbox',
         'util/undoredostack',
         'editor/main',

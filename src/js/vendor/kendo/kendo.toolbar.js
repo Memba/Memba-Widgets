@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -642,6 +642,9 @@
             var getSibling = dir === 'next' ? $.fn.next : $.fn.prev;
             var getter = dir === 'next' ? $.fn.first : $.fn.last;
             var candidate = getSibling.call(element);
+            if (!candidate.length && element.is('.' + OVERFLOW_ANCHOR)) {
+                return element;
+            }
             if (candidate.is(':kendoFocusable') || !candidate.length) {
                 return candidate;
             }
@@ -692,7 +695,7 @@
                     ICON = 'km-icon';
                     ICON_PREFIX = 'km-';
                     BUTTON = 'km-button';
-                    BUTTON_GROUP = 'km-buttongroup km-widget';
+                    BUTTON_GROUP = 'km-buttongroup';
                     STATE_ACTIVE = 'km-state-active';
                     STATE_DISABLED = 'km-state-disabled';
                 }
@@ -870,18 +873,25 @@
             },
             hide: function (candidate) {
                 var item = this._getItem(candidate);
+                var buttonGroupInstance;
                 if (item.toolbar) {
                     if (item.toolbar.options.type === 'button' && item.toolbar.options.isChild) {
+                        buttonGroupInstance = item.toolbar.getParentGroup();
                         item.toolbar.hide();
-                        item.toolbar.getParentGroup().refresh();
+                        if (buttonGroupInstance) {
+                            buttonGroupInstance.refresh();
+                        }
                     } else if (!item.toolbar.options.hidden) {
                         item.toolbar.hide();
                     }
                 }
                 if (item.overflow) {
                     if (item.overflow.options.type === 'button' && item.overflow.options.isChild) {
+                        buttonGroupInstance = item.overflow.getParentGroup();
                         item.overflow.hide();
-                        item.overflow.getParentGroup().refresh();
+                        if (buttonGroupInstance) {
+                            buttonGroupInstance.refresh();
+                        }
                     } else if (!item.overflow.options.hidden) {
                         item.overflow.hide();
                     }
@@ -1090,21 +1100,27 @@
                     if (element.is('.' + OVERFLOW_ANCHOR)) {
                         element = findFocusableSibling(element, 'next');
                     }
-                    element[0].focus();
+                    if (element.length) {
+                        element[0].focus();
+                    }
                 }).on('keydown', proxy(that._keydown, that));
             },
             _keydown: function (e) {
                 var target = $(e.target), keyCode = e.keyCode, items = this.element.children(':not(.k-separator):visible'), direction = this._isRtl ? -1 : 1;
                 if (keyCode === keys.TAB) {
-                    var element = target.parentsUntil(this.element).last(), lastHasFocus = false, firstHasFocus = false;
+                    var element = target.parentsUntil(this.element).last(), lastHasFocus = false, firstHasFocus = false, isOnlyOverflowAnchor = false;
+                    if (!items.not('.' + OVERFLOW_ANCHOR).length) {
+                        isOnlyOverflowAnchor = true;
+                    }
                     if (!element.length) {
                         element = target;
                     }
-                    if (element.is('.' + OVERFLOW_ANCHOR)) {
+                    if (element.is('.' + OVERFLOW_ANCHOR) && !isOnlyOverflowAnchor) {
+                        var lastItemNotOverflowAnchor = items.last();
                         if (e.shiftKey) {
                             e.preventDefault();
                         }
-                        if (items.last().is(':kendoFocusable')) {
+                        if (lastItemNotOverflowAnchor.is(':kendoFocusable')) {
                             items.last().focus();
                         } else {
                             items.last().find(':kendoFocusable').last().focus();
@@ -1125,11 +1141,11 @@
                             firstHasFocus = true;
                         }
                     }
-                    if (lastHasFocus && this.overflowAnchor && this.overflowAnchor.css('visibility') !== 'hidden') {
+                    if (lastHasFocus && this.overflowAnchor && this.overflowAnchor.css('visibility') !== 'hidden' && !isOnlyOverflowAnchor) {
                         e.preventDefault();
                         this.overflowAnchor.focus();
                     }
-                    if (firstHasFocus) {
+                    if (firstHasFocus || isOnlyOverflowAnchor && e.shiftKey) {
                         e.preventDefault();
                         var prevFocusable = this._getPrevFocusable(this.wrapper);
                         if (prevFocusable) {

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -515,7 +515,6 @@
                     icons = $('<span unselectable="on" class="k-select">' + '<span class="k-link k-link-date" aria-label="' + options.dateButtonText + '"><span unselectable="on" class="k-icon k-i-calendar"></span></span>' + '<span class="k-link k-link-time" aria-label="' + options.timeButtonText + '"><span unselectable="on" class="k-icon k-i-clock"></span></span>' + '</span>').insertAfter(element);
                 }
                 icons = icons.children();
-                icons = icons.children();
                 that._dateIcon = icons.eq(0).attr('aria-controls', that.dateView._dateViewID);
                 that._timeIcon = icons.eq(1).attr('aria-controls', that.timeView._timeViewID);
             },
@@ -531,7 +530,7 @@
                     width: '100%',
                     height: element[0].style.height
                 });
-                that.wrapper = wrapper.addClass('k-widget k-datetimepicker k-header').addClass(element[0].className);
+                that.wrapper = wrapper.addClass('k-widget k-datetimepicker').addClass(element[0].className);
                 that._inputWrapper = $(wrapper[0].firstChild);
             },
             _reset: function () {

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -748,7 +748,7 @@
                     that._firstItem();
                 } else if (key === keys.END) {
                     that._lastItem();
-                } else if (key === keys.ENTER || key === keys.TAB) {
+                } else if (key === keys.ENTER || key === keys.TAB && that.popup.visible()) {
                     var current = that.listView.focus();
                     var dataItem = that.dataItem();
                     var shouldTrigger = true;
@@ -813,6 +813,7 @@
             },
             _search: function () {
                 var that = this;
+                clearTimeout(that._typingTimeout);
                 that._typingTimeout = setTimeout(function () {
                     var value = that.text();
                     if (that._prev !== value) {
@@ -836,7 +837,7 @@
                     wrapper = element.hide().wrap('<span />').parent();
                     wrapper[0].style.cssText = element[0].style.cssText;
                 }
-                that.wrapper = wrapper.addClass('k-widget k-combobox k-header').addClass(element[0].className).css('display', '');
+                that.wrapper = wrapper.addClass('k-widget k-combobox').addClass(element[0].className).css('display', '');
             },
             _clearSelection: function (parent, isFiltered) {
                 var that = this;

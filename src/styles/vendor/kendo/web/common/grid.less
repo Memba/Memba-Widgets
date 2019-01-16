@@ -45,6 +45,8 @@
 
 .k-header.k-drag-clue
 {
+    padding: @grid-th-padding;
+    line-height: 1.6;
     overflow: hidden;
 }
 
@@ -54,7 +56,7 @@
     overflow: hidden;
     border-style: solid;
     border-width: 0 0 1px 1px;
-    padding: .5em .6em .4em .6em;
+    padding: @grid-th-padding;
     font-weight: normal;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -471,13 +473,20 @@ form.k-filter-menu .k-textbox
     margin: .5em 0 .5em;
 }
 
-.k-filter-menu .k-button
+.k-filter-menu .k-action-buttons {
+    margin: 0;
+    padding: 0;
+    text-align: initial;
+}
+
+.k-filter-menu .k-action-buttons .k-button
 {
     width:48%;
     margin: .5em 4% 0 0;
+    min-width: 0;
 }
 
-.k-filter-menu .k-button+.k-button
+.k-filter-menu .k-action-buttons .k-button+.k-button
 {
     margin-right: 0;
 }
@@ -546,11 +555,13 @@ form.k-filter-menu .k-textbox
 .k-grouping-header
 {
     line-height: 2;
+    position: relative;
 }
 
 .k-grouping-dropclue
 {
     position: absolute;
+    top: 3px;
     width: 6px;
     height: 25px;
     background-repeat: no-repeat;
@@ -868,7 +879,7 @@ html .k-grid-edit-row .k-tooltip
 
 // Remove empty space reserved above the scrollbar
 .k-pdf-export-shadow .k-grid-header,
-.k-pdf-export-shadow .k-grid-footer {
+.k-pdf-export-shadow .k-grid[data-role="grid"] .k-grid-footer {
     padding: 0 !important;
 }
 

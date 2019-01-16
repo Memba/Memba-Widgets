@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -538,14 +538,17 @@
                 }
             },
             _change: function (value) {
-                var that = this;
+                var that = this, oldValue = that.element.val(), dateChanged;
                 value = that._update(value);
-                if (+that._old != +value) {
+                dateChanged = !kendo.calendar.isEqualDate(that._old, value);
+                var valueUpdated = dateChanged && !that._typing;
+                var textFormatted = oldValue !== that.element.val();
+                if (valueUpdated || textFormatted) {
+                    that.element.trigger(CHANGE);
+                }
+                if (dateChanged) {
                     that._old = value;
                     that._oldText = that.element.val();
-                    if (!that._typing) {
-                        that.element.trigger(CHANGE);
-                    }
                     that.trigger(CHANGE);
                 }
                 that._typing = false;
@@ -613,7 +616,7 @@
                     wrapper = wrapper.wrap(SPAN).parent();
                 }
                 wrapper[0].style.cssText = element[0].style.cssText;
-                that.wrapper = wrapper.addClass('k-widget k-timepicker k-header').addClass(element[0].className);
+                that.wrapper = wrapper.addClass('k-widget k-timepicker').addClass(element[0].className);
                 element.css({
                     width: '100%',
                     height: element[0].style.height

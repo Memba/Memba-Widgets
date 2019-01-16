@@ -23,6 +23,13 @@
 
 */
 // Scheduler
+.k-scheduler {
+
+    .k-link {
+        color: inherit;
+    }
+
+}
 
 .k-scheduler-toolbar,
 .k-scheduler-footer
@@ -51,9 +58,12 @@
     padding-right: 0;
 }
 
-.k-scheduler-header
-{
+.k-scheduler-header {
     text-align:center;
+
+    .k-link {
+        color: inherit;
+    }
 }
 
 .k-scheduler-footer
@@ -256,7 +266,7 @@
 
 
 
-.k-scheduler-dayview div:not(.k-scheduler-header) .k-today:not(.k-nonwork-hour),
+.k-scheduler-dayview div:not(.k-scheduler-header) .k-today:not(.k-nonwork-hour):not(.k-state-selected),
 .k-scheduler-timelineview .k-today:not(.k-nonwork-hour) {
     background-color: transparent;
 }
@@ -947,7 +957,8 @@ div[name="recurrenceRule"] > .k-dropdown
     width: 9em;
 }
 
-.k-scheduler-edit-form .k-edit-buttons .k-scheduler-delete
+.k-scheduler-edit-form .k-edit-buttons .k-scheduler-delete,
+.k-scheduler-edit-form .k-edit-buttons .k-scheduler-resetSeries
 {
     float: left;
 }

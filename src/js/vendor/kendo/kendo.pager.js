@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -33,7 +33,7 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, proxy = $.proxy, FIRST = '.k-i-arrow-end-left', LAST = '.k-i-arrow-end-right', PREV = '.k-i-arrow-60-left', NEXT = '.k-i-arrow-60-right', CHANGE = 'change', NS = '.kendoPager', CLICK = 'click', KEYDOWN = 'keydown', DISABLED = 'disabled', MOUSEDOWN = 'down', DOCUMENT_ELEMENT = $(document.documentElement), MAX_VALUE = Number.MAX_VALUE, iconTemplate = kendo.template('<a href="\\#" aria-label="#=text#" title="#=text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #"></span></a>');
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, proxy = $.proxy, FIRST = '.k-i-arrow-end-left', LAST = '.k-i-arrow-end-right', PREV = '.k-i-arrow-60-left', NEXT = '.k-i-arrow-60-right', SIZE = 'k-pager-lg k-pager-md k-pager-sm', CHANGE = 'change', NS = '.kendoPager', CLICK = 'click', KEYDOWN = 'keydown', DISABLED = 'disabled', MOUSEDOWN = 'down', DOCUMENT_ELEMENT = $(document.documentElement), MAX_VALUE = Number.MAX_VALUE, iconTemplate = kendo.template('<a href="\\#" aria-label="#=text#" title="#=text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #"></span></a>');
         function button(template, idx, text, numeric, title) {
             return template({
                 idx: idx,
@@ -68,6 +68,7 @@
         var Pager = Widget.extend({
             init: function (element, options) {
                 var that = this, page, totalPages;
+                var sizeClassName = null;
                 Widget.fn.init.call(that, element, options);
                 options = that.options;
                 that._createDataSource(options);
@@ -149,6 +150,12 @@
                 if (options.autoBind) {
                     that.refresh();
                 }
+                that._resizeHandler = proxy(that.resize, that, true);
+                $(window).on('resize' + NS, that._resizeHandler);
+                sizeClassName = that._getWidthSizeClass(that.element.width());
+                if (sizeClassName) {
+                    that.element.addClass(sizeClassName);
+                }
                 kendo.notify(that);
             },
             destroy: function () {
@@ -157,6 +164,7 @@
                 that.element.off(NS);
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
                 that._refreshHandler = null;
+                $(window).off('resize' + NS, this._resizeHandler);
                 kendo.destroy(that.element);
                 that.element = that.list = null;
             },
@@ -198,6 +206,18 @@
                     dataSource.fetch();
                 }
             },
+            _resize: function (size) {
+                if (size.width) {
+                    var sizeClassName = this._getWidthSizeClass(size.width);
+                    var el = this.element;
+                    if (!sizeClassName) {
+                        el.removeClass(SIZE);
+                    } else if (!el.hasClass(sizeClassName)) {
+                        el.removeClass(SIZE);
+                        el.addClass(sizeClassName);
+                    }
+                }
+            },
             _createDataSource: function (options) {
                 this.dataSource = kendo.data.DataSource.create(options.dataSource);
             },
@@ -230,7 +250,7 @@
                 }
                 if (options.info) {
                     if (total > 0) {
-                        html = kendo.format(options.messages.display, that.dataSource.options.endless ? 1 : Math.min((page - 1) * pageSize + 1, collapsedTotal), Math.min(page * pageSize, collapsedTotal), total);
+                        html = kendo.format(options.messages.display, that.dataSource.options.endless ? 1 : Math.min((page - 1) * (that.dataSource.pageSize() || 0) + 1, collapsedTotal), Math.min(page * pageSize, collapsedTotal), total);
                     } else {
                         html = options.messages.empty;
                     }
@@ -328,6 +348,17 @@
                         return 0;
                     }
                 }
+            },
+            _getWidthSizeClass: function (width) {
+                var sizes = SIZE.split(' ');
+                if (width <= 480) {
+                    return sizes[2];
+                } else if (width <= 640) {
+                    return sizes[1];
+                } else if (width <= 1024) {
+                    return sizes[0];
+                }
+                return null;
             }
         });
         ui.plugin(Pager);

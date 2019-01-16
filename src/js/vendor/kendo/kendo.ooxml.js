@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -154,7 +154,7 @@
             var validations = ref.validations;
             var defaultCellStyleId = ref.defaultCellStyleId;
             var rtl = ref.rtl;
-            return XMLHEAD + '\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" mc:Ignorable="x14ac">\n   <dimension ref="A1" />\n\n   <sheetViews>\n     <sheetView ' + (rtl ? 'rightToLeft="1"' : '') + ' ' + (index === 0 ? 'tabSelected="1"' : '') + ' workbookViewId="0" ' + (showGridLines === false ? 'showGridLines="0"' : '') + '>\n     ' + (frozenRows || frozenColumns ? '\n       <pane state="frozen"\n         ' + (frozenColumns ? 'xSplit="' + frozenColumns + '"' : '') + '\n         ' + (frozenRows ? 'ySplit="' + frozenRows + '"' : '') + '\n         topLeftCell="' + (String.fromCharCode(65 + (frozenColumns || 0)) + ((frozenRows || 0) + 1)) + '"\n       />' : '') + '\n     </sheetView>\n   </sheetViews>\n\n   <sheetFormatPr x14ac:dyDescent="0.25" defaultRowHeight="' + (defaults.rowHeight ? defaults.rowHeight * 0.75 : 15) + '"\n     ' + (defaults.columnWidth ? 'defaultColWidth="' + toWidth(defaults.columnWidth) + '"' : '') + ' />\n\n   ' + (defaultCellStyleId != null || columns && columns.length > 0 ? '\n     <cols>\n       ' + (!columns || !columns.length ? '\n         <col min="1" max="16384" style="' + defaultCellStyleId + '"\n              ' + (defaults.columnWidth ? 'width="' + toWidth(defaults.columnWidth) + '"' : '') + ' /> ' : '') + '\n       ' + foreach(columns, function (column, ci) {
+            return XMLHEAD + '\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" mc:Ignorable="x14ac">\n   <dimension ref="A1" />\n\n   <sheetViews>\n     <sheetView ' + (rtl ? 'rightToLeft="1"' : '') + ' ' + (index === 0 ? 'tabSelected="1"' : '') + ' workbookViewId="0" ' + (showGridLines === false ? 'showGridLines="0"' : '') + '>\n     ' + (frozenRows || frozenColumns ? '\n       <pane state="frozen"\n         ' + (frozenColumns ? 'xSplit="' + frozenColumns + '"' : '') + '\n         ' + (frozenRows ? 'ySplit="' + frozenRows + '"' : '') + '\n         topLeftCell="' + (String.fromCharCode(65 + (frozenColumns || 0)) + ((frozenRows || 0) + 1)) + '"\n       />' : '') + '\n     </sheetView>\n   </sheetViews>\n\n   <sheetFormatPr x14ac:dyDescent="0.25" customHeight="1" defaultRowHeight="' + (defaults.rowHeight ? defaults.rowHeight * 0.75 : 15) + '"\n     ' + (defaults.columnWidth ? 'defaultColWidth="' + toWidth(defaults.columnWidth) + '"' : '') + ' />\n\n   ' + (defaultCellStyleId != null || columns && columns.length > 0 ? '\n     <cols>\n       ' + (!columns || !columns.length ? '\n         <col min="1" max="16384" style="' + defaultCellStyleId + '"\n              ' + (defaults.columnWidth ? 'width="' + toWidth(defaults.columnWidth) + '"' : '') + ' /> ' : '') + '\n       ' + foreach(columns, function (column, ci) {
                 var columnIndex = typeof column.index === 'number' ? column.index + 1 : ci + 1;
                 if (column.width === 0) {
                     return '<col ' + (defaultCellStyleId != null ? 'style="' + defaultCellStyleId + '"' : '') + '\n                        min="' + columnIndex + '" max="' + columnIndex + '" hidden="1" customWidth="1" />';
@@ -162,7 +162,7 @@
                 return '<col ' + (defaultCellStyleId != null ? 'style="' + defaultCellStyleId + '"' : '') + '\n                      min="' + columnIndex + '" max="' + columnIndex + '" customWidth="1"\n                      ' + (column.autoWidth ? 'width="' + (column.width * 7 + 5) / 7 * 256 / 256 + '" bestFit="1"' : 'width="' + toWidth(column.width) + '"') + ' />';
             }) + '\n     </cols>' : '') + '\n\n   <sheetData>\n     ' + foreach(data, function (row, ri) {
                 var rowIndex = typeof row.index === 'number' ? row.index + 1 : ri + 1;
-                return '\n         <row r="' + rowIndex + '" x14ac:dyDescent="0.25"\n              ' + (row.height === 0 ? 'hidden="1"' : row.height ? 'ht="' + toHeight(row.height) + '" customHeight="1"' : '') + '>\n           ' + foreach(row.data, function (cell) {
+                return '\n         <row r="' + rowIndex + '" x14ac:dyDescent="0.25"\n              ' + (row.level ? 'outlineLevel="' + row.level + '"' : '') + '\n              ' + (row.height === 0 ? 'hidden="1"' : row.height ? 'ht="' + toHeight(row.height) + '" customHeight="1"' : '') + '>\n           ' + foreach(row.data, function (cell) {
                     return '\n             <c r="' + cell.ref + '" ' + (cell.style ? 's="' + cell.style + '"' : '') + ' ' + (cell.type ? 't="' + cell.type + '"' : '') + '>\n               ' + (cell.formula != null ? writeFormula(cell.formula) : '') + '\n               ' + (cell.value != null ? '<v>' + ESC(cell.value) + '</v>' : '') + '\n             </c>';
                 }) + '\n         </row>\n       ';
             }) + '\n   </sheetData>\n\n   ' + (autoFilter ? '<autoFilter ref="' + autoFilter.from + ':' + autoFilter.to + '"/>' : filter ? spreadsheetFilters(filter) : '') + '\n\n   ' + (mergeCells.length ? '\n     <mergeCells count="' + mergeCells.length + '">\n       ' + foreach(mergeCells, function (ref) {
@@ -206,7 +206,7 @@
             }) + '\n  </fonts>\n  <fills count="' + (fills.length + 2) + '">\n      <fill><patternFill patternType="none"/></fill>\n      <fill><patternFill patternType="gray125"/></fill>\n    ' + foreach(fills, function (fill) {
                 return '\n      ' + (fill.background ? '\n        <fill>\n          <patternFill patternType="solid">\n              <fgColor rgb="' + ESC(fill.background) + '"/>\n          </patternFill>\n        </fill>\n      ' : '');
             }) + '\n  </fills>\n  <borders count="' + (borders.length + 1) + '">\n    <border><left/><right/><top/><bottom/><diagonal/></border>\n    ' + foreach(borders, borderTemplate) + '\n  </borders>\n  <cellStyleXfs count="1">\n    <xf borderId="0" fillId="0" fontId="0" />\n  </cellStyleXfs>\n  <cellXfs count="' + (styles.length + 1) + '">\n    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" />\n    ' + foreach(styles, function (style) {
-                return '\n      <xf xfId="0"\n          ' + (style.fontId ? 'fontId="' + style.fontId + '" applyFont="1"' : '') + '\n          ' + (style.fillId ? 'fillId="' + style.fillId + '" applyFill="1"' : '') + '\n          ' + (style.numFmtId ? 'numFmtId="' + style.numFmtId + '" applyNumberFormat="1"' : '') + '\n          ' + (style.textAlign || style.verticalAlign || style.wrap ? 'applyAlignment="1"' : '') + '\n          ' + (style.borderId ? 'borderId="' + style.borderId + '" applyBorder="1"' : '') + '>\n        ' + (style.textAlign || style.verticalAlign || style.wrap ? '\n        <alignment\n          ' + (style.textAlign ? 'horizontal="' + ESC(style.textAlign) + '"' : '') + '\n          ' + (style.verticalAlign ? 'vertical="' + ESC(style.verticalAlign) + '"' : '') + '\n          ' + (style.wrap ? 'wrapText="1"' : '') + ' />\n        ' : '') + '\n      </xf>\n    ';
+                return '\n      <xf xfId="0"\n          ' + (style.fontId ? 'fontId="' + style.fontId + '" applyFont="1"' : '') + '\n          ' + (style.fillId ? 'fillId="' + style.fillId + '" applyFill="1"' : '') + '\n          ' + (style.numFmtId ? 'numFmtId="' + style.numFmtId + '" applyNumberFormat="1"' : '') + '\n          ' + (style.textAlign || style.verticalAlign || style.wrap ? 'applyAlignment="1"' : '') + '\n          ' + (style.borderId ? 'borderId="' + style.borderId + '" applyBorder="1"' : '') + '>\n        ' + (style.textAlign || style.verticalAlign || style.wrap ? '\n        <alignment\n          ' + (style.textAlign ? 'horizontal="' + ESC(style.textAlign) + '"' : '') + '\n          ' + (style.verticalAlign ? 'vertical="' + ESC(style.verticalAlign) + '"' : '') + '\n          ' + (style.indent ? 'indent="' + ESC(style.indent) + '"' : '') + '\n          ' + (style.wrap ? 'wrapText="1"' : '') + ' />\n        ' : '') + '\n      </xf>\n    ';
             }) + '\n  </cellXfs>\n  <cellStyles count="1">\n    <cellStyle name="Normal" xfId="0" builtinId="0"/>\n  </cellStyles>\n  <dxfs count="0" />\n  <tableStyles count="0" defaultTableStyle="TableStyleMedium2" defaultPivotStyle="PivotStyleMedium9" />\n</styleSheet>';
         };
         function writeFormula(formula) {
@@ -230,7 +230,8 @@
             return frozenRows - 1;
         }
         function toWidth(px) {
-            return (px / 7 * 100 + 0.5) / 100;
+            var maximumDigitWidth = 7;
+            return px / maximumDigitWidth - Math.floor(128 / maximumDigitWidth) / 256;
         }
         function toHeight(px) {
             return px * 0.75;
@@ -387,6 +388,7 @@
                         add('vAlign', 'verticalAlign');
                     }
                     add('wrap');
+                    add('indent');
                 }(function (prop, target) {
                     var val = data[prop];
                     if (val === undefined) {
@@ -604,7 +606,18 @@
                 var hasFont = function (style) {
                     return style.underline || style.bold || style.italic || style.color || style.fontFamily || style.fontSize;
                 };
+                var convertFontSize = function (value) {
+                    var fontInPx = Number(value);
+                    var fontInPt;
+                    if (fontInPx) {
+                        fontInPt = fontInPx * 3 / 4;
+                    }
+                    return fontInPt;
+                };
                 var fonts = map(styles, function (style) {
+                    if (style.fontSize) {
+                        style.fontSize = convertFontSize(style.fontSize);
+                    }
                     if (style.color) {
                         style.color = convertColor(style.color);
                     }
@@ -637,6 +650,7 @@
                             result.fillId = indexOf(style, fills) + 2;
                         }
                         result.textAlign = style.textAlign;
+                        result.indent = style.indent;
                         result.verticalAlign = style.verticalAlign;
                         result.wrap = style.wrap;
                         result.borderId = style.borderId;
@@ -691,6 +705,7 @@
                     _source: row,
                     index: index,
                     height: row.height,
+                    level: row.level,
                     cells: []
                 };
                 rowData.push(data);

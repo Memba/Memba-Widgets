@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -329,7 +329,7 @@
             _clearClick: function () {
                 var that = this;
                 if (that.options.tagMode === 'single') {
-                    that.value([]);
+                    that.listView.value([]);
                 } else {
                     that.tagList.children().each(function (index, tag) {
                         that._removeTag($(tag), false);
@@ -591,6 +591,7 @@
                 var visible = that.popup.visible();
                 var dir = 0;
                 var activeItemIdx;
+                var persistTagList;
                 if (key !== keys.ENTER) {
                     this._multipleSelection = false;
                 }
@@ -738,9 +739,14 @@
                 } else if ((key === keys.DELETE || key === keys.BACKSPACE) && !hasValue) {
                     that._state = ACCEPT;
                     if (that.options.tagMode === 'single') {
+                        persistTagList = that.persistTagList;
+                        if (persistTagList) {
+                            that.persistTagList = false;
+                        }
                         listView.value([]);
                         that._change();
                         that._close();
+                        that.persistTagList = persistTagList;
                         return;
                     }
                     if (key === keys.BACKSPACE && !tag) {
@@ -900,6 +906,7 @@
             },
             _search: function () {
                 var that = this;
+                clearTimeout(that._typingTimeout);
                 that._typingTimeout = setTimeout(function () {
                     var value = that._inputValue();
                     if (that._prev !== value) {

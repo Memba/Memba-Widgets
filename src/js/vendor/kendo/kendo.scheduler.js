@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -258,7 +258,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, date = kendo.date, input_support = kendo.support.input, MS_PER_DAY = date.MS_PER_DAY, getDate = date.getDate, getMilliseconds = kendo.date.getMilliseconds, recurrence = kendo.recurrence, keys = $.extend({ F10: 121 }, kendo.keys), ui = kendo.ui, Widget = ui.Widget, DataBoundWidget = ui.DataBoundWidget, STRING = 'string', Popup = ui.Popup, Calendar = ui.Calendar, DataSource = kendo.data.DataSource, isPlainObject = $.isPlainObject, extend = $.extend, proxy = $.proxy, toString = Object.prototype.toString, isArray = $.isArray, NS = '.kendoScheduler', CLICK = 'click', MOUSEDOWN = 'mousedown', TOUCHSTART = kendo.support.pointers ? 'pointerdown' : 'touchstart', TOUCHMOVE = kendo.support.pointers ? 'pointermove' : 'touchmove', TOUCHEND = kendo.support.pointers ? 'pointerup' : 'touchend', MOUSEMOVE = kendo.support.mousemove, CHANGE = 'change', CANCEL = 'cancel', REMOVE = 'remove', SAVE = 'save', ADD = 'add', EDIT = 'edit', FOCUSEDSTATE = 'k-state-focused', EXPANDEDSTATE = 'k-state-expanded', VIEWSSELECTOR = '.k-scheduler-views', valueStartEndBoundRegex = /(?:value:start|value:end)(?:,|$)/, TODAY = getDate(new Date()), EXCEPTION_SEPARATOR = ',', OLD_EXCEPTION_SEPARATOR_REGEXP = /\;/g, RECURRENCE_EXCEPTION = 'recurrenceException', DELETECONFIRM = 'Are you sure you want to delete this event?', DELETERECURRING = 'Do you want to delete only this event occurrence or the whole series?', EDITRECURRING = 'Do you want to edit only this event occurrence or the whole series?', DELETERECURRINGCONFIRM = 'Are you sure you want to delete this event occurrence?', DELETESERIESCONFIRM = 'Are you sure you want to delete the whole series?', COMMANDBUTTONTMPL = '<a class="k-button #=className#" #=attr# href="\\#">#=text#</a>', VIEWBUTTONTEMPLATE = kendo.template('<li class="k-current-view" data-#=ns#name="#=view#"><a role="button" href="\\#" class="k-link">${views[view].title}</a></li>'), TOOLBARTEMPLATE = kendo.template('<div class="k-floatwrap k-header k-scheduler-toolbar">' + '# if (pdf) { #' + '<ul class="k-reset k-scheduler-tools">' + '<li><a role="button" href="\\#" class="k-button k-pdf"><span class="k-icon k-i-file-pdf"></span>${messages.pdf}</a></li>' + '</ul>' + '# } #' + '<ul class="k-reset k-scheduler-navigation">' + '<li class="k-state-default k-header k-nav-today"><a role="button" href="\\#" class="k-link" title="${messages.today}">${messages.today}</a></li>' + '<li class="k-state-default k-header k-nav-prev"><a role="button" href="\\#" class="k-link" title="${messages.previous}" aria-label="${messages.previous}"><span class="k-icon k-i-arrow-60-left" style="pointer-events: none"></span></a></li>' + '<li class="k-state-default k-header k-nav-next"><a role="button" href="\\#" class="k-link" title="${messages.next}" aria-label="${messages.next}"><span class="k-icon k-i-arrow-60-right" style="pointer-events: none"></span></a></li>' + '<li class="k-state-default k-nav-current">' + '<a role="button" href="\\#" class="k-link">' + '<span class="k-icon k-i-calendar"></span>' + '<span class="k-sm-date-format" data-#=ns#bind="text: formattedShortDate"></span>' + '<span class="k-lg-date-format" data-#=ns#bind="text: formattedDate"></span>' + '</a>' + '</li>' + '</ul>' + '#if(viewsCount === 1){#' + '<a role="button" data-#=ns#name="#=view#" href="\\#" class="k-link k-scheduler-refresh">' + '<span class="k-icon k-i-reload"></span>' + '</a>' + '#}else{#' + '<ul class="k-reset k-header k-scheduler-views">' + '#for(var view in views){#' + '<li class="k-state-default k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#"><a role="button" href="\\#" class="k-link">${views[view].title}</a></li>' + '#}#' + '</ul>' + '#}#' + '</div>'), MOBILETOOLBARTEMPLATE = kendo.template('<div class="k-floatwrap k-header k-scheduler-toolbar">' + '# if (pdf) { #' + '<ul class="k-reset k-scheduler-tools">' + '<li><a role="button" href="\\#" class="k-button k-pdf"><span class="k-icon k-i-file-pdf"></span>${messages.pdf}</a></li>' + '</ul>' + '# } #' + '<ul class="k-reset k-header k-scheduler-navigation">' + '<li class="k-state-default k-nav-today"><a role="button" href="\\#" class="k-link">${messages.today}</a></li>' + '</ul>' + '#if(viewsCount === 1){#' + '<a role="button" data-#=ns#name="#=view#" href="\\#" class="k-link k-scheduler-refresh">' + '<span class="k-icon k-i-reload"></span>' + '</a>' + '#}else{#' + '<ul class="k-reset k-header k-scheduler-views">' + '#for(var view in views){#' + '<li class="k-state-default k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#"><a role="button" href="\\#" class="k-link">${views[view].title}</a></li>' + '#}#' + '</ul>' + '#}#' + '</div>' + '<div class="k-floatwrap k-header k-scheduler-toolbar">' + '<ul class="k-reset k-header k-scheduler-navigation">' + '<li class="k-state-default k-nav-prev"><a role="button" href="\\#" class="k-link"><span class="k-icon k-i-arrow-60-left"></span></a></li>' + '<li class="k-state-default k-nav-current">' + '<span class="k-sm-date-format" data-#=ns#bind="text: formattedShortDate"></span>' + '<span class="k-lg-date-format" data-#=ns#bind="text: formattedDate"></span>' + '</li>' + '<li class="k-state-default k-nav-next"><a role="button" href="\\#" class="k-link"><span class="k-icon k-i-arrow-60-right"></span></a></li>' + '</ul>' + '</div>'), MOBILEDATERANGEEDITOR = function (container, options) {
+        var kendo = window.kendo, date = kendo.date, input_support = kendo.support.input, MS_PER_DAY = date.MS_PER_DAY, getDate = date.getDate, getMilliseconds = kendo.date.getMilliseconds, recurrence = kendo.recurrence, keys = $.extend({ F10: 121 }, kendo.keys), ui = kendo.ui, Widget = ui.Widget, DataBoundWidget = ui.DataBoundWidget, STRING = 'string', Popup = ui.Popup, Calendar = ui.Calendar, DataSource = kendo.data.DataSource, isPlainObject = $.isPlainObject, extend = $.extend, proxy = $.proxy, toString = Object.prototype.toString, isArray = $.isArray, NS = '.kendoScheduler', CLICK = 'click', MOUSEDOWN = 'mousedown', TOUCHSTART = kendo.support.pointers ? 'pointerdown' : 'touchstart', TOUCHMOVE = kendo.support.pointers ? 'pointermove' : 'touchmove', TOUCHEND = kendo.support.pointers ? 'pointerup' : 'touchend', MOUSEMOVE = kendo.support.mousemove, CHANGE = 'change', CANCEL = 'cancel', REMOVE = 'remove', RESET = 'resetSeries', SAVE = 'save', ADD = 'add', EDIT = 'edit', FOCUSEDSTATE = 'k-state-focused', EXPANDEDSTATE = 'k-state-expanded', VIEWSSELECTOR = '.k-scheduler-views', valueStartEndBoundRegex = /(?:value:start|value:end)(?:,|$)/, TODAY = getDate(new Date()), EXCEPTION_SEPARATOR = ',', OLD_EXCEPTION_SEPARATOR_REGEXP = /\;/g, RECURRENCE_EXCEPTION = 'recurrenceException', DELETECONFIRM = 'Are you sure you want to delete this event?', DELETERECURRING = 'Do you want to delete only this event occurrence or the whole series?', EDITRECURRING = 'Do you want to edit only this event occurrence or the whole series?', DELETERECURRINGCONFIRM = 'Are you sure you want to delete this event occurrence?', RESETSERIESCONFIRM = 'Are you sure you want to reset the whole series?', DELETESERIESCONFIRM = 'Are you sure you want to delete the whole series?', COMMANDBUTTONTMPL = '<a class="k-button #=className#" #=attr# href="\\#">#=text#</a>', VIEWBUTTONTEMPLATE = kendo.template('<li class="k-current-view" data-#=ns#name="#=view#"><a role="button" href="\\#" class="k-link">${views[view].title}</a></li>'), TOOLBARTEMPLATE = kendo.template('<div class="k-floatwrap k-header k-scheduler-toolbar">' + '# if (pdf) { #' + '<ul class="k-reset k-scheduler-tools">' + '<li><a role="button" href="\\#" class="k-button k-pdf"><span class="k-icon k-i-file-pdf"></span>${messages.pdf}</a></li>' + '</ul>' + '# } #' + '<ul class="k-reset k-scheduler-navigation">' + '<li class="k-state-default k-header k-nav-today"><a role="button" href="\\#" class="k-link" title="${messages.today}">${messages.today}</a></li>' + '<li class="k-state-default k-header k-nav-prev"><a role="button" href="\\#" class="k-link" title="${messages.previous}" aria-label="${messages.previous}"><span class="k-icon k-i-arrow-60-left" style="pointer-events: none"></span></a></li>' + '<li class="k-state-default k-header k-nav-next"><a role="button" href="\\#" class="k-link" title="${messages.next}" aria-label="${messages.next}"><span class="k-icon k-i-arrow-60-right" style="pointer-events: none"></span></a></li>' + '<li class="k-state-default k-nav-current">' + '<a role="button" href="\\#" class="k-link">' + '<span class="k-icon k-i-calendar"></span>' + '<span class="k-sm-date-format" data-#=ns#bind="text: formattedShortDate"></span>' + '<span class="k-lg-date-format" data-#=ns#bind="text: formattedDate"></span>' + '</a>' + '</li>' + '</ul>' + '#if(viewsCount === 1){#' + '<a role="button" data-#=ns#name="#=view#" href="\\#" class="k-link k-scheduler-refresh">' + '<span class="k-icon k-i-reload"></span>' + '</a>' + '#}else{#' + '<ul class="k-reset k-header k-scheduler-views">' + '#for(var view in views){#' + '<li class="k-state-default k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#"><a role="button" href="\\#" class="k-link">${views[view].title}</a></li>' + '#}#' + '</ul>' + '#}#' + '</div>'), MOBILETOOLBARTEMPLATE = kendo.template('<div class="k-floatwrap k-header k-scheduler-toolbar">' + '# if (pdf) { #' + '<ul class="k-reset k-scheduler-tools">' + '<li><a role="button" href="\\#" class="k-button k-pdf"><span class="k-icon k-i-file-pdf"></span>${messages.pdf}</a></li>' + '</ul>' + '# } #' + '<ul class="k-reset k-header k-scheduler-navigation">' + '<li class="k-state-default k-nav-today"><a role="button" href="\\#" class="k-link">${messages.today}</a></li>' + '</ul>' + '#if(viewsCount === 1){#' + '<a role="button" data-#=ns#name="#=view#" href="\\#" class="k-link k-scheduler-refresh">' + '<span class="k-icon k-i-reload"></span>' + '</a>' + '#}else{#' + '<ul class="k-reset k-header k-scheduler-views">' + '#for(var view in views){#' + '<li class="k-state-default k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#"><a role="button" href="\\#" class="k-link">${views[view].title}</a></li>' + '#}#' + '</ul>' + '#}#' + '</div>' + '<div class="k-floatwrap k-header k-scheduler-toolbar">' + '<ul class="k-reset k-header k-scheduler-navigation">' + '<li class="k-state-default k-nav-prev"><a role="button" href="\\#" class="k-link"><span class="k-icon k-i-arrow-60-left"></span></a></li>' + '<li class="k-state-default k-nav-current">' + '<span class="k-sm-date-format" data-#=ns#bind="text: formattedShortDate"></span>' + '<span class="k-lg-date-format" data-#=ns#bind="text: formattedDate"></span>' + '</li>' + '<li class="k-state-default k-nav-next"><a role="button" href="\\#" class="k-link"><span class="k-icon k-i-arrow-60-right"></span></a></li>' + '</ul>' + '</div>'), MOBILEDATERANGEEDITOR = function (container, options) {
                 var attr = {
                     name: options.field,
                     title: options.title
@@ -1184,11 +1184,15 @@
                 var removeText = messages.destroy;
                 var cancelText = messages.cancel;
                 var titleText = messages.editor.editorTitle;
+                var resetSeries = messages.resetSeries;
                 html += '<div data-role="view" class="k-popup-edit-form k-scheduler-edit-form k-mobile-list" id="edit" ' + kendo.attr('uid') + '="' + model.uid + '">' + '<div data-role="header" class="k-header"><a href="#" class="k-button k-scheduler-cancel">' + cancelText + '</a>' + titleText + '<a href="#" class="k-button k-scheduler-update">' + updateText + '</a></div>';
                 var fields = this.fields(editors.mobile, model);
                 var that = this;
                 var editableFields = [];
                 html += this._buildEditTemplate(model, fields, editableFields);
+                if (!model.isNew() && this.options.editable && this.options.editable.destroy !== false && model.isRecurrenceHead() && model.recurrenceException) {
+                    html += '<div class="k-edit-buttons"><a href="#" class="k-scheduler-resetSeries k-button">' + resetSeries + '</a></div>';
+                }
                 if (!model.isNew() && this.options.editable && this.options.editable.destroy !== false) {
                     html += '<div class="k-edit-buttons"><a href="#" class="k-scheduler-delete k-button">' + removeText + '</a></div>';
                 }
@@ -1209,7 +1213,7 @@
                         container: container,
                         model: model
                     })) {
-                    container.on(CLICK + NS, 'a.k-scheduler-edit, a.k-scheduler-cancel, a.k-scheduler-update, a.k-scheduler-delete', function (e) {
+                    container.on(CLICK + NS, 'a.k-scheduler-edit, a.k-scheduler-cancel, a.k-scheduler-update, a.k-scheduler-delete, a.k-scheduler-resetSeries', function (e) {
                         e.preventDefault();
                         e.stopPropagation();
                         var button = $(this);
@@ -1219,6 +1223,8 @@
                                 name = 'save';
                             } else if (button.hasClass('k-scheduler-delete')) {
                                 name = 'remove';
+                            } else if (button.hasClass('k-scheduler-resetSeries')) {
+                                name = RESET;
                             }
                             that.trigger(name, {
                                 container: container,
@@ -1276,6 +1282,7 @@
                 var updateText = messages.save;
                 var cancelText = messages.cancel;
                 var deleteText = messages.destroy;
+                var resetSeries = messages.resetSeries;
                 var fields = this.fields(editors.desktop, model);
                 var editableFields = [];
                 html += this._buildEditTemplate(model, fields, editableFields);
@@ -1291,6 +1298,13 @@
                     text: cancelText,
                     attr: attr
                 });
+                if (!model.isNew() && editable.destroy !== false && model.isRecurrenceHead() && model.recurrenceException) {
+                    html += this.createButton({
+                        name: 'resetSeries',
+                        text: resetSeries,
+                        attr: attr
+                    });
+                }
                 if (!model.isNew() && editable.destroy !== false) {
                     html += this.createButton({
                         name: 'delete',
@@ -1348,6 +1362,14 @@
                         e.preventDefault();
                         e.stopPropagation();
                         that.trigger(REMOVE, {
+                            container: container,
+                            model: model
+                        });
+                    });
+                    container.on(CLICK + NS, 'a.k-scheduler-resetSeries', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        that.trigger(RESET, {
                             container: container,
                             model: model
                         });
@@ -1758,7 +1780,7 @@
                     if (that._dragging) {
                         return;
                     }
-                    if (that.options.selectable && Math.abs(endX - startX) <= 10 || Math.abs(endY - startY) <= 10) {
+                    if (that.options.selectable && (Math.abs(endX - startX) <= 10 || Math.abs(endY - startY) <= 10)) {
                         that._mouseDownSelection(e);
                     }
                     if (!kendo.support.kineticScrollNeeded && delta < 200 && Math.abs(endX - startX) > 10) {
@@ -1916,7 +1938,7 @@
                 var scrollLeft = content[0].scrollLeft - Math.round(endX - that._touchPosX);
                 var applyVerticalScroll = verticalScroll && Math.abs(endY - that._touchPosY) > 10;
                 var applyhorizontalScroll = horizontalScroll && Math.abs(endY - that._touchPosY) > 10;
-                if (that._dragging || kendo.support.kineticScrollNeeded) {
+                if (that._dragging || kendo.support.kineticScrollNeeded || !that._isTouch(e)) {
                     return;
                 }
                 if (applyVerticalScroll || applyhorizontalScroll) {
@@ -2231,6 +2253,7 @@
                     save: 'Save',
                     cancel: 'Cancel',
                     destroy: 'Delete',
+                    resetSeries: 'Reset Series',
                     deleteWindowTitle: 'Delete event',
                     next: 'Next',
                     previous: 'Previous',
@@ -2249,6 +2272,7 @@
                     },
                     recurrenceMessages: {
                         deleteWindowTitle: 'Delete Recurring Item',
+                        resetSeriesWindowTitle: 'Reset Series',
                         deleteWindowOccurrence: 'Delete current occurrence',
                         deleteWindowSeries: 'Delete the series',
                         editWindowTitle: 'Edit Recurring Item',
@@ -2532,7 +2556,9 @@
                     that._moveDraggable.bind('hold', function (e) {
                         if (that._isTouch(e)) {
                             that.element.find('.k-event-active').removeClass('k-event-active');
-                            that._createSelection(e.currentTarget);
+                            if (that.options.selectable) {
+                                that._createSelection(e.currentTarget);
+                            }
                             e.currentTarget.addClass('k-event-active');
                         }
                     });
@@ -2780,7 +2806,7 @@
             focus: function () {
                 this.wrapper.focus();
             },
-            _confirmation: function (callback, model) {
+            _confirmation: function (callback, model, isResetSeries) {
                 var editable = this.options.editable;
                 if (editable === true || editable.confirmation !== false) {
                     var messages = this.options.messages;
@@ -2794,10 +2820,14 @@
                         } else {
                             text = recurrenceMessages.deleteSeriesConfirmation ? recurrenceMessages.deleteSeriesConfirmation : DELETESERIESCONFIRM;
                         }
+                        if (isResetSeries) {
+                            title = recurrenceMessages.resetSeriesWindowTitle;
+                            text = recurrenceMessages.resetSeriesConfirmation ? recurrenceMessages.resetSeriesConfirmation : RESETSERIESCONFIRM;
+                        }
                     }
                     var buttons = [{
                             name: 'destroy',
-                            text: messages.destroy,
+                            text: isResetSeries ? messages.resetSeries : messages.destroy,
                             click: function () {
                                 callback();
                             }
@@ -2853,9 +2883,6 @@
                         container: container,
                         event: model
                     })) {
-                    if (model.isRecurrenceHead()) {
-                        this.dataSource._removeExceptions(model);
-                    }
                     if (!model.dirty && !model.isOccurrence()) {
                         this._convertDates(model, 'remove');
                     }
@@ -3034,6 +3061,14 @@
                 });
                 editor.bind('remove', function (e) {
                     that.removeEvent(e.model);
+                });
+                editor.bind('resetSeries', function (e) {
+                    that._confirmation(function (cancel) {
+                        if (!cancel) {
+                            that.dataSource._removeExceptions(e.model);
+                            that.saveEvent();
+                        }
+                    }, e.model, true);
                 });
             },
             _createPopupEditor: function (model) {

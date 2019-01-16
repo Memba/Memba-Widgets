@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -42,7 +42,7 @@
             }]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, data = kendo.data, extend = $.extend, template = kendo.template, isArray = $.isArray, Widget = ui.Widget, HierarchicalDataSource = data.HierarchicalDataSource, proxy = $.proxy, keys = kendo.keys, NS = '.kendoTreeView', TEMP_NS = '.kendoTreeViewTemp', SELECT = 'select', CHECK = 'check', NAVIGATE = 'navigate', EXPAND = 'expand', CHANGE = 'change', ERROR = 'error', CHECKED = 'checked', INDETERMINATE = 'indeterminate', COLLAPSE = 'collapse', DRAGSTART = 'dragstart', DRAG = 'drag', DROP = 'drop', DRAGEND = 'dragend', DATABOUND = 'dataBound', CLICK = 'click', UNDEFINED = 'undefined', KSTATEHOVER = 'k-state-hover', KTREEVIEW = 'k-treeview', VISIBLE = ':visible', NODE = '.k-item', STRING = 'string', ARIALABEL = 'aria-label', ARIASELECTED = 'aria-selected', ARIADISABLED = 'aria-disabled', DISABLED = 'k-state-disabled', TreeView, subGroup, nodeContents, nodeIcon, spriteRe, bindings = {
+        var kendo = window.kendo, ui = kendo.ui, data = kendo.data, extend = $.extend, template = kendo.template, isArray = $.isArray, Widget = ui.Widget, HierarchicalDataSource = data.HierarchicalDataSource, proxy = $.proxy, keys = kendo.keys, NS = '.kendoTreeView', TEMP_NS = '.kendoTreeViewTemp', SELECT = 'select', CHECK = 'check', NAVIGATE = 'navigate', EXPAND = 'expand', CHANGE = 'change', ERROR = 'error', CHECKED = 'checked', INDETERMINATE = 'indeterminate', COLLAPSE = 'collapse', DRAGSTART = 'dragstart', DRAG = 'drag', DROP = 'drop', DRAGEND = 'dragend', DATABOUND = 'dataBound', CLICK = 'click', UNDEFINED = 'undefined', KSTATEHOVER = 'k-state-hover', KTREEVIEW = 'k-treeview', VISIBLE = ':visible', NODE = '.k-item', STRING = 'string', ARIACHECKED = 'aria-checked', ARIASELECTED = 'aria-selected', ARIADISABLED = 'aria-disabled', DISABLED = 'k-state-disabled', TreeView, subGroup, nodeContents, nodeIcon, spriteRe, bindings = {
                 text: 'dataTextField',
                 url: 'dataUrlField',
                 spriteCssClass: 'dataSpriteCssClassField',
@@ -70,7 +70,7 @@
             return node.children('div').children('.k-icon');
         };
         function checkboxes(node) {
-            return node.find('> div .k-checkbox-wrapper [type=checkbox]');
+            return node.find('.k-checkbox-wrapper:first input[type=checkbox]');
         }
         function insertAction(indexOffset) {
             return function (nodeData, referenceNode) {
@@ -103,7 +103,7 @@
             }
         }
         function updateNodeHtml(node) {
-            var wrapper = node.children('div'), group = node.children('ul'), toggleButton = wrapper.children('.k-icon'), checkbox = node.children(':checkbox'), innerWrapper = wrapper.children('.k-in');
+            var wrapper = node.children('div'), group = node.children('ul'), toggleButton = wrapper.children('.k-icon'), checkbox = node.children('input[type=checkbox]'), innerWrapper = wrapper.children('.k-in');
             if (node.hasClass('k-treeview')) {
                 return;
             }
@@ -142,6 +142,7 @@
                 Widget.prototype.init.call(that, element, options);
                 element = that.element;
                 options = that.options;
+                that._dataSourceUids = {};
                 list = element.is('ul') && element || element.hasClass(KTREEVIEW) && element.children('ul');
                 inferred = !hasDataSource && list.length;
                 if (inferred) {
@@ -161,7 +162,7 @@
                     that.root = element.children('ul').eq(0);
                 }
                 that._tabindex();
-                that.root.attr('role', 'tree');
+                that.wrapper.attr('role', 'tree');
                 that._dataSource(inferred);
                 that._attachEvents();
                 that._dragging();
@@ -422,7 +423,7 @@
                     group: templateNoWith('<ul class=\'#= data.r.groupCssClass(data.group) #\'#= data.r.groupAttributes(data.group) #>' + '#= data.renderItems(data) #' + '</ul>'),
                     itemContent: templateNoWith('# var imageUrl = ' + fieldAccessor('imageUrl') + '(data.item); #' + '# var spriteCssClass = ' + fieldAccessor('spriteCssClass') + '(data.item); #' + '# if (imageUrl) { #' + '<img class=\'k-image\' alt=\'\' src=\'#= imageUrl #\'>' + '# } #' + '# if (spriteCssClass) { #' + '<span class=\'k-sprite #= spriteCssClass #\' />' + '# } #' + '#= data.treeview.template(data) #'),
                     itemElement: templateNoWith('# var item = data.item, r = data.r; #' + '# var url = ' + fieldAccessor('url') + '(item); #' + '<div class=\'#= r.cssClass(data.group, item) #\'>' + '# if (item.hasChildren) { #' + '<span class=\'#= r.toggleButtonClass(item) #\'/>' + '# } #' + '# if (data.treeview.checkboxes) { #' + '<span class=\'k-checkbox-wrapper\' role=\'presentation\'>' + '#= data.treeview.checkboxes.template(data) #' + '</span>' + '# } #' + '# var tag = url ? \'a\' : \'span\'; #' + '# var textAttr = url ? \' href=\\\'\' + url + \'\\\'\' : \'\'; #' + '<#=tag# class=\'#= r.textClass(item, !!url) #\'#= textAttr #>' + '#= r.itemContent(data) #' + '</#=tag#>' + '</div>'),
-                    item: templateNoWith('# var item = data.item, r = data.r; #' + '<li role=\'treeitem\' class=\'#= r.wrapperCssClass(data.group, item) #\' ' + kendo.attr('uid') + '=\'#= item.uid #\' ' + 'aria-selected=\'#= item.selected ? "true" : "false" #\' ' + '#=item.enabled === false ? "aria-disabled=\'true\'" : \'\'#' + '# if (item.expanded) { #' + 'data-expanded=\'true\' aria-expanded=\'true\'' + '# } #' + '>' + '#= r.itemElement(data) #' + '</li>'),
+                    item: templateNoWith('# var item = data.item, r = data.r; #' + '<li role=\'treeitem\' class=\'#= r.wrapperCssClass(data.group, item) #\'' + kendo.attr('uid') + '=\'#= item.uid #\' ' + '# if (data.treeview.checkboxes) { #' + 'aria-checked=\'#= item.checked ? "true" : "false" #\' ' + '# } #' + 'aria-selected=\'#= item.selected ? "true" : "false" #\' ' + '#=item.enabled === false ? "aria-disabled=\'true\'" : \'\'#' + 'aria-expanded=\'#= item.expanded ? "true" : "false" #\' ' + 'data-expanded=\'#= item.expanded ? "true" : "false" #\' ' + '>' + '#= r.itemElement(data) #' + '</li>'),
                     loading: templateNoWith('<div class=\'k-icon k-i-loading\' /> #: data.messages.loading #'),
                     retry: templateNoWith('#: data.messages.requestFailed # ' + '<button class=\'k-button k-request-retry\'>#: data.messages.retry #</button>')
                 };
@@ -433,6 +434,7 @@
             setDataSource: function (dataSource) {
                 var options = this.options;
                 options.dataSource = dataSource;
+                this._dataSourceUids = {};
                 this._dataSource();
                 if (options.checkboxes && options.checkboxes.checkChildren) {
                     this.dataSource.one('change', $.proxy(this.updateIndeterminate, this, null));
@@ -590,6 +592,7 @@
                 } else {
                     all = !siblings[0].indeterminate;
                 }
+                node.attr(ARIACHECKED, all ? siblings[0].checked : 'mixed');
                 return checkboxes(node).data(INDETERMINATE, !all).prop(INDETERMINATE, !all).prop(CHECKED, all && siblings[0].checked);
             },
             updateIndeterminate: function (node) {
@@ -601,6 +604,9 @@
                 if (subnodes.length) {
                     for (i = 0; i < subnodes.length; i++) {
                         this.updateIndeterminate(subnodes.eq(i));
+                    }
+                    if (node.is('.k-treeview')) {
+                        return;
                     }
                     checkbox = this._setIndeterminate(node);
                     dataItem = this.dataItem(node);
@@ -623,7 +629,7 @@
                 var parentNode = this.parent(node), checkbox;
                 if (parentNode.length) {
                     this._setIndeterminate(parentNode);
-                    checkbox = parentNode.children('div').find('.k-checkbox-wrapper :checkbox');
+                    checkbox = parentNode.children('div').find('.k-checkbox-wrapper input[type=checkbox]');
                     this._skip = true;
                     if (checkbox.prop(INDETERMINATE) === false) {
                         this.dataItem(parentNode).set(CHECKED, checkbox.prop(CHECKED));
@@ -644,6 +650,7 @@
                 }
                 if (dataItem.checked != isChecked) {
                     dataItem.set(CHECKED, isChecked);
+                    node.attr(ARIACHECKED, isChecked);
                     this._trigger(CHECK, node);
                 }
             },
@@ -835,29 +842,36 @@
             _keypress: function (e) {
                 var that = this;
                 var delay = 300;
-                var selectedNode = that._getSelectedNode();
-                var matchToSelect;
-                if (e.keyCode === keys.ENTER || e.keyCode === keys.SPACEBAR) {
+                var focusedNode = that.current().get(0);
+                var matchToFocus;
+                var key = e.key;
+                var isPrintable = key.length === 1;
+                if (!isPrintable) {
                     return;
                 }
                 if (!that._match) {
                     that._match = '';
                 }
-                that._match += String.fromCharCode(e.keyCode);
+                that._match += key;
                 clearTimeout(that._matchTimer);
                 that._matchTimer = setTimeout(function () {
                     that._match = '';
                 }, delay);
-                matchToSelect = selectedNode && that._matchNextByText(Array.prototype.indexOf.call(this.element.find('.k-item'), selectedNode[0]), that._match);
-                if (!matchToSelect) {
-                    matchToSelect = that._matchNextByText(-1, that._match);
+                matchToFocus = focusedNode && that._matchNextByText(Array.prototype.indexOf.call(that.element.find('.k-item'), focusedNode), that._match);
+                if (!matchToFocus.length) {
+                    matchToFocus = that._matchNextByText(-1, that._match);
                 }
-                that.select(matchToSelect);
+                if (matchToFocus.get(0) && matchToFocus.get(0) !== focusedNode) {
+                    that._trigger(NAVIGATE, matchToFocus);
+                    that.current(matchToFocus);
+                }
             },
             _matchNextByText: function (startIndex, text) {
-                return $(this.element).find('.k-in').filter(function (i, element) {
-                    return i > startIndex && $(element).is(':visible') && !$(element).hasClass(DISABLED) && $(element).text().toLowerCase().indexOf(text) === 0;
-                }).closest(NODE)[0];
+                var element = this.element;
+                var textNodes = element.find('.k-in').filter(function (i, element) {
+                    return i > startIndex && $(element).is(':visible') && $(element).text().toLowerCase().indexOf(text) === 0;
+                });
+                return textNodes.eq(0).closest(NODE);
             },
             _click: function (e) {
                 var that = this, node = $(e.currentTarget), contents = nodeContents(node.closest(NODE)), href = node.attr('href'), shouldNavigate;
@@ -948,24 +962,28 @@
                     wrapper.children('.k-icon').removeClass('k-i-expand k-i-collapse').addClass(templates.toggleButtonClass(nodeData));
                     group.addClass('k-group');
                 }
-                this._checkboxAria(node);
             },
             _processNodes: function (nodes, callback) {
                 var that = this;
-                that.element.find(nodes).each(function (index, item) {
-                    callback.call(that, index, $(item).closest(NODE));
-                });
+                var items = that.element.find(nodes);
+                for (var i = 0; i < items.length; i++) {
+                    callback.call(that, i, $(items[i]).closest(NODE));
+                }
             },
             dataItem: function (node) {
                 var uid = $(node).closest(NODE).attr(kendo.attr('uid')), dataSource = this.dataSource;
                 return dataSource && dataSource.getByUid(uid);
+            },
+            _dataItem: function (node) {
+                var uid = $(node).closest(NODE).attr(kendo.attr('uid')), dataSource = this.dataSource;
+                return dataSource && this._dataSourceUids[uid];
             },
             _insertNode: function (nodeData, index, parentNode, insertCallback, collapsed) {
                 var that = this, group = subGroup(parentNode), updatedGroupLength = group.children().length + 1, childrenData, groupData = {
                         firstLevel: parentNode.hasClass(KTREEVIEW),
                         expanded: !collapsed,
                         length: updatedGroupLength
-                    }, node, i, item, nodeHtml = '', append = function (item, group) {
+                    }, node, i, item, nodeHtml = '', firstChild, lastChild, append = function (item, group) {
                         item.appendTo(group);
                     };
                 for (i = 0; i < nodeData.length; i++) {
@@ -994,29 +1012,22 @@
                 insertCallback(node, group);
                 if (parentNode.hasClass('k-item')) {
                     updateNodeHtml(parentNode);
-                    that._updateNodeClasses(parentNode);
+                    that._updateNodeClasses(parentNode, groupData, { expanded: !collapsed });
                 }
-                that._updateNodeClasses(node.prev().first());
-                that._updateNodeClasses(node.next().last());
-                that._checkboxAria(node);
+                firstChild = node.prev().first();
+                lastChild = node.next().last();
+                that._updateNodeClasses(firstChild, {}, { expanded: firstChild.attr('data-expanded') });
+                that._updateNodeClasses(lastChild, {}, { expanded: lastChild.attr('data-expanded') });
                 for (i = 0; i < nodeData.length; i++) {
                     item = nodeData[i];
                     if (item.hasChildren) {
                         childrenData = item.children.data();
                         if (childrenData.length) {
-                            that._insertNode(childrenData, item.index, node.eq(i), append, !that._expanded(node.eq(i)));
+                            that._insertNode(childrenData, item.index, node.eq(i), append, !item.expanded);
                         }
                     }
                 }
                 return node;
-            },
-            _checkboxAria: function (nodes) {
-                var text;
-                nodes.each(function (index, node) {
-                    node = $(node);
-                    text = node.find('.k-in:first').text();
-                    $(node).find('> div .k-checkbox-wrapper [type=checkbox]').attr(ARIALABEL, text);
-                });
             },
             _updateNodes: function (items, field) {
                 var that = this;
@@ -1027,7 +1038,10 @@
                 };
                 var render = field != 'expanded' && field != 'checked';
                 function setCheckedState(root, state) {
-                    root.find('.k-checkbox-wrapper :checkbox').not('[disabled]').prop(CHECKED, state).data(INDETERMINATE, false).prop(INDETERMINATE, false);
+                    if (root.is('.k-group')) {
+                        root.find('.k-item:not([aria-disabled])').attr(ARIACHECKED, state);
+                    }
+                    root.find('.k-checkbox-wrapper input[type=checkbox]:not([disabled])').prop(CHECKED, state).data(INDETERMINATE, false).prop(INDETERMINATE, false);
                 }
                 if (field == 'selected') {
                     item = items[0];
@@ -1055,6 +1069,7 @@
                         if (field == CHECKED) {
                             isChecked = item[field];
                             setCheckedState(nodeWrapper, isChecked);
+                            node.attr(ARIACHECKED, isChecked);
                             if (that.options.checkboxes.checkChildren) {
                                 setCheckedState(node.children('.k-group'), isChecked);
                                 that._setChecked(item.children, isChecked);
@@ -1063,7 +1078,7 @@
                         } else if (field == 'expanded') {
                             that._toggle(node, item, item[field]);
                         } else if (field == 'enabled') {
-                            node.find('.k-checkbox-wrapper :checkbox').prop('disabled', !item[field]);
+                            node.find('.k-checkbox-wrapper input[type=checkbox]').prop('disabled', !item[field]);
                             isCollapsed = !nodeContents(node).is(VISIBLE);
                             node.removeAttr(ARIADISABLED);
                             if (!item[field]) {
@@ -1123,8 +1138,8 @@
                         item.insertBefore(children.eq(index));
                     }
                 }, collapsed);
-                if (this._expanded(parentNode)) {
-                    this._updateNodeClasses(parentNode);
+                if (!collapsed) {
+                    this._updateNodeClasses(parentNode, {}, { expanded: !collapsed });
                     subGroup(parentNode).css('display', 'block');
                 }
             },
@@ -1146,7 +1161,7 @@
                         child = children.eq(i);
                         this.trigger('itemChange', {
                             item: child.children('div'),
-                            data: this.dataItem(child),
+                            data: items[i],
                             ns: ui
                         });
                     }
@@ -1167,7 +1182,6 @@
                 } else {
                     this.root = this.wrapper.html(groupHtml).children('ul');
                 }
-                this.root.attr('role', 'tree');
                 var elements = this.root.children('.k-item');
                 for (var i = 0; i < items.length; i++) {
                     this.trigger('itemChange', {
@@ -1189,6 +1203,9 @@
                 var i;
                 if (this._skip) {
                     return;
+                }
+                for (i = 0; i < items.length; i++) {
+                    this._dataSourceUids[items[i].uid] = items[i];
                 }
                 if (e.field) {
                     if (!items[0] || !items[0].level) {
@@ -1233,8 +1250,8 @@
                     }
                 }
                 this.trigger(DATABOUND, { node: node ? parentNode : undefined });
-                if (this.options.checkboxes.checkChildren) {
-                    this.updateIndeterminate();
+                if (this.dataSource.filter() && this.options.checkboxes.checkChildren) {
+                    this.updateIndeterminate(parentNode);
                 }
             },
             _error: function (e) {
@@ -1368,31 +1385,34 @@
                 if (that.dragging) {
                     that.dragging.destroy();
                 }
+                that._dataSourceUids = {};
                 kendo.destroy(that.element);
                 that.root = that.wrapper = that.element = null;
             },
             _expanded: function (node, value, force) {
                 var expandedAttr = kendo.attr('expanded');
-                var dataItem = this.dataItem(node);
+                var dataItem;
                 var expanded = value;
                 var direction = expanded ? 'expand' : 'collapse';
                 if (arguments.length == 1) {
+                    dataItem = this._dataItem(node);
                     return node.attr(expandedAttr) === 'true' || dataItem && dataItem.expanded;
                 }
+                dataItem = this.dataItem(node);
                 if (nodeContents(node).data('animating')) {
                     return;
                 }
                 if (force || !this._trigger(direction, node)) {
-                    if (dataItem) {
-                        dataItem.set('expanded', expanded);
-                        expanded = dataItem.expanded;
-                    }
                     if (expanded) {
                         node.attr(expandedAttr, 'true');
                         node.attr('aria-expanded', 'true');
                     } else {
                         node.removeAttr(expandedAttr);
                         node.attr('aria-expanded', 'false');
+                    }
+                    if (dataItem) {
+                        dataItem.set('expanded', expanded);
+                        expanded = dataItem.expanded;
                     }
                 }
             },

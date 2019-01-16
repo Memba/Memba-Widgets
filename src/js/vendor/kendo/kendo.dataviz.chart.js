@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -476,7 +476,9 @@
                     for (var i = 0; i < length; i++) {
                         var fieldName = fields[i];
                         var srcFieldName = srcFields[i];
-                        value[fieldName] = getField(srcFieldName, object);
+                        if (srcFieldName !== null) {
+                            value[fieldName] = getField(srcFieldName, object);
+                        }
                     }
                 }
                 return value;
@@ -488,7 +490,7 @@
                     for (var i = 0; i < length; i++) {
                         var fieldName = canonicalFields[i];
                         var sourceFieldName = fieldName === VALUE ? 'field' : fieldName + 'Field';
-                        sourceFields.push(series[sourceFieldName] || fieldName);
+                        sourceFields.push(series[sourceFieldName] !== null ? series[sourceFieldName] || fieldName : null);
                     }
                 }
                 return sourceFields;
@@ -3296,6 +3298,9 @@
                 this.drawLines(container, options, this.meanPoints, options.mean);
             },
             getBorderColor: function () {
+                if ((this.options.border || {}).color) {
+                    return this.options.border.color;
+                }
                 if (this.color) {
                     return this.color;
                 }
@@ -4447,6 +4452,7 @@
                     var clipBox = this.clipBox = this._clipBox();
                     var clipRect = clipBox.toRect();
                     var clipPath = Path.fromRect(clipRect);
+                    alignPathToPixel(clipPath);
                     this.visual.clip(clipPath);
                     this.unclipLabels();
                 }
@@ -7222,8 +7228,8 @@
                     var chart = this.chart;
                     var point = chart._eventCoordinates(e);
                     var zoomPane = this._zoomPane = chart._plotArea.paneByPoint(point);
-                    if (zoomPane && zoomPane.clipBox()) {
-                        var clipBox = zoomPane.clipBox().clone();
+                    var clipBox = zoomPane ? zoomPane.chartsBox().clone() : null;
+                    if (zoomPane && clipBox) {
                         var offset = this._elementOffset();
                         clipBox.translate(offset.left, offset.top);
                         this._zoomPaneClipBox = clipBox;
@@ -10588,6 +10594,7 @@
                 this._initSurface();
                 this.bindCategories();
                 dataviz.FontLoader.preloadFonts(userOptions, function () {
+                    this$1.fontLoaded = true;
                     if (!this$1._destroyed) {
                         this$1.trigger('init');
                         this$1._redraw();
@@ -10835,23 +10842,6 @@
                     this._zoomSelection = new ZoomSelection(this, selection);
                 }
             },
-            _toggleDomDrag: function () {
-                if (!this.domEvents || !this.domEvents.toggleDrag) {
-                    return;
-                }
-                var pannable = this.options.pannable;
-                var zoomable = this.options.zoomable;
-                var selection = (zoomable || {}).selection;
-                if (!pannable && (zoomable === false || selection === false) && !this.requiresHandlers([
-                        DRAG_START,
-                        DRAG,
-                        DRAG_END
-                    ])) {
-                    this.domEvents.toggleDrag(false);
-                } else {
-                    this.domEvents.toggleDrag(true);
-                }
-            },
             _createMousewheelZoom: function () {
                 var zoomable = this.options.zoomable;
                 var mousewheel = (zoomable || {}).mousewheel;
@@ -10859,20 +10849,41 @@
                     this._mousewheelZoom = new MousewheelZoom(this, mousewheel);
                 }
             },
-            _toggleDomZoom: function () {
-                if (!this.domEvents || !this.domEvents.toggleZoom) {
+            _toggleDragZoomEvents: function () {
+                var pannable = this.options.pannable;
+                var zoomable = this.options.zoomable;
+                var selection = (zoomable || {}).selection;
+                var mousewheel = (zoomable || {}).mousewheel;
+                var allowDrag = !pannable && (zoomable === false || selection === false) && !this.requiresHandlers([
+                    DRAG_START,
+                    DRAG,
+                    DRAG_END
+                ]);
+                var allowZoom = (zoomable === false || mousewheel === false) && !this.requiresHandlers([
+                    ZOOM_START,
+                    ZOOM,
+                    ZOOM_END
+                ]);
+                var element = this.element;
+                if (this._dragZoomEnabled && allowDrag && allowZoom) {
+                    element.style.touchAction = this._touchAction || '';
+                    this._dragZoomEnabled = false;
+                } else if (!this._dragZoomEnabled && !(allowDrag && allowZoom)) {
+                    element.style.touchAction = 'none';
+                    this._dragZoomEnabled = true;
+                }
+                this._toggleDomEvents(!allowDrag, !allowZoom);
+            },
+            _toggleDomEvents: function (drag, zoom) {
+                var domEvents = this.domEvents;
+                if (!domEvents) {
                     return;
                 }
-                var zoomable = this.options.zoomable;
-                var mousewheel = (zoomable || {}).mousewheel;
-                if ((zoomable === false || mousewheel === false) && !this.requiresHandlers([
-                        ZOOM_START,
-                        ZOOM,
-                        ZOOM_END
-                    ])) {
-                    this.domEvents.toggleZoom(false);
-                } else {
-                    this.domEvents.toggleZoom(true);
+                if (domEvents.toggleDrag) {
+                    domEvents.toggleDrag(drag);
+                }
+                if (domEvents.toggleZoom) {
+                    domEvents.toggleZoom(zoom);
                 }
             },
             _createTooltip: function () {
@@ -11008,6 +11019,7 @@
             },
             _attachEvents: function () {
                 var element = this.element;
+                this._touchAction = element.style.touchAction;
                 var obj;
                 bindEvents(element, (obj = {}, obj[CONTEXTMENU] = this._clickHandler, obj[MOUSEWHEEL] = this._mousewheelHandler, obj[MOUSELEAVE] = this._mouseleaveHandler, obj));
                 if (this._shouldAttachMouseMove()) {
@@ -11023,8 +11035,7 @@
                     gesturechange: this._gesturechange.bind(this),
                     gestureend: this._gestureend.bind(this)
                 });
-                this._toggleDomDrag();
-                this._toggleDomZoom();
+                this._toggleDragZoomEvents();
             },
             _mouseleave: function (e) {
                 if (this._hoveredPoint) {
@@ -11688,14 +11699,13 @@
                     this.chartService.theme = theme;
                 }
                 this._initTheme(this.options, this._theme);
+                this._toggleDragZoomEvents();
             },
             setOptions: function (options, theme) {
                 this.applyOptions(options, theme);
                 this.bindCategories();
                 this.redraw();
                 this.updateMouseMoveHandler();
-                this._toggleDomDrag();
-                this._toggleDomZoom();
             },
             setDirection: function (rtl) {
                 this.chartService.rtl = Boolean(rtl);
@@ -11822,6 +11832,7 @@
                 var baseOptions = deepExtend({ data: [] }, commonThemeDefaults, themeSeriesDefaults[seriesType], { tooltip: options.tooltip }, commonDefaults, seriesDefaults[seriesType]);
                 series[i]._defaults = baseOptions;
                 series[i] = deepExtend({}, baseOptions, series[i]);
+                series[i].data = series[i].data || [];
             }
         }
         function cleanupNestedSeriesDefaults(seriesDefaults) {
@@ -12530,7 +12541,9 @@
             _onDataChanged: function (e) {
                 this._bindData(e);
                 this.trigger(DATABOUND);
-                this._redraw();
+                if (this._instance && this._instance.fontLoaded) {
+                    this._redraw();
+                }
             },
             _bindSeries: function () {
                 var chart = this, data = chart.dataSource.view(), series = chart.options.series, seriesIx, seriesLength = series.length, currentSeries, groupIx, seriesData;
@@ -13149,6 +13162,7 @@
                 depends: ['pdf']
             }]
     };
+    return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));

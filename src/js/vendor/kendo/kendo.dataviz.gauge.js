@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -968,7 +968,7 @@
                 var scale = ref.scale;
                 var options = ref.options;
                 var shape = this.pointerShape(options.value);
-                var pointerPath = this.elements.children[0];
+                var pointerPath = this.pointerPath;
                 var oldShape = this.pointerShape(options._oldValue);
                 pointerPath.moveTo(shape[0]).lineTo(shape[1]).lineTo(shape[2]).lineTo(shape[3]).close();
                 var animation = new BarLinearPointerAnimation(pointerPath, deepExtend(options.animation, {
@@ -992,13 +992,32 @@
             render: function () {
                 var group = new Group$3();
                 var elementOptions = this.getElementOptions();
-                var pointer = new Path$4({
+                if (this.options.track.visible) {
+                    group.append(this.renderTrack());
+                }
+                var pointer = this.pointerPath = new Path$4({
                     stroke: elementOptions.stroke,
                     fill: elementOptions.fill
                 });
                 group.append(pointer);
                 this.elements = group;
                 return group;
+            },
+            renderTrack: function () {
+                var trackOptions = this.options.track;
+                var border = trackOptions.border || {};
+                var trackBox = this.trackBox.clone().pad(border.width || 0);
+                return new Path$4.fromRect(trackBox.toRect(), {
+                    fill: {
+                        color: trackOptions.color,
+                        opacity: trackOptions.opacity
+                    },
+                    stroke: {
+                        color: border.width ? border.color || trackOptions.color : '',
+                        width: border.width,
+                        dashType: border.dashType
+                    }
+                });
             }
         });
         var DEFAULT_MIN_WIDTH = 60;

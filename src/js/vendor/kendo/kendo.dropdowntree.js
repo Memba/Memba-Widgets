@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -26,7 +26,7 @@
     define('dropdowntree/treeview', ['kendo.treeview'], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, keys = kendo.keys, DISABLED = 'k-state-disabled', SELECT = 'select', CHECKED = 'checked', DATABOUND = 'dataBound', INDETERMINATE = 'indeterminate', NAVIGATE = 'navigate', subGroup, TreeView = ui.TreeView;
+        var kendo = window.kendo, ui = kendo.ui, keys = kendo.keys, DISABLED = 'k-state-disabled', SELECT = 'select', CHECKED = 'checked', proxy = $.proxy, DATABOUND = 'dataBound', CLICK = 'click', NS = '.kendoTreeView', INDETERMINATE = 'indeterminate', NAVIGATE = 'navigate', subGroup, TreeView = ui.TreeView;
         function contentChild(filter) {
             return function (node) {
                 var result = node.children('.k-animation-container');
@@ -42,6 +42,9 @@
                 var that = this;
                 that.dropdowntree = dropdowntree;
                 TreeView.fn.init.call(that, element, options);
+                if (that.dropdowntree._isMultipleSelection()) {
+                    that.wrapper.on(CLICK + NS, '.k-in.k-state-selected', proxy(that._clickSelectedItem, that));
+                }
             },
             _checkOnSelect: function (e) {
                 if (!e.isDefaultPrevented()) {
@@ -58,6 +61,13 @@
                     that.one('select', that._checkOnSelect);
                 }
                 TreeView.fn._click.call(that, e);
+            },
+            _clickSelectedItem: function (e) {
+                var that = this, node = $(e.currentTarget);
+                that.one('select', that._checkOnSelect);
+                if (!that._trigger(SELECT, node)) {
+                    that.dataItem(node).set('selected', false);
+                }
             },
             defaultrefresh: function (e) {
                 var node = e.node;

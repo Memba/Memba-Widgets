@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -170,9 +170,10 @@
                     var rows = this._dataRows(dataItem.items, level + 1);
                     rows.unshift({
                         type: 'group-header',
-                        cells: cells
+                        cells: cells,
+                        level: this.options.collapsible ? level : null
                     });
-                    return rows.concat(this._footer(dataItem));
+                    return rows.concat(this._footer(dataItem, level));
                 }
                 var dataCells = [];
                 for (var cellIdx = 0; cellIdx < this.columns.length; cellIdx++) {
@@ -183,7 +184,8 @@
                 }
                 return [{
                         type: 'data',
-                        cells: cells.concat(dataCells)
+                        cells: cells.concat(dataCells),
+                        level: this.options.collapsible ? level : null
                     }];
             },
             _dataRows: function (dataItems, level) {
@@ -269,7 +271,7 @@
                     cells: this._createPaddingCells(level).concat(cells)
                 };
             },
-            _footer: function (dataItem) {
+            _footer: function (dataItem, level) {
                 var rows = [];
                 var footer = this.columns.some(function (column) {
                     return column.groupFooterTemplate;
@@ -305,7 +307,8 @@
                 if (footer) {
                     rows.push({
                         type: 'group-footer',
-                        cells: this._createPaddingCells(this.groups.length).concat(cells)
+                        cells: this._createPaddingCells(this.groups.length).concat(cells),
+                        level: this.options.collapsible ? level : null
                     });
                 }
                 return rows;
@@ -576,7 +579,8 @@
                 proxyURL: '',
                 allPages: false,
                 filterable: false,
-                fileName: 'Export.xlsx'
+                fileName: 'Export.xlsx',
+                collapsible: false
             },
             saveAsExcel: function () {
                 var excel = this.options.excel || {};
@@ -585,7 +589,8 @@
                     dataSource: this.dataSource,
                     allPages: excel.allPages,
                     filterable: excel.filterable,
-                    hierarchy: excel.hierarchy
+                    hierarchy: excel.hierarchy,
+                    collapsible: excel.collapsible
                 });
                 exporter.workbook().then($.proxy(function (book, data) {
                     if (!this.trigger('excelExport', {

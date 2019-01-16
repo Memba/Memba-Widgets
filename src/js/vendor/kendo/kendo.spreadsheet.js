@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -838,6 +838,9 @@
                 this._state = this.range().getState();
             },
             exec: function () {
+                return this.range().sheet().withCultureDecimals(this._exec.bind(this));
+            },
+            _exec: function () {
                 var arrayFormula = this.options.arrayFormula;
                 var editRange = this._editRange;
                 if (!editRange.enable()) {
@@ -1091,6 +1094,9 @@
                 this._state = this._range.getState();
             },
             exec: function () {
+                return this.range().sheet().withCultureDecimals(this._exec.bind(this));
+            },
+            _exec: function () {
                 var status = this._clipboard.canPaste();
                 if (!status.canPaste) {
                     if (status.menuInvoked) {
@@ -1532,7 +1538,10 @@
                 this._value = options.value;
             },
             exec: function () {
-                this.range().validation(this._value);
+                var self = this, sheet = self.range().sheet();
+                sheet.withCultureDecimals(function () {
+                    self.range().validation(self._value);
+                });
             }
         });
         kendo.spreadsheet.OpenCommand = Command.extend({
@@ -2957,6 +2966,8 @@
                     if (!this.formats.value(start, end)) {
                         this.formats.value(start, end, toExcelFormat(kendo.culture().calendar.patterns.d));
                     }
+                } else if (typeof value == 'number') {
+                    value = kendo.spreadsheet.calc.runtime.limitPrecision(value);
                 }
                 this.list.value(start, end, value);
             }
@@ -3054,6 +3065,13 @@
                 {
                     property: Property,
                     name: 'textAlign',
+                    value: null,
+                    sortable: true,
+                    serializable: true
+                },
+                {
+                    property: Property,
+                    name: 'indent',
                     value: null,
                     sortable: true,
                     serializable: true
@@ -4589,22 +4607,12 @@
                 var origin = sheet._autoFillOrigin;
                 var dest = this.autoFillCalculator.autoFillDest(selection, ref);
                 var punch = this.punch(selection, dest);
-                var hint, direction, row;
+                var hint, direction;
                 if (!punch) {
                     var preview = sheet.range(dest)._previewFillFrom(sheet.range(origin));
                     if (preview) {
                         direction = preview.direction;
-                        var props = preview.props;
-                        if (direction === 0 || direction == 1) {
-                            row = props[props.length - 1];
-                            hint = row[row.length - 1].value;
-                        } else if (direction === 2) {
-                            row = props[0];
-                            hint = row[row.length - 1].value;
-                        } else if (direction === 3) {
-                            row = props[props.length - 1];
-                            hint = row[0].value;
-                        }
+                        hint = preview.hint;
                     }
                 }
                 sheet.updateAutoFill(dest, punch, hint, direction);
@@ -5105,7 +5113,7 @@
         }
         function cellState(row, col, element, hBorders, vBorders) {
             var styles = window.getComputedStyle(element);
-            var text = element.innerText;
+            var text = element.innerText.replace(/\t$/, '');
             var borders = borderObject(styles);
             var state = {
                 value: text === '' ? null : text,
@@ -5224,6 +5232,7 @@
             'italic',
             'bold',
             'textAlign',
+            'indent',
             'verticalAlign',
             'background',
             'format',
@@ -5362,6 +5371,8 @@
                                 value = kendo.spreadsheet.calc.runtime.limitPrecision(value * 100) + '%';
                             } else if (typeof value == 'string' && (/^[=']/.test(value) || /^(?:true|false)$/i.test(value) || looksLikeANumber(value))) {
                                 value = '\'' + value;
+                            } else if (this._sheet._useCultureDecimals() && typeof value == 'number' && value != Math.floor(value)) {
+                                value = String(value).replace('.', kendo.culture().numberFormat['.']);
                             }
                         }
                     return value;
@@ -6939,7 +6950,7 @@
         }
     }
     function limitPrecision(num) {
-        return +num.toPrecision(14);
+        return num === parseInt(num, 10) ? num : +num.toPrecision(14);
     }
     function maybeRoundFloatErrors(num) {
         if (typeof num == 'number') {
@@ -8528,23 +8539,24 @@
                 }
             },
             forEach: function (ref, callback) {
+                var self = this;
                 function forEachRange(ref) {
                     if (!(ref instanceof RangeRef)) {
                         ref = ref.toRangeRef();
                     }
                     var topLeft = self._grid.normalize(ref.topLeft);
                     var bottomRight = self._grid.normalize(ref.bottomRight);
+                    var ci, ri;
                     function doIt(value) {
                         callback(ri++, ci, value);
                     }
-                    for (var ci = topLeft.col; ci <= bottomRight.col; ci++) {
-                        var ri = topLeft.row;
+                    for (ci = topLeft.col; ci <= bottomRight.col; ci++) {
+                        ri = topLeft.row;
                         var startCellIndex = self._grid.index(ri, ci);
                         var endCellIndex = self._grid.index(bottomRight.row, ci);
                         self._properties.forEach(startCellIndex, endCellIndex, doIt);
                     }
                 }
-                var self = this;
                 if (!(ref instanceof RangeRef)) {
                     ref = self._ref(ref);
                 }
@@ -9282,6 +9294,16 @@
                     selection: true
                 });
                 return mergedRef;
+            },
+            _useCultureDecimals: function () {
+                return this._workbook && this._workbook.options.useCultureDecimals;
+            },
+            withCultureDecimals: function (f) {
+                var dot = '.';
+                if (this._useCultureDecimals()) {
+                    dot = kendo.culture().numberFormat['.'];
+                }
+                return kendo.spreadsheet.calc.withDecimalSeparator(dot, f);
             }
         });
         kendo.spreadsheet.Sheet = Sheet;
@@ -9695,20 +9717,13 @@
     var NameRef = spreadsheet.NameRef;
     var exports = spreadsheet.calc;
     var runtime = exports.runtime;
-    var OPERATORS = Object.create(null);
-    var ParseError = kendo.Class.extend({
-        init: function ParseError(message, pos) {
-            this.message = message;
-            this.pos = pos;
-        },
-        toString: function () {
-            return this.message;
-        }
-    });
+    var OPERATORS_STANDARD = Object.create(null);
+    var OPERATORS_COMMA = Object.create(null);
     (function (ops) {
         ops.forEach(function (cls, i) {
             cls.forEach(function (op) {
-                OPERATORS[op] = ops.length - i;
+                OPERATORS_STANDARD[op] = ops.length - i;
+                OPERATORS_COMMA[op == ',' ? ';' : op] = ops.length - i;
             });
         });
     }([
@@ -9735,6 +9750,40 @@
             '<>'
         ]
     ]));
+    var OPERATORS = OPERATORS_STANDARD;
+    var SEPARATORS = {
+        DEC: '.',
+        ARG: ',',
+        COL: ','
+    };
+    function setDecimalSeparator(sep) {
+        SEPARATORS.DEC = sep;
+        SEPARATORS.ARG = sep == ',' ? ';' : ',';
+        SEPARATORS.COL = sep == ',' ? '\\' : ',';
+        OPERATORS = sep == ',' ? OPERATORS_COMMA : OPERATORS_STANDARD;
+    }
+    exports.withDecimalSeparator = function (sep, f) {
+        if (SEPARATORS.DEC == sep) {
+            return f();
+        }
+        var save = SEPARATORS.DEC;
+        setDecimalSeparator(sep);
+        try {
+            return f();
+        } finally {
+            setDecimalSeparator(save);
+        }
+    };
+    exports._separators = SEPARATORS;
+    var ParseError = kendo.Class.extend({
+        init: function ParseError(message, pos) {
+            this.message = message;
+            this.pos = pos;
+        },
+        toString: function () {
+            return this.message;
+        }
+    });
     var TRUE = {
         type: 'bool',
         value: true
@@ -9782,7 +9831,7 @@
                 if (stream.eof()) {
                     break;
                 }
-                if (!stream.is('op', ',')) {
+                if (!stream.is('op', SEPARATORS.ARG)) {
                     break OUT;
                 }
                 stream.next();
@@ -9826,7 +9875,7 @@
             }
         }
         function parseExpression(commas) {
-            return maybeBinary(maybeIntersect(parseAtom(commas)), 0, commas);
+            return maybeBinary(maybeIntersect(parseAtom()), 0, commas);
         }
         function parseSymbol(tok) {
             if (tok.upper == 'TRUE' || tok.upper == 'FALSE') {
@@ -9843,7 +9892,7 @@
                 if (is('punc', ')')) {
                     break;
                 }
-                if (is('op', ',')) {
+                if (is('op', SEPARATORS.ARG)) {
                     args.push({ type: 'null' });
                     input.next();
                     continue;
@@ -9852,7 +9901,7 @@
                 if (input.eof() || is('punc', ')')) {
                     break;
                 }
-                skip('op', ',');
+                skip('op', SEPARATORS.ARG);
             }
             skip('punc', ')', true);
             return {
@@ -9867,7 +9916,7 @@
             }
             return addReference(ref);
         }
-        function parseAtom(commas) {
+        function parseAtom() {
             var exp;
             if (is('ref')) {
                 exp = fixReference(input.next());
@@ -9889,7 +9938,7 @@
                 exp = {
                     type: 'prefix',
                     op: input.next().value,
-                    exp: parseAtom(commas)
+                    exp: parseAtom()
                 };
             } else if (!input.peek()) {
                 input.croak('Incomplete expression');
@@ -9905,11 +9954,11 @@
             while (!input.eof() && !is('punc', '}')) {
                 if (first) {
                     first = false;
-                } else if (is('punc', ';')) {
+                } else if (is(null, ';')) {
                     value.push(row = []);
                     input.next();
                 } else {
-                    skip('op', ',');
+                    skip(null, SEPARATORS.COL);
                 }
                 row.push(parseExpression(false));
             }
@@ -9944,14 +9993,14 @@
         }
         function maybeBinary(left, my_prec, commas) {
             var tok = is('op');
-            if (tok && (commas || tok.value != ',')) {
+            if (tok && (commas || tok.value != SEPARATORS.ARG)) {
                 var his_prec = OPERATORS[tok.value];
                 if (his_prec > my_prec) {
                     input.next();
-                    var right = maybeBinary(parseAtom(commas), his_prec, commas);
+                    var right = maybeBinary(parseAtom(), his_prec, commas);
                     return maybeBinary({
                         type: 'binary',
-                        op: tok.value,
+                        op: tok.value == ';' ? ',' : tok.value,
                         left: left,
                         right: right
                     }, my_prec, commas);
@@ -9981,11 +10030,21 @@
             value: def
         };
     }
+    var makeClosure = function (cache) {
+        return function (code) {
+            var f = cache[code];
+            if (!f) {
+                f = cache[code] = new Function('\'use strict\';return(' + code + ')')();
+            }
+            return f;
+        };
+    }(Object.create(null));
     function makePrinter(exp) {
         return makeClosure('function(row, col, mod){return(' + print(exp.ast, exp, 0) + ')}');
         function print(node, parent, prec) {
             switch (node.type) {
             case 'num':
+                return '(kendo.spreadsheet.calc._separators.DEC == \'.\' ? ' + JSON.stringify(JSON.stringify(node.value)) + ' : ' + JSON.stringify(JSON.stringify(node.value)) + '.replace(\'.\' , kendo.spreadsheet.calc._separators.DEC))';
             case 'bool':
                 return JSON.stringify(node.value);
             case 'error':
@@ -10006,17 +10065,21 @@
                 return withParens(function () {
                     var left = parenthesize(print(node.left, node, OPERATORS[node.op]), node.left instanceof NameRef && node.op == ':');
                     var right = parenthesize(print(node.right, node, OPERATORS[node.op]), node.right instanceof NameRef && node.op == ':');
-                    return left + ' + ' + JSON.stringify(node.op) + ' + ' + right;
+                    if (/^[,;]/.test(node.op)) {
+                        return left + ' + kendo.spreadsheet.calc._separators.ARG + ' + right;
+                    } else {
+                        return left + ' + ' + JSON.stringify(node.op) + ' + ' + right;
+                    }
                 });
             case 'func':
                 return JSON.stringify(node.func + '(') + ' + ' + (node.args.length > 0 ? node.args.map(function (arg) {
                     return print(arg, node, 0);
-                }).join(' + \', \' + ') : '\'\'') + ' + \')\'';
+                }).join(' + kendo.spreadsheet.calc._separators.ARG + \' \' + ') : '\'\'') + ' + \')\'';
             case 'matrix':
                 return '\'{ \' + ' + node.value.map(function (el) {
                     return el.map(function (el) {
                         return print(el, node, 0);
-                    }).join(' + \', \' + ');
+                    }).join(' + kendo.spreadsheet.calc._separators.COL + \' \' + ');
                 }).join(' + \'; \' + ') + '+ \' }\'';
             case 'null':
                 return '\'\'';
@@ -10251,15 +10314,6 @@
             return name + ++GENSYM;
         }
     }
-    var makeClosure = function (cache) {
-        return function (code) {
-            var f = cache[code];
-            if (!f) {
-                f = cache[code] = new Function('\'use strict\';return(' + code + ')')();
-            }
-            return f;
-        };
-    }(Object.create(null));
     var FORMULA_CACHE = Object.create(null);
     function makeFormula(exp) {
         var printer = makePrinter(exp);
@@ -10484,8 +10538,9 @@
         }
     }
     function isWhitespace(ch) {
-        return ' \t\n\xA0\u200B'.indexOf(ch) >= 0;
+        return ' \t\r\n\xA0\u200B'.indexOf(ch) >= 0;
     }
+    var EOF = { type: 'eof' };
     function RawTokenStream(input, options) {
         var tokens = [], index = 0;
         var readWhile = input.readWhile;
@@ -10510,12 +10565,12 @@
             return ch in OPERATORS;
         }
         function isPunc(ch) {
-            return '!;(){}[]'.indexOf(ch) >= 0;
+            return '\\!;(){}[]'.indexOf(ch) >= 0;
         }
         function readNumber() {
             var has_dot = false;
             var number = readWhile(function (ch) {
-                if (ch == '.') {
+                if (ch == SEPARATORS.DEC) {
                     if (has_dot) {
                         return false;
                     }
@@ -10524,10 +10579,17 @@
                 }
                 return isDigit(ch);
             });
-            return {
-                type: 'num',
-                value: parseFloat(number)
-            };
+            if (number == SEPARATORS.DEC) {
+                return {
+                    type: 'punc',
+                    value: SEPARATORS.DEC
+                };
+            } else {
+                return {
+                    type: 'num',
+                    value: parseFloat(number.replace(SEPARATORS.DEC, '.'))
+                };
+            }
         }
         function symbol(id, quote) {
             return {
@@ -10600,7 +10662,7 @@
             if (ch == '\'') {
                 return readSheetName();
             }
-            if (isDigit(ch) || ch == '.') {
+            if (isDigit(ch) || ch == SEPARATORS.DEC) {
                 return readNumber();
             }
             if (isIdStart(ch)) {
@@ -10620,7 +10682,7 @@
                 };
             }
             if (!options.forEditor) {
-                input.croak('Can\'t handle character: ' + ch);
+                input.croak('Can\'t handle character with code: ' + ch.charCodeAt(0));
             }
             return {
                 type: 'error',
@@ -10662,7 +10724,6 @@
             return peek() == null;
         }
     }
-    var EOF = { type: 'eof' };
     function InputStream(input) {
         var pos = 0, line = 1, col = 0;
         return {
@@ -10778,7 +10839,7 @@
                 value: input.substr(1)
             };
         }
-        if (/^[0-9]+%$/.test(input)) {
+        if (/^-?[0-9]+%$/.test(input)) {
             var str = input.substr(0, input.length - 1);
             var num = parseFloat(str);
             if (!isNaN(num) && num == str) {
@@ -10826,9 +10887,14 @@
         }
         var num = parseFloat(input);
         if (!isNaN(num) && input.length > 0 && num == input) {
+            format = null;
+            if (num != Math.floor(num)) {
+                format = '0.' + String(num).split('.')[1].replace(/\d/g, '0');
+            }
             return {
                 type: 'number',
-                value: num
+                value: num,
+                format: format
             };
         }
         return {
@@ -10992,6 +11058,7 @@
         var format = '';
         var suffix = '';
         var has_currency = false;
+        var has_percent = false;
         input = InputStream(input.replace(/^\s+|\s+$/g, ''));
         if (input.skip(/^-\s*/)) {
             sign = -1;
@@ -11017,6 +11084,10 @@
             has_currency = true;
             suffix = '"' + m[0] + '"';
         }
+        if (!has_currency && (m = input.skip(/^\s*%\s*/))) {
+            has_percent = true;
+            suffix = m[0];
+        }
         if (!input.eof()) {
             return null;
         }
@@ -11027,6 +11098,10 @@
             format += '.' + repeat('0', n[3].length - 1);
         }
         var value = n[0].replace(new RegExp('\\' + comma, 'g'), '').replace(new RegExp('\\' + dot, 'g'), '.');
+        value = parseFloat(value);
+        if (has_percent) {
+            value /= 100;
+        }
         format += suffix;
         if (has_currency) {
             format += ';-' + format;
@@ -11035,7 +11110,7 @@
             type: 'number',
             currency: has_currency,
             format: format,
-            value: sign * parseFloat(value)
+            value: sign * value
         };
     });
     registerFormatParser(function (input) {
@@ -11179,6 +11254,27 @@
         'dataValidation',
         'formula2'
     ];
+    var SEL_VALIDATION_INSANE = [
+        'x14:dataValidations',
+        'x14:dataValidation'
+    ];
+    var SEL_VALIDATION_SQREF_INSANE = [
+        'x14:dataValidations',
+        'x14:dataValidation',
+        'xm:sqref'
+    ];
+    var SEL_VALIDATION_FORMULA1_INSANE = [
+        'x14:dataValidations',
+        'x14:dataValidation',
+        'x14:formula1',
+        'xm:f'
+    ];
+    var SEL_VALIDATION_FORMULA2_INSANE = [
+        'x14:dataValidations',
+        'x14:dataValidation',
+        'x14:formula2',
+        'xm:f'
+    ];
     function xl(file) {
         if (!/^\//.test(file)) {
             file = 'xl/' + file;
@@ -11202,6 +11298,8 @@
                     var file = relationships.byId[relId];
                     var name = attrs.name;
                     var dim = sheetDimensions(zip, file);
+                    workbook.options.columnWidth = dim.columnWidth || workbook.options.columnWidth;
+                    workbook.options.rowHeight = dim.rowHeight || workbook.options.rowHeight;
                     items.push({
                         workbook: workbook,
                         zip: zip,
@@ -11323,10 +11421,10 @@
     function toColWidth(size) {
         var maximumDigitWidth = 7;
         var fraction = (256 * size + Math.floor(128 / maximumDigitWidth)) / 256;
-        return Math.floor(fraction) * maximumDigitWidth;
+        return fraction * maximumDigitWidth;
     }
     function toRowHeight(pts) {
-        return pts * 1.5625;
+        return pts * (4 / 3);
     }
     function readSheet(zip, file, sheet, strings, styles) {
         var sharedFormulas = {};
@@ -11495,7 +11593,7 @@
                             }
                         }
                     }
-                } else if (this.is(SEL_VALIDATION)) {
+                } else if (this.is(SEL_VALIDATION) || this.is(SEL_VALIDATION_INSANE)) {
                     (function () {
                         var refs = kendo.spreadsheet.calc.parseSqref(attrs.sqref);
                         var type = attrs.type.toLowerCase();
@@ -11562,10 +11660,12 @@
                     } else if (attrs.t == 'shared') {
                         sharedFormulas[attrs.si] = ref;
                     }
-                } else if (this.is(SEL_VALIDATION_FORMULA1)) {
+                } else if (this.is(SEL_VALIDATION_FORMULA1) || this.is(SEL_VALIDATION_FORMULA1_INSANE)) {
                     formula1 = text;
-                } else if (this.is(SEL_VALIDATION_FORMULA2)) {
+                } else if (this.is(SEL_VALIDATION_FORMULA2) || this.is(SEL_VALIDATION_FORMULA2_INSANE)) {
                     formula2 = text;
+                } else if (this.is(SEL_VALIDATION_SQREF_INSANE)) {
+                    this.stack[this.stack.length - 2].sqref = text;
                 }
             }
         });
@@ -11707,6 +11807,9 @@
         if (shouldSet('applyAlignment', 'verticalAlign')) {
             range.verticalAlign(value);
         }
+        if (shouldSet('applyAlignment', 'indent')) {
+            range.indent(value);
+        }
         if (shouldSet('applyAlignment', 'wrapText')) {
             range._property('wrap', value);
         }
@@ -11730,7 +11833,9 @@
         }
         function setFont(f) {
             range.fontFamily(f.name);
-            range._property('fontSize', f.size);
+            if (f.size) {
+                range._property('fontSize', f.size * 4 / 3);
+            }
             if (f.bold) {
                 range.bold(true);
             }
@@ -11739,6 +11844,9 @@
             }
             if (f.underline) {
                 range.underline(true);
+            }
+            if (f.color) {
+                range.color(f.color);
             }
         }
         function setBorder(b) {
@@ -11948,6 +12056,8 @@
                         font.italic = bool(attrs.val, true);
                     } else if (tag == 'u') {
                         font.underline = attrs.val == null || attrs.val == 'single';
+                    } else if (tag == 'color') {
+                        font.color = getColor(attrs);
                     }
                 } else if (this.is(SEL_FILL)) {
                     styles.fills.push(fill = {});
@@ -11962,8 +12072,8 @@
                 } else if (this.is(SEL_BORDER)) {
                     styles.borders.push(border = {});
                 } else if (border) {
-                    if (/^(?:left|top|right|bottom)$/.test(tag) && attrs.style) {
-                        border[tag] = { style: attrs.style };
+                    if (/^(?:left|top|right|bottom)$/.test(tag)) {
+                        border[tag] = { style: attrs.style || 'none' };
                     }
                     if (tag == 'color') {
                         var side = this.stack[this.stack.length - 2].$tag;
@@ -11991,6 +12101,9 @@
                         }
                         if (attrs.wrapText != null) {
                             xf.wrapText = bool(attrs.wrapText);
+                        }
+                        if (attrs.indent != null) {
+                            xf.indent = integer(attrs.indent);
                         }
                     }
                 }
@@ -12263,7 +12376,10 @@
                 this.trigger('commandRequest', e);
             },
             _inputForRef: function (ref) {
-                return new kendo.spreadsheet.Range(ref, this._sheet).input();
+                var self = this;
+                return self._sheet.withCultureDecimals(function () {
+                    return new kendo.spreadsheet.Range(ref, self._sheet).input();
+                });
             },
             _onUndoRedo: function (e) {
                 e.command.range().select();
@@ -14028,9 +14144,12 @@
             style.top = cell.top + 1 + 'px';
             style.width = cell.width - 1 + 'px';
             style.height = cell.height - 1 + 'px';
-            var data = cell.value, type = typeof data;
-            if (cell.format && data != null) {
-                data = kendo.spreadsheet.formatting.format(data, cell.format);
+            var data = cell.value, type = typeof data, format = cell.format;
+            if (!format && type == 'number' && data != Math.floor(data)) {
+                format = '0.##############';
+            }
+            if (format && data != null) {
+                data = kendo.spreadsheet.formatting.format(data, format);
                 if (data.__dataType) {
                     type = data.__dataType;
                 }
@@ -14050,6 +14169,7 @@
                     break;
                 }
             }
+            kendo.spreadsheet.draw.applyIndent(cell, style);
             var classNames = [paneClassNames.cell];
             if (cls) {
                 classNames.push(cls);
@@ -14121,9 +14241,12 @@
             } else if (cell.background) {
                 style.borderBottomColor = cell.background;
             }
-            var data = cell.value, type = typeof data;
-            if (cell.format && data != null) {
-                data = kendo.spreadsheet.formatting.format(data, cell.format);
+            var data = cell.value, type = typeof data, format = cell.format;
+            if (!format && type == 'number' && data != Math.floor(data)) {
+                format = '0.##############';
+            }
+            if (format && data != null) {
+                data = kendo.spreadsheet.formatting.format(data, format);
                 if (data.__dataType) {
                     type = data.__dataType;
                 }
@@ -14597,17 +14720,19 @@
                 });
             },
             openDialog: function (name, options) {
-                var dialog = kendo.spreadsheet.dialogs.create(name, options);
-                if (dialog) {
-                    dialog.bind('action', this._executeCommand.bind(this));
-                    dialog.bind('deactivate', this._destroyDialog.bind(this));
-                    this._dialogs.push(dialog);
-                    var sheet = this._sheet;
-                    var ref = sheet.activeCell();
-                    var range = new kendo.spreadsheet.Range(ref, sheet);
-                    dialog.open(range);
-                    return dialog;
-                }
+                var sheet = this._sheet;
+                return sheet.withCultureDecimals(function () {
+                    var dialog = kendo.spreadsheet.dialogs.create(name, options);
+                    if (dialog) {
+                        dialog.bind('action', this._executeCommand.bind(this));
+                        dialog.bind('deactivate', this._destroyDialog.bind(this));
+                        this._dialogs.push(dialog);
+                        var ref = sheet.activeCell();
+                        var range = new kendo.spreadsheet.Range(ref, sheet);
+                        dialog.open(range);
+                        return dialog;
+                    }
+                }.bind(this));
             },
             showError: function (options, reopenEditor) {
                 var errorMessages = this.options.messages.errors;
@@ -16501,7 +16626,8 @@
                 if (!isNaN(val)) {
                     return {
                         op: m[1],
-                        value: val
+                        value: val,
+                        custom: true
                     };
                 }
             }
@@ -16797,7 +16923,9 @@
         } else if (condition) {
             var op = condition.op == '=' ? '==' : condition.op;
             preamble = 'if (typeof value == \'number\' && value ' + op + ' ' + condition.value + ') { ';
-            code += 'value = Math.abs(value); ';
+            if (!condition.custom) {
+                code += 'value = Math.abs(value); ';
+            }
         }
         if (format.color) {
             code += 'result.color = ' + JSON.stringify(format.color) + '; ';
@@ -16926,9 +17054,9 @@
         for (var i = 0; i < tree.length; ++i) {
             section = tree[i];
             for (var j = 0; j < section.body.length; ++j) {
-                if (/^(?:date|time|ampm)$/.test(section.body[i].type)) {
+                if (/^(?:date|time|ampm)$/.test(section.body[j].type)) {
                     found = true;
-                    if (section.body[i].type == 'ampm') {
+                    if (section.body[j].type == 'ampm') {
                         hasAmpm = true;
                     }
                 }
@@ -17152,45 +17280,30 @@
             }
             return result;
         },
-        toFixed: function toFixed(value, decimals) {
-            if (decimals === 0) {
-                return String(Math.round(value));
-            }
-            var str = String(value);
-            var pos = str.indexOf('.');
-            if (pos >= 0) {
+        toFixed: function (value, decimals) {
+            return function toFixed(value) {
+                if (value < 0) {
+                    return '-' + toFixed(-value);
+                }
+                if (decimals === 0) {
+                    return String(Math.round(value));
+                }
+                if (value === parseInt(value, 10)) {
+                    return value.toFixed(decimals);
+                }
+                var str = String(value);
+                var pos = str.indexOf('.');
                 var intpart = str.substr(0, pos);
                 var decpart = str.substr(pos + 1);
-                if (decpart.length < decimals) {
+                if (decpart.length <= decimals) {
                     while (decpart.length < decimals) {
-                        decpart = decpart + '0';
+                        decpart += '0';
                     }
                     return intpart + '.' + decpart;
                 }
-                var zeros = /^0*/.exec(decpart)[0];
-                if (decpart.length > 14) {
-                    var prec = Math.pow(10, decpart.length - 14);
-                    decpart = Math.round(+decpart / prec) * prec;
-                    decpart = zeros + decpart;
-                }
-                var part = +decpart.substr(0, decimals);
-                var next = +decpart.charAt(decimals);
-                if (next >= 5) {
-                    var len1 = String(part).length;
-                    part++;
-                    var len2 = String(part).length;
-                    if (len2 > len1) {
-                        if (zeros) {
-                            zeros = zeros.substr(1);
-                        } else {
-                            intpart++;
-                            part = String(part).substr(1);
-                        }
-                    }
-                }
-                return intpart + '.' + zeros + part;
-            }
-            return value.toFixed(decimals);
+                var f = Math.pow(10, decimals);
+                return toFixed(Math.round(value * f) / f);
+            }(Math.round(value * 100000000000000) / 100000000000000);
         }
     };
     function padLeft(val, width, ch) {
@@ -20508,10 +20621,19 @@
             ]
         ]]);
     defineFunction('dollar', function (number, decimals) {
-        var format = '$#,##0.DECIMALS;($#,##0.DECIMALS)';
+        var format = '$#,##0DECIMALS;($#,##0DECIMALS)';
         var dec = '';
+        var denomitator = 1;
         while (decimals-- > 0) {
             dec += '0';
+        }
+        while (++decimals < 0) {
+            denomitator *= 10;
+        }
+        if (dec !== '') {
+            dec = '.' + dec;
+        } else if (denomitator !== 1) {
+            number = Math.round(number / denomitator) * denomitator;
         }
         format = format.replace(/DECIMALS/g, dec);
         return spreadsheet.formatting.text(number, format);
@@ -20524,7 +20646,7 @@
             '*decimals',
             [
                 'or',
-                'integer++',
+                'integer',
                 [
                     'null',
                     2
@@ -26227,10 +26349,7 @@
             options: { autoFocus: true },
             dialog: function () {
                 if (!this._dialog) {
-                    this._dialog = $('<div class=\'k-spreadsheet-window k-action-window k-popup-edit-form\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
-                        messages: kendo.spreadsheet.messages.dialogs || MESSAGES,
-                        errors: this.options.errors
-                    })).appendTo(document.body).kendoWindow({
+                    var options = {
                         autoFocus: false,
                         scrollable: false,
                         resizable: false,
@@ -26244,7 +26363,11 @@
                         close: this._onDialogClose.bind(this),
                         activate: this._onDialogActivate.bind(this),
                         deactivate: this._onDialogDeactivate.bind(this)
-                    }).data('kendoWindow');
+                    };
+                    this._dialog = $('<div class=\'k-spreadsheet-window k-action-window k-popup-edit-form\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
+                        messages: kendo.spreadsheet.messages.dialogs || MESSAGES,
+                        errors: this.options.errors
+                    })).kendoWindow(options).data('kendoWindow');
                 }
                 return this._dialog;
             },
@@ -26361,7 +26484,7 @@
                 if (options.iso) {
                     format = '"' + info.abbr + '" ' + format.replace(/\s*\$\s*/g, '');
                 } else {
-                    format = format.replace(/\$/g, info.symbol);
+                    format = format.replace(/\$/g, JSON.stringify(info.symbol));
                 }
                 format = format.replace(/n/g, '?');
                 return format;
@@ -28499,6 +28622,7 @@
             n = dest.width();
         }
         var fill = new Array(data.length);
+        var hint = null;
         for (var i = 0; i < data.length; ++i) {
             var s = data[i];
             var f = findSeries(s);
@@ -28506,7 +28630,10 @@
             for (var j = 0; j < n; ++j) {
                 var idx = descending ? -j - 1 : s.length + j;
                 var srcIdx = descending ? s.length - j % s.length - 1 : j % s.length;
-                a[descending ? n - j - 1 : j] = f(idx, srcIdx);
+                var cell = a[descending ? n - j - 1 : j] = f(idx, srcIdx);
+                if (cell.value != null) {
+                    hint = cell.value;
+                }
             }
         }
         if (!horizontal) {
@@ -28515,7 +28642,8 @@
         return {
             props: fill,
             direction: direction,
-            dest: destRange
+            dest: destRange,
+            hint: hint
         };
     };
     Range.prototype.fillFrom = function (srcRange, direction) {
@@ -29173,9 +29301,12 @@
             var clip = new drawing.Group();
             clip.clip(drawing.Path.fromRect(rect));
             g.append(clip);
-            var f;
-            if (cell.format) {
-                f = formatting.textAndColor(val, cell.format);
+            var f, format = cell.format;
+            if (!format && type == 'number' && val != Math.floor(val)) {
+                format = '0.##############';
+            }
+            if (format) {
+                f = formatting.textAndColor(val, format);
                 val = f.text;
                 if (f.type) {
                     type = f.type;
@@ -29199,6 +29330,24 @@
             drawText(val, f && f.color || cell.color || '#000', cell, clip);
         }
     }
+    function applyIndent(cell, style) {
+        if (cell.indent) {
+            var indent = 1.4 * cell.indent;
+            switch (style.textAlign) {
+            case null:
+            case 'left':
+                style.paddingLeft = indent + 'ch';
+                break;
+            case 'right':
+                style.paddingRight = indent + 'ch';
+                break;
+            case 'center':
+                style.paddingLeft = indent / 2 + 'ch';
+                style.paddingRight = indent / 2 + 'ch';
+                break;
+            }
+        }
+    }
     var CONT;
     function drawText(text, color, cell, group) {
         if (!CONT) {
@@ -29209,18 +29358,19 @@
             CONT.style.visibility = 'hidden';
             CONT.style.overflow = 'hidden';
             CONT.style.boxSizing = 'border-box';
-            CONT.style.padding = '2px 4px';
             CONT.style.lineHeight = 'normal';
             document.body.appendChild(CONT);
         }
         if (CONT.firstChild) {
             CONT.removeChild(CONT.firstChild);
         }
+        CONT.style.padding = '2px 4px';
         CONT.style.color = color;
         CONT.style.font = makeFontDef(cell);
         CONT.style.width = cell.width + 'px';
         CONT.style.textAlign = cell.textAlign || 'left';
         CONT.style.textDecoration = cell.underline ? 'underline' : 'none';
+        applyIndent(cell, CONT.style);
         if (cell.wrap) {
             CONT.style.whiteSpace = 'pre-wrap';
             CONT.style.overflowWrap = CONT.style.wordWrap = 'break-word';
@@ -29564,7 +29714,8 @@
     };
     spreadsheet.draw = {
         Borders: Borders,
-        doLayout: doLayout
+        doLayout: doLayout,
+        applyIndent: applyIndent
     };
     spreadsheet.drawTabularData = drawTabularData;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -30028,7 +30179,8 @@
                 defaultCellStyle: {
                     fontFamily: 'Arial',
                     fontSize: '12'
-                }
+                },
+                useCultureDecimals: false
             },
             defineName: function (name, value, hidden) {
                 return this._workbook.defineName(name, value, hidden);

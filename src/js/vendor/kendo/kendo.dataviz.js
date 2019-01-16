@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2018.3.1017 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2018 Telerik EAD. All rights reserved.                                                                                                                                                     
+ * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2018.3.1017'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2019.1.115'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1298,7 +1298,7 @@
             if (!element.parent().hasClass('k-animation-container')) {
                 var width = element[0].style.width, height = element[0].style.height, percentWidth = percentRegExp.test(width), percentHeight = percentRegExp.test(height);
                 percentage = percentWidth || percentHeight;
-                if (!percentWidth && (!autosize || autosize && width)) {
+                if (!percentWidth && (!autosize || autosize && width || element.hasClass('k-tooltip'))) {
                     width = autosize ? outerWidth(element) + 1 : outerWidth(element);
                 }
                 if (!percentHeight && (!autosize || autosize && height)) {
@@ -2021,7 +2021,6 @@
             wrap: wrap,
             deepExtend: deepExtend,
             getComputedStyles: getComputedStyles,
-            webComponents: kendo.webComponents || [],
             isScrollable: isScrollable,
             scrollLeft: scrollLeft,
             size: size,
@@ -4973,7 +4972,8 @@
                     INIT,
                     ROUTE_MISSING,
                     CHANGE,
-                    SAME
+                    SAME,
+                    BACK
                 ], options);
             },
             destroy: function () {
@@ -5730,7 +5730,7 @@
         ]
     };
     (function ($, undefined) {
-        var extend = $.extend, proxy = $.proxy, isPlainObject = $.isPlainObject, isEmptyObject = $.isEmptyObject, isArray = $.isArray, grep = $.grep, ajax = $.ajax, map, each = $.each, noop = $.noop, kendo = window.kendo, isFunction = kendo.isFunction, Observable = kendo.Observable, Class = kendo.Class, STRING = 'string', FUNCTION = 'function', CREATE = 'create', READ = 'read', UPDATE = 'update', DESTROY = 'destroy', CHANGE = 'change', SYNC = 'sync', GET = 'get', ERROR = 'error', REQUESTSTART = 'requestStart', PROGRESS = 'progress', REQUESTEND = 'requestEnd', crud = [
+        var extend = $.extend, proxy = $.proxy, isPlainObject = $.isPlainObject, isEmptyObject = $.isEmptyObject, isArray = $.isArray, grep = $.grep, ajax = $.ajax, map, each = $.each, noop = $.noop, kendo = window.kendo, isFunction = kendo.isFunction, Observable = kendo.Observable, Class = kendo.Class, STRING = 'string', FUNCTION = 'function', ASCENDING = 'asc', CREATE = 'create', READ = 'read', UPDATE = 'update', DESTROY = 'destroy', CHANGE = 'change', SYNC = 'sync', GET = 'get', ERROR = 'error', REQUESTSTART = 'requestStart', PROGRESS = 'progress', REQUESTEND = 'requestEnd', crud = [
                 CREATE,
                 READ,
                 UPDATE,
@@ -6777,18 +6777,38 @@
         function normalizeAggregate(expressions) {
             return isArray(expressions) ? expressions : [expressions];
         }
-        function normalizeGroup(field, dir) {
+        function normalizeGroup(field, dir, compare, skipItemSorting) {
             var descriptor = typeof field === STRING ? {
                     field: field,
-                    dir: dir
+                    dir: dir,
+                    compare: compare,
+                    skipItemSorting: skipItemSorting
                 } : field, descriptors = isArray(descriptor) ? descriptor : descriptor !== undefined ? [descriptor] : [];
             return map(descriptors, function (d) {
                 return {
                     field: d.field,
                     dir: d.dir || 'asc',
-                    aggregates: d.aggregates
+                    aggregates: d.aggregates,
+                    compare: d.compare,
+                    skipItemSorting: d.skipItemSorting
                 };
             });
+        }
+        function normalizeGroupWithoutCompare(field, dir, compare) {
+            var descriptors = normalizeGroup(field, dir, compare);
+            for (var i = 0; i < descriptors.length; i++) {
+                delete descriptors[i].compare;
+            }
+            return descriptors;
+        }
+        function anyGroupDescriptorHasCompare(groupDescriptors) {
+            var descriptors = isArray(groupDescriptors) ? groupDescriptors : [groupDescriptors];
+            for (var i = 0; i < descriptors.length; i++) {
+                if (descriptors[i] && isFunction(descriptors[i].compare)) {
+                    return true;
+                }
+            }
+            return false;
         }
         Query.prototype = {
             toArray: function () {
@@ -6885,10 +6905,11 @@
                 return result;
             },
             groupBy: function (descriptor) {
+                var that = this;
                 if (isEmptyObject(descriptor) || !this.data.length) {
                     return new Query([]);
                 }
-                var field = descriptor.field, sorted = this._sortForGrouping(field, descriptor.dir || 'asc'), accessor = kendo.accessor(field), item, groupValue = accessor.get(sorted[0], field), group = {
+                var field = descriptor.field, sorted = descriptor.skipItemSorting ? this.data : this._sortForGrouping(field, descriptor.dir || 'asc'), accessor = kendo.accessor(field), item, groupValue = accessor.get(sorted[0], field), group = {
                         field: field,
                         value: groupValue,
                         items: []
@@ -6907,6 +6928,7 @@
                     }
                     group.items.push(item);
                 }
+                result = that._sortGroups(result, descriptor);
                 return new Query(result);
             },
             _sortForGrouping: function (field, dir) {
@@ -6922,6 +6944,13 @@
                     return data;
                 }
                 return this.sort(field, dir).toArray();
+            },
+            _sortGroups: function (groups, descriptor) {
+                var result = groups;
+                if (descriptor && isFunction(descriptor.compare)) {
+                    result = new Query(result).order({ compare: descriptor.compare }, descriptor.dir || ASCENDING).toArray();
+                }
+                return result;
             },
             aggregate: function (aggregates) {
                 var idx, len, result = {}, state = {};
@@ -7021,7 +7050,9 @@
         Query.normalizeSort = normalizeSort;
         Query.process = function (data, options, inPlace) {
             options = options || {};
-            var query = new Query(data), group = options.group, sort = normalizeGroup(group || []).concat(normalizeSort(options.sort || [])), total, filterCallback = options.filterCallback, filter = options.filter, skip = options.skip, take = options.take;
+            var group = options.group;
+            var customGroupSort = anyGroupDescriptorHasCompare(normalizeGroup(group || []));
+            var query = new Query(data), groupDescriptorsWithoutCompare = normalizeGroupWithoutCompare(group || []), normalizedSort = normalizeSort(options.sort || []), sort = customGroupSort ? normalizedSort : groupDescriptorsWithoutCompare.concat(normalizedSort), groupDescriptorsWithoutSort, total, filterCallback = options.filterCallback, filter = options.filter, skip = options.skip, take = options.take;
             if (sort && inPlace) {
                 query = query.sort(sort, undefined, undefined, inPlace);
             }
@@ -7038,11 +7069,22 @@
                     data = query.toArray();
                 }
             }
-            if (skip !== undefined && take !== undefined) {
-                query = query.range(skip, take);
-            }
-            if (group) {
+            if (customGroupSort) {
                 query = query.group(group, data);
+                if (skip !== undefined && take !== undefined) {
+                    query = new Query(flatGroups(query.toArray())).range(skip, take);
+                    groupDescriptorsWithoutSort = map(groupDescriptorsWithoutCompare, function (groupDescriptor) {
+                        return extend({}, groupDescriptor, { skipItemSorting: true });
+                    });
+                    query = query.group(groupDescriptorsWithoutSort, data);
+                }
+            } else {
+                if (skip !== undefined && take !== undefined) {
+                    query = query.range(skip, take);
+                }
+                if (group) {
+                    query = query.group(group, data);
+                }
             }
             return {
                 total: total,
@@ -7359,6 +7401,27 @@
             if (idx < dest.length) {
                 dest.splice(idx, dest.length - idx);
             }
+        }
+        function flatGroups(groups, indexFunction) {
+            var result = [];
+            var groupsLength = (groups || []).length;
+            var group;
+            var items;
+            var indexFn = isFunction(indexFunction) ? indexFunction : function (array, index) {
+                return array[index];
+            };
+            for (var groupIndex = 0; groupIndex < groupsLength; groupIndex++) {
+                group = indexFn(groups, groupIndex);
+                if (group.hasSubgroups) {
+                    result = result.concat(flatGroups(group.items));
+                } else {
+                    items = group.items;
+                    for (var itemIndex = 0; itemIndex < items.length; itemIndex++) {
+                        result.push(indexFn(items, itemIndex));
+                    }
+                }
+            }
+            return result;
         }
         function flattenGroups(data) {
             var idx, result = [], length, items, itemIndex;
@@ -8011,7 +8074,7 @@
                     if (type !== 'destroy') {
                         models[idx].accept(response[idx]);
                         if (type === 'create') {
-                            pristine.push(serverGroup ? that._wrapInEmptyGroup(models[idx]) : response[idx]);
+                            pristine.push(serverGroup ? that._wrapInEmptyGroup(models[idx].toJSON()) : response[idx]);
                         } else if (type === 'update') {
                             that._updatePristineForModel(models[idx], response[idx]);
                         }
@@ -8672,7 +8735,7 @@
                         callback.call(that);
                     }
                 };
-                return this._query().then(fn);
+                return this._query().done(fn);
             },
             _query: function (options) {
                 var that = this;
@@ -8797,7 +8860,7 @@
                 for (idx = groups.length - 1, length = 0; idx >= length; idx--) {
                     group = groups[idx];
                     parent = {
-                        value: model.get(group.field),
+                        value: model.get ? model.get(group.field) : model[group.field],
                         field: group.field,
                         items: parent ? [parent] : [model],
                         hasSubgroups: !!parent,
@@ -8881,7 +8944,7 @@
                                     if (options.inPlaceSort) {
                                         processed = that._queryProcess(range.data, { filter: that.filter() });
                                     } else {
-                                        var sort = normalizeGroup(that.group() || []).concat(normalizeSort(that.sort() || []));
+                                        var sort = normalizeGroupWithoutCompare(that.group() || []).concat(normalizeSort(that.sort() || []));
                                         processed = that._queryProcess(range.data, {
                                             sort: sort,
                                             filter: that.filter()
@@ -14274,10 +14337,10 @@
                 that.dimensions = DIMENSIONS[axis];
                 that._documentKeyDownHandler = proxy(that._documentKeyDown, that);
                 that.element.on(that.options.showOn + NS, that.options.filter, proxy(that._showOn, that));
-                if (!this._isShownOnFocus()) {
+                if (this._isShownOnMouseEnter() || this._isShownOnClick()) {
                     that.element.on('mouseenter' + NS, that.options.filter, proxy(that._mouseenter, that));
                 }
-                if (this.options.autoHide && !this._isShownOnFocus()) {
+                if (this.options.autoHide && this._isShownOnMouseEnter()) {
                     that.element.on('mouseleave' + NS, that.options.filter, proxy(that._mouseleave, that));
                 }
                 if (this.options.autoHide && this._isShownOnFocus()) {
@@ -14316,13 +14379,19 @@
             _isShownOnFocus: function () {
                 return this.options.showOn && this.options.showOn.match(/focus/);
             },
+            _isShownOnMouseEnter: function () {
+                return this.options.showOn && this.options.showOn.match(/mouseenter/);
+            },
+            _isShownOnClick: function () {
+                return this.options.showOn && this.options.showOn.match(/click/);
+            },
             _mouseenter: function (e) {
                 saveTitleAttributes($(e.currentTarget));
             },
             _showOn: function (e) {
                 var that = this;
                 var currentTarget = $(e.currentTarget);
-                if (that.options.showOn && that.options.showOn.match(/click/)) {
+                if (that._isShownOnClick() && !that._isShownOnMouseEnter()) {
                     that._show(currentTarget);
                 } else if (that._isShownOnFocus()) {
                     saveTitleAttributes(currentTarget);
@@ -14443,6 +14512,7 @@
                         autoHide: options.autoHide
                     }));
                 that.popup = new Popup(wrapper, extend({
+                    autosize: true,
                     activate: function () {
                         var anchor = this.options.anchor, ariaId = anchor[0].id || that.element[0].id;
                         if (ariaId) {
@@ -14468,7 +14538,7 @@
                 });
                 that.content = wrapper.find('.k-tooltip-content');
                 that.arrow = wrapper.find('.k-callout');
-                if (options.autoHide && !this._isShownOnFocus()) {
+                if (options.autoHide && this._isShownOnMouseEnter()) {
                     wrapper.on('mouseleave' + NS, proxy(that._mouseleave, that));
                 } else {
                     wrapper.on('click' + NS, '.k-tooltip-button', proxy(that._closeButtonClick, that));
@@ -14826,11 +14896,8 @@
                 default:
                     break;
                 }
-                h *= 60;
-                s *= 100;
-                l *= 100;
             }
-            return new HSL(h, s, l, this.a);
+            return new HSL(h * 60, s * 100, l * 100, this.a);
         },
         toBytes: function () {
             return new Bytes(this.r * 255, this.g * 255, this.b * 255, this.a);
@@ -14940,17 +15007,13 @@
             this.a = a;
         },
         toRGB: function () {
-            var ref = this;
-            var h = ref.h;
-            var s = ref.s;
-            var l = ref.l;
+            var h = this.h / 360;
+            var s = this.s / 100;
+            var l = this.l / 100;
             var r, g, b;
             if (s === 0) {
-                r = g = b = l / 100;
+                r = g = b = l;
             } else {
-                h /= 360;
-                s /= 100;
-                l /= 100;
                 var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
                 var p = 2 * l - q;
                 r = hue2rgb(p, q, h + 1 / 3);
@@ -23617,6 +23680,7 @@
                 this.surface.bind('mousemove', this._mousemoveHandler);
                 this.surface.element.on('mouseleave' + NS, this._surfaceLeaveHandler);
                 this.element.on('click' + NS, '.k-tooltip-button', proxy(this._hideClick, this));
+                this.element.on('mouseleave' + NS, proxy(this._tooltipLeave, this));
             },
             getPopup: function () {
                 if (!this.popup) {
@@ -23632,6 +23696,7 @@
                 this.surface.unbind('mousemove', this._mousemoveHandler);
                 this.surface.element.off('mouseleave' + NS, this._surfaceLeaveHandler);
                 this.element.off('click' + NS);
+                this.element.off('mouseleave' + NS);
                 if (popup) {
                     popup.destroy();
                     delete this.popup;
@@ -23849,6 +23914,15 @@
             },
             _popupRelatedTarget: function (e) {
                 return e.relatedTarget && $(e.relatedTarget).closest(this.popup.wrapper).length;
+            },
+            _tooltipLeave: function () {
+                var tooltip = this;
+                var current = tooltip._current;
+                if (current && current.options.autoHide) {
+                    tooltip._timeout = setTimeout(function () {
+                        tooltip.hide();
+                    }, current.options.hideDelay || 0);
+                }
             }
         });
         kendo.drawing.SurfaceTooltip = SurfaceTooltip;
@@ -27309,6 +27383,9 @@
                     max: max
                 };
             },
+            roundedRange: function () {
+                return this.range();
+            },
             totalRange: function () {
                 var options = this.options;
                 return {
@@ -30594,124 +30671,126 @@
 (function (f, define) {
     define('dataviz/themes/auto-theme', ['kendo.dataviz.core'], f);
 }(function () {
-    var cache;
-    function autoTheme(force) {
-        if (!force && cache) {
-            return cache;
-        }
-        var theme = { chart: kendo.dataviz.chartBaseTheme() };
-        var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '  <div class="k-var--gauge-pointer"></div>' + '  <div class="k-var--gauge-track"></div>' + '</div>').appendTo(document.body);
-        function mapColor(key, varName) {
-            set(key, queryStyle(varName, 'backgroundColor'));
-        }
-        function queryStyle(varName, prop) {
-            return hook.find('.k-var--' + varName).css(prop);
-        }
-        function set(path, value) {
-            var store = theme;
-            var parts = path.split('.');
-            var key = parts.shift();
-            while (parts.length > 0) {
-                store = store[key] = store[key] || {};
-                key = parts.shift();
+    (function ($) {
+        var cache;
+        function autoTheme(force) {
+            if (!force && cache) {
+                return cache;
             }
-            store[key] = value;
+            var theme = { chart: kendo.dataviz.chartBaseTheme() };
+            var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '  <div class="k-var--gauge-pointer"></div>' + '  <div class="k-var--gauge-track"></div>' + '</div>').appendTo(document.body);
+            function mapColor(key, varName) {
+                set(key, queryStyle(varName, 'backgroundColor'));
+            }
+            function queryStyle(varName, prop) {
+                return hook.find('.k-var--' + varName).css(prop);
+            }
+            function set(path, value) {
+                var store = theme;
+                var parts = path.split('.');
+                var key = parts.shift();
+                while (parts.length > 0) {
+                    store = store[key] = store[key] || {};
+                    key = parts.shift();
+                }
+                store[key] = value;
+            }
+            (function setColors() {
+                mapColor('chart.axisDefaults.crosshair.color', 'chart-crosshair-background');
+                mapColor('chart.axisDefaults.labels.color', 'normal-text-color');
+                mapColor('chart.axisDefaults.line.color', 'chart-major-lines');
+                mapColor('chart.axisDefaults.majorGridLines.color', 'chart-major-lines');
+                mapColor('chart.axisDefaults.minorGridLines.color', 'chart-minor-lines');
+                mapColor('chart.axisDefaults.notes.icon.background', 'chart-notes-background');
+                mapColor('chart.axisDefaults.notes.icon.border.color', 'chart-notes-border');
+                mapColor('chart.axisDefaults.notes.line.color', 'chart-notes-lines');
+                mapColor('chart.axisDefaults.title.color', 'normal-text-color');
+                mapColor('chart.chartArea.background', 'background');
+                mapColor('chart.legend.inactiveItems.labels.color', 'chart-inactive');
+                mapColor('chart.legend.inactiveItems.markers.color', 'chart-inactive');
+                mapColor('chart.legend.labels.color', 'normal-text-color');
+                mapColor('chart.seriesDefaults.boxPlot.downColor', 'chart-major-lines');
+                mapColor('chart.seriesDefaults.boxPlot.mean.color', 'base');
+                mapColor('chart.seriesDefaults.boxPlot.median.color', 'base');
+                mapColor('chart.seriesDefaults.boxPlot.whiskers.color', 'accent');
+                mapColor('chart.seriesDefaults.bullet.target.color', 'accent');
+                mapColor('chart.seriesDefaults.candlestick.downColor', 'normal-text-color');
+                mapColor('chart.seriesDefaults.candlestick.line.color', 'normal-text-color');
+                mapColor('chart.seriesDefaults.errorBars.color', 'chart-error-bars-background');
+                mapColor('chart.seriesDefaults.horizontalWaterfall.line.color', 'chart-major-lines');
+                mapColor('chart.seriesDefaults.icon.border.color', 'chart-major-lines');
+                mapColor('chart.seriesDefaults.labels.background', 'background');
+                mapColor('chart.seriesDefaults.labels.color', 'normal-text-color');
+                mapColor('chart.seriesDefaults.notes.icon.background', 'chart-notes-background');
+                mapColor('chart.seriesDefaults.notes.icon.border.color', 'chart-notes-border');
+                mapColor('chart.seriesDefaults.notes.line.color', 'chart-notes-lines');
+                mapColor('chart.seriesDefaults.verticalBoxPlot.downColor', 'chart-major-lines');
+                mapColor('chart.seriesDefaults.verticalBoxPlot.mean.color', 'base');
+                mapColor('chart.seriesDefaults.verticalBoxPlot.median.color', 'base');
+                mapColor('chart.seriesDefaults.verticalBoxPlot.whiskers.color', 'accent');
+                mapColor('chart.seriesDefaults.verticalBullet.target.color', 'accent');
+                mapColor('chart.seriesDefaults.waterfall.line.color', 'chart-major-lines');
+                mapColor('chart.title.color', 'normal-text-color');
+                set('chart.seriesDefaults.labels.opacity', queryStyle('chart-area-opacity', 'opacity'));
+                mapColor('diagram.shapeDefaults.fill.color', 'accent');
+                mapColor('diagram.shapeDefaults.content.color', 'accent-contrast');
+                mapColor('diagram.shapeDefaults.connectorDefaults.fill.color', 'normal-text-color');
+                mapColor('diagram.shapeDefaults.connectorDefaults.stroke.color', 'accent-contrast');
+                mapColor('diagram.shapeDefaults.connectorDefaults.hover.fill.color', 'accent-contrast');
+                mapColor('diagram.shapeDefaults.connectorDefaults.hover.stroke.color', 'normal-text-color');
+                mapColor('diagram.editable.resize.handles.stroke.color', 'normal-text-color');
+                mapColor('diagram.editable.resize.handles.fill.color', 'normal-background');
+                mapColor('diagram.editable.resize.handles.hover.stroke.color', 'normal-text-color');
+                mapColor('diagram.editable.resize.handles.hover.fill.color', 'normal-text-color');
+                mapColor('diagram.selectable.stroke.color', 'normal-text-color');
+                mapColor('diagram.connectionDefaults.stroke.color', 'normal-text-color');
+                mapColor('diagram.connectionDefaults.content.color', 'normal-text-color');
+                mapColor('diagram.connectionDefaults.selection.handles.fill.color', 'accent-contrast');
+                mapColor('diagram.connectionDefaults.selection.handles.stroke.color', 'normal-text-color');
+                mapColor('diagram.connectionDefaults.selection.stroke.color', 'normal-text-color');
+                mapColor('gauge.pointer.color', 'gauge-pointer');
+                mapColor('gauge.scale.labels.color', 'normal-text-color');
+                mapColor('gauge.scale.minorTicks.color', 'normal-text-color');
+                mapColor('gauge.scale.majorTicks.color', 'normal-text-color');
+                mapColor('gauge.scale.line.color', 'normal-text-color');
+                mapColor('gauge.scale.rangePlaceholderColor', 'gauge-track');
+            }());
+            (function setFonts() {
+                function font(varName) {
+                    return queryStyle(varName, 'fontSize') + ' ' + queryStyle(varName, 'fontFamily');
+                }
+                var defaultFont = font('chart-font');
+                var titleFont = font('chart-title-font');
+                var labelFont = font('chart-label-font');
+                set('chart.axisDefaults.labels.font', labelFont);
+                set('chart.axisDefaults.notes.label.font', defaultFont);
+                set('chart.axisDefaults.title.font', defaultFont);
+                set('chart.legend.labels.font', defaultFont);
+                set('chart.seriesDefaults.labels.font', labelFont);
+                set('chart.seriesDefaults.notes.label.font', defaultFont);
+                set('chart.title.font', titleFont);
+            }());
+            (function setSeriesColors() {
+                function letterPos(letter) {
+                    return letter.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0);
+                }
+                function seriesPos(name) {
+                    return letterPos(name.match(/series-([a-z])$/)[1]);
+                }
+                var series = $('.k-var--series div').toArray();
+                var seriesColors = series.reduce(function (arr, el) {
+                    var pos = seriesPos(el.className);
+                    arr[pos] = $(el).css('backgroundColor');
+                    return arr;
+                }, []);
+                set('chart.seriesColors', seriesColors);
+            }());
+            hook.remove();
+            cache = theme;
+            return theme;
         }
-        (function setColors() {
-            mapColor('chart.axisDefaults.crosshair.color', 'chart-crosshair-background');
-            mapColor('chart.axisDefaults.labels.color', 'normal-text-color');
-            mapColor('chart.axisDefaults.line.color', 'chart-major-lines');
-            mapColor('chart.axisDefaults.majorGridLines.color', 'chart-major-lines');
-            mapColor('chart.axisDefaults.minorGridLines.color', 'chart-minor-lines');
-            mapColor('chart.axisDefaults.notes.icon.background', 'chart-notes-background');
-            mapColor('chart.axisDefaults.notes.icon.border.color', 'chart-notes-border');
-            mapColor('chart.axisDefaults.notes.line.color', 'chart-notes-lines');
-            mapColor('chart.axisDefaults.title.color', 'normal-text-color');
-            mapColor('chart.chartArea.background', 'background');
-            mapColor('chart.legend.inactiveItems.labels.color', 'chart-inactive');
-            mapColor('chart.legend.inactiveItems.markers.color', 'chart-inactive');
-            mapColor('chart.legend.labels.color', 'normal-text-color');
-            mapColor('chart.seriesDefaults.boxPlot.downColor', 'chart-major-lines');
-            mapColor('chart.seriesDefaults.boxPlot.mean.color', 'base');
-            mapColor('chart.seriesDefaults.boxPlot.median.color', 'base');
-            mapColor('chart.seriesDefaults.boxPlot.whiskers.color', 'accent');
-            mapColor('chart.seriesDefaults.bullet.target.color', 'accent');
-            mapColor('chart.seriesDefaults.candlestick.downColor', 'normal-text-color');
-            mapColor('chart.seriesDefaults.candlestick.line.color', 'normal-text-color');
-            mapColor('chart.seriesDefaults.errorBars.color', 'chart-error-bars-background');
-            mapColor('chart.seriesDefaults.horizontalWaterfall.line.color', 'chart-major-lines');
-            mapColor('chart.seriesDefaults.icon.border.color', 'chart-major-lines');
-            mapColor('chart.seriesDefaults.labels.background', 'background');
-            mapColor('chart.seriesDefaults.labels.color', 'normal-text-color');
-            mapColor('chart.seriesDefaults.notes.icon.background', 'chart-notes-background');
-            mapColor('chart.seriesDefaults.notes.icon.border.color', 'chart-notes-border');
-            mapColor('chart.seriesDefaults.notes.line.color', 'chart-notes-lines');
-            mapColor('chart.seriesDefaults.verticalBoxPlot.downColor', 'chart-major-lines');
-            mapColor('chart.seriesDefaults.verticalBoxPlot.mean.color', 'base');
-            mapColor('chart.seriesDefaults.verticalBoxPlot.median.color', 'base');
-            mapColor('chart.seriesDefaults.verticalBoxPlot.whiskers.color', 'accent');
-            mapColor('chart.seriesDefaults.verticalBullet.target.color', 'accent');
-            mapColor('chart.seriesDefaults.waterfall.line.color', 'chart-major-lines');
-            mapColor('chart.title.color', 'normal-text-color');
-            set('chart.seriesDefaults.labels.opacity', queryStyle('chart-area-opacity', 'opacity'));
-            mapColor('diagram.shapeDefaults.fill.color', 'accent');
-            mapColor('diagram.shapeDefaults.content.color', 'accent-contrast');
-            mapColor('diagram.shapeDefaults.connectorDefaults.fill.color', 'normal-text-color');
-            mapColor('diagram.shapeDefaults.connectorDefaults.stroke.color', 'accent-contrast');
-            mapColor('diagram.shapeDefaults.connectorDefaults.hover.fill.color', 'accent-contrast');
-            mapColor('diagram.shapeDefaults.connectorDefaults.hover.stroke.color', 'normal-text-color');
-            mapColor('diagram.editable.resize.handles.stroke.color', 'normal-text-color');
-            mapColor('diagram.editable.resize.handles.fill.color', 'normal-background');
-            mapColor('diagram.editable.resize.handles.hover.stroke.color', 'normal-text-color');
-            mapColor('diagram.editable.resize.handles.hover.fill.color', 'normal-text-color');
-            mapColor('diagram.selectable.stroke.color', 'normal-text-color');
-            mapColor('diagram.connectionDefaults.stroke.color', 'normal-text-color');
-            mapColor('diagram.connectionDefaults.content.color', 'normal-text-color');
-            mapColor('diagram.connectionDefaults.selection.handles.fill.color', 'accent-contrast');
-            mapColor('diagram.connectionDefaults.selection.handles.stroke.color', 'normal-text-color');
-            mapColor('diagram.connectionDefaults.selection.stroke.color', 'normal-text-color');
-            mapColor('gauge.pointer.color', 'gauge-pointer');
-            mapColor('gauge.scale.labels.color', 'normal-text-color');
-            mapColor('gauge.scale.minorTicks.color', 'normal-text-color');
-            mapColor('gauge.scale.majorTicks.color', 'normal-text-color');
-            mapColor('gauge.scale.line.color', 'normal-text-color');
-            mapColor('gauge.scale.rangePlaceholderColor', 'gauge-track');
-        }());
-        (function setFonts() {
-            function font(varName) {
-                return queryStyle(varName, 'fontSize') + ' ' + queryStyle(varName, 'fontFamily');
-            }
-            var defaultFont = font('chart-font');
-            var titleFont = font('chart-title-font');
-            var labelFont = font('chart-label-font');
-            set('chart.axisDefaults.labels.font', labelFont);
-            set('chart.axisDefaults.notes.label.font', defaultFont);
-            set('chart.axisDefaults.title.font', defaultFont);
-            set('chart.legend.labels.font', defaultFont);
-            set('chart.seriesDefaults.labels.font', labelFont);
-            set('chart.seriesDefaults.notes.label.font', defaultFont);
-            set('chart.title.font', titleFont);
-        }());
-        (function setSeriesColors() {
-            function letterPos(letter) {
-                return letter.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0);
-            }
-            function seriesPos(name) {
-                return letterPos(name.match(/series-([a-z])$/)[1]);
-            }
-            var series = $('.k-var--series div').toArray();
-            var seriesColors = series.reduce(function (arr, el) {
-                var pos = seriesPos(el.className);
-                arr[pos] = $(el).css('backgroundColor');
-                return arr;
-            }, []);
-            set('chart.seriesColors', seriesColors);
-        }());
-        hook.remove();
-        cache = theme;
-        return theme;
-    }
-    kendo.dataviz.autoTheme = autoTheme;
+        kendo.dataviz.autoTheme = autoTheme;
+    }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
@@ -33485,7 +33564,9 @@
                     for (var i = 0; i < length; i++) {
                         var fieldName = fields[i];
                         var srcFieldName = srcFields[i];
-                        value[fieldName] = getField(srcFieldName, object);
+                        if (srcFieldName !== null) {
+                            value[fieldName] = getField(srcFieldName, object);
+                        }
                     }
                 }
                 return value;
@@ -33497,7 +33578,7 @@
                     for (var i = 0; i < length; i++) {
                         var fieldName = canonicalFields[i];
                         var sourceFieldName = fieldName === VALUE ? 'field' : fieldName + 'Field';
-                        sourceFields.push(series[sourceFieldName] || fieldName);
+                        sourceFields.push(series[sourceFieldName] !== null ? series[sourceFieldName] || fieldName : null);
                     }
                 }
                 return sourceFields;
@@ -36305,6 +36386,9 @@
                 this.drawLines(container, options, this.meanPoints, options.mean);
             },
             getBorderColor: function () {
+                if ((this.options.border || {}).color) {
+                    return this.options.border.color;
+                }
                 if (this.color) {
                     return this.color;
                 }
@@ -37456,6 +37540,7 @@
                     var clipBox = this.clipBox = this._clipBox();
                     var clipRect = clipBox.toRect();
                     var clipPath = Path.fromRect(clipRect);
+                    alignPathToPixel(clipPath);
                     this.visual.clip(clipPath);
                     this.unclipLabels();
                 }
@@ -40231,8 +40316,8 @@
                     var chart = this.chart;
                     var point = chart._eventCoordinates(e);
                     var zoomPane = this._zoomPane = chart._plotArea.paneByPoint(point);
-                    if (zoomPane && zoomPane.clipBox()) {
-                        var clipBox = zoomPane.clipBox().clone();
+                    var clipBox = zoomPane ? zoomPane.chartsBox().clone() : null;
+                    if (zoomPane && clipBox) {
                         var offset = this._elementOffset();
                         clipBox.translate(offset.left, offset.top);
                         this._zoomPaneClipBox = clipBox;
@@ -43597,6 +43682,7 @@
                 this._initSurface();
                 this.bindCategories();
                 dataviz.FontLoader.preloadFonts(userOptions, function () {
+                    this$1.fontLoaded = true;
                     if (!this$1._destroyed) {
                         this$1.trigger('init');
                         this$1._redraw();
@@ -43844,23 +43930,6 @@
                     this._zoomSelection = new ZoomSelection(this, selection);
                 }
             },
-            _toggleDomDrag: function () {
-                if (!this.domEvents || !this.domEvents.toggleDrag) {
-                    return;
-                }
-                var pannable = this.options.pannable;
-                var zoomable = this.options.zoomable;
-                var selection = (zoomable || {}).selection;
-                if (!pannable && (zoomable === false || selection === false) && !this.requiresHandlers([
-                        DRAG_START,
-                        DRAG,
-                        DRAG_END
-                    ])) {
-                    this.domEvents.toggleDrag(false);
-                } else {
-                    this.domEvents.toggleDrag(true);
-                }
-            },
             _createMousewheelZoom: function () {
                 var zoomable = this.options.zoomable;
                 var mousewheel = (zoomable || {}).mousewheel;
@@ -43868,20 +43937,41 @@
                     this._mousewheelZoom = new MousewheelZoom(this, mousewheel);
                 }
             },
-            _toggleDomZoom: function () {
-                if (!this.domEvents || !this.domEvents.toggleZoom) {
+            _toggleDragZoomEvents: function () {
+                var pannable = this.options.pannable;
+                var zoomable = this.options.zoomable;
+                var selection = (zoomable || {}).selection;
+                var mousewheel = (zoomable || {}).mousewheel;
+                var allowDrag = !pannable && (zoomable === false || selection === false) && !this.requiresHandlers([
+                    DRAG_START,
+                    DRAG,
+                    DRAG_END
+                ]);
+                var allowZoom = (zoomable === false || mousewheel === false) && !this.requiresHandlers([
+                    ZOOM_START,
+                    ZOOM,
+                    ZOOM_END
+                ]);
+                var element = this.element;
+                if (this._dragZoomEnabled && allowDrag && allowZoom) {
+                    element.style.touchAction = this._touchAction || '';
+                    this._dragZoomEnabled = false;
+                } else if (!this._dragZoomEnabled && !(allowDrag && allowZoom)) {
+                    element.style.touchAction = 'none';
+                    this._dragZoomEnabled = true;
+                }
+                this._toggleDomEvents(!allowDrag, !allowZoom);
+            },
+            _toggleDomEvents: function (drag, zoom) {
+                var domEvents = this.domEvents;
+                if (!domEvents) {
                     return;
                 }
-                var zoomable = this.options.zoomable;
-                var mousewheel = (zoomable || {}).mousewheel;
-                if ((zoomable === false || mousewheel === false) && !this.requiresHandlers([
-                        ZOOM_START,
-                        ZOOM,
-                        ZOOM_END
-                    ])) {
-                    this.domEvents.toggleZoom(false);
-                } else {
-                    this.domEvents.toggleZoom(true);
+                if (domEvents.toggleDrag) {
+                    domEvents.toggleDrag(drag);
+                }
+                if (domEvents.toggleZoom) {
+                    domEvents.toggleZoom(zoom);
                 }
             },
             _createTooltip: function () {
@@ -44017,6 +44107,7 @@
             },
             _attachEvents: function () {
                 var element = this.element;
+                this._touchAction = element.style.touchAction;
                 var obj;
                 bindEvents(element, (obj = {}, obj[CONTEXTMENU] = this._clickHandler, obj[MOUSEWHEEL] = this._mousewheelHandler, obj[MOUSELEAVE] = this._mouseleaveHandler, obj));
                 if (this._shouldAttachMouseMove()) {
@@ -44032,8 +44123,7 @@
                     gesturechange: this._gesturechange.bind(this),
                     gestureend: this._gestureend.bind(this)
                 });
-                this._toggleDomDrag();
-                this._toggleDomZoom();
+                this._toggleDragZoomEvents();
             },
             _mouseleave: function (e) {
                 if (this._hoveredPoint) {
@@ -44697,14 +44787,13 @@
                     this.chartService.theme = theme;
                 }
                 this._initTheme(this.options, this._theme);
+                this._toggleDragZoomEvents();
             },
             setOptions: function (options, theme) {
                 this.applyOptions(options, theme);
                 this.bindCategories();
                 this.redraw();
                 this.updateMouseMoveHandler();
-                this._toggleDomDrag();
-                this._toggleDomZoom();
             },
             setDirection: function (rtl) {
                 this.chartService.rtl = Boolean(rtl);
@@ -44831,6 +44920,7 @@
                 var baseOptions = deepExtend({ data: [] }, commonThemeDefaults, themeSeriesDefaults[seriesType], { tooltip: options.tooltip }, commonDefaults, seriesDefaults[seriesType]);
                 series[i]._defaults = baseOptions;
                 series[i] = deepExtend({}, baseOptions, series[i]);
+                series[i].data = series[i].data || [];
             }
         }
         function cleanupNestedSeriesDefaults(seriesDefaults) {
@@ -45539,7 +45629,9 @@
             _onDataChanged: function (e) {
                 this._bindData(e);
                 this.trigger(DATABOUND);
-                this._redraw();
+                if (this._instance && this._instance.fontLoaded) {
+                    this._redraw();
+                }
             },
             _bindSeries: function () {
                 var chart = this, data = chart.dataSource.view(), series = chart.options.series, seriesIx, seriesLength = series.length, currentSeries, groupIx, seriesData;
@@ -46158,6 +46250,7 @@
                 depends: ['pdf']
             }]
     };
+    return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
@@ -46956,7 +47049,7 @@
                 var scale = ref.scale;
                 var options = ref.options;
                 var shape = this.pointerShape(options.value);
-                var pointerPath = this.elements.children[0];
+                var pointerPath = this.pointerPath;
                 var oldShape = this.pointerShape(options._oldValue);
                 pointerPath.moveTo(shape[0]).lineTo(shape[1]).lineTo(shape[2]).lineTo(shape[3]).close();
                 var animation = new BarLinearPointerAnimation(pointerPath, deepExtend(options.animation, {
@@ -46980,13 +47073,32 @@
             render: function () {
                 var group = new Group$3();
                 var elementOptions = this.getElementOptions();
-                var pointer = new Path$4({
+                if (this.options.track.visible) {
+                    group.append(this.renderTrack());
+                }
+                var pointer = this.pointerPath = new Path$4({
                     stroke: elementOptions.stroke,
                     fill: elementOptions.fill
                 });
                 group.append(pointer);
                 this.elements = group;
                 return group;
+            },
+            renderTrack: function () {
+                var trackOptions = this.options.track;
+                var border = trackOptions.border || {};
+                var trackBox = this.trackBox.clone().pad(border.width || 0);
+                return new Path$4.fromRect(trackBox.toRect(), {
+                    fill: {
+                        color: trackOptions.color,
+                        opacity: trackOptions.opacity
+                    },
+                    stroke: {
+                        color: border.width ? border.color || trackOptions.color : '',
+                        width: border.width,
+                        dashType: border.dashType
+                    }
+                });
             }
         });
         var DEFAULT_MIN_WIDTH = 60;
@@ -53779,18 +53891,25 @@
                 var ref = this;
                 var chart = ref.chart;
                 var select = ref.options.select;
-                if (chart.requiresHandlers(['navigatorFilter'])) {
+                if (!chart.requiresHandlers(['navigatorFilter'])) {
+                    return;
+                }
+                var mainAxis = this.mainAxis();
+                var args = {
+                    from: select.from,
+                    to: select.to
+                };
+                if (mainAxis.options.type !== 'category') {
                     var axisOptions = new dataviz.DateCategoryAxis(deepExtend({ baseUnit: 'fit' }, chart.options.categoryAxis[0], {
                         categories: [
                             select.from,
                             select.to
                         ]
                     }), chart.chartService).options;
-                    this.chart.trigger('navigatorFilter', {
-                        from: dataviz.addDuration(axisOptions.min, -axisOptions.baseUnitStep, axisOptions.baseUnit),
-                        to: dataviz.addDuration(axisOptions.max, axisOptions.baseUnitStep, axisOptions.baseUnit)
-                    });
+                    args.from = dataviz.addDuration(axisOptions.min, -axisOptions.baseUnitStep, axisOptions.baseUnit);
+                    args.to = dataviz.addDuration(axisOptions.max, axisOptions.baseUnitStep, axisOptions.baseUnit);
                 }
+                this.chart.trigger('navigatorFilter', args);
             },
             _zoom: function (e) {
                 var ref = this;
@@ -66319,6 +66438,9 @@
             var getSibling = dir === 'next' ? $.fn.next : $.fn.prev;
             var getter = dir === 'next' ? $.fn.first : $.fn.last;
             var candidate = getSibling.call(element);
+            if (!candidate.length && element.is('.' + OVERFLOW_ANCHOR)) {
+                return element;
+            }
             if (candidate.is(':kendoFocusable') || !candidate.length) {
                 return candidate;
             }
@@ -66369,7 +66491,7 @@
                     ICON = 'km-icon';
                     ICON_PREFIX = 'km-';
                     BUTTON = 'km-button';
-                    BUTTON_GROUP = 'km-buttongroup km-widget';
+                    BUTTON_GROUP = 'km-buttongroup';
                     STATE_ACTIVE = 'km-state-active';
                     STATE_DISABLED = 'km-state-disabled';
                 }
@@ -66547,18 +66669,25 @@
             },
             hide: function (candidate) {
                 var item = this._getItem(candidate);
+                var buttonGroupInstance;
                 if (item.toolbar) {
                     if (item.toolbar.options.type === 'button' && item.toolbar.options.isChild) {
+                        buttonGroupInstance = item.toolbar.getParentGroup();
                         item.toolbar.hide();
-                        item.toolbar.getParentGroup().refresh();
+                        if (buttonGroupInstance) {
+                            buttonGroupInstance.refresh();
+                        }
                     } else if (!item.toolbar.options.hidden) {
                         item.toolbar.hide();
                     }
                 }
                 if (item.overflow) {
                     if (item.overflow.options.type === 'button' && item.overflow.options.isChild) {
+                        buttonGroupInstance = item.overflow.getParentGroup();
                         item.overflow.hide();
-                        item.overflow.getParentGroup().refresh();
+                        if (buttonGroupInstance) {
+                            buttonGroupInstance.refresh();
+                        }
                     } else if (!item.overflow.options.hidden) {
                         item.overflow.hide();
                     }
@@ -66767,21 +66896,27 @@
                     if (element.is('.' + OVERFLOW_ANCHOR)) {
                         element = findFocusableSibling(element, 'next');
                     }
-                    element[0].focus();
+                    if (element.length) {
+                        element[0].focus();
+                    }
                 }).on('keydown', proxy(that._keydown, that));
             },
             _keydown: function (e) {
                 var target = $(e.target), keyCode = e.keyCode, items = this.element.children(':not(.k-separator):visible'), direction = this._isRtl ? -1 : 1;
                 if (keyCode === keys.TAB) {
-                    var element = target.parentsUntil(this.element).last(), lastHasFocus = false, firstHasFocus = false;
+                    var element = target.parentsUntil(this.element).last(), lastHasFocus = false, firstHasFocus = false, isOnlyOverflowAnchor = false;
+                    if (!items.not('.' + OVERFLOW_ANCHOR).length) {
+                        isOnlyOverflowAnchor = true;
+                    }
                     if (!element.length) {
                         element = target;
                     }
-                    if (element.is('.' + OVERFLOW_ANCHOR)) {
+                    if (element.is('.' + OVERFLOW_ANCHOR) && !isOnlyOverflowAnchor) {
+                        var lastItemNotOverflowAnchor = items.last();
                         if (e.shiftKey) {
                             e.preventDefault();
                         }
-                        if (items.last().is(':kendoFocusable')) {
+                        if (lastItemNotOverflowAnchor.is(':kendoFocusable')) {
                             items.last().focus();
                         } else {
                             items.last().find(':kendoFocusable').last().focus();
@@ -66802,11 +66937,11 @@
                             firstHasFocus = true;
                         }
                     }
-                    if (lastHasFocus && this.overflowAnchor && this.overflowAnchor.css('visibility') !== 'hidden') {
+                    if (lastHasFocus && this.overflowAnchor && this.overflowAnchor.css('visibility') !== 'hidden' && !isOnlyOverflowAnchor) {
                         e.preventDefault();
                         this.overflowAnchor.focus();
                     }
-                    if (firstHasFocus) {
+                    if (firstHasFocus || isOnlyOverflowAnchor && e.shiftKey) {
                         e.preventDefault();
                         var prevFocusable = this._getPrevFocusable(this.wrapper);
                         if (prevFocusable) {
@@ -67022,7 +67157,7 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, abs = Math.abs, ARIASELECTED = 'aria-selected', SELECTED = 'k-state-selected', ACTIVE = 'k-state-selecting', SELECTABLE = 'k-selectable', CHANGE = 'change', NS = '.kendoSelectable', UNSELECTING = 'k-state-unselecting', INPUTSELECTOR = 'input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up', msie = kendo.support.browser.msie, supportEventDelegation = false;
+        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, abs = Math.abs, ARIASELECTED = 'aria-selected', SELECTED = 'k-state-selected', ACTIVE = 'k-state-selecting', SELECTABLE = 'k-selectable', CHANGE = 'change', NS = '.kendoSelectable', UNSELECT = 'unselect', UNSELECTING = 'k-state-unselecting', INPUTSELECTOR = 'input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up,label.k-checkbox-label.k-no-text', msie = kendo.support.browser.msie, supportEventDelegation = false;
         (function ($) {
             (function () {
                 $('<div class="parent"><span /></div>').on('click', '>*', function () {
@@ -67053,7 +67188,10 @@
                     that.userEvents.bind('start', proxy(that._start, that)).bind('move', proxy(that._move, that)).bind('end', proxy(that._end, that)).bind('select', proxy(that._select, that));
                 }
             },
-            events: [CHANGE],
+            events: [
+                CHANGE,
+                UNSELECT
+            ],
             options: {
                 name: 'Selectable',
                 filter: '>*',
@@ -67209,6 +67347,9 @@
                 return this.trigger(name, args);
             },
             _unselect: function (element) {
+                if (this.trigger(UNSELECT, { element: element })) {
+                    return;
+                }
                 element.removeClass(SELECTED);
                 if (this.options.aria) {
                     element.attr(ARIASELECTED, false);
@@ -67308,7 +67449,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, support = kendo.support, ui = kendo.ui, Widget = ui.Widget, keys = kendo.keys, parse = kendo.parseDate, adjustDST = kendo.date.adjustDST, weekInYear = kendo.date.weekInYear, Selectable = kendo.ui.Selectable, extractFormat = kendo._extractFormat, template = kendo.template, getCulture = kendo.getCulture, transitions = kendo.support.transitions, transitionOrigin = transitions ? transitions.css + 'transform-origin' : '', cellTemplate = template('<td#=data.cssClass# role="gridcell"><a tabindex="-1" class="k-link" href="\\#" data-#=data.ns#value="#=data.dateString#">#=data.value#</a></td>', { useWithBlock: false }), emptyCellTemplate = template('<td role="gridcell">&nbsp;</td>', { useWithBlock: false }), weekNumberTemplate = template('<td class="k-alt">#= data.weekNumber #</td>', { useWithBlock: false }), browser = kendo.support.browser, isIE8 = browser.msie && browser.version < 9, outerHeight = kendo._outerHeight, outerWidth = kendo._outerWidth, ns = '.kendoCalendar', CLICK = 'click' + ns, KEYDOWN_NS = 'keydown' + ns, ID = 'id', MIN = 'min', LEFT = 'left', SLIDE = 'slideIn', MONTH = 'month', CENTURY = 'century', CHANGE = 'change', NAVIGATE = 'navigate', VALUE = 'value', HOVER = 'k-state-hover', DISABLED = 'k-state-disabled', FOCUSED = 'k-state-focused', OTHERMONTH = 'k-other-month', OTHERMONTHCLASS = ' class="' + OTHERMONTH + '"', TODAY = 'k-nav-today', CELLSELECTOR = 'td:has(.k-link)', CELLSELECTORVALID = 'td:has(.k-link):not(.' + DISABLED + ')', WEEKCOLUMNSELECTOR = 'td:not(:has(.k-link))', SELECTED = 'k-state-selected', BLUR = 'blur' + ns, FOCUS = 'focus', FOCUS_WITH_NS = FOCUS + ns, MOUSEENTER = support.touch ? 'touchstart' : 'mouseenter', MOUSEENTER_WITH_NS = support.touch ? 'touchstart' + ns : 'mouseenter' + ns, MOUSELEAVE = support.touch ? 'touchend' + ns + ' touchmove' + ns : 'mouseleave' + ns, MS_PER_MINUTE = 60000, MS_PER_DAY = 86400000, PREVARROW = '_prevArrow', NEXTARROW = '_nextArrow', ARIA_DISABLED = 'aria-disabled', ARIA_SELECTED = 'aria-selected', ARIA_LABEL = 'aria-label', proxy = $.proxy, extend = $.extend, DATE = Date, views = {
+        var kendo = window.kendo, support = kendo.support, ui = kendo.ui, Widget = ui.Widget, keys = kendo.keys, parse = kendo.parseDate, adjustDST = kendo.date.adjustDST, weekInYear = kendo.date.weekInYear, Selectable = kendo.ui.Selectable, extractFormat = kendo._extractFormat, template = kendo.template, getCulture = kendo.getCulture, transitions = kendo.support.transitions, transitionOrigin = transitions ? transitions.css + 'transform-origin' : '', cellTemplate = template('<td#=data.cssClass# role="gridcell"><a tabindex="-1" class="k-link" href="\\#" data-#=data.ns#value="#=data.dateString#">#=data.value#</a></td>', { useWithBlock: false }), emptyCellTemplate = template('<td role="gridcell" class="k-out-of-range"><a class="k-link"></a></td>', { useWithBlock: false }), otherMonthCellTemplate = template('<td role="gridcell" class="k-out-of-range">&nbsp;</td>', { useWithBlock: false }), weekNumberTemplate = template('<td class="k-alt">#= data.weekNumber #</td>', { useWithBlock: false }), browser = kendo.support.browser, isIE8 = browser.msie && browser.version < 9, outerWidth = kendo._outerWidth, ns = '.kendoCalendar', CLICK = 'click' + ns, KEYDOWN_NS = 'keydown' + ns, ID = 'id', MIN = 'min', LEFT = 'left', SLIDE = 'slideIn', MONTH = 'month', CENTURY = 'century', CHANGE = 'change', NAVIGATE = 'navigate', VALUE = 'value', HOVER = 'k-state-hover', DISABLED = 'k-state-disabled', FOCUSED = 'k-state-focused', OTHERMONTH = 'k-other-month', OTHERMONTHCLASS = ' class="' + OTHERMONTH + '"', OUTOFRANGE = 'k-out-of-range', TODAY = 'k-nav-today', CELLSELECTOR = 'td:has(.k-link)', CELLSELECTORVALID = 'td:has(.k-link):not(.' + DISABLED + '):not(.' + OUTOFRANGE + ')', WEEKCOLUMNSELECTOR = 'td:not(:has(.k-link))', SELECTED = 'k-state-selected', BLUR = 'blur' + ns, FOCUS = 'focus', FOCUS_WITH_NS = FOCUS + ns, MOUSEENTER = support.touch ? 'touchstart' : 'mouseenter', MOUSEENTER_WITH_NS = support.touch ? 'touchstart' + ns : 'mouseenter' + ns, MOUSELEAVE = support.touch ? 'touchend' + ns + ' touchmove' + ns : 'mouseleave' + ns, MS_PER_MINUTE = 60000, MS_PER_DAY = 86400000, PREVARROW = '_prevArrow', NEXTARROW = '_nextArrow', ARIA_DISABLED = 'aria-disabled', ARIA_SELECTED = 'aria-selected', ARIA_LABEL = 'aria-label', proxy = $.proxy, extend = $.extend, DATE = Date, views = {
                 month: 0,
                 year: 1,
                 decade: 2,
@@ -67325,9 +67466,10 @@
                 that._templates();
                 that._selectable();
                 that._header();
+                that._viewWrapper();
                 that._footer(that.footer);
                 id = element.addClass('k-widget k-calendar ' + (options.weekNumber ? ' k-week-number' : '')).on(MOUSEENTER_WITH_NS + ' ' + MOUSELEAVE, CELLSELECTOR, mousetoggle).on(KEYDOWN_NS, 'table.k-content', proxy(that._move, that)).on(CLICK, CELLSELECTOR, function (e) {
-                    var link = e.currentTarget.firstChild, value = that._toDateObject(link);
+                    var link = e.currentTarget.firstChild, value = toDateObject(link);
                     if (link.href.indexOf('#') != -1) {
                         e.preventDefault();
                     }
@@ -67347,7 +67489,7 @@
                     element.on(CLICK, WEEKCOLUMNSELECTOR, function (e) {
                         var first = $(e.currentTarget).closest('tr').find(CELLSELECTORVALID).first(), last = that.selectable._lastActive = $(e.currentTarget).closest('tr').find(CELLSELECTORVALID).last();
                         that.selectable.selectRange(first, last, { event: e });
-                        that._current = that._value = that._toDateObject(last.find('a'));
+                        that._current = that._value = toDateObject(last.find('a'));
                         that._class(FOCUSED, that._current);
                     });
                 }
@@ -67416,6 +67558,7 @@
                 Widget.fn.setOptions.call(that, options);
                 that._templates();
                 that._selectable();
+                that._viewWrapper();
                 that._footer(that.footer);
                 that._index = views[that.options.start];
                 that.navigate();
@@ -67517,6 +67660,7 @@
                         url: options.url,
                         dates: options.dates,
                         format: options.format,
+                        otherMonth: true,
                         culture: culture,
                         disableDates: options.disableDates,
                         isWeekColumnVisible: options.weekNumber,
@@ -67646,8 +67790,8 @@
             _onRelatedTarget: function (target) {
                 var that = this;
                 if (that.selectable.options.multiple && target.is(CELLSELECTORVALID)) {
-                    that._current = that._toDateObject(target.find('a'));
-                    that._class(FOCUSED, that._toDateObject(target.find('a')));
+                    that._current = toDateObject(target.find('a'));
+                    that._class(FOCUSED, toDateObject(target.find('a')));
                 }
             },
             _onSelect: function (e) {
@@ -67665,7 +67809,7 @@
                         that._toggleSelection($(eventArgs.event.currentTarget));
                     } else {
                         that._cellsBySelector(CELLSELECTORVALID).each(function (index, element) {
-                            var value = that._toDateObject($(element).find('a'));
+                            var value = toDateObject($(element).find('a'));
                             that._deselect(value);
                         });
                         that._addSelectedCellsToArray();
@@ -67673,7 +67817,7 @@
                 } else if (eventArgs.event.shiftKey) {
                     that._rangeSelection(that._cell);
                 } else if ($(eventArgs.event.currentTarget).is(CELLSELECTOR)) {
-                    that.value(that._toDateObject($(eventArgs.event.currentTarget).find('a')));
+                    that.value(toDateObject($(eventArgs.event.currentTarget).find('a')));
                 } else {
                     that._selectDates = [];
                     that._addSelectedCellsToArray();
@@ -67688,7 +67832,7 @@
                 }
             },
             _toggleSelection: function (currentCell) {
-                var that = this, date = that._toDateObject(currentCell.find('a'));
+                var that = this, date = toDateObject(currentCell.find('a'));
                 if (currentCell.hasClass('k-state-selected')) {
                     that._selectDates.push(date);
                 } else {
@@ -67696,9 +67840,9 @@
                 }
             },
             _rangeSelection: function (toDateCell, startDate) {
-                var that = this, fromDate = startDate || that._toDateObject(that.selectable.value().first().find('a')), toDate = that._toDateObject(toDateCell.find('a')), daysDifference;
+                var that = this, fromDate = startDate || toDateObject(that.selectable.value().first().find('a')), toDate = toDateObject(toDateCell.find('a')), daysDifference;
                 if (that.selectable._lastActive || that._value) {
-                    fromDate = that.selectable._lastActive ? that._toDateObject(that.selectable._lastActive.find('a')) : new Date(+that._value);
+                    fromDate = that.selectable._lastActive ? toDateObject(that.selectable._lastActive.find('a')) : new Date(+that._value);
                 } else {
                     that.selectable._lastActive = startDate ? that._cellByDate(that._view.toDateString(startDate), CELLSELECTORVALID) : that.selectable.value().first();
                 }
@@ -67714,7 +67858,7 @@
             _addSelectedCellsToArray: function () {
                 var that = this;
                 that.selectable.value().each(function (index, item) {
-                    var date = that._toDateObject($(item.firstChild));
+                    var date = toDateObject($(item.firstChild));
                     if (!that.options.disableDates(date)) {
                         that._selectDates.push(date);
                     }
@@ -67728,7 +67872,7 @@
                 }
             },
             _dateInView: function (date) {
-                var that = this, firstDateInView = that._toDateObject(that._cellsBySelector(CELLSELECTOR + ':first').find('a')), lastDateInView = that._toDateObject(that._cellsBySelector(CELLSELECTOR + ':last').find('a'));
+                var that = this, firstDateInView = toDateObject(that._cellsBySelector(CELLSELECTOR + ':first').find('a')), lastDateInView = toDateObject(that._cellsBySelector(CELLSELECTOR + ':last').find('a'));
                 return +date <= +lastDateInView && +date >= +firstDateInView;
             },
             _move: function (e) {
@@ -67773,7 +67917,7 @@
                         prevent = true;
                     } else if ((key == keys.ENTER || key == keys.SPACEBAR) && that._isMultipleSelection()) {
                         that._keyboardToggleSelection(e);
-                        var focusedDate = that._toDateObject($(that._cell[0]).find('a'));
+                        var focusedDate = toDateObject($(that._cell[0]).find('a'));
                         that._class(FOCUSED, focusedDate);
                     }
                 } else if (e.shiftKey) {
@@ -67797,7 +67941,7 @@
                 } else {
                     if (key == keys.ENTER || key == keys.SPACEBAR) {
                         if (view.name == 'month' && that._isMultipleSelection()) {
-                            that.value(that._toDateObject($(that._cell.find('a'))));
+                            that.value(toDateObject($(that._cell.find('a'))));
                             that.selectable._lastActive = $(that._cell[0]);
                             that.trigger(CHANGE);
                         } else {
@@ -67843,7 +67987,7 @@
                 var that = this, fromDate, daysDifference;
                 if (!that._dateInView(currentValue)) {
                     that._selectDates = [];
-                    fromDate = that.selectable._lastActive ? that._toDateObject(that.selectable._lastActive.find('a')) : currentValue;
+                    fromDate = that.selectable._lastActive ? toDateObject(that.selectable._lastActive.find('a')) : currentValue;
                     daysDifference = daysBetweenTwoDates(fromDate, new Date(+currentValue));
                     addDaysToArray(that._selectDates, daysDifference, fromDate, that.options.disableDates);
                     that.navigate(currentValue);
@@ -67884,15 +68028,19 @@
                 return currentValue;
             },
             _animate: function (options) {
-                var that = this, from = options.from, to = options.to, active = that._active;
+                var that = this;
+                var from = options.from;
+                var to = options.to;
+                var active = that._active;
+                var viewWrapper = that.element.children('.k-calendar-view');
                 if (!from) {
-                    to.insertAfter(that.element[0].firstChild);
+                    viewWrapper.append(to);
                     that._bindTable(to);
                 } else if (from.parent().data('animating')) {
                     from.off(ns);
                     from.parent().kendoStop(true, true).remove();
                     from.remove();
-                    to.insertAfter(that.element[0].firstChild);
+                    viewWrapper.append(to);
                     that._focusView(active);
                 } else if (!from.is(':visible') || that.options.animation === false || options.replace) {
                     to.insertAfter(from);
@@ -67930,11 +68078,11 @@
             _vertical: function (from, to) {
                 var that = this, vertical = that.options.animation.vertical, effects = vertical.effects, active = that._active, cell, position;
                 if (effects && effects.indexOf('zoom') != -1) {
-                    to.css({
+                    to.insertBefore(from);
+                    from.css({
                         position: 'absolute',
-                        top: outerHeight(from.prev()),
-                        left: 0
-                    }).insertBefore(from);
+                        width: to.width()
+                    });
                     if (transitionOrigin) {
                         cell = that._cellByDate(that._view.toDateString(that._current));
                         position = cell.position();
@@ -67947,11 +68095,6 @@
                         complete: function () {
                             from.off(ns).remove();
                             that._oldTable = null;
-                            to.css({
-                                position: 'static',
-                                top: 0,
-                                left: 0
-                            });
                             that._focusView(active);
                         }
                     });
@@ -67989,7 +68132,7 @@
                 table.on(FOCUS_WITH_NS, this._addClassProxy).on(BLUR, this._removeClassProxy);
             },
             _click: function (link) {
-                var that = this, options = that.options, currentValue = new Date(+that._current), value = that._toDateObject(link);
+                var that = this, options = that.options, currentValue = new Date(+that._current), value = toDateObject(link);
                 adjustDST(value, 0);
                 if (that._view.name == 'month' && that.options.disableDates(value)) {
                     value = that._value;
@@ -68009,6 +68152,14 @@
             _focusView: function (active, table) {
                 if (active) {
                     this.focus(table);
+                }
+            },
+            _viewWrapper: function () {
+                var that = this;
+                var element = that.element;
+                var viewWrapper = element.children('.k-calendar-view');
+                if (!viewWrapper[0]) {
+                    viewWrapper = $('<div class=\'k-calendar-view\' />').insertAfter(element.find('.k-header'));
                 }
             },
             _footer: function (template) {
@@ -68047,7 +68198,7 @@
                 var that = this, index = that._index + 1, currentValue = new DATE(+that._current);
                 if (that._isMultipleSelection()) {
                     var firstDayCurrentMonth = that._table.find('td:not(.k-other-month)').has('.k-link').first();
-                    currentValue = that._toDateObject(firstDayCurrentMonth.find('a'));
+                    currentValue = toDateObject(firstDayCurrentMonth.find('a'));
                     that._current = new Date(+currentValue);
                 }
                 arrow = that[arrow];
@@ -68118,11 +68269,6 @@
                 that.navigate(today, depth);
                 that.trigger(CHANGE);
             },
-            _toDateObject: function (link) {
-                var value = $(link).attr(kendo.attr(VALUE)).split('/');
-                value = createDate(value[0], value[1], value[2]);
-                return value;
-            },
             _templates: function () {
                 var that = this, options = that.options, footer = options.footer, month = options.month, content = month.content, weekNumber = month.weekNumber, empty = month.empty, footerTemplate = '#= kendo.toString(data,"D","' + options.culture + '") #';
                 that.month = {
@@ -68161,7 +68307,12 @@
                         return getCalendarInfo(culture).months.names[date.getMonth()] + ' ' + date.getFullYear();
                     },
                     content: function (options) {
-                        var that = this, idx = 0, min = options.min, max = options.max, date = options.date, dates = options.dates, format = options.format, culture = options.culture, navigateUrl = options.url, isWeekColumnVisible = options.isWeekColumnVisible, hasUrl = navigateUrl && dates[0], currentCalendar = getCalendarInfo(culture), firstDayIdx = currentCalendar.firstDay, days = currentCalendar.days, names = shiftArray(days.names, firstDayIdx), shortNames = shiftArray(days.namesShort, firstDayIdx), start = calendar.firstVisibleDay(date, currentCalendar), firstDayOfMonth = that.first(date), lastDayOfMonth = that.last(date), toDateString = that.toDateString, today = getToday(), html = '<table tabindex="0" role="grid" class="k-content" cellspacing="0" data-start="' + toDateString(start) + '"><thead><tr role="row">';
+                        var that = this, idx = 0, min = options.min, max = options.max, date = options.date, dates = options.dates, format = options.format, culture = options.culture, navigateUrl = options.url, showHeader = options.showHeader, otherMonth = options.otherMonth, isWeekColumnVisible = options.isWeekColumnVisible, hasUrl = navigateUrl && dates[0], currentCalendar = getCalendarInfo(culture), firstDayIdx = currentCalendar.firstDay, days = currentCalendar.days, names = shiftArray(days.names, firstDayIdx), shortNames = shiftArray(days.namesShort, firstDayIdx), start = calendar.firstVisibleDay(date, currentCalendar), firstDayOfMonth = that.first(date), lastDayOfMonth = that.last(date), toDateString = that.toDateString, today = getToday(), html = '<table tabindex="0" role="grid" class="k-content" cellspacing="0" data-start="' + toDateString(start) + '">';
+                        if (showHeader) {
+                            html += '<caption class="k-month-header">' + this.title(date, min, max, culture) + '</caption><thead><tr role="row">';
+                        } else {
+                            html += '<thead><tr role="row">';
+                        }
                         if (isWeekColumnVisible) {
                             html += '<th scope="col" class="k-alt">' + options.messages.weekColumnHeader + '</th>';
                         }
@@ -68179,7 +68330,9 @@
                             weekNumber: options.weekNumber,
                             min: createDate(min.getFullYear(), min.getMonth(), min.getDate()),
                             max: createDate(max.getFullYear(), max.getMonth(), max.getDate()),
+                            otherMonth: otherMonth,
                             content: options.content,
+                            lastDayOfMonth: lastDayOfMonth,
                             empty: options.empty,
                             setter: that.setDate,
                             disableDates: options.disableDates,
@@ -68261,11 +68414,17 @@
                         return date.getFullYear();
                     },
                     content: function (options) {
-                        var namesAbbr = getCalendarInfo(options.culture).months.namesAbbr, toDateString = this.toDateString, min = options.min, max = options.max;
+                        var namesAbbr = getCalendarInfo(options.culture).months.namesAbbr, toDateString = this.toDateString, min = options.min, max = options.max, html = '';
+                        if (options.showHeader) {
+                            html += '<table tabindex="0" role="grid" class="k-content k-meta-view" cellspacing="0"><caption class="k-meta-header">';
+                            html += this.title(options.date);
+                            html += '</caption><tbody><tr role="row">';
+                        }
                         return view({
                             min: createDate(min.getFullYear(), min.getMonth(), 1),
                             max: createDate(max.getFullYear(), max.getMonth(), 1),
                             start: createDate(options.date.getFullYear(), 0, 1),
+                            html: html,
                             setter: this.setDate,
                             build: function (date) {
                                 return {
@@ -68316,11 +68475,18 @@
                         return title(date, min, max, 10);
                     },
                     content: function (options) {
-                        var year = options.date.getFullYear(), toDateString = this.toDateString;
+                        var year = options.date.getFullYear(), toDateString = this.toDateString, html = '';
+                        if (options.showHeader) {
+                            html += '<table tabindex="0" role="grid" class="k-content k-meta-view" cellspacing="0"><caption class="k-meta-header">';
+                            html += this.title(options.date, options.min, options.max);
+                            html += '</caption><tbody><tr role="row">';
+                        }
                         return view({
                             start: createDate(year - year % 10 - 1, 0, 1),
                             min: createDate(options.min.getFullYear(), 0, 1),
                             max: createDate(options.max.getFullYear(), 0, 1),
+                            otherMonth: options.otherMonth,
+                            html: html,
                             setter: this.setDate,
                             build: function (date, idx) {
                                 return {
@@ -68356,16 +68522,23 @@
                         return title(date, min, max, 100);
                     },
                     content: function (options) {
-                        var year = options.date.getFullYear(), min = options.min.getFullYear(), max = options.max.getFullYear(), toDateString = this.toDateString, minYear = min, maxYear = max;
+                        var year = options.date.getFullYear(), min = options.min.getFullYear(), max = options.max.getFullYear(), toDateString = this.toDateString, minYear = min, maxYear = max, html = '';
                         minYear = minYear - minYear % 10;
                         maxYear = maxYear - maxYear % 10;
                         if (maxYear - minYear < 10) {
                             maxYear = minYear + 9;
                         }
+                        if (options.showHeader) {
+                            html += '<table tabindex="0" role="grid" class="k-content k-meta-view" cellspacing="0"><caption class="k-meta-header">';
+                            html += this.title(options.date, options.min, options.max);
+                            html += '</caption><tbody><tr role="row">';
+                        }
                         return view({
                             start: createDate(year - year % 100 - 10, 0, 1),
                             min: createDate(minYear, 0, 1),
                             max: createDate(maxYear, 0, 1),
+                            otherMonth: options.otherMonth,
+                            html: html,
                             setter: this.setDate,
                             build: function (date, idx) {
                                 var start = date.getFullYear(), end = start + 9;
@@ -68418,7 +68591,7 @@
             return start + '-' + end;
         }
         function view(options) {
-            var idx = 0, data, min = options.min, max = options.max, start = options.start, setter = options.setter, build = options.build, weekNumberBuild = options.weekNumberBuild, length = options.cells || 12, isWeekColumnVisible = options.isWeekColumnVisible, cellsPerRow = options.perRow || 4, weekNumber = options.weekNumber || weekNumberTemplate, content = options.content || cellTemplate, empty = options.empty || emptyCellTemplate, html = options.html || '<table tabindex="0" role="grid" class="k-content k-meta-view" cellspacing="0"><tbody><tr role="row">';
+            var idx = 0, data, min = options.min, max = options.max, start = options.start, setter = options.setter, build = options.build, weekNumberBuild = options.weekNumberBuild, length = options.cells || 12, isWeekColumnVisible = options.isWeekColumnVisible, cellsPerRow = options.perRow || 4, otherMonth = options.otherMonth, lastDayOfMonth = options.lastDayOfMonth, weekNumber = options.weekNumber || weekNumberTemplate, content = options.content || cellTemplate, empty = options.empty || emptyCellTemplate, otherMonthTemplate = options.otherMonthCellTemplate || otherMonthCellTemplate, html = options.html || '<table tabindex="0" role="grid" class="k-content k-meta-view" cellspacing="0"><tbody><tr role="row">';
             if (isWeekColumnVisible) {
                 html += weekNumber(weekNumberBuild(start));
             }
@@ -68426,13 +68599,13 @@
                 if (idx > 0 && idx % cellsPerRow === 0) {
                     html += '</tr><tr role="row">';
                     if (isWeekColumnVisible) {
-                        html += weekNumber(weekNumberBuild(start));
+                        html += otherMonth || +start <= +lastDayOfMonth ? weekNumber(weekNumberBuild(start)) : weekNumber({ weekNumber: '&nbsp;' });
                     }
                 }
                 start = createDate(start.getFullYear(), start.getMonth(), start.getDate());
                 adjustDST(start, 0);
                 data = build(start, idx, options.disableDates);
-                html += isInRange(start, min, max) ? content(data) : empty(data);
+                html += data.cssClass.indexOf(OTHERMONTH) !== -1 && !otherMonth ? otherMonthTemplate(data) : isInRange(start, min, max) ? content(data) : empty(data);
                 setter(start, 1);
             }
             return html + '</tr></tbody></table>';
@@ -68603,6 +68776,11 @@
             }
             return oldValue === newValue;
         }
+        function toDateObject(link) {
+            var value = $(link).attr(kendo.attr(VALUE)).split('/');
+            value = createDate(value[0], value[1], value[2]);
+            return value;
+        }
         calendar.isEqualDatePart = isEqualDatePart;
         calendar.isEqualDate = isEqualDate;
         calendar.makeUnselectable = makeUnselectable;
@@ -68612,6 +68790,9 @@
         calendar.normalize = normalize;
         calendar.viewsEnum = views;
         calendar.disabled = getDisabledExpr;
+        calendar.toDateObject = toDateObject;
+        calendar.getToday = getToday;
+        calendar.createDate = createDate;
         kendo.calendar = calendar;
     }(window.kendo.jQuery));
     return window.kendo;
@@ -69881,7 +70062,7 @@
                     width: '100%',
                     height: element[0].style.height
                 });
-                that.wrapper = wrapper.addClass('k-widget k-datepicker k-header').addClass(element[0].className);
+                that.wrapper = wrapper.addClass('k-widget k-datepicker').addClass(element[0].className);
                 that._inputWrapper = $(wrapper[0].firstChild);
             },
             _reset: function () {
@@ -71090,7 +71271,11 @@
             }]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, TabKeyTrap = kendo.ui.Popup.TabKeyTrap, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', MODAL_NS = '.kendoWindowModal', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KDIALOGCONTENT = '.k-dialog-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-i-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZESTART = 'resizeStart', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', ERROR = 'error', OVERFLOW = 'overflow', DATADOCOVERFLOWRULE = 'original-overflow-rule', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-window-minimize,.k-window-actions .k-i-window-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', WINDOWEVENTSHANDLED = 'WindowEventsHandled', zero = /^0[a-z]*$/i, isLocalUrl = kendo.isLocalUrl;
+        var kendo = window.kendo, Widget = kendo.ui.Widget, TabKeyTrap = kendo.ui.Popup.TabKeyTrap, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', MODAL_NS = '.kendoWindowModal', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KDIALOGCONTENT = '.k-dialog-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-i-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZESTART = 'resizeStart', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', ERROR = 'error', OVERFLOW = 'overflow', DATADOCOVERFLOWRULE = 'original-overflow-rule', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-window-minimize,.k-window-actions .k-i-window-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', WINDOWEVENTSHANDLED = 'WindowEventsHandled', zero = /^0[a-z]*$/i, isLocalUrl = kendo.isLocalUrl, SIZE = {
+                small: 'k-window-sm',
+                medium: 'k-window-md',
+                large: 'k-window-lg'
+            };
         function defined(x) {
             return typeof x != 'undefined';
         }
@@ -71258,6 +71443,7 @@
                 var width = options.width;
                 var height = options.height;
                 var maxHeight = options.maxHeight;
+                var sizeClass = options.size;
                 var dimensions = [
                     'minWidth',
                     'minHeight',
@@ -71302,6 +71488,9 @@
                 }
                 if (!options.visible) {
                     wrapper.hide();
+                }
+                if (sizeClass && SIZE[sizeClass]) {
+                    wrapper.addClass(SIZE[sizeClass]);
                 }
             },
             _position: function () {
@@ -71408,25 +71597,29 @@
                 container.html(kendo.render(templates.action, actions));
             },
             setOptions: function (options) {
+                var that = this;
+                var sizeClass = that.options.size;
                 var cachedOptions = JSON.parse(JSON.stringify(options));
-                extend(options.position, this.options.position);
+                extend(options.position, that.options.position);
                 extend(options.position, cachedOptions.position);
-                Widget.fn.setOptions.call(this, options);
-                var scrollable = this.options.scrollable !== false;
-                this.restore();
+                Widget.fn.setOptions.call(that, options);
+                var scrollable = that.options.scrollable !== false;
+                that.restore();
                 if (typeof options.title !== 'undefined') {
-                    this.title(options.title);
+                    that.title(options.title);
                 }
-                this._dimensions();
-                this._position();
-                this._resizable();
-                this._draggable();
-                this._actions();
+                that.wrapper.removeClass(SIZE[sizeClass]);
+                that._dimensions();
+                that._position();
+                that._resizable();
+                that._draggable();
+                that._actions();
                 if (typeof options.modal !== 'undefined') {
-                    var visible = this.options.visible !== false;
-                    this._overlay(options.modal && visible);
+                    var visible = that.options.visible !== false;
+                    that._enableDocumentScrolling();
+                    that._overlay(options.modal && visible);
                 }
-                this.element.css(OVERFLOW, scrollable ? '' : 'hidden');
+                that.element.css(OVERFLOW, scrollable ? '' : 'hidden');
             },
             events: [
                 OPEN,
@@ -71469,6 +71662,7 @@
                 actions: ['Close'],
                 autoFocus: true,
                 modal: false,
+                size: 'auto',
                 resizable: true,
                 draggable: true,
                 minWidth: 90,
@@ -71594,6 +71788,9 @@
                     overlay = $('<div class=\'k-overlay\' />');
                 }
                 overlay.insertBefore(wrapper[0]).toggle(visible).css(ZINDEX, parseInt(wrapper.css(ZINDEX), 10) - 1);
+                if (this.options.modal.preventScroll && !this.containment) {
+                    this._stopDocumentScrolling();
+                }
                 return overlay;
             },
             _actionForIcon: function (icon) {
@@ -71669,7 +71866,7 @@
                 return that;
             },
             title: function (title) {
-                var that = this, value, encoded = true, wrapper = that.wrapper, titleBar = wrapper.children(KWINDOWTITLEBAR), titleElement = titleBar.children(KWINDOWTITLE), titleBarHeight;
+                var that = this, value, encoded = true, wrapper = that.wrapper, titleBar = wrapper.children(KWINDOWTITLEBAR), titleElement = titleBar.children(KWINDOWTITLE), titleBarHeight, display, visibility;
                 if (!arguments.length) {
                     return titleElement.html();
                 }
@@ -71690,7 +71887,23 @@
                     } else {
                         titleElement.html(encoded ? kendo.htmlEncode(value) : value);
                     }
-                    titleBarHeight = parseInt(outerHeight(titleBar), 10);
+                    visibility = wrapper.css('visibility');
+                    display = wrapper.css('display');
+                    if (visibility === HIDDEN) {
+                        wrapper.css({ display: '' });
+                        titleBarHeight = parseInt(outerHeight(titleBar), 10);
+                        wrapper.css({ display: display });
+                    } else {
+                        wrapper.css({
+                            visibility: HIDDEN,
+                            display: ''
+                        });
+                        titleBarHeight = parseInt(outerHeight(titleBar), 10);
+                        wrapper.css({
+                            visibility: visibility,
+                            display: display
+                        });
+                    }
                     wrapper.css('padding-top', titleBarHeight);
                     titleBar.css('margin-top', -titleBarHeight);
                 }
@@ -71794,8 +72007,14 @@
                     } else {
                         this._overlay(false).remove();
                     }
+                    if (options.modal.preventScroll) {
+                        this._enableDocumentScrolling();
+                    }
                 } else if (modals.length) {
                     this._object(modals.last())._overlay(true);
+                    if (options.modal.preventScroll) {
+                        this._stopDocumentScrolling();
+                    }
                 }
             },
             _close: function (systemTriggered) {
@@ -71936,16 +72155,18 @@
                 }
                 that.options.width = restoreOptions.width;
                 that.options.height = restoreOptions.height;
-                that._enableDocumentScrolling();
-                if (this._containerScrollTop && this._containerScrollTop > 0) {
-                    container.scrollTop(this._containerScrollTop);
+                if (!that.options.modal.preventScroll) {
+                    that._enableDocumentScrolling();
                 }
-                if (this._containerScrollLeft && this._containerScrollLeft > 0) {
-                    container.scrollLeft(this._containerScrollLeft);
+                if (that._containerScrollTop && that._containerScrollTop > 0) {
+                    container.scrollTop(that._containerScrollTop);
+                }
+                if (that._containerScrollLeft && that._containerScrollLeft > 0) {
+                    container.scrollLeft(that._containerScrollLeft);
                 }
                 options.isMaximized = options.isMinimized = false;
-                this.wrapper.removeAttr('tabindex');
-                this.wrapper.removeAttr('aria-labelled-by');
+                that.wrapper.removeAttr('tabindex');
+                that.wrapper.removeAttr('aria-labelled-by');
                 that.resize();
                 return that;
             },
@@ -72559,10 +72780,11 @@
                 });
                 that.list = $('<div class=\'k-list-container\'/>').append(that.ul).on('mousedown' + ns, proxy(that._listMousedown, that));
                 id = element.attr(ID);
-                if (id) {
-                    that.list.attr(ID, id + '-list');
-                    that.ul.attr(ID, id + '_listbox');
+                if (!id) {
+                    id = kendo.guid();
                 }
+                that.list.attr(ID, id + '-list');
+                that.ul.attr(ID, id + '_listbox');
                 if (options.columns && options.columns.length) {
                     that.ul.removeClass('k-list').addClass('k-grid-list');
                     that._columnsHeader();
@@ -73059,7 +73281,7 @@
                 } else if (ariaLabelledBy) {
                     focusedElm.attr('aria-labelledby', ariaLabelledBy);
                 } else if (labelElm.length) {
-                    var labelId = labelElm.attr('id') || that._generateLabelId(labelElm, inputId);
+                    var labelId = labelElm.attr('id') || that._generateLabelId(labelElm, inputId || kendo.guid());
                     focusedElm.attr('aria-labelledby', labelId);
                 }
             },
@@ -76857,7 +77079,7 @@
                     wrapper[0].style.cssText = DOMelement.style.cssText;
                     wrapper[0].title = DOMelement.title;
                 }
-                that._focused = that.wrapper = wrapper.addClass('k-widget k-dropdown k-header').addClass(DOMelement.className).css('display', '').attr({
+                that._focused = that.wrapper = wrapper.addClass('k-widget k-dropdown').addClass(DOMelement.className).css('display', '').attr({
                     accesskey: element.attr('accesskey'),
                     unselectable: 'on',
                     role: 'listbox',
@@ -82593,6 +82815,7 @@
             MobileDetailButton: 'a',
             ListView: 'ul',
             MobileListView: 'ul',
+            ScrollView: 'div',
             PanelBar: 'ul',
             TreeView: 'ul',
             Menu: 'ul',
@@ -83163,6 +83386,7 @@
                 'MajorTimeHeaderTemplate',
                 'MinorTimeHeaderTemplate'
             ],
+            'ScrollView': ['Template'],
             'PanelBar': ['Template'],
             'TreeView': ['Template'],
             'Validator': ['ErrorTemplate']

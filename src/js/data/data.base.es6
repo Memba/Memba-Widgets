@@ -325,6 +325,24 @@ const BaseModel = Model.define({
 });
 
 /**
+ * Projection of fields for any model
+ * @param AnyModel
+ */
+BaseModel.projection = function(AnyModel) {
+    assert.extends(
+        BaseModel,
+        AnyModel,
+        assert.format(assert.messages.extends.default, 'AnyModel', 'BaseModel')
+    );
+    const projection = {};
+    Object.keys(AnyModel.fields).forEach(key => {
+        const field = AnyModel.fields[key].from || key;
+        projection[field] = true;
+    });
+    return projection;
+};
+
+/**
  * Default export
  */
 export default BaseModel;

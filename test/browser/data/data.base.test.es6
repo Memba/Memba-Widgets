@@ -1531,6 +1531,12 @@ describe('data.base', () => {
             });
         });
 
+        xdescribe('BaseModel.projection', () => {
+            xit('TODO', done => {
+                done();
+            });
+        });
+
         xdescribe('validation', () => {
             xit('TODO', done => {
                 done();

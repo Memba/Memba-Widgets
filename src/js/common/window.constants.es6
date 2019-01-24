@@ -47,7 +47,11 @@ const CONSTANTS = {
     POINTEROVER: 'pointerover',
     POINTERUP: 'pointerup',
     PROGRESS: 'progress',
+    REFRESH: 'refresh',
+    REQUESTEND: 'requestEnd',
+    RESIZE: 'resize',
     SELECT: 'select',
+    SIGNOUT: 'signout',
     TAP: 'tap',
     TOUCHEND: 'touchend',
     // TOUCHLEAVE: 'touchleave', // <-- See https://developer.mozilla.org/en-US/docs/Web/Events/touchleave

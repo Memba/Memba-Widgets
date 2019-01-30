@@ -5,6 +5,7 @@
 
 // TODO: replace `imageUrl` by `icon` + add CDN path to options + build path when using icons
 // TODO unbind in destroy
+// TODO Add save action
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -27,6 +28,15 @@ const {
 // const NS = '.kendoBaseDialog';
 const logger = new Logger('widgets.basedialog');
 const WIDGET_CLASS = 'kj-dialog';
+const ACTION = {
+    cancel: 'cancel',
+    close: 'close',
+    create: 'create',
+    no: 'no',
+    ok: 'ok',
+    // TODO save
+    yes: 'yes'
+};
 const tmpl = {
     action: template(
         '<button type="button" class="k-button# if (data.primary) { # k-primary# } #" role="button"></button>'
@@ -85,40 +95,40 @@ const BaseDialog = Dialog.extend({
             },
             actions: {
                 cancel: {
-                    action: 'cancel',
+                    action: ACTION.cancel,
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
                     text: 'Cancel'
                 },
                 close: {
-                    action: 'close',
+                    action: ACTION.close,
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
                     primary: true,
                     text: 'Close'
                 },
                 create: {
-                    action: 'create',
+                    action: ACTION.create,
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/plus.svg',
                     primary: true,
                     text: 'Create'
                 },
                 no: {
-                    action: 'no',
+                    action: ACTION.no,
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
                     text: 'No'
                 },
                 ok: {
-                    action: 'ok',
+                    action: ACTION.ok,
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
                     primary: true,
                     text: 'OK'
                 },
                 yes: {
-                    action: 'yes',
+                    action: ACTION.yes,
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
                     primary: true,
@@ -138,6 +148,11 @@ const BaseDialog = Dialog.extend({
         success: 'success',
         warning: 'warning'
     },
+
+    /**
+     * Dialog action
+     */
+    action: ACTION,
 
     /**
      * Fix a Karma issue

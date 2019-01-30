@@ -144,7 +144,12 @@ const Rating = Widget.extend({
         const { element, options } = this;
         const val = parseFloat(value);
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            ret = parseFloat(element.val());
+            ret = parseFloat(element.val()) || null;
+        } else if ($.type(value) === CONSTANTS.NULL) {
+            if (element.val() !== CONSTANTS.EMPTY) {
+                element.val(CONSTANTS.EMPTY);
+                this.refresh();
+            }
         } else if (val >= options.min && val <= options.max) {
             if (parseFloat(element.val()) !== val) {
                 // store value with element
@@ -225,7 +230,8 @@ const Rating = Widget.extend({
      */
     refresh() {
         const { options, wrapper } = this;
-        const i = round((this.value() - options.min) / options.step);
+        const value = this.value() || options.min;
+        const i = round((value - options.min) / options.step);
         wrapper.find(STAR_SELECTOR).each((index, element) => {
             const star = $(element);
             if (parseFloat(star.attr(attr(STAR))) <= i) {

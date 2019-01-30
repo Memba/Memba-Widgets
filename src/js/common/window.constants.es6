@@ -111,6 +111,7 @@ const CONSTANTS = {
     EMPTY: '',
     EQUAL: '=',
     HASH: '#',
+    HASHBANG: '#', // '#!',
     HYPHEN: '-',
     SEMICOLON: ';',
     UNDERSCORE: '_',

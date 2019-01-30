@@ -241,7 +241,15 @@ export function normalizeSchema(schema) {
  * @returns {Error}
  */
 export function xhr2error(xhr, status, errorThrown) {
-    const error = new Error(errorThrown);
-    error.code = xhr.status;
+    let error;
+    if (xhr instanceof Error) {
+        // When there is an error thrown in the promise
+        error = xhr;
+    } else {
+        // When the promise (based on $.ajax) completes
+        error = new Error(errorThrown);
+        error.code = xhr.status;
+        error.originalError = xhr.responseJSON;
+    }
     return error;
 }

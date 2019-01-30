@@ -118,8 +118,17 @@ const CONSTANTS = {
     // Miscellaneous
     ACTION: 'action',
     ACTIVE: 'active',
+    DATA_PAGE_SIZE: {
+        SMALL: 5,
+        MEDIUM: 10
+    },
     ID: 'id',
     ME: 'me',
+    PANEL_STATE: {
+        CLOSED: 0,
+        READ: 1,
+        EDIT: 2
+    },
     POINTER: 'pointer',
     STAGE_MODES: {
         DESIGN: 'design',

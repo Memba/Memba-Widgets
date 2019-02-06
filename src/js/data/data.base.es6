@@ -336,8 +336,12 @@ BaseModel.projection = function(AnyModel) {
     );
     const projection = {};
     Object.keys(AnyModel.fields).forEach(key => {
-        const field = AnyModel.fields[key].from || key;
-        projection[field] = true;
+        const { from } = AnyModel.fields[key];
+        const field = $.type(from) === CONSTANTS.STRING ? from : key;
+        // Simply use `from: CONSTANTS.EMPTY` to remove a field from projection
+        if (field.length) {
+            projection[field] = true;
+        }
     });
     return projection;
 };

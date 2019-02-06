@@ -137,6 +137,10 @@ const CONSTANTS = {
         REVIEW: 'review'
     },
     UID: 'uid',
+    WORKFLOW: {
+        DRAFT: 0,
+        PUBLISHED: 5
+    },
     // HTML tags
     A: 'a',
     BODY: 'body',

@@ -121,7 +121,8 @@ const CONSTANTS = {
     ACTIVE: 'active',
     DATA_PAGE_SIZE: {
         SMALL: 5,
-        MEDIUM: 10
+        MEDIUM: 10,
+        MAX: 100
     },
     ID: 'id',
     ME: 'me',

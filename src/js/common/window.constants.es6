@@ -114,6 +114,7 @@ const CONSTANTS = {
     HASHBANG: '#', // '#!',
     HYPHEN: '-',
     SEMICOLON: ';',
+    SLASH: '/',
     UNDERSCORE: '_',
     // Miscellaneous
     ACTION: 'action',

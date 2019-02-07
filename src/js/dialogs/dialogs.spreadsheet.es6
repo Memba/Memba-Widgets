@@ -23,7 +23,7 @@ const {
  * @param options
  * @returns {*}
  */
-export default function openSpreadsheet(options = {}) {
+function openSpreadsheet(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
@@ -96,3 +96,8 @@ export default function openSpreadsheet(options = {}) {
 
     return dfd.promise();
 }
+
+/**
+ * Default export
+ */
+export default openSpreadsheet;

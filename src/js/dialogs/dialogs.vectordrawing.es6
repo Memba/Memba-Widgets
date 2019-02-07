@@ -24,9 +24,14 @@ const {
  * @param options
  * @returns {*}
  */
-export default function openVectorDrawing(options = {}) {
+function openVectorDrawing(options = {}) {
     const dfd = $.Deferred();
     // TODO
     $.noop(options);
     return dfd.promise();
 }
+
+/**
+ * Default export
+ */
+export default openVectorDrawing;

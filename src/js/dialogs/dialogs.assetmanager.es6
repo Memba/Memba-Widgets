@@ -33,7 +33,7 @@ const {
  * @param options
  * @returns {*}
  */
-export default function openAssetManager(options = {}) {
+function openAssetManager(options = {}) {
     /*
     assert.instanceof(
         kidoju.ToolAssets,
@@ -155,3 +155,8 @@ export default function openAssetManager(options = {}) {
 
     return dfd.promise();
 }
+
+/**
+ * Default export
+ */
+export default openAssetManager;

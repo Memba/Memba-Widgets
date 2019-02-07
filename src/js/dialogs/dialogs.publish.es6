@@ -31,7 +31,7 @@ BaseDialog.getMessageNameSpace().publish = BaseDialog.getMessageNameSpace()
  * @param options
  * @returns {*}
  */
-export default function openPublish(options = {}) {
+function openPublish(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
@@ -103,3 +103,8 @@ export default function openPublish(options = {}) {
 
     return dfd.promise();
 }
+
+/**
+ * Default export
+ */
+export default openPublish;

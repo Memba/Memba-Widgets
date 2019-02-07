@@ -24,7 +24,7 @@ const {
  * @param options
  * @returns {*}
  */
-export default function openCodeEditor(options = {}) {
+function openCodeEditor(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
@@ -85,3 +85,8 @@ export default function openCodeEditor(options = {}) {
 
     return dfd.promise();
 }
+
+/**
+ * Default export
+ */
+export default openCodeEditor;

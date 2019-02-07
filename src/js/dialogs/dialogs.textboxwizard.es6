@@ -8,8 +8,8 @@
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.validator';
-import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import './widgets.basedialog.es6';
 
 const {
     guid,
@@ -38,7 +38,7 @@ BaseDialog.getMessageNameSpace().textboxwizard = BaseDialog.getMessageNameSpace(
  * @param options
  * @returns {*}
  */
-export default function openTextBoxWizard(options = {}) {
+function openTextBoxWizard(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
@@ -135,3 +135,8 @@ export default function openTextBoxWizard(options = {}) {
 
     return dfd.promise();
 }
+
+/**
+ * Default export
+ */
+export default openTextBoxWizard;

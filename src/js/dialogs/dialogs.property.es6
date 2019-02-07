@@ -29,7 +29,7 @@ const {
  * @param options
  * @returns {*}
  */
-export default function openProperty(options = {}) {
+function openProperty(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
@@ -94,3 +94,8 @@ export default function openProperty(options = {}) {
 
     return dfd.promise();
 }
+
+/**
+ * Default export
+ */
+export default openProperty;

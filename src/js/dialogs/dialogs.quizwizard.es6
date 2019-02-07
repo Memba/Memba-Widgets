@@ -47,7 +47,7 @@ BaseDialog.getMessageNameSpace().quizwizard = BaseDialog.getMessageNameSpace()
  * @param options
  * @returns {*}
  */
-export default function openQuizWizard(options = {}) {
+function openQuizWizard(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
@@ -284,3 +284,8 @@ export default function openQuizWizard(options = {}) {
 
     return dfd.promise();
 }
+
+/**
+ * Default export
+ */
+export default openQuizWizard;

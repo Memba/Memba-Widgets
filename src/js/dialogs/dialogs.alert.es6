@@ -21,7 +21,7 @@ const {
  * @param options (Same as kendo.ui.Dialog, expect `title` and `content` should be replaced by `type` and `message`)
  * @returns {*}
  */
-export function openAlert(options = {}) {
+function openAlert(options = {}) {
     const ALERT_TEMPLATE =
         '<div class="k-widget k-notification k-notification-#: type #"><div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div></div>';
 
@@ -66,10 +66,24 @@ export function openAlert(options = {}) {
 }
 
 /**
+ * An alert with single Close button (forced)
+ * @param options
+ */
+function openCloseAlert(options = {}) {
+    return openAlert(
+        Object.assign(options, {
+            actions: [
+                BaseDialog.fn.options.messages.actions.close
+            ]
+        })
+    );
+}
+
+/**
  * An alert with OK/Cancel buttons (forced)
  * @param options
  */
-export function openOKCancelAlert(options = {}) {
+function openOKCancelAlert(options = {}) {
     return openAlert(
         Object.assign(options, {
             actions: [
@@ -84,7 +98,7 @@ export function openOKCancelAlert(options = {}) {
  * An alert with yes/no buttons
  * @param options
  */
-export function openYesNoAlert(options = {}) {
+function openYesNoAlert(options = {}) {
     return openAlert(
         Object.assign(options, {
             actions: [
@@ -94,3 +108,8 @@ export function openYesNoAlert(options = {}) {
         })
     );
 }
+
+/**
+ * Export
+ */
+export { openAlert, openCloseAlert, openOKCancelAlert, openYesNoAlert };

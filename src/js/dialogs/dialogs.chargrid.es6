@@ -29,7 +29,7 @@ const {
  * @param options
  * @returns {*}
  */
-export default function openCharGrid(options = {}) {
+function openCharGrid(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
@@ -94,3 +94,8 @@ export default function openCharGrid(options = {}) {
 
     return dfd.promise();
 }
+
+/**
+ * Default export
+ */
+export default openCharGrid;

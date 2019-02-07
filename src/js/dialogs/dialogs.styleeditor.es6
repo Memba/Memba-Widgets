@@ -22,7 +22,7 @@ const {
  * @param options
  * @returns {*}
  */
-export default function openStyleEditor(options = {}) {
+function openStyleEditor(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
@@ -73,3 +73,8 @@ export default function openStyleEditor(options = {}) {
 
     return dfd.promise();
 }
+
+/**
+ * Default export
+ */
+export default openStyleEditor;

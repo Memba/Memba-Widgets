@@ -21,7 +21,7 @@
         '../vendor/kendo/kendo.dataviz.diagram',
         '../common/window.assert.es6',
         '../common/window.logger.es6',
-        '../kidoju.image'
+        '../_old/kidoju.image'
     ], f);
 })(function () {
 

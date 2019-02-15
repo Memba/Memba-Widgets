@@ -12,7 +12,7 @@
         // './vendor/kendo/kendo.binder',
         // './vendor/kendo/kendo.dialog',
         // './vendor/kendo/kendo.spreadsheet',
-        './common/window.assert.es6',
+        '../common/window.assert.es6',
         './common/window.logger.es6',
         './kidoju.data'
         // Note: The player does not need the assetmanager, the codeeditor and the styleeditor

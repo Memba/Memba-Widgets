@@ -9,7 +9,7 @@
 (function (f, define) {
     'use strict';
     define([
-        './common/window.assert.es6',
+        '../common/window.assert.es6',
         './common/window.logger.es6',
         './vendor/kendo/kendo.data'
     ], f);

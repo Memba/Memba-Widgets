@@ -483,6 +483,7 @@ const PlayBar = DataBoundWidget.extend({
                     return $(`<${CONSTANTS.DIV}/>`).attr(attr('index'), index);
                 },
                 show(e) {
+                    e.sender.content.css({ padding: 0 });
                     const element = e.sender.content
                         .children(CONSTANTS.DIV)
                         .first();

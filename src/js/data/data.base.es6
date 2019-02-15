@@ -336,10 +336,17 @@ BaseModel.projection = function(AnyModel) {
     );
     const projection = {};
     Object.keys(AnyModel.fields).forEach(key => {
-        const { from } = AnyModel.fields[key];
-        const field = $.type(from) === CONSTANTS.STRING ? from : key;
+        const { defaultValue, from, parse } = AnyModel.fields[key];
         // Simply use `from: CONSTANTS.EMPTY` to remove a field from projection
-        if (field.length) {
+        // because then field.length === 0
+        const field = $.type(from) === CONSTANTS.STRING ? from : key;
+        const subDoc = parse(defaultValue); // Note that a null defaultValue won't work
+        if (field.length && $.type(subDoc) === CONSTANTS.OBJECT) {
+            Object.keys(subDoc.fields).forEach(subField => {
+                projection[`${field}.${subField}`] = true;
+            });
+            // TODO } else if (field.length && Array.isArray(subDoc)) {
+        } else if (field.length) {
             projection[field] = true;
         }
     });

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -111,7 +111,7 @@
                             headerIndex = element.parent().children(':visible').index(element);
                         }
                         element.toggleClass('k-sorted', dir !== undefined);
-                        table.children('colgroup').children(':not(.k-group-col)').eq(headerIndex).toggleClass('k-sorted', dir !== undefined);
+                        table.children('colgroup').children(':not(.k-group-col):not(.k-hierarchy-col)').eq(headerIndex).toggleClass('k-sorted', dir !== undefined);
                     }
                 }
                 element.find('.k-i-sort-asc-sm,.k-i-sort-desc-sm,.k-sort-order').remove();

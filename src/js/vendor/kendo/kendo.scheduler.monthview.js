@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -34,7 +34,7 @@
         hidden: true
     };
     (function ($) {
-        var kendo = window.kendo, ui = kendo.ui, SchedulerView = ui.SchedulerView, NS = '.kendoMonthView', extend = $.extend, getDate = kendo.date.getDate, MS_PER_DAY = kendo.date.MS_PER_DAY, NUMBER_OF_ROWS = 6, NUMBER_OF_COLUMNS = 7, DAY_TEMPLATE = kendo.template('<span class="k-link k-nav-day">#:kendo.toString(date, "dd")#</span>'), EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" data-#=ns#uid="#=uid#"' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' + 'class="k-event#=inverseColor ? " k-event-inverse" : ""#"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-60-left"></span>' + '#}#' + '# if(data.isException()) {#' + '<span class="k-icon k-i-non-recurrence"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '#}#' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' + '#}#' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-60-right"></span>' + '#}#' + '</span>' + '# if(resizable && !data.tail && !data.middle) {#' + '<span class="k-resize-handle k-resize-w"></span>' + '#}#' + '# if(resizable && !data.head && !data.middle) {#' + '<span class="k-resize-handle k-resize-e"></span>' + '#}#' + '</div>', EVENT_TEMPLATE = kendo.template('<div title="#=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template">#:title#</div>' + '</div>');
+        var kendo = window.kendo, ui = kendo.ui, SchedulerView = ui.SchedulerView, NS = '.kendoMonthView', extend = $.extend, getDate = kendo.date.getDate, MS_PER_DAY = kendo.date.MS_PER_DAY, NUMBER_OF_ROWS = 6, NUMBER_OF_COLUMNS = 7, INVERSE_COLOR_CLASS = 'k-event-inverse', DAY_TEMPLATE = kendo.template('<span class="k-link k-nav-day">#:kendo.toString(date, "dd")#</span>'), EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" data-#=ns#uid="#=uid#"' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' + 'class="k-event"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-60-left"></span>' + '#}#' + '# if(data.isException()) {#' + '<span class="k-icon k-i-non-recurrence"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '#}#' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' + '#}#' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-60-right"></span>' + '#}#' + '</span>' + '# if(resizable && !data.tail && !data.middle) {#' + '<span class="k-resize-handle k-resize-w"></span>' + '#}#' + '# if(resizable && !data.head && !data.middle) {#' + '<span class="k-resize-handle k-resize-e"></span>' + '#}#' + '</div>', EVENT_TEMPLATE = kendo.template('<div title="#=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template">#:title#</div>' + '</div>');
         var MORE_BUTTON_TEMPLATE = kendo.template('<div style="width:#=width#px;left:#=left#px;top:#=top#px" class="k-more-events k-button"><span>...</span></div>');
         var MonthGroupedView = kendo.Class.extend({
             init: function (view) {
@@ -177,6 +177,9 @@
                     width: range.innerWidth() - (startSlot.index !== endSlot.index ? 5 : 4)
                 });
                 hint.addClass('k-event-drag-hint');
+                if (event.inverseColor) {
+                    hint.addClass(INVERSE_COLOR_CLASS);
+                }
                 view._appendMoveHint(hint);
             }
         });
@@ -386,6 +389,9 @@
                         width: slot.offsetWidth - 2
                     });
                     hint.addClass('k-event-drag-hint');
+                    if (event.inverseColor) {
+                        hint.addClass(INVERSE_COLOR_CLASS);
+                    }
                     view._appendMoveHint(hint);
                 }
             }
@@ -775,7 +781,7 @@
                 event.resizable = editable && editable.resize !== false && !isMobile;
                 event.ns = kendo.ns;
                 event.resources = this.eventResources(event);
-                event.inverseColor = event.resources && event.resources[0] ? this._shouldInverseResourceColor(event.resources[0]) : false;
+                event.inverseColor = false;
                 event.messages = options.messages || { destroy: 'Delete' };
                 var element = $(this.eventTemplate(event));
                 this.angular('compile', function () {
@@ -893,6 +899,7 @@
                         end: slotRange.end
                     });
                     element.appendTo(this.content);
+                    this._inverseEventColor(element);
                 }
             },
             _slotByPosition: function (x, y) {

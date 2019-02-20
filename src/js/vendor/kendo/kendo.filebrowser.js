@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -302,17 +302,20 @@
                 return fieldName(this.dataSource.reader.model.fields, name);
             },
             _fileUpload: function (e) {
-                var that = this, options = that.options, fileTypes = options.fileTypes, filterRegExp = new RegExp(('(' + fileTypes.split(',').join(')|(') + ')').replace(/\*\./g, '.*.'), 'i'), fileName = e.files[0].name, fileNameField = NAMEFIELD, sizeField = SIZEFIELD, file;
+                var that = this, options = that.options, fileTypes = options.fileTypes, filterRegExp = new RegExp(('(' + fileTypes.split(',').join(')|(') + ')').replace(/\*\./g, '.*.'), 'i'), fileName = e.files[0].name, fileSize = e.files[0].size, fileNameField = NAMEFIELD, sizeField = SIZEFIELD, file;
                 if (filterRegExp.test(fileName)) {
                     e.data = { path: that.path() };
-                    file = that._createFile(fileName);
+                    file = that._createFile(fileName, fileSize);
                     if (!file) {
                         e.preventDefault();
                     } else {
                         that.upload.one('success', function (e) {
                             var model = that._insertFileToList(file);
-                            model.set(fileNameField, e.response[that._getFieldName(fileNameField)]);
-                            model.set(sizeField, e.response[that._getFieldName(sizeField)]);
+                            if (model._override) {
+                                model.set(fileNameField, e.response[that._getFieldName(fileNameField)]);
+                                model.set(sizeField, e.response[that._getFieldName(sizeField)]);
+                                that.listView.dataSource.pushUpdate(model);
+                            }
                             that._tiles = that.listView.items().filter('[' + kendo.attr('type') + '=f]');
                         });
                     }
@@ -332,7 +335,7 @@
                 }
                 return result;
             },
-            _createFile: function (fileName) {
+            _createFile: function (fileName, fileSize) {
                 var that = this, model = {}, typeField = TYPEFIELD, file = that._findFile(fileName);
                 if (file) {
                     if (!that._showMessage(kendo.format(that.options.messages.overwriteFile, fileName), 'confirm')) {
@@ -344,7 +347,7 @@
                 }
                 model[typeField] = 'f';
                 model[NAMEFIELD] = fileName;
-                model[SIZEFIELD] = 0;
+                model[SIZEFIELD] = fileSize;
                 return model;
             },
             _insertFileToList: function (model) {
@@ -372,13 +375,13 @@
                 model.set(typeField, 'd');
                 model.set(nameField, name);
                 that.listView.one('dataBound', function () {
-                    var selected = that.listView.items().filter('[' + kendo.attr('uid') + '=' + model.uid + ']'), input = selected.find('input');
+                    var selected = that.listView.items().filter('[' + kendo.attr('uid') + '=' + model.uid + ']');
                     if (selected.length) {
                         this.edit(selected);
                     }
                     this.element.scrollTop(selected.attr('offsetTop') - this.element[0].offsetHeight);
                     setTimeout(function () {
-                        input.select();
+                        that.listView.element.find('.k-edit-item input').select();
                     });
                 }).one('save', function (e) {
                     var value = e.model.get(nameField);

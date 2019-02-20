@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -144,10 +144,10 @@
                 }
             },
             _fileUpload: function (e) {
-                var that = this, options = that.options, fileTypes = options.fileTypes, filterRegExp = new RegExp(('(' + fileTypes.split(',').join(')|(') + ')').replace(/\*\./g, '.*.'), 'i'), fileName = e.files[0].name, fileNameField = NAMEFIELD, sizeField = SIZEFIELD, file;
+                var that = this, options = that.options, fileTypes = options.fileTypes, filterRegExp = new RegExp(('(' + fileTypes.split(',').join(')|(') + ')').replace(/\*\./g, '.*.'), 'i'), fileName = e.files[0].name, fileSize = e.files[0].size, fileNameField = NAMEFIELD, sizeField = SIZEFIELD, file;
                 if (filterRegExp.test(fileName)) {
                     e.data = { path: that.path() };
-                    file = that._createFile(fileName);
+                    file = that._createFile(fileName, fileSize);
                     if (!file) {
                         e.preventDefault();
                     } else {
@@ -155,8 +155,11 @@
                         that.upload.one('success', function (e) {
                             delete file._uploading;
                             var model = that._insertFileToList(file);
-                            model.set(fileNameField, e.response[that._getFieldName(fileNameField)]);
-                            model.set(sizeField, e.response[that._getFieldName(sizeField)]);
+                            if (model._override) {
+                                model.set(fileNameField, e.response[that._getFieldName(fileNameField)]);
+                                model.set(sizeField, e.response[that._getFieldName(sizeField)]);
+                                that.listView.dataSource.pushUpdate(model);
+                            }
                             that._tiles = that.listView.items().filter('[' + kendo.attr('type') + '=f]');
                             that._scroll();
                         });

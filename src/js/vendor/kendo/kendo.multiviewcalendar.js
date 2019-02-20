@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -71,7 +71,6 @@
             destroy: function () {
                 var that = this;
                 Widget.fn.destroy.call(that);
-                that.element.off();
                 that.userEvents.destroy();
                 that._lastActive = that.element = that.userEvents = that._start = that._end = null;
             },
@@ -311,7 +310,10 @@
                     viewName: options.start,
                     value: options.value
                 });
-                that._range = options.range;
+                that._range = options.range || {
+                    start: null,
+                    end: null
+                };
                 that._restoreSelection();
             },
             destroy: function () {
@@ -890,7 +892,6 @@
                 var options = that.options;
                 var index = calendar.viewsEnum[viewOptions.viewName];
                 var currentView = calendar.views[index];
-                var visibleViews;
                 var viewDate;
                 that._current = new DATE(+calendar.restrictValue(viewOptions.value, options.min, options.max));
                 that._views = [];
@@ -904,7 +905,6 @@
                     if (!that._canRenderNextView(viewDate)) {
                         break;
                     }
-                    visibleViews = i + 1;
                     that._table = $(currentView.content($.extend({
                         min: options.min,
                         max: options.max,

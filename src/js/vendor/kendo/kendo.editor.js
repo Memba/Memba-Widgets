@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -529,7 +529,7 @@
                     editor.toolbar.decorateFrom(doc.body);
                 });
                 doc.open();
-                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (browser.msie || browser.edge || browser.chrome ? 'height:auto;' : '') + (os.ios ? 'word-break:break-all;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + '.k-placeholder{color:grey}' + 'k\\:script{display:none;}' + '</style>' + domainScript + $.map(stylesheets, function (href) {
+                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (browser.msie || browser.edge || browser.chrome ? 'height:auto;' : '') + (os.ios ? 'word-break:keep-all;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + '.k-placeholder{color:grey}' + 'k\\:script{display:none;}' + '</style>' + domainScript + $.map(stylesheets, function (href) {
                     return '<link rel=\'stylesheet\' href=\'' + href + '\'>';
                 }).join('') + '</head><body autocorrect=\'off\' contenteditable=\'true\'></body></html>');
                 doc.close();
@@ -5501,7 +5501,6 @@
                     open: function (e) {
                         var picker = e.sender;
                         that.storedRange = editor.getRange();
-                        picker.value(null);
                         picker._popup.element.on(MOUSEDOWN_NS, function (e) {
                             if (!$(e.target).is('input.k-color-value')) {
                                 e.preventDefault();
@@ -5521,6 +5520,9 @@
                     },
                     activate: function (e) {
                         e.preventDefault();
+                        if (e.sender._value.toCssRgba() === 'rgba(255, 255, 255, 0)') {
+                            return;
+                        }
                         ui.trigger('change');
                     }
                 });
@@ -5528,6 +5530,7 @@
                     title: initOptions.title,
                     unselectable: 'on'
                 }).find('*:not(input)').attr('unselectable', 'on');
+                ui.value('transparent');
             }
         });
         extend(Editor, {
@@ -9204,7 +9207,7 @@
             _convertToLi: function (p) {
                 var content, name = dom.name(p);
                 if (p.childNodes.length == 1) {
-                    content = p.firstChild.innerHTML.replace(/^\w+[\.\)](&nbsp;)+ /, '');
+                    content = p.firstChild.nodeType === dom.nodeTypes.TEXT_NODE ? dom.innerText(p) : p.firstChild.innerHTML.replace(/^\w+[\.\)](&nbsp;)+ /, '');
                 } else {
                     dom.remove(p.firstChild);
                     if (p.firstChild.nodeType == 3) {
@@ -9420,7 +9423,7 @@
                     html = Cleaner.fn.clean.call(that, html, this.junkReplacements);
                     html = that.stripEmptyAnchors(html);
                 } else {
-                    html = this.extractListLevels(html);
+                    html = filters.msConvertLists ? this.extractListLevels(html) : html;
                     html = Cleaner.fn.clean.call(that, html);
                     html = that.stripEmptyAnchors(html);
                     placeholder = dom.create(document, 'div', { innerHTML: html });
@@ -9957,6 +9960,10 @@
                 var start = range.startContainer;
                 var end = range.endContainer;
                 range.deleteContents();
+                if (end.tagName.toLocaleLowerCase() === 'li' && dom.emptyNode(end)) {
+                    range.selectNode(end);
+                    range.deleteContents();
+                }
                 if (table && $(table).text() === '') {
                     range.selectNode(table);
                     range.deleteContents();

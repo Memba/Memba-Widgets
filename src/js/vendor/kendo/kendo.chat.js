@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,7 @@
         var MESSAGE_GROUP_TEMPLATE = kendo.template('<div #:text# class="#=styles.messageGroup# #= url ? "" : styles.noAvatar #">' + '<p class="#=styles.author#">#:text#</p>' + '# if (url) { #' + '<img src="#=url#" alt="#:text#" class="#=styles.avatar#">' + '# } #' + '</div>');
         var SELF_MESSAGE_GROUP_TEMPLATE = kendo.template('<div me class="#=styles.messageGroup# #=styles.self# #= url ? "" : styles.noAvatar #">' + '# if (url) { #' + '<img src="#=url#" alt="#:text#" class="#=styles.avatar#">' + '# } #' + '</div>');
         var TEXT_MESSAGE_TEMPLATE = kendo.template('<div class="#=styles.message#">' + '<time class="#=styles.messageTime#">#= kendo.toString(kendo.parseDate(timestamp), "HH:mm:ss") #</time>' + '<div class="#=styles.bubble#">#:text#</div>' + '</div>');
-        var TYPING_INDICATOR_TEMPLATE = kendo.template('<div class="#=styles.message#">' + '<div class="#=styles.bubble#">' + '<div class="#=styles.typingIndicator#">' + '<span></span><span></span><span></span>' + '</div>' + '</div>' + '</div>');
+        var TYPING_INDICATOR_TEMPLATE = kendo.template('<div class="#=styles.messageListContent# #=styles.typingIndicatorBubble#">' + '<p class="#=styles.author#">#:text#</p>' + '<div class="#=styles.message#">' + '<div class="#=styles.bubble#">' + '<div class="#=styles.typingIndicator#">' + '<span></span><span></span><span></span>' + '</div>' + '</div>' + '</div>' + '</div>');
         var SUGGESTED_ACTIONS_TEMPLATE = kendo.template('<div class="#=styles.suggestedActions#">' + '# for (var i = 0; i < suggestedActions.length; i++) { #' + '<span class="#=styles.suggestedAction#" data-value="#:suggestedActions[i].value#">#:suggestedActions[i].title#</span>' + '# } #' + '</div>');
         var HERO_CARD_TEMPLATE = kendo.template('<div class="#=styles.card# #=styles.cardRich#">' + '# if (typeof images !== "undefined" && images.length > 0) { #' + '<img src="#:images[0].url#" alt="#:images[0].alt#" class="#=styles.cardImage#" />' + '# } #' + '<div class="#=styles.cardBody#">' + '# if (typeof title !== "undefined") { #' + '<h5 class="#=styles.cardTitle#">#:title#</h5>' + '# } #' + '# if (typeof subtitle !== "undefined") { #' + '<h6 class="#=styles.cardSubtitle#">#:subtitle#</h6>' + '# } #' + '# if (typeof text !== "undefined") { #' + '<p>#:text#</p>' + '# } #' + '</div>' + '# if (typeof buttons !== "undefined" && buttons.length > 0) { #' + '<div class="#=styles.cardActions# #=styles.cardActionsVertical#">' + '# for (var i = 0; i < buttons.length; i++) { #' + '<span class="#=styles.cardAction#"><span class="#=styles.button# #=styles.buttonPrimary#" data-value="#:buttons[i].value#">#:buttons[i].title#</span></span>' + '# } #' + '</div>' + '# } #' + '</div>');
         kendo.chat = {
@@ -112,6 +112,7 @@
             scrollButtonIconLeft: 'k-i-arrow-chevron-left',
             scrollButtonIconRight: 'k-i-arrow-chevron-right',
             typingIndicator: 'k-typing-indicator',
+            typingIndicatorBubble: 'k-typing-indicator-bubble',
             bubble: 'k-bubble',
             suggestedActions: 'k-quick-replies',
             suggestedAction: 'k-quick-reply',
@@ -135,11 +136,18 @@
                 Widget.fn.init.call(this, element, options);
                 this._list();
                 this._lastSender = null;
+                this.typingParticipants = [];
                 this._attachEvents();
                 this._scrollable();
             },
             events: [],
-            options: {},
+            options: {
+                messages: {
+                    isTyping: ' is typing.',
+                    areTyping: ' are typing.',
+                    and: ' and '
+                }
+            },
             destroy: function () {
                 Widget.fn.destroy.call(this);
                 if (this._scrollDraggable) {
@@ -186,9 +194,16 @@
                 if (!message.timestamp) {
                     message.timestamp = new Date();
                 }
+                if (!message.text) {
+                    message.text = '';
+                }
                 var bubbleElement = this._renderTemplate(message.type, message);
-                this._renderBubble(bubbleElement, sender);
-                if (message.type !== 'typing') {
+                this._renderBubble(message.type, bubbleElement, sender);
+                if (message.type == 'typing') {
+                    if (this.typingParticipants.length > 0) {
+                        this._removeTypingParticipant(sender);
+                    }
+                } else {
                     this._lastSender = sender.id;
                 }
             },
@@ -219,18 +234,6 @@
                 var component = new componentType({}, this);
                 this.list.append(component.element);
                 this._scrollToBottom();
-            },
-            _removeTypingIndicator: function () {
-                var viewStyles = ChatView.styles;
-                var indicator = this.list.find(DOT + viewStyles.typingIndicator);
-                if (indicator.length) {
-                    var indicatorMessage = indicator.parents(DOT + viewStyles.message).first();
-                    var indicatorGroup = indicator.parents(DOT + viewStyles.messageGroup).first();
-                    indicatorMessage.remove();
-                    if (!indicatorGroup.find(DOT + viewStyles.message).length && !indicatorGroup.find(DOT + viewStyles.cardDeck).length && !indicatorGroup.find(DOT + viewStyles.cardWrapper).length) {
-                        indicatorGroup.remove();
-                    }
-                }
             },
             _renderAttachmentWrapper: function (layout) {
                 var viewStyles = ChatView.styles;
@@ -275,11 +278,11 @@
                 var text = $(e.target).data('value') || '';
                 this.trigger('actionClick', { text: text });
             },
-            _renderBubble: function (bubbleElement, sender) {
+            _renderBubble: function (messageType, bubbleElement, sender) {
                 this._removeSuggestedActions();
                 this._removeTypingIndicator();
-                var group = this._getMessageGroup(sender);
-                this._appendToGroup(group, bubbleElement);
+                var group = this._getMessageGroup(sender, messageType);
+                this._appendToGroup(group, bubbleElement, messageType);
                 this._scrollToBottom();
             },
             _renderTemplate: function (type, options) {
@@ -295,11 +298,12 @@
                 }
                 return element;
             },
-            _getMessageGroup: function (sender) {
+            _getMessageGroup: function (sender, messageType) {
                 var viewStyles = ChatView.styles;
-                var template = this._getMessageGroupTemplate(sender);
+                var template = this._getMessageGroupTemplate(sender, messageType);
+                var appendTarget = messageType == 'typing' ? this.element : this.list;
                 var group;
-                if (sender.id === this._lastSender && this._lastSender !== null) {
+                if (sender.id === this._lastSender && this._lastSender !== null && messageType !== 'typing') {
                     group = this.list.find(DOT + viewStyles.messageGroup).last();
                     if (group.length) {
                         return group;
@@ -309,21 +313,89 @@
                     text: sender.name,
                     url: sender.iconUrl,
                     styles: viewStyles
-                })).appendTo(this.list);
+                })).appendTo(appendTarget);
             },
-            _getMessageGroupTemplate: function (sender) {
+            _getMessageGroupTemplate: function (sender, messageType) {
                 var isOwnMessage = sender.id === this.options.user.id;
                 var template = isOwnMessage ? SELF_MESSAGE_GROUP_TEMPLATE : MESSAGE_GROUP_TEMPLATE;
+                if (messageType == 'typing') {
+                    template = TYPING_INDICATOR_TEMPLATE;
+                }
                 return template;
             },
-            _appendToGroup: function (group, messageElement) {
+            _appendToGroup: function (group, messageElement, messageType) {
                 var viewStyles = ChatView.styles;
                 var children = group.find(DOT + viewStyles.message);
                 var childrenCount = children.length;
+                var indicator = this.element.find(DOT + viewStyles.typingIndicator);
+                if (indicator.length && messageType == 'typing') {
+                    return;
+                }
                 messageElement.addClass(childrenCount === 0 ? viewStyles.only : viewStyles.last);
                 children.filter(DOT + viewStyles.only).removeClass(viewStyles.only).addClass(viewStyles.first);
                 children.filter(DOT + viewStyles.last).removeClass(viewStyles.last).addClass(viewStyles.middle);
                 group.append(messageElement);
+            },
+            _renderTypingIndicator: function (sender) {
+                var indicator = this.element.find(DOT + viewStyles.typingIndicatorBubble), indicatorList, participants;
+                this._addTypingParticipant(sender);
+                if (indicator.length) {
+                    participants = this._composeTypingParticipantsText(this.typingParticipants);
+                    indicatorList = indicator.find(DOT + viewStyles.author).first();
+                    indicatorList.text(participants);
+                } else {
+                    $(TYPING_INDICATOR_TEMPLATE({
+                        text: sender.name + this.options.messages.isTyping,
+                        styles: viewStyles
+                    })).appendTo(this.element);
+                }
+                this._scrollToBottom();
+            },
+            _addTypingParticipant: function (sender) {
+                var found = false;
+                for (var i = 0; i < this.typingParticipants.length; i += 1) {
+                    if (this.typingParticipants[i].id == sender.id) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    this.typingParticipants.push(sender);
+                }
+            },
+            _removeTypingParticipant: function (sender) {
+                var indicator = this.element.find(DOT + viewStyles.typingIndicatorBubble), indicatorList, participants;
+                if (indicator.length) {
+                    for (var i = 0; i < this.typingParticipants.length; i += 1) {
+                        if (this.typingParticipants[i].id == sender.id) {
+                            this.typingParticipants.splice(i, 1);
+                        }
+                    }
+                    participants = this._composeTypingParticipantsText(this.typingParticipants);
+                    if (participants === '') {
+                        indicator.remove();
+                    } else {
+                        indicatorList = indicator.find(DOT + viewStyles.author).first();
+                        indicatorList.text(participants);
+                    }
+                }
+            },
+            _composeTypingParticipantsText: function (participants) {
+                var messages = this.options.messages, typingAction = participants.length == 1 ? messages.isTyping : messages.areTyping, typingText = '';
+                if (participants.length === 0) {
+                    return typingText;
+                }
+                typingText = this.typingParticipants.map(function (author) {
+                    return author.name;
+                }).join(', ').replace(/,(?!.*,)/gim, messages.and.trimRight()) + typingAction;
+                return typingText;
+            },
+            _removeTypingIndicator: function () {
+                var indicator = this.element.find(DOT + viewStyles.typingIndicatorBubble);
+                if (indicator.length) {
+                    this.typingParticipants = [];
+                    indicator.remove();
+                }
             },
             _clearSelection: function () {
                 var selectedClass = ChatView.styles.selected;
@@ -848,6 +920,15 @@
             },
             toggleToolbar: function (skipAnimation) {
                 this.toolbar.toggle(skipAnimation);
+            },
+            renderUserTypingIndicator: function (sender) {
+                this.view._renderTypingIndicator(sender);
+            },
+            clearUserTypingIndicator: function (sender) {
+                this.view._removeTypingParticipant(sender);
+            },
+            removeTypingIndicator: function () {
+                this.view._removeTypingIndicator();
             }
         });
         kendo.ui.plugin(Chat);

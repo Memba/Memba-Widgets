@@ -412,6 +412,11 @@
 @import "themes/button.less";
 @import "Default/card/theme.less";
 @import "Default/chat/theme.less";
+@import "Default/calendar/_theme.less";
+@import "Default/multiviewcalendar/_theme.less";
+@import "Default/scrollview/_theme.less";
+@import "Default/switch/_theme.less";
+
 
 .k-in,
 .k-item
@@ -1068,9 +1073,14 @@ td.k-state-focused.k-state-selected
 
 .k-state-selected>.k-link,
 .k-panelbar > li > .k-state-selected,
-.k-panelbar>li.k-state-default>.k-link.k-state-selected
-{
+.k-panelbar .k-item .k-link.k-state-selected,
+.k-panelbar>li.k-state-default>.k-link.k-state-selected {
     color: @selected-text-color;
+    background-color: @selected-background-color;
+
+    &:hover {
+        background-color: @primary-hover-background-color;
+    }
 }
 
 .k-state-hover,
@@ -2166,9 +2176,7 @@ html .km-pane-wrapper .km-widget,
 }
 
 .k-tabstrip-items .k-state-hover .k-link,
-.k-panelbar > li.k-state-hover > .k-link,
-.k-panelbar>li.k-state-default>.k-link.k-state-hover
-{
+.k-panelbar > li.k-state-hover > .k-link {
     color: @hover-text-color;
 }
 
@@ -2594,6 +2602,8 @@ div.k-window.k-state-focused
 .k-list > .k-state-selected,
 .k-drag-clue.k-state-selected,
 .k-group > .k-item > .k-state-selected,
+.k-group > .k-item > .k-link.k-state-selected,
+.k-group > .k-item > .k-link.k-state-selected.k-state-hover,
 .k-gantt .k-treelist .k-state-selected,
 .k-gantt .k-treelist .k-state-selected td,
 .k-gantt .k-treelist .k-alt.k-state-selected,
@@ -3149,6 +3159,10 @@ div.k-window.k-state-focused
 
 @import "themes/spreadsheet.less";
 
+.k-spreadsheet-name-editor .k-select {
+    background-color: @button-hover-background-color;
+}
+
 @spreadsheet-cell-border: darken(@background, 13%);
 
 .k-window .k-popup-edit-form .k-edit-field {
@@ -3467,9 +3481,3 @@ div.k-window.k-state-focused
         border-spacing: 1px;
     }
 }
-
-
-@import "Default/calendar/_theme.less";
-@import "Default/multiviewcalendar/_theme.less";
-@import "Default/scrollview/_theme.less";
-@import "Default/switch/_theme.less";

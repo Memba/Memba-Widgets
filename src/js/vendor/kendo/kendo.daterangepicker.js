@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -119,6 +119,11 @@
             }
             return handled;
         };
+        DateRangeView.prototype._click = function (e) {
+            if (this._range && this._range.end === null && e.currentTarget.className.indexOf('k-state-selected') !== -1) {
+                this.close();
+            }
+        };
         kendo.DateRangeView = DateRangeView;
         var DateRangePicker = Widget.extend({
             init: function (element, options) {
@@ -214,6 +219,7 @@
                 options = that.options;
                 options.min = parse(options.min);
                 options.max = parse(options.max);
+                that._inputs.off(ns);
                 this._initializeDateInputs();
                 that.dateView.setOptions(options);
                 that._range = options.range;
@@ -303,6 +309,9 @@
                 if (that._startDateInput) {
                     that._startDateInput.destroy();
                     that._endDateInput.destroy();
+                    that.wrapper.empty();
+                    that._buildHTML();
+                    that._inputs.on(UP + ns, proxy(that._click, that)).on('keydown' + ns, proxy(that._keydown, that));
                 }
                 that._startDateInput = that._startInput.kendoDateInput(extend(true, inputOptions, { value: range.start })).getKendoDateInput();
                 that._endDateInput = that._endInput.kendoDateInput(extend(true, inputOptions, { value: range.end })).getKendoDateInput();
@@ -314,7 +323,9 @@
             _buildHTML: function () {
                 var that = this;
                 var element = that.element;
-                that.wrapper = element.addClass('k-widget k-daterangepicker');
+                if (!that.wrapper) {
+                    that.wrapper = element.addClass('k-widget k-daterangepicker');
+                }
                 if (that.options.labels) {
                     $('<span class="k-textbox-container"><input/><label class="k-label">' + that.options.messages.startLabel + '</label></span>').appendTo(that.wrapper);
                     $('<span>&nbsp;</span><span class="k-textbox-container"><input/><label class="k-label">' + that.options.messages.endLabel + '</label></span>').appendTo(that.wrapper);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2019.1.115'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2019.1.220'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1296,9 +1296,9 @@
         function wrap(element, autosize) {
             var browser = support.browser, percentage, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight;
             if (!element.parent().hasClass('k-animation-container')) {
-                var width = element[0].style.width, height = element[0].style.height, percentWidth = percentRegExp.test(width), percentHeight = percentRegExp.test(height);
+                var width = element[0].style.width, height = element[0].style.height, percentWidth = percentRegExp.test(width), percentHeight = percentRegExp.test(height), forceWidth = element.hasClass('k-tooltip') || element.is('.k-menu-horizontal.k-context-menu');
                 percentage = percentWidth || percentHeight;
-                if (!percentWidth && (!autosize || autosize && width || element.hasClass('k-tooltip'))) {
+                if (!percentWidth && (!autosize || autosize && width || forceWidth)) {
                     width = autosize ? outerWidth(element) + 1 : outerWidth(element);
                 }
                 if (!percentHeight && (!autosize || autosize && height)) {
@@ -8113,7 +8113,7 @@
                 if (that._isServerGrouped()) {
                     wrapGroupItems(data, model);
                 }
-                if (that._changeHandler && that._data && that._data instanceof ObservableArray) {
+                if (that._changeHandler && that._data && that._data instanceof ObservableArray && !(that.options.useRanges && that.options.serverPaging)) {
                     that._data.unbind(CHANGE, that._changeHandler);
                 } else {
                     that._changeHandler = proxy(that._change, that);
@@ -8727,17 +8727,23 @@
             },
             _removeModelFromRanges: function (model) {
                 var that = this;
-                var result, range;
+                var range;
                 for (var idx = 0, length = this._ranges.length; idx < length; idx++) {
                     range = this._ranges[idx];
-                    this._eachItem(range.data, function (items) {
-                        result = removeModel(items, model);
-                    });
-                    if (result) {
-                        break;
-                    }
+                    that._removeModelFromRange(range, model);
                 }
                 that._updateRangesLength();
+            },
+            _removeModelFromRange: function (range, model) {
+                this._eachItem(range.data, function (data) {
+                    for (var idx = 0; idx < data.length; idx++) {
+                        var dataItem = data[idx];
+                        if (dataItem.uid && dataItem.uid == model.uid) {
+                            [].splice.call(data, idx, 1);
+                            break;
+                        }
+                    }
+                });
             },
             _insertModelInRange: function (index, model) {
                 var that = this;
@@ -10386,7 +10392,7 @@
                 },
                 value: function () {
                     var element = this.element, value = element.value;
-                    if (value == 'on' || value == 'off') {
+                    if (value == 'on' || value == 'off' || this.element.type == 'checkbox') {
                         value = element.checked;
                     }
                     return value;
@@ -11362,6 +11368,13 @@
                 }
                 input.toggleClass(INVALIDINPUT, !valid);
                 input.toggleClass(VALIDINPUT, valid);
+                if (kendo.widgetInstance(input)) {
+                    var inputWrap = kendo.widgetInstance(input)._inputWrapper;
+                    if (inputWrap) {
+                        inputWrap.toggleClass(INVALIDINPUT, !valid);
+                        inputWrap.toggleClass(INVALIDINPUT, !valid);
+                    }
+                }
                 return valid;
             },
             hideMessages: function () {
@@ -19085,7 +19098,7 @@
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.mobile.ui, outerWidth = kendo._outerWidth, Widget = ui.Widget, support = kendo.support, CHANGE = 'change', SWITCHON = 'switch-on', SWITCHOFF = 'switch-off', MARGINLEFT = 'margin-left', ACTIVE_STATE = 'state-active', DISABLED_STATE = 'state-disabled', DISABLED = 'disabled', RESOLVEDPREFIX = support.transitions.css === undefined ? '' : support.transitions.css, TRANSFORMSTYLE = RESOLVEDPREFIX + 'transform', proxy = $.proxy;
         function className(name) {
-            return 'k-' + name + ' km-' + name;
+            return 'km-' + name;
         }
         function limitValue(value, minLimit, maxLimit) {
             return Math.max(minLimit, Math.min(maxLimit, value));
@@ -19983,7 +19996,8 @@
             TreeView: 'ul',
             Menu: 'ul',
             ContextMenu: 'ul',
-            ActionSheet: 'ul'
+            ActionSheet: 'ul',
+            Switch: 'input'
         };
         var SKIP_SHORTCUTS = [
             'MobileView',

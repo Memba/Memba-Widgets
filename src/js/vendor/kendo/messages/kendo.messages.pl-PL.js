@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -406,7 +406,7 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
 if (kendo.ui.Scheduler) {
 kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
-  "allDay": "all day",
+  "allDay": "cały dzień",
   "cancel": "Anuluj",
   "editable": {
     "confirmation": "Are you sure you want to delete this event?"
@@ -450,9 +450,9 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "week": "Week",
     "workWeek": "Work Week"
   },
-  "deleteWindowTitle": "Delete event",
-  "showFullDay": "Show full day",
-  "showWorkDay": "Show business hours"
+  "deleteWindowTitle": "Usuń wydarzenie",
+  "showFullDay": "Pokaż cały dzień",
+  "showWorkDay": "Pokaż godziny robocze"
 });
 }
 

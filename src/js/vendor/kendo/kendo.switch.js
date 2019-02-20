@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -44,7 +44,7 @@
                 disabled: 'k-state-disabled',
                 readonly: 'k-state-readonly',
                 active: 'k-state-active'
-            }, DISABLED = 'disabled', ARIA_DISABLED = 'aria-disabled', READONLY = 'readonly', ARIA_READONLY = 'aria-readonly', ARIA_CHECKED = 'aria-checked', CHECKED = 'checked', CLICK = support.click + NS, KEYDOWN = 'keydown' + NS, LABELIDPART = '_label', proxy = $.proxy;
+            }, DISABLED = 'disabled', ARIA_DISABLED = 'aria-disabled', READONLY = 'readonly', ARIA_READONLY = 'aria-readonly', ARIA_CHECKED = 'aria-checked', CHECKED = 'checked', CLICK = support.click + NS, TOUCHEND = support.pointers ? 'pointerup' : 'touchend', KEYDOWN = 'keydown' + NS, LABELIDPART = '_label', proxy = $.proxy;
         var SWITCH_TEMPLATE = kendo.template('<span class="#=styles.widget#" role="switch"></span>');
         var SWITCH_CONTAINER_TEMPLATE = kendo.template('<span class=\'#=styles.container#\'>' + '<span class=\'#=styles.checkedLabel#\'>#=checked#</span>' + '<span class=\'#=styles.uncheckedLabel#\'>#=unchecked#</span>' + '<span class=\'#=styles.handle#\'></span>' + '</span>');
         var Switch = Widget.extend({
@@ -61,7 +61,7 @@
                     checked: options.messages.checked,
                     unchecked: options.messages.unchecked
                 })));
-                that.wrapper.on(CLICK, proxy(that._click, that)).on(KEYDOWN, proxy(that._keydown, that));
+                that.wrapper.on(CLICK, proxy(that._click, that)).on(TOUCHEND, proxy(that._touchEnd, that)).on(KEYDOWN, proxy(that._keydown, that));
                 if (that.options.enabled) {
                     that._tabindex();
                 }
@@ -147,8 +147,11 @@
                     that.element.removeAttr(CHECKED);
                 }
             },
-            value: function () {
-                return this.check.apply(this, arguments);
+            value: function (value) {
+                if (typeof value === 'string') {
+                    value = value === 'true';
+                }
+                return this.check.apply(this, [value]);
             },
             destroy: function () {
                 Widget.fn.destroy.call(this);
@@ -189,24 +192,32 @@
                 wrapper.toggleClass(switchStyles.readonly, readonly);
             },
             _check: function () {
-                var that = this, checked = !that.element[0].checked;
+                var that = this, checked = that.element[0].checked = !that.element[0].checked;
                 that.wrapper.focus();
                 if (!that.options.enabled || that.options.readonly || that.trigger(CHANGE, { checked: checked })) {
+                    that.element[0].checked = !checked;
                     return;
                 }
                 that.check(checked);
             },
             _keydown: function (e) {
-                var that = this;
                 if (e.keyCode === kendo.keys.SPACEBAR) {
-                    that._check();
+                    this._check();
                     e.preventDefault();
                 }
             },
+            _isTouch: function (event) {
+                return /touch/.test(event.type) || event.originalEvent && /touch/.test(event.originalEvent.pointerType);
+            },
             _click: function (e) {
-                var that = this;
-                if (e.which === 1) {
-                    that._check();
+                if (!this._isTouch(e) && e.which === 1) {
+                    this._check();
+                }
+            },
+            _touchEnd: function (e) {
+                if (this._isTouch(e)) {
+                    this._check();
+                    e.preventDefault();
                 }
             }
         });

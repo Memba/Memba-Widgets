@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -116,6 +116,16 @@ $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
   "lock": "Заблокировать",
   "unlock": "Разблокировать",
   "filter": "Фильтровать"
+});
+}
+
+/* DateRangePicker messages */
+
+if (kendo.ui.DateRangePicker) {
+kendo.ui.DateRangePicker.prototype.options.messages =
+$.extend(true, kendo.ui.DateRangePicker.prototype.options.messages,{
+  "startLabel": "Начало",
+  "endLabel": "Конец"
 });
 }
 

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -32,20 +32,18 @@
             if (element.closest) {
                 return element.closest(selector);
             }
-            var matches = (element.document || element.ownerDocument).querySelectorAll(selector);
+            var matches = Element.prototype.matches ? function (el, sel) {
+                return el.matches(sel);
+            } : function (el, sel) {
+                return el.msMatchesSelector(sel);
+            };
             var node = element;
-            var i = 0;
-            do {
-                i = matches.length - 1;
-                while (i >= 0 && matches.item(i) !== node) {
-                    i -= 1;
-                }
-                if (i < 0) {
-                    break;
+            while (node) {
+                if (matches(node, selector)) {
+                    return node;
                 }
                 node = node.parentElement;
-            } while (node);
-            return node;
+            }
         };
         var createRipple = function (doc) {
             var ripple = doc.createElement('div');
@@ -123,7 +121,11 @@
                 var dy = top - yMax;
                 var size = 2 * Math.sqrt(dx * dx + dy * dy);
                 var duration = 500;
-                blob.style.cssText = '\n    transform: translate(-50%, -50%) scale(1);\n    width: ' + size + 'px;\n    height: ' + size + 'px;\n    left: ' + left + 'px;\n    top: ' + top + 'px;\n  ';
+                blob.style.width = blob.style.height = size + 'px';
+                if (blob.offsetWidth < 0) {
+                    throw new Error('Inconceivable!');
+                }
+                blob.style.cssText = '\n    width: ' + size + 'px;\n    height: ' + size + 'px;\n    transform: translate(-50%, -50%) scale(1);\n    left: ' + left + 'px;\n    top: ' + top + 'px;\n  ';
                 setTimeout(function () {
                     return finishAnimation(state);
                 }, duration);
@@ -178,6 +180,7 @@
                 });
                 return {
                     events: events,
+                    options: options,
                     activator: activator
                 };
             }));
@@ -185,12 +188,14 @@
                 if (!root) {
                     return;
                 }
-                handlers.forEach(function (_a) {
-                    var events = _a.events, activator = _a.activator;
-                    return events.forEach(function (evt) {
-                        return root.removeEventListener(evt, activator, false);
+                var removeListener = function (_a) {
+                    var events = _a.events, options = _a.options, activator = _a.activator;
+                    var container = options.global ? document.body : root;
+                    events.forEach(function (evt) {
+                        return container.removeEventListener(evt, activator, false);
                     });
-                });
+                };
+                handlers.forEach(removeListener);
                 root = null;
             };
         };

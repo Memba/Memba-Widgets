@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -291,6 +291,13 @@
                 }
                 input.toggleClass(INVALIDINPUT, !valid);
                 input.toggleClass(VALIDINPUT, valid);
+                if (kendo.widgetInstance(input)) {
+                    var inputWrap = kendo.widgetInstance(input)._inputWrapper;
+                    if (inputWrap) {
+                        inputWrap.toggleClass(INVALIDINPUT, !valid);
+                        inputWrap.toggleClass(INVALIDINPUT, !valid);
+                    }
+                }
                 return valid;
             },
             hideMessages: function () {

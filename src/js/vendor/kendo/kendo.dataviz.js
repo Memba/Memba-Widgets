@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2019.1.115'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2019.1.220'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1296,9 +1296,9 @@
         function wrap(element, autosize) {
             var browser = support.browser, percentage, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight;
             if (!element.parent().hasClass('k-animation-container')) {
-                var width = element[0].style.width, height = element[0].style.height, percentWidth = percentRegExp.test(width), percentHeight = percentRegExp.test(height);
+                var width = element[0].style.width, height = element[0].style.height, percentWidth = percentRegExp.test(width), percentHeight = percentRegExp.test(height), forceWidth = element.hasClass('k-tooltip') || element.is('.k-menu-horizontal.k-context-menu');
                 percentage = percentWidth || percentHeight;
-                if (!percentWidth && (!autosize || autosize && width || element.hasClass('k-tooltip'))) {
+                if (!percentWidth && (!autosize || autosize && width || forceWidth)) {
                     width = autosize ? outerWidth(element) + 1 : outerWidth(element);
                 }
                 if (!percentHeight && (!autosize || autosize && height)) {
@@ -8541,7 +8541,7 @@
                 if (that._isServerGrouped()) {
                     wrapGroupItems(data, model);
                 }
-                if (that._changeHandler && that._data && that._data instanceof ObservableArray) {
+                if (that._changeHandler && that._data && that._data instanceof ObservableArray && !(that.options.useRanges && that.options.serverPaging)) {
                     that._data.unbind(CHANGE, that._changeHandler);
                 } else {
                     that._changeHandler = proxy(that._change, that);
@@ -9155,17 +9155,23 @@
             },
             _removeModelFromRanges: function (model) {
                 var that = this;
-                var result, range;
+                var range;
                 for (var idx = 0, length = this._ranges.length; idx < length; idx++) {
                     range = this._ranges[idx];
-                    this._eachItem(range.data, function (items) {
-                        result = removeModel(items, model);
-                    });
-                    if (result) {
-                        break;
-                    }
+                    that._removeModelFromRange(range, model);
                 }
                 that._updateRangesLength();
+            },
+            _removeModelFromRange: function (range, model) {
+                this._eachItem(range.data, function (data) {
+                    for (var idx = 0; idx < data.length; idx++) {
+                        var dataItem = data[idx];
+                        if (dataItem.uid && dataItem.uid == model.uid) {
+                            [].splice.call(data, idx, 1);
+                            break;
+                        }
+                    }
+                });
             },
             _insertModelInRange: function (index, model) {
                 var that = this;
@@ -10721,7 +10727,7 @@
                 },
                 value: function () {
                     var element = this.element, value = element.value;
-                    if (value == 'on' || value == 'off') {
+                    if (value == 'on' || value == 'off' || this.element.type == 'checkbox') {
                         value = element.checked;
                     }
                     return value;
@@ -14570,6 +14576,12 @@
             },
             _positionCallout: function () {
                 var that = this, position = that.options.position, dimensions = that.dimensions, offset = dimensions.offset, popup = that.popup, anchor = popup.options.anchor, anchorOffset = $(anchor).offset(), elementOffset = $(popup.element).offset(), cssClass = DIRCLASSES[popup.flipped ? REVERSE[position] : position], offsetAmount = anchorOffset[offset] - elementOffset[offset] + $(anchor)[dimensions.size]() / 2;
+                this.popup.element.css('margin-top', '').css('margin-right', '').css('margin-bottom', '').css('margin-left', '');
+                if (position == 'top' || position == 'left') {
+                    this.popup.element.css('margin-' + position, -this.arrow.outerWidth() / 2 + 'px');
+                } else {
+                    this.popup.element.css('margin-' + REVERSE[position], this.arrow.outerWidth() / 2 + 'px');
+                }
                 that.arrow.removeClass('k-callout-n k-callout-s k-callout-w k-callout-e').addClass('k-callout-' + cssClass).css(offset, offsetAmount);
             },
             destroy: function () {
@@ -67562,6 +67574,9 @@
                 that._footer(that.footer);
                 that._index = views[that.options.start];
                 that.navigate();
+                if (options.weekNumber) {
+                    that.element.addClass('k-week-number');
+                }
             },
             destroy: function () {
                 var that = this, today = that._today;
@@ -68197,7 +68212,7 @@
             _navigate: function (arrow, modifier) {
                 var that = this, index = that._index + 1, currentValue = new DATE(+that._current);
                 if (that._isMultipleSelection()) {
-                    var firstDayCurrentMonth = that._table.find('td:not(.k-other-month)').has('.k-link').first();
+                    var firstDayCurrentMonth = that._table.find('td:not(.k-other-month):not(.k-out-of-range)').has('.k-link').first();
                     currentValue = toDateObject(firstDayCurrentMonth.find('a'));
                     that._current = new Date(+currentValue);
                 }
@@ -68848,6 +68863,7 @@
                         height: element[0].style.height
                     });
                 }
+                that._inputWrapper = $(that.wrapper[0]);
                 $('<span class=\'k-icon k-i-warning\'></span>').insertAfter(element);
                 that._form();
                 that.element.addClass(insidePicker ? ' ' : 'k-textbox').attr('autocomplete', 'off').on('focusout' + ns, function () {
@@ -69763,6 +69779,7 @@
             },
             _click: function (e) {
                 if (e.currentTarget.className.indexOf(SELECTED) !== -1) {
+                    this.calendar.trigger('change');
                     this.close();
                 }
             },
@@ -70188,6 +70205,9 @@
                 } else {
                     that.readonly(element.is('[readonly]'));
                 }
+                that.angular('compile', function () {
+                    return { elements: that._text.get() };
+                });
                 kendo.notify(that);
             },
             options: {
@@ -70418,7 +70438,6 @@
                 } catch (e) {
                     element.type = 'text';
                 }
-                that._initialTitle = element.title;
                 text[0].title = element.title;
                 text[0].tabIndex = element.tabIndex;
                 text[0].style.cssText = element.style.cssText;
@@ -70616,7 +70635,7 @@
                 if (!placeholderSupported && !value) {
                     input.val(this.options.placeholder);
                 }
-                input.attr('title', this._initialTitle || input.val());
+                input.attr('title', this.element.attr('title') || input.val());
             },
             _wrapper: function () {
                 var that = this, element = that.element, DOMElement = element[0], wrapper;
@@ -70930,6 +70949,13 @@
                 }
                 input.toggleClass(INVALIDINPUT, !valid);
                 input.toggleClass(VALIDINPUT, valid);
+                if (kendo.widgetInstance(input)) {
+                    var inputWrap = kendo.widgetInstance(input)._inputWrapper;
+                    if (inputWrap) {
+                        inputWrap.toggleClass(INVALIDINPUT, !valid);
+                        inputWrap.toggleClass(INVALIDINPUT, !valid);
+                    }
+                }
                 return valid;
             },
             hideMessages: function () {
@@ -73055,7 +73081,7 @@
                 return dataSource[force ? 'read' : 'query'](dataSource._mergeState(dataSourceState));
             },
             _pushFilterExpression: function (newExpression, filter) {
-                if (isValidFilterExpr(filter) && $.trim(filter.value).length) {
+                if (isValidFilterExpr(filter) && filter.value !== '') {
                     newExpression.filters.push(filter);
                 }
             },
@@ -73304,7 +73330,7 @@
                 if (that._isSelect && !that.listView.bound() && optionValue) {
                     value = optionValue;
                 }
-                if (value !== unifyType(that._old, typeof value)) {
+                if (value !== unifyType(that._old, typeof value) && value !== unifyType(that._oldText, typeof value)) {
                     trigger = true;
                 } else if (that._valueBeforeCascade !== undefined && that._valueBeforeCascade !== unifyType(that._old, typeof that._valueBeforeCascade) && that._userTriggered) {
                     trigger = true;
@@ -73322,6 +73348,7 @@
                         }
                     }
                     that._oldIndex = index;
+                    that._oldText = that.text && that.text();
                     if (!that._typing) {
                         that.element.trigger(CHANGE);
                     }
@@ -73781,6 +73808,7 @@
                         current = null;
                     }
                     var activeFilter = that.filterInput && that.filterInput[0] === activeElement();
+                    var selection;
                     if (current) {
                         dataItem = listView.dataItemByIndex(listView.getElementIndex(current));
                         var shouldTrigger = true;
@@ -73793,7 +73821,7 @@
                             })) {
                             return;
                         }
-                        that._select(current);
+                        selection = that._select(current);
                     } else if (that.input) {
                         if (that._syncValueAndText() || that._isSelect) {
                             that._accessor(that.input.val());
@@ -73806,7 +73834,13 @@
                     if (activeFilter && key === keys.TAB) {
                         that.wrapper.focusout();
                     } else {
-                        that._blur();
+                        if (selection && typeof selection.done === 'function') {
+                            selection.done(function () {
+                                that._blur();
+                            });
+                        } else {
+                            that._blur();
+                        }
                     }
                     that.close();
                     pressed = true;
@@ -74110,8 +74144,8 @@
                     }
                     endY = tapPosition(e);
                     if (Math.abs(endY - startY) < 10) {
-                        e.preventDefault();
-                        that.trigger('click', { item: $(e.target.closest(ITEMSELECTOR)) });
+                        that._touchTriggered = true;
+                        that._triggerClick($(e.target).closest(ITEMSELECTOR).get(0));
                     }
                 });
             },
@@ -74311,10 +74345,17 @@
                 return this.element.children(ITEMSELECTOR);
             },
             _click: function (e) {
+                if (this._touchTriggered) {
+                    this._touchTriggered = false;
+                    return;
+                }
                 if (!e.isDefaultPrevented()) {
-                    if (!this.trigger('click', { item: $(e.currentTarget) })) {
-                        this.select(e.currentTarget);
-                    }
+                    this._triggerClick(e.currentTarget);
+                }
+            },
+            _triggerClick: function (item) {
+                if (!this.trigger('click', { item: $(item) })) {
+                    this.select(item);
                 }
             },
             _valueExpr: function (type, values) {
@@ -76456,7 +76497,7 @@
                     that._fetchData();
                 }
                 listView.value(value).done(function () {
-                    that._old = that._accessor();
+                    that._old = that._valueBeforeCascade = that._accessor();
                     that._oldIndex = that.selectedIndex;
                 });
             },
@@ -82820,7 +82861,8 @@
             TreeView: 'ul',
             Menu: 'ul',
             ContextMenu: 'ul',
-            ActionSheet: 'ul'
+            ActionSheet: 'ul',
+            Switch: 'input'
         };
         var SKIP_SHORTCUTS = [
             'MobileView',

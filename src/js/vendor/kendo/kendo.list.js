@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -337,7 +337,7 @@
                 return dataSource[force ? 'read' : 'query'](dataSource._mergeState(dataSourceState));
             },
             _pushFilterExpression: function (newExpression, filter) {
-                if (isValidFilterExpr(filter) && $.trim(filter.value).length) {
+                if (isValidFilterExpr(filter) && filter.value !== '') {
                     newExpression.filters.push(filter);
                 }
             },
@@ -586,7 +586,7 @@
                 if (that._isSelect && !that.listView.bound() && optionValue) {
                     value = optionValue;
                 }
-                if (value !== unifyType(that._old, typeof value)) {
+                if (value !== unifyType(that._old, typeof value) && value !== unifyType(that._oldText, typeof value)) {
                     trigger = true;
                 } else if (that._valueBeforeCascade !== undefined && that._valueBeforeCascade !== unifyType(that._old, typeof that._valueBeforeCascade) && that._userTriggered) {
                     trigger = true;
@@ -604,6 +604,7 @@
                         }
                     }
                     that._oldIndex = index;
+                    that._oldText = that.text && that.text();
                     if (!that._typing) {
                         that.element.trigger(CHANGE);
                     }
@@ -1063,6 +1064,7 @@
                         current = null;
                     }
                     var activeFilter = that.filterInput && that.filterInput[0] === activeElement();
+                    var selection;
                     if (current) {
                         dataItem = listView.dataItemByIndex(listView.getElementIndex(current));
                         var shouldTrigger = true;
@@ -1075,7 +1077,7 @@
                             })) {
                             return;
                         }
-                        that._select(current);
+                        selection = that._select(current);
                     } else if (that.input) {
                         if (that._syncValueAndText() || that._isSelect) {
                             that._accessor(that.input.val());
@@ -1088,7 +1090,13 @@
                     if (activeFilter && key === keys.TAB) {
                         that.wrapper.focusout();
                     } else {
-                        that._blur();
+                        if (selection && typeof selection.done === 'function') {
+                            selection.done(function () {
+                                that._blur();
+                            });
+                        } else {
+                            that._blur();
+                        }
                     }
                     that.close();
                     pressed = true;
@@ -1392,8 +1400,8 @@
                     }
                     endY = tapPosition(e);
                     if (Math.abs(endY - startY) < 10) {
-                        e.preventDefault();
-                        that.trigger('click', { item: $(e.target.closest(ITEMSELECTOR)) });
+                        that._touchTriggered = true;
+                        that._triggerClick($(e.target).closest(ITEMSELECTOR).get(0));
                     }
                 });
             },
@@ -1593,10 +1601,17 @@
                 return this.element.children(ITEMSELECTOR);
             },
             _click: function (e) {
+                if (this._touchTriggered) {
+                    this._touchTriggered = false;
+                    return;
+                }
                 if (!e.isDefaultPrevented()) {
-                    if (!this.trigger('click', { item: $(e.currentTarget) })) {
-                        this.select(e.currentTarget);
-                    }
+                    this._triggerClick(e.currentTarget);
+                }
+            },
+            _triggerClick: function (item) {
+                if (!this.trigger('click', { item: $(item) })) {
+                    this.select(item);
                 }
             },
             _valueExpr: function (type, values) {

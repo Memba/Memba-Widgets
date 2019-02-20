@@ -417,6 +417,11 @@
 @import "themes/button.less";
 @import "Default/card/theme.less";
 @import "Default/chat/theme.less";
+@import "Default/calendar/_theme.less";
+@import "Default/multiviewcalendar/_theme.less";
+@import "Default/scrollview/_theme.less";
+@import "Default/switch/_theme.less";
+
 
 .k-in,
 .k-item
@@ -2771,8 +2776,8 @@ thead.k-grid-header th.k-header:last-child
     .box-shadow(inset @focused-shadow);
 }
 
-.k-panelbar > li > .k-link.k-state-selected
-{
+.k-panelbar .k-item .k-link.k-state-selected,
+.k-panelbar > li > .k-link.k-state-selected {
     color: @selected-text-color;
 }
 
@@ -3255,6 +3260,9 @@ td.k-state-focused.k-state-selected,
         &[data-property='fontFamily'] { width: 130px; }
     }
 }
+.k-spreadsheet-name-editor .k-select {
+    background-color: @button-hover-background-color;
+}
 
 .k-window .k-popup-edit-form .k-edit-field {
     input.k-checkbox {
@@ -3549,9 +3557,3 @@ td.k-state-focused.k-state-selected,
 .k-grid-list > .k-item.k-last > .k-spacer-cell {
     border-bottom-color: @grid-text;
 }
-
-
-@import "Default/calendar/_theme.less";
-@import "Default/multiviewcalendar/_theme.less";
-@import "Default/scrollview/_theme.less";
-@import "Default/switch/_theme.less";

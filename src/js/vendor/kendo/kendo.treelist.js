@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3796,7 +3796,7 @@
                     }));
                 }
                 if (column.attributes) {
-                    extend(attr, column.attributes);
+                    extend(true, attr, column.attributes, { 'style': column.hidden === true ? { 'display': 'none' } : {} });
                 }
                 content.push(kendoHtmlElement(template(aggregates) || ''));
                 return kendoDomElement('td', attr, content);
@@ -4635,6 +4635,9 @@
                     row: row
                 };
                 if (this.options.editable && model && !this.trigger(REMOVE, args)) {
+                    if (document.activeElement === $(row).find('.k-grid-delete')[0]) {
+                        $(row).find('.k-grid-delete').blur();
+                    }
                     this.dataSource.remove(model);
                     if (!this._isIncellEditable()) {
                         this.dataSource.sync();
@@ -5570,21 +5573,12 @@
             updateRowSpans(container, containerDOMtree);
         }
         function focusTable(table, direct) {
-            var msie = browser.msie || browser.edge;
             if (direct === true) {
                 table = $(table);
                 var scrollTop, scrollLeft;
                 scrollTop = table.parent().scrollTop();
                 scrollLeft = table.parent().scrollLeft();
-                if (msie) {
-                    try {
-                        table[0].setActive();
-                    } catch (e) {
-                        table[0].focus();
-                    }
-                } else {
-                    table[0].focus();
-                }
+                kendo.focusElement(table);
                 table.parent().scrollTop(scrollTop).scrollLeft(scrollLeft);
             } else {
                 $(table).one('focusin', function (e) {

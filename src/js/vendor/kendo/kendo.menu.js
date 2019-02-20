@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1837,6 +1837,7 @@
                 var overflowWrapper = that._overflowWrapper();
                 that._triggerProxy = proxy(that._triggerEvent, that);
                 that.popup = that.element.addClass('k-context-menu').kendoPopup({
+                    autosize: true,
                     anchor: that.target || 'body',
                     copyAnchorStyles: that.options.copyAnchorStyles,
                     collision: that.options.popupCollision || 'fit',

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -48,7 +48,7 @@
                 spriteCssClass: 'dataSpriteCssClassField',
                 imageUrl: 'dataImageUrlField'
             }, isJQueryInstance = function (obj) {
-                return obj instanceof kendo.jQuery || obj instanceof window.jQuery;
+                return obj instanceof kendo.jQuery || window.jQuery && obj instanceof window.jQuery;
             }, isDomElement = function (o) {
                 return typeof HTMLElement === 'object' ? o instanceof HTMLElement : o && typeof o === 'object' && o.nodeType === 1 && typeof o.nodeName === STRING;
             };
@@ -714,7 +714,7 @@
                         offsets.push(scrollContainer.scrollTop);
                     }
                 } while (scrollContainer != documentElement);
-                wrapper.focus();
+                kendo.focusElement(wrapper);
                 for (i = 0; i < containers.length; i++) {
                     containers[i].scrollTop = offsets[i];
                 }
@@ -1016,8 +1016,8 @@
                 }
                 firstChild = node.prev().first();
                 lastChild = node.next().last();
-                that._updateNodeClasses(firstChild, {}, { expanded: firstChild.attr('data-expanded') });
-                that._updateNodeClasses(lastChild, {}, { expanded: lastChild.attr('data-expanded') });
+                that._updateNodeClasses(firstChild, {}, { expanded: firstChild.attr(kendo.attr('expanded')) == 'true' });
+                that._updateNodeClasses(lastChild, {}, { expanded: lastChild.attr(kendo.attr('expanded')) == 'true' });
                 for (i = 0; i < nodeData.length; i++) {
                     item = nodeData[i];
                     if (item.hasChildren) {

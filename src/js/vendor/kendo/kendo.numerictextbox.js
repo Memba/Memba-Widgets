@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -99,6 +99,9 @@
                 } else {
                     that.readonly(element.is('[readonly]'));
                 }
+                that.angular('compile', function () {
+                    return { elements: that._text.get() };
+                });
                 kendo.notify(that);
             },
             options: {
@@ -329,7 +332,6 @@
                 } catch (e) {
                     element.type = 'text';
                 }
-                that._initialTitle = element.title;
                 text[0].title = element.title;
                 text[0].tabIndex = element.tabIndex;
                 text[0].style.cssText = element.style.cssText;
@@ -527,7 +529,7 @@
                 if (!placeholderSupported && !value) {
                     input.val(this.options.placeholder);
                 }
-                input.attr('title', this._initialTitle || input.val());
+                input.attr('title', this.element.attr('title') || input.val());
             },
             _wrapper: function () {
                 var that = this, element = that.element, DOMElement = element[0], wrapper;

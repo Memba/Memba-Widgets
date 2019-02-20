@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -35,7 +35,7 @@
     };
     kendo.ui.scheduler = {};
     (function ($) {
-        var kendo = window.kendo, ui = kendo.ui, getDate = kendo.date.getDate, Widget = ui.Widget, outerHeight = kendo._outerHeight, keys = kendo.keys, NS = '.kendoSchedulerView', math = Math;
+        var kendo = window.kendo, ui = kendo.ui, getDate = kendo.date.getDate, Widget = ui.Widget, outerHeight = kendo._outerHeight, keys = kendo.keys, NS = '.kendoSchedulerView', INVERSE_COLOR_CLASS = 'k-event-inverse', math = Math;
         function levels(values, key) {
             var result = [];
             function collect(depth, values) {
@@ -1387,11 +1387,14 @@
                 }
                 container.scrollTop = result;
             },
-            _shouldInverseResourceColor: function (resource) {
-                var resourceColorIsDark = new Color(resource.color).isDark();
-                var currentColor = this.element.css('color');
-                var currentColorIsDark = new Color(currentColor).isDark();
-                return resourceColorIsDark == currentColorIsDark;
+            _inverseEventColor: function (element) {
+                var eventColor = element.css('color');
+                var eventColorIsDark = new Color(eventColor).isDark();
+                var eventBackground = element.css('background-color');
+                var eventBackgroundIsDark = new Color(eventBackground).isDark();
+                if (eventColorIsDark == eventBackgroundIsDark) {
+                    element.addClass(INVERSE_COLOR_CLASS);
+                }
             },
             _eventTmpl: function (template, wrapper) {
                 var options = this.options, settings = $.extend({}, kendo.Template, options.templateSettings), paramName = settings.paramName, html = '', type = typeof template, state = {

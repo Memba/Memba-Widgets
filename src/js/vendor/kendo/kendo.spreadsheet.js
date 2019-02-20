@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.115 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -711,6 +711,15 @@
             setState: function (state) {
                 this.range().setState(state);
             },
+            rejectState: function (validationState) {
+                this.undo();
+                return {
+                    title: validationState.title,
+                    body: validationState.message,
+                    reason: 'error',
+                    type: 'validationError'
+                };
+            },
             _forEachCell: function (callback) {
                 var range = this.range();
                 var ref = range._ref;
@@ -813,22 +822,18 @@
                     };
                 }
                 this.getState();
-                this.range().skipHiddenCells().clearContent();
+                var range = this.range().skipHiddenCells();
+                range.clearContent();
+                var validationState = range._getValidationState();
+                if (validationState) {
+                    return this.rejectState(validationState);
+                }
             }
         });
         kendo.spreadsheet.EditCommand = PropertyChangeCommand.extend({
             init: function (options) {
                 options.property = options.property || 'input';
                 PropertyChangeCommand.fn.init.call(this, options);
-            },
-            rejectState: function (validationState) {
-                this.undo();
-                return {
-                    title: validationState.title,
-                    body: validationState.message,
-                    reason: 'error',
-                    type: 'validationError'
-                };
             },
             _setRange: function (range) {
                 PropertyChangeCommand.prototype._setRange.apply(this, arguments);
@@ -13358,7 +13363,7 @@
                 this.view.nameEditor.value(def.name);
             },
             onScroll: function () {
-                this.view.render();
+                this.view.render({ scroll: true });
             },
             onWheel: function (event) {
                 var deltaX = event.originalEvent.deltaX;
@@ -14790,7 +14795,7 @@
                     this._filterMenuColumn = undefined;
                 }
             },
-            render: function () {
+            render: function (reason) {
                 if (!this.element.is(':visible')) {
                     return;
                 }
@@ -14832,7 +14837,7 @@
                 });
                 if (this.editor.isActive()) {
                     this.editor.toggleTooltip(this.activeCellRectangle());
-                } else if (!sheet.selectionInProgress() && !sheet.resizingInProgress() && !sheet.isInEditMode()) {
+                } else if (!(reason.resize || reason.scroll || sheet.selectionInProgress() || sheet.resizingInProgress() || sheet.isInEditMode())) {
                     this.renderClipboardContents();
                 }
             },
@@ -15412,6 +15417,7 @@
         if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
             return;
         }
+        var $ = kendo.jQuery;
         var EDITORS = {};
         var registerEditor = kendo.spreadsheet.registerEditor = function (name, editor) {
             EDITORS[name] = editor;
@@ -29971,7 +29977,7 @@
                 if (!reason.editorChange) {
                     this._view.refresh(reason);
                     this._controller.refresh();
-                    this._view.render();
+                    this._view.render(reason);
                     this.trigger('render');
                 }
                 return this;

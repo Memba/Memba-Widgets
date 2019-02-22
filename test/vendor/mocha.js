@@ -921,7 +921,6 @@ module.exports.description = 'BDD or RSpec style [default]';
 'use strict';
 
 var Suite = require('../suite');
-var utils = require('../utils');
 var errors = require('../errors');
 var createMissingArgumentError = errors.createMissingArgumentError;
 
@@ -1058,16 +1057,7 @@ module.exports = function(suites, context, mocha) {
           }
         }
         if (typeof opts.fn === 'function') {
-          var result = opts.fn.call(suite);
-          if (typeof result !== 'undefined') {
-            utils.deprecate(
-              'Suites ignore return values. Suite "' +
-                suite.fullTitle() +
-                '" in ' +
-                suite.file +
-                ' returned a value; this may be a bug in your test code'
-            );
-          }
+          opts.fn.call(suite);
           suites.shift();
         } else if (typeof opts.fn === 'undefined' && !suite.pending) {
           throw createMissingArgumentError(
@@ -1120,7 +1110,7 @@ module.exports = function(suites, context, mocha) {
   };
 };
 
-},{"../errors":6,"../suite":36,"../utils":38}],10:[function(require,module,exports){
+},{"../errors":6,"../suite":36}],10:[function(require,module,exports){
 'use strict';
 var Suite = require('../suite');
 var Test = require('../test');
@@ -1664,25 +1654,30 @@ Mocha.prototype.reporter = function(reporter, reporterOptions) {
  * @public
  * @see {@link https://mochajs.org/#-u---ui-name|CLI option}
  * @see {@link https://mochajs.org/#interfaces|Interface DSLs}
- * @param {string} [name=bdd] - Interface name.
+ * @param {string|Function} [ui=bdd] - Interface name or class.
  * @returns {Mocha} this
  * @chainable
  * @throws {Error} if requested interface cannot be loaded
  */
-Mocha.prototype.ui = function(name) {
-  name = name || 'bdd';
-  this._ui = exports.interfaces[name];
-  if (!this._ui) {
-    try {
-      this._ui = require(name);
-    } catch (err) {
-      throw createInvalidInterfaceError(
-        'invalid interface ' + sQuote(name),
-        name
-      );
+Mocha.prototype.ui = function(ui) {
+  var bindInterface;
+  if (typeof ui === 'function') {
+    bindInterface = ui;
+  } else {
+    ui = ui || 'bdd';
+    bindInterface = exports.interfaces[ui];
+    if (!bindInterface) {
+      try {
+        bindInterface = require(ui);
+      } catch (err) {
+        throw createInvalidInterfaceError(
+          'invalid interface ' + sQuote(ui),
+          ui
+        );
+      }
     }
   }
-  this._ui = this._ui(this.suite);
+  bindInterface(this.suite);
 
   this.suite.on(EVENT_FILE_PRE_REQUIRE, function(context) {
     exports.afterEach = context.afterEach || context.teardown;
@@ -17908,7 +17903,7 @@ function hasOwnProperty(obj, prop) {
 },{"./support/isBuffer":87,"_process":68,"inherits":86}],89:[function(require,module,exports){
 module.exports={
   "name": "mocha",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "homepage": "https://mochajs.org/",
   "notifyLogo": "https://ibin.co/4QuRuGjXvl36.png"
 }

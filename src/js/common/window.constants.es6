@@ -62,8 +62,6 @@ const CONSTANTS = {
     MAPDOWN: 'down',
     MAPMOVE: 'move',
     MAPUP: 'up',
-    // Custom events
-    LOADED: 'i18n.loaded',
     // ERROR: 'error',
     WARNING: 'warning',
     // Errors

@@ -17903,7 +17903,7 @@ function hasOwnProperty(obj, prop) {
 },{"./support/isBuffer":87,"_process":68,"inherits":86}],89:[function(require,module,exports){
 module.exports={
   "name": "mocha",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "homepage": "https://mochajs.org/",
   "notifyLogo": "https://ibin.co/4QuRuGjXvl36.png"
 }

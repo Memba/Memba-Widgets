@@ -247,7 +247,8 @@ export function xhr2error(xhr, status, errorThrown) {
         error = xhr;
     } else {
         // When the promise (based on $.ajax) completes
-        error = new Error(errorThrown);
+        // Note: when api server is unavailable errorThrown is '' (and xhr.status === 0)
+        error = new Error(errorThrown || 'Unknown error');
         error.code = xhr.status;
         error.originalError = xhr.responseJSON;
     }

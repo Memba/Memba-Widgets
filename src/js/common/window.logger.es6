@@ -144,6 +144,7 @@ function log2Console(entry) {
     const EQ = ': ';
     const FIRST = ' ';
     const SEP = '; '; // '  |  ';
+    const DATA_LENGTH = 500;
     const { console } = window;
     if (console && typeof console.log === CONSTANTS.FUNCTION) {
         let message = `[${entry.level.toUpperCase()}${
@@ -176,7 +177,7 @@ function log2Console(entry) {
             try {
                 message += `${first ? FIRST : SEP}data${EQ}${JSON.stringify(
                     entry.data
-                )}`;
+                ).substr(0, DATA_LENGTH)}`;
             } catch (exception) {
                 if (typeof entry.data.toString === CONSTANTS.FUNCTION) {
                     message += `${

@@ -28,6 +28,7 @@ const CONSTANTS = {
     ERROR: 'error',
     FOCUS: 'focus',
     FOCUSOUT: 'focusout',
+    HASHCHANGE: 'hashchange',
     KEYDOWN: 'keydown',
     KEYPRESS: 'keypress',
     KEYUP: 'keyup',

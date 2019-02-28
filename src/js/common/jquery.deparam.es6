@@ -22,6 +22,11 @@ function deparam(params, coerce) {
     const obj = {};
     const coerceTypes = { true: !0, false: !1, null: null };
 
+    // If params is an empty string or otherwise falsy, return obj.
+    if (!params) {
+        return obj;
+    }
+
     // Iterate over all name=value pairs.
     params
         .replace(/\+/g, ' ')
@@ -90,7 +95,8 @@ function deparam(params, coerce) {
                         cur[key] =
                             i < keysLast
                                 ? cur[key] ||
-                                  (keys[i + 1] && Number.isNaN(keys[i + 1])
+                                  (keys[i + 1] &&
+                                  Number.isNaN(parseFloat(keys[i + 1]))
                                       ? {}
                                       : [])
                                 : val;
@@ -123,6 +129,7 @@ function deparam(params, coerce) {
  * @type {function(*, *=)}
  */
 $.deparam = deparam;
+$.prototype.deparam = $.deparam;
 
 /**
  * Default export

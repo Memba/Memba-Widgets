@@ -7,6 +7,7 @@
 
 import CONSTANTS from './window.constants.es6';
 
+const { console, Error, ErrorEvent, location } = window;
 const plugins = new Set();
 
 /**
@@ -24,16 +25,16 @@ function preProcess(message, data) {
     let entry = {};
     if (typeof message === CONSTANTS.STRING) {
         entry = { message, data };
-    } else if (message instanceof window.Error) {
+    } else if (message instanceof Error) {
         entry = {
             message: message.message,
             error: message
         };
     } else if (
-        typeof window.ErrorEvent === CONSTANTS.FUNCTION &&
-        message instanceof window.ErrorEvent
+        typeof ErrorEvent === CONSTANTS.FUNCTION &&
+        message instanceof ErrorEvent
     ) {
-        // Note: window.ErrorEvent does not exist in PhantomJS
+        // Note: ErrorEvent does not exist in PhantomJS
         entry = {
             message: message.message,
             data: {
@@ -80,7 +81,7 @@ function enhance(logEntry, module, level) {
         if (typeof entry.message === CONSTANTS.UNDEFINED) {
             entry.message = entry.error.message;
         }
-        if (entry.error.originalError instanceof window.Error) {
+        if (entry.error.originalError instanceof Error) {
             entry.originalMessage = entry.error.originalError.message;
             if (typeof entry.error.originalError.stack === CONSTANTS.STRING) {
                 // Note: stack is undefined in PhantomJS
@@ -115,22 +116,25 @@ function enhance(logEntry, module, level) {
     }
 
     // Log the page url (with query string to copy-paste when debugging a logged error)
-    const pos = `${window.location.protocol}//${window.location.host}`.length;
-    entry.url = window.location.href.substr(pos);
+    const pos = `${location.protocol}//${location.host}`.length;
+    entry.url = location.href.substr(pos);
 
     // Log the query string to improve lisibility
-    if (window.location.search || window.location.hash) {
+    if (location.search || location.hash) {
+        /*
+        // Cannot always deparam location.hash especially with kendo.router
         if (window.jQuery && typeof window.jQuery.deparam === 'function') {
             entry.query = {
-                search: window.jQuery.deparam(window.location.search.substr(1)),
-                hash: window.jQuery.deparam(window.location.hash)
+                search: window.jQuery.deparam(location.search.substr(1)),
+                hash: window.jQuery.deparam(location.hash.substr(1))
             };
         } else {
-            entry.query = {
-                search: window.location.search.substr(1),
-                hash: window.location.hash
-            };
-        }
+        */
+        entry.query = {
+            search: location.search,
+            hash: location.hash
+        };
+        /* } */
     } else {
         entry.query = {};
     }
@@ -145,7 +149,6 @@ function log2Console(entry) {
     const FIRST = ' ';
     const SEP = '; '; // '  |  ';
     const DATA_LENGTH = 500;
-    const { console } = window;
     if (console && typeof console.log === CONSTANTS.FUNCTION) {
         let message = `[${entry.level.toUpperCase()}${
             entry.level.length === 4 ? ' ' : ''
@@ -192,13 +195,13 @@ function log2Console(entry) {
         }
         console.log(message);
         if (entry.error instanceof Error) {
-            if (typeof window.console.error === CONSTANTS.FUNCTION) {
-                window.console.error(entry.error);
+            if (typeof console.error === CONSTANTS.FUNCTION) {
+                console.error(entry.error);
             }
         }
         if (entry.originalError instanceof Error) {
-            if (typeof window.console.error === CONSTANTS.FUNCTION) {
-                window.console.error(entry.originalError);
+            if (typeof console.error === CONSTANTS.FUNCTION) {
+                console.error(entry.originalError);
             }
         }
     }

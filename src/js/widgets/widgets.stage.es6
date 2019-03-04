@@ -904,13 +904,14 @@ const Stage = DataBoundWidget.extend({
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
 
         this.stage
-            .prop('tabIndex', -1)
+            .removeProp('tabindex')
             .off(CONSTANTS.KEYDOWN + NS)
             .off(CONSTANTS.KEYUP + NS);
 
         if (enabled) {
+            // Note: enabled requires design mode
             this.stage
-                .prop('tabIndex', 0)
+                .prop('tabindex', 0)
                 .on(CONSTANTS.KEYDOWN + NS, this._onKeyDown.bind(this))
                 .on(CONSTANTS.KEYUP + NS, this._onKeyUp.bind(this));
         }

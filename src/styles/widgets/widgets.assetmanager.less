@@ -6,24 +6,28 @@
 .kj-assetmanager {
     .k-tabstrip.k-tabstrip-left {
         border: none;
-        >div.k-content {
+
+        > div.k-content {
             padding: 0;
             border-radius: 0;
+
             .k-filebrowser {
                 padding: 0.5em;
+
                 .k-filebrowser-toolbar {
                     margin: 0;
                     // left
                     .k-toolbar-wrap {
                         .k-upload {
-                            margin-right: .5em;
+                            margin-right: 0.5em;
                             z-index: 1; // otherwise the upload button has a z-index higher than editor windows
                             .k-icon {
                                 vertical-align: middle;
                             }
                         }
+
                         .k-button {
-                            margin-right: .25em;
+                            margin-right: 0.25em;
                         }
                     }
                     // right
@@ -31,16 +35,20 @@
                         display: flex;
                         align-items: center;
                         max-width: 60%;
+
                         .k-progressbar {
                             color: inherit;
                             max-width: 40%;
-                            margin-right: .5em;
+                            margin-right: 0.5em;
                         }
+
                         .k-textbox {
                             width: 100%;
+
                             .k-icon {
                                 color: inherit;
                             }
+
                             .k-search {
                                 // Enforce values of .k-textbox .k-icon
                                 top: 50%;
@@ -49,11 +57,13 @@
                         }
                     }
                 }
+
                 .k-listview.k-tiles {
                     border-top-style: none;
                     height: 400px;
                     margin: 0;
                     overflow: auto;
+
                     .k-tile {
                         // width: 88px;
                         .k-image {
@@ -62,6 +72,7 @@
                         }
                     }
                 }
+
                 .k-pager-wrap.k-floatwrap {
                     border-top: 0;
                 }
@@ -74,6 +85,7 @@
     &.kj-no-padding {
         padding: 0;
     }
+
     &.kj-hidden-overflow {
         overflow: hidden;
     }

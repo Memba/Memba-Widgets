@@ -125,6 +125,7 @@ const CONSTANTS = {
         MEDIUM: 10,
         MAX: 100
     },
+    DRAFT: 'draft',
     ID: 'id',
     ME: 'me',
     PANEL_STATE: {

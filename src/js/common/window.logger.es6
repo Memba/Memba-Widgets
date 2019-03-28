@@ -362,6 +362,7 @@ window.onerror = function onerror(message, source, lineno, colno, error) {
     const logger = new Logger('window.logger');
     logger.crit({
         message,
+        method: 'window.onerror',
         error,
         data: { source, lineno, colno }
     });

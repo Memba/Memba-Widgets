@@ -13,6 +13,8 @@ import 'kendo.binder';
 import chai from 'chai';
 import sinon from 'sinon';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import '../../../src/js/vendor/jashkenas/underscore';
+import '../../../src/js/vendor/khan/kas';
 import '../../../src/js/workers/workers.lib';
 
 const { afterEach, before, beforeEach, describe, it } = window;

@@ -158,6 +158,7 @@ const CONSTANTS = {
     // SELECT: 'select',
     SPAN: 'span',
     TABLE: 'table',
+    TEXTAREA: 'textarea',
     TBODY: 'tbody',
     UL: 'ul'
 };

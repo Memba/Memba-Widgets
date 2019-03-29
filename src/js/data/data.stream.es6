@@ -127,13 +127,13 @@ const Stream = BaseModel.define({
             // DO NOT UNCOMMENT, otherwise change will be raised twice
             /*
             pages.bind(CONSTANTS.CHANGE, e => {
-                // debugger;
                 e.node = e.node || that;
                 that.trigger(CONSTANTS.CHANGE, e);
             });
             */
 
             // Bind the error event to bubble up
+            /*
             pages.bind(CONSTANTS.ERROR, e => {
                 // Raise error on the page;
                 that.trigger(CONSTANTS.ERROR, e);
@@ -145,6 +145,7 @@ const Stream = BaseModel.define({
                     collection.trigger(CONSTANTS.ERROR, e);
                 }
             });
+            */
         }
     },
 

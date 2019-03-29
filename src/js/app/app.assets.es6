@@ -3,9 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
-/**
+/* ************************************************
  * IMPORTANT! Do not use this file in production
- */
+ ************************************************ */
 
 import ToolAssets from '../tools/util.assets.es6';
 

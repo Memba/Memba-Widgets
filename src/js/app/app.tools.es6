@@ -3,12 +3,12 @@
  * Sources at https://github.com/Memba
  */
 
-/**
+/* ************************************************
  * IMPORTANT! Do not use this file in production
- * ==============================================
+ * ================================================
  * This is not the same code as in Kidoju-WebApp
  * This code also loads pending experimentations
- */
+ ************************************************ */
 
 /**
  * Pointer tool (always required)

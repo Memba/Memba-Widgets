@@ -5,19 +5,29 @@
 
 /* eslint-disable no-unused-expressions */
 
-// https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
-import 'jquery.simulate';
-import 'kendo.binder';
 import chai from 'chai';
-import sinon from 'sinon';
-import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import poolLoader from '../../../src/js/workers/workers.exec.es6';
+import JSC from 'jscheck';
+import poolExec from '../../../src/js/workers/workers.exec.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
 
-describe('workers.pool', () => {
-
+describe('workers.exec', () => {
+    it('it should execute an equality validation', done => {
+        const validation =
+            'function validate(value, solution, all) { return value === solution; }';
+        const data = {
+            all: undefined,
+            solution: true,
+            value: true
+        };
+        const name = JSC.string()();
+        poolExec(validation, data, name)
+            .then(response => {
+                expect(response.name).to.equal(name);
+                expect(response.result).to.be.true;
+                done();
+            })
+            .catch(done);
+    });
 });

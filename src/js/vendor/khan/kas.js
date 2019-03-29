@@ -1,13 +1,19 @@
 /*! KAS | https://github.com/Khan/KAS */
 // This is a @generated file
-var _, KAS = {};
+var self, _, KAS = {};
 
 if (typeof module === "object" && module.exports) {
     _ = require("underscore");
     module.exports = KAS;
 } else {
-    _ = window._;
-    window.KAS = KAS;
+    /* BEGIN MODIFIED JLC */
+    // window does not work in web workers
+    // _ = window._;
+    // window.KAS = KAS;
+    self = this;
+    _ = self._;
+    self.KAS = KAS;
+    /* END MODIFIED JLC */
 }
 
 (function(KAS) {

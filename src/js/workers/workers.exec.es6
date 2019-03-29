@@ -11,19 +11,12 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import config from '../app/app.config.jsx';
 import notification from '../app/app.notification.es6';
 import Logger from '../common/window.logger.es6';
 import WorkerPool from '../common/window.workers.es6';
 
 const logger = new Logger('data.workers');
-
-/* eslint-disable prettier/prettier */
-const base = window.__karma__
-    ? 'base'
-    : `${window.location.protocol}//${window.location.host}${
-        /^\/Kidoju.Widgets\//.test(window.location.pathname) ? '/Kidoju.Widgets' : ''
-    }`;
-/* eslint-enable prettier/prettier */
 
 /**
  * Shared WorkerPool to grade BaseTest
@@ -37,12 +30,7 @@ const workerPool = new WorkerPool();
  */
 const loader = $.Deferred();
 workerPool
-    .load([
-        // TODO app.uris
-        `${base}/src/js/vendor/jashkenas/underscore.js`,
-        `${base}/src/js/vendor/khan/kas.js`,
-        `${base}/src/js/workers/workers.lib.js`
-    ])
+    .load(config.uris.webapp.workerlib)
     .then(() => {
         loader.resolve(workerPool);
     })

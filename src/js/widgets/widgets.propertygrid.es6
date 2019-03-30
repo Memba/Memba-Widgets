@@ -788,6 +788,7 @@ const PropertyGrid = Widget.extend({
                 if ($.type(validation) === CONSTANTS.OBJECT) {
                     Object.keys(validation).forEach(key => {
                         const rule = validation[key];
+                        /*
                         if ($.isFunction(rule)) {
                             // Custom validation function names should be unique in a data.Model
                             assert.isUndefined(
@@ -796,7 +797,13 @@ const PropertyGrid = Widget.extend({
                                     assert.messages.isUndefined.default,
                                     `rules.${key}`
                                 )
-                            );
+                        */
+                        // TODO failure, omit and success share the same scoreValidator rule
+                        //  so the assert above throws an error
+                        if (
+                            $.isFunction(rule) &&
+                            $.type(rules[key]) === CONSTANTS.UNDEFINED
+                        ) {
                             // Note, we cannot use rule.bind(value) because kendo.ui.Validator calls
                             // rules[rule].call(this, input), where this is the Validator widget
                             rules[key] = rule;

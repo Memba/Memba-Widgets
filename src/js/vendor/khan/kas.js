@@ -4,20 +4,14 @@ var window = new Function('return this')();
 
 /*! KAS | https://github.com/Khan/KAS */
 // This is a @generated file
-var self, _, KAS = {};
+var _, KAS = {};
 
 if (typeof module === "object" && module.exports) {
     _ = require("underscore");
     module.exports = KAS;
 } else {
-    /* BEGIN MODIFIED JLC */
-    // window does not work in web workers
-    // _ = window._;
-    // window.KAS = KAS;
-    self = this;
-    _ = self._;
-    self.KAS = KAS;
-    /* END MODIFIED JLC */
+    _ = window._;
+    window.KAS = KAS;
 }
 
 (function(KAS) {

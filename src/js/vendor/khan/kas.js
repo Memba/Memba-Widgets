@@ -1,3 +1,7 @@
+// BEGIN - ADDED by JLC
+var window = new Function('return this')();
+// END - ADDED by JLC
+
 /*! KAS | https://github.com/Khan/KAS */
 // This is a @generated file
 var self, _, KAS = {};

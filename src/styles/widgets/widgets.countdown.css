@@ -1,0 +1,24 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+.kj-countdown {
+  align-items: center;
+  background: #111;
+  color: #fff;
+  display: flex;
+}
+.kj-countdown.k-info {
+  text-shadow: 0 0 0.1em #fff, 0 0 0.2em #fff, 0 0 0.3em #fff, 0 0 0.4em #7ff, 0 0 0.6em #0ff, 0 0 0.8em #0ff, 0 0 1em #0ff, 0 0 1.2em #0ff;
+}
+.kj-countdown.k-error {
+  text-shadow: 0 0 0.1em #fff, 0 0 0.2em #fff, 0 0 0.3em #fff, 0 0 0.4em #f70, 0 0 0.6em #f00, 0 0 0.8em #f00, 0 0 1em #f00, 0 0 1.2em #f00;
+}
+.kj-countdown .k-icon {
+  font-size: 2em;
+  padding: 0 0.25em;
+}
+.kj-countdown .k-text {
+  font-size: 2em;
+  font-family: Courier New, Courier, Lucida Sans Typewriter, Lucida Typewriter, monospace;
+}

@@ -63,6 +63,9 @@ const Explorer = DataBoundWidget.extend({
         this._render();
         this._addSorting();
         this._dataSource();
+        this.enable(
+            this.element.prop('disabled') ? false : !!this.options.enabled
+        );
         // this.refresh();
     },
 
@@ -72,12 +75,11 @@ const Explorer = DataBoundWidget.extend({
      */
     options: {
         name: 'Explorer',
+        enabled: true,
         index: 0,
         id: null,
         autoBind: true,
-        // TODO add kendo.ns
-        itemTemplate:
-            '<li data-uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-item"><span class="k-in"><img class="k-image kj-image" alt="#= tool #" src="#= icon #">#= tool #</span></li>',
+        itemTemplate: `<li data-${ns}uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-item"><span class="k-in"><img class="k-image kj-image" alt="#= tool #" src="#= icon #">#= tool #</span></li>`,
         iconPath: DEFAULT_PATH,
         extension: DEFAULT_EXTENSION,
         messages: {
@@ -141,11 +143,12 @@ const Explorer = DataBoundWidget.extend({
             }
         } else if ($.type(index) === CONSTANTS.UNDEFINED) {
             component = this.dataSource.getByUid(this._selectedUid);
-            if (component instanceof PageComponent) {
-                return this.dataSource.indexOf(component);
-            }
-            return -1;
+            ret =
+                component instanceof PageComponent
+                    ? this.dataSource.indexOf(component)
+                    : -1;
         }
+        return ret;
     },
 
     /**
@@ -480,7 +483,7 @@ const Explorer = DataBoundWidget.extend({
                 assert.format(
                     assert.messages.equal.default,
                     'component.uid',
-                    'e.item.attr("data-uid")'
+                    `e.item.attr("data-${ns}uid")`
                 )
             );
             this.dataSource.remove(component);

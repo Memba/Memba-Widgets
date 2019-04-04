@@ -23,22 +23,27 @@ const {
 /**
  * Check whether chrome devtools is opened
  * @see https://stackoverflow.com/questions/7798748/find-out-whether-chrome-console-is-open
+ * Note: This has stopped working in Chrome 72
  */
+/*
 const devtools = /./;
 devtools.toString = function toString() {
     this.opened =
         'chrome' in window && $.type(window.StyleMedia) === CONSTANTS.UNDEFINED;
 };
+*/
 
 /**
  * Define our ideal worker timeout from CPU capacity
  * @returns {number}
  */
 function workerTimeout() {
+    /*
     if (console) {
         // devtools.opened will become true if/when the console is opened
         console.log('%c', devtools);
     }
+     */
     const start = Date.now();
     for (let i = 0; i < 1000000; i++) {
         // This would take about 10 ms on an iPad Pro
@@ -46,7 +51,8 @@ function workerTimeout() {
         Math.floor(100 * Math.random());
     }
     const end = Date.now();
-    const k = devtools.opened || window.__karma__ ? 4 : 1;
+    // const k = devtools.opened || window.__karma__ ? 4 : 1;
+    const k = window.__karma__ ? 4 : 1;
     // A minimum of 250ms is required in browsers and 400ms in Phonegap and Karma tests
     const timeout = k * Math.max(cordova ? 400 : 250, 10 * (end - start));
     logger.info({

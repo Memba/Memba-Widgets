@@ -21,7 +21,8 @@ import { LIB_COMMENT, mathLibrary} from './util.libraries.es6';
 const {
     attr,
     format,
-    ns
+    ns,
+    template
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
@@ -96,7 +97,7 @@ var MathInputTool = BaseTool.extend({
         assert.instanceof(MathInputTool, that, assert.format(assert.messages.instanceof.default, 'this', 'MathInputTool'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         assert.enum(Object.values(CONSTANTS.STAGE_MODES), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(CONSTANTS.STAGE_MODES)));
-        var template = kendo.template(that.templates[mode]);
+        var tmpl = template(that.templates[mode]);
         component.toolbar$ = function () {
             var tools = [];
             /*
@@ -137,7 +138,7 @@ var MathInputTool = BaseTool.extend({
                 tools: tools
             };
         };
-        return template(component);
+        return tmpl(component);
     },
 
     /**

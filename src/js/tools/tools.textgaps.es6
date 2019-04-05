@@ -21,7 +21,9 @@ import { LIB_COMMENT, arrayLibrary } from './util.libraries.es6';
 const {
     attr,
     format,
+    htmlEncode,
     ns,
+    roleSelector,
     template
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -113,7 +115,7 @@ const TextGapsTool = BaseTool.extend({
     value$: function (testItem) {
         var ret = (testItem.value || []).slice();
         for (var i = 0; i < ret.length; i++) {
-            ret[i] = kendo.htmlEncode((ret[i] || '').trim());
+            ret[i] = htmlEncode((ret[i] || '').trim());
         }
         return ret.join('<br/>');
     },
@@ -125,7 +127,7 @@ const TextGapsTool = BaseTool.extend({
     solution$: function (testItem) {
         var ret = (testItem.solution || '').split('\n');
         for (var i = 0; i < ret.length; i++) {
-            ret[i] = kendo.htmlEncode((ret[i] || '').trim());
+            ret[i] = htmlEncode((ret[i] || '').trim());
         }
         return ret.join('<br/>');
     },
@@ -140,7 +142,7 @@ const TextGapsTool = BaseTool.extend({
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-        var content = stageElement.children('div' + kendo.roleSelector('textgaps'));
+        var content = stageElement.children('div' + roleSelector('textgaps'));
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
         }

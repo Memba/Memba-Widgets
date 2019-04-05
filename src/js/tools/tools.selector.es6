@@ -21,6 +21,7 @@ import { LIB_COMMENT, arrayLibrary } from './util.libraries.es6';
 const {
     attr,
     format,
+    htmlEncode,
     ns
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -128,7 +129,7 @@ var SelectorTool = BaseTool.extend({
      */
     value$: function (testItem) {
         if (testItem.result) {
-            return kendo.htmlEncode(testItem.solution || '');
+            return htmlEncode(testItem.solution || '');
         } else {
             return 'N/A'; // TODO translate
         }
@@ -140,7 +141,7 @@ var SelectorTool = BaseTool.extend({
      * @param testItem
      */
     solution$: function (testItem) {
-        return kendo.htmlEncode(testItem.solution || '');
+        return htmlEncode(testItem.solution || '');
     },
 
     /**

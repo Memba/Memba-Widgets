@@ -12,7 +12,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import BaseTool from './tools.base.es6';
 
-const { ns, roleSelector } = window.kendo;
+const { format, ns, roleSelector } = window.kendo;
 
 /**
  * i18n
@@ -56,7 +56,7 @@ var TableTool = BaseTool.extend({
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-        var content = stageElement.children(kendo.roleSelector('table'));
+        var content = stageElement.children(roleSelector('table'));
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
         }

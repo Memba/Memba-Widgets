@@ -18,7 +18,7 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 
-const { ns, template } = window.kendo;
+const { format, ns, roleSelector, template } = window.kendo;
 
 /**
  * i18n
@@ -162,7 +162,7 @@ var VideoTool = BaseTool.extend({
             )
         );
         const content = stageElement.children(
-            `div${kendo.roleSelector('mediaplayer')}`
+            `div${roleSelector('mediaplayer')}`
         );
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(

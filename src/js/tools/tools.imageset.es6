@@ -21,7 +21,7 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import { LIB_COMMENT, genericLibrary } from './util.libraries.es6';
 
-const { attr, format, ns, roleSelector } = window.kendo;
+const { attr, format, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -148,7 +148,7 @@ var ImageSetTool = BaseTool.extend({
                 'ToolAssets'
             )
         );
-        const template = kendo.template(that.templates[mode]);
+        const tmpl = template(that.templates[mode]);
         // The data$ function resolves urls with schemes like cdn://sample.jpg
         component.data$ = function() {
             const data = component.attributes.get('data');
@@ -176,7 +176,7 @@ var ImageSetTool = BaseTool.extend({
             // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
             return ` ${JSON.stringify(clone)}`;
         };
-        return template(component);
+        return tmpl(component);
     },
 
     /**

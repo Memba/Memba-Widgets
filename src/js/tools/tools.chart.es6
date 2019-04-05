@@ -12,7 +12,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import BaseTool from './tools.base.es6';
 
-const { ns } = window.kendo;
+const { format, ns, roleSelector, template } = window.kendo;
 
 /**
  * i18n
@@ -141,7 +141,7 @@ var ChartTool = BaseTool.extend({
         };
         assert.instanceof(ChartTool, that, assert.format(assert.messages.instanceof.default, 'this', 'ChartTool'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-        var template = kendo.template(that.templates.default);
+        var tmpl = template(that.templates.default);
         var style = component.attributes.get('style');
         // Get font from style - @see http://www.telerik.com/forums/charts---changing-the-default-font
         var font = style.match(/font:([^;]+)/);
@@ -282,7 +282,7 @@ var ChartTool = BaseTool.extend({
                 }
             });
         };
-        return template(component);
+        return tmpl(component);
     },
 
     /**
@@ -295,7 +295,7 @@ var ChartTool = BaseTool.extend({
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-        var content = stageElement.children('div' + kendo.roleSelector('chart'));
+        var content = stageElement.children('div' + roleSelector('chart'));
         var widget = content.data('kendoChart');
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());

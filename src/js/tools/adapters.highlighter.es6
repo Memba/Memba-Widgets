@@ -43,7 +43,13 @@ const HighLighterAdapter = BaseAdapter.extend({
                     minHeight: '4.6em'
                 })
                 // .attr($.extend(binding, attributes))
-                .attr($.extend({}, settings.attributes, getValueBinding(settings.field)))
+                .attr(
+                    $.extend(
+                        {},
+                        settings.attributes,
+                        getValueBinding(settings.field)
+                    )
+                )
                 .appendTo(container);
             const highLighterWidget = highLighter.kendoHighLighter({
                 text: settings.model.get('attributes.text'),

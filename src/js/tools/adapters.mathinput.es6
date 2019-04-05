@@ -37,7 +37,13 @@ const MathInputAdapter = BaseAdapter.extend({
                     minHeight: '4.6em'
                 })
                 // .attr($.extend(binding, attributes))
-                .attr($.extend({}, settings.attributes, getValueBinding(settings.field)))
+                .attr(
+                    $.extend(
+                        {},
+                        settings.attributes,
+                        getValueBinding(settings.field)
+                    )
+                )
                 .appendTo(container);
             const mathInputWidget = input.kendoMathInput({
                 toolbar: {

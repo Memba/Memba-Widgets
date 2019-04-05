@@ -63,7 +63,7 @@ const StyleAdapter = BaseAdapter.extend({
                     marginRight: 0
                 })
                 .appendTo(wrapper)
-                .on(CONSTANTS.CLICK, $.proxy(that.showDialog, that, settings));
+                .on(CONSTANTS.CLICK, that.showDialog.bind( that, settings));
         };
     },
     showDialog(options /* , e */) {

@@ -34,7 +34,7 @@ const CharGridAdapter = BaseAdapter.extend({
                 .addClass('k-button')
                 .css({ margin: 0, width: '100%' })
                 .appendTo(container)
-                .on(CONSTANTS.CLICK, $.proxy(that.showDialog, that, settings));
+                .on(CONSTANTS.CLICK, that.showDialog.bind( that, settings));
         };
     },
     showDialog(options, evt) {

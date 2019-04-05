@@ -47,11 +47,6 @@ const ValidationAdapter = BaseAdapter.extend({
         that.type = CONSTANTS.STRING;
         // this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         that.editor = function(container, settings) {
-            const binding = {}; // TODO use getValueBinding
-            // Note: _library is added to the data bound PageComponent in its init method
-            binding[attr('bind')] = `value: ${
-                settings.field
-            }, source: _library`;
             // We need a wrapper because container has { display: table-cell; }
             const wrapper = $('<div/>')
                 .css({ display: 'flex' })
@@ -61,7 +56,13 @@ const ValidationAdapter = BaseAdapter.extend({
                     settings.model.properties.defaults.validation
                 }" />`
             )
-                .attr($.extend({}, settings.attributes, binding)) // TODO use attributes (from init)?
+                .attr(
+                    $.extend(
+                        {},
+                        settings.attributes,
+                        getValueBinding(settings.field, '_library')
+                    )
+                )
                 .css({ flex: 'auto' })
                 .appendTo(wrapper);
             $('<button/>')
@@ -72,7 +73,7 @@ const ValidationAdapter = BaseAdapter.extend({
                     marginRight: 0
                 })
                 .appendTo(wrapper)
-                .on(CONSTANTS.CLICK, $.proxy(that.showDialog, that, settings));
+                .on(CONSTANTS.CLICK, that.showDialog.bind( that, settings));
         };
     },
 
@@ -83,15 +84,17 @@ const ValidationAdapter = BaseAdapter.extend({
     showDialog(options /* , e */) {
         const that = this;
         // TODO import('./dialogs/dialogs.codeeditor.es6').then(function () {...});
+        debugger;
         openCodeEditor({
             title: options.title,
+            // defaultValue: that.defaultValue, // ????????????????????????
+            default: that.defaultValue, // ????????????????????????
+            solution: htmlEncode(
+                JSON.stringify(options.model.get('properties.solution'))
+            ),
             data: {
                 value: options.model.get(options.field),
-                library: [CUSTOM].concat(that.library),
-                defaultValue: that.defaultValue, // ????????????????????????
-                solution: htmlEncode(
-                    JSON.stringify(options.model.get('properties.solution'))
-                )
+                library: [CUSTOM].concat(that.library)
             }
         })
             .then(result => {

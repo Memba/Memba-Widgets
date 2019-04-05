@@ -15,6 +15,7 @@ import openAssetManager from '../dialogs/dialogs.assetmanager.es6';
 import '../dialogs/widgets.basedialog.es6';
 import '../widgets/widgets.imagelist.es6';
 import BaseAdapter from './adapters.base.es6';
+import {getValueBinding} from '../data/data.util';
 
 // TODO Review with imageset
 
@@ -42,17 +43,20 @@ const ImageListAdapter = BaseAdapter.extend({
         that.defaultValue = that.defaultValue || [];
         // that.editor is the list editor where the insert image button triggers this.showDialog
         that.editor = function(container, settings) {
-            // TODO Why is there no value binding ????
-            // TODO: use getValueBinding
-            const binding = {};
-            binding[attr('bind')] = `source: ${settings.field}`;
             const element = $('<div/>')
-                .attr(binding)
+                .attr(
+                    $.extend(
+                        {},
+                        settings.attributes,
+                        // This is a source-only binding
+                        getValueBinding(undefined, settings.field)
+                    )
+                )
                 .appendTo(container);
             const widget = element
                 .kendoImageList({
                     schemes: assets.image.schemes,
-                    click: $.proxy(that.showDialog, that, settings)
+                    click: that.showDialog.bind(that, settings)
                 })
                 .data('kendoImageList');
             assert.instanceof(

@@ -12,7 +12,12 @@ import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
-const { attr, data: { DataSource, Model }, format, ns } = window.kendo;
+const {
+    attr,
+    data: { DataSource, Model },
+    format,
+    ns
+} = window.kendo;
 const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
 // TODO Rename into checkboxes
 
@@ -36,7 +41,13 @@ const MultiQuizAdapter = BaseAdapter.extend({
         // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
             const input = $('<div/>')
-                .attr(getValueBinding(settings.field))
+                .attr(
+                    $.extend(
+                        {},
+                        settings.attributes,
+                        getValueBinding(settings.field)
+                    )
+                )
                 .appendTo(container);
             input.kendoMultiQuiz({
                 mode: 'checkbox',
@@ -52,7 +63,7 @@ const MultiQuizAdapter = BaseAdapter.extend({
                                 image: { type: CONSTANTS.STRING }
                             },
                             image$() {
-                                let image = this.get('image');
+                                const image = this.get('image');
                                 return assets.image.scheme2http(image);
                             }
                         })

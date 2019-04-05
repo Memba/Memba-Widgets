@@ -328,7 +328,7 @@ const BaseModel = Model.define({
  * Projection of fields for any model
  * @param AnyModel
  */
-BaseModel.projection = function(AnyModel) {
+BaseModel.projection = AnyModel => {
     assert.extends(
         BaseModel,
         AnyModel,

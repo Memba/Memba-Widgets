@@ -72,9 +72,7 @@ function openAlert(options = {}) {
 function openCloseAlert(options = {}) {
     return openAlert(
         Object.assign(options, {
-            actions: [
-                BaseDialog.fn.options.messages.actions.close
-            ]
+            actions: [BaseDialog.fn.options.messages.actions.close]
         })
     );
 }

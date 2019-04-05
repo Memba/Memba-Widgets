@@ -1342,7 +1342,7 @@
             _commandPalette: function () {
                 var element = $('<div style="padding:2em 1em 1em 1em" />').appendTo(this.popup.element); // TODO make it a class
                 // TODO: Add label???
-                this.slider = $('<input>').appendTo(element).kendoSlider(
+                this.slider = $(`<${CONSTANTS.INPUT}>`).appendTo(element).kendoSlider(
                     deepExtend(opacityOptions, {
                         change: this._action.bind(this)
                         // slide: this._action.bind(this)
@@ -1394,7 +1394,7 @@
             },
             _commandPalette: function () {
                 var element = $('<div style="padding:2em 1em 1em 1em" />').appendTo(this.popup.element); // TODO make it a class
-                this.slider = $('<input>').appendTo(element).kendoSlider({
+                this.slider = $(`<${CONSTANTS.INPUT}>`).appendTo(element).kendoSlider({
                     smallStep: 1,
                     largeStep: 5,
                     min: 0,
@@ -1929,7 +1929,7 @@
             },
             _commandPalette: function () {
                 var element = $('<div style="padding:2em 1em 1em 1em" />').appendTo(this.popup.element); // TODO make it a class
-                this.slider = $('<input>').appendTo(element).kendoSlider({
+                this.slider = $(`<${CONSTANTS.INPUT}>`).appendTo(element).kendoSlider({
                     smallStep: 5,
                     largeStep: 10,
                     min: 0,

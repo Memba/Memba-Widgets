@@ -37,7 +37,7 @@ const WIDGET_CLASS = 'kj-mathinput'; // 'k-widget kj-mathinput';
 var MathInputToolBar = ui.MathInputToolBar;
 var MQ = mq.getInterface(mq.getInterface.MAX);
 
-var DIV = '<div/>';
+var DIV = `<${CONSTANTS.DIV}/>`;
 var RX_CHARACTER = /^[\s\[\]\{\}\(\)\|]$/;
 var RX_SIMPLE_COMMAND = /^\\[a-z]+$/; // These are simple LaTeX commands
 var RX_COMPLEX_COMMAND = /^\\mathbb{[^\}]+}$/; // These are commands with parameters which should be passed to mathField.command instead of mathField.write

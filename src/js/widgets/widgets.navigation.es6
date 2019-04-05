@@ -37,8 +37,7 @@ const HINT_CLASS = 'kj-hint';
 const ALL_ITEMS_SELECTOR = `div.kj-item[${attr(CONSTANTS.UID)}]`;
 const ITEM_BYUID_SELECTOR = `div.kj-item[${attr(CONSTANTS.UID)}="{0}"]`;
 const ARIA_SELECTED = 'aria-selected';
-const ITEM_TEMPLATE =
-    '<div data-#: ns #uid="#: uid #" class="kj-item" role="option" aria-selected="false"><div data-#: ns #role="stage"></div></div>';
+const ITEM_TEMPLATE = `<div data-${ns}uid="#: uid #" class="kj-item" role="option" aria-selected="false"><div data-${ns}role="stage"></div></div>`;
 
 /**
  * Navigation
@@ -406,7 +405,10 @@ const Navigation = DataBoundWidget.extend({
             change(e) {
                 assert.isNonEmptyPlainObject(
                     e,
-                    assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
+                    assert.format(
+                        assert.messages.isNonEmptyPlainObject.default,
+                        'e'
+                    )
                 );
                 assert.instanceof(
                     PageDataSource,
@@ -456,16 +458,16 @@ const Navigation = DataBoundWidget.extend({
             navigation.find(format(ITEM_BYUID_SELECTOR, page.uid)).length === 0
         ) {
             // Create navigation item (actually a selection frame around the thumbnail stage)
-            const navigationItem = $(
-                this._itemTemplate({ uid: page.uid, ns })
-            ).css({
-                boxSizing: 'border-box',
-                position: 'relative',
-                padding: parseInt(this.options.selectionBorder, 10),
-                margin:
-                    parseInt(this.options.pageSpacing, 10) -
-                    parseInt(this.options.selectionBorder, 10)
-            });
+            const navigationItem = $(this._itemTemplate({ uid: page.uid })).css(
+                {
+                    boxSizing: 'border-box',
+                    position: 'relative',
+                    padding: parseInt(this.options.selectionBorder, 10),
+                    margin:
+                        parseInt(this.options.pageSpacing, 10) -
+                        parseInt(this.options.selectionBorder, 10)
+                }
+            );
 
             // Add to navigation
             const nextIndex =
@@ -482,13 +484,16 @@ const Navigation = DataBoundWidget.extend({
             }
 
             // Make the stage and bind to components
-            const stage = navigationItem.find(roleSelector('stage')).kendoStage({
-                mode: this.options.mode,
-                enable: false,
-                readonly: true,
-                dataSource: page.components,
-                scale: this._getStageScale()
-            }).data('kendoStage');
+            const stage = navigationItem
+                .find(roleSelector('stage'))
+                .kendoStage({
+                    mode: this.options.mode,
+                    enabled: false,
+                    readonly: true,
+                    dataSource: page.components,
+                    scale: this._getStageScale()
+                })
+                .data('kendoStage');
 
             // Set page style
             stage.style(page.style);
@@ -549,8 +554,12 @@ const Navigation = DataBoundWidget.extend({
             if (e.field === 'style') {
                 e.items.forEach(page => {
                     // TODO Review
-                    const item = that.element.find(format(ITEM_BYUID_SELECTOR, page.uid));
-                    const stage = item.find(roleSelector('stage')).data('kendoStage');
+                    const item = that.element.find(
+                        format(ITEM_BYUID_SELECTOR, page.uid)
+                    );
+                    const stage = item
+                        .find(roleSelector('stage'))
+                        .data('kendoStage');
                     stage.style(page.style);
                 });
             }

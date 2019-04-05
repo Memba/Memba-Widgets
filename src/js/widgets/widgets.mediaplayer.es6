@@ -512,7 +512,7 @@ const MediaPlayer = Widget.extend({
      */
     _toolbar() {
         const that = this;
-        that.toolbar = $('<div/>')
+        that.toolbar = $(`<${CONSTANTS.DIV}/>`)
             .addClass(TOOLBAR_CLASS)
             .css({
                 position: 'absolute',
@@ -540,14 +540,14 @@ const MediaPlayer = Widget.extend({
             .appendTo(that.toolbar);
 
         // Seeker slider
-        const seekerDiv = $('<div/>')
+        const seekerDiv = $(`<${CONSTANTS.DIV}/>`)
             .addClass(SEEKER_CLASS)
             .css({ display: 'inline-block' })
             .appendTo(that.toolbar);
         that._setSeekerSlider(1);
 
         // Remaining time span
-        $('<span/>')
+        $(`<${CONSTANTS.SPAN}/>`)
             .addClass(TIME_CLASS)
             .appendTo(that.toolbar);
 
@@ -564,7 +564,7 @@ const MediaPlayer = Widget.extend({
             .appendTo(that.toolbar);
 
         // Volume slider
-        const volumeDiv = $('<div/>')
+        const volumeDiv = $(`<${CONSTANTS.DIV}/>`)
             .addClass(VOLUME_CLASS)
             .css({ display: 'inline-block' })
             .appendTo(that.toolbar);
@@ -601,7 +601,7 @@ const MediaPlayer = Widget.extend({
             seekerSlider.destroy();
             seekerDiv.empty();
         }
-        that.seekerSlider = $('<input>')
+        that.seekerSlider = $(`<${CONSTANTS.INPUT}>`)
             .appendTo(seekerDiv)
             .kendoSlider({
                 max,
@@ -629,7 +629,7 @@ const MediaPlayer = Widget.extend({
             volumeSlider.destroy();
             volumeDiv.empty();
         }
-        that.volumeSlider = $('<input>')
+        that.volumeSlider = $(`<${CONSTANTS.INPUT}>`)
             .appendTo(volumeDiv)
             .kendoSlider({
                 max: 1, // max volume is always 1

@@ -30,7 +30,7 @@ const MathInputAdapter = BaseAdapter.extend({
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = function(container, settings) {
-            const input = $('<div/>')
+            const input = $(`<${CONSTANTS.DIV}/>`)
                 .css({
                     width: '100%',
                     fontSize: '1.25em',

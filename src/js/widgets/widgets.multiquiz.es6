@@ -235,7 +235,7 @@ const MultiQuiz = DataBoundWidget.extend({
      */
     _layoutMultiSelect() {
         const { element, options } = this;
-        this.multiSelect = $('<input>')
+        this.multiSelect = $(`<${CONSTANTS.INPUT}>`)
             .width('100%')
             .appendTo(element)
             .kendoMultiSelect({

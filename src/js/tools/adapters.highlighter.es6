@@ -36,7 +36,7 @@ const HighLighterAdapter = BaseAdapter.extend({
         // TODO: Not Disabled when setting teh Disabled switch
         // And not reset when changing teh value of split => might require a window like chargrid
         this.editor = function(container, settings) {
-            const highLighter = $('<div/>')
+            const highLighter = $(`<${CONSTANTS.DIV}/>`)
                 .css({
                     width: '100%',
                     fontSize: '1em',

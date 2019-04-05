@@ -637,7 +637,7 @@ var VectorDrawing = Diagram.extend({
      * @private
      */
     _createGlobalToolBar: function () {
-        this.toolBar = $('<div/>')
+        this.toolBar = $(`<${CONSTANTS.DIV}/>`)
             .prependTo(this.element)
             .kendoVectorDrawingToolBar({
                 tools: this.options.toolbar.tools,

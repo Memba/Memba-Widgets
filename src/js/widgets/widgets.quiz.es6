@@ -222,7 +222,7 @@ const Quiz = DataBoundWidget.extend({
      */
     _layoutDropDown() {
         const { element, options } = this;
-        this.dropDownList = $('<input>')
+        this.dropDownList = $(`<${CONSTANTS.INPUT}>`)
             .width('100%')
             .appendTo(element)
             .kendoDropDownList({

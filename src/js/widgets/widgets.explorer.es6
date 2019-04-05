@@ -440,7 +440,7 @@ const Explorer = DataBoundWidget.extend({
                     .addClass(HINT_CLASS) // Note: note used
                     .wrap(UL)
                     .parent()
-                    .wrap('<div/>')
+                    .wrap(`<${CONSTANTS.DIV}/>`)
                     .parent();
             },
             placeholder(element) {

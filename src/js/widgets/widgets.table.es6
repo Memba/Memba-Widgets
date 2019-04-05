@@ -232,7 +232,7 @@ const Table = Widget.extend({
         for (let i = 0; i < rowTotal; i++) {
             for (let j = 0; j < columnTotal; j++) {
                 const cell = this._value[i][j];
-                const cellElement = $('<DIV/>')
+                const cellElement = $(`<${CONSTANTS.DIV}/>`)
                     .addClass('k-spreadsheet-cell')
                     .css(cell.css);
                 let cellContent = `<DIV class="${cell.class}">`;

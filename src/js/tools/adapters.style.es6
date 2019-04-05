@@ -37,7 +37,7 @@ const StyleAdapter = BaseAdapter.extend({
         // This is the inline editor with a [...] button which triggers this.showDialog
         that.editor = function(container, settings) {
             // We need a wrapper because container has { display: table-cell; }
-            const wrapper = $('<div/>')
+            const wrapper = $(`<${CONSTANTS.DIV}/>`)
                 .css({ display: 'flex' })
                 .appendTo(container);
             $('<input/>')

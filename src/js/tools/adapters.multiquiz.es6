@@ -40,7 +40,7 @@ const MultiQuizAdapter = BaseAdapter.extend({
         // this.editor = 'input';
         // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = function(container, settings) {
-            const input = $('<div/>')
+            const input = $(`<${CONSTANTS.DIV}/>`)
                 .attr(
                     $.extend(
                         {},

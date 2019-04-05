@@ -13,7 +13,6 @@ import Logger from './window.logger.es6';
 const logger = new Logger('window.workers');
 const {
     Blob,
-    console,
     cordova,
     navigator: { hardwareConcurrency },
     URL,

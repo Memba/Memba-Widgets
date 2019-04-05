@@ -22,16 +22,16 @@ const source = new EventSource(url);
 
 source.addEventListener(
     'message',
-    e => {
+    (/* e */) => {
         // Check event id + retry + name
-        console.log(e.data);
+        // console.log(e.data);
     },
     false
 );
 
 source.addEventListener(
     'open',
-    e => {
+    (/* e */) => {
         // Connection was opened
     },
     false

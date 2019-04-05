@@ -3,10 +3,13 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Review
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.switch';
 import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
@@ -36,8 +39,8 @@ const DisabledAdapter = BaseAdapter.extend({
         // this.editor = 'input';
         // this.attributes = $.extend({}, this.attributes, attributes);
         // this.attributes[attr('role')] = 'switch';
-        this.editor = function(container, settings) {
-            const input = $('<div/>')
+        this.editor = function(container, settings = {}) {
+            const input = $(`<${CONSTANTS.INPUT}>`)
                 .attr(
                     $.extend(
                         {},
@@ -47,7 +50,7 @@ const DisabledAdapter = BaseAdapter.extend({
                 )
                 .appendTo(container);
             const switchWidget = input
-                .kendoMobileSwitch({
+                .kendoSwitch({
                     change(e) {
                         const tbody = e.sender.element.closest('tbody');
                         // Question
@@ -133,7 +136,7 @@ const DisabledAdapter = BaseAdapter.extend({
                         }
                     }
                 })
-                .data('kendoMobileSwitch');
+                .data('kendoSwitch');
             setTimeout(() => {
                 // Note: switchWidget.check() before data bindings so we need to yield some time
                 switchWidget.trigger(CONSTANTS.CHANGE, {

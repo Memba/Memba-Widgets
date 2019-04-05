@@ -59,6 +59,14 @@ const MESSAGE_TMPL =
     '</div>';
 
 /**
+ * JSHINT needs to be global for ./src/js/vendor/codemirror/addon/lint/javascript-lint.js
+ */
+if (!window.JSHINT) {
+    // With WebPack, the module is not loaded as global
+    window.JSHINT = JSHINT.JSHINT;
+}
+
+/**
  * CodeEditor
  * @class CodeEditor
  * @extends DataBoundWidget

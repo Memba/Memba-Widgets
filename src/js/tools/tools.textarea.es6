@@ -20,7 +20,7 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import { LIB_COMMENT, textLibrary } from './util.libraries.es6';
 
-const { format } = window.kendo;
+const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -52,12 +52,12 @@ const TextAreaTool = BaseTool.extend({
         design: format(TEXTAREA, ''),
         play: format(
             TEXTAREA,
-            'data-#= ns #bind="value: #: properties.name #.value"'
+            `data-${ns}bind="value: #: properties.name #.value"`
         ),
         review:
             format(
                 TEXTAREA,
-                'data-#= ns #bind="value: #: properties.name #.value"'
+                `data-${ns}bind="value: #: properties.name #.value"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 300,

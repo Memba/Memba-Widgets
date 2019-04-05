@@ -10,9 +10,13 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
+import BooleanAdapter from './adapters.boolean.es6';
 import ReadOnlyAdapter from './adapters.readonly.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
+// import StringArrayAdapter from './adapters..es6';
+import StyleAdapter from './adapters.style.es6';
+import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
@@ -20,7 +24,9 @@ import { LIB_COMMENT, arrayLibrary } from './util.libraries.es6';
 
 const {
     attr,
-    format
+    format,
+    htmlEncode,
+    ns
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
@@ -36,22 +42,22 @@ function i18n() {
     );
 }
 
-var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #center="#: attributes.center #"  data-#= ns #empty="#: attributes.empty #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
+const DROPZONE = `<div id="#: properties.name #" data-${ns}role="dropzone" data-${ns}center="#: attributes.center #"  data-${ns}empty="#: attributes.empty #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>`;
 // TODO: Check whether DROPZONE requires class="kj-interactive"
 /**
  * @class DropZoneTool tool
  * @type {void|*}
  */
-var DropZoneTool = BaseTool.extend({
+const DropZoneTool = BaseTool.extend({
     id: 'dropzone',
     icon: 'elements_selection',
     description: i18n.dropzone.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: format(DROPZONE, 'data-#= ns #enable="false"'),
-        play: format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
-        review: format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMarks()
+        design: format(DROPZONE, `data-${ns}enable="false"`),
+        play: format(DROPZONE, `data-${ns}bind="value: #: properties.name #.value, source: interactions"`),
+        review: format(DROPZONE, `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 250,
     width: 250,
@@ -146,7 +152,6 @@ var DropZoneTool = BaseTool.extend({
         // TODO: we should also check that there are draggable components on the page
         // TODO: Check order of draggables 'on top' of drop zone
     }
-
 });
 
 /**

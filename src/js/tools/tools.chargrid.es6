@@ -27,6 +27,7 @@ const {
     data: { ObservableArray },
     format,
     htmlEncode,
+    ns,
     ui: { CharGrid }
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -44,8 +45,7 @@ function i18n() {
     );
 }
 
-const CHARGRID =
-    '<div data-#= ns #role="chargrid" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" data-#= ns #grid-fill="#: attributes.gridFill #" data-#= ns #grid-stroke="#: attributes.gridStroke #" data-#= ns #blank-fill="#: attributes.gridStroke #" data-#= ns #selected-fill="#: attributes.selectedFill #" data-#= ns #locked-fill="#: attributes.lockedFill #" data-#= ns #locked-color="#: attributes.fontColor #" data-#= ns #value-color="#: attributes.fontColor #" {0}></div>';
+const CHARGRID = `<div data-${ns}role="chargrid" data-${ns}columns="#: attributes.columns #" data-${ns}rows="#: attributes.rows #" data-${ns}blank="#: attributes.blank #" data-${ns}whitelist="#: attributes.whitelist #" data-${ns}grid-fill="#: attributes.gridFill #" data-${ns}grid-stroke="#: attributes.gridStroke #" data-${ns}blank-fill="#: attributes.gridStroke #" data-${ns}selected-fill="#: attributes.selectedFill #" data-${ns}locked-fill="#: attributes.lockedFill #" data-${ns}locked-color="#: attributes.fontColor #" data-${ns}value-color="#: attributes.fontColor #" {0}></div>`;
 
 /**
  * @class CharGridTool
@@ -59,16 +59,16 @@ const CharGridTool = BaseTool.extend({
     templates: {
         design: format(
             CHARGRID,
-            'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'
+            `data-${ns}value="#: JSON.stringify(attributes.layout) #" data-${ns}locked="#: JSON.stringify(attributes.layout) #" data-${ns}enable="false"`
         ),
         play: format(
             CHARGRID,
-            'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'
+            `data-${ns}bind="value: #: properties.name #.value" data-${ns}locked="#: JSON.stringify(attributes.layout) #"`
         ),
         review:
             format(
                 CHARGRID,
-                'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'
+                `data-${ns}bind="value: #: properties.name #.value" data-${ns}locked="#: JSON.stringify(attributes.layout) #" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 400,

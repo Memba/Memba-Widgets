@@ -12,6 +12,8 @@ import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import BaseTool from './tools.base.es6';
 
+const { ns, roleSelector } = window.kendo;
+
 /**
  * i18n
  * @returns {*|{}}
@@ -34,7 +36,7 @@ var TableTool = BaseTool.extend({
     description: i18n.table.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default: '<div data-#= ns #role="table" style="#: attributes.style #" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #value="#: JSON.stringify(attributes.data) #"></div>'
+        default: `<div data-${ns}role="table" style="#: attributes.style #" data-${ns}columns="#: attributes.columns #" data-${ns}rows="#: attributes.rows #" data-${ns}value="#: JSON.stringify(attributes.data) #"></div>`
     },
     height: 350,
     width: 600,

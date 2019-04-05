@@ -18,11 +18,7 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 
-const {
-    format,
-    ns,
-    template
-} = window.kendo;
+const { format, ns, template } = window.kendo;
 
 /**
  * i18n
@@ -46,8 +42,7 @@ const MathExpressionTool = BaseTool.extend({
     description: i18n.mathexpression.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default:
-            '<div data-#= ns #role="mathexpression" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #" data-#= ns #inline="#: attributes.inline #" data-#= ns #value="#: attributes.formula #" ></div>'
+        default: `<div data-${ns}role="mathexpression" class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #" data-${ns}inline="#: attributes.inline #" data-${ns}value="#: attributes.formula #" ></div>`
     },
     height: 180,
     width: 370,
@@ -132,7 +127,7 @@ const MathExpressionTool = BaseTool.extend({
                 ? component.id
                 : '';
         };
-        return tmpl($.extend(component, { ns }));
+        return tmpl(component);
     },
 
     /**

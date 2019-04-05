@@ -236,7 +236,7 @@ const BaseTool = Class.extend({
                 'PageComponent'
             )
         );
-        return template(this.description)($.extend(component, { ns }));
+        return template(this.description || CONSTANTS.EMPTY)(component);
     },
 
     /**
@@ -255,7 +255,7 @@ const BaseTool = Class.extend({
                 'PageComponent'
             )
         );
-        return template(this.help)($.extend(component, { ns }));
+        return template(this.help || CONSTANTS.EMPTY)(component);
     },
 
     /**
@@ -478,18 +478,9 @@ const BaseTool = Class.extend({
                 Object.values(CONSTANTS.STAGE_MODES)
             )
         );
-        const templates = this.templates || {};
-        const t = templates[mode] || templates.default;
-        assert.type(
-            CONSTANTS.STRING,
-            t,
-            assert.format(
-                assert.messages.type.default,
-                `this.templates.${mode}`,
-                CONSTANTS.STRING
-            )
-        );
-        return template(t)($.extend(component, { ns }));
+        const templates = this.templates || { default: CONSTANTS.EMPTY };
+        const tmpl = template(templates[mode] || templates.default);
+        return tmpl(component);
     },
 
     /**
@@ -499,16 +490,12 @@ const BaseTool = Class.extend({
      */
     getHtmlCheckMarks() {
         // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
-        return (
-            `${'<div class=".kj-element-result" data-#= ns #bind="visible: #: properties.name #">' +
-                '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,'}${
-                BaseTool.fn.svg.success
-            }); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>` +
-            `<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${
-                BaseTool.fn.svg.failure
-            }); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>` +
-            `</div>`
-        );
+        /* eslint-disable prettier/prettier */
+        return `<div class=".kj-element-result" data-${ns}bind="visible: #: properties.name #">
+                    <div data-${ns}bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,'${BaseTool.fn.svg.success}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
+                    <div data-${ns}bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${BaseTool.fn.svg.failure}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
+                </div>`;
+        /* eslint-ensable prettier/prettier */
     },
 
     /**
@@ -691,7 +678,7 @@ const BaseTool = Class.extend({
                     });
                 }
             } else if ($.type(component.properties.name) === CONSTANTS.STRING) {
-                const name = properties.name;
+                const { name } = properties;
                 if (!RX_NAME.test(name)) {
                     ret.push({
                         type: CONSTANTS.ERROR,

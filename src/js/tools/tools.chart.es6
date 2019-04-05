@@ -12,6 +12,8 @@ import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import BaseTool from './tools.base.es6';
 
+const { ns } = window.kendo;
+
 /**
  * i18n
  * @returns {*|{}}
@@ -87,7 +89,7 @@ var ChartTool = BaseTool.extend({
     description: i18n.chart.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default: '<div data-#= ns #role="chart" data-#= ns #chart-area="#: chartArea$() #" data-#= ns #series-defaults="#: seriesDefaults$() #" data-#= ns #title="#: title$() #" data-#= ns #legend="#: legend$() #" data-#= ns #series="#: series$() #" data-#= ns #category-axis="#: categoryAxis$() #" data-#= ns #value-axis="#: valueAxis$() #" style="#: attributes.style #"></div>'
+        default: `<div data-${ns}role="chart" data-${ns}chart-area="#: chartArea$() #" data-${ns}series-defaults="#: seriesDefaults$() #" data-${ns}title="#: title$() #" data-${ns}legend="#: legend$() #" data-${ns}series="#: series$() #" data-${ns}category-axis="#: categoryAxis$() #" data-${ns}value-axis="#: valueAxis$() #" style="#: attributes.style #"></div>`
     },
     height: 400,
     width: 400,
@@ -280,7 +282,7 @@ var ChartTool = BaseTool.extend({
                 }
             });
         };
-        return template($.extend(component, { ns: kendo.ns }));
+        return template(component);
     },
 
     /**

@@ -114,8 +114,6 @@ const VariableTool = BaseTool.extend({
             class$() {
                 return mode === 'design' ? '' : 'kj-ignore';
             },
-            // ns is required for data-* declarations
-            ns,
             // The src$ function resolves urls with schemes like cdn://sample.jpg
             src$() {
                 // TODO use app.uris

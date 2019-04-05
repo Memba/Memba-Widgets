@@ -20,7 +20,8 @@ import { LIB_COMMENT, genericLibrary } from './util.libraries.es6';
 
 const {
     attr,
-    format
+    format,
+    ns
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
@@ -36,21 +37,21 @@ function i18n() {
     );
 }
 
-var CONNECTOR = '<div data-#= ns #role="connector" data-#= ns #id="#: properties.name #" data-#= ns #target-value="#: properties.solution #" data-#= ns #color="#: attributes.color #" {0}></div>';
+const CONNECTOR = `<div data-${ns}role="connector" data-${ns}id="#: properties.name #" data-${ns}target-value="#: properties.solution #" data-${ns}color="#: attributes.color #" {0}></div>`;
 /**
  * @class ConnectorTool tool
  * @type {void|*}
  */
-var ConnectorTool = BaseTool.extend({
+const ConnectorTool = BaseTool.extend({
     id: 'connector',
     icon: 'target',
     description: i18n.connector.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 0.25,
     templates: {
-        design: format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #create-surface="false"'),
-        play: format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
-        review: format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMarks()
+        design: format(CONNECTOR, `data-${ns}enable="false" data-${ns}create-surface="false"`),
+        play: format(CONNECTOR, `data-${ns}bind="value: #: properties.name #.value, source: interactions"`),
+        review: format(CONNECTOR, `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 70,
     width: 70,

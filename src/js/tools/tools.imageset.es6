@@ -21,7 +21,7 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import { LIB_COMMENT, genericLibrary } from './util.libraries.es6';
 
-const { attr, format } = window.kendo;
+const { attr, format, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -38,7 +38,7 @@ function i18n() {
 }
 
 const IMAGESET =
-    '<div data-#= ns #role="imageset" data-#= ns #images="#: data$() #" style="#: attributes.style #" {0}></div>';
+    `<div data-${ns}role="imageset" data-${ns}images="#: data$() #" style="#: attributes.style #" {0}></div>`;
 
 /**
  * @class ImageSetTool tool
@@ -51,15 +51,15 @@ var ImageSetTool = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: format(IMAGESET, 'data-#= ns #enabled="false"'),
+        design: format(IMAGESET, `data-${ns}enabled="false"`),
         play: format(
             IMAGESET,
-            'data-#= ns #bind="value: #: properties.name #.value"'
+            `data-${ns}bind="value: #: properties.name #.value"`
         ),
         review:
             format(
                 IMAGESET,
-                'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enabled="false"'
+                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enabled="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 250,
@@ -176,7 +176,7 @@ var ImageSetTool = BaseTool.extend({
             // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
             return ` ${JSON.stringify(clone)}`;
         };
-        return template($.extend(component, { ns: kendo.ns }));
+        return template(component);
     },
 
     /**
@@ -201,7 +201,7 @@ var ImageSetTool = BaseTool.extend({
             )
         );
         const content = stageElement.children(
-            `div${kendo.roleSelector('imageset')}`
+            `div${roleSelector('imageset')}`
         );
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(

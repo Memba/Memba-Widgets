@@ -20,7 +20,9 @@ import { LIB_COMMENT, arrayLibrary } from './util.libraries.es6';
 
 const {
     attr,
-    format
+    format,
+    ns,
+    template
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
@@ -50,7 +52,7 @@ function i18n() {
     );
 }
 
-var TEXTGAPS = '<div data-#= ns #role="textgaps" data-#= ns #text="#: attributes.text #" data-#= ns #input-style="#: attributes.inputStyle #" style="#: attributes.style #" {0}></div>';
+var TEXTGAPS = `<div data-${ns}role="textgaps" data-${ns}text="#: attributes.text #" data-${ns}input-style="#: attributes.inputStyle #" style="#: attributes.style #" {0}></div>`;
 /**
  * TextGapsTool tool
  * @class MultiQuiz
@@ -63,9 +65,9 @@ const TextGapsTool = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: format(TEXTGAPS, 'data-#= ns #enable="false"'),
-        play: format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
-        review: format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMarks()
+        design: format(TEXTGAPS, `data-${ns}enable="false"`),
+        play: format(TEXTGAPS, `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`),
+        review: format(TEXTGAPS, `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 150,
     width: 420,
@@ -100,8 +102,8 @@ const TextGapsTool = BaseTool.extend({
         assert.instanceof(TextGapsTool, that, assert.format(assert.messages.instanceof.default, 'this', 'TextGapsTool'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         assert.enum(Object.values(CONSTANTS.STAGE_MODES), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(CONSTANTS.STAGE_MODES)));
-        var template = kendo.template(that.templates[mode]);
-        return template($.extend(component, { ns: kendo.ns }));
+        var tmpl = template(that.templates[mode]);
+        return tmpl(component);
     },
 
     /**

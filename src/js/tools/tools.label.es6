@@ -18,7 +18,11 @@ import TextAreaAdapter from './adapters.textarea.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { constantValidator, styleValidator, textValidator } from './util.validators.es6';
+import {
+    constantValidator,
+    styleValidator,
+    textValidator
+} from './util.validators.es6';
 
 const { format, htmlEncode, ns, template } = window.kendo;
 
@@ -61,8 +65,7 @@ const LabelTool = BaseTool.extend({
     name: i18n.label.name,
     width: 300,
     templates: {
-        default:
-            '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">#= text$() #</div>'
+        default: `<div class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #">#= text$() #</div>`
     },
     attributes: {
         text: new TextAreaAdapter(
@@ -91,9 +94,9 @@ const LabelTool = BaseTool.extend({
     properties: {
         behavior: new DropDownListAdapter(
             {
-                title: i18n.label.properties.behavior.title,
                 defaultValue: 'none',
-                source: i18n.label.properties.behavior.source
+                source: i18n.label.properties.behavior.source,
+                title: i18n.label.properties.behavior.title
             },
             {
                 style: 'width: 100%;'
@@ -155,8 +158,6 @@ const LabelTool = BaseTool.extend({
                     ? component.id
                     : '';
             },
-            // ns is required for data-* declarations
-            ns,
             // html encode text, then replace line feeds with <br/>
             text$() {
                 return htmlEncode(
@@ -249,7 +250,8 @@ const LabelTool = BaseTool.extend({
         if (
             !component.attributes ||
             !component.attributes.text ||
-            component.attributes.text === i18n.label.attributes.text.defaultValue ||
+            component.attributes.text ===
+                i18n.label.attributes.text.defaultValue ||
             !RX_TEXT.test(component.attributes.text)
         ) {
             ret.push({

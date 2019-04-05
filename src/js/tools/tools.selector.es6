@@ -20,7 +20,8 @@ import { LIB_COMMENT, arrayLibrary } from './util.libraries.es6';
 
 const {
     attr,
-    format
+    format,
+    ns
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
@@ -48,7 +49,7 @@ function i18n() {
     );
 }
 
-var SELECTOR = '<div data-#= ns #role="selector" data-#= ns #id="#: properties.name #" data-#= ns #shape="#: attributes.shape #" data-#= ns #stroke="{ color: \'#: attributes.color #\', dashType: \'solid\', opacity: 1, width: \'#: attributes.strokeWidth #\' }" data-#= ns #empty="#: attributes.empty #" data-#= ns #hit-radius="#: attributes.hitRadius #" {0}></div>';
+var SELECTOR = `<div data-${ns}role="selector" data-${ns}id="#: properties.name #" data-${ns}shape="#: attributes.shape #" data-${ns}stroke="{ color: \'#: attributes.color #\', dashType: \'solid\', opacity: 1, width: \'#: attributes.strokeWidth #\' }" data-${ns}empty="#: attributes.empty #" data-${ns}hit-radius="#: attributes.hitRadius #" {0}></div>`;
 /**
  * @class SelectorTool tool
  * @type {void|*}
@@ -62,8 +63,8 @@ var SelectorTool = BaseTool.extend({
     templates: {
         design: '<img src="https://cdn.kidoju.com/images/o_collection/svg/office/selector.svg" alt="selector">',
         // design: '<img src="#: icon$() #" alt="#: description$() #">',
-        play: format(SELECTOR, 'data-#= ns #toolbar="\\#floating .kj-floating-content" data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
-        review: format(SELECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMarks()
+        play: format(SELECTOR, `data-${ns}toolbar="\\#floating .kj-floating-content" data-${ns}bind="value: #: properties.name #.value, source: interactions"`),
+        review: format(SELECTOR, `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 50,
     width: 50,

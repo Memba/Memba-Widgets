@@ -17,12 +17,7 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 
-const {
-    format,
-    ns,
-    roleSelector,
-    template,
-} = window.kendo;
+const { format, ns, roleSelector, template } = window.kendo;
 
 /**
  * i18n
@@ -50,8 +45,7 @@ const AudioTool = BaseTool.extend({
     description: i18n().description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default:
-            '<div data-#= ns #role="mediaplayer" data-#= ns #mode="audio" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: files$() #"></div>'
+        default: `<div data-${ns}role="mediaplayer" data-${ns}mode="audio" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #"></div>`
     },
     height: 100,
     width: 400,
@@ -150,9 +144,7 @@ const AudioTool = BaseTool.extend({
                 // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
                 // return `${JSON.stringify(files)}`;
                 return JSON.stringify(files);
-            },
-            // ns is required for data-* declarations
-            ns
+            }
         });
         return tmpl(component);
     },

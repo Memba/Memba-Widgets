@@ -45,7 +45,14 @@ function i18n() {
                 style: { title: 'Style' }
             },
             properties: {
-                behavior: { title: 'Behaviour' },
+                behavior: {
+                    source: [
+                        { text: 'None', value: 'none' },
+                        { text: 'Draggable', value: 'draggable' },
+                        { text: 'Selectable', value: 'selectable' }
+                    ],
+                    title: 'Behaviour'
+                },
                 constant: { title: 'Constant' }
             }
         }
@@ -68,8 +75,7 @@ const ImageTool = BaseTool.extend({
     name: i18n().name,
     width: 250,
     templates: {
-        default:
-            '<img src="#: src$() #" alt="#: attributes.alt #" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">'
+        default: `<img src="#: src$() #" alt="#: attributes.alt #" class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #">`
     },
     attributes: {
         alt: new TextBoxAdapter({
@@ -85,9 +91,9 @@ const ImageTool = BaseTool.extend({
     properties: {
         behavior: new DropDownListAdapter(
             {
-                title: i18n().properties.behavior.title,
                 defaultValue: 'none',
-                enum: ['none', 'draggable', 'selectable']
+                source: i18n().properties.behavior.source,
+                title: i18n().properties.behavior.title
             },
             {
                 style: 'width: 100%;'
@@ -175,8 +181,6 @@ const ImageTool = BaseTool.extend({
                     ? component.id
                     : '';
             },
-            // ns is required for data-* declarations
-            ns,
             // The src$ function resolves urls with schemes like cdn://sample.jpg
             src$() {
                 const src = component.attributes.get('src');

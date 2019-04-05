@@ -20,7 +20,8 @@ import { LIB_COMMENT, mathLibrary} from './util.libraries.es6';
 
 const {
     attr,
-    format
+    format,
+    ns
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
@@ -37,7 +38,7 @@ function i18n() {
 }
 
 
-var MATHINPUT = '<div data-#= ns #role="mathinput" data-#= ns #toolbar="#: JSON.stringify(toolbar$()) #" style="#: attributes.style #" {0}>#: attributes.formula #</div>';
+var MATHINPUT = `<div data-${ns}role="mathinput" data-${ns}toolbar="#: JSON.stringify(toolbar$()) #" style="#: attributes.style #" {0}>#: attributes.formula #</div>`;
 /**
  * @class MathInputTool tool
  * @type {void|*}
@@ -48,9 +49,9 @@ var MathInputTool = BaseTool.extend({
     description: i18n.mathinput.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        design: format(MATHINPUT, 'data-#= ns #enable="false"'),
-        play: format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value"'),
-        review: format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + BaseTool.fn.getHtmlCheckMarks()
+        design: format(MATHINPUT, `data-${ns}enable="false"`),
+        play: format(MATHINPUT, `data-${ns}bind="value: #: properties.name #.value"`),
+        review: format(MATHINPUT, `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 120,
     width: 370,
@@ -136,7 +137,7 @@ var MathInputTool = BaseTool.extend({
                 tools: tools
             };
         };
-        return template($.extend(component, { ns: kendo.ns }));
+        return template(component);
     },
 
     /**

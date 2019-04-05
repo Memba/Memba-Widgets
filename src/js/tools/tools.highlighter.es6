@@ -39,7 +39,7 @@ function i18n() {
 }
 
 const HIGHLIGHTER =
-    '<div class="kj-interactive" data-#= ns #role="highlighter" data-#= ns #text="#: attributes.text #" data-#= ns #split="#: attributes.split #"  data-#= ns #highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>';
+    `<div class="kj-interactive" data-${ns}role="highlighter" data-${ns}text="#: attributes.text #" data-${ns}split="#: attributes.split #"  data-${ns}highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>`;
 /**
  * @class HighLighterTool tool
  * @type {void|*}
@@ -51,15 +51,15 @@ const HighLighterTool = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: format(HIGHLIGHTER, 'data-#= ns #enable="false"'),
+        design: format(HIGHLIGHTER, `data-${ns}enable="false"`),
         play: format(
             HIGHLIGHTER,
-            'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'
+            `data-${ns}bind="value: #: properties.name #.value, source: interactions"`
         ),
         review:
             format(
                 HIGHLIGHTER,
-                'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"'
+                `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 250,
@@ -147,7 +147,7 @@ const HighLighterTool = BaseTool.extend({
             )
         );
         const tmpl = template(that.templates[mode]);
-        return tmpl($.extend(component, { ns }));
+        return tmpl(component);
     },
 
     /**

@@ -50,7 +50,7 @@ var VideoTool = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
         default:
-            '<div data-#= ns #role="mediaplayer" data-#= ns #mode="video" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: files$() #" data-#= ns #toolbar-height="#: attributes.toolbarHeight #"></div>'
+            `<div data-${ns}role="mediaplayer" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`
     },
     height: 300,
     width: 600,
@@ -134,9 +134,7 @@ var VideoTool = BaseTool.extend({
                 // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
                 // return ` ${JSON.stringify(files)}`;
                 return JSON.stringify(files);
-            },
-            // ns is required for data-* declarations
-            ns
+            }
         });
 
         return tmpl(component);

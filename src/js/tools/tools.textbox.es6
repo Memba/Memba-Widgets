@@ -32,6 +32,7 @@ import {
 
 const {
     format,
+    ns,
     ui: { MaskedTextBox }
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -65,7 +66,7 @@ function i18n() {
 
 // Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
 const TEXTBOX =
-    '<input type="text" id="#: properties.name #" class="kj-interactive" data-#= ns #role="maskedtextbox" data-#= ns #prompt-char="\u25CA" style="#: attributes.style #" {0}>';
+    `<input type="text" id="#: properties.name #" class="kj-interactive" data-${ns}role="maskedtextbox" data-${ns}prompt-char="\u25CA" style="#: attributes.style #" {0}>`;
 
 /**
  * @class TextBoxTool tool
@@ -92,12 +93,12 @@ const TextBoxTool = BaseTool.extend({
         design: format(TEXTBOX, ''),
         play: format(
             TEXTBOX,
-            'data-#= ns #bind="value: #: properties.name #.value"'
+            `data-${ns}bind="value: #: properties.name #.value"`
         ),
         review:
             format(
                 TEXTBOX,
-                'data-#= ns #bind="value: #: properties.name #.value"'
+                `data-${ns}bind="value: #: properties.name #.value"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {

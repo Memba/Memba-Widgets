@@ -77,8 +77,7 @@ function i18n() {
     );
 }
 
-const MULTIQUIZ =
-    '<div data-#= ns #role="multiquiz" data-#= ns #mode="#: attributes.mode #" data-#= ns #source="#: data$() #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #" {0}></div>';
+const MULTIQUIZ = `<div data-${ns}role="multiquiz" data-${ns}mode="#: attributes.mode #" data-${ns}source="#: data$() #" style="#: attributes.groupStyle #" data-${ns}item-style="#: attributes.itemStyle #" data-${ns}selected-style="#: attributes.selectedStyle #" {0}></div>`;
 /**
  * MultiQuizTool tool
  * @class MultiQuizTool
@@ -95,15 +94,15 @@ const MultiQuizTool = BaseTool.extend({
     weight: 1,
     width: 420,
     templates: {
-        design: format(MULTIQUIZ, 'data-#= ns #enable="false"'),
+        design: format(MULTIQUIZ, `data-${ns}enable="false"`),
         play: format(
             MULTIQUIZ,
-            'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'
+            `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
         ),
         review:
             format(
                 MULTIQUIZ,
-                'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"'
+                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
@@ -215,7 +214,7 @@ const MultiQuizTool = BaseTool.extend({
             const data = component.attributes.get('data');
             const clone = [];
             const { schemes } = assets.image;
-            for (let i = 0, length = data.length; i < length; i++) {
+            for (let i = 0, { length } = data; i < length; i++) {
                 const item = {
                     text: data[i].text,
                     image: ''
@@ -238,7 +237,7 @@ const MultiQuizTool = BaseTool.extend({
             // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
             return ` ${JSON.stringify(clone)}`;
         };
-        return tmpl($.extend(component, { ns }));
+        return tmpl(component);
     },
 
     /**
@@ -334,8 +333,8 @@ const MultiQuizTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const { description } = this; // tool description
+        const { messages } = this.i18n;
         if (
             !component.attributes ||
             // Styles are only checked if there is any (optional)

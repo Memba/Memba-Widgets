@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: there is a refresh problem
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -11,10 +13,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
-// TODO: there is a refresh problem
-
 const { attr, format } = window.kendo;
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
 
 /**
  * HighLighterAdapter

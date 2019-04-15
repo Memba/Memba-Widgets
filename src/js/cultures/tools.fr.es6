@@ -3,14 +3,11 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO: Check loading issue that would require loading tools in global variable
-// Especially i18n is packed as a separate webpack bundle
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import tools from '../tools/tools.es6';
-import BaseTool from '../tools/tools.base.es6';
+import i18n from '../tools/util.i18n.es6';
 
 /**
  * TODO Page and PageComponent
@@ -77,7 +74,7 @@ if (window.kidoju && window.kidoju.data) {
 /**
  * BaseTool and tools
  */
-BaseTool.prototype.i18n = $.extend(true, BaseTool.prototype.i18n, {
+$.extend(true, i18n(), {
     tool: {
         top: { title: 'Pos. Haut' },
         left: { title: 'Pos. Gauche' },
@@ -132,7 +129,7 @@ BaseTool.prototype.i18n = $.extend(true, BaseTool.prototype.i18n, {
     }
 });
 
-if (tools.audio instanceof BaseTool) {
+if (tools.audio) {
     // Description
     tools.audio.constructor.prototype.description = 'Lecteur Audio';
     // Attributes
@@ -142,7 +139,7 @@ if (tools.audio instanceof BaseTool) {
     attributes.ogg.title = 'Fichier OGG';
 }
 
-if (tools.chargrid instanceof BaseTool) {
+if (tools.chargrid) {
     // Description
     tools.chargrid.constructor.prototype.description = 'Character Grid';
     // Attributes
@@ -170,7 +167,7 @@ if (tools.chargrid instanceof BaseTool) {
     properties.omit.title = 'Omission';
 }
 
-if (tools.chart instanceof BaseTool) {
+if (tools.chart) {
     // Description
     tools.chart.constructor.prototype.description = 'Diagramme';
     // Attributes
@@ -184,7 +181,7 @@ if (tools.chart instanceof BaseTool) {
     attributes.style.title = 'Style';
 }
 
-if (tools.connector instanceof BaseTool) {
+if (tools.connector) {
     // Description
     tools.connector.constructor.prototype.description = 'Connecteur';
     // Attributes
@@ -202,7 +199,7 @@ if (tools.connector instanceof BaseTool) {
     properties.disabled.title = 'Désactivé';
 }
 
-if (tools.dropzone instanceof BaseTool) {
+if (tools.dropzone) {
     // Description
     tools.dropzone.constructor.prototype.description = 'Zone de Dépot';
     // Attributes
@@ -225,7 +222,7 @@ if (tools.dropzone instanceof BaseTool) {
     properties.disabled.title = 'Désactivé';
 }
 
-if (tools.highlighter instanceof BaseTool) {
+if (tools.highlighter) {
     // Description
     tools.highlighter.constructor.prototype.description = 'Surligneur';
     // Attributes
@@ -246,7 +243,7 @@ if (tools.highlighter instanceof BaseTool) {
     properties.omit.title = 'Omission';
 }
 
-if (tools.image instanceof BaseTool) {
+if (tools.image) {
     // Description
     tools.image.constructor.prototype.description = 'Image';
     // Attributes
@@ -263,7 +260,7 @@ if (tools.image instanceof BaseTool) {
     properties.constant.title = 'Constante';
 }
 
-if (tools.imageset instanceof BaseTool) {
+if (tools.imageset) {
     // Description
     tools.imageset.constructor.prototype.description = 'Jeu d’images';
     // Attributes
@@ -287,7 +284,7 @@ if (tools.imageset instanceof BaseTool) {
     properties.omit.title = 'Omit';
 }
 
-if (tools.label instanceof BaseTool) {
+if (tools.label) {
     // Description
     tools.label.constructor.prototype.description = 'Étiquette';
     // Attributes
@@ -301,7 +298,7 @@ if (tools.label instanceof BaseTool) {
     properties.constant.title = 'Constante';
 }
 
-if (tools.mathexpression instanceof BaseTool) {
+if (tools.mathexpression) {
     // Description
     tools.mathexpression.constructor.prototype.description =
         'Expression Mathématique';
@@ -314,11 +311,11 @@ if (tools.mathexpression instanceof BaseTool) {
     attributes.style.title = 'Style';
 }
 
-if (tools.mathinput instanceof BaseTool) {
+if (tools.mathinput) {
     // TODO
 }
 
-if (tools.multiquiz instanceof BaseTool) {
+if (tools.multiquiz) {
     // Description
     tools.multiquiz.constructor.prototype.description =
         'Question à Choix Multiple';
@@ -351,9 +348,9 @@ if (tools.multiquiz instanceof BaseTool) {
     properties.omit.title = 'Omission';
 }
 
-// if (tools.numericbox instanceof BaseTool) {}
+// if (tools.numericbox) {}
 
-if (tools.quiz instanceof BaseTool) {
+if (tools.quiz) {
     // Description
     tools.quiz.constructor.prototype.description = 'Question à Choix Unique';
     // Attributes
@@ -385,9 +382,9 @@ if (tools.quiz instanceof BaseTool) {
     properties.omit.title = 'Omission';
 }
 
-// if (tools.random instanceof BaseTool) {}
+// if (tools.random) {}
 
-if (tools.selector instanceof BaseTool) {
+if (tools.selector) {
     // Description
     tools.selector.constructor.prototype.description = 'Selecteur';
     // Attributes
@@ -406,7 +403,7 @@ if (tools.selector instanceof BaseTool) {
     properties.disabled.title = 'Désactiver';
 }
 
-if (tools.table instanceof BaseTool) {
+if (tools.table) {
     // Description
     tools.table.constructor.prototype.description = 'Table Statique';
     // Attributes
@@ -416,7 +413,7 @@ if (tools.table instanceof BaseTool) {
     attributes.data.title = 'Données';
 }
 
-if (tools.textarea instanceof BaseTool) {
+if (tools.textarea) {
     // Description
     tools.textarea.constructor.prototype.description = 'Aire de Texte';
     // Attributes
@@ -433,7 +430,7 @@ if (tools.textarea instanceof BaseTool) {
     properties.omit.title = 'Omission';
 }
 
-if (tools.textbox instanceof BaseTool) {
+if (tools.textbox) {
     // Description
     tools.textbox.constructor.prototype.description = 'Boîte de Texte';
     // Attributes
@@ -451,7 +448,7 @@ if (tools.textbox instanceof BaseTool) {
     properties.omit.title = 'Omission';
 }
 
-if (tools.textgaps instanceof BaseTool) {
+if (tools.textgaps) {
     // Description
     tools.textgaps.constructor.prototype.description = 'Texte à trous';
     // Attributes
@@ -472,7 +469,7 @@ if (tools.textgaps instanceof BaseTool) {
     properties.omit.title = 'Omission';
 }
 
-if (tools.video instanceof BaseTool) {
+if (tools.video) {
     // Description
     tools.video.constructor.prototype.description = 'Lecteur Vidéo';
     // Attributes

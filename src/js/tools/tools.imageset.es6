@@ -19,32 +19,32 @@ import StyleAdapter from './adapters.style.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, genericLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { genericLibrary } from './util.libraries.es6';
 
 const { attr, format, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
+const i18n = {
+    imageset: {
+        description: 'Image Set',
+        attributes: {
+            style: {
+                title: 'Title'
+            }
+        },
+        properties: {
 
-/**
- * i18n
- * @returns {*|{}}
- */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).imageset ||
-        {
-            // TODO
         }
-    );
-}
+    }
+};
 
-const IMAGESET =
-    `<div data-${ns}role="imageset" data-${ns}images="#: data$() #" style="#: attributes.style #" {0}></div>`;
+const IMAGESET = `<div data-${ns}role="imageset" data-${ns}images="#: data$() #" style="#: attributes.style #" {0}></div>`;
 
 /**
  * @class ImageSetTool tool
  * @type {void|*}
  */
-var ImageSetTool = BaseTool.extend({
+const ImageSetTool = BaseTool.extend({
     id: 'imageset',
     icon: 'photos',
     description: i18n.imageset.description,
@@ -85,7 +85,7 @@ var ImageSetTool = BaseTool.extend({
             title: i18n.imageset.properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${genericLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
             title: i18n.imageset.properties.validation.title
         }),
@@ -153,8 +153,8 @@ var ImageSetTool = BaseTool.extend({
         component.data$ = function() {
             const data = component.attributes.get('data');
             const clone = [];
-            const schemes = assets.image.schemes;
-            for (let i = 0, length = data.length; i < length; i++) {
+            const { schemes } = assets.image;
+            for (let i = 0, { length } = data; i < length; i++) {
                 const item = {
                     text: data[i].text,
                     image: ''
@@ -200,9 +200,7 @@ var ImageSetTool = BaseTool.extend({
                 'PageComponent'
             )
         );
-        const content = stageElement.children(
-            `div${roleSelector('imageset')}`
-        );
+        const content = stageElement.children(`div${roleSelector('imageset')}`);
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(
                 component.get('width') -
@@ -230,8 +228,8 @@ var ImageSetTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const { description } = this; // tool description
+        const { messages } = this.i18n;
         if (
             !component.attributes ||
             // Styles are only checked if there is any (optional)

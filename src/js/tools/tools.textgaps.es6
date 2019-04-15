@@ -16,7 +16,8 @@ import QuestionAdapter from './adapters.question.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, arrayLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { arrayLibrary } from './util.libraries.es6';
 
 const {
     attr,
@@ -83,7 +84,7 @@ const TextGapsTool = BaseTool.extend({
         question: new QuestionAdapter({ title: i18n.textgaps.properties.question.title }),
         solution: new StringArrayAdapter({ title: i18n.textgaps.properties.solution.title, defaultValue: [] }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${arrayLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${arrayLibrary.defaultKey}`,
             library: arrayLibrary.library,
             title: i18n.textgaps.properties.validation.title
         }),

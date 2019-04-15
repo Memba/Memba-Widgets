@@ -21,7 +21,8 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, charGridLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { charGridLibrary } from './util.libraries.es6';
 
 const {
     data: { ObservableArray },
@@ -136,7 +137,7 @@ const CharGridTool = BaseTool.extend({
             title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${charGridLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${charGridLibrary.defaultKey}`,
             library: charGridLibrary.library,
             title: i18n().properties.validation.title
         }),

@@ -21,7 +21,8 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, stringLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { stringLibrary } from './util.libraries.es6';
 
 const {
     format,
@@ -113,7 +114,7 @@ const NumericBoxTool = BaseTool.extend({
             title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${stringLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${stringLibrary.defaultKey}`,
             library: stringLibrary.library,
             title: i18n().properties.validation.title
         }),

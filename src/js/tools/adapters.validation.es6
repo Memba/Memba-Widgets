@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: This is another case of open dialog adapter
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -13,20 +15,9 @@ import { getValueBinding } from '../data/data.util.es6';
 import openCodeEditor from '../dialogs/dialogs.codeeditor.es6';
 import '../widgets/widgets.codeinput.es6';
 import BaseAdapter from './adapters.base.es6';
+import { CUSTOM } from './util.libraries.es6';
 
 const { attr, format, htmlEncode, ns, ui } = window.kendo;
-
-// TODO: This is another case of open dialog adapter
-
-// TODO Review where to store that
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
-const CUSTOM = {
-    name: 'custom', // TODO i18n
-    formula: format(
-        VALIDATION_CUSTOM, // BaseAdapter.validationDeclaration,
-        '// Your code should return true when value is validated against solution.'
-    )
-};
 
 /**
  * ValidationAdapter

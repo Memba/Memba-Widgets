@@ -26,11 +26,11 @@ import '../vendor/codemirror/addon/lint/javascript-lint';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
+import TOOLS from '../tools/util.constants.es6';
 import {
     isCustomFormula,
     stringifyLibraryItem,
-    parseLibraryItem,
-    VALIDATION_CUSTOM
+    parseLibraryItem
 } from '../tools/util.libraries.es6';
 import poolExec from '../workers/workers.exec.es6';
 
@@ -523,7 +523,7 @@ const CodeEditor = DataBoundWidget.extend({
                     const code = this.codeMirror.getDoc().getValue();
                     const cursor = this.codeMirror.getDoc().getCursor();
                     const lines = code.split('\n');
-                    [lines[0]] = VALIDATION_CUSTOM.split('\n');
+                    [lines[0]] = TOOLS.VALIDATION_CUSTOM.split('\n');
                     this.value(lines.join('\n'));
                     this.codeMirror.getDoc().setCursor(cursor);
                 }

@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Rename into checkboxes
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -18,8 +20,6 @@ const {
     format,
     ns
 } = window.kendo;
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
-// TODO Rename into checkboxes
 
 /**
  * MultiQuizAdapter

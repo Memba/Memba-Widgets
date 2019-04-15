@@ -19,10 +19,12 @@ import { PageComponent } from '../data/data.pagecomponent.es6';
 import poolExec from '../workers/workers.exec.es6';
 import BaseAdapter from './adapters.base.es6';
 import NumberAdapter from './adapters.number.es6';
+import TOOLS from './util.constants.es6';
+import i18n from './util.i18n.es6';
 import {
+    isCustomFormula,
     isLibraryFormula,
-    parseLibraryItem,
-    RX_VALIDATION_FORMULA
+    parseLibraryItem
 } from './util.libraries.es6';
 
 const { attr, Class, format, getter, htmlEncode, ns, template } = window.kendo;
@@ -111,44 +113,30 @@ const BaseTool = Class.extend({
      * @private
      */
     getAttributeRows() {
-        const i18n = BaseTool.getMessageNameSpace();
         const rows = [];
         const data = {};
+        const { tool } = i18n();
         data[attr('decimals')] = 0;
         data[attr('format')] = 'n0';
         // Add top, left, height, width, rotation
         rows.push(
-            new NumberAdapter({ title: i18n.base.tool.top.title }, data).getRow(
-                'top'
+            new NumberAdapter({ title: tool.top.title }, data).getRow('top')
+        );
+        rows.push(
+            new NumberAdapter({ title: tool.left.title }, data).getRow('left')
+        );
+        rows.push(
+            new NumberAdapter({ title: tool.height.title }, data).getRow(
+                'height'
             )
         );
         rows.push(
-            new NumberAdapter(
-                { title: i18n.base.tool.left.title },
-                data
-            ).getRow('left')
+            new NumberAdapter({ title: tool.width.title }, data).getRow('width')
         );
         rows.push(
-            new NumberAdapter(
-                {
-                    title: i18n.base.tool.height.title
-                },
-                data
-            ).getRow('height')
-        );
-        rows.push(
-            new NumberAdapter(
-                { title: i18n.base.tool.width.title },
-                data
-            ).getRow('width')
-        );
-        rows.push(
-            new NumberAdapter(
-                {
-                    title: i18n.base.tool.rotate.title
-                },
-                data
-            ).getRow('rotate')
+            new NumberAdapter({ title: tool.rotate.title }, data).getRow(
+                'rotate'
+            )
         );
 
         // Add other attributes
@@ -378,7 +366,7 @@ const BaseTool = Class.extend({
                     // This is a library item
                     validation = validation.item.formula;
                 }
-                if (!RX_VALIDATION_FORMULA.test(validation)) {
+                if (!TOOLS.RX_VALIDATION_FORMULA.test(validation)) {
                     // debugger;
                     // The library item is missing
                     return dfd
@@ -649,24 +637,15 @@ const BaseTool = Class.extend({
         );
         const ret = [];
         const { properties } = component;
-        const {
-            description,
-            i18n: { messages }
-        } = this;
+        const { description } = this;
+        const { messages } = i18n();
         if (properties && !properties.disabled) {
-            const RX_DESCRIPTION = /\S+/i; // question
-            const RX_CONSTANT = /\S+/i;
-            const RX_NAME = /val_[0-9a-f]{6}/;
-            const RX_SOLUTION = /\S+/i;
-            const RX_VALIDATION_LIBRARY = /^\/\/ ([^\s\[\n]+)( (\[[^\n]+\]))?$/;
-            const RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
-
             if (
                 $.type(properties.behavior) === CONSTANTS.STRING &&
                 properties.behavior !== 'none'
             ) {
                 // Note: This test might be better suited to inherited tools (labels, images and math expressions)
-                if (!RX_CONSTANT.test(properties.constant)) {
+                if (!TOOLS.RX_CONSTANT.test(properties.constant)) {
                     ret.push({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
@@ -679,7 +658,7 @@ const BaseTool = Class.extend({
                 }
             } else if ($.type(component.properties.name) === CONSTANTS.STRING) {
                 const { name } = properties;
-                if (!RX_NAME.test(name)) {
+                if (!TOOLS.RX_NAME.test(name)) {
                     ret.push({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
@@ -693,7 +672,7 @@ const BaseTool = Class.extend({
                 }
                 if (
                     !properties.question ||
-                    !RX_DESCRIPTION.test(properties.question)
+                    !TOOLS.RX_QUESTION.test(properties.question)
                 ) {
                     ret.push({
                         type: CONSTANTS.ERROR,
@@ -708,7 +687,7 @@ const BaseTool = Class.extend({
                 }
                 if (
                     !properties.solution ||
-                    !RX_SOLUTION.test(properties.solution)
+                    !TOOLS.RX_SOLUTION.test(properties.solution)
                 ) {
                     // What if properties.solution is a number or a date?
                     ret.push({
@@ -723,8 +702,8 @@ const BaseTool = Class.extend({
                     });
                 }
                 if (
-                    !RX_VALIDATION_LIBRARY.test(properties.validation) &&
-                    !RX_VALIDATION_CUSTOM.test(properties.validation)
+                    !isLibraryFormula(properties.validation) &&
+                    !isCustomFormula(properties.validation)
                 ) {
                     ret.push({
                         type: CONSTANTS.ERROR,
@@ -774,79 +753,6 @@ const BaseTool = Class.extend({
         return ret;
     }
 });
-
-/**
- * Global references for i18n
- * Static getter the message namespace (see ../cultures/tools.*)
- * @method getMessageNameSpace
- */
-BaseTool.getMessageNameSpace = () => {
-    window.kendo.ex = window.kendo.ex || {};
-    window.kendo.ex.tools = window.kendo.ex.tools || {};
-    window.kendo.ex.tools.messages = window.kendo.ex.tools.messages || {};
-    return window.kendo.ex.tools.messages;
-};
-
-/**
- * Init i18n messages
- */
-const i18n = BaseTool.getMessageNameSpace();
-i18n.base = i18n.base || {
-    tool: {
-        top: { title: 'Top' },
-        left: { title: 'Left' },
-        height: { title: 'Height' },
-        width: { title: 'Width' },
-        rotate: { title: 'Rotate' }
-    },
-
-    dialogs: {
-        ok: {
-            text:
-                '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
-        },
-        cancel: {
-            text:
-                '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel'
-        }
-    },
-
-    messages: {
-        invalidAltText:
-            'A(n) {0} on page {1} requires some alternate text in display attributes.',
-        invalidAudioFile:
-            'A(n) {0} on page {1} requires an mp3 file in display attributes.',
-        invalidColor:
-            'A(n) {0} on page {1} has an invalid color in display attributes.',
-        invalidData:
-            'A(n) {0} on page {1} requires values in display attributes.',
-        invalidDescription:
-            'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
-        invalidConstant:
-            'A(n) {0} on page {1} requires a constant in test logic.',
-        invalidFailure:
-            'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
-        invalidFormula:
-            'A(n) {0} on page {1} requires a formula in display attributes.',
-        invalidImageFile:
-            'A(n) {0} on page {1} requires an image file in display attributes.',
-        invalidName: 'A(n) {0} named `{1}` on page {2} has an invalid name.',
-        invalidShape:
-            'A(n) {0} named `{1}` on page {2} requires a shape in display attributes.',
-        invalidSolution:
-            'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
-        invalidStyle:
-            'A(n) {0} on page {1} has an invalid style in display attributes.',
-        invalidSuccess:
-            'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
-        invalidText:
-            'A(n) {0} on page {1} requires some text in display attributes.',
-        invalidValidation:
-            'A(n) {0} named `{1}` on page {2} requires a validation formula in test logic.',
-        invalidVideoFile:
-            'A(n) {0} on page {1} requires an mp4 file in display attributes.'
-    }
-};
 
 /**
  * Default export

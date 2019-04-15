@@ -27,27 +27,28 @@ import {
 const { format, htmlEncode, ns, template } = window.kendo;
 
 /**
- * Init i18n messages
+ * i18n messages
  */
-const i18n = BaseTool.getMessageNameSpace();
-i18n.label = i18n.label || {
-    description: 'Label',
-    help: null,
-    name: 'Label',
-    attributes: {
-        style: { title: 'Style' },
-        text: { title: 'Text', defaultValue: 'Label' }
-    },
-    properties: {
-        behavior: {
-            source: [
-                { text: 'None', value: 'none' },
-                { text: 'Draggable', value: 'draggable' },
-                { text: 'Selectable', value: 'selectable' }
-            ],
-            title: 'Behaviour'
+const i18n = {
+    label: {
+        description: 'Label',
+        help: null,
+        name: 'Label',
+        attributes: {
+            style: { title: 'Style' },
+            text: { title: 'Text', defaultValue: 'Label' }
         },
-        constant: { title: 'Constant' }
+        properties: {
+            behavior: {
+                source: [
+                    { text: 'None', value: 'none' },
+                    { text: 'Draggable', value: 'draggable' },
+                    { text: 'Selectable', value: 'selectable' }
+                ],
+                title: 'Behaviour'
+            },
+            constant: { title: 'Constant' }
+        }
     }
 };
 

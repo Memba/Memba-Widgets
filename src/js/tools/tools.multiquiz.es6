@@ -24,7 +24,8 @@ import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
-import { LIB_COMMENT, multiQuizLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { multiQuizLibrary } from './util.libraries.es6';
 
 const { format, htmlEncode, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -145,7 +146,7 @@ const MultiQuizTool = BaseTool.extend({
             defaultValue: []
         }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${multiQuizLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${multiQuizLibrary.defaultKey}`,
             library: multiQuizLibrary.library,
             title: i18n().properties.validation.title
         }),

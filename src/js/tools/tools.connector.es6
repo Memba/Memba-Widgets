@@ -16,7 +16,8 @@ import QuestionAdapter from './adapters.question.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, genericLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { genericLibrary } from './util.libraries.es6';
 
 const {
     attr,
@@ -63,7 +64,7 @@ const ConnectorTool = BaseTool.extend({
         question: new QuestionAdapter({ title: i18n.connector.properties.question.title }),
         solution: new ConnectorAdapter({ title: i18n.connector.properties.solution.title }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${genericLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
             title: i18n.connector.properties.validation.title
         }),

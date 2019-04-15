@@ -85,6 +85,7 @@ module.exports = grunt => {
                 devFile: false,
                 dest: 'src/js/vendor/modernizr/modernizr.js',
                 tests: [
+                    'atobbtoa',
                     'audio',
                     'blobconstructor',
                     'canvas',
@@ -108,7 +109,6 @@ module.exports = grunt => {
                     'bloburls',
                     'datauri',
                     'getusermedia',
-                    ['atobbtoa'],
                     'webworkers'
                 ],
                 options: ['setClasses'],

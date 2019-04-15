@@ -1,6 +1,6 @@
 /*!
  * modernizr v3.7.1
- * Build https://modernizr.com/download?-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-filesystem-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
+ * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-filesystem-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
  *
  * Copyright (c)
  *  Faruk Ates
@@ -229,6 +229,32 @@
   }
 
   ;
+/*!
+{
+  "name": "Base 64 encoding/decoding",
+  "property": "atobbtoa",
+  "builderAliases": ["atob-btoa"],
+  "caniuse": "atob-btoa",
+  "tags": ["atob", "base64", "WindowBase64", "btoa"],
+  "authors": ["Christian Ulbrich"],
+  "notes": [{
+    "name": "WindowBase64",
+    "href": "https://www.w3.org/TR/html5/webappapis.html#windowbase64"
+  }, {
+    "name": "MDN Docs",
+    "href": "https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/atob"
+  }],
+  "polyfills": ["base64js"]
+}
+!*/
+/* DOC
+
+Detects support for WindowBase64 API (window.atob && window.btoa).
+
+*/
+
+  Modernizr.addTest('atobbtoa', 'atob' in window && 'btoa' in window, {aliases: ['atob-btoa']});
+
 
   /**
    * createElement is a convenience wrapper around document.createElement. Since we

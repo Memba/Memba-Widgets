@@ -193,7 +193,7 @@ global.mocha = mocha;
 module.exports = global;
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lib/mocha":14,"_process":68,"browser-stdout":41}],2:[function(require,module,exports){
+},{"./lib/mocha":14,"_process":69,"browser-stdout":41}],2:[function(require,module,exports){
 (function (process,global){
 'use strict';
 
@@ -365,7 +365,7 @@ function notPermitted(err) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../package":89,"../runner":34,"_process":68}],3:[function(require,module,exports){
+},{"../../package":90,"../runner":34,"_process":69}],3:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1514,12 +1514,15 @@ function Mocha(options) {
     utils.deprecate(
       'enableTimeouts is DEPRECATED and will be removed from a future version of Mocha. Instead, use "timeout: false" to disable timeouts.'
     );
+    if (options.enableTimeouts === false) {
+      this.timeout(0);
+    }
   }
-  this.timeout(
-    options.enableTimeouts === false || options.timeout === false
-      ? 0
-      : options.timeout
-  );
+
+  // this guard exists because Suite#timeout does not consider `undefined` to be valid input
+  if (typeof options.timeout !== 'undefined') {
+    this.timeout(options.timeout === false ? 0 : options.timeout);
+  }
 
   if ('retries' in options) {
     this.retries(options.retries);
@@ -2234,7 +2237,7 @@ Mocha.prototype.run = function(fn) {
 };
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../package.json":89,"./context":5,"./errors":6,"./growl":2,"./hook":7,"./interfaces":11,"./mocharc.json":15,"./reporters":21,"./runnable":33,"./runner":34,"./stats-collector":35,"./suite":36,"./test":37,"./utils":38,"_process":68,"escape-string-regexp":49,"path":42}],15:[function(require,module,exports){
+},{"../package.json":90,"./context":5,"./errors":6,"./growl":2,"./hook":7,"./interfaces":11,"./mocharc.json":15,"./reporters":21,"./runnable":33,"./runner":34,"./stats-collector":35,"./suite":36,"./test":37,"./utils":38,"_process":69,"escape-string-regexp":49,"path":42}],15:[function(require,module,exports){
 module.exports={
   "diff": true,
   "extension": ["js"],
@@ -2356,10 +2359,10 @@ if (process.platform === 'win32') {
  * as well as user-defined color
  * schemes.
  *
+ * @private
  * @param {string} type
  * @param {string} str
  * @return {string}
- * @private
  */
 var color = (exports.color = function(type, str) {
   if (!exports.useColors) {
@@ -2432,7 +2435,8 @@ function stringifyDiffObjs(err) {
 /**
  * Returns a diff between 2 strings with coloured ANSI output.
  *
- * The diff will be either inline or unified dependant on the value
+ * @description
+ * The diff will be either inline or unified dependent on the value
  * of `Base.inlineDiff`.
  *
  * @param {string} actual
@@ -2446,14 +2450,14 @@ var generateDiff = (exports.generateDiff = function(actual, expected) {
 });
 
 /**
- * Output the given `failures` as a list.
+ * Outputs the given `failures` as a list.
  *
  * @public
  * @memberof Mocha.reporters.Base
  * @variation 1
- * @param {Array} failures
+ * @param {Object[]} failures - Each is Test instance with corresponding
+ *     Error property
  */
-
 exports.list = function(failures) {
   console.log();
   failures.forEach(function(test, i) {
@@ -2521,25 +2525,26 @@ exports.list = function(failures) {
 };
 
 /**
- * Initialize a new `Base` reporter.
+ * Constructs a new `Base` reporter instance.
  *
- * All other reporters generally
- * inherit from this reporter.
+ * @description
+ * All other reporters generally inherit from this reporter.
  *
- * @memberof Mocha.reporters
  * @public
  * @class
- * @param {Runner} runner
+ * @memberof Mocha.reporters
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-
-function Base(runner) {
+function Base(runner, options) {
   var failures = (this.failures = []);
 
   if (!runner) {
     throw new TypeError('Missing runner argument');
   }
-  this.stats = runner.stats; // assigned so Reporters keep a closer reference
+  this.options = options || {};
   this.runner = runner;
+  this.stats = runner.stats; // assigned so Reporters keep a closer reference
 
   runner.on(EVENT_TEST_PASS, function(test) {
     if (test.duration > test.slow()) {
@@ -2561,11 +2566,10 @@ function Base(runner) {
 }
 
 /**
- * Output common epilogue used by many of
- * the bundled reporters.
+ * Outputs common epilogue used by many of the bundled reporters.
  *
- * @memberof Mocha.reporters.Base
  * @public
+ * @memberof Mocha.reporters.Base
  */
 Base.prototype.epilogue = function() {
   var stats = this.stats;
@@ -2602,7 +2606,7 @@ Base.prototype.epilogue = function() {
 };
 
 /**
- * Pad the given `str` to `len`.
+ * Pads the given `str` to `len`.
  *
  * @private
  * @param {string} str
@@ -2615,7 +2619,7 @@ function pad(str, len) {
 }
 
 /**
- * Returns an inline diff between 2 strings with coloured ANSI output.
+ * Returns inline diff between 2 strings with coloured ANSI output.
  *
  * @private
  * @param {String} actual
@@ -2652,7 +2656,7 @@ function inlineDiff(actual, expected) {
 }
 
 /**
- * Returns a unified diff between two strings with coloured ANSI output.
+ * Returns unified diff between two strings with coloured ANSI output.
  *
  * @private
  * @param {String} actual
@@ -2695,7 +2699,7 @@ function unifiedDiff(actual, expected) {
 }
 
 /**
- * Return a character diff for `err`.
+ * Returns character diff for `err`.
  *
  * @private
  * @param {String} actual
@@ -2718,7 +2722,7 @@ function errorDiff(actual, expected) {
 }
 
 /**
- * Color lines for `str`, using the color `name`.
+ * Colors lines for `str`, using the color `name`.
  *
  * @private
  * @param {string} name
@@ -2740,7 +2744,7 @@ function colorLines(name, str) {
 var objToString = Object.prototype.toString;
 
 /**
- * Check that a / b have the same type.
+ * Checks that a / b have the same type.
  *
  * @private
  * @param {Object} a
@@ -2754,7 +2758,7 @@ function sameType(a, b) {
 Base.abstract = true;
 
 }).call(this,require('_process'))
-},{"../runner":34,"../utils":38,"_process":68,"diff":48,"ms":60,"supports-color":42,"tty":4}],18:[function(require,module,exports){
+},{"../runner":34,"../utils":38,"_process":69,"diff":48,"ms":60,"supports-color":42,"tty":4}],18:[function(require,module,exports){
 'use strict';
 /**
  * @module Doc
@@ -2778,16 +2782,17 @@ var EVENT_SUITE_END = constants.EVENT_SUITE_END;
 exports = module.exports = Doc;
 
 /**
- * Initialize a new `Doc` reporter.
+ * Constructs a new `Doc` reporter instance.
  *
+ * @public
  * @class
  * @memberof Mocha.reporters
- * @extends {Base}
- * @public
- * @param {Runner} runner
+ * @extends Mocha.reporters.Base
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-function Doc(runner) {
-  Base.call(this, runner);
+function Doc(runner, options) {
+  Base.call(this, runner, options);
 
   var indents = 2;
 
@@ -2866,16 +2871,17 @@ var EVENT_RUN_END = constants.EVENT_RUN_END;
 exports = module.exports = Dot;
 
 /**
- * Initialize a new `Dot` matrix test reporter.
+ * Constructs a new `Dot` reporter instance.
  *
+ * @public
  * @class
  * @memberof Mocha.reporters
  * @extends Mocha.reporters.Base
- * @public
- * @param {Runner} runner
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-function Dot(runner) {
-  Base.call(this, runner);
+function Dot(runner, options) {
+  Base.call(this, runner, options);
 
   var self = this;
   var width = (Base.window.width * 0.75) | 0;
@@ -2924,7 +2930,7 @@ inherits(Dot, Base);
 Dot.description = 'dot matrix representation';
 
 }).call(this,require('_process'))
-},{"../runner":34,"../utils":38,"./base":17,"_process":68}],20:[function(require,module,exports){
+},{"../runner":34,"../utils":38,"./base":17,"_process":69}],20:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -2975,16 +2981,17 @@ var statsTemplate =
 var playIcon = '&#x2023;';
 
 /**
- * Initialize a new `HTML` reporter.
+ * Constructs a new `HTML` reporter instance.
  *
  * @public
  * @class
  * @memberof Mocha.reporters
  * @extends Mocha.reporters.Base
- * @param {Runner} runner
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-function HTML(runner) {
-  Base.call(this, runner);
+function HTML(runner, options) {
+  Base.call(this, runner, options);
 
   var self = this;
   var stats = this.stats;
@@ -3366,12 +3373,13 @@ exports = module.exports = JSONStream;
  *
  * @public
  * @class
- * @extends Mocha.reporters.Base
  * @memberof Mocha.reporters
+ * @extends Mocha.reporters.Base
  * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-function JSONStream(runner) {
-  Base.call(this, runner);
+function JSONStream(runner, options) {
+  Base.call(this, runner, options);
 
   var self = this;
   var total = runner.total;
@@ -3431,7 +3439,7 @@ function clean(test) {
 JSONStream.description = 'newline delimited JSON events';
 
 }).call(this,require('_process'))
-},{"../runner":34,"./base":17,"_process":68}],23:[function(require,module,exports){
+},{"../runner":34,"./base":17,"_process":69}],23:[function(require,module,exports){
 (function (process){
 'use strict';
 /**
@@ -3456,16 +3464,17 @@ var EVENT_TEST_PENDING = constants.EVENT_TEST_PENDING;
 exports = module.exports = JSONReporter;
 
 /**
- * Initialize a new `JSON` reporter.
+ * Constructs a new `JSON` reporter instance.
  *
  * @public
  * @class JSON
  * @memberof Mocha.reporters
  * @extends Mocha.reporters.Base
- * @param {Runner} runner
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-function JSONReporter(runner) {
-  Base.call(this, runner);
+function JSONReporter(runner, options) {
+  Base.call(this, runner, options);
 
   var self = this;
   var tests = [];
@@ -3569,7 +3578,7 @@ function errorJSON(err) {
 JSONReporter.description = 'single JSON object';
 
 }).call(this,require('_process'))
-},{"../runner":34,"./base":17,"_process":68}],24:[function(require,module,exports){
+},{"../runner":34,"./base":17,"_process":69}],24:[function(require,module,exports){
 (function (process){
 'use strict';
 /**
@@ -3615,16 +3624,17 @@ Base.colors['plane crash'] = 31;
 Base.colors.runway = 90;
 
 /**
- * Initialize a new `Landing` reporter.
+ * Constructs a new `Landing` reporter instance.
  *
  * @public
  * @class
  * @memberof Mocha.reporters
  * @extends Mocha.reporters.Base
- * @param {Runner} runner
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-function Landing(runner) {
-  Base.call(this, runner);
+function Landing(runner, options) {
+  Base.call(this, runner, options);
 
   var self = this;
   var width = (Base.window.width * 0.75) | 0;
@@ -3680,7 +3690,7 @@ inherits(Landing, Base);
 Landing.description = 'Unicode landing strip';
 
 }).call(this,require('_process'))
-},{"../runnable":33,"../runner":34,"../utils":38,"./base":17,"_process":68}],25:[function(require,module,exports){
+},{"../runnable":33,"../runner":34,"../utils":38,"./base":17,"_process":69}],25:[function(require,module,exports){
 (function (process){
 'use strict';
 /**
@@ -3709,16 +3719,17 @@ var cursor = Base.cursor;
 exports = module.exports = List;
 
 /**
- * Initialize a new `List` test reporter.
+ * Constructs a new `List` reporter instance.
  *
  * @public
  * @class
  * @memberof Mocha.reporters
  * @extends Mocha.reporters.Base
- * @param {Runner} runner
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-function List(runner) {
-  Base.call(this, runner);
+function List(runner, options) {
+  Base.call(this, runner, options);
 
   var self = this;
   var n = 0;
@@ -3761,7 +3772,7 @@ inherits(List, Base);
 List.description = 'like "spec" reporter but flat';
 
 }).call(this,require('_process'))
-},{"../runner":34,"../utils":38,"./base":17,"_process":68}],26:[function(require,module,exports){
+},{"../runner":34,"../utils":38,"./base":17,"_process":69}],26:[function(require,module,exports){
 (function (process){
 'use strict';
 /**
@@ -3792,16 +3803,17 @@ var SUITE_PREFIX = '$';
 exports = module.exports = Markdown;
 
 /**
- * Initialize a new `Markdown` reporter.
+ * Constructs a new `Markdown` reporter instance.
  *
  * @public
  * @class
  * @memberof Mocha.reporters
  * @extends Mocha.reporters.Base
- * @param {Runner} runner
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-function Markdown(runner) {
-  Base.call(this, runner);
+function Markdown(runner, options) {
+  Base.call(this, runner, options);
 
   var level = 0;
   var buf = '';
@@ -3876,7 +3888,7 @@ function Markdown(runner) {
 Markdown.description = 'GitHub Flavored Markdown';
 
 }).call(this,require('_process'))
-},{"../runner":34,"../utils":38,"./base":17,"_process":68}],27:[function(require,module,exports){
+},{"../runner":34,"../utils":38,"./base":17,"_process":69}],27:[function(require,module,exports){
 (function (process){
 'use strict';
 /**
@@ -3899,16 +3911,20 @@ var EVENT_RUN_BEGIN = constants.EVENT_RUN_BEGIN;
 exports = module.exports = Min;
 
 /**
- * Initialize a new `Min` minimal test reporter (best used with --watch).
+ * Constructs a new `Min` reporter instance.
+ *
+ * @description
+ * This minimal test reporter is best used with '--watch'.
  *
  * @public
  * @class
  * @memberof Mocha.reporters
  * @extends Mocha.reporters.Base
- * @param {Runner} runner
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-function Min(runner) {
-  Base.call(this, runner);
+function Min(runner, options) {
+  Base.call(this, runner, options);
 
   runner.on(EVENT_RUN_BEGIN, function() {
     // clear screen
@@ -3928,7 +3944,7 @@ inherits(Min, Base);
 Min.description = 'essentially just a summary';
 
 }).call(this,require('_process'))
-},{"../runner":34,"../utils":38,"./base":17,"_process":68}],28:[function(require,module,exports){
+},{"../runner":34,"../utils":38,"./base":17,"_process":69}],28:[function(require,module,exports){
 (function (process){
 'use strict';
 /**
@@ -3954,17 +3970,17 @@ var EVENT_TEST_FAIL = constants.EVENT_TEST_FAIL;
 exports = module.exports = NyanCat;
 
 /**
- * Initialize a new `Dot` matrix test reporter.
+ * Constructs a new `Nyan` reporter instance.
  *
- * @param {Runner} runner
  * @public
  * @class Nyan
  * @memberof Mocha.reporters
  * @extends Mocha.reporters.Base
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-
-function NyanCat(runner) {
-  Base.call(this, runner);
+function NyanCat(runner, options) {
+  Base.call(this, runner, options);
 
   var self = this;
   var width = (Base.window.width * 0.75) | 0;
@@ -4208,7 +4224,7 @@ function write(string) {
 NyanCat.description = '"nyan cat"';
 
 }).call(this,require('_process'))
-},{"../runner":34,"../utils":38,"./base":17,"_process":68}],29:[function(require,module,exports){
+},{"../runner":34,"../utils":38,"./base":17,"_process":69}],29:[function(require,module,exports){
 (function (process){
 'use strict';
 /**
@@ -4240,17 +4256,17 @@ exports = module.exports = Progress;
 Base.colors.progress = 90;
 
 /**
- * Initialize a new `Progress` bar test reporter.
+ * Constructs a new `Progress` reporter instance.
  *
  * @public
  * @class
  * @memberof Mocha.reporters
  * @extends Mocha.reporters.Base
- * @param {Runner} runner
- * @param {Object} options
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
 function Progress(runner, options) {
-  Base.call(this, runner);
+  Base.call(this, runner, options);
 
   var self = this;
   var width = (Base.window.width * 0.5) | 0;
@@ -4316,7 +4332,7 @@ inherits(Progress, Base);
 Progress.description = 'a progress bar';
 
 }).call(this,require('_process'))
-},{"../runner":34,"../utils":38,"./base":17,"_process":68}],30:[function(require,module,exports){
+},{"../runner":34,"../utils":38,"./base":17,"_process":69}],30:[function(require,module,exports){
 'use strict';
 /**
  * @module Spec
@@ -4344,16 +4360,17 @@ var color = Base.color;
 exports = module.exports = Spec;
 
 /**
- * Initialize a new `Spec` test reporter.
+ * Constructs a new `Spec` reporter instance.
  *
  * @public
  * @class
  * @memberof Mocha.reporters
  * @extends Mocha.reporters.Base
- * @param {Runner} runner
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
-function Spec(runner) {
-  Base.call(this, runner);
+function Spec(runner, options) {
+  Base.call(this, runner, options);
 
   var self = this;
   var indents = 0;
@@ -4445,12 +4462,12 @@ var sprintf = util.format;
 exports = module.exports = TAP;
 
 /**
- * Constructs a new TAP reporter with runner instance and reporter options.
+ * Constructs a new `TAP` reporter instance.
  *
  * @public
  * @class
- * @extends Mocha.reporters.Base
  * @memberof Mocha.reporters
+ * @extends Mocha.reporters.Base
  * @param {Runner} runner - Instance triggers reporter actions.
  * @param {Object} [options] - runner options
  */
@@ -4714,7 +4731,7 @@ inherits(TAP13Producer, TAPProducer);
 TAP.description = 'TAP-compatible output';
 
 }).call(this,require('_process'))
-},{"../runner":34,"../utils":38,"./base":17,"_process":68,"util":88}],32:[function(require,module,exports){
+},{"../runner":34,"../utils":38,"./base":17,"_process":69,"util":89}],32:[function(require,module,exports){
 (function (process,global){
 'use strict';
 /**
@@ -4752,16 +4769,17 @@ var Date = global.Date;
 exports = module.exports = XUnit;
 
 /**
- * Initialize a new `XUnit` reporter.
+ * Constructs a new `XUnit` reporter instance.
  *
  * @public
  * @class
  * @memberof Mocha.reporters
  * @extends Mocha.reporters.Base
- * @param {Runner} runner
+ * @param {Runner} runner - Instance triggers reporter actions.
+ * @param {Object} [options] - runner options
  */
 function XUnit(runner, options) {
-  Base.call(this, runner);
+  Base.call(this, runner, options);
 
   var stats = this.stats;
   var tests = [];
@@ -4933,7 +4951,7 @@ function tag(name, attrs, close, content) {
 XUnit.description = 'XUnit-compatible XML output';
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":6,"../runnable":33,"../runner":34,"../utils":38,"./base":17,"_process":68,"fs":42,"mkdirp":59,"path":42}],33:[function(require,module,exports){
+},{"../errors":6,"../runnable":33,"../runner":34,"../utils":38,"./base":17,"_process":69,"fs":42,"mkdirp":59,"path":42}],33:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -5800,13 +5818,15 @@ Runner.prototype.hook = function(name, fn) {
     }
     self.currentRunnable = hook;
 
-    if (name === 'beforeAll') {
+    if (name === HOOK_TYPE_BEFORE_ALL) {
       hook.ctx.currentTest = hook.parent.tests[0];
-    } else if (name === 'afterAll') {
+    } else if (name === HOOK_TYPE_AFTER_ALL) {
       hook.ctx.currentTest = hook.parent.tests[hook.parent.tests.length - 1];
     } else {
       hook.ctx.currentTest = self.test;
     }
+
+    hook.allowUncaught = self.allowUncaught;
 
     self.emit(constants.EVENT_HOOK_BEGIN, hook);
 
@@ -5823,8 +5843,16 @@ Runner.prototype.hook = function(name, fn) {
       }
       if (err) {
         if (err instanceof Pending) {
+          if (name === HOOK_TYPE_AFTER_ALL) {
+            utils.deprecate(
+              'Skipping a test within an "after all" hook is DEPRECATED and will throw an exception in a future version of Mocha. ' +
+                'Use a return statement or other means to abort hook execution.'
+            );
+          }
           if (name === HOOK_TYPE_BEFORE_EACH || name === HOOK_TYPE_AFTER_EACH) {
-            self.test.pending = true;
+            if (self.test) {
+              self.test.pending = true;
+            }
           } else {
             suite.tests.forEach(function(test) {
               test.pending = true;
@@ -6218,6 +6246,9 @@ Runner.prototype.runSuite = function(suite, fn) {
  * @private
  */
 Runner.prototype.uncaught = function(err) {
+  if (err instanceof Pending) {
+    return;
+  }
   if (err) {
     debug('uncaught exception %O', err);
   } else {
@@ -6473,7 +6504,7 @@ Runner.constants = constants;
  */
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./errors":6,"./pending":16,"./runnable":33,"./suite":36,"./utils":38,"_process":68,"debug":45,"events":50,"util":88}],35:[function(require,module,exports){
+},{"./errors":6,"./pending":16,"./runnable":33,"./suite":36,"./utils":38,"_process":69,"debug":45,"events":50,"util":89}],35:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -6665,6 +6696,7 @@ Suite.prototype.clone = function() {
   var suite = new Suite(this.title);
   debug('clone');
   suite.ctx = this.ctx;
+  suite.root = this.root;
   suite.timeout(this.timeout());
   suite.retries(this.retries());
   suite.enableTimeouts(this.enableTimeouts());
@@ -6677,6 +6709,7 @@ Suite.prototype.clone = function() {
  * Set or get timeout `ms` or short-hand such as "2s".
  *
  * @private
+ * @todo Do not attempt to set value if `ms` is undefined
  * @param {number|string} ms
  * @return {Suite|number} for chaining
  */
@@ -8156,7 +8189,7 @@ exports.defineConstants = function(obj) {
 };
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"./errors":6,"_process":68,"buffer":43,"debug":45,"fs":42,"glob":42,"he":54,"object.assign":64,"path":42,"util":88}],39:[function(require,module,exports){
+},{"./errors":6,"_process":69,"buffer":43,"debug":45,"fs":42,"glob":42,"he":54,"object.assign":65,"path":42,"util":89}],39:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -8340,9 +8373,10 @@ BrowserStdout.prototype._write = function(chunks, encoding, cb) {
 }
 
 }).call(this,require('_process'))
-},{"_process":68,"stream":83,"util":88}],42:[function(require,module,exports){
+},{"_process":69,"stream":84,"util":89}],42:[function(require,module,exports){
 arguments[4][40][0].apply(exports,arguments)
 },{"dup":40}],43:[function(require,module,exports){
+(function (Buffer){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -8391,7 +8425,7 @@ function typedArraySupport () {
   // Can typed array instances can be augmented?
   try {
     var arr = new Uint8Array(1)
-    arr.__proto__ = {__proto__: Uint8Array.prototype, foo: function () { return 42 }}
+    arr.__proto__ = { __proto__: Uint8Array.prototype, foo: function () { return 42 } }
     return arr.foo() === 42
   } catch (e) {
     return false
@@ -8399,26 +8433,24 @@ function typedArraySupport () {
 }
 
 Object.defineProperty(Buffer.prototype, 'parent', {
+  enumerable: true,
   get: function () {
-    if (!(this instanceof Buffer)) {
-      return undefined
-    }
+    if (!Buffer.isBuffer(this)) return undefined
     return this.buffer
   }
 })
 
 Object.defineProperty(Buffer.prototype, 'offset', {
+  enumerable: true,
   get: function () {
-    if (!(this instanceof Buffer)) {
-      return undefined
-    }
+    if (!Buffer.isBuffer(this)) return undefined
     return this.byteOffset
   }
 })
 
 function createBuffer (length) {
   if (length > K_MAX_LENGTH) {
-    throw new RangeError('Invalid typed array length')
+    throw new RangeError('The value "' + length + '" is invalid for option "size"')
   }
   // Return an augmented `Uint8Array` instance
   var buf = new Uint8Array(length)
@@ -8440,8 +8472,8 @@ function Buffer (arg, encodingOrOffset, length) {
   // Common case.
   if (typeof arg === 'number') {
     if (typeof encodingOrOffset === 'string') {
-      throw new Error(
-        'If encoding is specified then the first argument must be a string'
+      throw new TypeError(
+        'The "string" argument must be of type string. Received type number'
       )
     }
     return allocUnsafe(arg)
@@ -8450,7 +8482,7 @@ function Buffer (arg, encodingOrOffset, length) {
 }
 
 // Fix subarray() in ES2016. See: https://github.com/feross/buffer/pull/97
-if (typeof Symbol !== 'undefined' && Symbol.species &&
+if (typeof Symbol !== 'undefined' && Symbol.species != null &&
     Buffer[Symbol.species] === Buffer) {
   Object.defineProperty(Buffer, Symbol.species, {
     value: null,
@@ -8463,19 +8495,51 @@ if (typeof Symbol !== 'undefined' && Symbol.species &&
 Buffer.poolSize = 8192 // not used by this implementation
 
 function from (value, encodingOrOffset, length) {
-  if (typeof value === 'number') {
-    throw new TypeError('"value" argument must not be a number')
-  }
-
-  if (isArrayBuffer(value) || (value && isArrayBuffer(value.buffer))) {
-    return fromArrayBuffer(value, encodingOrOffset, length)
-  }
-
   if (typeof value === 'string') {
     return fromString(value, encodingOrOffset)
   }
 
-  return fromObject(value)
+  if (ArrayBuffer.isView(value)) {
+    return fromArrayLike(value)
+  }
+
+  if (value == null) {
+    throw TypeError(
+      'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
+      'or Array-like Object. Received type ' + (typeof value)
+    )
+  }
+
+  if (isInstance(value, ArrayBuffer) ||
+      (value && isInstance(value.buffer, ArrayBuffer))) {
+    return fromArrayBuffer(value, encodingOrOffset, length)
+  }
+
+  if (typeof value === 'number') {
+    throw new TypeError(
+      'The "value" argument must not be of type number. Received type number'
+    )
+  }
+
+  var valueOf = value.valueOf && value.valueOf()
+  if (valueOf != null && valueOf !== value) {
+    return Buffer.from(valueOf, encodingOrOffset, length)
+  }
+
+  var b = fromObject(value)
+  if (b) return b
+
+  if (typeof Symbol !== 'undefined' && Symbol.toPrimitive != null &&
+      typeof value[Symbol.toPrimitive] === 'function') {
+    return Buffer.from(
+      value[Symbol.toPrimitive]('string'), encodingOrOffset, length
+    )
+  }
+
+  throw new TypeError(
+    'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
+    'or Array-like Object. Received type ' + (typeof value)
+  )
 }
 
 /**
@@ -8499,7 +8563,7 @@ function assertSize (size) {
   if (typeof size !== 'number') {
     throw new TypeError('"size" argument must be of type number')
   } else if (size < 0) {
-    throw new RangeError('"size" argument must not be negative')
+    throw new RangeError('The value "' + size + '" is invalid for option "size"')
   }
 }
 
@@ -8614,20 +8678,16 @@ function fromObject (obj) {
     return buf
   }
 
-  if (obj) {
-    if (ArrayBuffer.isView(obj) || 'length' in obj) {
-      if (typeof obj.length !== 'number' || numberIsNaN(obj.length)) {
-        return createBuffer(0)
-      }
-      return fromArrayLike(obj)
+  if (obj.length !== undefined) {
+    if (typeof obj.length !== 'number' || numberIsNaN(obj.length)) {
+      return createBuffer(0)
     }
-
-    if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
-      return fromArrayLike(obj.data)
-    }
+    return fromArrayLike(obj)
   }
 
-  throw new TypeError('The first argument must be one of type string, Buffer, ArrayBuffer, Array, or Array-like Object.')
+  if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
+    return fromArrayLike(obj.data)
+  }
 }
 
 function checked (length) {
@@ -8648,12 +8708,17 @@ function SlowBuffer (length) {
 }
 
 Buffer.isBuffer = function isBuffer (b) {
-  return b != null && b._isBuffer === true
+  return b != null && b._isBuffer === true &&
+    b !== Buffer.prototype // so Buffer.isBuffer(Buffer.prototype) will be false
 }
 
 Buffer.compare = function compare (a, b) {
+  if (isInstance(a, Uint8Array)) a = Buffer.from(a, a.offset, a.byteLength)
+  if (isInstance(b, Uint8Array)) b = Buffer.from(b, b.offset, b.byteLength)
   if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
-    throw new TypeError('Arguments must be Buffers')
+    throw new TypeError(
+      'The "buf1", "buf2" arguments must be one of type Buffer or Uint8Array'
+    )
   }
 
   if (a === b) return 0
@@ -8714,7 +8779,7 @@ Buffer.concat = function concat (list, length) {
   var pos = 0
   for (i = 0; i < list.length; ++i) {
     var buf = list[i]
-    if (ArrayBuffer.isView(buf)) {
+    if (isInstance(buf, Uint8Array)) {
       buf = Buffer.from(buf)
     }
     if (!Buffer.isBuffer(buf)) {
@@ -8730,15 +8795,19 @@ function byteLength (string, encoding) {
   if (Buffer.isBuffer(string)) {
     return string.length
   }
-  if (ArrayBuffer.isView(string) || isArrayBuffer(string)) {
+  if (ArrayBuffer.isView(string) || isInstance(string, ArrayBuffer)) {
     return string.byteLength
   }
   if (typeof string !== 'string') {
-    string = '' + string
+    throw new TypeError(
+      'The "string" argument must be one of type string, Buffer, or ArrayBuffer. ' +
+      'Received type ' + typeof string
+    )
   }
 
   var len = string.length
-  if (len === 0) return 0
+  var mustMatch = (arguments.length > 2 && arguments[2] === true)
+  if (!mustMatch && len === 0) return 0
 
   // Use a for loop to avoid recursion
   var loweredCase = false
@@ -8750,7 +8819,6 @@ function byteLength (string, encoding) {
         return len
       case 'utf8':
       case 'utf-8':
-      case undefined:
         return utf8ToBytes(string).length
       case 'ucs2':
       case 'ucs-2':
@@ -8762,7 +8830,9 @@ function byteLength (string, encoding) {
       case 'base64':
         return base64ToBytes(string).length
       default:
-        if (loweredCase) return utf8ToBytes(string).length // assume utf8
+        if (loweredCase) {
+          return mustMatch ? -1 : utf8ToBytes(string).length // assume utf8
+        }
         encoding = ('' + encoding).toLowerCase()
         loweredCase = true
     }
@@ -8909,16 +8979,20 @@ Buffer.prototype.equals = function equals (b) {
 Buffer.prototype.inspect = function inspect () {
   var str = ''
   var max = exports.INSPECT_MAX_BYTES
-  if (this.length > 0) {
-    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ')
-    if (this.length > max) str += ' ... '
-  }
+  str = this.toString('hex', 0, max).replace(/(.{2})/g, '$1 ').trim()
+  if (this.length > max) str += ' ... '
   return '<Buffer ' + str + '>'
 }
 
 Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
+  if (isInstance(target, Uint8Array)) {
+    target = Buffer.from(target, target.offset, target.byteLength)
+  }
   if (!Buffer.isBuffer(target)) {
-    throw new TypeError('Argument must be a Buffer')
+    throw new TypeError(
+      'The "target" argument must be one of type Buffer or Uint8Array. ' +
+      'Received type ' + (typeof target)
+    )
   }
 
   if (start === undefined) {
@@ -8997,7 +9071,7 @@ function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
   } else if (byteOffset < -0x80000000) {
     byteOffset = -0x80000000
   }
-  byteOffset = +byteOffset  // Coerce to Number.
+  byteOffset = +byteOffset // Coerce to Number.
   if (numberIsNaN(byteOffset)) {
     // byteOffset: it it's undefined, null, NaN, "foo", etc, search whole buffer
     byteOffset = dir ? 0 : (buffer.length - 1)
@@ -9249,8 +9323,8 @@ function utf8Slice (buf, start, end) {
     var codePoint = null
     var bytesPerSequence = (firstByte > 0xEF) ? 4
       : (firstByte > 0xDF) ? 3
-      : (firstByte > 0xBF) ? 2
-      : 1
+        : (firstByte > 0xBF) ? 2
+          : 1
 
     if (i + bytesPerSequence <= end) {
       var secondByte, thirdByte, fourthByte, tempCodePoint
@@ -9913,7 +9987,7 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
   } else {
     var bytes = Buffer.isBuffer(val)
       ? val
-      : new Buffer(val, encoding)
+      : Buffer.from(val, encoding)
     var len = bytes.length
     if (len === 0) {
       throw new TypeError('The value "' + val +
@@ -10068,19 +10142,21 @@ function blitBuffer (src, dst, offset, length) {
   return i
 }
 
-// ArrayBuffers from another context (i.e. an iframe) do not pass the `instanceof` check
-// but they should be treated as valid. See: https://github.com/feross/buffer/issues/166
-function isArrayBuffer (obj) {
-  return obj instanceof ArrayBuffer ||
-    (obj != null && obj.constructor != null && obj.constructor.name === 'ArrayBuffer' &&
-      typeof obj.byteLength === 'number')
+// ArrayBuffer or Uint8Array objects from other contexts (i.e. iframes) do not pass
+// the `instanceof` check but they should be treated as of that type.
+// See: https://github.com/feross/buffer/issues/166
+function isInstance (obj, type) {
+  return obj instanceof type ||
+    (obj != null && obj.constructor != null && obj.constructor.name != null &&
+      obj.constructor.name === type.name)
 }
-
 function numberIsNaN (obj) {
+  // For IE11 support
   return obj !== obj // eslint-disable-line no-self-compare
 }
 
-},{"base64-js":39,"ieee754":55}],44:[function(require,module,exports){
+}).call(this,require("buffer").Buffer)
+},{"base64-js":39,"buffer":43,"ieee754":55}],44:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -10375,7 +10451,7 @@ formatters.j = function (v) {
 
 
 }).call(this,require('_process'))
-},{"./common":46,"_process":68}],46:[function(require,module,exports){
+},{"./common":46,"_process":69}],46:[function(require,module,exports){
 "use strict";
 
 /**
@@ -10686,7 +10762,7 @@ defineProperties.supportsDescriptors = !!supportsDescriptors;
 
 module.exports = defineProperties;
 
-},{"object-keys":61}],48:[function(require,module,exports){
+},{"object-keys":62}],48:[function(require,module,exports){
 /*!
 
  diff v3.5.0
@@ -13763,7 +13839,7 @@ mkdirP.sync = function sync (p, opts, made) {
 };
 
 }).call(this,require('_process'))
-},{"_process":68,"fs":42,"path":42}],60:[function(require,module,exports){
+},{"_process":69,"fs":42,"path":42}],60:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -13930,136 +14006,149 @@ function plural(ms, msAbs, n, name) {
 },{}],61:[function(require,module,exports){
 'use strict';
 
-// modified from https://github.com/es-shims/es5-shim
-var has = Object.prototype.hasOwnProperty;
-var toStr = Object.prototype.toString;
-var slice = Array.prototype.slice;
-var isArgs = require('./isArguments');
-var isEnumerable = Object.prototype.propertyIsEnumerable;
-var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
-var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
-var dontEnums = [
-	'toString',
-	'toLocaleString',
-	'valueOf',
-	'hasOwnProperty',
-	'isPrototypeOf',
-	'propertyIsEnumerable',
-	'constructor'
-];
-var equalsConstructorPrototype = function (o) {
-	var ctor = o.constructor;
-	return ctor && ctor.prototype === o;
-};
-var excludedKeys = {
-	$applicationCache: true,
-	$console: true,
-	$external: true,
-	$frame: true,
-	$frameElement: true,
-	$frames: true,
-	$innerHeight: true,
-	$innerWidth: true,
-	$outerHeight: true,
-	$outerWidth: true,
-	$pageXOffset: true,
-	$pageYOffset: true,
-	$parent: true,
-	$scrollLeft: true,
-	$scrollTop: true,
-	$scrollX: true,
-	$scrollY: true,
-	$self: true,
-	$webkitIndexedDB: true,
-	$webkitStorageInfo: true,
-	$window: true
-};
-var hasAutomationEqualityBug = (function () {
-	/* global window */
-	if (typeof window === 'undefined') { return false; }
-	for (var k in window) {
+var keysShim;
+if (!Object.keys) {
+	// modified from https://github.com/es-shims/es5-shim
+	var has = Object.prototype.hasOwnProperty;
+	var toStr = Object.prototype.toString;
+	var isArgs = require('./isArguments'); // eslint-disable-line global-require
+	var isEnumerable = Object.prototype.propertyIsEnumerable;
+	var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
+	var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
+	var dontEnums = [
+		'toString',
+		'toLocaleString',
+		'valueOf',
+		'hasOwnProperty',
+		'isPrototypeOf',
+		'propertyIsEnumerable',
+		'constructor'
+	];
+	var equalsConstructorPrototype = function (o) {
+		var ctor = o.constructor;
+		return ctor && ctor.prototype === o;
+	};
+	var excludedKeys = {
+		$applicationCache: true,
+		$console: true,
+		$external: true,
+		$frame: true,
+		$frameElement: true,
+		$frames: true,
+		$innerHeight: true,
+		$innerWidth: true,
+		$outerHeight: true,
+		$outerWidth: true,
+		$pageXOffset: true,
+		$pageYOffset: true,
+		$parent: true,
+		$scrollLeft: true,
+		$scrollTop: true,
+		$scrollX: true,
+		$scrollY: true,
+		$self: true,
+		$webkitIndexedDB: true,
+		$webkitStorageInfo: true,
+		$window: true
+	};
+	var hasAutomationEqualityBug = (function () {
+		/* global window */
+		if (typeof window === 'undefined') { return false; }
+		for (var k in window) {
+			try {
+				if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
+					try {
+						equalsConstructorPrototype(window[k]);
+					} catch (e) {
+						return true;
+					}
+				}
+			} catch (e) {
+				return true;
+			}
+		}
+		return false;
+	}());
+	var equalsConstructorPrototypeIfNotBuggy = function (o) {
+		/* global window */
+		if (typeof window === 'undefined' || !hasAutomationEqualityBug) {
+			return equalsConstructorPrototype(o);
+		}
 		try {
-			if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
-				try {
-					equalsConstructorPrototype(window[k]);
-				} catch (e) {
-					return true;
+			return equalsConstructorPrototype(o);
+		} catch (e) {
+			return false;
+		}
+	};
+
+	keysShim = function keys(object) {
+		var isObject = object !== null && typeof object === 'object';
+		var isFunction = toStr.call(object) === '[object Function]';
+		var isArguments = isArgs(object);
+		var isString = isObject && toStr.call(object) === '[object String]';
+		var theKeys = [];
+
+		if (!isObject && !isFunction && !isArguments) {
+			throw new TypeError('Object.keys called on a non-object');
+		}
+
+		var skipProto = hasProtoEnumBug && isFunction;
+		if (isString && object.length > 0 && !has.call(object, 0)) {
+			for (var i = 0; i < object.length; ++i) {
+				theKeys.push(String(i));
+			}
+		}
+
+		if (isArguments && object.length > 0) {
+			for (var j = 0; j < object.length; ++j) {
+				theKeys.push(String(j));
+			}
+		} else {
+			for (var name in object) {
+				if (!(skipProto && name === 'prototype') && has.call(object, name)) {
+					theKeys.push(String(name));
 				}
 			}
-		} catch (e) {
-			return true;
 		}
-	}
-	return false;
-}());
-var equalsConstructorPrototypeIfNotBuggy = function (o) {
-	/* global window */
-	if (typeof window === 'undefined' || !hasAutomationEqualityBug) {
-		return equalsConstructorPrototype(o);
-	}
-	try {
-		return equalsConstructorPrototype(o);
-	} catch (e) {
-		return false;
-	}
-};
 
-var keysShim = function keys(object) {
-	var isObject = object !== null && typeof object === 'object';
-	var isFunction = toStr.call(object) === '[object Function]';
-	var isArguments = isArgs(object);
-	var isString = isObject && toStr.call(object) === '[object String]';
-	var theKeys = [];
+		if (hasDontEnumBug) {
+			var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
 
-	if (!isObject && !isFunction && !isArguments) {
-		throw new TypeError('Object.keys called on a non-object');
-	}
-
-	var skipProto = hasProtoEnumBug && isFunction;
-	if (isString && object.length > 0 && !has.call(object, 0)) {
-		for (var i = 0; i < object.length; ++i) {
-			theKeys.push(String(i));
-		}
-	}
-
-	if (isArguments && object.length > 0) {
-		for (var j = 0; j < object.length; ++j) {
-			theKeys.push(String(j));
-		}
-	} else {
-		for (var name in object) {
-			if (!(skipProto && name === 'prototype') && has.call(object, name)) {
-				theKeys.push(String(name));
+			for (var k = 0; k < dontEnums.length; ++k) {
+				if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
+					theKeys.push(dontEnums[k]);
+				}
 			}
 		}
-	}
+		return theKeys;
+	};
+}
+module.exports = keysShim;
 
-	if (hasDontEnumBug) {
-		var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
+},{"./isArguments":63}],62:[function(require,module,exports){
+'use strict';
 
-		for (var k = 0; k < dontEnums.length; ++k) {
-			if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
-				theKeys.push(dontEnums[k]);
-			}
-		}
-	}
-	return theKeys;
-};
+var slice = Array.prototype.slice;
+var isArgs = require('./isArguments');
+
+var origKeys = Object.keys;
+var keysShim = origKeys ? function keys(o) { return origKeys(o); } : require('./implementation');
+
+var originalKeys = Object.keys;
 
 keysShim.shim = function shimObjectKeys() {
 	if (Object.keys) {
 		var keysWorksWithArguments = (function () {
 			// Safari 5.0 bug
-			return (Object.keys(arguments) || '').length === 2;
+			var args = Object.keys(arguments);
+			return args && args.length === arguments.length;
 		}(1, 2));
 		if (!keysWorksWithArguments) {
-			var originalKeys = Object.keys;
 			Object.keys = function keys(object) { // eslint-disable-line func-name-matching
 				if (isArgs(object)) {
 					return originalKeys(slice.call(object));
-				} else {
-					return originalKeys(object);
 				}
+				return originalKeys(object);
 			};
 		}
 	} else {
@@ -14070,7 +14159,7 @@ keysShim.shim = function shimObjectKeys() {
 
 module.exports = keysShim;
 
-},{"./isArguments":62}],62:[function(require,module,exports){
+},{"./implementation":61,"./isArguments":63}],63:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -14089,7 +14178,7 @@ module.exports = function isArguments(value) {
 	return isArgs;
 };
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 'use strict';
 
 // modified from https://github.com/es-shims/es6-shim
@@ -14132,7 +14221,7 @@ module.exports = function assign(target, source1) {
 	return objTarget;
 };
 
-},{"function-bind":52,"has-symbols/shams":53,"object-keys":61}],64:[function(require,module,exports){
+},{"function-bind":52,"has-symbols/shams":53,"object-keys":62}],65:[function(require,module,exports){
 'use strict';
 
 var defineProperties = require('define-properties');
@@ -14151,7 +14240,7 @@ defineProperties(polyfill, {
 
 module.exports = polyfill;
 
-},{"./implementation":63,"./polyfill":65,"./shim":66,"define-properties":47}],65:[function(require,module,exports){
+},{"./implementation":64,"./polyfill":66,"./shim":67,"define-properties":47}],66:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
@@ -14204,7 +14293,7 @@ module.exports = function getPolyfill() {
 	return Object.assign;
 };
 
-},{"./implementation":63}],66:[function(require,module,exports){
+},{"./implementation":64}],67:[function(require,module,exports){
 'use strict';
 
 var define = require('define-properties');
@@ -14220,7 +14309,7 @@ module.exports = function shimAssign() {
 	return polyfill;
 };
 
-},{"./polyfill":65,"define-properties":47}],67:[function(require,module,exports){
+},{"./polyfill":66,"define-properties":47}],68:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -14268,7 +14357,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this,require('_process'))
-},{"_process":68}],68:[function(require,module,exports){
+},{"_process":69}],69:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -14454,10 +14543,10 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 module.exports = require('./lib/_stream_duplex.js');
 
-},{"./lib/_stream_duplex.js":70}],70:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":71}],71:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -14589,7 +14678,7 @@ Duplex.prototype._destroy = function (err, cb) {
 
   pna.nextTick(cb, err);
 };
-},{"./_stream_readable":72,"./_stream_writable":74,"core-util-is":44,"inherits":56,"process-nextick-args":67}],71:[function(require,module,exports){
+},{"./_stream_readable":73,"./_stream_writable":75,"core-util-is":44,"inherits":56,"process-nextick-args":68}],72:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -14637,7 +14726,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":73,"core-util-is":44,"inherits":56}],72:[function(require,module,exports){
+},{"./_stream_transform":74,"core-util-is":44,"inherits":56}],73:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -15659,7 +15748,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":70,"./internal/streams/BufferList":75,"./internal/streams/destroy":76,"./internal/streams/stream":77,"_process":68,"core-util-is":44,"events":50,"inherits":56,"isarray":58,"process-nextick-args":67,"safe-buffer":82,"string_decoder/":84,"util":40}],73:[function(require,module,exports){
+},{"./_stream_duplex":71,"./internal/streams/BufferList":76,"./internal/streams/destroy":77,"./internal/streams/stream":78,"_process":69,"core-util-is":44,"events":50,"inherits":56,"isarray":58,"process-nextick-args":68,"safe-buffer":83,"string_decoder/":85,"util":40}],74:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -15874,8 +15963,8 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":70,"core-util-is":44,"inherits":56}],74:[function(require,module,exports){
-(function (process,global){
+},{"./_stream_duplex":71,"core-util-is":44,"inherits":56}],75:[function(require,module,exports){
+(function (process,global,setImmediate){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -16563,8 +16652,8 @@ Writable.prototype._destroy = function (err, cb) {
   this.end();
   cb(err);
 };
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":70,"./internal/streams/destroy":76,"./internal/streams/stream":77,"_process":68,"core-util-is":44,"inherits":56,"process-nextick-args":67,"safe-buffer":82,"util-deprecate":85}],75:[function(require,module,exports){
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
+},{"./_stream_duplex":71,"./internal/streams/destroy":77,"./internal/streams/stream":78,"_process":69,"core-util-is":44,"inherits":56,"process-nextick-args":68,"safe-buffer":83,"timers":86,"util-deprecate":87}],76:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -16644,7 +16733,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":82,"util":40}],76:[function(require,module,exports){
+},{"safe-buffer":83,"util":40}],77:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -16719,13 +16808,13 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":67}],77:[function(require,module,exports){
+},{"process-nextick-args":68}],78:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":50}],78:[function(require,module,exports){
+},{"events":50}],79:[function(require,module,exports){
 module.exports = require('./readable').PassThrough
 
-},{"./readable":79}],79:[function(require,module,exports){
+},{"./readable":80}],80:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -16734,13 +16823,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":70,"./lib/_stream_passthrough.js":71,"./lib/_stream_readable.js":72,"./lib/_stream_transform.js":73,"./lib/_stream_writable.js":74}],80:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":71,"./lib/_stream_passthrough.js":72,"./lib/_stream_readable.js":73,"./lib/_stream_transform.js":74,"./lib/_stream_writable.js":75}],81:[function(require,module,exports){
 module.exports = require('./readable').Transform
 
-},{"./readable":79}],81:[function(require,module,exports){
+},{"./readable":80}],82:[function(require,module,exports){
 module.exports = require('./lib/_stream_writable.js');
 
-},{"./lib/_stream_writable.js":74}],82:[function(require,module,exports){
+},{"./lib/_stream_writable.js":75}],83:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -16804,7 +16893,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":43}],83:[function(require,module,exports){
+},{"buffer":43}],84:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -16933,7 +17022,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":50,"inherits":56,"readable-stream/duplex.js":69,"readable-stream/passthrough.js":78,"readable-stream/readable.js":79,"readable-stream/transform.js":80,"readable-stream/writable.js":81}],84:[function(require,module,exports){
+},{"events":50,"inherits":56,"readable-stream/duplex.js":70,"readable-stream/passthrough.js":79,"readable-stream/readable.js":80,"readable-stream/transform.js":81,"readable-stream/writable.js":82}],85:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -17230,7 +17319,86 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":82}],85:[function(require,module,exports){
+},{"safe-buffer":83}],86:[function(require,module,exports){
+(function (setImmediate,clearImmediate){
+var nextTick = require('process/browser.js').nextTick;
+var apply = Function.prototype.apply;
+var slice = Array.prototype.slice;
+var immediateIds = {};
+var nextImmediateId = 0;
+
+// DOM APIs, for completeness
+
+exports.setTimeout = function() {
+  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+};
+exports.setInterval = function() {
+  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+};
+exports.clearTimeout =
+exports.clearInterval = function(timeout) { timeout.close(); };
+
+function Timeout(id, clearFn) {
+  this._id = id;
+  this._clearFn = clearFn;
+}
+Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+Timeout.prototype.close = function() {
+  this._clearFn.call(window, this._id);
+};
+
+// Does not start the time, just sets up the members needed.
+exports.enroll = function(item, msecs) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = msecs;
+};
+
+exports.unenroll = function(item) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = -1;
+};
+
+exports._unrefActive = exports.active = function(item) {
+  clearTimeout(item._idleTimeoutId);
+
+  var msecs = item._idleTimeout;
+  if (msecs >= 0) {
+    item._idleTimeoutId = setTimeout(function onTimeout() {
+      if (item._onTimeout)
+        item._onTimeout();
+    }, msecs);
+  }
+};
+
+// That's not how node.js implements it but the exposed api is the same.
+exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
+  var id = nextImmediateId++;
+  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
+
+  immediateIds[id] = true;
+
+  nextTick(function onNextTick() {
+    if (immediateIds[id]) {
+      // fn.call() is faster so we optimize for the common use-case
+      // @see http://jsperf.com/call-apply-segu
+      if (args) {
+        fn.apply(null, args);
+      } else {
+        fn.call(null);
+      }
+      // Prevent ids from leaking
+      exports.clearImmediate(id);
+    }
+  });
+
+  return id;
+};
+
+exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
+  delete immediateIds[id];
+};
+}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
+},{"process/browser.js":69,"timers":86}],87:[function(require,module,exports){
 (function (global){
 
 /**
@@ -17301,16 +17469,14 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],86:[function(require,module,exports){
-arguments[4][56][0].apply(exports,arguments)
-},{"dup":56}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],88:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -17900,10 +18066,10 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":87,"_process":68,"inherits":86}],89:[function(require,module,exports){
+},{"./support/isBuffer":88,"_process":69,"inherits":56}],90:[function(require,module,exports){
 module.exports={
   "name": "mocha",
-  "version": "6.0.2",
+  "version": "6.1.3",
   "homepage": "https://mochajs.org/",
   "notifyLogo": "https://ibin.co/4QuRuGjXvl36.png"
 }

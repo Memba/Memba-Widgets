@@ -10,8 +10,20 @@ module.exports = grunt => {
             files: [
                 '*.js',
                 'templates/*.es6',
-                'src/js/**/*.es6',
-                'test/**/*.es6'
+                // 'src/js/**/*.es6',
+                'src/js/app/*.es6',
+                // 'src/js/common/*.es6',
+                'src/js/cultures/*.es6',
+                'src/js/data/*.es6',
+                'src/js/dialogs/*.es6',
+                'src/js/editors/*.es6',
+                // 'src/js/experiments/*.es6',
+                'src/js/helpers/*.es6',
+                'src/js/sockets/*.es6',
+                // 'src/js/tools/*.es6',
+                'src/js/widgets/*.es6',
+                'src/js/workers/*.es6'
+                // 'test/**/*.es6'
             ],
             options: {
                 config: '.eslintrc'

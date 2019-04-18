@@ -12,6 +12,7 @@ import 'kendo.core';
 import 'kendo.maskedtextbox';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ReadOnlyAdapter from './adapters.readonly.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -24,7 +25,6 @@ import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { stringLibrary } from './util.libraries.es6';
 import {
-    PATTERNS,
     questionValidator,
     scoreValidator,
     solutionValidator,
@@ -39,35 +39,35 @@ const {
 const ScoreAdapter = NumberAdapter;
 
 /**
- * i18n
- * @returns {*|{}}
+ * i18n messages
  */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).textbox || {
-            description: 'TextBox',
-            help: null,
-            name: 'TextBox',
-            attributes: {
-                mask: { title: 'Mask' },
-                style: { title: 'Style' }
-            },
-            properties: {
-                name: { title: 'Name' },
-                question: { title: 'Question' },
-                solution: { title: 'Solution' },
-                validation: { title: 'Validation' },
-                success: { title: 'Success' },
-                failure: { title: 'Failure' },
-                omit: { title: 'Omit' }
+if (!(i18n().tools && i18n().tools.textbox)) {
+    $.extend(true, i18n(), {
+        tools: {
+            textbox: {
+                description: 'TextBox',
+                help: null,
+                name: 'TextBox',
+                attributes: {
+                    mask: { title: 'Mask' },
+                    style: { title: 'Style' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
+                }
             }
         }
-    );
+    });
 }
 
 // Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
-const TEXTBOX =
-    `<input type="text" id="#: properties.name #" class="kj-interactive" data-${ns}role="maskedtextbox" data-${ns}prompt-char="\u25CA" style="#: attributes.style #" {0}>`;
+const TEXTBOX = `<input type="text" id="#: properties.name #" class="kj-interactive" data-${ns}role="maskedtextbox" data-${ns}prompt-char="\u25CA" style="#: attributes.style #" {0}>`;
 
 /**
  * @class TextBoxTool tool
@@ -76,9 +76,9 @@ const TEXTBOX =
 const TextBoxTool = BaseTool.extend({
     id: 'textbox',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().description,
+    description: i18n().tools.textbox.description,
     height: 80,
-    help: i18n().help,
+    help: i18n().tools.textbox.help,
     icon: 'text_field',
     menu: [
         'attributes.style',
@@ -87,7 +87,7 @@ const TextBoxTool = BaseTool.extend({
         'properties.solution',
         'properties.validation'
     ],
-    name: i18n().name,
+    name: i18n().tools.textbox.name,
     weight: 1,
     width: 300,
     templates: {
@@ -103,39 +103,39 @@ const TextBoxTool = BaseTool.extend({
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
-        mask: new TextBoxAdapter({ title: i18n().attributes.mask.title }),
-        style: new StyleAdapter({ title: i18n().attributes.style.title })
+        mask: new TextBoxAdapter({ title: i18n().tools.textbox.attributes.mask.title }),
+        style: new StyleAdapter({ title: i18n().tools.textbox.attributes.style.title })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n().properties.name.title
+            title: i18n().tools.textbox.properties.name.title
         }),
         question: new QuestionAdapter({
-            title: i18n().properties.question.title,
+            title: i18n().tools.textbox.properties.question.title,
             validation: questionValidator
         }),
         solution: new TextBoxAdapter({
-            title: i18n().properties.solution.title,
+            title: i18n().tools.textbox.properties.solution.title,
             validation: solutionValidator
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${stringLibrary.defaultKey}`,
             library: stringLibrary.library,
-            title: i18n().properties.validation.title,
+            title: i18n().tools.textbox.properties.validation.title,
             validation: validationValidator
         }),
         success: new ScoreAdapter({
-            title: i18n().properties.success.title,
+            title: i18n().tools.textbox.properties.success.title,
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n().properties.failure.title,
+            title: i18n().tools.textbox.properties.failure.title,
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n().properties.omit.title,
+            title: i18n().tools.textbox.properties.omit.title,
             defaultValue: 0,
             validation: scoreValidator
         })
@@ -199,7 +199,7 @@ const TextBoxTool = BaseTool.extend({
             );
             if (
                 component.attributes &&
-                !PATTERNS.RX_FONT_SIZE.test(component.attributes.style)
+                !TOOLS.RX_FONT_SIZE.test(component.attributes.style)
             ) {
                 content.css('font-size', Math.floor(0.65 * content.height()));
             }
@@ -237,7 +237,7 @@ const TextBoxTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

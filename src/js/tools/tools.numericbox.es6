@@ -31,10 +31,6 @@ const {
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-// TODO Review RX constants
-const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
-const RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
-
 /**
  * i18n
  * @returns {*|{}}
@@ -190,7 +186,7 @@ const NumericBoxTool = BaseTool.extend({
             );
             if (
                 component.attributes &&
-                !RX_FONT_SIZE.test(component.attributes.style)
+                !TOOLS.RX_FONT_SIZE.test(component.attributes.style)
             ) {
                 content.css('font-size', Math.floor(0.65 * content.height()));
             }
@@ -230,7 +226,7 @@ const NumericBoxTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

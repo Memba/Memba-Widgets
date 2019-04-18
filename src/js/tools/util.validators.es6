@@ -8,12 +8,7 @@
 import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
-
-export const PATTERNS = {
-    RX_FONT_SIZE: /font(-size)?:[^;]*[0-9]+px/,
-    RX_STYLE: /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i, // TODO review size length
-    RX_TEXT: /\S[\s\S]{0, 99}/
-};
+import TOOLS from './util.constants.es6';
 
 /**
  * Turn a property name/value into an input which can be tested
@@ -63,7 +58,7 @@ export const constantValidator = {
  */
 export const questionValidator = {
     required: true,
-    pattern: PATTERNS.RX_TEXT
+    pattern: TOOLS.RX_TEXT
 };
 
 /**
@@ -94,12 +89,12 @@ export const solutionValidator = {
  */
 export const styleValidator = {
     // required: true,
-    // pattern: PATTERNS.RX_STYLE
+    // pattern: TOOLS.RX_STYLE
     style(input) {
         if (input.is('[name="attributes.style"]')) {
             return (
                 input.val() === CONSTANTS.EMPTY ||
-                PATTERNS.RX_STYLE.test(input.val())
+                TOOLS.RX_STYLE.test(input.val())
             );
         }
         return true;
@@ -113,10 +108,10 @@ export const styleValidator = {
 export const textValidator = {
     required: true,
     // the pattern rule requires type="text" which does not fit textareas
-    // pattern: PATTERNS.RX_TEXT
+    // pattern: TOOLS.RX_TEXT
     text(input) {
         if (input.is('[name="attributes.text"]')) {
-            return PATTERNS.RX_TEXT.test(input.val());
+            return TOOLS.RX_TEXT.test(input.val());
         }
         return true;
     }

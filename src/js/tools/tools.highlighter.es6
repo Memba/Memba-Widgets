@@ -207,7 +207,7 @@ const HighLighterTool = BaseTool.extend({
             !component.attributes.text ||
             component.attributes.text ===
                 i18n.highlighter.attributes.text.defaultValue ||
-            !RX_TEXT.test(component.attributes.text)
+            !TOOLS.RX_TEXT.test(component.attributes.text)
         ) {
             ret.push({
                 type: CONSTANTS.WARNING,
@@ -219,7 +219,7 @@ const HighLighterTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.highlightStyle &&
-                !RX_STYLE.test(component.attributes.highlightStyle))
+                !TOOLS.RX_STYLE.test(component.attributes.highlightStyle))
         ) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({
@@ -232,7 +232,7 @@ const HighLighterTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({

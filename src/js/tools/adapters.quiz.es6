@@ -42,14 +42,16 @@ const QuizAdapter = BaseAdapter.extend({
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         // this.editor = 'input';
         // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
-        this.editor = function(container, settings) {
+        this.editor = (container, settings) => {
             const input = $(`<${CONSTANTS.INPUT}/>`)
                 .css({ width: '100%' })
                 .attr(
                     $.extend(
+                        true,
                         {},
                         settings.attributes,
-                        getValueBinding(settings.field)
+                        getValueBinding(settings.field),
+                        attributes
                     )
                 )
                 .appendTo(container);
@@ -58,6 +60,7 @@ const QuizAdapter = BaseAdapter.extend({
                 dataSource: new DataSource({
                     data: settings.model.get('attributes.data'),
                     schema: {
+                        // TODO Model image -- check ?????????????????????????????????????????????
                         model: Model.define({
                             id: 'text',
                             fields: {

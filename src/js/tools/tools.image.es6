@@ -18,12 +18,9 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
+import TOOLS from './util.constants.es6';
 
 const { format, ns, template } = window.kendo;
-
-const RX_IMAGE = /^(cdn|data):\/\/[\s\S]+.(gif|jpe?g|png|svg)$/i;
-const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
-const RX_TEXT = /\S+/i;
 
 /**
  * i18n
@@ -285,7 +282,7 @@ const ImageTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.alt ||
             component.attributes.alt === i18n().attributes.alt.defaultValue ||
-            !RX_TEXT.test(component.attributes.alt)
+            !TOOLS.RX_TEXT.test(component.attributes.alt)
         ) {
             ret.push({
                 type: CONSTANTS.WARNING,
@@ -301,7 +298,7 @@ const ImageTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.src ||
             component.attributes.src === i18n().attributes.src.defaultValue ||
-            !RX_IMAGE.test(component.attributes.src)
+            !TOOLS.RX_IMAGE.test(component.attributes.src)
         ) {
             ret.push({
                 type:
@@ -321,7 +318,7 @@ const ImageTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

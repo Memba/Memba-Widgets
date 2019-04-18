@@ -27,18 +27,20 @@ const QuestionAdapter = BaseAdapter.extend({
      * @param options
      * @param attributes
      */
-    init(options /* , attributes */) {
+    init(options, attributes) {
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-        this.editor = function(container, settings) {
-            const input = $('<input/>')
+        this.editor = (container, settings) => {
+            const input = $(`<${CONSTANTS.INPUT}>`)
                 .css({ width: '100%' })
                 .attr(
                     $.extend(
+                        true,
                         {},
                         settings.attributes,
-                        getValueBinding(settings.field)
+                        getValueBinding(settings.field),
+                        attributes
                     )
                 )
                 .appendTo(container);

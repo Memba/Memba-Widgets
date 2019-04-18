@@ -28,9 +28,9 @@ const CharGridAdapter = BaseAdapter.extend({
         const that = this;
         BaseAdapter.fn.init.call(that, options);
         that.type = undefined;
-        that.editor = function(container, settings) {
-            $('<button/>')
-                .text('...')
+        that.editor = (container, settings) => {
+            $(`<${CONSTANTS.BUTTON}/>`)
+                .text(CONSTANTS.ELLIPSIS)
                 .addClass('k-button')
                 .css({ margin: 0, width: '100%' })
                 .appendTo(container)

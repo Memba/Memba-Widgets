@@ -10,12 +10,14 @@ import 'kendo.core';
 import assets from '../app/app.assets.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import AssetAdapter from './adapters.asset.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
+import TOOLS from './util.constants';
 
 const { format, ns, roleSelector, template } = window.kendo;
 
@@ -134,11 +136,11 @@ const AudioTool = BaseTool.extend({
                 const files = [];
                 // TODO CHeck when mp3 or ogg is undefined;
                 mp3 = assets.audio.http2scheme(mp3);
-                if (RX_HTTP_S.test(mp3)) {
+                if (TOOLS.RX_HTTP_S.test(mp3)) {
                     files.push(mp3);
                 }
                 ogg = assets.audio.http2scheme(ogg);
-                if (RX_HTTP_S.test(ogg)) {
+                if (TOOLS.RX_HTTP_S.test(ogg)) {
                     files.push(ogg);
                 }
                 // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
@@ -206,7 +208,7 @@ const AudioTool = BaseTool.extend({
             description,
             i18n: { messages }
         } = this; // tool description
-        if (!component.attributes || !RX_AUDIO.test(component.attributes.mp3)) {
+        if (!component.attributes || !TOOLS.RX_AUDIO.test(component.attributes.mp3)) {
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,

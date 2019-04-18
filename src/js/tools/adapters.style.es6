@@ -35,12 +35,12 @@ const StyleAdapter = BaseAdapter.extend({
         that.type = CONSTANTS.STRING;
         that.defaultValue = that.defaultValue || (that.nullable ? null : '');
         // This is the inline editor with a [...] button which triggers this.showDialog
-        that.editor = function(container, settings) {
+        that.editor = (container, settings) => {
             // We need a wrapper because container has { display: table-cell; }
             const wrapper = $(`<${CONSTANTS.DIV}/>`)
-                .css({ display: 'flex' })
+                .css({ display: 'flex', alignItems: 'center' })
                 .appendTo(container);
-            $('<input/>')
+            $(`<${CONSTANTS.INPUT}>`)
                 .addClass('k-textbox')
                 .css({
                     flex: 'auto',
@@ -49,14 +49,16 @@ const StyleAdapter = BaseAdapter.extend({
                 .prop({ readonly: true })
                 .attr(
                     $.extend(
+                        true,
                         {},
                         settings.attributes,
-                        getValueBinding(settings.field)
+                        getValueBinding(settings.field),
+                        attributes
                     )
                 )
                 .appendTo(wrapper);
-            $('<button/>')
-                .text('...')
+            $(`<${CONSTANTS.BUTTON}/>`)
+                .text(CONSTANTS.ELLIPSIS)
                 .addClass('k-button')
                 .css({
                     flex: 'none',

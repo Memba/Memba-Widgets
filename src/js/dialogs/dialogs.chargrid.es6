@@ -7,9 +7,10 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import '../widgets/widgets.chargrid.es6';
+import './widgets.basedialog.es6';
 
 const {
     bind,
@@ -20,9 +21,18 @@ const {
 } = window.kendo;
 
 /**
- * Initialize culture
+ * i18n messages
  */
-// BaseDialog.getMessageNameSpace().chargrid = BaseDialog.getMessageNameSpace().chargrid || {};
+if (!(i18n().dialogs && i18n().dialogs.chargrid)) {
+    $.extend(true, i18n(), {
+        dialogs: {
+            chargrid: {
+
+            }
+        }
+    });
+}
+
 
 /**
  * A shortcut function to display a dialog with a kendo.ui.CodeEditor
@@ -42,6 +52,7 @@ function openCharGrid(options = {}) {
             Object.assign(
                 {
                     title:
+                        options.title ||
                         BaseDialog.fn.options.messages[options.type || 'info'],
                     content: `<div style="display:flex;flex-direction:row"><div data-${ns}role="chargrid" data-${ns}bind="value:value" style="flex-shrink:0"></div><div class="kj-chargrid-message" style="margin-left:1em;">${
                         options.message

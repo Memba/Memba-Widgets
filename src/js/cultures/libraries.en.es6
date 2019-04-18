@@ -6,148 +6,114 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+// IMPORTANT! util.libraries.es6 must be as lean as possible because it is imported with every page
+import {
+    CUSTOM,
+    arrayLibrary,
+    booleanLibrary,
+    charGridLibrary,
+    dateLibrary,
+    genericLibrary,
+    mathLibrary,
+    multiQuizLibrary,
+    numberLibrary,
+    stringLibrary,
+    textLibrary
+} from '../tools/util.libraries.es6';
 
-// Note: $.extend (true) is capable of navigating arrays to update library item names
+/**
+ * CUSTOM
+ */
+$.extend(true, CUSTOM, { name: 'Custom' });
 
-if (window.kendo && window.kendo.ex && window.kendo.ex.libraries) {
-    /**
-     * CUSTOM
-     */
-    window.kendo.ex.libraries.CUSTOM = $.extend(
-        true,
-        window.kendo.ex.libraries.CUSTOM,
-        { name: 'Custom' }
-    );
+/**
+ * arrayLibrary
+ */
+$.extend(true, arrayLibrary, {
+    library: [
+        { name: 'Equal' },
+        { name: 'Equal (ignore case)' },
+        { name: 'Equal (compare sums)' }
+    ]
+});
 
-    /**
-     * arrayLibrary
-     */
-    window.kendo.ex.libraries.arrayLibrary = $.extend(
-        true,
-        window.kendo.ex.libraries.arrayLibrary,
-        {
-            library: [
-                { name: 'Equal' },
-                { name: 'Equal (ignore case)' },
-                { name: 'Equal (compare sums)' }
-            ]
-        }
-    );
+/**
+ * booleanLibrary
+ */
+$.extend(true, booleanLibrary, {
+    library: [{ name: 'Equal' }, { name: 'Not equal' }]
+});
 
-    /**
-     * booleanLibrary
-     */
-    window.kendo.ex.libraries.booleanLibrary = $.extend(
-        true,
-        window.kendo.ex.libraries.booleanLibrary,
-        {
-            library: [{ name: 'Equal' }, { name: 'Not equal' }]
-        }
-    );
+/**
+ * charGridLibrary
+ */
+$.extend(true, charGridLibrary, {
+    library: [{ name: 'Equal' }]
+});
 
-    /**
-     * charGridLibrary
-     */
-    window.kendo.ex.libraries.charGridLibrary = $.extend(
-        true,
-        window.kendo.ex.libraries.charGridLibrary,
-        {
-            library: [{ name: 'Equal' }]
-        }
-    );
+/**
+ * dateLibrary
+ */
+$.extend(true, dateLibrary, {
+    library: [{ name: 'Equal' }]
+});
 
-    /**
-     * dateLibrary
-     */
-    window.kendo.ex.libraries.dateLibrary = $.extend(
-        true,
-        window.kendo.ex.libraries.dateLibrary,
-        {
-            library: [{ name: 'Equal' }]
-        }
-    );
+/**
+ * genericLibrary
+ */
+$.extend(true, genericLibrary, {
+    library: [{ name: 'Equal' }]
+});
 
-    /**
-     * genericLibrary
-     */
-    window.kendo.ex.libraries.genericLibrary = $.extend(
-        true,
-        window.kendo.ex.libraries.genericLibrary,
-        {
-            library: [{ name: 'Equal' }]
-        }
-    );
+/**
+ * mathLibrary
+ */
+$.extend(true, mathLibrary, {
+    library: [{ name: 'Equal' }]
+});
 
-    /**
-     * mathLibrary
-     */
-    window.kendo.ex.libraries.mathLibrary = $.extend(
-        true,
-        window.kendo.ex.libraries.mathLibrary,
-        {
-            library: [{ name: 'Equal' }]
-        }
-    );
+/**
+ * multiQuizLibrary
+ */
+$.extend(true, multiQuizLibrary, {
+    library: [{ name: 'Equal' }]
+});
 
-    /**
-     * multiQuizLibrary
-     */
-    window.kendo.ex.libraries.multiQuizLibrary = $.extend(
-        true,
-        window.kendo.ex.libraries.multiQuizLibrary,
-        {
-            library: [{ name: 'Equal' }]
-        }
-    );
+/**
+ * numberLibrary
+ */
+$.extend(true, numberLibrary, {
+    library: [
+        { name: '=' },
+        { name: '>' },
+        { name: '>=' },
+        { name: '<' },
+        { name: '<=' }
+    ]
+});
 
-    /**
-     * numberLibrary
-     */
-    window.kendo.ex.libraries.numberLibrary = $.extend(
-        true,
-        window.kendo.ex.libraries.numberLibrary,
-        {
-            library: [
-                { name: '=' },
-                { name: '>' },
-                { name: '>=' },
-                { name: '<' },
-                { name: '<=' }
-            ]
-        }
-    );
+/**
+ * stringLibrary
+ */
+$.extend(true, stringLibrary, {
+    library: [
+        { name: 'Equal' },
+        { name: 'Equal (ignore case)' },
+        { name: 'Match (ignore case)' },
+        { name: 'Equal (ignore diacritics)' },
+        { name: 'Match' },
+        { name: 'Metaphone' },
+        { name: 'Soundex' }
+    ]
+});
 
-    /**
-     * stringLibrary
-     */
-    window.kendo.ex.libraries.stringLibrary = $.extend(
-        true,
-        window.kendo.ex.libraries.stringLibrary,
-        {
-            library: [
-                { name: 'Equal' },
-                { name: 'Equal (ignore case)' },
-                { name: 'Match (ignore case)' },
-                { name: 'Equal (ignore diacritics)' },
-                { name: 'Match' },
-                { name: 'Metaphone' },
-                { name: 'Soundex' }
-            ]
-        }
-    );
-
-    /**
-     * textLibrary
-     */
-    window.kendo.ex.libraries.textLibrary = $.extend(
-        true,
-        window.kendo.ex.libraries.textLibrary,
-        {
-            library: [
-                { name: 'Equal' },
-                { name: 'Equal (ignore spaces)' },
-                { name: 'Equal (ignore punctuation)' }
-            ]
-        }
-    );
-}
+/**
+ * textLibrary
+ */
+$.extend(true, textLibrary, {
+    library: [
+        { name: 'Equal' },
+        { name: 'Equal (ignore spaces)' },
+        { name: 'Equal (ignore punctuation)' }
+    ]
+});

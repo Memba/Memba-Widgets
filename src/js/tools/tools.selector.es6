@@ -155,7 +155,7 @@ var SelectorTool = BaseTool.extend({
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
-            !RX_COLOR.test(component.attributes.color)) {
+            !TOOLS.RX_COLOR.test(component.attributes.color)) {
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,

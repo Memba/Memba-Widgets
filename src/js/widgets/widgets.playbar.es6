@@ -549,7 +549,7 @@ const PlayBar = DataBoundWidget.extend({
                 html += button(
                     linkTemplate,
                     start - 1,
-                    '...',
+                    CONSTANTS.ELLIPSIS,
                     false,
                     options.messages.morePages
                 );
@@ -567,7 +567,7 @@ const PlayBar = DataBoundWidget.extend({
                 html += button(
                     linkTemplate,
                     idx,
-                    '...',
+                    CONSTANTS.ELLIPSIS,
                     false,
                     options.messages.morePages
                 );

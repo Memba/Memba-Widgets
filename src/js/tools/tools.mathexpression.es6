@@ -188,9 +188,9 @@ const MathExpressionTool = BaseTool.extend({
             !component.attributes.formula ||
             component.attributes.formula ===
                 i18n.mathexpression.attributes.formula.defaultValue ||
-            !RX_FORMULA.test(component.attributes.formula)
+            !TOOLS.RX_FORMULA.test(component.attributes.formula)
         ) {
-            // TODO: replace RX_FORMULA with a LaTeX synthax checker
+            // TODO: replace TOOLS.RX_FORMULA with a LaTeX synthax checker
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
@@ -205,7 +205,7 @@ const MathExpressionTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

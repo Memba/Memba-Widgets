@@ -35,20 +35,21 @@ const ImageListAdapter = BaseAdapter.extend({
      * @param options
      * @param attributes
      */
-    init(options /* , attributes */) {
+    init(options, attributes) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
         that.type = undefined;
         that.defaultValue = that.defaultValue || [];
         // that.editor is the list editor where the insert image button triggers this.showDialog
-        that.editor = function(container, settings) {
+        that.editor = (container, settings) => {
             const element = $(`<${CONSTANTS.DIV}/>`)
                 .attr(
                     $.extend(
+                        true,
                         {},
                         settings.attributes,
-                        // This is a source-only binding
-                        getValueBinding(undefined, settings.field)
+                        getValueBinding(undefined, settings.field),
+                        attributes
                     )
                 )
                 .appendTo(container);

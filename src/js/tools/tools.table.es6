@@ -80,7 +80,7 @@ var TableTool = BaseTool.extend({
         var messages = this.i18n.messages;
         if (!component.attributes ||
             // Styles are only checked if there is any (optional)
-            (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+            (component.attributes.style && !TOOLS.RX_STYLE.test(component.attributes.style))) {
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,

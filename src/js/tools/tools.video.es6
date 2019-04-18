@@ -17,6 +17,7 @@ import NumberAdapter from './adapters.number.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
+import TOOLS from './util.constants';
 
 const { format, ns, roleSelector, template } = window.kendo;
 
@@ -119,15 +120,15 @@ var VideoTool = BaseTool.extend({
                 let wbem = component.attributes.get('wbem');
                 const files = [];
                 mp4 = assets.video.scheme2http(mp4);
-                if (RX_HTTP_S.test(mp4)) {
+                if (TOOLS.RX_HTTP_S.test(mp4)) {
                     files.push(mp4);
                 }
                 ogv = assets.video.scheme2http(ogv);
-                if (RX_HTTP_S.test(ogv)) {
+                if (TOOLS.RX_HTTP_S.test(ogv)) {
                     files.push(ogv);
                 }
                 wbem = assets.video.scheme2http(wbem);
-                if (RX_HTTP_S.test(wbem)) {
+                if (TOOLS.RX_HTTP_S.test(wbem)) {
                     files.push(wbem);
                 }
 
@@ -199,7 +200,7 @@ var VideoTool = BaseTool.extend({
             description,
             i18n: { messages }
         } = this; // tool description
-        if (!component.attributes || !RX_VIDEO.test(component.attributes.mp4)) {
+        if (!component.attributes || !TOOLS.RX_VIDEO.test(component.attributes.mp4)) {
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,

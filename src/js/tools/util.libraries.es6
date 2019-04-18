@@ -3,15 +3,16 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO: Add i18n names to localize algorithm names
-// TODO  Add alternate solutions (array of solutions)
-// TODO consider replacer and reviver to singify and parse library item
+// IMPORTANT! util.libraries.es6 must be as lean as possible because it is imported with every page (cf. cultures)
 
-/**
+// TODO  Add alternate solutions (array of solutions)
+// TODO consider replacer and reviver to stringify and parse library item
+
+/*
  * IMPORTANT
  * Add params as in:
  *      key: 'oneOf',
- *      params: new StringArrayAdapter(), <-- note the use of an adapter
+ *      params: new StringArrayAdapter(), <-- note the use of an adapter/editor
  *      formula: 'function (value, params, all) { return params.indexOf(value) }'
  * Then SolutionAdapter possibly selects one of params in ComboBox
  * Check how such design affects all existing tools
@@ -25,9 +26,8 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import regexpEditor from '../editors/editors.input.es6';
+import regexpEditor from '../editors/editors.regexp.es6'; // TODO use string to designate entry in util.editors;
 import TOOLS from './util.constants.es6';
-import i18n from './util.i18n.es6';
 
 const { format } = window.kendo;
 
@@ -94,6 +94,7 @@ export function stringifyLibraryItem(item, params) {
  * Returns the library item and parsed params from value
  * i.e. parsing `// <name> (<params>)`) return { item, item.parse(params) }
  * @param value
+ * @param library
  * @returns {*}
  */
 export function parseLibraryItem(value, library) {
@@ -163,20 +164,20 @@ export const arrayLibrary = {
             // formula: format(TOOLS.VALIDATION_CUSTOM, 'return String(value.sort()) === String(solution.trim().split("\\n").sort());')
             // With the formula here above, each string in the array cannot be trimmed properly
             // because String(arr) is the same as join(',') and each value might contain commas
-            // So we use }-{ because there is little chance any value would contain this sequence
+            // So we use |•| because there is little chance any value would contain this sequence
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 '// Note: value is an array and solution is a multiline string\n\t' +
-                    'return (value || []).sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{") === String(solution).trim().split("\\n").sort().join("}-{").replace(/\\s*}-{\\s*/g, "}-{");'
+                    'return (value || []).sort().join(•).trim().replace(/\\s*|•|\\s*/g, "|•|") === String(solution).trim().split("\\n").sort().join("|•|").replace(/\\s*|•|\\s*/g, "|•|");'
             )
         },
         {
-            key: 'ignoreCaseEqual', // TODO <--- This is useless becuase we generally know the arrays
+            key: 'ignoreCaseEqual', // TODO <--- This is useless because we generally know the arrays
             name: 'Equal (ignore case)',
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 '// Note: value is an array and solution is a multiline string\n\t' +
-                    'return (value || []).sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{").toLowerCase() === String(solution).trim().split("\\n").sort().join("}-{").replace(/\\s*}-{\\s*/g, "}-{").toLowerCase();'
+                    'return (value || []).sort().join("|•|").trim().replace(/\\s*|•|\\s*/g, "|•|").toLowerCase() === String(solution).trim().split("\\n").sort().join("|•|").replace(/\\s*|•|\\s*/g, "|•|").toLowerCase();'
             )
         },
         {
@@ -248,9 +249,10 @@ export const dateLibrary = {
             key: 'equal',
             name: 'Equal',
             // Note: new Date(1994,1,1) !== new Date(1994,1,1) as they are two different objects
+            // Also Note: Date(x) returns a string
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
-                'return new Date(value) - new Date(solution) === 0;'
+                'return value - solution === 0;'
             )
         }
     ]

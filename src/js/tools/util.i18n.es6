@@ -54,7 +54,7 @@ const _i18n = {
             'A(n) {0} on page {1} has an invalid color in display attributes.',
         invalidData:
             'A(n) {0} on page {1} requires values in display attributes.',
-        invalidDescription:
+        invalidQuestion:
             'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
         invalidConstant:
             'A(n) {0} on page {1} requires a constant in test logic.',

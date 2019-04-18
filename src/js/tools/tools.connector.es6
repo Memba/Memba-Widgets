@@ -112,14 +112,14 @@ const ConnectorTool = BaseTool.extend({
         var description = this.description; // tool description
         var messages = this.i18n.messages;
         if (!component.attributes ||
-            !RX_COLOR.test(component.attributes.color)) {
+            !TOOLS.RX_COLOR.test(component.attributes.color)) {
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
                 message: format(messages.invalidColor, description, pageIdx + 1)
             });
         }
-        if (component.properties && component.properties.disabled && !RX_SOLUTION.test(component.properties.solution)) {
+        if (component.properties && component.properties.disabled && !TOOLS.RX_SOLUTION.test(component.properties.solution)) {
             // component.properties.disabled === false is already tested in BaseTool.fn.validate.call(this, component, pageIdx)
             ret.push({
                 type: CONSTANTS.ERROR,

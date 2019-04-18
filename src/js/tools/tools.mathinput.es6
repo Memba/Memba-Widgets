@@ -178,8 +178,8 @@ var MathInputTool = BaseTool.extend({
         if (!component.attributes ||
             !component.attributes.formula ||
             (component.attributes.formula === i18n.mathinput.attributes.formula.defaultValue) ||
-            !RX_FORMULA.test(component.attributes.formula)) {
-            // TODO: replace RX_FORMULA with a LaTeX synthax checker
+            !TOOLS.RX_FORMULA.test(component.attributes.formula)) {
+            // TODO: replace TOOLS.RX_FORMULA with a LaTeX synthax checker
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
@@ -189,7 +189,7 @@ var MathInputTool = BaseTool.extend({
         */
         if (!component.attributes ||
             // Styles are only checked if there is any (optional)
-            (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+            (component.attributes.style && !TOOLS.RX_STYLE.test(component.attributes.style))) {
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,

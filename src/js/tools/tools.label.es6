@@ -11,6 +11,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
 import StyleAdapter from './adapters.style.es6';
@@ -18,6 +19,7 @@ import TextAreaAdapter from './adapters.textarea.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+import TOOLS from './util.constants.es6';
 import {
     constantValidator,
     styleValidator,
@@ -29,28 +31,32 @@ const { format, htmlEncode, ns, template } = window.kendo;
 /**
  * i18n messages
  */
-const i18n = {
-    label: {
-        description: 'Label',
-        help: null,
-        name: 'Label',
-        attributes: {
-            style: { title: 'Style' },
-            text: { title: 'Text', defaultValue: 'Label' }
-        },
-        properties: {
-            behavior: {
-                source: [
-                    { text: 'None', value: 'none' },
-                    { text: 'Draggable', value: 'draggable' },
-                    { text: 'Selectable', value: 'selectable' }
-                ],
-                title: 'Behaviour'
-            },
-            constant: { title: 'Constant' }
+if (!(i18n().tools && i18n().tools.label)) {
+    $.extend(true, i18n(), {
+        tools: {
+            label: {
+                description: 'Label',
+                help: null,
+                name: 'Label',
+                attributes: {
+                    style: { title: 'Style' },
+                    text: { title: 'Text', defaultValue: 'Label' }
+                },
+                properties: {
+                    behavior: {
+                        source: [
+                            { text: 'None', value: 'none' },
+                            { text: 'Draggable', value: 'draggable' },
+                            { text: 'Selectable', value: 'selectable' }
+                        ],
+                        title: 'Behaviour'
+                    },
+                    constant: { title: 'Constant' }
+                }
+            }
         }
-    }
-};
+    });
+}
 
 /**
  * @class LabelTool
@@ -58,12 +64,12 @@ const i18n = {
 const LabelTool = BaseTool.extend({
     id: 'label',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n.label.description,
+    description: i18n().tools.label.description,
     height: 80,
-    help: i18n.label.help,
+    help: i18n().tools.label.help,
     icon: 'font',
     menu: ['attributes.text', 'attributes.style'],
-    name: i18n.label.name,
+    name: i18n().tools.label.name,
     width: 300,
     templates: {
         default: `<div class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #">#= text$() #</div>`
@@ -71,8 +77,8 @@ const LabelTool = BaseTool.extend({
     attributes: {
         text: new TextAreaAdapter(
             {
-                title: i18n.label.attributes.text.title,
-                defaultValue: i18n.label.attributes.text.defaultValue,
+                title: i18n().tools.label.attributes.text.title,
+                defaultValue: i18n().tools.label.attributes.text.defaultValue,
                 validation: textValidator
             },
             {
@@ -83,7 +89,7 @@ const LabelTool = BaseTool.extend({
         ),
         style: new StyleAdapter(
             {
-                title: i18n.label.attributes.style.title,
+                title: i18n().tools.label.attributes.style.title,
                 defaultValue: 'font-size:60px;',
                 validation: styleValidator
             },
@@ -96,8 +102,8 @@ const LabelTool = BaseTool.extend({
         behavior: new DropDownListAdapter(
             {
                 defaultValue: 'none',
-                source: i18n.label.properties.behavior.source,
-                title: i18n.label.properties.behavior.title
+                source: i18n().tools.label.properties.behavior.source,
+                title: i18n().tools.label.properties.behavior.title
             },
             {
                 style: 'width: 100%;'
@@ -105,7 +111,7 @@ const LabelTool = BaseTool.extend({
         ),
         constant: new TextBoxAdapter(
             {
-                title: i18n.label.properties.constant.title,
+                title: i18n().tools.label.properties.constant.title,
                 validation: constantValidator
             },
             {
@@ -205,7 +211,7 @@ const LabelTool = BaseTool.extend({
                     content.outerHeight(true) +
                     content.outerHeight()
             );
-            // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
+            // if (component.attributes && !TOOLS.RX_FONT_SIZE.test(component.attributes.style)) {
             /*
              * We make a best guess for the number of lines as follows
              * Let's suppose the height (line-height, not font-size) and width of a character are respectively y and x
@@ -252,8 +258,8 @@ const LabelTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.text ||
             component.attributes.text ===
-                i18n.label.attributes.text.defaultValue ||
-            !RX_TEXT.test(component.attributes.text)
+                i18n().tools.label.attributes.text.defaultValue ||
+            !TOOLS.RX_TEXT.test(component.attributes.text)
         ) {
             ret.push({
                 type: CONSTANTS.WARNING,
@@ -265,7 +271,7 @@ const LabelTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({

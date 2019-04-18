@@ -110,6 +110,7 @@ const CONSTANTS = {
     COLON: ':',
     COMMA: ',',
     DOT: '.',
+    ELLIPSIS: '...',
     EMPTY: '',
     EQUAL: '=',
     HASH: '#',

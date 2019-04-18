@@ -168,7 +168,7 @@ const TextGapsTool = BaseTool.extend({
         if (!component.attributes ||
             !component.attributes.text ||
             (component.attributes.text === i18n.textgaps.attributes.text.defaultValue) ||
-            !RX_TEXT.test(component.attributes.text)) {
+            !TOOLS.RX_TEXT.test(component.attributes.text)) {
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
@@ -177,7 +177,7 @@ const TextGapsTool = BaseTool.extend({
         }
         if (!component.attributes ||
             // Styles are only checked if there is any (optional)
-            (component.attributes.inputStyle && !RX_STYLE.test(component.attributes.inputStyle))) {
+            (component.attributes.inputStyle && !TOOLS.RX_STYLE.test(component.attributes.inputStyle))) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({
                 type: CONSTANTS.ERROR,
@@ -187,7 +187,7 @@ const TextGapsTool = BaseTool.extend({
         }
         if (!component.attributes ||
             // Styles are only checked if there is any (optional)
-            (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+            (component.attributes.style && !TOOLS.RX_STYLE.test(component.attributes.style))) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({
                 type: CONSTANTS.ERROR,

@@ -29,7 +29,7 @@ const MathInputAdapter = BaseAdapter.extend({
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-        this.editor = function(container, settings) {
+        this.editor = (container, settings) => {
             const input = $(`<${CONSTANTS.DIV}/>`)
                 .css({
                     width: '100%',
@@ -39,9 +39,11 @@ const MathInputAdapter = BaseAdapter.extend({
                 // .attr($.extend(binding, attributes))
                 .attr(
                     $.extend(
+                        true,
                         {},
                         settings.attributes,
-                        getValueBinding(settings.field)
+                        getValueBinding(settings.field),
+                        attributes
                     )
                 )
                 .appendTo(container);

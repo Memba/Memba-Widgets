@@ -6,74 +6,17 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import 'kendo.core';
+import i18n from '../common/window.i18n.es6';
 import tools from '../tools/tools.es6';
-import i18n from '../tools/util.i18n.es6';
 
-/**
- * Page, PageComponent and Stream
- */
-/*
-if (window.kidoju && window.kidoju.data) {
-    const { Page, Stream } = window.kidoju.data;
-
-    // if (PageComponent) {
-    //    PageComponent.prototype.messages = {}
-    // }
-
-    if (Page) {
-        Page.prototype.messages = {
-            createMultiQuizExplanations:
-                'The correct answers are:\n\n- **{0}**.',
-            createMultiQuizInstructions:
-                'Please select the options which correspond to your answers to the question: _{0}_.',
-            createTextBoxExplanations: 'The correct answer is **{0}**.',
-            createTextBoxInstructions:
-                'Please fill in the text box with your answer to the question: _{0}_.',
-            createQuizExplanations: 'The correct answer is **{0}**.',
-            createQuizInstructions:
-                'Please select the option which corresponds to your answer to the question: _{0}_.',
-            emptyPage: 'Page {0} cannot be empty.',
-            minConnectors:
-                'At least {0} Connectors are required to make a question on page {1}.',
-            missingDraggable:
-                'Draggable Labels or Images are required for a Drop Zone on page {0}.',
-            missingDropZone:
-                'A Drop Zone is required for draggable Labels or Images on page {0}.',
-            missingLabel: 'A Label is recommended on page {0}.',
-            missingMultimedia:
-                'A multimedia element (Image, Audio, Video) is recommended on page {0}.',
-            missingQuestion: 'A question is recommended on page {0}.',
-            missingSelectable:
-                'Selectable Labels or Images are required for a Selector on page {0}.',
-            missingSelector:
-                'A Selector is required for selectable Labels or Images on page {0}.',
-            missingInstructions: 'Instructions are recommended on page {0}.',
-            missingExplanations: 'Explanations are recommended on page {0}.'
-        };
-    }
-
-    if (Stream) {
-        Stream.prototype.messages = {
-            duplicateNames:
-                'Delete components using the same name `{0}` on pages {1}',
-            minPages:
-                'At least {0} pages are required to be allowed to publish.',
-            minQuestions:
-                'At least {0} questions are required to be allowed to publish.',
-            typeVariety:
-                'The use of at least {0} types of questions (Multiple Choice, TextBox, Connector or else) is recommended.',
-            qtyVariety:
-                'More variety is recommended because {0:p0} of questions are of type {1}.'
-        };
-    }
-}
-*/
+const { attr } = window.kendo;
 
 /**
  * BaseTool and tools
  */
 $.extend(true, i18n(), {
-    tool: {
+    basetool: {
         top: { title: 'Top' },
         left: { title: 'Left' },
         height: { title: 'Height' },
@@ -99,7 +42,7 @@ $.extend(true, i18n(), {
             'A(n) {0} on page {1} has an invalid color in display attributes.',
         invalidData:
             'A(n) {0} on page {1} requires values in display attributes.',
-        invalidDescription:
+        invalidQuestion:
             'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
         invalidConstant:
             'A(n) {0} on page {1} requires a constant in test logic.',
@@ -127,6 +70,9 @@ $.extend(true, i18n(), {
     }
 });
 
+/**
+ * tools.audio
+ */
 if (tools.audio) {
     // Description
     tools.audio.constructor.prototype.description = 'Audio Player';
@@ -137,6 +83,9 @@ if (tools.audio) {
     attributes.ogg.title = 'OGG File';
 }
 
+/**
+ * tools.chart
+ */
 if (tools.chart) {
     // Description
     tools.chart.constructor.prototype.description = 'Chart';
@@ -151,6 +100,9 @@ if (tools.chart) {
     attributes.style.title = 'Style';
 }
 
+/**
+ * tools.chargrid
+ */
 if (tools.chargrid) {
     // Description
     tools.chargrid.constructor.prototype.description = 'Character Grid';
@@ -179,6 +131,9 @@ if (tools.chargrid) {
     properties.omit.title = 'Omit';
 }
 
+/**
+ * tools.connector
+ */
 if (tools.connector) {
     // Description
     tools.connector.constructor.prototype.description = 'Connector';
@@ -197,6 +152,9 @@ if (tools.connector) {
     properties.disabled.title = 'Disabled';
 }
 
+/**
+ * tools.dropzone
+ */
 if (tools.dropzone) {
     // Description
     tools.dropzone.constructor.prototype.description = 'Drop Zone';
@@ -220,6 +178,9 @@ if (tools.dropzone) {
     properties.disabled.title = 'Disabled';
 }
 
+/**
+ * tools.highlighter
+ */
 if (tools.highlighter) {
     // Description
     tools.highlighter.constructor.prototype.description = 'Highlighter';
@@ -241,6 +202,9 @@ if (tools.highlighter) {
     properties.omit.title = 'Omit';
 }
 
+/**
+ * tools.image
+ */
 if (tools.image) {
     // Description
     tools.image.constructor.prototype.description = 'Image';
@@ -254,10 +218,18 @@ if (tools.image) {
     attributes.style.title = 'Style';
     // Properties
     const { properties } = tools.image.constructor.prototype;
+    properties.behavior.attributes[attr('source')] = JSON.stringify([
+        { text: 'None', value: 'none' },
+        { text: 'Draggable', value: 'draggable' },
+        { text: 'Selectable', value: 'selectable' }
+    ]);
     properties.behavior.title = 'Behaviour';
     properties.constant.title = 'Constant';
 }
 
+/**
+ * tools.imageset
+ */
 if (tools.imageset) {
     // Description
     tools.imageset.constructor.prototype.description = 'Image Set';
@@ -282,6 +254,9 @@ if (tools.imageset) {
     properties.omit.title = 'Omit';
 }
 
+/**
+ * tools.label
+ */
 if (tools.label) {
     // Description
     tools.label.constructor.prototype.description = 'Label';
@@ -296,6 +271,9 @@ if (tools.label) {
     properties.constant.title = 'Constant';
 }
 
+/**
+ * tools.mathexpression
+ */
 if (tools.mathexpression) {
     // Description
     tools.mathexpression.constructor.prototype.description =
@@ -309,6 +287,16 @@ if (tools.mathexpression) {
     attributes.style.title = 'Style';
 }
 
+/**
+ * tools.mathinput
+ */
+if (tools.mathinput) {
+    // TODO
+}
+
+/**
+ * tools.multiquiz
+ */
 if (tools.multiquiz) {
     // Description
     tools.multiquiz.constructor.prototype.description = 'MultiQuiz';
@@ -341,6 +329,16 @@ if (tools.multiquiz) {
     properties.omit.title = 'Omit';
 }
 
+/**
+ * tools.numericbox
+ */
+if (tools.numericbox) {
+    // TODO
+}
+
+/**
+ * tools.quiz
+ */
 if (tools.quiz) {
     // Description
     tools.quiz.constructor.prototype.description = 'Quiz';
@@ -373,6 +371,9 @@ if (tools.quiz) {
     properties.omit.title = 'Omit';
 }
 
+/**
+ * tools.selector
+ */
 if (tools.selector) {
     // Description
     tools.selector.constructor.prototype.description = 'Selector';
@@ -392,6 +393,9 @@ if (tools.selector) {
     properties.disabled.title = 'Disabled';
 }
 
+/**
+ * tools.table
+ */
 if (tools.table) {
     // Description
     tools.table.constructor.prototype.description = 'Static Table';
@@ -402,6 +406,9 @@ if (tools.table) {
     attributes.data.title = 'Data';
 }
 
+/**
+ * tools.textarea
+ */
 if (tools.textarea) {
     // Description
     tools.textarea.constructor.prototype.description = 'TextArea';
@@ -419,6 +426,9 @@ if (tools.textarea) {
     properties.omit.title = 'Omit';
 }
 
+/**
+ * tools.textbox
+ */
 if (tools.textbox) {
     // Description
     tools.textbox.constructor.prototype.description = 'TextBox';
@@ -437,6 +447,9 @@ if (tools.textbox) {
     properties.omit.title = 'Omit';
 }
 
+/**
+ * tools.textgaps
+ */
 if (tools.textgaps) {
     // Description
     tools.textgaps.constructor.prototype.description = 'Text gaps';
@@ -457,6 +470,9 @@ if (tools.textgaps) {
     properties.omit.title = 'Omit';
 }
 
+/**
+ * tools.video
+ */
 if (tools.video) {
     // Description
     tools.video.constructor.prototype.description = 'Video Player';

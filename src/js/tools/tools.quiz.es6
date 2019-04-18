@@ -9,6 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import assets from '../app/app.assets.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import BooleanAdapter from './adapters.boolean.es6';
@@ -29,53 +30,59 @@ import { genericLibrary } from './util.libraries.es6';
 const { format, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-// TODO review location
-const RX_DATA = /\S+/i;
-const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
-
 /**
- * i18n
- * @returns {*|{}}
+ * i18n messages
  */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).quiz || {
-            description: 'Quiz',
-            name: 'Quiz',
-            help: null,
-            attributes: {
-                data: {
-                    title: 'Values',
-                    defaultValue: [
-                        {
-                            text: 'True',
-                            image: 'cdn://images/o_collection/svg/office/ok.svg'
-                        },
-                        {
-                            text: 'False',
-                            image:
-                                'cdn://images/o_collection/svg/office/error.svg'
-                        }
-                    ]
+if (!(i18n().tools && i18n().tools.quiz)) {
+    $.extend(true, i18n(), {
+        tools: {
+            quiz: {
+                description: 'Quiz',
+                help: null,
+                name: 'Quiz',
+                attributes: {
+                    data: {
+                        title: 'Values',
+                        defaultValue: [
+                            {
+                                text: 'True',
+                                image:
+                                    'cdn://images/o_collection/svg/office/ok.svg'
+                            },
+                            {
+                                text: 'False',
+                                image:
+                                    'cdn://images/o_collection/svg/office/error.svg'
+                            }
+                        ]
+                    },
+                    groupStyle: { title: 'Group Style' },
+                    itemStyle: { title: 'Item Style' },
+                    mode: {
+                        source: [
+                            { text: 'Button', value: 'button' },
+                            { text: 'DropDown', value: 'dropdown' },
+                            { text: 'Image', value: 'image' },
+                            { text: 'Link', value: 'link' },
+                            { text: 'Radio', value: 'radio' }
+                        ],
+                        title: 'Mode'
+                    },
+                    selectedStyle: { title: 'Select. Style' },
+                    shuffle: { title: 'Shuffle' }
                 },
-                groupStyle: { title: 'Group Style' },
-                itemStyle: { title: 'Item Style' },
-                mode: { title: 'Mode' },
-                selectedStyle: { title: 'Select. Style' },
-                shuffle: { title: 'Shuffle' }
-            },
-            // Properties
-            properties: {
-                failure: { title: 'Failure' },
-                omit: { title: 'Omit' },
-                name: { title: 'Name' },
-                question: { title: 'Question' },
-                solution: { title: 'Solution' },
-                success: { title: 'Success' },
-                validation: { title: 'Validation' }
+                properties: {
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' },
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    success: { title: 'Success' },
+                    validation: { title: 'Validation' }
+                }
             }
         }
-    );
+    });
 }
 
 const QUIZ = `<div data-${ns}role="quiz" data-${ns}mode="#: attributes.mode #" data-${ns}source="#: data$() #" style="#: attributes.groupStyle #" data-${ns}item-style="#: attributes.itemStyle #" data-${ns}selected-style="#: attributes.selectedStyle #" {0}></div>`;
@@ -88,9 +95,9 @@ const QUIZ = `<div data-${ns}role="quiz" data-${ns}mode="#: attributes.mode #" d
 const QuizTool = BaseTool.extend({
     id: 'quiz',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().description,
+    description: i18n().tools.quiz.description,
     height: 120,
-    help: i18n().help,
+    help: i18n().tools.quiz.help,
     icon: 'radio_button_group',
     menu: [
         'attributes.data',
@@ -99,7 +106,7 @@ const QuizTool = BaseTool.extend({
         'properties.solution',
         'properties.validation'
     ],
-    name: i18n().name,
+    name: i18n().tools.quiz.name,
     weight: 1,
     width: 490,
     templates: {
@@ -117,53 +124,55 @@ const QuizTool = BaseTool.extend({
     attributes: {
         mode: new DropDownListAdapter(
             {
-                title: i18n().attributes.mode.title,
                 defaultValue: 'button',
-                enum: ['button', 'dropdown', 'image', 'link', 'radio']
+                source: i18n().tools.quiz.attributes.mode.source,
+                title: i18n().tools.quiz.attributes.mode.title
             },
             { style: 'width: 100%;' }
         ),
         shuffle: new BooleanAdapter({
-            title: i18n().attributes.shuffle.title
+            title: i18n().tools.quiz.attributes.shuffle.title
         }),
         groupStyle: new StyleAdapter({
-            title: i18n().attributes.groupStyle.title,
+            title: i18n().tools.quiz.attributes.groupStyle.title,
             defaultValue: 'font-size:60px;'
         }),
         itemStyle: new StyleAdapter({
-            title: i18n().attributes.itemStyle.title
+            title: i18n().tools.quiz.attributes.itemStyle.title
         }),
         selectedStyle: new StyleAdapter({
-            title: i18n().attributes.selectedStyle.title
+            title: i18n().tools.quiz.attributes.selectedStyle.title
         }),
         data: new ImageListAdapter({
-            title: i18n().attributes.data.title,
-            defaultValue: i18n().attributes.data.defaultValue
+            title: i18n().tools.quiz.attributes.data.title,
+            defaultValue: i18n().tools.quiz.attributes.data.defaultValue
         })
     },
     properties: {
-        name: new ReadOnlyAdapter({ title: i18n().properties.name.title }),
+        name: new ReadOnlyAdapter({
+            title: i18n().tools.quiz.properties.name.title
+        }),
         question: new QuestionAdapter({
-            title: i18n().properties.question.title
+            title: i18n().tools.quiz.properties.question.title
         }),
         solution: new QuizAdapter({
-            title: i18n().properties.solution.title
+            title: i18n().tools.quiz.properties.solution.title
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
-            title: i18n().properties.validation.title
+            title: i18n().tools.quiz.properties.validation.title
         }),
         success: new ScoreAdapter({
-            title: i18n().properties.success.title,
+            title: i18n().tools.quiz.properties.success.title,
             defaultValue: 1
         }),
         failure: new ScoreAdapter({
-            title: i18n().properties.failure.title,
+            title: i18n().tools.quiz.properties.failure.title,
             defaultValue: 0
         }),
         omit: new ScoreAdapter({
-            title: i18n().properties.omit.title,
+            title: i18n().tools.quiz.properties.omit.title,
             defaultValue: 0
         })
     },
@@ -321,11 +330,11 @@ const QuizTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.groupStyle &&
-                !RX_STYLE.test(component.attributes.groupStyle)) ||
+                !TOOLS.RX_STYLE.test(component.attributes.groupStyle)) ||
             (component.attributes.itemStyle &&
-                !RX_STYLE.test(component.attributes.itemStyle)) ||
+                !TOOLS.RX_STYLE.test(component.attributes.itemStyle)) ||
             (component.attributes.selectedStyle &&
-                !RX_STYLE.test(component.attributes.selectedStyle))
+                !TOOLS.RX_STYLE.test(component.attributes.selectedStyle))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,
@@ -336,7 +345,7 @@ const QuizTool = BaseTool.extend({
         if (
             !component.attributes ||
             !component.attributes.data ||
-            !RX_DATA.test(component.attributes.data)
+            !TOOLS.RX_DATA.test(component.attributes.data)
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

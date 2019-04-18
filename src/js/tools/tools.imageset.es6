@@ -234,7 +234,7 @@ const ImageSetTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,
@@ -245,7 +245,7 @@ const ImageSetTool = BaseTool.extend({
         if (
             !component.attributes ||
             !component.attributes.data ||
-            !RX_DATA.test(component.attributes.data)
+            !TOOLS.RX_DATA.test(component.attributes.data)
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

@@ -222,7 +222,7 @@ const VariableTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.alt ||
             component.attributes.alt === i18n().attributes.alt.defaultValue ||
-            !RX_TEXT.test(component.attributes.alt)
+            !TOOLS.RX_TEXT.test(component.attributes.alt)
         ) {
             ret.push({
                 type: CONSTANTS.WARNING,
@@ -238,7 +238,7 @@ const VariableTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.src ||
             component.attributes.src === i18n().attributes.src.defaultValue ||
-            !RX_IMAGE.test(component.attributes.src)
+            !TOOLS.RX_IMAGE.test(component.attributes.src)
         ) {
             ret.push({
                 type:
@@ -258,7 +258,7 @@ const VariableTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

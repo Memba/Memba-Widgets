@@ -39,13 +39,15 @@ const MultiQuizAdapter = BaseAdapter.extend({
         this.defaultValue = this.defaultValue || [];
         // this.editor = 'input';
         // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
-        this.editor = function(container, settings) {
+        this.editor = (container, settings) => {
             const input = $(`<${CONSTANTS.DIV}/>`)
                 .attr(
                     $.extend(
+                        true,
                         {},
                         settings.attributes,
-                        getValueBinding(settings.field)
+                        getValueBinding(settings.field),
+                        attributes
                     )
                 )
                 .appendTo(container);

@@ -31,7 +31,7 @@ const TOOL = 'tool';
 const ACTIVE_TOOL = 'active';
 const POINTER = 'pointer';
 const DEFAULT_EXTENSION = '.svg';
-const DEFAULT_PATH = '../../styles/images/';
+const DEFAULT_PATH = '../../styles/images/o_collection/svg/office/';
 const DEFAULT_SIZE = 32;
 
 /** *******************************************************************************
@@ -62,7 +62,10 @@ const ToolBox = Widget.extend({
         );
         assert.isPlainObject(
             options,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
         );
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });

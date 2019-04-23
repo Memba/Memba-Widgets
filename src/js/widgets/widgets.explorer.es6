@@ -42,7 +42,7 @@ const ALL_ITEMS_SELECTOR = `li.kj-item[${attr(CONSTANTS.UID)}]`;
 const ITEM_BYUID_SELECTOR = `li.kj-item[${attr(CONSTANTS.UID)}="{0}"]`;
 const ARIA_SELECTED = 'aria-selected';
 const DEFAULT_EXTENSION = '.svg';
-const DEFAULT_PATH = '../../styles/images/';
+const DEFAULT_PATH = '../../styles/images/o_collection/svg/office/';
 
 /**
  * Explorer

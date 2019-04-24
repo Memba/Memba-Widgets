@@ -81,7 +81,7 @@
         }
 
         .no-scroll {
-            scrollable: false;
+            overflow: initial;
         }
 
         main > [data-role="splitter"] {
@@ -131,7 +131,6 @@
                     'kendo.autocomplete': 'src/js/vendor/kendo/kendo.autocomplete.js',
                     'kendo.binder': 'src/js/vendor/kendo/kendo.binder.js',
                     'kendo.button': 'src/js/vendor/kendo/kendo.button.js',
-                    'kendo.buttongroup': 'src/js/vendor/kendo/kendo.buttongroup.js',
                     'kendo.buttongroup': 'src/js/vendor/kendo/kendo.buttongroup.js',
                     'kendo.calendar': 'src/js/vendor/kendo/kendo.calendar.js',
                     'kendo.color': 'src/js/vendor/kendo/kendo.color.js',
@@ -301,7 +300,7 @@
             <div id="left-pane">
                 <div data-role="navigation" data-bind="source: stream.pages, value: selectedPage"></div>
             </div>
-            <div id="center-pane" style="touch-action:none;">
+            <div id="center-pane" style="touch-action: none;">
                 <div class="centered">
                     <div data-role="stage" data-bind="source: selectedPage.components, value: selectedComponent" data-mode="design"></div>
                 </div>
@@ -336,37 +335,37 @@
                     <ul data-role="panelbar">
                         <li><span class="k-link">Toolbox</span>
                             <div class="k-content">
-                                <div data-role="toolbox" data-icon-path="./styles/images/" style="width: 100%; border:none;"></div>
+                                <div data-role="toolbox" data-icon-path="./styles/images/o_collection/svg/office/" style="width: 100%; border: none;"></div>
                             </div>
                         </li>
                         <li><span class="k-link">Explorer</span>
                             <div class="k-content">
-                                <div data-role="explorer" data-icon-path="./styles/images/" data-bind="source: selectedPage.components, value: selectedComponent" style="width: 100%; border:none;"></div>
+                                <div data-role="explorer" data-icon-path="./styles/images/o_collection/svg/office/" data-bind="source: selectedPage.components, value: selectedComponent" style="width: 100%; border: none;"></div>
                             </div>
                         </li>
                         <li><span class="k-link">Display Attributes</span>
                             <div class="k-content">
-                                <div id="attributes" data-role="propertygrid" data-bind="value: selectedComponent" data-messages="{ property: null, value: null }" style="width: 100%; border:none;"></div>
+                                <div id="attributes" data-role="propertygrid" data-bind="value: selectedComponent" data-messages="{ property: null, value: null }" style="width: 100%; border: none;"></div>
                             </div>
                         </li>
                         <li><span class="k-link">Test Logic</span>
                             <div class="k-content">
-                                <div id="properties" data-role="propertygrid" data-bind="value: selectedComponent" data-messages="{ property: null, value: null }" style="width: 100%; border:none;"></div>
+                                <div id="properties" data-role="propertygrid" data-bind="value: selectedComponent" data-messages="{ property: null, value: null }" style="width: 100%; border: none;"></div>
                             </div>
                         </li>
                         <li><span class="k-link">Instructions</span>
                             <div class="k-content">
-                                <div data-role="markeditor" data-bind="value: selectedPage.instructions, enabled: selectedPage" style="width: 100%; border:none;"></div>
+                                <div data-role="markeditor" data-bind="value: selectedPage.instructions, enabled: selectedPage" style="width: 100%; border: none;"></div>
                             </div>
                         </li>
                         <li><span class="k-link">Explanations</span>
                             <div class="k-content">
-                                <div data-role="markeditor" data-bind="value: selectedPage.explanations, enabled: selectedPage" style="width: 100%; border:none;"></div>
+                                <div data-role="markeditor" data-bind="value: selectedPage.explanations, enabled: selectedPage" style="width: 100%; border: none;"></div>
                             </div>
                         </li>
                         <li><span class="k-link">Settings</span>
                             <div class="k-content">
-                                <div id="settings" data-role="propertygrid" data-bind="value: settings" data-messages="{ property: null, value: null }" style="width: 100%; border:none;"></div>
+                                <div id="settings" data-role="propertygrid" data-bind="value: settings" data-messages="{ property: null, value: null }" style="width: 100%; border: none;"></div>
                             </div>
                         </li>
                     </ul>

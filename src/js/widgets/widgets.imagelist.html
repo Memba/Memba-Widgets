@@ -217,11 +217,13 @@
                     onClick: function (e) {
                         if (e.action === 'image') {
                             // Note: this is where we should plug our asset manager
-                            var image = e.item.get('image');
-                            var prompt = window.prompt("What's your image?", image);
-                            // We need an input to get a validator, and we need to update it before the model otherwise validation fails an the model is not updated
-                            // e.sender.element.find('input[type="hidden"][data-bind*="image"]').val(prompt);
-                            e.item.set('url', prompt);
+                            var url = e.item.get('url');
+                            var prompt = window.prompt("What's your image?", url);
+                            if (prompt) {
+                                // We need an input to get a validator, and we need to update it before the model otherwise validation fails an the model is not updated
+                                // e.sender.element.find('input[type="hidden"][data-bind*="image"]').val(prompt);
+                                e.item.set('url', prompt);
+                            }
                         }
                     }
                 });

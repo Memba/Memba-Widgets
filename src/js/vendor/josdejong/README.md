@@ -1,6 +1,6 @@
 Besides:
 - https://github.com/josdejong/mathjs
-- https://github.com/josdejong/mathjs-expression-parser
+- https://github.com/josdejong/mathjs-expression-parser (very limited version of mathjs)
 
 We have considered:
 - https://github.com/silentmatt/expr-eval

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>mathjs-expression-parser | basic usage</title>
+  <script src="./math.js"></script>
+  <!--script src="./mathjs-expression-parser.js"></script-->
+</head>
+<body>
+
+<script>
+  function evaluate (expr, scope) {
+    document.write(expr + ' = ' + math.eval(expr, scope || {}) + '<br>');
+  }
+
+  evaluate('123.456789');
+  evaluate('2.4 + 5');
+  evaluate('sqrt(16)');
+  evaluate('sin(pi / 4) ^ 2');
+  evaluate('2x', {x: 4});
+  evaluate('sin(45 deg)');
+  evaluate('(2+3i)(1+2i)');
+  evaluate('[[1, 2, 3], [1, 2, 3]]*2');
+</script>
+
+</body>
+</html>

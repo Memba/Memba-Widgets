@@ -9,7 +9,9 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.highlighter.es6';
 import HighLighterAdapter from './adapters.highlighter.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
@@ -22,44 +24,75 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
+import { questionValidator, scoreValidator } from './util.validators.es6';
 
-const { attr, format, ns, template } = window.kendo;
+const { format, ns, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
- * i18n
- * @returns {*|{}}
+ * i18n messages
  */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).highlighter ||
-        {
-            // TODO
+if (!(i18n().tools && i18n().tools.highlighter)) {
+    $.extend(true, i18n(), {
+        tools: {
+            highlighter: {
+                description: 'Highlighter',
+                help: null,
+                name: 'Highlighter',
+                attributes: {
+                    highlightStyle: {
+                        title: 'Highlight'
+                    },
+                    style: {
+                        title: 'Style'
+                    },
+                    text: {
+                        title: 'Text'
+                    },
+                    split: {
+                        title: 'Split'
+                    }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
+                }
+            }
         }
-    );
+    });
 }
 
-const HIGHLIGHTER =
-    `<div class="kj-interactive" data-${ns}role="highlighter" data-${ns}text="#: attributes.text #" data-${ns}split="#: attributes.split #"  data-${ns}highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>`;
 /**
- * @class HighLighterTool tool
+ * Template
+ * @type {string}
+ */
+const TEMPLATE = `<div class="kj-interactive" data-${ns}role="highlighter" data-${ns}text="#: attributes.text #" data-${ns}split="#: attributes.split #"  data-${ns}highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>`;
+
+/**
+ * HighLighterTool
+ * @class HighLighterTool
  * @type {void|*}
  */
 const HighLighterTool = BaseTool.extend({
     id: 'highlighter',
     icon: 'marker',
-    description: i18n.highlighter.description,
+    description: i18n().tools.highlighter.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: format(HIGHLIGHTER, `data-${ns}enable="false"`),
+        design: format(TEMPLATE, `data-${ns}enable="false"`),
         play: format(
-            HIGHLIGHTER,
+            TEMPLATE,
             `data-${ns}bind="value: #: properties.name #.value, source: interactions"`
         ),
         review:
             format(
-                HIGHLIGHTER,
+                TEMPLATE,
                 `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
@@ -67,47 +100,51 @@ const HighLighterTool = BaseTool.extend({
     width: 250,
     attributes: {
         highlightStyle: new StyleAdapter({
-            title: i18n.highlighter.attributes.highlightStyle.title
+            title: i18n().tools.highlighter.attributes.highlightStyle.title
         }),
         style: new StyleAdapter({
-            title: i18n.highlighter.attributes.style.title,
+            title: i18n().tools.highlighter.attributes.style.title,
             defaultValue: 'font-size:32px;'
         }),
         text: new TextAreaAdapter({
-            title: i18n.highlighter.attributes.text.title,
-            defaultValue: i18n.highlighter.attributes.text.defaultValue
+            title: i18n().tools.highlighter.attributes.text.title,
+            defaultValue: i18n().tools.highlighter.attributes.text.defaultValue
         }),
         split: new TextBoxAdapter({
-            title: i18n.highlighter.attributes.split.title,
+            title: i18n().tools.highlighter.attributes.split.title,
             defaultValue: '([\\s\\.,;:\\?¿!<>\\(\\)&"`«»\\[\\]{}])'
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n.highlighter.properties.name.title
+            title: i18n().tools.highlighter.properties.name.title
         }),
         question: new QuestionAdapter({
-            title: i18n.highlighter.properties.question.title
+            title: i18n().tools.highlighter.properties.question.title,
+            validator: questionValidator
         }),
         solution: new HighLighterAdapter({
-            title: i18n.highlighter.properties.solution.title
+            title: i18n().tools.highlighter.properties.solution.title
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
-            title: i18n.highlighter.properties.validation.title
+            title: i18n().tools.highlighter.properties.validation.title
         }),
         success: new ScoreAdapter({
-            title: i18n.highlighter.properties.success.title,
-            defaultValue: 1
+            title: i18n().tools.highlighter.properties.success.title,
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n.highlighter.properties.failure.title,
-            defaultValue: 0
+            title: i18n().tools.highlighter.properties.failure.title,
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n.highlighter.properties.omit.title,
-            defaultValue: 0
+            title: i18n().tools.highlighter.properties.omit.title,
+            defaultValue: 0,
+            validation: scoreValidator
         })
     },
 
@@ -139,12 +176,12 @@ const HighLighterTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(CONSTANTS.STAGE_MODES)
+                Object.keys(TOOLS.STAGE_MODES)
             )
         );
         const tmpl = template(that.templates[mode]);
@@ -200,13 +237,13 @@ const HighLighterTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const { description } = this; // tool description
+        const { messages } = this.i18n;
         if (
             !component.attributes ||
             !component.attributes.text ||
             component.attributes.text ===
-                i18n.highlighter.attributes.text.defaultValue ||
+                i18n().tools.highlighter.attributes.text.defaultValue ||
             !TOOLS.RX_TEXT.test(component.attributes.text)
         ) {
             ret.push({

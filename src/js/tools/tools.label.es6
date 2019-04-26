@@ -35,7 +35,7 @@ if (!(i18n().tools && i18n().tools.label)) {
     $.extend(true, i18n(), {
         tools: {
             label: {
-                description: 'Label',
+                description: 'Label: <em>#: attributes.text #</em>',
                 help: null,
                 name: 'Label',
                 attributes: {
@@ -59,7 +59,15 @@ if (!(i18n().tools && i18n().tools.label)) {
 }
 
 /**
+ * Template
+ * @type {string}
+ */
+const TEMPLATE = `<div class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #">#= text$() #</div>`;
+
+/**
+ * LabelTool
  * @class LabelTool
+ * @extends BaseTool
  */
 const LabelTool = BaseTool.extend({
     id: 'label',
@@ -72,7 +80,7 @@ const LabelTool = BaseTool.extend({
     name: i18n().tools.label.name,
     width: 300,
     templates: {
-        default: `<div class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #">#= text$() #</div>`
+        default: TEMPLATE
     },
     attributes: {
         text: new TextAreaAdapter(
@@ -139,12 +147,12 @@ const LabelTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.values(CONSTANTS.STAGE_MODES)
+                Object.values(TOOLS.STAGE_MODES)
             )
         );
         const tmpl = template(that.templates.default);
@@ -172,7 +180,6 @@ const LabelTool = BaseTool.extend({
                 ).replace(/\n/g, '<br/>');
             }
         });
-
         return tmpl(component);
     },
 

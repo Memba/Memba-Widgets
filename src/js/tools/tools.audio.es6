@@ -22,21 +22,30 @@ import TOOLS from './util.constants';
 const { format, ns, roleSelector, template } = window.kendo;
 
 /**
- * i18n
- * @returns {*|{}}
+ * i18n messages
  */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).audio || {
-            description: 'Audio Player',
-            attributes: {
-                autoplay: { title: 'Autoplay' },
-                mp3: { title: 'MP3 File' },
-                ogg: { title: 'OGG File' }
+if (!(i18n().tools && i18n().tools.audio)) {
+    $.extend(true, i18n(), {
+        tools: {
+            audio: {
+                description: 'Audio Player',
+                help: null,
+                name: 'Audio',
+                attributes: {
+                    autoplay: { title: 'Autoplay' },
+                    mp3: { title: 'MP3 File' },
+                    ogg: { title: 'OGG File' }
+                }
             }
         }
-    );
+    });
 }
+
+/**
+ * Template
+ * @type {string}
+ */
+const TEMPLATE = `<div data-${ns}role="mediaplayer" data-${ns}mode="audio" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #"></div>`;
 
 /**
  * @class AudioTool
@@ -44,20 +53,24 @@ function i18n() {
 const AudioTool = BaseTool.extend({
     id: 'audio',
     icon: 'loudspeaker3',
-    description: i18n().description,
+    description: i18n().tools.audio.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default: `<div data-${ns}role="mediaplayer" data-${ns}mode="audio" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #"></div>`
+        default: TEMPLATE
     },
     height: 100,
     width: 400,
     attributes: {
         autoplay: new BooleanAdapter({
-            title: i18n().attributes.autoplay.title,
+            title: i18n().tools.audio.attributes.autoplay.title,
             defaultValue: false
         }),
-        mp3: new AssetAdapter({ title: i18n().attributes.mp3.title }),
-        ogg: new AssetAdapter({ title: i18n().attributes.ogg.title })
+        mp3: new AssetAdapter({
+            title: i18n().tools.audio.attributes.mp3.title
+        }),
+        ogg: new AssetAdapter({
+            title: i18n().tools.audio.attributes.ogg.title
+        })
     },
 
     /**
@@ -76,8 +89,6 @@ const AudioTool = BaseTool.extend({
                 'PageComponent'
             )
         );
-        const audio = [];
-
         return {
             audio: [component.get('attributes.src')],
             image: [],
@@ -109,12 +120,12 @@ const AudioTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.values(CONSTANTS.STAGE_MODES)
+                Object.values(TOOLS.STAGE_MODES)
             )
         );
         assert.instanceof(
@@ -134,7 +145,7 @@ const AudioTool = BaseTool.extend({
                 let mp3 = component.attributes.get('mp3');
                 let ogg = component.attributes.get('ogg');
                 const files = [];
-                // TODO CHeck when mp3 or ogg is undefined;
+                // TODO Check when mp3 or ogg is undefined;
                 mp3 = assets.audio.http2scheme(mp3);
                 if (TOOLS.RX_HTTP_S.test(mp3)) {
                     files.push(mp3);
@@ -208,7 +219,10 @@ const AudioTool = BaseTool.extend({
             description,
             i18n: { messages }
         } = this; // tool description
-        if (!component.attributes || !TOOLS.RX_AUDIO.test(component.attributes.mp3)) {
+        if (
+            !component.attributes ||
+            !TOOLS.RX_AUDIO.test(component.attributes.mp3)
+        ) {
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,

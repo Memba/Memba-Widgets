@@ -19,7 +19,6 @@ import BaseAdapter from './adapters.base.es6';
 // TODO Review with imageset
 
 const {
-    attr,
     ui: { BaseDialog, ImageList }
 } = window.kendo;
 
@@ -77,6 +76,11 @@ const ImageListAdapter = BaseAdapter.extend({
             });
         };
     },
+    /**
+     * Open asset manager
+     * @param options
+     * @param e
+     */
     showDialog(options, e) {
         // Note should return a promise to be used with app.notification?
         if (e.action === 'image') {
@@ -84,7 +88,7 @@ const ImageListAdapter = BaseAdapter.extend({
             openAssetManager({
                 title: options.title,
                 data: {
-                    value: e.item.get('image')
+                    value: e.item.get('url')
                 },
                 assets: assets.image
             })
@@ -93,7 +97,7 @@ const ImageListAdapter = BaseAdapter.extend({
                         result.action ===
                         BaseDialog.fn.options.messages.actions.ok.action
                     ) {
-                        e.item.set('image', result.data.value);
+                        e.item.set('url', result.data.value);
                     }
                 })
                 .catch(err => {

@@ -3,43 +3,56 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Create an expression adapter
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import math from '../vendor/josdejong/math';
+import config from '../app/app.config.jsx';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
+import Logger from '../common/window.logger.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
-import ReadOnlyAdapter from './adapters.readonly.es6';
+import ExpressionAdapter from './adapters.expression.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import assets from '../app/app.assets.es6';
+import TOOLS from './util.constants.es6';
 
-const { format, ns, template } = window.kendo;
+const logger = new Logger('tools.variable');
+const { format, template } = window.kendo;
 
 /**
- * i18n
- * @returns {*|{}}
+ * i18n messages
  */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).image || {
-            description: 'Variable',
-            help: null,
-            name: 'Variable',
-            attributes: {
-                variable: { title: 'Variable' },
-                expression: { title: 'Expression' }
-            },
-            properties: {
-                name: { title: 'Name' }
+if (!(i18n().tools && i18n().tools.variable)) {
+    $.extend(true, i18n(), {
+        tools: {
+            variable: {
+                description: 'Variable: <em>#: properties.variable #</em>',
+                help: null,
+                name: 'Variable',
+                attributes: {},
+                properties: {
+                    variable: {
+                        title: 'Variable'
+                    },
+                    expression: {
+                        title: 'Expression'
+                    }
+                }
             }
         }
-    );
+    });
 }
+
+/**
+ * Template
+ * @type {string}
+ */
+const TEMPLATE =
+    '<img src="#: src$() #" alt="#: alt$() #" class="#: class$() #">';
 
 /**
  * VariableTool
@@ -49,32 +62,54 @@ function i18n() {
 const VariableTool = BaseTool.extend({
     id: 'variable',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().description,
+    description: i18n().tools.variable.description,
     height: 64,
-    help: i18n().help,
+    help: i18n().tools.variable.help,
     icon: 'magic_wand',
     menu: ['attributes.variable', 'attributes.expression'],
-    name: i18n().name,
+    name: i18n().tools.variable.name,
     width: 64,
     templates: {
-        default:
-            '<img src="#: src$() #" alt="#: alt$() #" class="#: class$() #">'
+        default: TEMPLATE
     },
-    attributes: {
+    // attributes: {},
+    properties: {
         variable: new TextBoxAdapter({
-            title: i18n().attributes.variable.title,
-            defaultValue: 0
+            title: i18n().tools.variable.properties.variable.title,
+            defaultValue: 'k'
         }),
-        // TODO expression: new ExpressionAdapter({
-        expression: new TextBoxAdapter({
-            title: i18n().attributes.expression.title,
+        expression: new ExpressionAdapter({
+            title: i18n().tools.variable.properties.expression.title,
             defaultValue: 'round(random(0, 10), 2)'
         })
     },
-    properties: {
-        name: new ReadOnlyAdapter({
-            title: i18n().properties.name.title
-        })
+
+    /**
+     * Evaluate expression
+     */
+    eval(component) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        const variable = component.get('properties.variable');
+        const expression = component.get('properties.expression');
+        let value;
+        try {
+            value = math.eval(expression /* , scope */);
+        } catch (error) {
+            logger.error({
+                method: 'eval',
+                error,
+                data: { variable, expression }
+            });
+        }
+        return value;
     },
 
     /**
@@ -96,35 +131,29 @@ const VariableTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.values(CONSTANTS.STAGE_MODES)
+                Object.values(TOOLS.STAGE_MODES)
             )
         );
         const tmpl = template(that.templates.default);
         $.extend(component, {
             // alternate text of an image
             alt$() {
-                return component.get('attributes.name');
+                return component.get('properties.variable');
             },
             // add class to hide element in play and review modes
             class$() {
-                return mode === 'design' ? '' : 'kj-ignore';
+                return mode === 'design' ? '' : 'kj-hidden';
             },
-            // The src$ function resolves urls with schemes like cdn://sample.jpg
+            // The src$ function resolves the icon path
             src$() {
-                // TODO use app.uris
-                const src = format(
-                    'cdn://images/o_collection/svg/office/{0}.svg',
-                    that.icon
-                );
-                return assets.image.scheme2http(src);
+                return format(config.uris.cdn.icons, that.icon);
             }
         });
-
         return tmpl(component);
     },
 
@@ -221,7 +250,8 @@ const VariableTool = BaseTool.extend({
         if (
             !component.attributes ||
             !component.attributes.alt ||
-            component.attributes.alt === i18n().attributes.alt.defaultValue ||
+            component.attributes.alt ===
+                i18n().tools.variable.attributes.alt.defaultValue ||
             !TOOLS.RX_TEXT.test(component.attributes.alt)
         ) {
             ret.push({
@@ -237,13 +267,14 @@ const VariableTool = BaseTool.extend({
         if (
             !component.attributes ||
             !component.attributes.src ||
-            component.attributes.src === i18n().attributes.src.defaultValue ||
+            component.attributes.src ===
+                i18n().tools.variable.attributes.src.defaultValue ||
             !TOOLS.RX_IMAGE.test(component.attributes.src)
         ) {
             ret.push({
                 type:
                     component.attributes.src ===
-                    i18n().attributes.src.defaultValue
+                    i18n().tools.variable.attributes.src.defaultValue
                         ? CONSTANTS.WARNING
                         : CONSTANTS.ERROR,
                 index: pageIdx,

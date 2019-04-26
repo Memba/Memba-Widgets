@@ -15,6 +15,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 import tools from '../tools/tools.es6';
 import BaseTool from '../tools/tools.base.es6';
+import TOOLS from '../tools/util.constants.es6';
 
 const {
     data: { DataSource, ObservableArray, ObservableObject },
@@ -114,11 +115,14 @@ export const PageComponent = BaseModel.define({
         if (
             $.type(tool) !== CONSTANTS.STRING ||
             tool.length === 0 ||
-            tool === CONSTANTS.POINTER ||
+            tool === TOOLS.POINTER ||
             !(tools instanceof ObservableObject) ||
             !(tools[tool] instanceof BaseTool)
         ) {
-            throw new Error(format('`{0}` is not a valid tool', tool));
+            // setTimeout is required, otherwise the error is silent
+            setTimeout(() => {
+                throw new Error(format('`{0}` is not a valid tool', tool));
+            });
         }
     },
 
@@ -222,13 +226,37 @@ export const PageComponent = BaseModel.define({
     },
 
     /**
-     * Help (for widgets.markdown)
+     * Help (for widgets.help)
      * @method help$
      */
     help$() {
         const tool = tools[this.get('tool')];
         return tool.getHelp(this);
     },
+
+    /**
+     * For computed questions
+     * @returns {*}
+     */
+    /*
+    question() {
+        // TODO: work in progress with variables and numeric box
+        const tool = tools[this.get('tool')];
+        return tool.getQuestion(this);
+    },
+    */
+
+    /**
+     * For computed solutions
+     * @returns {*}
+     */
+    /*
+    solution() {
+        // TODO: work in progress with variables and numeric box
+        const tool = tools[this.get('tool')];
+        return tool.getSolution(this);
+    },
+     */
 
     /**
      * Clone

@@ -26,6 +26,7 @@ import BaseTool from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
+import { questionValidator, scoreValidator } from './util.validators.es6';
 
 const { format, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -85,7 +86,11 @@ if (!(i18n().tools && i18n().tools.quiz)) {
     });
 }
 
-const QUIZ = `<div data-${ns}role="quiz" data-${ns}mode="#: attributes.mode #" data-${ns}source="#: data$() #" style="#: attributes.groupStyle #" data-${ns}item-style="#: attributes.itemStyle #" data-${ns}selected-style="#: attributes.selectedStyle #" {0}></div>`;
+/**
+ * Template
+ * @type {string}
+ */
+const TEMPLATE = `<div data-${ns}role="quiz" data-${ns}mode="#: attributes.mode #" data-${ns}source="#: data$() #" style="#: attributes.groupStyle #" data-${ns}item-style="#: attributes.itemStyle #" data-${ns}selected-style="#: attributes.selectedStyle #" {0}></div>`;
 
 /**
  * QuizTool
@@ -110,14 +115,14 @@ const QuizTool = BaseTool.extend({
     weight: 1,
     width: 490,
     templates: {
-        design: format(QUIZ, `data-${ns}enable="false"`),
+        design: format(TEMPLATE, `data-${ns}enable="false"`),
         play: format(
-            QUIZ,
+            TEMPLATE,
             `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
         ),
         review:
             format(
-                QUIZ,
+                TEMPLATE,
                 `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
@@ -153,10 +158,12 @@ const QuizTool = BaseTool.extend({
             title: i18n().tools.quiz.properties.name.title
         }),
         question: new QuestionAdapter({
-            title: i18n().tools.quiz.properties.question.title
+            title: i18n().tools.quiz.properties.question.title,
+            validation: questionValidator
         }),
         solution: new QuizAdapter({
             title: i18n().tools.quiz.properties.solution.title
+            // TODO validation: solutionValidator
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
@@ -165,15 +172,18 @@ const QuizTool = BaseTool.extend({
         }),
         success: new ScoreAdapter({
             title: i18n().tools.quiz.properties.success.title,
-            defaultValue: 1
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
             title: i18n().tools.quiz.properties.failure.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
             title: i18n().tools.quiz.properties.omit.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         })
     },
 
@@ -205,12 +215,12 @@ const QuizTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(CONSTANTS.STAGE_MODES)
+                Object.keys(TOOLS.STAGE_MODES)
             )
         );
         assert.instanceof(
@@ -224,35 +234,30 @@ const QuizTool = BaseTool.extend({
         );
         const tmpl = template(that.templates[mode]);
         // The data$ function resolves urls with schemes like cdn://sample.jpg
-        // eslint-disable-next-line no-param-reassign
-        component.data$ = function() {
-            const data = component.attributes.get('data');
-            const clone = [];
-            const { schemes } = assets.image;
-            for (let i = 0, { length } = data; i < length; i++) {
-                const item = {
-                    text: data[i].text,
-                    image: ''
-                };
-                // TODO use scheme2http
-                for (const scheme in schemes) {
-                    if (
-                        Object.prototype.hasOwnProperty.call(schemes, scheme) &&
-                        new RegExp(`^${scheme}://`).test(data[i].image)
-                    ) {
-                        item.image = data[i].image.replace(
-                            `${scheme}://`,
-                            schemes[scheme]
-                        );
-                        break;
-                    }
-                }
-                clone.push(item);
+        $.extend(component, {
+            data$() {
+                const data = component.attributes.get('data').map(item => {
+                    debugger;
+                    return {
+                        text: item.text,
+                        url: assets.image.scheme2http(item.url)
+                    };
+                });
+                // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                return ` ${JSON.stringify(data)}`;
             }
-            // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
-            return ` ${JSON.stringify(clone)}`;
-        };
+        });
         return tmpl(component);
+    },
+
+    /**
+     * onEnable Event Handler
+     * @param e
+     * @param component
+     */
+    onEnable(e, component) {
+        // TODO ????
+        debugger;
     },
 
     /**

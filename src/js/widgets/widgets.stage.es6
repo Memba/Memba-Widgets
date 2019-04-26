@@ -19,7 +19,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import {
     deg2rad,
-    getMousePosition,
+    // getMousePosition,
     getRadiansBetweenPoints,
     getRotatedPoint,
     getTransformScale,
@@ -35,6 +35,7 @@ import {
 } from '../data/data.pagecomponent.es6';
 import tools from '../tools/tools.es6';
 import BaseTool from '../tools/tools.base.es6';
+import TOOLS from '../tools/util.constants.es6';
 
 const {
     _outerHeight,
@@ -163,7 +164,7 @@ const Stage = DataBoundWidget.extend({
     /**
      * Stage modes
      */
-    modes: CONSTANTS.STAGE_MODES,
+    modes: TOOLS.STAGE_MODES,
 
     /**
      * Events
@@ -1307,12 +1308,12 @@ const Stage = DataBoundWidget.extend({
         // Get stage mode
         const mode = this.mode();
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.values(CONSTANTS.STAGE_MODES)
+                Object.values(TOOLS.STAGE_MODES)
             )
         );
 
@@ -1393,7 +1394,7 @@ const Stage = DataBoundWidget.extend({
         this._onEnableStageElement(
             emulatedEvent,
             component,
-            this.mode() === CONSTANTS.STAGE_MODES.PLAY
+            this.mode() === TOOLS.STAGE_MODES.PLAY
         );
         this._onMoveStageElement(emulatedEvent, component);
         this._onResizeStageElement(emulatedEvent, component);
@@ -1760,7 +1761,7 @@ const Stage = DataBoundWidget.extend({
             e,
             assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
-        const active = this.options.tools.get(CONSTANTS.ACTIVE);
+        const active = this.options.tools.get(TOOLS.ACTIVE);
         const target = $((e.touch || {}).initialTouch);
         // Close any context menu left opened
         if (
@@ -1773,7 +1774,7 @@ const Stage = DataBoundWidget.extend({
         ) {
             this.menu.close();
         }
-        if (active === CONSTANTS.POINTER) {
+        if (active === TOOLS.POINTER) {
             // The active tool is the pointer
             // target can possibly be a child of a kj-element
             // or something else (kj-adorner, kj-handle) that is ignored
@@ -1789,7 +1790,7 @@ const Stage = DataBoundWidget.extend({
                 this.value(null);
                 this.trigger(CONSTANTS.SELECT, { value: null });
             }
-        } else if (active !== CONSTANTS.POINTER) {
+        } else if (active !== TOOLS.POINTER) {
             e.preventDefault();
             // Find the selected tool
             const tool = tools[active];
@@ -1830,7 +1831,7 @@ const Stage = DataBoundWidget.extend({
                 this.trigger(CONSTANTS.SELECT, { value: component });
 
                 // Reset the pointer tool
-                tools.set(CONSTANTS.ACTIVE, CONSTANTS.POINTER);
+                tools.set(TOOLS.ACTIVE, TOOLS.POINTER);
             }
         }
 
@@ -1850,11 +1851,11 @@ const Stage = DataBoundWidget.extend({
             e,
             assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
-        const active = this.options.tools.get(CONSTANTS.ACTIVE);
+        const active = this.options.tools.get(TOOLS.ACTIVE);
         const target = $((e.touch || {}).initialTouch);
         const action = target.attr(attr(CONSTANTS.ACTION));
         if (
-            active === CONSTANTS.POINTER &&
+            active === TOOLS.POINTER &&
             target.is(CONSTANTS.DOT + HANDLE_CLASS) &&
             action !== ACTIONS.MENU
         ) {
@@ -2245,7 +2246,7 @@ const Stage = DataBoundWidget.extend({
         const that = this;
         const uid = that._selectedUid;
         const adorner = this._getAdorner();
-        // if (that.mode() === CONSTANTS.STAGE_MODES.DESIGN) {
+        // if (that.mode() === TOOLS.STAGE_MODES.DESIGN) {
         if (adorner.length) {
             const stageElement = that._getStageElementByUid(uid);
             if (

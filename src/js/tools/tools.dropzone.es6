@@ -22,6 +22,7 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
+import {scoreValidator} from './util.validators.es6';
 
 const { attr, format, htmlEncode, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -99,15 +100,18 @@ const DropZoneTool = BaseTool.extend({
         }),
         success: new ScoreAdapter({
             title: i18n.dropzone.properties.success.title,
-            defaultValue: 1
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
             title: i18n.dropzone.properties.failure.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
             title: i18n.dropzone.properties.omit.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         disabled: new DisabledAdapter({
             title: i18n.dropzone.properties.disabled.title,

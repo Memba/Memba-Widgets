@@ -118,9 +118,7 @@ function onResize() {
     }
     if (stageWidget instanceof Stage) {
         const width = $('#center-pane').width();
-
         const height = $('#center-pane').height();
-
         const scale = Math.min((0.9 * width) / 1024, (0.9 * height) / 768);
         stageWidget.scale(scale);
         $('.centered')

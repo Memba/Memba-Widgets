@@ -3,10 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO replace https://cdn.kidoju.com
-// TODO: Consider redesigning ToolBase to only import adapters in design mode,
-// using import('./adapters.*.es6').then(function () {...});
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -280,6 +276,48 @@ const BaseTool = Class.extend({
     },
 
     /**
+     * Get Question
+     * @param component
+     * @returns {string}
+     */
+    /*
+    getQuestion(component) {
+        // TODO: work in progress with variables and numeric box
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        return this.get('properties.question');
+    },
+     */
+
+    /**
+     * Get Solution
+     * @param component
+     * @returns {string}
+     */
+    /*
+    getSolution(component) {
+        // TODO: work in progress with variables and numeric box
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        return this.get('properties.solution');
+    },
+    */
+
+    /**
      * Get the field definition for a test model derived from BaseTest
      * @method getTestModelField
      * @param component
@@ -344,6 +382,16 @@ const BaseTool = Class.extend({
             page() {
                 return component.page();
             },
+            // Related stream
+            stream() {
+                return (
+                    component.page().stream() ||
+                    component.page().parent().stream
+                );
+            },
+            pageIdx() {
+                return this.stream().pages.indexOf(this.page());
+            },
             // Related tool
             tool() {
                 return tool;
@@ -358,26 +406,33 @@ const BaseTool = Class.extend({
                 // Validation is either a string (custom) or an object ({ item: ..., params: ...})
                 return validation;
             },
+            // The all scope
+            all() {
+                const all = {};
+                const model = this.parent(); // a TestModel derived from BaseTest
+                const page = this.page();
+                Object.keys(model.fields).forEach(key => {
+                    if (
+                        TOOLS.RX_TEST_FIELD_NAME.test(key) &&
+                        model[key].page() === page // same page
+                    ) {
+                        all[key] = model[key].get('value');
+                    }
+                });
+                return $.extend(
+                    all,
+                    model.variables.at(this.pageIdx()).toJSON()
+                );
+            },
             // Format data for poolExec validation
             data() {
-                const data = {
+                return {
                     value: this.get('value'),
                     solution: component.get('properties.solution'),
                     // Other field values on the same page
                     // assuming this TestModelField is part of a TestModel
-                    all: {}
+                    all: this.all()
                 };
-                if ($.isFunction(this.model)) {
-                    // The field is part of a TestModel
-                    const model = this.model();
-                    Object.keys(model.fields).forEach(key => {
-                        if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
-                            // TODO Add random fields
-                            data.all[key] = model[key].get('value');
-                        }
-                    });
-                }
-                return data;
             },
             // grade function
             grade() {
@@ -491,12 +546,12 @@ const BaseTool = Class.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.values(CONSTANTS.STAGE_MODES)
+                Object.values(TOOLS.STAGE_MODES)
             )
         );
         const templates = this.templates || { default: CONSTANTS.EMPTY };

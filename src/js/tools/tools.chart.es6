@@ -9,21 +9,33 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
+import ChartAdapter from './adapters.chart.es6';
+import DropDownListAdapter from './adapters.dropdownlist.es6';
+import NumberAdapter from './adapters.number.es6';
+import StyleAdapter from './adapters.style.es6';
+import TextBoxAdapter from './adapters.textbox.es6';
+import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 
 const { format, ns, roleSelector, template } = window.kendo;
 
 /**
- * i18n
- * @returns {*|{}}
+ * i18n messages
  */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).chart || {
-            // TODO
+if (!(i18n().tools && i18n().tools.chart)) {
+    $.extend(true, i18n(), {
+        tools: {
+            chart: {
+                description: 'Chart',
+                help: null,
+                name: 'Chart',
+                attributes: {},
+                properties: {}
+            }
         }
-    );
+    });
 }
 
 /**
@@ -32,17 +44,17 @@ function i18n() {
  * @param values
  * @returns {{sheets: *[]}}
  */
-util.defaultChartData = function (categories, values) {
-    var YEAR = 1999;
-    var MAX_VALUE = 500;
-    var rowTotal = values + 1;
-    var columnTotal = categories + 1;
-    var rowIndex;
-    var columnIndex;
-    var data = { sheets: [{ name: 'Sheet1', rows: [] }] };
-    var rows = data.sheets[0].rows;
+util.defaultChartData = function(categories, values) {
+    const YEAR = 1999;
+    const MAX_VALUE = 500;
+    const rowTotal = values + 1;
+    const columnTotal = categories + 1;
+    let rowIndex;
+    let columnIndex;
+    const data = { sheets: [{ name: 'Sheet1', rows: [] }] };
+    const { rows } = data.sheets[0];
     // Build the categories row
-    var row = { index: 0, cells: [] };
+    let row = { index: 0, cells: [] };
     for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
         row.cells.push({ index: columnIndex, value: YEAR + columnIndex });
     }
@@ -50,9 +62,12 @@ util.defaultChartData = function (categories, values) {
     // Build the values rows
     for (rowIndex = 1; rowIndex < rowTotal; rowIndex++) {
         row = { index: rowIndex, cells: [] };
-        row.cells.push({ index: 0, value: 'Series' + rowIndex });
+        row.cells.push({ index: 0, value: `Series${rowIndex}` });
         for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
-            row.cells.push({ index: columnIndex, value: Math.floor(MAX_VALUE * Math.random()) });
+            row.cells.push({
+                index: columnIndex,
+                value: Math.floor(MAX_VALUE * Math.random())
+            });
         }
         rows.push(row);
     }
@@ -65,13 +80,21 @@ util.defaultChartData = function (categories, values) {
  * @param rowMax
  * @param columnMax
  */
-util.resizeSpreadsheetData = function (json, rowMax, columnMax) {
-    var rows = json.sheets[0].rows;
-    var rowFilter = function (row) { return row.index < rowMax; };
-    var columnFilter = function (column) { return column.index < columnMax; };
+util.resizeSpreadsheetData = function(json, rowMax, columnMax) {
+    let { rows } = json.sheets[0];
+    const rowFilter = function(row) {
+        return row.index < rowMax;
+    };
+    const columnFilter = function(column) {
+        return column.index < columnMax;
+    };
     rows = rows.filter(rowFilter);
-    for (var rowIndex = 0, rowTotal = rows.length; rowIndex < rowTotal; rowIndex++) {
-        var cells = rows[rowIndex].cells;
+    for (
+        let rowIndex = 0, rowTotal = rows.length;
+        rowIndex < rowTotal;
+        rowIndex++
+    ) {
+        let { cells } = rows[rowIndex];
         cells = cells.filter(columnFilter);
         rows[rowIndex].cells = cells;
     }
@@ -80,27 +103,89 @@ util.resizeSpreadsheetData = function (json, rowMax, columnMax) {
 };
 
 /**
- * ChartTool tool
+ * Template
+ * @type {string}
+ */
+const TEMPLATE = `<div data-${ns}role="chart" data-${ns}chart-area="#: chartArea$() #" data-${ns}series-defaults="#: seriesDefaults$() #" data-${ns}title="#: title$() #" data-${ns}legend="#: legend$() #" data-${ns}series="#: series$() #" data-${ns}category-axis="#: categoryAxis$() #" data-${ns}value-axis="#: valueAxis$() #" style="#: attributes.style #"></div>`;
+
+/**
+ * ChartTool
  * @class ChartTool
  */
 var ChartTool = BaseTool.extend({
     id: 'chart',
     icon: 'chart_area',
-    description: i18n.chart.description,
+    description: i18n().tools.chart.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default: `<div data-${ns}role="chart" data-${ns}chart-area="#: chartArea$() #" data-${ns}series-defaults="#: seriesDefaults$() #" data-${ns}title="#: title$() #" data-${ns}legend="#: legend$() #" data-${ns}series="#: series$() #" data-${ns}category-axis="#: categoryAxis$() #" data-${ns}value-axis="#: valueAxis$() #" style="#: attributes.style #"></div>`
+        default: TEMPLATE
     },
     height: 400,
     width: 400,
     attributes: {
-        type: new DropDownListAdapter({ title: i18n.chart.attributes.type.title, defaultValue: 'column', enum: ['area', 'bar', 'column', 'line', 'radarArea', 'radarColumn', 'radarLine', 'smoothLine', 'stackBar', 'waterfall', 'verticalArea', 'verticalLine'] }, { style: 'width: 100%;' }),
-        title: new TextBoxAdapter({ title: i18n.chart.attributes.title.title }),
-        categories: new NumberAdapter({ title: i18n.chart.attributes.categories.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
-        values: new NumberAdapter({ title: i18n.chart.attributes.values.title, defaultValue: 2 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
-        legend: new DropDownListAdapter({ title: i18n.chart.attributes.legend.title, defaultValue: 'none', enum: ['none', 'top', 'bottom', 'left', 'right'] }, { style: 'width: 100%;' }),
-        data: new ChartAdapter({ title: i18n.chart.attributes.data.title, defaultValue: util.defaultChartData(4, 2) }),
-        style: new StyleAdapter({ title: i18n.chart.attributes.style.title })
+        type: new DropDownListAdapter(
+            {
+                title: i18n().tools.chart.attributes.type.title,
+                defaultValue: 'column',
+                enum: [
+                    'area',
+                    'bar',
+                    'column',
+                    'line',
+                    'radarArea',
+                    'radarColumn',
+                    'radarLine',
+                    'smoothLine',
+                    'stackBar',
+                    'waterfall',
+                    'verticalArea',
+                    'verticalLine'
+                ]
+            },
+            { style: 'width: 100%;' }
+        ),
+        title: new TextBoxAdapter({
+            title: i18n().tools.chart.attributes.title.title
+        }),
+        categories: new NumberAdapter(
+            {
+                title: i18n().tools.chart.attributes.categories.title,
+                defaultValue: 4
+            },
+            {
+                'data-decimals': 0,
+                'data-format': 'n0',
+                'data-min': 1,
+                'data-max': 10
+            }
+        ),
+        values: new NumberAdapter(
+            {
+                title: i18n().tools.chart.attributes.values.title,
+                defaultValue: 2
+            },
+            {
+                'data-decimals': 0,
+                'data-format': 'n0',
+                'data-min': 1,
+                'data-max': 10
+            }
+        ),
+        legend: new DropDownListAdapter(
+            {
+                title: i18n().tools.chart.attributes.legend.title,
+                defaultValue: 'none',
+                enum: ['none', 'top', 'bottom', 'left', 'right']
+            },
+            { style: 'width: 100%;' }
+        ),
+        data: new ChartAdapter({
+            title: i18n().tools.chart.attributes.data.title,
+            defaultValue: util.defaultChartData(4, 2)
+        }),
+        style: new StyleAdapter({
+            title: i18n().tools.chart.attributes.style.title
+        })
     },
 
     /**
@@ -110,15 +195,15 @@ var ChartTool = BaseTool.extend({
      * @param mode
      * @returns {*}
      */
-    getHtmlContent: function (component, mode) {
-        var that = this;
-        var types = {
-            area : { type: 'area' },
-            bar : { type: 'bar' },
+    getHtmlContent(component, mode) {
+        const that = this;
+        const types = {
+            area: { type: 'area' },
+            bar: { type: 'bar' },
             // bubble : { type: 'bubble' },
             // bullet : { type: 'bullet' },
             // candlestick : { type: 'candlestick' },
-            column : { type: 'column' },
+            column: { type: 'column' },
             // donut: { type: 'donut' },                 // <--- Could work with a little bit of work to display labels
             // funnel: { type: 'funnel' },
             line: { type: 'line' },
@@ -127,8 +212,8 @@ var ChartTool = BaseTool.extend({
             // polarArea: { type: 'polarArea' },
             // polarLine: { type: 'polarLine' },
             // polarScatter: { type: 'polarScatter' },
-            radarArea : { type: 'radarArea' },
-            radarColumn : { type: 'radarColumn' },
+            radarArea: { type: 'radarArea' },
+            radarColumn: { type: 'radarColumn' },
             radarLine: { type: 'radarLine' },
             smoothLine: { type: 'line', style: 'smooth' },
             // scatter: { type: 'scatter' },
@@ -139,68 +224,93 @@ var ChartTool = BaseTool.extend({
             // verticalBullet: { type: 'verticalBullet' },
             verticalLine: { type: 'verticalLine' }
         };
-        assert.instanceof(ChartTool, that, assert.format(assert.messages.instanceof.default, 'this', 'ChartTool'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-        var tmpl = template(that.templates.default);
-        var style = component.attributes.get('style');
+        assert.instanceof(
+            ChartTool,
+            that,
+            assert.format(
+                assert.messages.instanceof.default,
+                'this',
+                'ChartTool'
+            )
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        const tmpl = template(that.templates.default);
+        const style = component.attributes.get('style');
         // Get font from style - @see http://www.telerik.com/forums/charts---changing-the-default-font
-        var font = style.match(/font:([^;]+)/);
+        let font = style.match(/font:([^;]+)/);
         font = $.isArray(font) ? font[1] : font;
-        var fontSize = style.match(/font-size:([^;]+)/);
+        let fontSize = style.match(/font-size:([^;]+)/);
         fontSize = $.isArray(fontSize) ? fontSize[1] : fontSize;
-        var fontFamily = style.match(/font-family:([^;]+)/);
+        let fontFamily = style.match(/font-family:([^;]+)/);
         fontFamily = $.isArray(fontFamily) ? fontFamily[1] : fontFamily;
         // TODO: consider font-weight and font-style
-        font = font || ((fontSize || '50px') + ' ' + (fontFamily || 'Arial'));
-        var smallerFont = font;
-        var numbersInFont = font.match(/([0-9])+/g);
+        font = font || `${fontSize || '50px'} ${fontFamily || 'Arial'}`;
+        let smallerFont = font;
+        const numbersInFont = font.match(/([0-9])+/g);
         if ($.isArray(numbersInFont)) {
-            for (var i = 0, length = numbersInFont.length; i < length; i++) {
-                smallerFont = smallerFont.replace(numbersInFont[i], Math.ceil(0.6 * parseInt(numbersInFont[i], 10)));
+            for (let i = 0, { length } = numbersInFont; i < length; i++) {
+                smallerFont = smallerFont.replace(
+                    numbersInFont[i],
+                    Math.ceil(0.6 * parseInt(numbersInFont[i], 10))
+                );
             }
         }
         // Get colors from style (a null color is transparent, wheras undefined reverts to chart defaults)
-        var color = style.match(/color:([^;]+)/);
+        let color = style.match(/color:([^;]+)/);
         color = $.isArray(color) ? color[1] : color || undefined;
-        var background = style.match(/background-color:([^;]+)/);
-        background = $.isArray(background) ? background[1] : background || undefined;
+        let background = style.match(/background-color:([^;]+)/);
+        background = $.isArray(background)
+            ? background[1]
+            : background || undefined;
         // The axisDefaults$ function returns an object chart's data-axis-defaults attribute binding
         // component.attributes.axisDefaults$ = function () {
         // We can't use axisDefaults, so we have categoryAxis$ and valueAxis$
         // because of https://github.com/telerik/kendo-ui-core/issues/2165
         //
         // The chartArea$ function returns an object for chart's data-chart-area attribute binding
-        component.chartArea$ = function () {
+        component.chartArea$ = function() {
             return JSON.stringify({
-                background: background
+                background
             });
         };
         // The legend$ function returns an object for chart's data-legend attribute binding
-        component.legend$ = function () {
-            var legend = component.attributes.get('legend');
+        component.legend$ = function() {
+            const legend = component.attributes.get('legend');
             return JSON.stringify({
                 position: legend !== 'none' ? legend : 'right',
                 visible: legend !== 'none',
                 labels: {
                     font: smallerFont,
-                    color: color
+                    color
                 }
             });
         };
         // The categoryAxis$ function returns an object for chart's data-category-axis attribute binding
-        component.categoryAxis$ = function () {
-            var categories = [];
-            var columnTotal = component.attributes.get('categories') + 1;
-            var rowIndex = 0;
-            var columnIndex;
-            var rowFinder = function (row) { return row.index === rowIndex; };
-            var columnFinder = function (column) { return column.index === columnIndex; };
-            var json = component.attributes.get('data');
-            var row = json.sheets[0].rows.find(rowFinder);
+        component.categoryAxis$ = function() {
+            const categories = [];
+            const columnTotal = component.attributes.get('categories') + 1;
+            const rowIndex = 0;
+            let columnIndex;
+            const rowFinder = function(row) {
+                return row.index === rowIndex;
+            };
+            const columnFinder = function(column) {
+                return column.index === columnIndex;
+            };
+            const json = component.attributes.get('data');
+            const row = json.sheets[0].rows.find(rowFinder);
             for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
-                var category = '';
+                let category = '';
                 if (row && row.cells) {
-                    var cell = row.cells.find(columnFinder);
+                    const cell = row.cells.find(columnFinder);
                     if (cell && cell.value) {
                         category = cell.value;
                     }
@@ -209,35 +319,43 @@ var ChartTool = BaseTool.extend({
             }
             // return { categories: [2000, 2001, 2002, 2003] }
             return JSON.stringify({
-                categories: categories,
-                color: color,
+                categories,
+                color,
                 labels: {
                     font: smallerFont,
-                    color: color
+                    color
                 }
             });
         };
         // The series$ function returns an object for chart's data-series attribute binding
-        component.series$ = function () {
-            var series = [];
-            var rowTotal = component.attributes.get('values') + 1;
-            var columnTotal = component.attributes.get('categories') + 1;
-            var rowIndex;
-            var columnIndex;
-            var rowFinder = function (row) { return row.index === rowIndex; };
-            var columnFinder = function (column) { return column.index === columnIndex; };
-            var json = component.attributes.get('data');
+        component.series$ = function() {
+            const series = [];
+            const rowTotal = component.attributes.get('values') + 1;
+            const columnTotal = component.attributes.get('categories') + 1;
+            let rowIndex;
+            let columnIndex;
+            const rowFinder = function(row) {
+                return row.index === rowIndex;
+            };
+            const columnFinder = function(column) {
+                return column.index === columnIndex;
+            };
+            const json = component.attributes.get('data');
             for (rowIndex = 1; rowIndex < rowTotal; rowIndex++) {
-                var serie = { name: '', data: [] };
-                var row = json.sheets[0].rows.find(rowFinder);
+                const serie = { name: '', data: [] };
+                const row = json.sheets[0].rows.find(rowFinder);
                 if (row && row.cells) {
                     columnIndex = 0;
-                    var cell = row.cells.find(columnFinder);
+                    let cell = row.cells.find(columnFinder);
                     if (cell && cell.value) {
                         serie.name = cell.value;
                     }
-                    for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
-                        var data = 0;
+                    for (
+                        columnIndex = 1;
+                        columnIndex < columnTotal;
+                        columnIndex++
+                    ) {
+                        let data = 0;
                         cell = row.cells.find(columnFinder);
                         if (cell && $.type(cell.value) === 'number') {
                             data = cell.value;
@@ -256,29 +374,29 @@ var ChartTool = BaseTool.extend({
              */
 
             // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
-            return ' ' + JSON.stringify(series);
+            return ` ${JSON.stringify(series)}`;
         };
         // The seriesDefaults$ function returns an object for chart's data-series-defaults attribute binding
-        component.seriesDefaults$ = function () {
+        component.seriesDefaults$ = function() {
             return JSON.stringify(types[component.attributes.get('type')]);
         };
         // The title$ function returns an object for chart's data-title attribute binding
-        component.title$ = function () {
-            var title = component.attributes.get('title');
+        component.title$ = function() {
+            const title = component.attributes.get('title');
             return JSON.stringify({
                 text: title,
-                visible: !!(title.trim()),
-                font: font,
-                color: color
+                visible: !!title.trim(),
+                font,
+                color
             });
         };
         // The valueAxis$ function returns an object for chart's data-value-axis attribute binding
-        component.valueAxis$ = function () {
+        component.valueAxis$ = function() {
             return JSON.stringify({
-                color: color,
+                color,
                 labels: {
                     font: smallerFont,
-                    color: color
+                    color
                 }
             });
         };
@@ -291,17 +409,36 @@ var ChartTool = BaseTool.extend({
      * @param e
      * @param component
      */
-    onResize: function (e, component) {
-        var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-        var content = stageElement.children('div' + roleSelector('chart'));
-        var widget = content.data('kendoChart');
+    onResize(e, component) {
+        const stageElement = $(e.currentTarget);
+        assert.ok(
+            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
+            format('e.currentTarget is expected to be a stage element')
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        const content = stageElement.children(`div${roleSelector('chart')}`);
+        const widget = content.data('kendoChart');
         if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+            content.outerWidth(
+                component.get('width') -
+                    content.outerWidth(true) +
+                    content.outerWidth()
+            );
         }
         if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+            content.outerHeight(
+                component.get('height') -
+                    content.outerHeight(true) +
+                    content.outerHeight()
+            );
         }
         widget.resize();
         // prevent any side effect
@@ -326,7 +463,6 @@ var ChartTool = BaseTool.extend({
         return ret;
     }
     */
-
 });
 
 /**

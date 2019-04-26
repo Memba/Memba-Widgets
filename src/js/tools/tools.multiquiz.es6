@@ -27,6 +27,7 @@ import BaseTool from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 import { multiQuizLibrary } from './util.libraries.es6';
+import { scoreValidator } from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -86,7 +87,11 @@ if (!(i18n().tools && i18n().tools.multiquiz)) {
     });
 }
 
-const MULTIQUIZ = `<div data-${ns}role="multiquiz" data-${ns}mode="#: attributes.mode #" data-${ns}source="#: data$() #" style="#: attributes.groupStyle #" data-${ns}item-style="#: attributes.itemStyle #" data-${ns}selected-style="#: attributes.selectedStyle #" {0}></div>`;
+/**
+ * Template
+ * @type {string}
+ */
+const TEMPLATE = `<div data-${ns}role="multiquiz" data-${ns}mode="#: attributes.mode #" data-${ns}source="#: data$() #" style="#: attributes.groupStyle #" data-${ns}item-style="#: attributes.itemStyle #" data-${ns}selected-style="#: attributes.selectedStyle #" {0}></div>`;
 
 /**
  * MultiQuizTool tool
@@ -104,14 +109,14 @@ const MultiQuizTool = BaseTool.extend({
     weight: 1,
     width: 420,
     templates: {
-        design: format(MULTIQUIZ, `data-${ns}enable="false"`),
+        design: format(TEMPLATE, `data-${ns}enable="false"`),
         play: format(
-            MULTIQUIZ,
+            TEMPLATE,
             `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
         ),
         review:
             format(
-                MULTIQUIZ,
+                TEMPLATE,
                 `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
@@ -160,15 +165,18 @@ const MultiQuizTool = BaseTool.extend({
         }),
         success: new ScoreAdapter({
             title: i18n().tools.multiquiz.properties.success.title,
-            defaultValue: 1
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
             title: i18n().tools.multiquiz.properties.failure.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
             title: i18n().tools.multiquiz.properties.omit.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         })
     },
 
@@ -200,12 +208,12 @@ const MultiQuizTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(CONSTANTS.STAGE_MODES)
+                Object.keys(TOOLS.STAGE_MODES)
             )
         );
         assert.instanceof(
@@ -219,34 +227,19 @@ const MultiQuizTool = BaseTool.extend({
         );
         const tmpl = template(that.templates[mode]);
         // The data$ function resolves urls with schemes like cdn://sample.jpg
-        // eslint-disable-next-line no-param-reassign
-        component.data$ = function() {
-            const data = component.attributes.get('data');
-            const clone = [];
-            const { schemes } = assets.image;
-            for (let i = 0, { length } = data; i < length; i++) {
-                const item = {
-                    text: data[i].text,
-                    image: ''
-                };
-                // TODO use scheme2http
-                for (const scheme in schemes) {
-                    if (
-                        Object.prototype.hasOwnProperty.call(schemes, scheme) &&
-                        new RegExp(`^${scheme}://`).test(data[i].image)
-                    ) {
-                        item.image = data[i].image.replace(
-                            `${scheme}://`,
-                            schemes[scheme]
-                        );
-                        break;
-                    }
-                }
-                clone.push(item);
+        $.extend(component, {
+            data$() {
+                const data = component.attributes.get('data').map(item => {
+                    debugger;
+                    return {
+                        text: item.text,
+                        url: assets.image.scheme2http(item.url)
+                    };
+                });
+                // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                return ` ${JSON.stringify(data)}`;
             }
-            // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
-            return ` ${JSON.stringify(clone)}`;
-        };
+        });
         return tmpl(component);
     },
 

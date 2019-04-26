@@ -10,23 +10,19 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
-import ReadOnlyAdapter from './adapters.readonly.es6';
 import NumberAdapter from './adapters.number.es6';
+import ReadOnlyAdapter from './adapters.readonly.es6';
+import StyleAdapter from './adapters.style.es6';
+import TextBoxAdapter from './adapters.textbox.es6';
 import QuestionAdapter from './adapters.question.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
+import { scoreValidator } from './util.validators.es6';
 
-const {
-    attr,
-    format,
-    htmlEncode,
-    ns,
-    roleSelector,
-    template
-} = window.kendo;
+const { attr, format, htmlEncode, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -40,7 +36,10 @@ function i18n() {
             attributes: {
                 inputStyle: { title: 'Input Style' },
                 style: { title: 'Style' },
-                text: { title: 'Text', defaultValue: 'Some text with gaps like [] or [] to fill.' }
+                text: {
+                    title: 'Text',
+                    defaultValue: 'Some text with gaps like [] or [] to fill.'
+                }
             },
             properties: {
                 name: { title: 'Name' },
@@ -55,10 +54,15 @@ function i18n() {
     );
 }
 
-var TEXTGAPS = `<div data-${ns}role="textgaps" data-${ns}text="#: attributes.text #" data-${ns}input-style="#: attributes.inputStyle #" style="#: attributes.style #" {0}></div>`;
 /**
- * TextGapsTool tool
- * @class MultiQuiz
+ * Template
+ * @type {string}
+ */
+const TEMPLATE = `<div data-${ns}role="textgaps" data-${ns}text="#: attributes.text #" data-${ns}input-style="#: attributes.inputStyle #" style="#: attributes.style #" {0}></div>`;
+
+/**
+ * TextGapsTool
+ * @class TextGapsTool
  * @type {void|*}
  */
 const TextGapsTool = BaseTool.extend({
@@ -68,29 +72,63 @@ const TextGapsTool = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: format(TEXTGAPS, `data-${ns}enable="false"`),
-        play: format(TEXTGAPS, `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`),
-        review: format(TEXTGAPS, `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`) + BaseTool.fn.getHtmlCheckMarks()
+        design: format(TEMPLATE, `data-${ns}enable="false"`),
+        play: format(
+            TEMPLATE,
+            `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
+        ),
+        review:
+            format(
+                TEMPLATE,
+                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
+            ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 150,
     width: 420,
     attributes: {
-        inputStyle: new StyleAdapter({ title: i18n.textgaps.attributes.inputStyle.title }),
-        style: new StyleAdapter({ title: i18n.textgaps.attributes.style.title, defaultValue: 'font-size:32px;' }),
-        text: new TextBoxAdapter({ title: i18n.textgaps.attributes.text.title, defaultValue: i18n.textgaps.attributes.text.defaultValue })
+        inputStyle: new StyleAdapter({
+            title: i18n.textgaps.attributes.inputStyle.title
+        }),
+        style: new StyleAdapter({
+            title: i18n.textgaps.attributes.style.title,
+            defaultValue: 'font-size:32px;'
+        }),
+        text: new TextBoxAdapter({
+            title: i18n.textgaps.attributes.text.title,
+            defaultValue: i18n.textgaps.attributes.text.defaultValue
+        })
     },
     properties: {
-        name: new ReadOnlyAdapter({ title: i18n.textgaps.properties.name.title }),
-        question: new QuestionAdapter({ title: i18n.textgaps.properties.question.title }),
-        solution: new StringArrayAdapter({ title: i18n.textgaps.properties.solution.title, defaultValue: [] }),
+        name: new ReadOnlyAdapter({
+            title: i18n.textgaps.properties.name.title
+        }),
+        question: new QuestionAdapter({
+            title: i18n.textgaps.properties.question.title
+        }),
+        solution: new StringArrayAdapter({
+            title: i18n.textgaps.properties.solution.title,
+            defaultValue: []
+        }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${arrayLibrary.defaultKey}`,
             library: arrayLibrary.library,
             title: i18n.textgaps.properties.validation.title
         }),
-        success: new ScoreAdapter({ title: i18n.textgaps.properties.success.title, defaultValue: 1 }),
-        failure: new ScoreAdapter({ title: i18n.textgaps.properties.failure.title, defaultValue: 0 }),
-        omit: new ScoreAdapter({ title: i18n.textgaps.properties.omit.title, defaultValue: 0 })
+        success: new ScoreAdapter({
+            title: i18n.textgaps.properties.success.title,
+            defaultValue: 1,
+            validation: scoreValidator
+        }),
+        failure: new ScoreAdapter({
+            title: i18n.textgaps.properties.failure.title,
+            defaultValue: 0,
+            validation: scoreValidator
+        }),
+        omit: new ScoreAdapter({
+            title: i18n.textgaps.properties.omit.title,
+            defaultValue: 0,
+            validation: scoreValidator
+        })
     },
 
     /**
@@ -100,12 +138,36 @@ const TextGapsTool = BaseTool.extend({
      * @param mode
      * @returns {*}
      */
-    getHtmlContent: function (component, mode) {
-        var that = this;
-        assert.instanceof(TextGapsTool, that, assert.format(assert.messages.instanceof.default, 'this', 'TextGapsTool'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-        assert.enum(Object.values(CONSTANTS.STAGE_MODES), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(CONSTANTS.STAGE_MODES)));
-        var tmpl = template(that.templates[mode]);
+    getHtmlContent(component, mode) {
+        const that = this;
+        assert.instanceof(
+            TextGapsTool,
+            that,
+            assert.format(
+                assert.messages.instanceof.default,
+                'this',
+                'TextGapsTool'
+            )
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        assert.enum(
+            Object.values(TOOLS.STAGE_MODES),
+            mode,
+            assert.format(
+                assert.messages.enum.default,
+                'mode',
+                Object.keys(TOOLS.STAGE_MODES)
+            )
+        );
+        const tmpl = template(that.templates[mode]);
         return tmpl(component);
     },
 
@@ -113,9 +175,9 @@ const TextGapsTool = BaseTool.extend({
      * Improved display of value in score grid
      * @param testItem
      */
-    value$: function (testItem) {
-        var ret = (testItem.value || []).slice();
-        for (var i = 0; i < ret.length; i++) {
+    value$(testItem) {
+        const ret = (testItem.value || []).slice();
+        for (let i = 0; i < ret.length; i++) {
             ret[i] = htmlEncode((ret[i] || '').trim());
         }
         return ret.join('<br/>');
@@ -125,9 +187,9 @@ const TextGapsTool = BaseTool.extend({
      * Improved display of solution in score grid
      * @param testItem
      */
-    solution$: function (testItem) {
-        var ret = (testItem.solution || '').split('\n');
-        for (var i = 0; i < ret.length; i++) {
+    solution$(testItem) {
+        const ret = (testItem.solution || '').split('\n');
+        for (let i = 0; i < ret.length; i++) {
             ret[i] = htmlEncode((ret[i] || '').trim());
         }
         return ret.join('<br/>');
@@ -139,16 +201,35 @@ const TextGapsTool = BaseTool.extend({
      * @param e
      * @param component
      */
-    onResize: function (e, component) {
-        var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-        var content = stageElement.children('div' + roleSelector('textgaps'));
+    onResize(e, component) {
+        const stageElement = $(e.currentTarget);
+        assert.ok(
+            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
+            format('e.currentTarget is expected to be a stage element')
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        const content = stageElement.children(`div${roleSelector('textgaps')}`);
         if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+            content.outerWidth(
+                component.get('width') -
+                    content.outerWidth(true) +
+                    content.outerWidth()
+            );
         }
         if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+            content.outerHeight(
+                component.get('height') -
+                    content.outerHeight(true) +
+                    content.outerHeight()
+            );
         }
         // prevent any side effect
         e.preventDefault();
@@ -161,23 +242,29 @@ const TextGapsTool = BaseTool.extend({
      * @param component
      * @param pageIdx
      */
-    validate: function (component, pageIdx) {
-        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        var description = this.description; // tool description
-        var messages = this.i18n.messages;
-        if (!component.attributes ||
+    validate(component, pageIdx) {
+        const ret = BaseTool.fn.validate.call(this, component, pageIdx);
+        const { description } = this; // tool description
+        const { messages } = this.i18n;
+        if (
+            !component.attributes ||
             !component.attributes.text ||
-            (component.attributes.text === i18n.textgaps.attributes.text.defaultValue) ||
-            !TOOLS.RX_TEXT.test(component.attributes.text)) {
+            component.attributes.text ===
+                i18n.textgaps.attributes.text.defaultValue ||
+            !TOOLS.RX_TEXT.test(component.attributes.text)
+        ) {
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
                 message: format(messages.invalidText, description, pageIdx + 1)
             });
         }
-        if (!component.attributes ||
+        if (
+            !component.attributes ||
             // Styles are only checked if there is any (optional)
-            (component.attributes.inputStyle && !TOOLS.RX_STYLE.test(component.attributes.inputStyle))) {
+            (component.attributes.inputStyle &&
+                !TOOLS.RX_STYLE.test(component.attributes.inputStyle))
+        ) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({
                 type: CONSTANTS.ERROR,
@@ -185,9 +272,12 @@ const TextGapsTool = BaseTool.extend({
                 message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
-        if (!component.attributes ||
+        if (
+            !component.attributes ||
             // Styles are only checked if there is any (optional)
-            (component.attributes.style && !TOOLS.RX_STYLE.test(component.attributes.style))) {
+            (component.attributes.style &&
+                !TOOLS.RX_STYLE.test(component.attributes.style))
+        ) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({
                 type: CONSTANTS.ERROR,
@@ -198,7 +288,6 @@ const TextGapsTool = BaseTool.extend({
         // TODO also check that split regex is safe
         return ret;
     }
-
 });
 
 /**

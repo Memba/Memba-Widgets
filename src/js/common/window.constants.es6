@@ -104,7 +104,6 @@ const CONSTANTS = {
     RX_MONGODB_IDKEY: /^_(i|[a-z]*I)d$/,
     RX_NAME_OR_TITLE: /^[^\s<>{}][^<>{}]{0,58}[^\s<>{}]$/, // matches the regular expression in schemaValidators.nameOrTitle
     RX_URL: /^https?:\/\//,
-    RX_TEST_FIELD_NAME: /^val_[a-z0-9]{6}$/,
     // Characters
     AMPERSAND: '&',
     COLON: ':',
@@ -121,7 +120,6 @@ const CONSTANTS = {
     UNDERSCORE: '_',
     // Miscellaneous
     ACTION: 'action',
-    ACTIVE: 'active',
     DATA_PAGE_SIZE: {
         SMALL: 5,
         MEDIUM: 10,
@@ -134,12 +132,6 @@ const CONSTANTS = {
         CLOSED: 0,
         READ: 1,
         EDIT: 2
-    },
-    POINTER: 'pointer',
-    STAGE_MODES: {
-        DESIGN: 'design',
-        PLAY: 'play',
-        REVIEW: 'review'
     },
     UID: 'uid',
     WORKFLOW: {

@@ -2,26 +2,22 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kendo.editable</title>
+    <title>widgets.regexp</title>
     <script>
         window.DEBUG = true;
     </script>
     <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- widgets.explorer stylesheet -->
-    <link href="../../styles/dialogs/widgets.basedialog.css" rel="stylesheet">
-    <link href="../../styles/widgets/widgets.explorer.css" rel="stylesheet">
-    <!-- widgets.codeeditor stylesheet -->
-    <link href="../../styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
-    <link href="../../styles/vendor/codemirror/addon/lint/lint.css" rel="stylesheet">
-    <link href="../../styles/widgets/widgets.codeeditor.css" rel="stylesheet">
+    <!-- widgets.regexp stylesheet -->
+    <link href="../../styles/fonts/kidoju.css" rel="stylesheet" />
+    <link href="../../styles/widgets/widgets.regexp.css" rel="stylesheet" />
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
-            'use strict';
+        	'use strict';
             SystemJS.config({
                 baseURL: '../../../',
                 bundles: {
@@ -107,6 +103,7 @@
                     'kendo.mobile.switch': 'src/js/vendor/kendo/kendo.mobile.switch.js',
                     'kendo.mobile.tabstrip': 'src/js/vendor/kendo/kendo.mobile.tabstrip.js',
                     'kendo.mobile.view': 'src/js/vendor/kendo/kendo.mobile.view.js',
+                    'kendo.multicolumncombobox': 'src/js/vendor/kendo/kendo.multicolumncombobox.js',
                     'kendo.multiselect': 'src/js/vendor/kendo/kendo.multiselect.js',
                     'kendo.notification': 'src/js/vendor/kendo/kendo.notification.js',
                     'kendo.numerictextbox': 'src/js/vendor/kendo/kendo.numerictextbox.js',
@@ -167,12 +164,7 @@
                     'kendogrid': 'src/js/vendor/kendo/kendo.grid.js',
                     'kendopdf': 'src/js/vendor/kendo/kendo.pdf.js',
                     'kendoscheduler': 'src/js/vendor/kendo/kendo.scheduler.js',
-                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
-                    // Test frameworks
-                    'jscheck': 'test/vendor/jscheck.js'
-                },
-                meta: {
-                    'test/vendor/jscheck.js': { format: 'global' }
+                    'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js'
                 },
                 packages: {
                     'src/js': {
@@ -209,53 +201,54 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
-                SystemJS.import('kendo.data'),
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('kendo.editable')
-            ])
-                .then(() => {
-                    var kendo = window.kendo;
-                    const Dog = kendo.data.Model.define({
-                        id: 'id',
-                        fields: {
-                            name: {
-                                type: 'string',
-                                validation: {
-                                    required: true
-                                }
-                            },
-                            birth: {
-                                type: 'date',
-                                validation: {
-                                    required: true
-                                }
-                            },
-                            male: {
-                                type: 'boolean'
-                            },
-                            age: {
-                                type: 'number'
-                            }
-                        }
-                    });
-                    const dog = new Dog({
-                        name: 'Milou',
-                        male: true,
-                        age: 7
-                    });
-                    $(() => {
-                        $('#x').kendoEditable({
-                            model: dog,
-                            fields: ['name', 'date', 'male', 'age']
-                        });
-                    });
-
+                SystemJS.import('./widgets.regexp.es6')
+            ]).then(function () {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    regexp: '',
+                    visible: true,
+                    enabled: true
                 });
+                viewModel.bind('change', function (e) {
+                    console.log('changed ' + e.sender.regexp);
+                });
+                $(function () {
+                    kendo.bind('body', viewModel);
+                });
+            });
         }());
     </script>
+    <style>
+        .big {
+            font-size: 32px;
+        }
+
+        .small {
+            font-size: 24px;
+        }
+    </style>
 </head>
 <body>
-<h1>kendo.editable</h1>
-<div id="x"></div>
+<h1>widgets.regexp</h1>
+<h2>HTML declaration</h2>
+<div>Value:<input id="regexp" data-role="regexp" type="number" value="2" readonly /></div>
+<h2>Bound to observable</h2>
+<div>Value:<input id="numbox" type="number" data-bind="value: regexp" /></div>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+</div>
+
+<div class="big"><input id="regexp1" min="0" max="5" data-role="regexp" data-bind="value: regexp, visible: visible, enabled: enabled" /></div>
+<div class="small"><input id="regexp2" step="0.5" data-role="regexp" data-bind="value: regexp, visible: visible, enabled: enabled" ></div>
+
+<pre>
+    {
+        value: <span data-bind="text: regexp"></span>,
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>
+    }
+</pre>
 </body>
 </html>

@@ -29,6 +29,9 @@ const config = {};
  * URIs
  */
 config.uris = {
+    cdn: {
+        icons: `${base}/src/styles/images/o_collection/svg/office/{0}.svg`
+    },
     webapp: {
         workerlib: [
             `${base}/src/js/vendor/jashkenas/underscore.js`,

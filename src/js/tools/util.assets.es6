@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -61,7 +64,11 @@ const ToolAssets = Class.extend({
      * @param uri
      */
     scheme2http(uri) {
-        return Asset.scheme2http(uri, this.schemes);
+        let ret;
+        if ($.type(uri) === CONSTANTS.STRING) {
+            ret = Asset.scheme2http(uri, this.schemes);
+        }
+        return ret;
     }
 });
 

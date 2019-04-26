@@ -9,6 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ImageListAdapter from './adapters.imagelist.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -21,23 +22,45 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
+import {scoreValidator} from './util.validators.es6';
 
-const { attr, format, ns, roleSelector, template } = window.kendo;
+const { format, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
-const i18n = {
-    imageset: {
-        description: 'Image Set',
-        attributes: {
-            style: {
-                title: 'Title'
+
+if (!(i18n().tools && i18n().tools.imageset)) {
+    $.extend(true, i18n(), {
+        tools: {
+            imageset: {
+                description: 'Image Set',
+                help: null,
+                name: 'Image Set',
+                attributes: {
+                    style: {
+                        title: 'Title'
+                    },
+                    data: {
+                        defaultValue: [],
+                        title: 'Data'
+                    }
+                },
+                properties: {
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' },
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    success: { title: 'Success' },
+                    validation: { title: 'Validation' }
+                }
             }
-        },
-        properties: {
-
         }
-    }
-};
+    });
+}
 
+/**
+ * ImageSet Template
+ * @type {string}
+ */
 const IMAGESET = `<div data-${ns}role="imageset" data-${ns}images="#: data$() #" style="#: attributes.style #" {0}></div>`;
 
 /**
@@ -47,7 +70,7 @@ const IMAGESET = `<div data-${ns}role="imageset" data-${ns}images="#: data$() #"
 const ImageSetTool = BaseTool.extend({
     id: 'imageset',
     icon: 'photos',
-    description: i18n.imageset.description,
+    description: i18n().tools.imageset.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
@@ -67,39 +90,42 @@ const ImageSetTool = BaseTool.extend({
     attributes: {
         // shuffle: new BooleanAdapter({ title: i18n.quiz.attributes.shuffle.title }),
         style: new StyleAdapter({
-            title: i18n.imageset.attributes.style.title
+            title: i18n().tools.imageset.attributes.style.title
         }),
         data: new ImageListAdapter({
-            title: i18n.imageset.attributes.data.title,
-            defaultValue: i18n.imageset.attributes.data.defaultValue
+            title: i18n().tools.imageset.attributes.data.title,
+            defaultValue: i18n().tools.imageset.attributes.data.defaultValue
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n.imageset.properties.name.title
+            title: i18n().tools.imageset.properties.name.title
         }),
         question: new QuestionAdapter({
-            title: i18n.imageset.properties.question.title
+            title: i18n().tools.imageset.properties.question.title
         }),
         solution: new QuizAdapter({
-            title: i18n.imageset.properties.solution.title
+            title: i18n().tools.imageset.properties.solution.title
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
-            title: i18n.imageset.properties.validation.title
+            title: i18n().tools.imageset.properties.validation.title
         }),
         success: new ScoreAdapter({
-            title: i18n.imageset.properties.success.title,
-            defaultValue: 1
+            title: i18n().tools.imageset.properties.success.title,
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n.imageset.properties.failure.title,
-            defaultValue: 0
+            title: i18n().tools.imageset.properties.failure.title,
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n.imageset.properties.omit.title,
-            defaultValue: 0
+            title: i18n().tools.imageset.properties.omit.title,
+            defaultValue: 0,
+            validation: scoreValidator
         })
     },
 
@@ -131,12 +157,12 @@ const ImageSetTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(CONSTANTS.STAGE_MODES)
+                Object.keys(TOOLS.STAGE_MODES)
             )
         );
         assert.instanceof(

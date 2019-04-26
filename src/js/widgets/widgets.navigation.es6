@@ -14,6 +14,7 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import { Page, PageDataSource } from '../data/data.page.es6';
+import TOOLS from '../tools/util.constants.es6';
 import './widgets.stage.es6';
 
 const {
@@ -73,7 +74,7 @@ const Navigation = DataBoundWidget.extend({
         enabled: true, // TODO readonly
         itemTemplate: ITEM_TEMPLATE,
         menuIcon: 'calibration_mark.svg', // TODO not used
-        mode: CONSTANTS.STAGE_MODES.DESIGN,
+        mode: TOOLS.STAGE_MODES.DESIGN,
         pageWidth: 1024, // TODO: assuming page size here: where do we read it from?
         pageSpacing: 20, // pageSpacing - selectionBorder determines the margin
         pageHeight: 768,

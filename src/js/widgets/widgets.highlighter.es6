@@ -107,7 +107,7 @@ const HighLighter = Widget.extend({
         if ($.type(value) === CONSTANTS.STRING) {
             if (that._format(that._value || []) !== value) {
                 const arr = that._parse(value);
-                for (let i = 0, length = arr.length; i < length; i++) {
+                for (let i = 0, { length } = arr; i < length; i++) {
                     that._add(arr[i]);
                 }
                 that.refresh();
@@ -132,7 +132,7 @@ const HighLighter = Widget.extend({
             assert.format(assert.messages.isArray.default, 'array')
         );
         let value = '';
-        for (let i = 0, length = array.length; i < length; i++) {
+        for (let i = 0, { length } = array; i < length; i++) {
             const selection = array[i];
             if (
                 $.isPlainObject(selection) &&
@@ -140,8 +140,7 @@ const HighLighter = Widget.extend({
                 $.type(selection.end) === CONSTANTS.NUMBER &&
                 selection.start <= selection.end
             ) {
-                let start = selection.start;
-                let end = selection.end;
+                let { start, end } = selection;
                 if (this._split instanceof RegExp) {
                     // Convert word indexes into span indexes when necessary
                     start = parseInt(
@@ -149,7 +148,7 @@ const HighLighter = Widget.extend({
                         10
                     );
                     assert.ok(
-                        !isNaN(start),
+                        !Number.isNaN(start),
                         '`start` should be the index of a word'
                     );
                     end = parseInt(
@@ -157,7 +156,7 @@ const HighLighter = Widget.extend({
                         10
                     );
                     assert.ok(
-                        !isNaN(end),
+                        !Number.isNaN(end),
                         '`end` should be the index of a word'
                     );
                 }
@@ -192,7 +191,7 @@ const HighLighter = Widget.extend({
             )
         );
         const array = value.split(CONSTANTS.COMMA);
-        for (let i = 0, length = array.length; i < length; i++) {
+        for (let i = 0, { length } = array; i < length; i++) {
             const selection = array[i].split(CONSTANTS.HYPHEN);
             let start = parseInt(selection[0], 10);
             let end =
@@ -255,9 +254,9 @@ const HighLighter = Widget.extend({
         if (this._split instanceof RegExp) {
             while (Number.isNaN(word) && pos < this.items.length) {
                 word = parseInt($(this.items.get(pos)).attr(attr(INDEX)), 10);
-                pos++;
+                pos += 1;
             }
-            pos--;
+            pos -= 1;
         }
         return pos;
     },
@@ -282,9 +281,9 @@ const HighLighter = Widget.extend({
         if (this._split instanceof RegExp) {
             while (Number.isNaN(word) && pos >= 0) {
                 word = parseInt($(this.items.get(pos)).attr(attr(INDEX)), 10);
-                pos--;
+                pos -= 1;
             }
-            pos++;
+            pos += 1;
         }
         return pos;
     },
@@ -298,7 +297,10 @@ const HighLighter = Widget.extend({
         // This is always a selection across all spans, whether breaking the sentence into words or characters
         assert.isNonEmptyPlainObject(
             selection,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'selection')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'selection'
+            )
         );
         assert.type(
             CONSTANTS.NUMBER,
@@ -326,7 +328,7 @@ const HighLighter = Widget.extend({
         const ret = [];
         const value = this._value || [];
         let added = false;
-        for (let i = 0, length = value.length; i < length; i++) {
+        for (let i = 0, { length } = value; i < length; i++) {
             const existing = value[i];
             if (this._roundUp(existing.end + 1) < selection.start) {
                 // There is no overlap so keep existing and continue to the next one
@@ -361,7 +363,10 @@ const HighLighter = Widget.extend({
         // This is always a selection across all spans, whether breaking the sentence into words or characters
         assert.isNonEmptyPlainObject(
             selection,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'selection')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'selection'
+            )
         );
         assert.type(
             CONSTANTS.NUMBER,
@@ -388,7 +393,7 @@ const HighLighter = Widget.extend({
         };
         const ret = [];
         const value = this._value || [];
-        for (let i = 0, length = value.length; i < length; i++) {
+        for (let i = 0, { length } = value; i < length; i++) {
             const existing = value[i];
             if (selection.end < existing.start) {
                 // There is no overlap so keep existing and continue to the next one
@@ -422,7 +427,7 @@ const HighLighter = Widget.extend({
      */
     _render() {
         const that = this;
-        const options = that.options;
+        const { options } = that;
         that.wrapper = that.element;
         that.element.empty();
         that.element.addClass(WIDGET_CLASS);
@@ -433,7 +438,7 @@ const HighLighter = Widget.extend({
             const split = options.text.split(that._split);
             let html = '';
             let wordIndex = 0;
-            for (let i = 0, length = split.length; i < length; i++) {
+            for (let i = 0, { length } = split; i < length; i++) {
                 if (that._split.test(split[i])) {
                     html += SPAN_OPEN + split[i] + SPAN_CLOSE;
                 } else if (split[i].length) {
@@ -441,7 +446,7 @@ const HighLighter = Widget.extend({
                         format(SPAN_WITH_INDEX, wordIndex) +
                         split[i] +
                         SPAN_CLOSE;
-                    wordIndex++;
+                    wordIndex += 1;
                 }
             }
             that.element.html(html);
@@ -501,7 +506,7 @@ const HighLighter = Widget.extend({
      * @private
      */
     _spanFromEvent(e) {
-        const originalEvent = e.originalEvent;
+        const { originalEvent } = e;
         let clientX;
         let clientY;
         if (
@@ -509,8 +514,7 @@ const HighLighter = Widget.extend({
             originalEvent.touches &&
             originalEvent.touches.length
         ) {
-            clientX = originalEvent.touches[0].clientX;
-            clientY = originalEvent.touches[0].clientY;
+            [{ clientX, clientY }] = originalEvent.touches;
         } else if (
             originalEvent &&
             originalEvent.changedTouches &&
@@ -520,11 +524,9 @@ const HighLighter = Widget.extend({
             // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
             // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
             // ATTENTION: e.originalEvent.changedTouches instanceof TouchList, not Array
-            clientX = originalEvent.changedTouches[0].clientX;
-            clientY = originalEvent.changedTouches[0].clientY;
+            [{ clientX, clientY }] = originalEvent.changedTouches;
         } else {
-            clientX = e.clientX;
-            clientY = e.clientY;
+            ({ clientX, clientY } = e);
         }
         if (
             $.type(clientX) === CONSTANTS.NUMBER &&
@@ -643,7 +645,10 @@ const HighLighter = Widget.extend({
     _highlight(selection, active, hover) {
         assert.isNonEmptyPlainObject(
             selection,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'selection')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'selection'
+            )
         );
         assert.type(
             CONSTANTS.NUMBER,
@@ -733,7 +738,7 @@ const HighLighter = Widget.extend({
      */
     destroy() {
         const that = this;
-        const wrapper = that.wrapper;
+        const { wrapper } = that;
         // Release references
         that.items = undefined;
         that.element.off(NS);

@@ -6,25 +6,37 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 
+const { format } = window.kendo;
+
 /**
- * i18n
- * @returns {*|{}}
+ * i18n messages
  */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).label || {
-            description: 'Square',
-            name: 'Square',
-            help: null
+if (!(i18n().tools && i18n().tools.square)) {
+    $.extend(true, i18n(), {
+        tools: {
+            square: {
+                description: 'Square',
+                help: null,
+                name: 'Square'
+            }
         }
-    );
+    });
 }
+
+/**
+ * Template
+ * @type {string}
+ */
+const TEMPLATE =
+    '<div style="position: absolute; top: 0; left: 0; right:0; bottom: 0; background-color: {0}; border: solid 1px #000; color: #fff; padding: 10px;">{1}</div>';
 
 /**
  * Dummy square tool without adapters for testing
@@ -34,21 +46,17 @@ function i18n() {
 const SquareTool = BaseTool.extend({
     id: 'square',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().description,
+    description: i18n().tools.square.description,
     height: 300,
-    help: i18n().help,
+    help: i18n().tools.square.help,
     icon: 'shapes',
     // menu: [],
-    name: i18n().name,
+    name: i18n().tools.square.name,
     width: 300,
     templates: {
-        // Note: height 100% won't work with padding
-        play:
-            '<div style="position: absolute; top: 0; left: 0; right:0; bottom: 0; background-color: #0f0; padding: 10px; border: solid 1px #000;">PLAY</div>',
-        design:
-            '<div style="position: absolute; top: 0; left: 0; right:0; bottom: 0; background-color: #00f; padding: 10px; border: solid 1px #000;">DESIGN</div>',
-        review:
-            '<div style="position: absolute; top: 0; left: 0; right:0; bottom: 0; background-color: #f00; padding: 10px; border: solid 1px #000;">REVIEW</div>'
+        play: format(TEMPLATE, '#0f0', 'PLAY'),
+        design: format(TEMPLATE, '#00f', 'DESIGN'),
+        review: format(TEMPLATE, '#f00', 'REVIEW')
     },
     // attributes: {},
     // properties: {},
@@ -71,12 +79,12 @@ const SquareTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.values(CONSTANTS.STAGE_MODES)
+                Object.values(TOOLS.STAGE_MODES)
             )
         );
         return $(this.templates[mode]);
@@ -109,9 +117,9 @@ const SquareTool = BaseTool.extend({
         const stageElement = $(e.currentTarget);
         if (stageElement.is(CONSTANTS.ELEMENT_CLASS)) {
             const content = stageElement.children(CONSTANTS.DIV);
-            content.off('click');
+            content.off(CONSTANTS.CLICK);
             if (enabled) {
-                content.on('click', () => {
+                content.on(CONSTANTS.CLICK, () => {
                     window.alert(`Hello from ${component.uid}`);
                 });
             }

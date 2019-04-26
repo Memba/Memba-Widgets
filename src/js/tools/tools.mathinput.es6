@@ -17,14 +17,10 @@ import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
-import { mathLibrary} from './util.libraries.es6';
+import { mathLibrary } from './util.libraries.es6';
+import {scoreValidator} from './util.validators.es6';
 
-const {
-    attr,
-    format,
-    ns,
-    template
-} = window.kendo;
+const { attr, format, ns, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -33,14 +29,14 @@ const ScoreAdapter = NumberAdapter;
  */
 function i18n() {
     return (
-        (((window.app || {}).i18n || {}).tools || {}).mathinput || {
+        (((window.app || {}).i18n || {}).tools || {}).mathinput ||
+        {
             // TODO
         }
     );
 }
 
-
-var MATHINPUT = `<div data-${ns}role="mathinput" data-${ns}toolbar="#: JSON.stringify(toolbar$()) #" style="#: attributes.style #" {0}>#: attributes.formula #</div>`;
+const MATHINPUT = `<div data-${ns}role="mathinput" data-${ns}toolbar="#: JSON.stringify(toolbar$()) #" style="#: attributes.style #" {0}>#: attributes.formula #</div>`;
 /**
  * @class MathInputTool tool
  * @type {void|*}
@@ -52,8 +48,15 @@ var MathInputTool = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
         design: format(MATHINPUT, `data-${ns}enable="false"`),
-        play: format(MATHINPUT, `data-${ns}bind="value: #: properties.name #.value"`),
-        review: format(MATHINPUT, `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`) + BaseTool.fn.getHtmlCheckMarks()
+        play: format(
+            MATHINPUT,
+            `data-${ns}bind="value: #: properties.name #.value"`
+        ),
+        review:
+            format(
+                MATHINPUT,
+                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
+            ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 120,
     width: 370,
@@ -62,28 +65,74 @@ var MathInputTool = BaseTool.extend({
         // formula: new MathInputAdapter({ title: i18n.mathinput.attributes.formula.title }),
         // backspace: new BooleanAdapter({ title: i18n.mathinput.attributes.backspace.title, defaultValue: false }),
         // field: new BooleanAdapter({ title: i18n.mathinput.attributes.field.title, defaultValue: false }),
-        keypad: new BooleanAdapter({ title: i18n.mathinput.attributes.keypad.title, defaultValue: true }),
-        basic: new BooleanAdapter({ title: i18n.mathinput.attributes.basic.title, defaultValue: true }),
-        greek: new BooleanAdapter({ title: i18n.mathinput.attributes.greek.title, defaultValue: false }),
-        operators: new BooleanAdapter({ title: i18n.mathinput.attributes.operators.title, defaultValue: false }),
-        expressions: new BooleanAdapter({ title: i18n.mathinput.attributes.expressions.title, defaultValue: false }),
-        sets: new BooleanAdapter({ title: i18n.mathinput.attributes.sets.title, defaultValue: false }),
-        matrices: new BooleanAdapter({ title: i18n.mathinput.attributes.matrices.title, defaultValue: false }),
-        statistics: new BooleanAdapter({ title: i18n.mathinput.attributes.statistics.title, defaultValue: false }),
-        style: new StyleAdapter({ title: i18n.mathinput.attributes.style.title, defaultValue: 'font-size:50px;' })
+        keypad: new BooleanAdapter({
+            title: i18n.mathinput.attributes.keypad.title,
+            defaultValue: true
+        }),
+        basic: new BooleanAdapter({
+            title: i18n.mathinput.attributes.basic.title,
+            defaultValue: true
+        }),
+        greek: new BooleanAdapter({
+            title: i18n.mathinput.attributes.greek.title,
+            defaultValue: false
+        }),
+        operators: new BooleanAdapter({
+            title: i18n.mathinput.attributes.operators.title,
+            defaultValue: false
+        }),
+        expressions: new BooleanAdapter({
+            title: i18n.mathinput.attributes.expressions.title,
+            defaultValue: false
+        }),
+        sets: new BooleanAdapter({
+            title: i18n.mathinput.attributes.sets.title,
+            defaultValue: false
+        }),
+        matrices: new BooleanAdapter({
+            title: i18n.mathinput.attributes.matrices.title,
+            defaultValue: false
+        }),
+        statistics: new BooleanAdapter({
+            title: i18n.mathinput.attributes.statistics.title,
+            defaultValue: false
+        }),
+        style: new StyleAdapter({
+            title: i18n.mathinput.attributes.style.title,
+            defaultValue: 'font-size:50px;'
+        })
     },
     properties: {
-        name: new ReadOnlyAdapter({ title: i18n.mathinput.properties.name.title }),
-        question: new QuestionAdapter({ title: i18n.mathinput.properties.question.title }),
-        solution: new MathInputAdapter({ title: i18n.mathinput.properties.solution.title, defaultValue: '' }),
+        name: new ReadOnlyAdapter({
+            title: i18n.mathinput.properties.name.title
+        }),
+        question: new QuestionAdapter({
+            title: i18n.mathinput.properties.question.title
+        }),
+        solution: new MathInputAdapter({
+            title: i18n.mathinput.properties.solution.title,
+            defaultValue: ''
+        }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${mathLibrary.defaultKey}`,
             library: mathLibrary.library,
             title: i18n.mathinput.properties.validation.title
         }),
-        success: new ScoreAdapter({ title: i18n.mathinput.properties.success.title, defaultValue: 1 }),
-        failure: new ScoreAdapter({ title: i18n.mathinput.properties.failure.title, defaultValue: 0 }),
-        omit: new ScoreAdapter({ title: i18n.mathinput.properties.omit.title, defaultValue: 0 })
+        success: new ScoreAdapter({
+            title: i18n.mathinput.properties.success.title,
+            defaultValue: 1,
+            validation: scoreValidator
+        }),
+        failure: new ScoreAdapter({
+            title: i18n.mathinput.properties.failure.title,
+            defaultValue: 0,
+            validation: scoreValidator
+        }),
+        omit: new ScoreAdapter({
+            title: i18n.mathinput.properties.omit.title,
+            defaultValue: 0,
+            validation: scoreValidator
+        })
     },
 
     /**
@@ -93,14 +142,38 @@ var MathInputTool = BaseTool.extend({
      * @param mode
      * @returns {*}
      */
-    getHtmlContent: function (component, mode) {
-        var that = this;
-        assert.instanceof(MathInputTool, that, assert.format(assert.messages.instanceof.default, 'this', 'MathInputTool'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-        assert.enum(Object.values(CONSTANTS.STAGE_MODES), mode, assert.format(assert.messages.enum.default, 'mode', Object.keys(CONSTANTS.STAGE_MODES)));
-        var tmpl = template(that.templates[mode]);
-        component.toolbar$ = function () {
-            var tools = [];
+    getHtmlContent(component, mode) {
+        const that = this;
+        assert.instanceof(
+            MathInputTool,
+            that,
+            assert.format(
+                assert.messages.instanceof.default,
+                'this',
+                'MathInputTool'
+            )
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        assert.enum(
+            Object.values(TOOLS.STAGE_MODES),
+            mode,
+            assert.format(
+                assert.messages.enum.default,
+                'mode',
+                Object.keys(TOOLS.STAGE_MODES)
+            )
+        );
+        const tmpl = template(that.templates[mode]);
+        component.toolbar$ = function() {
+            const tools = [];
             /*
             if (this.get('attributes.backspace')) {
                 tools.push('backspace');
@@ -136,7 +209,7 @@ var MathInputTool = BaseTool.extend({
             return {
                 container: '#floating .kj-floating-content',
                 resizable: false,
-                tools: tools
+                tools
             };
         };
         return tmpl(component);
@@ -148,16 +221,35 @@ var MathInputTool = BaseTool.extend({
      * @param e
      * @param component
      */
-    onResize: function (e, component) {
-        var stageElement = $(e.currentTarget);
-        assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-        var content = stageElement.children('div');
+    onResize(e, component) {
+        const stageElement = $(e.currentTarget);
+        assert.ok(
+            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
+            format('e.currentTarget is expected to be a stage element')
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        const content = stageElement.children('div');
         if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+            content.outerWidth(
+                component.get('width') -
+                    content.outerWidth(true) +
+                    content.outerWidth()
+            );
         }
         if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+            content.outerHeight(
+                component.get('height') -
+                    content.outerHeight(true) +
+                    content.outerHeight()
+            );
         }
         // prevent any side effect
         e.preventDefault();
@@ -170,10 +262,10 @@ var MathInputTool = BaseTool.extend({
      * @param component
      * @param pageIdx
      */
-    validate: function (component, pageIdx) {
-        var ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        var description = this.description; // tool description
-        var messages = this.i18n.messages;
+    validate(component, pageIdx) {
+        const ret = BaseTool.fn.validate.call(this, component, pageIdx);
+        const { description } = this; // tool description
+        const { messages } = this.i18n;
         /*
         if (!component.attributes ||
             !component.attributes.formula ||
@@ -187,9 +279,12 @@ var MathInputTool = BaseTool.extend({
             });
         }
         */
-        if (!component.attributes ||
+        if (
+            !component.attributes ||
             // Styles are only checked if there is any (optional)
-            (component.attributes.style && !TOOLS.RX_STYLE.test(component.attributes.style))) {
+            (component.attributes.style &&
+                !TOOLS.RX_STYLE.test(component.attributes.style))
+        ) {
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
@@ -198,7 +293,6 @@ var MathInputTool = BaseTool.extend({
         }
         return ret;
     }
-
 });
 
 /**

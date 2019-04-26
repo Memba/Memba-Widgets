@@ -50,8 +50,7 @@ var VideoTool = BaseTool.extend({
     description: i18n.video.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default:
-            `<div data-${ns}role="mediaplayer" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`
+        default: `<div data-${ns}role="mediaplayer" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`
     },
     height: 300,
     width: 600,
@@ -81,7 +80,11 @@ var VideoTool = BaseTool.extend({
         assert.instanceof(
             VideoTool,
             that,
-            assert.format(assert.messages.instanceof.default, 'this', 'VideoTool')
+            assert.format(
+                assert.messages.instanceof.default,
+                'this',
+                'VideoTool'
+            )
         );
         assert.instanceof(
             PageComponent,
@@ -93,12 +96,12 @@ var VideoTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.values(CONSTANTS.STAGE_MODES)
+                Object.values(TOOLS.STAGE_MODES)
             )
         );
         assert.instanceof(
@@ -200,7 +203,10 @@ var VideoTool = BaseTool.extend({
             description,
             i18n: { messages }
         } = this; // tool description
-        if (!component.attributes || !TOOLS.RX_VIDEO.test(component.attributes.mp4)) {
+        if (
+            !component.attributes ||
+            !TOOLS.RX_VIDEO.test(component.attributes.mp4)
+        ) {
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,

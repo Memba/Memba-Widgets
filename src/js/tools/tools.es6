@@ -7,6 +7,7 @@ import 'kendo.binder';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseTool from './tools.base.es6';
+import TOOLS from './util.constants.es6';
 
 const { observable } = window.kendo;
 
@@ -63,8 +64,8 @@ const tools = observable({
         );
         assert.isUndefined(this[tool.id], 'Existing tools cannot be replaced');
         this[tool.id] = tool;
-        if (tool.id === CONSTANTS.POINTER) {
-            this.active = CONSTANTS.POINTER;
+        if (tool.id === TOOLS.POINTER) {
+            this.active = TOOLS.POINTER;
         }
     }
 });

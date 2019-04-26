@@ -14,6 +14,7 @@ import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
 import { preload } from '../common/window.image.es6';
 import tools from '../tools/tools.es6';
+import TOOLS from '../tools/util.constants.es6';
 import BaseModel from './data.base.es6';
 import { Page, PageDataSource } from './data.page.es6';
 import BaseTest from './data.basetest.es6';
@@ -267,14 +268,21 @@ const Stream = BaseModel.define({
      * @returns {*}
      */
     getTestModel() {
-        const fields = {};
+        const fields = {
+            variables: {
+                defaultValue: []
+            }
+        };
 
-        // TODO: test if(this.loaded()) ???????
+        // TODO: Make sure pages and components are all loaded
+        //  test if(this.loaded()) ???????
 
-        this.pages.data().forEach(page => {
+        this.pages.data().forEach((page, pageIdx) => {
             page.components.data().forEach(component => {
-                const { name } = component.properties || {};
-                if (CONSTANTS.RX_TEST_FIELD_NAME.test(name)) {
+                const { name, variable } = component.properties || {};
+
+                // Binding properties for val_xxxxxx fields
+                if (TOOLS.RX_TEST_FIELD_NAME.test(name)) {
                     const tool = tools[component.tool];
 
                     // TODO What if component.properties.disabled ??????
@@ -289,23 +297,27 @@ const Stream = BaseModel.define({
                         }
                     };
                 }
+
+                // Test variables
+                if (
+                    component.tool === 'variable' &&
+                    TOOLS.RX_VARIABLE.test(variable)
+                ) {
+                    const tool = tools[component.tool];
+                    const value = tool.eval(component);
+                    if ($.type(value) !== CONSTANTS.UNDEFINED) {
+                        fields.variables.defaultValue[pageIdx] =
+                            fields.variables.defaultValue[pageIdx] || {};
+                        fields.variables.defaultValue[pageIdx][
+                            variable
+                        ] = value;
+                    }
+                }
             });
         });
-        return BaseTest.define({
-            fields,
-            init(options) {
-                const that = this;
-                BaseTest.fn.init.call(that, options);
-                Object.keys(that.fields).forEach(key => {
-                    if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
-                        // Note: we need to access the parent model
-                        // so that each field validation function could access
-                        // other field values on the same page
-                        that[key].model = () => that;
-                    }
-                });
-            }
-        });
+
+        // Return a customized test model derived from BaseTest
+        return BaseTest.define({ fields });
     }
 
     /**

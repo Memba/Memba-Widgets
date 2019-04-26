@@ -123,7 +123,10 @@ const Quiz = DataBoundWidget.extend({
     setOptions(options) {
         assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
         );
         DataBoundWidget.fn.setOptions.call(this, options);
         const {
@@ -589,7 +592,6 @@ const Quiz = DataBoundWidget.extend({
         }
 
         if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
-
             // returns the datasource OR creates one if using array or configuration
             this.dataSource = DataSource.create(this.options.dataSource);
 

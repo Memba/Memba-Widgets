@@ -45,7 +45,7 @@ if (!(i18n().tools && i18n().tools.textbox)) {
     $.extend(true, i18n(), {
         tools: {
             textbox: {
-                description: 'TextBox',
+                description: 'TextBox: <em>#: properties.name #</em>',
                 help: null,
                 name: 'TextBox',
                 attributes: {
@@ -66,8 +66,12 @@ if (!(i18n().tools && i18n().tools.textbox)) {
     });
 }
 
-// Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
-const TEXTBOX = `<input type="text" id="#: properties.name #" class="kj-interactive" data-${ns}role="maskedtextbox" data-${ns}prompt-char="\u25CA" style="#: attributes.style #" {0}>`;
+/**
+ * Template
+ * Note: Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
+ * @type {string}
+ */
+const TEMPLATE = `<input type="text" id="#: properties.name #" class="kj-interactive" data-${ns}role="maskedtextbox" data-${ns}prompt-char="\u25CA" style="#: attributes.style #" {0}>`;
 
 /**
  * @class TextBoxTool tool
@@ -91,20 +95,24 @@ const TextBoxTool = BaseTool.extend({
     weight: 1,
     width: 300,
     templates: {
-        design: format(TEXTBOX, ''),
+        design: format(TEMPLATE, ''),
         play: format(
-            TEXTBOX,
+            TEMPLATE,
             `data-${ns}bind="value: #: properties.name #.value"`
         ),
         review:
             format(
-                TEXTBOX,
+                TEMPLATE,
                 `data-${ns}bind="value: #: properties.name #.value"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
-        mask: new TextBoxAdapter({ title: i18n().tools.textbox.attributes.mask.title }),
-        style: new StyleAdapter({ title: i18n().tools.textbox.attributes.style.title })
+        mask: new TextBoxAdapter({
+            title: i18n().tools.textbox.attributes.mask.title
+        }),
+        style: new StyleAdapter({
+            title: i18n().tools.textbox.attributes.style.title
+        })
     },
     properties: {
         name: new ReadOnlyAdapter({
@@ -156,7 +164,8 @@ const TextBoxTool = BaseTool.extend({
             component instanceof PageComponent
         ) {
             stageElement.find('input').prop({
-                // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
+                // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
+                // disabled: !enabled,
                 readonly: !enabled
             });
         }

@@ -1,10 +1,10 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("katex"));
+		module.exports = factory(require("../katex"));
 	else if(typeof define === 'function' && define.amd)
-		define(["katex"], factory);
+		define(["../katex"], factory);
 	else if(typeof exports === 'object')
-		exports["renderMathInElement"] = factory(require("katex"));
+		exports["renderMathInElement"] = factory(require("../katex"));
 	else
 		root["renderMathInElement"] = factory(root["katex"]);
 })((typeof self !== 'undefined' ? self : this), function(__WEBPACK_EXTERNAL_MODULE__0__) {

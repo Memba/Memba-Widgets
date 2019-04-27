@@ -7,7 +7,8 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import katex from '../vendor/khan/katex';
+import katex from '../vendor/khan/katex.mjs';
+import '../vendor/khan/contrib/mhchem.mjs';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
@@ -17,15 +18,15 @@ const {
     htmlEncode,
     ui: { plugin, Widget }
 } = window.kendo;
-const logger = new Logger('widgets.mathexpression');
-const WIDGET_CLASS = 'kj-mathexpression'; // 'k-widget kj-mathexpression';
+const logger = new Logger('widgets.latex');
+const WIDGET_CLASS = 'kj-latex'; // 'k-widget kj-latex';
 
 /**
- * MathExpression
- * @class MathExpression
+ * Latex
+ * @class Latex
  * @extends Widget
  */
-const MathExpression = Widget.extend({
+const Latex = Widget.extend({
     /**
      * Constructor
      * @constructor init
@@ -44,7 +45,7 @@ const MathExpression = Widget.extend({
      * @property options
      */
     options: {
-        name: 'MathExpression',
+        name: 'Latex',
         value: null,
         errorColor: '#cc0000',
         inline: false
@@ -122,4 +123,4 @@ const MathExpression = Widget.extend({
 /**
  * Registration
  */
-plugin(MathExpression);
+plugin(Latex);

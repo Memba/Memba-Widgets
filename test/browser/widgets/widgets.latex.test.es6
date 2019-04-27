@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.mathexpression.es6';
+import '../../../src/js/widgets/widgets.latex.es6';
 
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
@@ -25,16 +25,16 @@ const {
     destroy,
     init,
     observable,
-    ui: { MathExpression }
+    ui: { Latex }
 } = window.kendo;
 const FIXTURES = '#fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
-const ROLE = 'mathexpression';
+const ROLE = 'latex';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-describe('widgets.mathexpression', () => {
+describe('widgets.latex', () => {
     before(() => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
@@ -43,7 +43,7 @@ describe('widgets.mathexpression', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
-            expect($.fn.kendoMathExpression).to.be.a('function');
+            expect($.fn.kendoLatex).to.be.a('function');
         });
     });
 
@@ -51,9 +51,9 @@ describe('widgets.mathexpression', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(FIXTURES);
             const widget = element
-                .kendoMathExpression()
-                .data('kendoMathExpression');
-            expect(widget).to.be.an.instanceof(MathExpression);
+                .kendoLatex()
+                .data('kendoLatex');
+            expect(widget).to.be.an.instanceof(Latex);
             // expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
@@ -62,9 +62,9 @@ describe('widgets.mathexpression', () => {
             const element = $(ELEMENT).appendTo(FIXTURES);
             const options = {};
             const widget = element
-                .kendoMathExpression()
-                .data('kendoMathExpression');
-            expect(widget).to.be.an.instanceof(MathExpression);
+                .kendoLatex()
+                .data('kendoLatex');
+            expect(widget).to.be.an.instanceof(Latex);
             // expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
@@ -74,8 +74,8 @@ describe('widgets.mathexpression', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(FIXTURES);
             init(FIXTURES);
-            const widget = element.data('kendoMathExpression');
-            expect(widget).to.be.an.instanceof(MathExpression);
+            const widget = element.data('kendoLatex');
+            expect(widget).to.be.an.instanceof(Latex);
             // expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
@@ -99,12 +99,12 @@ describe('widgets.mathexpression', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
             widget = element
-                .kendoMathExpression(options)
-                .data('kendoMathExpression');
+                .kendoLatex(options)
+                .data('kendoLatex');
         });
 
         xit('value', done => {
-            expect(widget).to.be.an.instanceof(MathExpression);
+            expect(widget).to.be.an.instanceof(Latex);
         });
 
         xit('setOptions', () => {
@@ -112,7 +112,7 @@ describe('widgets.mathexpression', () => {
         });
 
         xit('destroy', () => {
-            expect(widget).to.be.an.instanceof(MathExpression);
+            expect(widget).to.be.an.instanceof(Latex);
             widget.destroy();
             expect(widget.element).to.be.empty;
         });
@@ -129,8 +129,8 @@ describe('widgets.mathexpression', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
             widget = element
-                .kendoMathExpression(options)
-                .data('kendoMathExpression');
+                .kendoLatex(options)
+                .data('kendoLatex');
             viewModel = observable({
                 // TODO
             });
@@ -150,8 +150,8 @@ describe('widgets.mathexpression', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(FIXTURES);
             widget = element
-                .kendoMathExpression(options)
-                .data('kendoMathExpression');
+                .kendoLatex(options)
+                .data('kendoLatex');
             event = sinon.spy();
         });
 

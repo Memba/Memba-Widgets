@@ -3,15 +3,16 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Add selector for ignore case option
-// TODO Add button to open www.regexr.com
-// TODO Look at https://github.com/gskinner/regexr
+// TODO Add flags including case insensitive
+// TODO Add button to open https://regexr.com?expression=([A-B]*[0-9])\w+
+// Add safe-regex to test regex
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import CodeMirror from '../vendor/codemirror/lib/codemirror';
+import '../vendor/codemirror/mode/regex/regex.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
@@ -21,17 +22,16 @@ const {
     destroy,
     ui: { plugin, Widget }
 } = window.kendo;
-const logger = new Logger('widgets.regexp');
-const NS = '.kendoRegExpInput';
-const WIDGET_CLASS = 'kj-regexp'; // 'k-widget kj-regexp';
-const INPUT_CLASS = 'k-textbox kj-regexp-input';
+const logger = new Logger('widgets.regex');
+const NS = '.kendoRegEx';
+const WIDGET_CLASS = 'kj-regex k-input k-textbox'; // 'k-widget kj-regex';
 
 /**
- * RegExpInput
- * @class RegExpInput
+ * RegEx
+ * @class RegEx
  * @extends Widget
  */
-const RegExpInput = Widget.extend({
+const RegEx = Widget.extend({
     /**
      * Constructor
      * @constructor init
@@ -61,7 +61,7 @@ const RegExpInput = Widget.extend({
      * @property options
      */
     options: {
-        name: 'RegExpInput',
+        name: 'RegEx',
         enabled: true,
         value: ''
     },
@@ -114,6 +114,7 @@ const RegExpInput = Widget.extend({
         );
         const { element, options } = this;
         this.wrapper = element.addClass(WIDGET_CLASS);
+        $(`<${CONSTANTS.DIV}/>`).append(CONSTANTS.SLASH).appendTo(element);
         const editorDiv = $(`<${CONSTANTS.DIV}/>`).appendTo(element);
 
         // TODO See correct options at
@@ -123,17 +124,17 @@ const RegExpInput = Widget.extend({
         // Initialize CodeMirror
         this.codeMirror = CodeMirror(editorDiv.get(0), {
             lineNumbers: false,
+            mode: 'regex',
+            scrollbarStyle: null
+            /*
             tabSize: 3,
             indentWithTabs: true
-            /*
             extraKeys: {},
             specialChars: /[ \u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff]/,
             specialCharPlaceholder: ch =>
                 $.create('span', ch === ' ' ? 'cm-space' : 'cm-special', ' ') // needs to be a space so wrapping works
             */
         });
-
-
 
         // Enfore single line
         this.codeMirror.on(CONSTANTS.BEFORECHANGE, (cm, change) => {
@@ -184,7 +185,7 @@ const RegExpInput = Widget.extend({
      * @param change
      * @private
      */
-    _onUserInputChange(cm, change) {
+    _onUserInputChange(/* cm, change */) {
         this.trigger(CONSTANTS.CHANGE);
     },
 
@@ -202,4 +203,4 @@ const RegExpInput = Widget.extend({
 /**
  * Registration
  */
-plugin(RegExpInput);
+plugin(RegEx);

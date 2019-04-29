@@ -26,7 +26,7 @@ const { format, ns, template } = window.kendo;
  */
 function i18n() {
     return (
-        (((window.app || {}).i18n || {}).tools || {}).mathexpression ||
+        (((window.app || {}).i18n || {}).tools || {}).latex ||
         {
             // TODO
         }
@@ -34,36 +34,42 @@ function i18n() {
 }
 
 /**
- * @class MathExpressionTool
+ * Template
+ * @type {string}
  */
-const MathExpressionTool = BaseTool.extend({
-    id: 'mathexpression',
+const TEMPLATE = `<div data-${ns}role="latex" class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #" data-${ns}inline="#: attributes.inline #" data-${ns}value="#: attributes.formula #" ></div>`;
+
+/**
+ * @class LatexTool
+ */
+const LatexTool = BaseTool.extend({
+    id: 'latex',
     icon: 'formula',
-    description: i18n.mathexpression.description,
+    description: i18n.latex.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default: `<div data-${ns}role="mathexpression" class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #" data-${ns}inline="#: attributes.inline #" data-${ns}value="#: attributes.formula #" ></div>`
+        default: TEMPLATE
     },
     height: 180,
     width: 370,
     attributes: {
         formula: new MathInputAdapter({
-            title: i18n.mathexpression.attributes.formula.title,
-            defaultValue: i18n.mathexpression.attributes.formula.defaultValue
+            title: i18n.latex.attributes.formula.title,
+            defaultValue: i18n.latex.attributes.formula.defaultValue
         }),
         inline: new BooleanAdapter({
-            title: i18n.mathexpression.attributes.inline.title,
-            defaultValue: i18n.mathexpression.attributes.inline.defaultValue
+            title: i18n.latex.attributes.inline.title,
+            defaultValue: i18n.latex.attributes.inline.defaultValue
         }),
         style: new StyleAdapter({
-            title: i18n.mathexpression.attributes.style.title,
+            title: i18n.latex.attributes.style.title,
             defaultValue: 'font-size:50px;'
         })
     },
     properties: {
         behavior: new DropDownListAdapter(
             {
-                title: i18n.mathexpression.properties.behavior.title,
+                title: i18n.latex.properties.behavior.title,
                 defaultValue: 'none',
                 enum: ['none', 'draggable', 'selectable']
             },
@@ -86,12 +92,12 @@ const MathExpressionTool = BaseTool.extend({
     getHtmlContent(component, mode) {
         const that = this;
         assert.instanceof(
-            MathExpressionTool,
+            LatexTool,
             that,
             assert.format(
                 assert.messages.instanceof.default,
                 'this',
-                'MathExpressionTool'
+                'LatexTool'
             )
         );
         assert.instanceof(
@@ -187,7 +193,7 @@ const MathExpressionTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.formula ||
             component.attributes.formula ===
-                i18n.mathexpression.attributes.formula.defaultValue ||
+                i18n.latex.attributes.formula.defaultValue ||
             !TOOLS.RX_FORMULA.test(component.attributes.formula)
         ) {
             // TODO: replace TOOLS.RX_FORMULA with a LaTeX synthax checker
@@ -221,4 +227,4 @@ const MathExpressionTool = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(MathExpressionTool);
+tools.register(LatexTool);

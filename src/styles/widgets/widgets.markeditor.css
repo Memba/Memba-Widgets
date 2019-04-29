@@ -5,6 +5,10 @@
 .kj-markeditor-toolbar .k-button-icon[data-tool="headings"] {
   width: auto;
 }
+.k-spreadsheet-window.kj-markeditor-window {
+  padding-left: 0;
+  padding-right: 0;
+}
 .k-spreadsheet-window.kj-markeditor-window.kj-no-padding {
   padding: 0;
 }

@@ -47,6 +47,37 @@ const BaseTest = BaseModel.define({
      */
 
     /**
+     * Get the parent viewModel
+     * @returns {Observable}
+     */
+    getViewModel() {
+        let viewModel = this;
+        while (
+            $.isFunction(viewModel.parent) &&
+            $.type(viewModel.parent()) !== CONSTANTS.UNDEFINED
+        ) {
+            viewModel = viewModel.parent();
+        }
+        return viewModel;
+    },
+
+    /**
+     * Get current page index
+     */
+    getCurrentPageIdx() {
+        const { stream, selectedPage } = this.getViewModel();
+        return stream.pages.indexOf(selectedPage);
+    },
+
+    /**
+     * Current page variables for label tool bindings
+     */
+    variables$() {
+        const { variables } = this;
+        return variables[this.getCurrentPageIdx()];
+    },
+
+    /**
      * Get score array for grid display
      * @method getScoreArray
      * @returns {Array}
@@ -60,11 +91,12 @@ const BaseTest = BaseModel.define({
                 const component = field.component();
                 if (!component.get('properties.disabled')) {
                     const scoreLine = field.toJSON();
+                    debugger;
                     // Add name, pageIdx and question
                     scoreLine.name = key;
-                    scoreLine.pageIdx = component.page().index();
-                    scoreLine.question = component.get('properties.question');
-                    // Improved display of values in score grids
+                    scoreLine.pageIdx = field.pageIdx();
+                    // Encoded/computed display of values in score grids
+                    scoreLine.question = field.question$();
                     scoreLine.value = field.value$();
                     scoreLine.solution = field.solution$();
                     // TODO result, score and values for icon success/failure/omit

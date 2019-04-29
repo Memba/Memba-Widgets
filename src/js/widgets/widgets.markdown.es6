@@ -14,7 +14,7 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import MarkdownIt from '../vendor/markdown-it/markdown-it';
-import katex from '../vendor/markdown-it/markdown-it-katex'; // This loads katex
+import katex from '../vendor/markdown-it/markdown-it-katex.es6'; // This is a katex loader (not katex)
 import emoji from '../vendor/markdown-it/markdown-it-emoji';
 import hljs from '../vendor/highlight/highlight.pack';
 import twemoji from '../vendor/markdown-it/twemoji.amd';

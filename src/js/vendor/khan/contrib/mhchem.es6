@@ -1,4 +1,4 @@
-import katex from '../katex.mjs';
+import katex from '../katex.es6';
 
 /* eslint-disable */
 

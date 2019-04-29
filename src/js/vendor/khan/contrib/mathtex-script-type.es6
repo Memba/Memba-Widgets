@@ -1,4 +1,4 @@
-import katex from '../katex.mjs';
+import katex from '../katex.es6';
 
 let scripts = document.body.getElementsByTagName("script");
 scripts = Array.prototype.slice.call(scripts);

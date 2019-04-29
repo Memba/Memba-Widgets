@@ -3,13 +3,12 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO https://github.com/lonekorean/highlight-within-textarea/tree/master
-// TODO https://github.com/davisjam/safe-regex/blob/master/index.js
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
+import MathLive from '../vendor/arnog/mathlive';
+import CONSTANTS from '../common/window.constants.es6';
 
 const {
     destroy,
@@ -17,16 +16,16 @@ const {
 } = window.kendo;
 const CHANGE = 'change';
 const CLICK = 'click';
-const NS = '.kendoRegExpWidget';
+const NS = '.kendoMathInput';
 const UNDEFINED = 'undefined';
-const WIDGET_CLASS = 'k-widget kj-value-widget';
+const WIDGET_CLASS = 'k-widget kj-mathinput';
 
 /**
- * RegExpWidget
- * @class RegExpWidget
+ * MathInput
+ * @class MathInput
  * @extends Widget
  */
-const RegExpWidget = Widget.extend({
+const MathInput = Widget.extend({
     /**
      * Constructor
      * @constructor init
@@ -55,7 +54,7 @@ const RegExpWidget = Widget.extend({
      * @property options
      */
     options: {
-        name: 'RegExpWidget',
+        name: 'MathInput',
         enabled: true,
         value: ''
     },
@@ -79,12 +78,29 @@ const RegExpWidget = Widget.extend({
     value(value) {
         let ret;
         if ($.type(value) === UNDEFINED) {
-            ret = this._value;
+            ret = this._mathField.latex();
         } else if (this._value !== value) {
-            this._value = value;
-            this.refresh();
+            this._mathField.latex(value, {
+                suppressChangeNotifications: true
+            });
         }
         return ret;
+    },
+
+    /**
+     * MathLive configuration
+     * @returns {{virtualKeyboardMode: string}}
+     * @private
+     */
+    _config() {
+        const that = this;
+        return {
+            onContentDidChange(/* mathfield */) {
+                that.trigger(CONSTANTS.CHANGE);
+                that._mathField.focus();
+            },
+            virtualKeyboardMode: 'manual'
+        };
     },
 
     /**
@@ -94,14 +110,10 @@ const RegExpWidget = Widget.extend({
     _render() {
         this.wrapper = this.element;
         this.element.addClass(WIDGET_CLASS);
-    },
-
-    /**
-     * Refresh
-     * @method refresh
-     */
-    refresh() {
-        this.element.text(this._value);
+        this._mathField = MathLive.makeMathField(
+            this.element[0],
+            this._config()
+        );
     },
 
     /**
@@ -143,4 +155,4 @@ const RegExpWidget = Widget.extend({
 /**
  * Registration
  */
-plugin(RegExpWidget);
+plugin(MathInput);

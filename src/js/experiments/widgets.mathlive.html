@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>widgets.regexp</title>
+    <title>widgets.mathlive</title>
     <script>
         window.DEBUG = true;
     </script>
@@ -10,14 +10,15 @@
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- widgets.regexp stylesheet -->
-    <link href="../../styles/fonts/kidoju.css" rel="stylesheet" />
-    <link href="../../styles/widgets/widgets.regexp.css" rel="stylesheet" />
+    <link href="../../styles/vendor/arnog/mathlive.core.css" rel="stylesheet">
+    <link href="../../styles/vendor/arnog/mathlive.css" rel="stylesheet">
+    <link href="../../styles/experiments/widgets.mathlive.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
-        	'use strict';
+            'use strict';
             SystemJS.config({
                 baseURL: '../../../',
                 bundles: {
@@ -170,6 +171,14 @@
                     'src/js': {
                         defaultExtension: 'js',
                         meta: {
+                            'vendor/arnog/*.js': {
+                                babelOptions: {
+                                    es2015: true,
+                                    stage2: true,
+                                    stage3: true
+                                },
+                                format: 'esm'
+                            },
                             // IMPORTANT! See https://github.com/jshint/jshint/issues/2840
                             'vendor/codemirror/addon/lint/jshint.js': {
                                 format: 'global'
@@ -202,16 +211,13 @@
             });
             Promise.all([
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('./widgets.regexp.es6')
+                SystemJS.import('./widgets.mathlive.es6')
             ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
-                    regexp: '',
+                    math: '',
                     visible: true,
                     enabled: true
-                });
-                viewModel.bind('change', function (e) {
-                    console.log('changed ' + e.sender.regexp);
                 });
                 $(function () {
                     kendo.bind('body', viewModel);
@@ -219,36 +225,16 @@
             });
         }());
     </script>
-    <style>
-        .big {
-            font-size: 32px;
-        }
-
-        .small {
-            font-size: 24px;
-        }
-    </style>
 </head>
 <body>
-<h1>widgets.regexp</h1>
-<h2>HTML declaration</h2>
-<div>Value:<input id="regexp" data-role="regexp" type="number" value="2" readonly /></div>
+<h1>widgets.mathlive</h1>
+<h2>JavaScript code</h2>
+<div id="mathinput1"></div>
 <h2>Bound to observable</h2>
-<div>Value:<input id="numbox" type="number" data-bind="value: regexp" /></div>
-<div>
-    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
-    <input type="checkbox" data-bind="checked: enabled" />Enabled
+<div id="bound">
+    <div data-role="mathinput" data-bind="value: math"></div>
+    <br/>
+    <div data-role="mathinput" data-bind="value: math"></div>
 </div>
-
-<div class="big"><input id="regexp1" min="0" max="5" data-role="regexp" data-bind="value: regexp, visible: visible, enabled: enabled" /></div>
-<div class="small"><input id="regexp2" step="0.5" data-role="regexp" data-bind="value: regexp, visible: visible, enabled: enabled" ></div>
-
-<pre>
-    {
-        value: <span data-bind="text: regexp"></span>,
-        visible: <span data-bind="text: visible"></span>,
-        enabled: <span data-bind="text: enabled"></span>
-    }
-</pre>
 </body>
 </html>

@@ -1611,7 +1611,7 @@ const Stage = DataBoundWidget.extend({
                     attributes[attr(CONSTANTS.ACTION)] = 'component';
                     e.sender.append([
                         {
-                            text: tool.description, // TODO tool.name
+                            text: tool.name,
                             attr: attributes,
                             items: tool.getContextMenu()
                         }

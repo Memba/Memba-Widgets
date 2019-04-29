@@ -35,7 +35,7 @@
     <!--link href="./styles/widgets/widgets.license.css" rel="stylesheet"-->
     <link href="./styles/widgets/widgets.markdown.css" rel="stylesheet">
     <link href="./styles/widgets/widgets.markeditor.css" rel="stylesheet">
-    <link href="./styles/widgets/widgets.mathexpression.css" rel="stylesheet">
+    <link href="styles/widgets/widgets.latex.css" rel="stylesheet">
     <link href="./styles/widgets/widgets.mathinput.css" rel="stylesheet">
     <link href="./styles/widgets/widgets.mediaplayer.css" rel="stylesheet">
     <!--link href="./styles/widgets/widgets.multiinpuit.css" rel="stylesheet"-->
@@ -301,6 +301,7 @@
                 <div data-role="navigation" data-bind="source: stream.pages, value: selectedPage"></div>
             </div>
             <div id="center-pane" style="touch-action: none;">
+                <div data-role="formatstrip" data-bind="value: selectedComponent"></div>
                 <div class="centered">
                     <div data-role="stage" data-bind="source: selectedPage.components, value: selectedComponent" data-mode="design"></div>
                 </div>

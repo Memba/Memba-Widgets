@@ -18,6 +18,7 @@ import StyleAdapter from './js/tools/adapters.style.es6';
 import tools from './js/tools/tools.es6';
 import BaseTool from './js/tools/tools.base.es6';
 import './js/widgets/widgets.explorer.es6';
+import './js/widgets/widgets.formatstrip.es6';
 import './js/widgets/widgets.markeditor.es6';
 import './js/widgets/widgets.navigation.es6';
 import './js/widgets/widgets.propertygrid.es6';

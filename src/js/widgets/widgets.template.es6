@@ -171,6 +171,20 @@ const Template = DataBoundWidget.extend({
     },
 
     /**
+     * Merge template with data
+     * @param data
+     */
+    template(data) {
+        let ret;
+        try {
+            ret = this._template(data);
+        } catch (ex) {
+            ret = `<span style="color: #f00;">${ex.message}</span>`;
+        }
+        return ret;
+    },
+
+    /**
      * Refresh
      * @method refresh
      */
@@ -193,13 +207,13 @@ const Template = DataBoundWidget.extend({
                     .data()
                     .find(item => item[options.valueField] === this.value());
                 if ($.type(data) !== CONSTANTS.UNDEFINED) {
-                    element.html(this._template(data));
+                    element.html(this.template(data));
                 }
                 this.trigger(CONSTANTS.DATABOUND);
             } else {
                 const value = this.value();
                 if ($.type(value) !== CONSTANTS.UNDEFINED) {
-                    element.html(this._template(value));
+                    element.html(this.template(value));
                 }
             }
             logger.debug({ method: 'refresh', message: 'Widget refreshed' });

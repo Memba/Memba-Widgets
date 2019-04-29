@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO replace variables in component.text$
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -13,6 +11,7 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.template.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextAreaAdapter from './adapters.textarea.es6';
@@ -62,7 +61,12 @@ if (!(i18n().tools && i18n().tools.label)) {
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #">#= text$() #</div>`;
+const TEMPLATE = `<div class="#: class$() #" data-${ns}role="template" data-${ns}template="t-#: id #" style="#: attributes.style #" data-${ns}id="#: id #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #" data-${ns}bind="value: variables$()"></div><script id="t-#: id #" type="text/x-kendo-template">#= template$() #</script>`;
+// We need to designate the template in a script, because kendo.init calls parseOption from kendo.core.js
+// which tranforms any data-*template tag into a template function assigned to options.template and
+// it won't work otherwise because ${'#' + value) fails if value is the template content
+
+const DESIGN = `<div class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #">#= text$() #</div>`;
 
 /**
  * LabelTool
@@ -80,7 +84,9 @@ const LabelTool = BaseTool.extend({
     name: i18n().tools.label.name,
     width: 300,
     templates: {
-        default: TEMPLATE
+        design: DESIGN,
+        play: TEMPLATE,
+        review: TEMPLATE
     },
     attributes: {
         text: new TextAreaAdapter(
@@ -155,7 +161,7 @@ const LabelTool = BaseTool.extend({
                 Object.values(TOOLS.STAGE_MODES)
             )
         );
-        const tmpl = template(that.templates.default);
+        const tmpl = template(that.templates[mode]);
         $.extend(component, {
             // The class$ function adds the kj-interactive class to draggable components
             class$() {
@@ -165,19 +171,22 @@ const LabelTool = BaseTool.extend({
                         : ''
                 }`;
             },
-            // The id$ function returns the component id for components that have a behavior
-            id$() {
-                return component.get('properties.behavior') !== 'none' &&
-                    $.type(component.id) === CONSTANTS.STRING &&
-                    component.id.length
-                    ? component.id
-                    : '';
+            // compute variables, html encode text, then replace line feeds with <br/>
+            template$() {
+                const text = component.get('attributes.text');
+                return text
+                    .replace(TOOLS.RX_MUSTACHE_VAR, TOOLS.KENDO_VAR)
+                    .replace(/\n/g, '<br/>');
             },
-            // html encode text, then replace line feeds with <br/>
             text$() {
-                return htmlEncode(
-                    component.get('attributes.text') || ''
-                ).replace(/\n/g, '<br/>');
+                const text = component.get('attributes.text');
+                return htmlEncode(text).replace(/\n/g, '<br/>');
+            },
+            variables$() {
+                // We need this to avoid an error when binding the stage
+                // but in fact the variables$ will be supplied by data.basetest
+                // when binding the test properties
+                return {};
             }
         });
         return tmpl(component);

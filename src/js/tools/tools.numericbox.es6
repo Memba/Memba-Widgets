@@ -31,7 +31,7 @@ import {
     styleValidator
 } from './util.validators.es6';
 
-const { format, ns } = window.kendo;
+const { format, htmlEncode, ns, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -175,11 +175,12 @@ const NumericBoxTool = BaseTool.extend({
     },
 
     /**
-     * Get Solution
+     * Get computed question from variables
      * @param component
+     * @param variables
      * @returns {string}
      */
-    getSolution(component) {
+    getQuestion(component, variables) {
         assert.instanceof(
             PageComponent,
             component,
@@ -189,7 +190,63 @@ const NumericBoxTool = BaseTool.extend({
                 'PageComponent'
             )
         );
-        return this.get('properties.solution');
+        assert.isPlainObject(
+            variables,
+            assert.format(assert.messages.isPlainObject.default, 'variables')
+        );
+        const question = component.get('properties.question') || '';
+        const tmpl = template(
+            question.replace(TOOLS.RX_MUSTACHE_VAR, TOOLS.KENDO_VAR)
+        );
+        return tmpl(variables);
+    },
+
+    /**
+     * Get computed question from variables encoded for display
+     * @param compoenent
+     * @param variables
+     * @returns {*}
+     */
+    getHtmlQuestion(component, variables) {
+        return htmlEncode(this.getQuestion(component, variables));
+    },
+
+    /**
+     * Get computed solution from variables
+     * @param component
+     * @param variables
+     * @returns {string}
+     */
+    getSolution(component, variables) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        assert.isPlainObject(
+            variables,
+            assert.format(assert.messages.isPlainObject.default, 'variables')
+        );
+        // TODO Manage eval errors in try/catch
+        const value = math.eval(
+            component.get('properties.solution'),
+            variables
+        );
+        const decimals = Math.round(component.get('attributes.decimals') || 0);
+        return math.round(value, decimals);
+    },
+
+    /**
+     * Get computed solution from variables encoded for display
+     * @param component
+     * @param variables
+     */
+    getHtmlSolution(component, variables) {
+        return this.getSolution(component, variables);
     },
 
     /**

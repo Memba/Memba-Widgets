@@ -6,6 +6,8 @@
 const TOOLS = {
     ACTIVE: 'active',
 
+    KENDO_VAR: '#: $1 #',
+
     LIB_COMMENT: '// ',
     LIB_PARAMS: ' [{0}]',
 
@@ -16,6 +18,7 @@ const TOOLS = {
     RX_DATA: /\S+/i,
     RX_FONT_SIZE: /font(-size)?:[^;]*[0-9]+px/,
     RX_IMAGE: /^(cdn|data):\/\/[\s\S]+.(gif|jpe?g|png|svg)$/i,
+    RX_MUSTACHE_VAR: /{{(\s*[^}]+\s*)}}/g,
     RX_NAME: /val_[0-9a-f]{6}/,
     RX_QUESTION: /\S+/i,
     RX_SOLUTION: /\S+/i,

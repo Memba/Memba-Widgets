@@ -280,9 +280,7 @@ const BaseTool = Class.extend({
      * @param component
      * @returns {string}
      */
-    /*
     getQuestion(component) {
-        // TODO: work in progress with variables and numeric box
         assert.instanceof(
             PageComponent,
             component,
@@ -292,18 +290,15 @@ const BaseTool = Class.extend({
                 'PageComponent'
             )
         );
-        return this.get('properties.question');
+        return component.get('properties.question');
     },
-     */
 
     /**
      * Get Solution
      * @param component
      * @returns {string}
      */
-    /*
     getSolution(component) {
-        // TODO: work in progress with variables and numeric box
         assert.instanceof(
             PageComponent,
             component,
@@ -313,9 +308,8 @@ const BaseTool = Class.extend({
                 'PageComponent'
             )
         );
-        return this.get('properties.solution');
+        return component.get('properties.solution');
     },
-    */
 
     /**
      * Get the field definition for a test model derived from BaseTest
@@ -384,6 +378,8 @@ const BaseTool = Class.extend({
             },
             // Related stream
             stream() {
+                // Assigning a page to selectedPage in the viewModel
+                // compromises the parent method
                 return (
                     component.page().stream() ||
                     component.page().parent().stream
@@ -406,32 +402,35 @@ const BaseTool = Class.extend({
                 // Validation is either a string (custom) or an object ({ item: ..., params: ...})
                 return validation;
             },
-            // The all scope
-            all() {
-                const all = {};
+            // Values
+            values() {
+                const values = {};
                 const model = this.parent(); // a TestModel derived from BaseTest
                 const page = this.page();
                 Object.keys(model.fields).forEach(key => {
                     if (
-                        TOOLS.RX_TEST_FIELD_NAME.test(key) &&
+                        TOOLS.RX_TEST_FIELD_NAME.test(key) && // val_xxxxxx
                         model[key].page() === page // same page
                     ) {
-                        all[key] = model[key].get('value');
+                        values[key] = model[key].get('value');
                     }
                 });
-                return $.extend(
-                    all,
-                    model.variables.at(this.pageIdx()).toJSON()
-                );
+                return values;
+            },
+            variables() {
+                const model = this.parent(); // a TestModel derived from BaseTest
+                return model.variables.at(this.pageIdx()).toJSON();
             },
             // Format data for poolExec validation
             data() {
+                const pageValues = this.values();
+                const variables = this.variables();
                 return {
                     value: this.get('value'),
-                    solution: component.get('properties.solution'),
+                    solution: tool.getSolution(component, variables),
                     // Other field values on the same page
                     // assuming this TestModelField is part of a TestModel
-                    all: this.all()
+                    all: $.extend(pageValues, variables)
                 };
             },
             // grade function
@@ -501,13 +500,17 @@ const BaseTool = Class.extend({
 
                 return dfd.promise();
             },
-            // Html encoded value to display in the score grid
-            value$() {
-                return tool.getHtmlValue(this);
+            // Html encoded question to display in the score grid
+            question$() {
+                return tool.getHtmlQuestion(component, this.variables());
             },
             // Html encoded solution to display in the score grid
             solution$() {
-                return tool.getHtmlSolution(component);
+                return tool.getHtmlSolution(component, this.variables());
+            },
+            // Html encoded value to display in the score grid
+            value$() {
+                return tool.getHtmlValue(this);
             },
             // Conversion to JSON for storage with an activity
             toJSON() {
@@ -640,31 +643,21 @@ const BaseTool = Class.extend({
     },
 
     /**
-     * Improved display of value in score grid
-     * @method getHtmlValue
-     * @param testField
+     * Encoded display of computed question
+     * @param component
+     * @returns {*}
      */
-    getHtmlValue(testField) {
+    getHtmlQuestion(component) {
         assert.instanceof(
-            BaseModel,
-            testField,
+            PageComponent,
+            component,
             assert.format(
                 assert.messages.instanceof.default,
-                'testField',
-                'BaseModel'
+                'component',
+                'PageComponent'
             )
         );
-        // It is essential that the tool matches the component
-        assert.equal(
-            this.id,
-            testField.component().tool,
-            assert.format(
-                assert.messages.equal.default,
-                'this.id',
-                'component.tool'
-            )
-        );
-        return htmlEncode(testField.value || '');
+        return htmlEncode(component.get('properties.question'));
     },
 
     /**
@@ -692,7 +685,35 @@ const BaseTool = Class.extend({
                 'component.tool'
             )
         );
-        return htmlEncode(component.get('properties.solution') || '');
+        return htmlEncode(component.get('properties.solution'));
+    },
+
+    /**
+     * Improved display of value in score grid
+     * @method getHtmlValue
+     * @param testField
+     */
+    getHtmlValue(testField) {
+        assert.instanceof(
+            BaseModel,
+            testField,
+            assert.format(
+                assert.messages.instanceof.default,
+                'testField',
+                'BaseModel'
+            )
+        );
+        // It is essential that the tool matches the component
+        assert.equal(
+            this.id,
+            testField.component().tool,
+            assert.format(
+                assert.messages.equal.default,
+                'this.id',
+                'component.tool'
+            )
+        );
+        return htmlEncode(testField.value);
     },
 
     // onEnable

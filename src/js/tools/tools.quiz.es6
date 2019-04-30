@@ -237,7 +237,6 @@ const QuizTool = BaseTool.extend({
         $.extend(component, {
             data$() {
                 const data = component.attributes.get('data').map(item => {
-                    debugger;
                     return {
                         text: item.text,
                         url: assets.image.scheme2http(item.url)
@@ -257,7 +256,7 @@ const QuizTool = BaseTool.extend({
      */
     onEnable(e, component) {
         // TODO ????
-        debugger;
+        // debugger;
     },
 
     /**

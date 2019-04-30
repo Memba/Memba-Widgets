@@ -13,6 +13,7 @@ import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
+import TOOLS from './util.constants.es6';
 
 const { format } = window.kendo;
 

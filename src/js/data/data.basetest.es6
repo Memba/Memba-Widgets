@@ -74,7 +74,7 @@ const BaseTest = BaseModel.define({
      */
     variables$() {
         const { variables } = this;
-        return variables[this.getCurrentPageIdx()];
+        return variables[this.getCurrentPageIdx()] || {};
     },
 
     /**
@@ -91,7 +91,6 @@ const BaseTest = BaseModel.define({
                 const component = field.component();
                 if (!component.get('properties.disabled')) {
                     const scoreLine = field.toJSON();
-                    debugger;
                     // Add name, pageIdx and question
                     scoreLine.name = key;
                     scoreLine.pageIdx = field.pageIdx();

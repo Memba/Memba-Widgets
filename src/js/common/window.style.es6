@@ -121,6 +121,18 @@ export default class Style {
     }
 
     /**
+     * Reset styles
+     * @param ignore
+     */
+    reset(ignore = []) {
+        this._map.forEach((value, key) => {
+            if (Array.isArray(ignore) && ignore.indexOf(key) === -1) {
+                this._map.delete(key);
+            }
+        });
+    }
+
+    /**
      * Return styles as string
      * @method toString
      * @returns {string}

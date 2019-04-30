@@ -12,7 +12,7 @@ import 'kendo.panelbar';
 import 'kendo.slider';
 import 'kendo.splitter';
 import 'kendo.toolbar';
-import LocalStream from './integration.data.es6';
+import CONSTANTS from './js/common/window.constants.es6';
 import { Page } from './js/data/data.page.es6';
 import StyleAdapter from './js/tools/adapters.style.es6';
 import tools from './js/tools/tools.es6';
@@ -24,6 +24,7 @@ import './js/widgets/widgets.navigation.es6';
 import './js/widgets/widgets.propertygrid.es6';
 import './js/widgets/widgets.stage.es6';
 import './js/widgets/widgets.toolbox.es6';
+import LocalStream from './integration.data.es6';
 
 const { location } = window;
 const {
@@ -66,10 +67,7 @@ viewModel.bind('change', e => {
     // debugger;
     if (e.field === 'selectedPage') {
         e.sender.set('selectedComponent', undefined);
-    } else if (e.field === 'selectedPage.style') {
-        const stage = $('#center-pane').find(roleSelector('stage'));
-        const stageWidget = stage.data('kendoStage');
-        stageWidget.style(e.sender.get('selectedPage.style'));
+        e.sender.set('settings.style', e.sender.get('selectedPage.style'));
     } else if (e.field === 'selectedComponent') {
         const tool = tools[e.sender.get('selectedComponent.tool')];
         if (tool instanceof BaseTool) {
@@ -91,7 +89,13 @@ viewModel.bind('change', e => {
         const stageWidget = stage.data('kendoStage');
         stageWidget.snapGrid(e.sender.get('settings.snapGrid'));
     } else if (e.field === 'settings.style') {
-        viewModel.set('selectedPage.style', e.sender.get('settings.style'));
+        const style = e.sender.get('settings.style');
+        e.sender.set('selectedPage.style', style);
+        setTimeout(() => {
+            const stage = $('#center-pane').find(roleSelector('stage'));
+            const stageWidget = stage.data('kendoStage');
+            stageWidget.style(style);
+        });
     }
 });
 

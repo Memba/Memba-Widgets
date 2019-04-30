@@ -10,9 +10,10 @@ import 'kendo.binder';
 import 'kendo.data';
 import 'kendo.grid';
 import 'kendo.toolbar';
-import LocalStream from './integration.data.es6';
+import CONSTANTS from './js/common/window.constants.es6';
 import './js/widgets/widgets.playbar.es6';
 import './js/widgets/widgets.stage.es6';
+import LocalStream from './integration.data.es6';
 
 const {
     bind,
@@ -51,6 +52,19 @@ const viewModel = observable({
                 // debugger;
                 // app.notification//
             });
+    }
+});
+
+viewModel.bind(CONSTANTS.CHANGE, e => {
+    if (e.field === 'selectedPage') {
+        const style = e.sender.get('selectedPage.style');
+        setTimeout(() => {
+            const stage = $('.centered').find(roleSelector('stage'));
+            const stageWidget = stage.data('kendoStage');
+            if (stageWidget instanceof Stage) {
+                stageWidget.style(style);
+            }
+        }, 0);
     }
 });
 

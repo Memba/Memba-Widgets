@@ -15,7 +15,7 @@
 import $ from 'jquery';
 import 'kendo.data';
 import 'kendo.tooltip';
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import { Page, PageDataSource } from '../data/data.page.es6';
@@ -488,11 +488,13 @@ const PlayBar = DataBoundWidget.extend({
                         .children(CONSTANTS.DIV)
                         .first();
                     const index = parseInt(element.attr(attr('index')), 10);
+                    const page = that.dataSource.at(index);
                     element.kendoStage({
-                        dataSource: that.dataSource.at(index).components,
+                        dataSource: page.components,
                         enabled: false,
                         mode: 'play',
-                        scale: 0.25
+                        scale: 0.25,
+                        style: page.style
                     });
                 },
                 hide(e) {

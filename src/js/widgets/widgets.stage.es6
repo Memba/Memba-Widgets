@@ -158,6 +158,7 @@ const Stage = DataBoundWidget.extend({
         this._snapGrid = this.options.snapGrid;
         this._render();
         this._dataSource();
+        this.style(this.options.style);
         // this.enable(options.enabled);
     },
 
@@ -194,6 +195,7 @@ const Stage = DataBoundWidget.extend({
         enabled: true,
         snapAngle: 0,
         snapGrid: 0,
+        style: '',
         messages: {
             contextMenu: {
                 delete: 'Delete',
@@ -450,6 +452,7 @@ const Stage = DataBoundWidget.extend({
      * @returns {*}
      */
     properties(value) {
+        let ret;
         const that = this;
         if (value) {
             // if (!(value instanceof ObervableObject)) {
@@ -459,8 +462,9 @@ const Stage = DataBoundWidget.extend({
                 that._properties = value;
             }
         } else {
-            return that._properties;
+            ret = that._properties;
         }
+        return ret;
     },
 
     /**
@@ -554,6 +558,13 @@ const Stage = DataBoundWidget.extend({
                 'font-size',
                 'font-style',
                 'font-weight'
+            ]);
+            style.reset([
+                'position',
+                'height',
+                'width',
+                'transform',
+                'transform-origin'
             ]);
             style.merge(value, true, [
                 'position',

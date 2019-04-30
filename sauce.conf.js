@@ -98,7 +98,7 @@ module.exports = config => {
                 included: true
             },
             {
-                pattern: 'src/js/vendor/jquery/jquery-3.3.1.min.js',
+                pattern: 'src/js/vendor/jquery/jquery-3.4.0.min.js',
                 served: true,
                 included: true
             },

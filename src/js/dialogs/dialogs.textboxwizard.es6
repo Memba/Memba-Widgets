@@ -111,7 +111,7 @@ function openTextBoxWizard(options = {}) {
         .data('kendoValidator');
 
     // Bind the show event to resize once opened
-    dialog.one('show', e => {
+    dialog.one(CONSTANTS.SHOW, e => {
         resize(e.sender.element);
     });
 

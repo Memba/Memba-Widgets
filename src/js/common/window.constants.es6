@@ -53,6 +53,7 @@ const CONSTANTS = {
     RESIZE: 'resize',
     SELECT: 'select',
     SET: 'set',
+    SHOW: 'show',
     SIGNOUT: 'signout',
     TAP: 'tap',
     TOUCHEND: 'touchend',

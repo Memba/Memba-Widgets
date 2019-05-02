@@ -26,13 +26,10 @@ const {
 if (!(i18n().dialogs && i18n().dialogs.chargrid)) {
     $.extend(true, i18n(), {
         dialogs: {
-            chargrid: {
-
-            }
+            chargrid: {}
         }
     });
 }
-
 
 /**
  * A shortcut function to display a dialog with a kendo.ui.CodeEditor

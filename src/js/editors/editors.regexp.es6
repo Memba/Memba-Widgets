@@ -59,8 +59,6 @@ function regexpEditor(container, options) {
         .appendTo(container);
 }
 
-
-
 /**
  * Default export
  */

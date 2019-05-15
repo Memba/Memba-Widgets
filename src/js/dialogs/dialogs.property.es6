@@ -9,13 +9,10 @@ import $ from 'jquery';
 import 'kendo.core';
 import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import '../widgets/widgets.chargrid.es6';
 
 const {
     bind,
-    ns,
     resize,
-    roleSelector,
     ui: { BaseDialog }
 } = window.kendo;
 
@@ -25,16 +22,18 @@ const {
 // BaseDialog.getMessageNameSpace().chargrid = BaseDialog.getMessageNameSpace().chargrid || {};
 
 /**
- * A shortcut function to display a dialog with a kendo.ui.CodeEditor
+ * A shortcut function to display a dialog with a property editor
  * @param options
  * @returns {*}
  */
-function openProperty(options = {}) {
+function openPropertyDialog(options = {}) {
     const dfd = $.Deferred();
 
     // Find or create the DOM element
     const $dialog = BaseDialog.getElement(options.cssClass);
     $dialog.css({ padding: '' });
+
+    debugger;
 
     // Create the dialog
     const dialog = $dialog
@@ -43,9 +42,7 @@ function openProperty(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div style="display:flex;flex-direction:row"><div data-${ns}role="chargrid" data-${ns}bind="value:value" style="flex-shrink:0"></div><div class="kj-chargrid-message" style="margin-left:1em;">${
-                        options.message
-                    }</div></div>`,
+                    content: `<${CONSTANTS.DIV}/>`,
                     data: {
                         value: []
                     },
@@ -53,25 +50,15 @@ function openProperty(options = {}) {
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel
                     ],
-                    width: 860
+                    width: 500
                 },
                 options
             )
         )
         .data('kendoBaseDialog');
 
-    dialog.unbind('initOpen');
-    dialog.one('initOpen', e => {
-        const width = 550;
-        // Initialize chargrid
-        e.sender.element
-            .find(roleSelector('chargrid'))
-            .height(
-                (width * e.sender.options.charGrid.height) /
-                    e.sender.options.charGrid.width
-            )
-            .width(width)
-            .kendoCharGrid(options.charGrid);
+    dialog.unbind(CONSTANTS.INITOPEN);
+    dialog.one(CONSTANTS.INITOPEN, e => {
         // Bind viewModel
         bind(e.sender.element.children(), e.sender.viewModel);
     });
@@ -98,4 +85,4 @@ function openProperty(options = {}) {
 /**
  * Default export
  */
-export default openProperty;
+export default openPropertyDialog;

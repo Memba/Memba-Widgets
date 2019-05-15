@@ -68,8 +68,8 @@ function openCharGrid(options = {}) {
         )
         .data('kendoBaseDialog');
 
-    dialog.unbind('initOpen');
-    dialog.one('initOpen', e => {
+    dialog.unbind(CONSTANTS.INITOPEN);
+    dialog.one(CONSTANTS.INITOPEN, e => {
         const width = 550;
         // Initialize chargrid
         e.sender.element

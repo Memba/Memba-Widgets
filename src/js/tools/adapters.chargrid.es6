@@ -55,7 +55,7 @@ const CharGridAdapter = BaseAdapter.extend({
         );
         // TODO wrap in import('./dialogs/dialogs.chargrid.es6').then(function () {...});
         openCharGrid({
-                title: options.title,
+                title: options.title || this.title,
                 message:
                     options.field === 'properties.solution'
                         ? format(

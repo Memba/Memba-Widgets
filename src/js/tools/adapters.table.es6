@@ -48,7 +48,7 @@ const TableAdapter = BaseAdapter.extend({
             columns
         );
         openSpreadsheet({
-                title: options.title,
+                title: options.title || this.title,
                 data: Object.assign(
                     {
                         columns,

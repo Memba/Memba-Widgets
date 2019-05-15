@@ -47,7 +47,6 @@ export function makeInput(name, value) {
 export const constantValidator = {
     required: true,
     constant(input) {
-        // debugger;
         return true;
     }
 };
@@ -78,7 +77,6 @@ export const scoreValidator = {
 export const solutionValidator = {
     // TODO depends on the solution
     solution(input) {
-        // debugger;
         return true;
     }
 };
@@ -125,7 +123,6 @@ export const textValidator = {
  */
 export const validationValidator = {
     validation(input) {
-        // debugger;
         return true;
     }
 };

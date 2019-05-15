@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import openStyleEditor from '../dialogs/dialogs.styleeditor.es6';
@@ -65,28 +66,32 @@ const StyleAdapter = BaseAdapter.extend({
                     marginRight: 0
                 })
                 .appendTo(wrapper)
-                .on(CONSTANTS.CLICK, that.showDialog.bind( that, settings));
+                .on(CONSTANTS.CLICK, that.showDialog.bind(that, settings));
         };
     },
-    showDialog(options /* , e */) {
-        // TODO wrap in import('./dialogs/dialogs.styleedtor.es6').then(function () {...});
+
+    /**
+     * Show dialog
+     * @param options
+     */
+    showDialog(options = {} /* , e */) {
+        assert.isPlainObject(
+            options,
+            assert.format(assert.messages.isPlainObject.default, 'options')
+        );
         openStyleEditor({
-            title: options.title,
+            title: options.title || this.title,
             data: {
                 value: options.model.get(options.field)
             }
-        })
-            .then(result => {
-                if (
-                    result.action ===
-                    BaseDialog.fn.options.messages.actions.ok.action
-                ) {
-                    options.model.set(options.field, result.data.value);
-                }
-            })
-            .catch(err => {
-                // TODO
-            });
+        }).then(result => {
+            if (
+                result.action ===
+                BaseDialog.fn.options.messages.actions.ok.action
+            ) {
+                options.model.set(options.field, result.data.value);
+            }
+        });
     }
 });
 

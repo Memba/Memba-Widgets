@@ -4,6 +4,7 @@
  */
 
 // TODO validators
+// TODO tooltips do not work!!!
 // TODO highlight selection from API
 // TODO set/get resize position handle
 // TODO disable some attributes/properties
@@ -16,19 +17,17 @@ import 'kendo.core';
 import 'kendo.resizable';
 import 'kendo.tooltip';
 import 'kendo.validator';
-import editors from '../tools/util.editors.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
+import optimizeEditor from '../tools/util.editors.es6';
 
 const {
-    attr,
     bind,
     destroy,
     getter,
     mobile,
     resize,
-    rolesFromNamespaces,
     template,
     toHyphens,
     ui,
@@ -36,7 +35,7 @@ const {
     unbind
 } = window.kendo;
 const logger = new Logger('widgets.propertygrid');
-const NS = '.kendoPropertyGrid';
+// const NS = '.kendoPropertyGrid';
 const TCELL = 'td[role="gridcell"]';
 const WIDGET_CLASS = 'k-grid k-widget kj-propertygrid';
 const HANDLE_CLASS = 'k-resize-handle';
@@ -391,7 +390,7 @@ const PropertyGrid = Widget.extend({
                         );
                     }
 
-                    that._optimizeEditor(row);
+                    optimizeEditor(row);
 
                     // TODO: the following line has been modified to care for complex values like CharGrid, which have a type of undefined
                     // if (row.type) {
@@ -464,146 +463,6 @@ const PropertyGrid = Widget.extend({
         // By default
         return CONSTANTS.STRING;
     },
-
-    /**
-     * Improve the editor set in row
-     * @method _optimizeEditor
-     * @param row
-     */
-    /* eslint-disable no-param-reassign */
-    _optimizeEditor(row) {
-        const getRoleBinding = role => {
-            const binding = {};
-            if ($.type(role) === CONSTANTS.STRING && role.length) {
-                binding[attr('role')] = role;
-            }
-            return binding;
-        };
-
-        // If the field is not editable, use a span
-        if (!row.editable) {
-            row.editor = editors.span;
-            return;
-        }
-
-        // INPUT_TYPES = 'color,date,datetime,datetime-local,email,month,number,range,search,tel,text,time,url,week',
-        // We have left: button, checkbox, file, hidden, image, password, radio, reset, submit
-        // SEE:http://www.w3schools.com/tags/att_input_type.asp
-
-        // If row.editor is a function, there is nothing to optimize
-        if ($.isFunction(row.editor)) {
-            return;
-        }
-
-        // If row editor is a string
-        if ($.type(row.editor) === CONSTANTS.STRING) {
-            row.editor = row.editor.toLowerCase();
-
-            // If it designates a public well-known editor
-            if (
-                row.editor.length &&
-                row.editor.indexOf(CONSTANTS.UNDERSCORE) !== 0 &&
-                $.isFunction(editors[row.editor])
-            ) {
-                row.editor = editors[row.editor];
-                return;
-            }
-
-            // If it designates a kendo UI widget that works with an input html tag
-            if (
-                [
-                    'colorpicker',
-                    'datepicker',
-                    'datetimepicker',
-                    'maskedtextbox',
-                    'multicolumncombobox',
-                    'multiinput',
-                    'numerictextbox',
-                    'rating',
-                    'slider',
-                    'switch',
-                    'timepicker'
-                ].indexOf(row.editor) > -1 &&
-                (Object.prototype.hasOwnProperty.call(
-                    rolesFromNamespaces(ui),
-                    row.editor
-                ) ||
-                    Object.prototype.hasOwnProperty.call(
-                        rolesFromNamespaces(mobile.ui),
-                        row.editor
-                    ))
-            ) {
-                row.attributes = $.extend(
-                    {},
-                    row.attributes,
-                    getRoleBinding(row.editor)
-                );
-                row.editor = editors.input;
-                return;
-            }
-
-            // If it designates a kendo UI widget that works with a select html tag
-            if (
-                ['combobox', 'dropdownlist', 'nultiselect'].indexOf(
-                    row.editor
-                ) > -1 &&
-                Object.prototype.hasOwnProperty.call(
-                    rolesFromNamespaces(ui),
-                    row.editor
-                )
-            ) {
-                row.attributes = $.extend(
-                    {},
-                    row.attributes,
-                    getRoleBinding(row.editor)
-                );
-                row.editor = editors.select;
-                return;
-            }
-        }
-
-        // At this stage, there should be no row editor
-        row.editor = undefined;
-
-        // If there is a template, use the corresponding editor
-        if ($.type(row.template) === CONSTANTS.STRING && row.template.length) {
-            row.editor = editors._template;
-            return;
-        }
-
-        // Otherwise we can only rely on data type
-        switch (row.type) {
-            case CONSTANTS.NUMBER:
-                row.attributes = $.extend(
-                    {},
-                    row.attributes,
-                    getRoleBinding('numerictextbox')
-                );
-                row.editor = editors.input;
-                break;
-            case CONSTANTS.BOOLEAN:
-                row.attributes = $.extend(
-                    {},
-                    row.attributes,
-                    getRoleBinding('switch')
-                );
-                row.editor = editors.input;
-                break;
-            case CONSTANTS.DATE:
-                row.attributes = $.extend(
-                    {},
-                    row.attributes,
-                    getRoleBinding('datepicker')
-                );
-                row.editor = editors.input;
-                break;
-            default:
-                // CONSTANTS.STRING
-                row.attributes = $.extend({ type: 'text' }, row.attributes);
-                row.editor = editors.input;
-        }
-    },
-    /* eslint-enable no-param-reassign */
 
     /**
      * _resize is called by Widget.resize and kendo.resize to reposition the handle used to resize columns

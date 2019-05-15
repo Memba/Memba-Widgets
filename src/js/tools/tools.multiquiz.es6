@@ -230,7 +230,6 @@ const MultiQuizTool = BaseTool.extend({
         $.extend(component, {
             data$() {
                 const data = component.attributes.get('data').map(item => {
-                    debugger;
                     return {
                         text: item.text,
                         url: assets.image.scheme2http(item.url)

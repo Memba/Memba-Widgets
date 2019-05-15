@@ -86,7 +86,7 @@ const ImageListAdapter = BaseAdapter.extend({
         if (e.action === 'image') {
             // TODO wrap in import('./dialogs/dialogs.assetmanager.es6').then(function () {...});
             openAssetManager({
-                title: options.title,
+                title: options.title || this.title,
                 data: {
                     value: e.item.get('url')
                 },

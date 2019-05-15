@@ -29,6 +29,7 @@ const CONSTANTS = {
     FOCUS: 'focus',
     FOCUSOUT: 'focusout',
     HASHCHANGE: 'hashchange',
+    INITOPEN: 'initOpen',
     KEYDOWN: 'keydown',
     KEYPRESS: 'keypress',
     KEYUP: 'keyup',

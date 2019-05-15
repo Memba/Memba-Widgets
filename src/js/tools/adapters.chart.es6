@@ -10,7 +10,7 @@ import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
-// TODO consider a generic OpenDialogAdapter????
+// TODO consider a generic OpenDialogAdapter with a [...] button
 
 /**
  * ChartAdapter
@@ -38,8 +38,13 @@ const ChartAdapter = BaseAdapter.extend({
                 .on(CONSTANTS.CLICK, that.showDialog.bind(that, settings));
         };
     },
+
+    /**
+     * showDialog
+     * @param options
+     */
     showDialog(options /* , e */) {
-        const model = options.model;
+        const { model } = options;
         const columns = model.get('attributes.categories') + 1;
         const rows = model.get('attributes.values') + 1;
         const data = util.resizeSpreadsheetData(
@@ -49,7 +54,7 @@ const ChartAdapter = BaseAdapter.extend({
         );
         // TODO wrap in import('./dialogs/dialogs.spreadsheet.es6').then(function () {...});
         openSpreadsheet({
-                title: options.title,
+                title: options.title || this.title,
                 data: Object.assign(data, {
                     columns,
                     rows,

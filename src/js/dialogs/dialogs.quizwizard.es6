@@ -156,8 +156,8 @@ function openQuizWizard(options = {}) {
         })
         .data('kendoValidator');
 
-    dialog.unbind('initOpen');
-    dialog.bind('initOpen', e => {
+    dialog.unbind(CONSTANTS.INITOPEN);
+    dialog.one(CONSTANTS.INITOPEN, e => {
         // Create the grid widget
         const $grid = e.sender.element.find(`#${ids.grid}`).width('100%');
         const grid = $grid

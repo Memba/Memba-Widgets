@@ -51,8 +51,8 @@ function openSpreadsheet(options = {}) {
         .data('kendoBaseDialog');
 
     // Rebind the initOpen event considering the kendo.ui.Spreadsheet widget cannot bind to a viewModel
-    dialog.unbind('initOpen');
-    dialog.one('initOpen', e => {
+    dialog.unbind(CONSTANTS.INITOPEN);
+    dialog.one(CONSTANTS.INITOPEN, e => {
         e.sender.element.find(roleSelector('spreadsheet')).kendoSpreadsheet(
             Object.assign(
                 {

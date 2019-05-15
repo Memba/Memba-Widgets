@@ -454,7 +454,6 @@ const BaseTool = Class.extend({
                     validation = validation.item.formula;
                 }
                 if (!TOOLS.RX_VALIDATION_FORMULA.test(validation)) {
-                    // debugger;
                     // The library item is missing
                     return dfd
                         .reject(
@@ -638,8 +637,11 @@ const BaseTool = Class.extend({
                 'component.tool'
             )
         );
-        // TODO open dialog with property editor
-        window.alert(action);
+        const adapter = getter(action)(this);
+        adapter.showDialog({
+            field: action,
+            model: component
+        });
     },
 
     /**

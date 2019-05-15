@@ -256,7 +256,7 @@ const QuizTool = BaseTool.extend({
      */
     onEnable(e, component) {
         // TODO ????
-        // debugger;
+        $.noop();
     },
 
     /**

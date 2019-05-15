@@ -101,7 +101,7 @@ const AssetAdapter = BaseAdapter.extend({
             )
         );
         openAssetManager({
-            title: options.title,
+            title: options.title || this.title,
             data: {
                 value: options.model.get(options.field)
             },

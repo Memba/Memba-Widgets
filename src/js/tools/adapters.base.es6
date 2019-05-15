@@ -7,9 +7,11 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import editors from './util.editors.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import openPropertyDialog from '../dialogs/dialogs.property.es6';
+import BaseDialog from '../dialogs/widgets.basedialog.es6';
+import editors from './util.editors.es6';
 
 const { Class } = window.kendo;
 
@@ -28,10 +30,7 @@ const BaseAdapter = Class.extend({
     init(options = {}) {
         assert.isPlainObject(
             options,
-            assert.format(
-                assert.messages.isPlainObject.default,
-                'options'
-            )
+            assert.format(assert.messages.isPlainObject.default, 'options')
         );
 
         // See https://docs.telerik.com/kendo-ui/api/javascript/data/model/methods/define
@@ -139,6 +138,30 @@ const BaseAdapter = Class.extend({
             row.attributes = this.attributes;
         }
         return row;
+    },
+
+    /**
+     * Open a property dialog to edit that property
+     * Note especially for context menus
+     * @param options
+     */
+    showDialog(options = {} /* , e */) {
+        assert.isPlainObject(
+            options,
+            assert.format(assert.messages.isPlainObject.default, 'options')
+        );
+        $.extend(options, {
+            row: this.getRow(options.field),
+            title: this.title
+        });
+        openPropertyDialog(options).then(result => {
+            if (
+                result.action ===
+                BaseDialog.fn.options.messages.actions.ok.action
+            ) {
+                // options.model.set(options.field, result.data.value);
+            }
+        });
     }
 });
 

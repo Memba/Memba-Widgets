@@ -86,7 +86,7 @@ const ValidationAdapter = BaseAdapter.extend({
         const that = this;
         // TODO import('./dialogs/dialogs.codeeditor.es6').then(function () {...});
         openCodeEditor({
-            title: options.title,
+            title: options.title || this.title,
             // defaultValue: that.defaultValue,
             default: that.defaultValue,
             solution: htmlEncode(

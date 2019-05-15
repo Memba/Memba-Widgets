@@ -21,9 +21,6 @@
  * The following styles are aimed at expanding the drop down list of numeric values downward
  * when the kj-top style is added to the playbar
  */
-.kj-playbar.kj-top .k-pager-numbers {
-  flex-direction: column;
-}
 .kj-playbar.kj-top .k-pager-numbers.k-state-expanded {
   transform: translateY(1.72em);
   border-radius: 0 0 4px 4px;

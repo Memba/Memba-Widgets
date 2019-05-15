@@ -2,21 +2,21 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>integration.chart</title>
+    <title>kendo.chart</title>
     <script>
         window.DEBUG = true;
     </script>
-    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- SystemJS loader -->
-    <script src="../test/vendor/polyfill.min.js"></script>
-    <script src="../test/vendor/system.js"></script>
+    <script src="../../../test/vendor/polyfill.min.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
             SystemJS.config({
-                baseURL: '../',
+                baseURL: '../../../',
                 bundles: {
                     'kendogrid': ['kendo.grid'],
                     'kendoaspnetmvc': ['kendo.aspnetmvc'],
@@ -198,18 +198,18 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./integration.chart.es6');
+            SystemJS.import('./kendo.chart.es6');
         }());
     </script>
 </head>
 <body>
-<h1>integration.chart</h1>
+<h1>kendo.chart</h1>
 <div id="spreadsheet"></div>
 <div id="chart"></div>
 <pre>
 {
     json:
-    <div data-bind="text: json$" style="margin-left:50px;"></div>
+    <div data-bind="text: json$" style="margin-left: 50px;"></div>
 }
 </pre>
 </body>

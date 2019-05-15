@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -863,7 +863,10 @@
                                 return;
                             }
                             var eventElement = $(e.target).closest('.k-event');
-                            if (!eventElement.hasClass('k-event-active')) {
+                            var touchElement = $(e.touch.initialTouch);
+                            if (touchElement.hasClass('k-i-close')) {
+                                that.trigger('remove', { uid: eventElement.attr(kendo.attr('uid')) });
+                            } else if (!eventElement.hasClass('k-event-active')) {
                                 that.trigger('edit', { uid: eventElement.attr(kendo.attr('uid')) });
                             }
                             e.preventDefault();
@@ -908,6 +911,7 @@
                 title: 'Timeline',
                 selectedDateFormat: '{0:D}',
                 selectedShortDateFormat: '{0:d}',
+                selectedMobileDateFormat: '{0:MMM dd}',
                 date: kendo.date.today(),
                 startTime: kendo.date.today(),
                 endTime: kendo.date.today(),
@@ -1101,11 +1105,20 @@
                 if (options.footer !== false) {
                     var html = '<div class="k-header k-scheduler-footer">';
                     var command = options.footer.command;
+                    if (this._isMobile()) {
+                        html += '<span class="k-state-default k-scheduler-today"><a href="#" class="k-link">';
+                        html += options.messages.today + '</a></span>';
+                    }
                     if (command && command === 'workDay') {
-                        html += '<ul class="k-reset k-header">';
-                        html += '<li class="k-state-default k-scheduler-fullday"><a href="#" class="k-link"><span class="k-icon k-i-clock"></span>';
-                        html += (options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay) + '</a></li>';
-                        html += '</ul>';
+                        if (this._isMobile()) {
+                            html += '<span class="k-state-default k-scheduler-fullday"><a href="#" class="k-link">';
+                            html += (options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay) + '</a></span>';
+                        } else {
+                            html += '<ul class="k-reset k-header">';
+                            html += '<li class="k-state-default k-scheduler-fullday"><a href="#" class="k-link"><span class="k-icon k-i-clock"></span>';
+                            html += (options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay) + '</a></li>';
+                            html += '</ul>';
+                        }
                     } else {
                         html += '&nbsp;';
                     }
@@ -1118,6 +1131,24 @@
                             view: that.name || options.name,
                             date: that.startDate(),
                             isWorkDay: !options.showWorkHours
+                        });
+                    });
+                    this.footer.on('click' + NS, '.k-scheduler-today', function (e) {
+                        e.preventDefault();
+                        var timezone = that.options.timezone;
+                        var action = 'today';
+                        var currentDate = new Date();
+                        var date;
+                        if (timezone) {
+                            var timezoneOffset = kendo.timezone.offset(currentDate, timezone);
+                            date = kendo.timezone.convert(currentDate, currentDate.getTimezoneOffset(), timezoneOffset);
+                        } else {
+                            date = currentDate;
+                        }
+                        that.trigger('navigate', {
+                            view: that.name || options.name,
+                            action: action,
+                            date: date
                         });
                     });
                 }
@@ -1837,6 +1868,7 @@
                     title: 'Timeline Week',
                     selectedDateFormat: '{0:D} - {1:D}',
                     selectedShortDateFormat: '{0:d} - {1:d}',
+                    selectedMobileDateFormat: '{0:MMM dd} - {1:dd}',
                     majorTick: 120
                 },
                 name: 'timelineWeek',
@@ -1855,6 +1887,7 @@
                     title: 'Timeline Work Week',
                     selectedDateFormat: '{0:D} - {1:D}',
                     selectedShortDateFormat: '{0:d} - {1:d}',
+                    selectedMobileDateFormat: '{0:MMM dd} - {1:dd}',
                     majorTick: 120
                 },
                 name: 'timelineWorkWeek',

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -35,7 +35,7 @@
     };
     kendo.ui.scheduler = {};
     (function ($) {
-        var kendo = window.kendo, ui = kendo.ui, getDate = kendo.date.getDate, Widget = ui.Widget, outerHeight = kendo._outerHeight, keys = kendo.keys, NS = '.kendoSchedulerView', INVERSE_COLOR_CLASS = 'k-event-inverse', math = Math;
+        var kendo = window.kendo, ui = kendo.ui, getDate = kendo.date.getDate, Widget = ui.Widget, outerHeight = kendo._outerHeight, keys = kendo.keys, NS = '.kendoSchedulerView', INVERSE_COLOR_CLASS = 'k-event-inverse', MIN_HORIZONTAL_SCROLL_SIZE = 1024, math = Math;
         function levels(values, key) {
             var result = [];
             function collect(depth, values) {
@@ -109,7 +109,7 @@
             }
             return $('<div class="k-scheduler-header k-state-default">' + '<div class="k-scheduler-header-wrap">' + table(dateTableRows) + allDayTable(allDayTableRows, 'k-scheduler-header-all-day') + '</div>' + '</div>');
         }
-        function times(rowLevels, rowCount) {
+        function times(rowLevels, rowCount, isMobile) {
             var rows = new Array(rowCount).join().split(',');
             var rowHeaderRows = [];
             var rowIndex;
@@ -117,12 +117,17 @@
                 var level = rowLevels[rowLevelIndex];
                 var rowspan = rowCount / level.length;
                 var className;
+                var text;
                 for (rowIndex = 0; rowIndex < level.length; rowIndex++) {
                     className = level[rowIndex].className || '';
+                    text = level[rowIndex].text;
                     if (level[rowIndex].allDay) {
                         className = 'k-scheduler-times-all-day';
                     }
-                    rows[rowspan * rowIndex] += '<th class="' + className + '" rowspan="' + rowspan + '">' + level[rowIndex].text + '</th>';
+                    if (isMobile && className.indexOf('k-scheduler-group-cell') !== -1) {
+                        text = '<span class="k-scheduler-group-text">' + text + '</span>';
+                    }
+                    rows[rowspan * rowIndex] += '<th class="' + className + '" rowspan="' + rowspan + '">' + text + '</th>';
                 }
             }
             for (rowIndex = 0; rowIndex < rowCount; rowIndex++) {
@@ -854,10 +859,6 @@
                 var options = this.options;
                 return options.mobile === true && kendo.support.mobileOS || options.mobile === 'phone' || options.mobile === 'tablet';
             },
-            _isMobilePhoneView: function () {
-                var options = this.options;
-                return options.mobile === true && kendo.support.mobileOS && !kendo.support.mobileOS.tablet || options.mobile === 'phone';
-            },
             _addResourceView: function () {
                 var resourceView = new ResourceView(this.groups.length, this._isRtl);
                 this.groups.push(resourceView);
@@ -868,6 +869,9 @@
             },
             shortDateForTitle: function () {
                 return kendo.format(this.options.selectedShortDateFormat, this.startDate(), this.endDate());
+            },
+            mobileDateForTitle: function () {
+                return kendo.format(this.options.selectedMobileDateFormat || this.options.selectedShortDateFormat, this.startDate(), this.endDate());
             },
             _changeGroup: function (selection, previous) {
                 var method = previous ? 'prevGroupSlot' : 'nextGroupSlot';
@@ -998,6 +1002,37 @@
             },
             _continuousSlot: function () {
                 return null;
+            },
+            _footer: function () {
+                var that = this;
+                var options = that.options;
+                if (that._isMobile()) {
+                    var html = '<div class="k-header k-scheduler-footer">';
+                    html += '<span class="k-state-default k-scheduler-today"><a href="#" class="k-link">';
+                    html += options.messages.today + '</a></span>';
+                    html += '</div>';
+                    that.footer = $(html).appendTo(that.element);
+                }
+                if (that.footer) {
+                    that.footer.on('click' + NS, '.k-scheduler-today', function (e) {
+                        e.preventDefault();
+                        var timezone = that.options.timezone;
+                        var action = 'today';
+                        var currentDate = new Date();
+                        var date;
+                        if (timezone) {
+                            var timezoneOffset = kendo.timezone.offset(currentDate, timezone);
+                            date = kendo.timezone.convert(currentDate, currentDate.getTimezoneOffset(), timezoneOffset);
+                        } else {
+                            date = currentDate;
+                        }
+                        that.trigger('navigate', {
+                            view: that.name || options.name,
+                            action: action,
+                            date: date
+                        });
+                    });
+                }
             },
             constrainSelection: function (selection) {
                 var group = this.groups[0];
@@ -1479,6 +1514,10 @@
                 this.table.find('tbody:first').append(this._topSection(columnLevels, allDaySlot, rowCount));
                 this.table.find('tbody:first').append(this._bottomSection(columnLevels, rowLevels, rowCount));
                 this.element.append(this.table);
+                if (this._isMobile() && columnLevels.length > 1 && this._groupOrientation() === 'horizontal' && kendo._outerWidth($(window)) < MIN_HORIZONTAL_SCROLL_SIZE) {
+                    this.table.find('.k-scheduler-content .k-scheduler-table').width(columnLevels[columnLevels.length - 2].length * 100 + '%');
+                    this.table.find('.k-scheduler-header .k-scheduler-table').width(columnLevels[columnLevels.length - 2].length * 100 + '%');
+                }
                 this._scroller();
             },
             refreshLayout: function () {
@@ -1546,13 +1585,14 @@
                 }
             },
             _topSection: function (columnLevels, allDaySlot, rowCount) {
-                this.timesHeader = timesHeader(columnLevels.length, allDaySlot, rowCount);
                 var columnCount = columnLevels[columnLevels.length - 1].length;
+                this.timesHeader = timesHeader(columnLevels.length, allDaySlot, rowCount);
                 this.datesHeader = datesHeader(columnLevels, columnCount, allDaySlot);
-                return $('<tr>').append(this.timesHeader.add(this.datesHeader).wrap('<td>').parent());
+                var thElm = '<tr ' + (this._isMobile() ? 'class=\'k-mobile-header\'' : '') + '>';
+                return $(thElm).append(this.timesHeader.add(this.datesHeader).wrap('<td>').parent());
             },
             _bottomSection: function (columnLevels, rowLevels, rowCount) {
-                this.times = times(rowLevels, rowCount);
+                this.times = times(rowLevels, rowCount, this._isMobile());
                 this.content = content(columnLevels[columnLevels.length - 1], rowLevels[rowLevels.length - 1]);
                 return $('<tr>').append(this.times.add(this.content).wrap('<td>').parent());
             },
@@ -1623,6 +1663,10 @@
                 if (that.table) {
                     kendo.destroy(that.table);
                     that.table.remove();
+                }
+                if (that.footer) {
+                    kendo.destroy(that.footer);
+                    that.footer.remove();
                 }
                 that.groups = null;
                 that.table = null;
@@ -1959,7 +2003,7 @@
                                 name: resource.name,
                                 value: kendo.getter(resource.dataValueField)(data[dataIndex])
                             }),
-                            className: 'k-slot-cell'
+                            className: 'k-slot-cell k-scheduler-group-cell'
                         };
                         obj[name] = createLayoutConfiguration(name, resources.slice(1), inner, template);
                         configuration.push(obj);

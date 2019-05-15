@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -441,8 +441,9 @@
                 var that = this;
                 var widgetOptions = that.options;
                 var ignoreCase = widgetOptions.ignoreCase;
+                var accentFoldingFiltering = that.dataSource.options.accentFoldingFiltering;
                 return {
-                    value: ignoreCase ? value.toLowerCase() : value,
+                    value: ignoreCase ? accentFoldingFiltering ? value.toLocaleLowerCase(accentFoldingFiltering) : value.toLowerCase() : value,
                     field: field,
                     operator: widgetOptions.filter,
                     ignoreCase: ignoreCase
@@ -727,12 +728,16 @@
                 var li = this.ul.children('.k-first:first');
                 var groupHeader = this.listView.content.prev(GROUPHEADER);
                 var padding = 0;
+                var direction = 'right';
                 if (groupHeader[0] && groupHeader[0].style.display !== 'none') {
                     if (height !== 'auto') {
                         padding = kendo.support.scrollbar();
                     }
-                    padding += parseFloat(li.css('border-right-width'), 10) + parseFloat(li.children('.k-group').css('padding-right'), 10);
-                    groupHeader.css('padding-right', padding);
+                    if (this.element.parents('.k-rtl').length) {
+                        direction = 'left';
+                    }
+                    padding += parseFloat(li.css('border-' + direction + '-width'), 10) + parseFloat(li.children('.k-group').css('padding-' + direction), 10);
+                    groupHeader.css('padding-' + direction, padding);
                 }
             },
             _calculatePopupHeight: function (force) {

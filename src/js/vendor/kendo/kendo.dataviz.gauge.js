@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2004,16 +2004,11 @@
         var RadialGauge = dataviz.RadialGauge;
         var ArcGauge = dataviz.ArcGauge;
         var draw = kendo.drawing;
-        var SASS_THEMES = [
-            'sass',
-            'default-v2',
-            'bootstrap-v4'
-        ];
         function themeOptions(options) {
             var themes = dataviz.ui.themes || {};
             var themeName = options.theme || '';
             var lowerName = themeName.toLowerCase();
-            if (SASS_THEMES.indexOf(lowerName) != -1) {
+            if (dataviz.SASS_THEMES.indexOf(lowerName) != -1) {
                 return dataviz.autoTheme().gauge;
             }
             return (themes[themeName] || themes[lowerName] || {}).gauge;

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -55,7 +55,7 @@
         var BLUR = 'blur';
         var MOUSEDOWN = 'mousedown';
         var templates = {
-            item: template('<span class="#= item.selected ? " ' + ACTIVE + '" : "" #" ' + '#= item.enabled === false ? "disabled" : "" # ' + '# if (item.badge) { #' + kendo.attr('badge') + '="#=item.badge#"' + '# } #' + '>' + '#= icon(iconClass) #' + '#= image(item) #' + '#= text #' + '</span>'),
+            item: template('<span ' + '#= item.enabled === false ? "disabled" : "" # ' + '# if (item.badge) { #' + kendo.attr('badge') + '="#=item.badge#"' + '# } #' + '>' + '#= icon(iconClass) #' + '#= image(item) #' + '#= text #' + '</span>'),
             image: template('<img alt="icon" src="#=data.imageUrl#" />'),
             icon: template('<span class="#=data#" />'),
             empty: template('')
@@ -114,6 +114,9 @@
                     }));
                     if (item.attributes) {
                         renderedItem.attr(item.attributes);
+                    }
+                    if (item.selected) {
+                        renderedItem.addClass(ACTIVE);
                     }
                     if (item.iconClass || item.icon || item.imageUrl) {
                         renderedItem.addClass(item.text ? 'k-button-icontext' : 'k-button-icon');

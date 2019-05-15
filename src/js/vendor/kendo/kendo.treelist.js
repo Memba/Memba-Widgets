@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -4019,7 +4019,7 @@
                 container.append(resizeHandle);
                 resizeHandle.show().css({
                     top: position.top,
-                    left: left - indicatorWidth - 1,
+                    left: left - indicatorWidth * 3 / 2,
                     height: outerHeight(th),
                     width: indicatorWidth * 3
                 }).data('th', th);
@@ -4323,7 +4323,6 @@
                         filter: filter,
                         aria: true,
                         multiple: selectable.multiple,
-                        inputSelectors: '.k-icon.k-i-collapse,.k-icon.k-i-expand',
                         change: proxy(this._change, this),
                         useAllItems: useAllItems,
                         continuousItems: proxy(this._continuousItems, this, filter, selectable.cell),
@@ -4509,10 +4508,16 @@
                 if (!model) {
                     return;
                 }
+                if (that.editor) {
+                    model._edit = true;
+                    this._render();
+                    this._cancelEditor();
+                } else {
+                    that._preventPageSizeRestore = false;
+                }
                 if (this._editMode() != 'popup') {
                     model._edit = true;
                 }
-                this._cancelEditor();
                 if (this.trigger(BEFORE_EDIT, { model: model })) {
                     that.dataSource._restorePageSizeAfterAddChild();
                     return;

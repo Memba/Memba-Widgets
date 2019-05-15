@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -152,16 +152,21 @@
                         e.preventDefault();
                     } else {
                         file._uploading = true;
+                        that.upload.one('error', function () {
+                            file = undefined;
+                        });
                         that.upload.one('success', function (e) {
-                            delete file._uploading;
-                            var model = that._insertFileToList(file);
-                            if (model._override) {
-                                model.set(fileNameField, e.response[that._getFieldName(fileNameField)]);
-                                model.set(sizeField, e.response[that._getFieldName(sizeField)]);
-                                that.listView.dataSource.pushUpdate(model);
+                            if (file) {
+                                delete file._uploading;
+                                var model = that._insertFileToList(file);
+                                if (model._override) {
+                                    model.set(fileNameField, e.response[that._getFieldName(fileNameField)]);
+                                    model.set(sizeField, e.response[that._getFieldName(sizeField)]);
+                                    that.listView.dataSource.pushUpdate(model);
+                                }
+                                that._tiles = that.listView.items().filter('[' + kendo.attr('type') + '=f]');
+                                that._scroll();
                             }
-                            that._tiles = that.listView.items().filter('[' + kendo.attr('type') + '=f]');
-                            that._scroll();
                         });
                     }
                 } else {

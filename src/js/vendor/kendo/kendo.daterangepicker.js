@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -41,7 +41,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, keys = kendo.keys, Widget = ui.Widget, MONTH = 'month', OPEN = 'open', CLOSE = 'close', CHANGE = 'change', DIV = '<div />', MIN = 'min', MAX = 'max', template = kendo.template, extend = $.extend, ID = 'id', support = kendo.support, SELECTED = 'k-state-selected', ARIA_EXPANDED = 'aria-expanded', ARIA_DISABLED = 'aria-disabled', STATEDISABLED = 'k-state-disabled', DISABLED = 'disabled', READONLY = 'readonly', DEFAULT = 'k-state-default', ARIA_HIDDEN = 'aria-hidden', ns = '.kendoDateRangePicker', CLICK = 'click' + ns, MOUSEDOWN = 'mousedown' + ns, UP = support.mouseAndTouchPresent ? kendo.applyEventMap('up', ns.slice(1)) : CLICK, proxy = $.proxy, parse = kendo.parseDate;
+        var kendo = window.kendo, ui = kendo.ui, keys = kendo.keys, Widget = ui.Widget, MONTH = 'month', OPEN = 'open', CLOSE = 'close', CHANGE = 'change', DIV = '<div />', MIN = 'min', MAX = 'max', template = kendo.template, extend = $.extend, ID = 'id', support = kendo.support, mobileOS = support.mobileOS, SELECTED = 'k-state-selected', ARIA_EXPANDED = 'aria-expanded', ARIA_DISABLED = 'aria-disabled', STATEDISABLED = 'k-state-disabled', DISABLED = 'disabled', READONLY = 'readonly', DEFAULT = 'k-state-default', ARIA_HIDDEN = 'aria-hidden', ns = '.kendoDateRangePicker', CLICK = 'click' + ns, MOUSEDOWN = 'mousedown' + ns, UP = support.mouseAndTouchPresent ? kendo.applyEventMap('up', ns.slice(1)) : CLICK, proxy = $.proxy, parse = kendo.parseDate;
         var DateRangeView = function (options) {
             kendo.DateView.call(this, options);
         };
@@ -120,7 +120,11 @@
             return handled;
         };
         DateRangeView.prototype._click = function (e) {
-            if (this._range && this._range.end === null && e.currentTarget.className.indexOf('k-state-selected') !== -1) {
+            if (mobileOS.ios || mobileOS.android && mobileOS.browser == 'firefox') {
+                if (this._range && this._range.end) {
+                    this.close();
+                }
+            } else if (this._range && this._range.end === null && e.currentTarget.className.indexOf('k-state-selected') !== -1) {
                 this.close();
             }
         };
@@ -149,6 +153,8 @@
                         var range = this.selectRange();
                         that.range(range);
                         that.trigger(CHANGE);
+                        that._startDateInput.trigger(CHANGE);
+                        that._endDateInput.trigger(CHANGE);
                     },
                     close: function (e) {
                         if (that.trigger(CLOSE)) {
@@ -198,6 +204,8 @@
                 depth: MONTH,
                 animation: {},
                 month: {},
+                startField: '',
+                endField: '',
                 dates: [],
                 disableDates: null,
                 range: null,
@@ -246,7 +254,9 @@
                 var cell;
                 var that = this;
                 var calendar = that.dateView.calendar;
-                that.element.removeAttr('aria-activedescendant');
+                if (that.element && that.element.length) {
+                    that.element[0].removeAttribute('aria-activedescendant');
+                }
                 if (calendar) {
                     if (date && !calendar._dateInViews(date)) {
                         calendar.navigate(date);
@@ -298,6 +308,8 @@
                     min: options.min,
                     max: options.max,
                     start: options.start,
+                    startField: options.startField,
+                    endField: options.endField,
                     depth: options.depth,
                     animation: options.animation,
                     month: options.month,
@@ -334,6 +346,14 @@
                 }
                 that._startInput = that.wrapper.find('input').eq(0);
                 that._endInput = that.wrapper.find('input').eq(1);
+                if (that.options.startField !== '') {
+                    that._startInput.attr(kendo.attr('bind'), 'value: ' + that.options.startField);
+                    that._startInput.attr('name', that.options.startField);
+                }
+                if (that.options.endField !== '') {
+                    that._endInput.attr(kendo.attr('bind'), 'value: ' + that.options.endField);
+                    that._endInput.attr('name', that.options.endField);
+                }
                 that._inputs = that._startInput.add(that._endInput);
             },
             _option: function (option, value) {
@@ -362,7 +382,11 @@
                 var that = this, inputs = that._inputs, readonly = options.readonly, disable = options.disable;
                 if (!readonly && !disable) {
                     that.wrapper.addClass(DEFAULT).removeClass(STATEDISABLED);
-                    inputs.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false);
+                    $.each(inputs, function (key, item) {
+                        item.removeAttribute(DISABLED);
+                        item.removeAttribute(READONLY);
+                    });
+                    inputs.attr(ARIA_DISABLED, false);
                     that._preventInputAction = false;
                 } else {
                     that.wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);

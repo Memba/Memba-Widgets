@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -7256,6 +7256,14 @@
             var backgroundPosition = splitProperty(getPropertyValue(style, 'background-position'));
             var backgroundOrigin = splitProperty(getPropertyValue(style, 'background-origin'));
             var backgroundSize = splitProperty(getPropertyValue(style, 'background-size'));
+            var textOverflow, saveTextOverflow;
+            if (microsoft) {
+                textOverflow = style.textOverflow;
+                if (textOverflow == 'ellipsis') {
+                    saveTextOverflow = element.style.textOverflow;
+                    element.style.textOverflow = 'clip';
+                }
+            }
             if (browser.msie && browser.version < 10) {
                 backgroundPosition = splitProperty(element.currentStyle.backgroundPosition);
             }
@@ -7335,6 +7343,9 @@
             }());
             if (!maybeRenderWidget(element, group)) {
                 renderContents(element, group);
+            }
+            if (microsoft && textOverflow == 'ellipsis') {
+                element.style.textOverflow = saveTextOverflow;
             }
             return group;
             function adjustBoxes(boxes) {
@@ -8118,14 +8129,6 @@
             var columnCount = getPropertyValue(style, 'column-count', 1);
             var whiteSpace = getPropertyValue(style, 'white-space');
             var textTransform = getPropertyValue(style, 'text-transform');
-            var textOverflow, saveTextOverflow;
-            if (microsoft) {
-                textOverflow = style.textOverflow;
-                if (textOverflow == 'ellipsis') {
-                    saveTextOverflow = element.style.textOverflow;
-                    element.style.textOverflow = 'clip';
-                }
-            }
             var estimateLineLength = element.getBoundingClientRect().width / fontSize * 5;
             if (estimateLineLength === 0) {
                 estimateLineLength = 500;
@@ -8136,9 +8139,6 @@
             var overline = nodeInfo['overline'];
             var hasDecoration = underline || lineThrough || overline;
             while (!doChunk()) {
-            }
-            if (microsoft && textOverflow == 'ellipsis') {
-                element.style.textOverflow = saveTextOverflow;
             }
             if (hasDecoration) {
                 range.selectNode(node);

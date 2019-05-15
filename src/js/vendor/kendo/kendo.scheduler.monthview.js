@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -98,7 +98,7 @@
             },
             _positionEvent: function (event, group, range, rangeCount, start, end, rangeIndex) {
                 var view = this._view;
-                var isMobilePhoneView = view._isMobilePhoneView();
+                var isMobile = view._isMobile();
                 if (rangeCount > 1) {
                     if (rangeIndex === 0) {
                         end = range.end.endDate();
@@ -115,7 +115,7 @@
                     head: range.head,
                     tail: range.tail
                 });
-                if (isMobilePhoneView) {
+                if (isMobile) {
                     view._positionMobileEvent(range, view._createEventElement(occurrence), group);
                 } else {
                     view._positionEvent(range, view._createEventElement(occurrence), group);
@@ -292,7 +292,7 @@
                 var view = this._view;
                 var startIndex = range.start.index;
                 var endIndex = range.end.index;
-                var isMobilePhoneView = view._isMobilePhoneView();
+                var isMobile = view._isMobile();
                 for (var i = range.start.index; i <= range.end.index; i++) {
                     var currentSlot = range.collection._slots[i];
                     var dateRange = group.daySlotRanges(currentSlot.start, currentSlot.start, true)[0];
@@ -302,7 +302,7 @@
                         head: i !== endIndex || range.head,
                         tail: i !== startIndex || range.tail
                     });
-                    if (isMobilePhoneView) {
+                    if (isMobile) {
                         view._positionMobileEvent(dateRange, view._createEventElement(occurrence), group);
                     } else {
                         view._positionEvent(dateRange, view._createEventElement(occurrence), group);
@@ -538,6 +538,9 @@
             shortDateForTitle: function () {
                 return kendo.format(this.options.selectedShortDateFormat, this._firstDayOfMonth, this._lastDayOfMonth);
             },
+            mobileDateForTitle: function () {
+                return kendo.format(this.options.selectedMobileDateFormat, this._firstDayOfMonth, this._lastDayOfMonth);
+            },
             nextDate: function () {
                 return kendo.date.nextDay(this._lastDayOfMonth);
             },
@@ -567,9 +570,10 @@
                         date: slot.startDate()
                     });
                 });
+                this._footer();
             },
             _editable: function () {
-                if (this.options.editable && !this._isMobilePhoneView()) {
+                if (this.options.editable) {
                     if (this._isMobile()) {
                         this._touchEditable();
                     } else {
@@ -635,22 +639,6 @@
                                 });
                             }
                             e.preventDefault();
-                        }
-                    });
-                }
-                if (that.options.editable.update !== false) {
-                    that._editUserEvents = new kendo.UserEvents(that.element, {
-                        threshold: threshold,
-                        filter: '.k-scheduler-monthview .k-event',
-                        useClickAsTap: !kendo.support.browser.edge,
-                        tap: function (e) {
-                            if (that._scrolling) {
-                                return;
-                            }
-                            if ($(e.event.target).closest('a:has(.k-i-close)').length === 0) {
-                                that.trigger('edit', { uid: $(e.target).closest('.k-event').attr(kendo.attr('uid')) });
-                                e.preventDefault();
-                            }
                         }
                     });
                 }
@@ -745,7 +733,9 @@
             },
             _layout: function () {
                 var calendarInfo = this.calendarInfo();
-                var weekDayNames = this._isMobile() ? calendarInfo.days.namesShort : calendarInfo.days.names;
+                var weekDayNames = this._isMobile() ? calendarInfo.days.namesShort.map(function (name) {
+                    return name[0];
+                }) : calendarInfo.days.names;
                 var names = shiftArray(weekDayNames, calendarInfo.firstDay);
                 var columns = $.map(names, function (value) {
                     return { text: value };
@@ -1006,13 +996,13 @@
                     if (this._isInDateSlot(event)) {
                         var group = this.groups[groupIndex];
                         var view = this._groupedView._view;
-                        var isMobilePhoneView = view._isMobilePhoneView();
+                        var isMobile = view._isMobile();
                         if (!group._continuousEvents) {
                             group._continuousEvents = [];
                         }
                         var ranges = group.slotRanges(event, true);
                         var rangeCount = ranges.length;
-                        if (isMobilePhoneView) {
+                        if (isMobile) {
                             range = ranges[0];
                             start = range.start.start;
                             end = range.end.end;
@@ -1088,12 +1078,9 @@
                     this.element.off(NS);
                 }
                 SchedulerView.fn.destroy.call(this);
-                if (this._isMobile() && !this._isMobilePhoneView() && this.options.editable) {
+                if (this._isMobile() && this.options.editable) {
                     if (this.options.editable.create !== false) {
                         this._addUserEvents.destroy();
-                    }
-                    if (this.options.editable.update !== false) {
-                        this._editUserEvents.destroy();
                     }
                 }
             },
@@ -1111,6 +1098,7 @@
                 editable: true,
                 selectedDateFormat: '{0:y}',
                 selectedShortDateFormat: '{0:y}',
+                selectedMobileDateFormat: '{0:MMMM}',
                 groupHeaderTemplate: '#=text#',
                 dayTemplate: DAY_TEMPLATE,
                 eventTemplate: EVENT_TEMPLATE

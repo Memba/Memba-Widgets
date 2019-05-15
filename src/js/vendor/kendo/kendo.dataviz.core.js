@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -6362,6 +6362,12 @@
         var dataviz = kendo.dataviz;
         var services = dataviz.services;
         var draw = kendo.drawing;
+        dataviz.SASS_THEMES = [
+            'sass',
+            'default-v2',
+            'bootstrap-v4',
+            'material-v2'
+        ];
         dataviz.ExportMixin = {
             extend: function (proto, skipLegacy) {
                 if (!proto.exportVisual) {

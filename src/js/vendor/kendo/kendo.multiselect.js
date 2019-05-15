@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -88,7 +88,8 @@
                     that.input.attr('aria-describedby', id);
                 }
                 that._initialOpen = true;
-                that._aria(id);
+                that._ariaLabel();
+                that._ariaSetLive();
                 that._dataSource();
                 that._ignoreCase();
                 that._popup();
@@ -107,6 +108,7 @@
                 if (disabled) {
                     that.enable(false);
                 }
+                that._ariaSetSize(that.value().length);
                 kendo.notify(that);
                 that._toggleCloseVisibility();
             },
@@ -135,7 +137,8 @@
                 groupTemplate: '#:data#',
                 fixedGroupTemplate: '#:data#',
                 clearButton: true,
-                autoWidth: false
+                autoWidth: false,
+                popup: null
             },
             events: [
                 OPEN,
@@ -172,10 +175,12 @@
                 if (candidate !== undefined) {
                     if (that._currentTag) {
                         that._currentTag.removeClass(FOCUSEDCLASS).removeAttr(ID);
+                        that._currentTag.find('.k-select').attr('aria-hidden', true);
                         that.input.removeAttr('aria-activedescendant');
                     }
                     if (candidate) {
                         candidate.addClass(FOCUSEDCLASS).attr(ID, that._tagID);
+                        candidate.find('.k-select').removeAttr('aria-hidden');
                         that.input.attr('aria-activedescendant', that._tagID);
                     }
                     that._currentTag = candidate;
@@ -291,7 +296,9 @@
                 var value = listView.value()[position];
                 var dataItem = that.listView.selectedDataItems()[position];
                 var customIndex = that._customOptions[value];
+                var listViewChildren = listView.element[0].children;
                 var option;
+                var listViewChild;
                 if (that.trigger(DESELECT, {
                         dataItem: dataItem,
                         item: tag
@@ -316,7 +323,15 @@
                     option = that.element[0].children[customIndex];
                     option.selected = false;
                     listView.removeAt(position);
-                    tag.remove();
+                    listViewChild = listViewChildren[customIndex];
+                    if (listViewChild) {
+                        listViewChildren[customIndex].classList.remove('k-state-selected');
+                    }
+                    if (that.options.tagMode !== 'single') {
+                        tag.remove();
+                    } else {
+                        that._updateTagListHTML();
+                    }
                     done();
                 }
             },
@@ -329,7 +344,7 @@
             _clearClick: function () {
                 var that = this;
                 if (that.options.tagMode === 'single') {
-                    that.listView.value([]);
+                    that._clearSingleTagValue();
                 } else {
                     that.tagList.children().each(function (index, tag) {
                         that._removeTag($(tag), false);
@@ -343,6 +358,15 @@
                 if (that._state === FILTER) {
                     that._state = ACCEPT;
                 }
+            },
+            _clearSingleTagValue: function () {
+                var that = this;
+                var persistTagList = that.persistTagList;
+                if (persistTagList) {
+                    that.persistTagList = false;
+                }
+                that.listView.value([]);
+                that.persistTagList = persistTagList;
             },
             _editable: function (options) {
                 var that = this, disable = options.disable, readonly = options.readonly, wrapper = that.wrapper.off(ns), tagList = that.tagList.off(ns), input = that.element.add(that.input.off(ns));
@@ -469,6 +493,7 @@
                 if (!clearFilters) {
                     that._fetchData();
                 }
+                that._ariaSetSize(that.value().length);
                 that._toggleCloseVisibility();
             },
             _preselect: function (data, value) {
@@ -563,6 +588,7 @@
                     that.element.trigger(CHANGE);
                 }
                 that.popup.position();
+                that._ariaSetSize(value.length);
                 that._toggleCloseVisibility();
             },
             _click: function (e) {
@@ -591,7 +617,6 @@
                 var visible = that.popup.visible();
                 var dir = 0;
                 var activeItemIdx;
-                var persistTagList;
                 if (key !== keys.ENTER) {
                     this._multipleSelection = false;
                 }
@@ -739,14 +764,9 @@
                 } else if ((key === keys.DELETE || key === keys.BACKSPACE) && !hasValue) {
                     that._state = ACCEPT;
                     if (that.options.tagMode === 'single') {
-                        persistTagList = that.persistTagList;
-                        if (persistTagList) {
-                            that.persistTagList = false;
-                        }
-                        listView.value([]);
+                        that._clearSingleTagValue();
                         that._change();
                         that._close();
-                        that.persistTagList = persistTagList;
                         return;
                     }
                     if (key === keys.BACKSPACE && !tag) {
@@ -954,7 +974,6 @@
             },
             _selectValue: function (added, removed) {
                 var that = this;
-                var values = that.value();
                 var total = that.dataSource.total();
                 var tagList = that.tagList;
                 var getter = that._value;
@@ -983,15 +1002,7 @@
                     if (!that._maxTotal || that._maxTotal < total) {
                         that._maxTotal = total;
                     }
-                    tagList.html('');
-                    if (values.length) {
-                        tagList.append(that.tagTemplate({
-                            values: values,
-                            dataItems: that.dataItems(),
-                            maxTotal: that._maxTotal,
-                            currentTotal: total
-                        }));
-                    }
+                    this._updateTagListHTML();
                     for (idx = removed.length - 1; idx > -1; idx--) {
                         that._setOption(getter(removed[idx].dataItem), false);
                     }
@@ -1001,6 +1012,21 @@
                 }
                 that._angularTagItems('compile');
                 that._placeholder();
+            },
+            _updateTagListHTML: function () {
+                var that = this;
+                var values = that.value();
+                var total = that.dataSource.total();
+                var tagList = that.tagList;
+                tagList.html('');
+                if (values.length) {
+                    tagList.append(that.tagTemplate({
+                        values: values,
+                        dataItems: that.dataItems(),
+                        maxTotal: that._maxTotal,
+                        currentTotal: total
+                    }));
+                }
             },
             _select: function (candidate) {
                 var resolved = $.Deferred().resolve();
@@ -1097,13 +1123,15 @@
                     'autocomplete': 'off',
                     'role': 'listbox',
                     'title': element[0].title,
-                    'aria-expanded': false
+                    'aria-expanded': false,
+                    'aria-haspopup': 'listbox',
+                    'aria-autocomplete': 'list'
                 });
             },
             _tagList: function () {
                 var that = this, tagList = that._innerWrapper.children('ul');
                 if (!tagList[0]) {
-                    tagList = $('<ul role="listbox" unselectable="on" class="k-reset"/>').appendTo(that._innerWrapper);
+                    tagList = $('<ul unselectable="on" class="k-reset"/>').appendTo(that._innerWrapper);
                 }
                 that.tagList = tagList;
             },
@@ -1121,7 +1149,7 @@
                 defaultTemplate = isMultiple ? kendo.template('#:' + kendo.expr(options.dataTextField, 'data') + '#', { useWithBlock: false }) : kendo.template('#:values.length# item(s) selected');
                 that.tagTextTemplate = tagTemplate = tagTemplate ? kendo.template(tagTemplate) : defaultTemplate;
                 that.tagTemplate = function (data) {
-                    return '<li class="k-button" unselectable="on"><span unselectable="on">' + tagTemplate(data) + '</span><span unselectable="on" aria-label="' + (isMultiple ? 'delete' : 'open') + '" class="k-select"><span class="k-icon ' + (isMultiple ? 'k-i-close' : 'k-i-arrow-60-down') + '">' + '</span></span></li>';
+                    return '<li role="option" aria-selected="true" class="k-button" unselectable="on"><span unselectable="on">' + tagTemplate(data) + '</span><span aria-hidden="true" unselectable="on" aria-label="' + (isMultiple ? 'delete' : 'open') + '" class="k-select"><span class="k-icon ' + (isMultiple ? 'k-i-close' : 'k-i-arrow-60-down') + '">' + '</span></span></li>';
                 };
             },
             _loader: function () {
@@ -1148,10 +1176,21 @@
                     wrapper = element.wrap('<div class="k-widget k-multiselect" unselectable="on" />').parent();
                     wrapper[0].style.cssText = element[0].style.cssText;
                     wrapper[0].title = element[0].title;
-                    $('<div class="k-multiselect-wrap k-floatwrap" unselectable="on" />').insertBefore(element);
+                    $('<div class="k-multiselect-wrap k-floatwrap" role="listbox" unselectable="on" />').insertBefore(element);
                 }
                 that.wrapper = wrapper.addClass(element[0].className).css('display', '');
                 that._innerWrapper = $(wrapper[0].firstChild);
+            },
+            _ariaSetSize: function (value) {
+                var that = this;
+                var selectedItems = that.tagList.children();
+                if (value && selectedItems.length) {
+                    selectedItems.attr('aria-setsize', value);
+                }
+            },
+            _ariaSetLive: function () {
+                var that = this;
+                that.ul.attr('aria-live', !that._isFilterEnabled() ? 'off' : 'polite');
             }
         });
         function compare(a, b) {

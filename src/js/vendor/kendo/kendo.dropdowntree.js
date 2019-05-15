@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -257,7 +257,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, TreeView = ui._dropdowntree, ObservableArray = kendo.data.ObservableArray, ObservableObject = kendo.data.ObservableObject, extend = $.extend, activeElement = kendo._activeElement, ns = '.kendoDropDownTree', keys = kendo.keys, support = kendo.support, HIDDENCLASS = 'k-hidden', WIDTH = 'width', browser = support.browser, outerWidth = kendo._outerWidth, DOT = '.', DISABLED = 'disabled', READONLY = 'readonly', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', HOVER = 'k-state-hover', FOCUSED = 'k-state-focused', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', CLICK = 'click', OPEN = 'open', CLOSE = 'close', CHANGE = 'change', proxy = $.proxy;
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, TreeView = ui._dropdowntree, ObservableArray = kendo.data.ObservableArray, ObservableObject = kendo.data.ObservableObject, extend = $.extend, activeElement = kendo._activeElement, ns = '.kendoDropDownTree', keys = kendo.keys, support = kendo.support, HIDDENCLASS = 'k-hidden', WIDTH = 'width', browser = support.browser, outerWidth = kendo._outerWidth, DOT = '.', DISABLED = 'disabled', READONLY = 'readonly', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', HOVER = 'k-state-hover', FOCUSED = 'k-state-focused', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', CLICK = 'click', OPEN = 'open', CLOSE = 'close', CHANGE = 'change', quotRegExp = /"/g, proxy = $.proxy;
         var DropDownTree = kendo.ui.Widget.extend({
             init: function (element, options) {
                 this.ns = ns;
@@ -270,7 +270,7 @@
                 if (value === null || !value.length) {
                     this._noInitialValue = true;
                 }
-                if (value) {
+                if (!this._isNullorUndefined(value)) {
                     this._valueMethodCalled = true;
                     this._values = $.isArray(value) ? value.slice(0) : [value];
                 }
@@ -302,7 +302,7 @@
                 this._toggleCloseVisibility();
                 if (!this.options.autoBind) {
                     var text = options.text || '';
-                    if (options.value) {
+                    if (!this._isNullorUndefined(options.value)) {
                         this._preselect(options.value);
                     } else if (text) {
                         this._textAccessor(text);
@@ -399,7 +399,8 @@
                 footerTemplate: '',
                 headerTemplate: '',
                 value: null,
-                valueTemplate: null
+                valueTemplate: null,
+                popup: null
             },
             events: [
                 'open',
@@ -786,6 +787,42 @@
                 }
                 this.popup.position();
                 this._toggleCloseVisibility();
+                this._updateSelectedOptions();
+            },
+            _updateSelectedOptions: function () {
+                if (this.element[0].tagName.toLowerCase() !== 'select') {
+                    return;
+                }
+                var selectedItems = this._tags;
+                var options = '';
+                var dataItem = null;
+                var value = null;
+                if (selectedItems.length) {
+                    for (var idx = 0; idx < selectedItems.length; idx++) {
+                        dataItem = selectedItems[idx];
+                        value = this._value(dataItem);
+                        options += this._option(value, this._text(dataItem), true);
+                    }
+                }
+                this.element.html(options);
+            },
+            _option: function (dataValue, dataText, selected) {
+                var option = '<option';
+                if (dataValue !== undefined) {
+                    dataValue += '';
+                    if (dataValue.indexOf('"') !== -1) {
+                        dataValue = dataValue.replace(quotRegExp, '&quot;');
+                    }
+                    option += ' value="' + dataValue + '"';
+                }
+                if (selected) {
+                    option += ' selected';
+                }
+                option += '>';
+                if (dataText !== undefined) {
+                    option += kendo.htmlEncode(dataText);
+                }
+                return option += '</option>';
             },
             _selectValue: function (dataItem) {
                 var value = '';
@@ -1245,8 +1282,8 @@
             _valueComparer: function (item, value) {
                 var itemValue = this._value(item);
                 var itemText;
-                if (itemValue) {
-                    if (!value) {
+                if (!this._isNullorUndefined(itemValue)) {
+                    if (this._isNullorUndefined(value)) {
                         return false;
                     }
                     var newValue = this._value(value);
@@ -1265,6 +1302,9 @@
                     }
                 }
                 return false;
+            },
+            _isNullorUndefined: function (value) {
+                return value === undefined || value === null;
             },
             _getAllChecked: function () {
                 this._allCheckedItems = [];
@@ -1349,11 +1389,17 @@
             },
             _focusinHandler: function () {
                 this._inputWrapper.addClass(FOCUSED);
+                this._prevent = false;
             },
             _focusoutHandler: function () {
-                this._inputWrapper.removeClass(FOCUSED);
+                var that = this;
                 if (this._isMultipleSelection()) {
                     this.tagList.find(DOT + FOCUSED).removeClass(FOCUSED);
+                }
+                if (!that._prevent) {
+                    this._inputWrapper.removeClass(FOCUSED);
+                    that._prevent = true;
+                    that.element.blur();
                 }
             },
             _toggle: function (open) {
@@ -1640,7 +1686,7 @@
             },
             _checkLoadedItem: function (tempItem, value) {
                 var dropdowntree = this._dropdowntree;
-                if (value && dropdowntree._valueComparer(tempItem, value) || !value && tempItem.selected) {
+                if (!dropdowntree._isNullorUndefined(value) && value !== '' && dropdowntree._valueComparer(tempItem, value) || !value && tempItem.selected) {
                     dropdowntree.treeview.select(dropdowntree.treeview.findByUid(tempItem.uid));
                 }
             }

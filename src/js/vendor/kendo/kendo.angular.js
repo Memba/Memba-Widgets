@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -400,6 +400,26 @@
             ngModel.$setPristine();
         }
         function bindToKNgModel(widget, scope, kNgModel) {
+            if (kendo.ui.DateRangePicker && widget instanceof kendo.ui.DateRangePicker) {
+                var rangePickerModels = kNgModel.split(',');
+                var rangePickerStartModel = rangePickerModels[0].trim();
+                var rangePickerEndModel;
+                bindToKNgModel(widget._startDateInput, scope, rangePickerStartModel);
+                if (rangePickerModels[1]) {
+                    rangePickerEndModel = rangePickerModels[1].trim();
+                    bindToKNgModel(widget._endDateInput, scope, rangePickerEndModel);
+                    widget.range({
+                        start: scope[rangePickerStartModel],
+                        end: scope[rangePickerEndModel]
+                    });
+                } else {
+                    widget.range({
+                        start: scope[rangePickerStartModel],
+                        end: null
+                    });
+                }
+                return;
+            }
             if (typeof widget.value != 'function') {
                 $log.warn('k-ng-model specified on a widget that does not have the value() method: ' + widget.options.name);
                 return;

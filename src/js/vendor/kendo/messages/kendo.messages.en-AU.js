@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -64,6 +64,7 @@ $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
   "sortDescending": "Sort Descending",
   "filter": "Filter",
   "columns": "Columns",
+  "columnVisibility": "Column Visibility",
   "done": "Done",
   "settings": "Column Settings",
   "lock": "Lock",

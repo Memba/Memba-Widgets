@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -95,6 +95,10 @@
                     if (!that.list.length) {
                         that.list = $('<ul class="k-pager-numbers k-reset" />').appendTo(that.element);
                     }
+                    if (options.dataSource && !options.dataSource.total()) {
+                        that.list.empty().append(that.currentPageTemplate({ text: 0 })).append(that.selectTemplate({ text: 0 }));
+                    }
+                    that.list.wrap('<div class="k-pager-numbers-wrap"></div>');
                 }
                 if (options.input) {
                     if (!that.element.find('.k-pager-input').length) {
@@ -182,6 +186,7 @@
                 previousNext: true,
                 pageSizes: false,
                 refresh: false,
+                responsive: true,
                 messages: {
                     allPages: 'All',
                     display: '{0} - {1} of {2} items',
@@ -302,6 +307,7 @@
                 } else if ((value + '').toLowerCase() == 'all') {
                     dataSource._pageSize = undefined;
                     dataSource._take = undefined;
+                    dataSource._skip = 0;
                     dataSource.fetch();
                 }
             },
@@ -350,8 +356,10 @@
                 }
             },
             _getWidthSizeClass: function (width) {
-                var sizes = SIZE.split(' ');
-                if (width <= 480) {
+                var that = this, sizes = SIZE.split(' ');
+                if (!that.options.responsive) {
+                    return null;
+                } else if (width <= 480) {
                     return sizes[2];
                 } else if (width <= 640) {
                     return sizes[1];

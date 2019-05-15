@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,12 +39,12 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, abs = Math.abs, ARIASELECTED = 'aria-selected', SELECTED = 'k-state-selected', ACTIVE = 'k-state-selecting', SELECTABLE = 'k-selectable', CHANGE = 'change', NS = '.kendoSelectable', UNSELECT = 'unselect', UNSELECTING = 'k-state-unselecting', INPUTSELECTOR = 'input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up,label.k-checkbox-label.k-no-text', msie = kendo.support.browser.msie, supportEventDelegation = false;
+        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, abs = Math.abs, ARIASELECTED = 'aria-selected', SELECTED = 'k-state-selected', ACTIVE = 'k-state-selecting', SELECTABLE = 'k-selectable', CHANGE = 'change', NS = '.kendoSelectable', UNSELECT = 'unselect', UNSELECTING = 'k-state-unselecting', INPUTSELECTOR = 'input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up,label.k-checkbox-label.k-no-text,.k-icon.k-i-collapse,.k-icon.k-i-expand', msie = kendo.support.browser.msie, supportEventDelegation = false;
         (function ($) {
             (function () {
                 $('<div class="parent"><span /></div>').on('click', '>*', function () {
                     supportEventDelegation = true;
-                }).find('span').click().end().off();
+                }).find('span').trigger('click').end().off();
             }());
         }($));
         var Selectable = Widget.extend({

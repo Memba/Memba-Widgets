@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -129,9 +129,13 @@
                     sortAscending: 'Sort Ascending',
                     sortDescending: 'Sort Descending',
                     filter: 'Filter',
+                    column: 'Column',
                     columns: 'Columns',
+                    columnVisibility: 'Column Visibility',
+                    clear: 'Clear',
+                    cancel: 'Cancel',
                     done: 'Done',
-                    settings: 'Column Settings',
+                    settings: 'Edit Column Settings',
                     lock: 'Lock',
                     unlock: 'Unlock'
                 },
@@ -185,17 +189,38 @@
                     lockedColumns: options.lockedColumns
                 });
                 that.view = that.pane.append(html);
+                that.view.state = { columns: {} };
                 that.wrapper = that.view.element.find('.k-column-menu');
-                that.menu = new MobileMenu(that.wrapper.children(), { pane: that.pane });
-                that.view.element.on('click', '.k-done', function (e) {
-                    that.close();
-                    e.preventDefault();
+                that.menu = new MobileMenu(that.wrapper.children(), {
+                    pane: that.pane,
+                    columnMenu: that
                 });
-                if (that.options.lockedColumns) {
-                    that.view.bind('show', function () {
+                that.menu.element.on('transitionend' + NS, function (e) {
+                    e.stopPropagation();
+                });
+                var viewElement = that.view.wrapper && that.view.wrapper[0] ? that.view.wrapper : that.view.element;
+                viewElement.on('click', '.k-header-done', function (e) {
+                    e.preventDefault();
+                    that.menu._applyChanges();
+                    that.menu._cancelChanges(false);
+                    that.close();
+                });
+                viewElement.on('click', '.k-header-cancel', function (e) {
+                    e.preventDefault();
+                    that.menu._cancelChanges(true);
+                    that.close();
+                });
+                that.view.bind('show', function () {
+                    var view = that.view || { columns: {} };
+                    if (that.options.lockedColumns) {
                         that._updateLockedColumns();
-                    });
-                }
+                    }
+                    if (view.element.find('.k-sort-asc.k-state-selected').length) {
+                        view.state.initialSort = 'asc';
+                    } else if (view.element.find('.k-sort-desc.k-state-selected').length) {
+                        view.state.initialSort = 'desc';
+                    }
+                });
             },
             _angularItems: function (action) {
                 var that = this;
@@ -365,7 +390,9 @@
                         }
                         item.parent().find('.k-sort-' + (dir == ASC ? DESC : ASC)).removeClass(ACTIVE);
                         that._sortDataSource(item, dir);
-                        that.close();
+                        if (!that._isMobile) {
+                            that.close();
+                        }
                     });
                 }
             },
@@ -456,29 +483,43 @@
                         return col.locked === true;
                     }).length, nonLockedCount = grep(visibleDataFields, function (col) {
                         return col.locked !== true;
-                    }).length, columnNotInMenuCount = grep(this.owner.columns, function (col) {
+                    }).length, columnsNotInMenu = grep(this.owner.columns, function (col) {
                         return col.menu === false;
-                    }).length;
+                    }), hiddenColumnsNotInMenu = grep(columnsNotInMenu, function (col) {
+                        return col.hidden;
+                    });
                 var visible = map(visibleFields, function (col) {
                     return col.field;
                 });
                 this.wrapper.find('[role=\'menuitemcheckbox\']').attr('aria-checked', false);
                 var checkboxes = this.wrapper.find('.k-columns-item input[' + fieldAttr + ']').prop('disabled', false).prop('checked', false);
+                var switchWidget;
                 for (idx = 0, length = checkboxes.length; idx < length; idx++) {
                     current = checkboxes.eq(idx);
                     locked = current.attr(lockedAttr) === 'true';
                     checked = false;
+                    switchWidget = current.data('kendoSwitch');
                     if (inArray(current.attr(fieldAttr), visible) > -1) {
                         checked = true;
                         current.prop('checked', checked);
+                    }
+                    if (switchWidget) {
+                        switchWidget.enable(true);
+                        switchWidget.check(checked);
                     }
                     current.closest('[role=\'menuitemcheckbox\']').attr('aria-checked', checked);
                     if (checked) {
                         if (lockedCount == 1 && locked) {
                             current.prop('disabled', true);
+                            if (switchWidget) {
+                                switchWidget.enable(false);
+                            }
                         }
-                        if (columnNotInMenuCount === 0 && nonLockedCount == 1 && !locked) {
+                        if ((columnsNotInMenu.length === 0 || columnsNotInMenu.length === hiddenColumnsNotInMenu.length) && nonLockedCount == 1 && !locked) {
                             current.prop('disabled', true);
+                            if (switchWidget) {
+                                switchWidget.enable(false);
+                            }
                         }
                     }
                 }
@@ -539,10 +580,14 @@
                     var item = $(e.item);
                     if (item.hasClass('k-lock')) {
                         that.owner.lockColumn(that.field);
-                        that.close();
+                        if (!that._isMobile) {
+                            that.close();
+                        }
                     } else if (item.hasClass('k-unlock')) {
                         that.owner.unlockColumn(that.field);
-                        that.close();
+                        if (!that._isMobile) {
+                            that.close();
+                        }
                     }
                 });
             },
@@ -599,25 +644,154 @@
             }
         });
         var template = '<ul id="#=uid#">' + '#if(sortable){#' + '<li class="k-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}</span></li>' + '<li class="k-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}</span></li>' + '#if(showColumns || filterable){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(showColumns){#' + '<li class="k-item k-columns-item" aria-haspopup="true"><span class="k-link"><span class="k-icon k-i-columns"></span>${messages.columns}</span><ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input type="checkbox" data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#"/>#=columns[idx].title#</li>' + '#}#' + '</ul></li>' + '#if(filterable || lockedColumns){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(filterable){#' + '<li class="k-item k-filter-item" aria-haspopup="true"><span class="k-link"><span class="k-icon k-i-filter"></span>${messages.filter}</span><ul>' + '<li><div class="k-filterable"></div></li>' + '</ul></li>' + '#if(lockedColumns){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(lockedColumns){#' + '<li class="k-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span>${messages.lock}</span></li>' + '<li class="k-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span>${messages.unlock}</span></li>' + '#}#' + '</ul>';
-        var mobileTemplate = '<div data-#=ns#role="view" data-#=ns#init-widgets="false" data-#=ns#use-native-scrolling="true" class="k-grid-column-menu">' + '<div data-#=ns#role="header" class="k-header">' + '${messages.settings}' + '<button class="k-button k-done">#=messages.done#</button>' + '</div>' + '<div class="k-column-menu k-mobile-list"><ul><li>' + '<span class="k-link">${title}</span><ul>' + '#if(sortable){#' + '<li class="k-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}</span></li>' + '<li class="k-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}</span></li>' + '#}#' + '#if(lockedColumns){#' + '<li class="k-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span>${messages.lock}</span></li>' + '<li class="k-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span>${messages.unlock}</span></li>' + '#}#' + '#if(filterable){#' + '<li class="k-item k-filter-item">' + '<span class="k-link k-filterable">' + '<span class="k-icon k-i-filter"></span>' + '${messages.filter}</span>' + '</li>' + '#}#' + '</ul></li>' + '#if(showColumns){#' + '<li class="k-columns-item"><span class="k-link">${messages.columns}</span><ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li class="k-item"><label class="k-label"><input type="checkbox" class="k-check" data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#"/>#=columns[idx].title#</label></li>' + '#}#' + '</ul></li>' + '#}#' + '</ul></div>' + '</div>';
+        var mobileTemplate = '<div data-#=ns#role="view" class="k-grid-column-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '${messages.settings}' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<div class="k-column-menu k-mobile-list">' + '<ul>' + '<li>' + '<span class="k-list-title">#=messages.column#: ${title}</span>' + '<ul>' + '#if(sortable){#' + '<li id="#=kendo.guid()#" class="k-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-item-title">${messages.sortAscending}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-item-title">${messages.sortDescending}</span></span></li>' + '#}#' + '#if(lockedColumns){#' + '<li id="#=kendo.guid()#" class="k-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span><span class="k-item-title">${messages.lock}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span><span class="k-item-title">${messages.unlock}</span></span></li>' + '#}#' + '#if(filterable){#' + '<li id="#=kendo.guid()#" class="k-item k-filter-item">' + '<span class="k-link k-filterable">' + '<span class="k-icon k-i-filter"></span>' + '<span class="k-item-title">${messages.filter}</span></span>' + '</li>' + '#}#' + '</ul>' + '</li>' + '#if(showColumns){#' + '<li class="k-columns-item"><span class="k-list-title">${messages.columnVisibility}</span>' + '<ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li id="#=kendo.guid()#" class="k-item">' + '<span class="k-item-title">' + '#=columns[idx].title#' + '</span>' + '<input type="checkbox" ' + ' data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#"' + ' data-#=ns#index="#=columns[idx].index#"' + ' data-#=ns#locked="#=columns[idx].locked#"/>' + '</li>' + '#}#' + '</ul>' + '</li>' + '#}#' + '<li class="k-item k-clear-wrap">' + '<span class="k-label k-clear" title="#=messages.clear#" ' + 'aria-label="#=messages.clear#">#=messages.clear#</span>' + '</li>' + '</ul>' + '</div>' + '</div>';
         var MobileMenu = Widget.extend({
             init: function (element, options) {
-                Widget.fn.init.call(this, element, options);
-                this.element.on('click' + NS, 'li.k-item:not(.k-separator):not(.k-state-disabled)', '_click');
+                var that = this;
+                Widget.fn.init.call(that, element, options);
+                that._createCheckBoxes();
+                that.element.on('click' + NS, 'li.k-item:not(.k-separator):not(.k-state-disabled):not(:has(.k-switch))', '_click');
             },
             events: [SELECT],
             _click: function (e) {
+                var that = this;
                 if (!$(e.target).is('[type=checkbox]')) {
                     e.preventDefault();
                 }
-                this.trigger(SELECT, { item: e.currentTarget });
+                if ($(e.target).hasClass('k-clear')) {
+                    that._cancelChanges(true);
+                    return;
+                }
+                if ($(e.target).hasClass('k-filterable')) {
+                    that._cancelChanges(true);
+                    that.trigger(SELECT, { item: e.currentTarget });
+                    return;
+                }
+                that._updateSelectedItems(e.currentTarget);
+            },
+            _updateSelectedItems: function (el) {
+                var that = this;
+                var item = $(el);
+                var state = that.options.columnMenu.view.state || { columns: {} };
+                var id = item.prop('id');
+                if (item.hasClass('k-filter-item')) {
+                    return;
+                }
+                if (state[id]) {
+                    state[id] = false;
+                } else {
+                    state[id] = true;
+                }
+                if (item.hasClass('k-sort-asc') || item.hasClass('k-sort-desc')) {
+                    var dir;
+                    var otherItem;
+                    var otherItemId;
+                    if (item.hasClass('k-sort-asc')) {
+                        dir = 'asc';
+                        otherItem = that.element.find('.k-sort-desc');
+                    } else {
+                        dir = 'desc';
+                        otherItem = that.element.find('.k-sort-asc');
+                    }
+                    otherItemId = otherItem.prop('id');
+                    if (dir === state.initialSort && !item.hasClass('k-state-selected')) {
+                        state[id] = false;
+                    }
+                    if (state[otherItemId]) {
+                        state[otherItemId] = false;
+                    }
+                    otherItem.removeClass(ACTIVE);
+                }
+                if (item.hasClass(ACTIVE)) {
+                    item.removeClass(ACTIVE);
+                } else {
+                    item.addClass(ACTIVE);
+                }
+            },
+            _cancelChanges: function (force) {
+                var that = this;
+                var menu = that.options.columnMenu;
+                var view = menu.view;
+                var state = view.state || { columns: {} };
+                var columns = state.columns;
+                that.element.find('.' + ACTIVE).removeClass(ACTIVE);
+                menu.refresh();
+                if (force) {
+                    var selectedItems = [];
+                    for (var key in columns) {
+                        if (columns.hasOwnProperty(key)) {
+                            if (columns[key] === true) {
+                                var item = view.element.find('#' + key);
+                                selectedItems.push(item[0]);
+                            }
+                        }
+                    }
+                    for (var i = selectedItems.length - 1; i >= 0; i--) {
+                        that.trigger(SELECT, { item: selectedItems[i] });
+                    }
+                    if (menu.options.lockedColumns) {
+                        menu._updateLockedColumns();
+                    }
+                }
+                that.options.columnMenu.view.state = { columns: {} };
+            },
+            _applyChanges: function () {
+                var that = this;
+                var view = that.options.columnMenu.view;
+                var state = view.state || { columns: {} };
+                for (var key in state) {
+                    if (state.hasOwnProperty(key)) {
+                        if (key !== 'initialSort' && key !== 'columns' && state[key] === true) {
+                            var item = view.element.find('#' + key);
+                            if (item.hasClass(ACTIVE)) {
+                                item.removeClass(ACTIVE);
+                            } else {
+                                item.addClass(ACTIVE);
+                            }
+                            that.trigger(SELECT, { item: item[0] });
+                        }
+                    }
+                }
+            },
+            _createCheckBoxes: function () {
+                var that = this;
+                that.element.find('.k-columns-item').find('[type=\'checkbox\']').kendoSwitch({
+                    messages: {
+                        checked: '',
+                        unchecked: ''
+                    },
+                    change: function (e) {
+                        var item = e.sender.element.closest('.k-item');
+                        var state = that.options.columnMenu.view.state || { columns: {} };
+                        var id = item.prop('id');
+                        if (state.columns[id]) {
+                            state.columns[id] = false;
+                        } else {
+                            state.columns[id] = true;
+                        }
+                        that.trigger(SELECT, { item: item });
+                    }
+                });
+            },
+            _destroyCheckBoxes: function () {
+                var that = this;
+                var elements = that.element.find('.k-columns-item').find('[type=\'checkbox\']');
+                var switchWidget;
+                for (var i = 0; i < elements.length; i++) {
+                    switchWidget = elements.eq(i).data('kendoSwitch');
+                    if (switchWidget) {
+                        switchWidget.destroy();
+                    }
+                }
             },
             close: function () {
                 this.options.pane.navigate('');
             },
             destroy: function () {
-                Widget.fn.destroy.call(this);
-                this.element.off(NS);
+                var that = this;
+                Widget.fn.destroy.call(that);
+                that.element.off(NS);
+                that._destroyCheckBoxes();
             }
         });
         ui.plugin(ColumnMenu);

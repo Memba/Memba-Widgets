@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -35,7 +35,7 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, browser = kendo.support.browser, setTime = kendo.date.setTime, SchedulerView = ui.SchedulerView, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, extend = $.extend, proxy = $.proxy, getDate = kendo.date.getDate, MS_PER_MINUTE = kendo.date.MS_PER_MINUTE, MS_PER_DAY = kendo.date.MS_PER_DAY, CURRENT_TIME_MARKER_CLASS = 'k-current-time', CURRENT_TIME_MARKER_ARROW_CLASS = 'k-current-time-arrow', INVERSE_COLOR_CLASS = 'k-event-inverse', BORDER_SIZE_COEFF = 0.8666, getMilliseconds = kendo.date.getMilliseconds, NS = '.kendoMultiDayView';
-        var DAY_VIEW_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t} - {1:t}", start, end)#): #=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template k-event-time">#:kendo.format("{0:t} - {1:t}", start, end)#</div>' + '<div class="k-event-template">${title}</div>' + '</div>'), DAY_VIEW_ALL_DAY_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t}", start)#): #=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template">${title}</div>' + '</div>'), DATA_HEADER_TEMPLATE = kendo.template('<span class=\'k-link k-nav-day\'>#=kendo.toString(date, \'ddd M/dd\')#</span>'), ALLDAY_EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" ' + 'data-#=ns#uid="#=uid#"' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color#; border-color: #=resources[0].color#"' + 'class="k-event"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-60-left"></span>' + '#}#' + '# if(data.isException()) {#' + '<span class="k-icon k-i-non-recurrence"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '# } #' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' + '#}#' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-60-right"></span>' + '#}#' + '</span>' + '#if(resizable && !singleDay && !data.tail && !data.middle){#' + '<span class="k-resize-handle k-resize-w"></span>' + '#}#' + '#if(resizable && !singleDay && !data.head && !data.middle){#' + '<span class="k-resize-handle k-resize-e"></span>' + '#}#' + '</div>', EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" ' + 'data-#=ns#uid="#=uid#" ' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' + 'class="k-event"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.isException()) {#' + '<span class="k-icon k-i-non-recurrence"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '# } #' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' + '#}#' + '</span>' + '<span class="k-event-top-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-60-up"></span>' + '# } #' + '</span>' + '<span class="k-event-bottom-actions">' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-60-down"></span>' + '# } #' + '</span>' + '# if(resizable && !data.tail && !data.middle) {#' + '<span class="k-resize-handle k-resize-n"></span>' + '# } #' + '# if(resizable && !data.head && !data.middle) {#' + '<span class="k-resize-handle k-resize-s"></span>' + '# } #' + '</div>';
+        var DAY_VIEW_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t} - {1:t}", start, end)#): #=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template k-event-time">#:kendo.format("{0:t} - {1:t}", start, end)#</div>' + '<div class="k-event-template">${title}</div>' + '</div>'), DAY_VIEW_ALL_DAY_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t}", start)#): #=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template">${title}</div>' + '</div>'), DATA_HEADER_TEMPLATE = kendo.template('#var dateString = isMobile ? kendo.toString(date,\'ddd\')[0] : kendo.toString(date,\'ddd M/dd\'); #' + '<span class=\'k-link k-nav-day\'>#=dateString#</span>'), ALLDAY_EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" ' + 'data-#=ns#uid="#=uid#"' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color#; border-color: #=resources[0].color#"' + 'class="k-event"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-60-left"></span>' + '#}#' + '# if(data.isException()) {#' + '<span class="k-icon k-i-non-recurrence"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '# } #' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' + '#}#' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-60-right"></span>' + '#}#' + '</span>' + '#if(resizable && !singleDay && !data.tail && !data.middle){#' + '<span class="k-resize-handle k-resize-w"></span>' + '#}#' + '#if(resizable && !singleDay && !data.head && !data.middle){#' + '<span class="k-resize-handle k-resize-e"></span>' + '#}#' + '</div>', EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" ' + 'data-#=ns#uid="#=uid#" ' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' + 'class="k-event"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.isException()) {#' + '<span class="k-icon k-i-non-recurrence"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '# } #' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' + '#}#' + '</span>' + '<span class="k-event-top-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-60-up"></span>' + '# } #' + '</span>' + '<span class="k-event-bottom-actions">' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-60-down"></span>' + '# } #' + '</span>' + '# if(resizable && !data.tail && !data.middle) {#' + '<span class="k-resize-handle k-resize-n"></span>' + '# } #' + '# if(resizable && !data.head && !data.middle) {#' + '<span class="k-resize-handle k-resize-s"></span>' + '# } #' + '</div>';
         function toInvariantTime(date) {
             var staticDate = new Date(1980, 1, 1, 0, 0, 0);
             setTime(staticDate, getMilliseconds(date));
@@ -528,6 +528,7 @@
                 name: 'MultiDayView',
                 selectedDateFormat: '{0:D}',
                 selectedShortDateFormat: '{0:d}',
+                selectedMobileDateFormat: '{0:MMM} {0:dd} - {1:dd}',
                 allDaySlot: true,
                 showWorkHours: false,
                 title: '',
@@ -535,7 +536,7 @@
                 endTime: kendo.date.today(),
                 minorTickCount: 2,
                 majorTick: 60,
-                majorTimeHeaderTemplate: '#=kendo.toString(date, \'t\')#',
+                majorTimeHeaderTemplate: '<span class=\'k-time-text\'>#=kendo.toString(date, \'h:mm\')#</span> ' + '<span class=\'k-time-period\'>#=kendo.toString(date, \'tt\')#</span>',
                 minorTimeHeaderTemplate: '&\\#8203;',
                 groupHeaderTemplate: '#=text#',
                 slotTemplate: '&nbsp;',
@@ -694,7 +695,10 @@
                                 return;
                             }
                             var eventElement = $(e.target).closest('.k-event');
-                            if (!eventElement.hasClass('k-event-active')) {
+                            var touchElement = $(e.touch.initialTouch);
+                            if (touchElement.hasClass('k-i-close')) {
+                                that.trigger('remove', { uid: eventElement.attr(kendo.attr('uid')) });
+                            } else if (!eventElement.hasClass('k-event-active')) {
                                 that.trigger('edit', { uid: eventElement.attr(kendo.attr('uid')) });
                             }
                             e.preventDefault();
@@ -710,7 +714,10 @@
                 var byDate = that._isGroupedByDate();
                 for (var idx = 0; idx < dates.length; idx++) {
                     var column = {};
-                    column.text = that.dateHeaderTemplate({ date: dates[idx] });
+                    column.text = that.dateHeaderTemplate({
+                        date: dates[idx],
+                        isMobile: that._isMobile()
+                    });
                     if (kendo.date.isToday(dates[idx])) {
                         column.className = 'k-today';
                     }
@@ -767,11 +774,20 @@
                 if (options.footer !== false) {
                     var html = '<div class="k-header k-scheduler-footer">';
                     var command = options.footer.command;
+                    if (this._isMobile()) {
+                        html += '<span class="k-state-default k-scheduler-today"><a href="#" class="k-link">';
+                        html += options.messages.today + '</a></span>';
+                    }
                     if (command && command === 'workDay') {
-                        html += '<ul class="k-reset k-header">';
-                        html += '<li class="k-state-default k-scheduler-fullday"><a href="#" class="k-link"><span class="k-icon k-i-clock"></span>';
-                        html += (options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay) + '</a></li>';
-                        html += '</ul>';
+                        if (this._isMobile()) {
+                            html += '<span class="k-state-default k-scheduler-fullday"><a href="#" class="k-link">';
+                            html += (options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay) + '</a></span>';
+                        } else {
+                            html += '<ul class="k-reset k-header">';
+                            html += '<li class="k-state-default k-scheduler-fullday"><a href="#" class="k-link"><span class="k-icon k-i-clock"></span>';
+                            html += (options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay) + '</a></li>';
+                            html += '</ul>';
+                        }
                     } else {
                         html += '&nbsp;';
                     }
@@ -784,6 +800,24 @@
                             view: that.name || options.name,
                             date: options.date,
                             isWorkDay: !options.showWorkHours
+                        });
+                    });
+                    this.footer.on('click' + NS, '.k-scheduler-today', function (e) {
+                        e.preventDefault();
+                        var timezone = that.options.timezone;
+                        var action = 'today';
+                        var currentDate = new Date();
+                        var date;
+                        if (timezone) {
+                            var timezoneOffset = kendo.timezone.offset(currentDate, timezone);
+                            date = kendo.timezone.convert(currentDate, currentDate.getTimezoneOffset(), timezoneOffset);
+                        } else {
+                            date = currentDate;
+                        }
+                        that.trigger('navigate', {
+                            view: that.name || options.name,
+                            action: action,
+                            date: date
                         });
                     });
                 }
@@ -1479,7 +1513,8 @@
             DayView: MultiDayView.extend({
                 options: {
                     name: 'DayView',
-                    title: 'Day'
+                    title: 'Day',
+                    selectedMobileDateFormat: '{0:MMM d}'
                 },
                 name: 'day'
             }),

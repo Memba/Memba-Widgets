@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3221,7 +3221,7 @@
                         return;
                     }
                     innerHeight -= outerHeight(that.columnFields);
-                    innerHeight -= outerHeight(that.columnsHeader);
+                    innerHeight -= outerHeight(that.columnsHeader.parent());
                     if (innerHeight <= scrollbar * 2) {
                         innerHeight = scrollbar * 2 + 1;
                         if (!skipScrollbar) {

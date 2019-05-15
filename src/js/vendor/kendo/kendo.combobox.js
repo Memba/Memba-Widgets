@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -126,7 +126,8 @@
                 fixedGroupTemplate: '#:data#',
                 clearButton: true,
                 syncValueAndText: true,
-                autoWidth: false
+                autoWidth: false,
+                popup: null
             },
             events: [
                 'open',
@@ -500,6 +501,7 @@
                 var caretIdx = caret(element)[0];
                 var key = that._last;
                 var idx;
+                var accentFoldingFiltering = that.dataSource.options.accentFoldingFiltering;
                 if (key == keys.BACKSPACE || key == keys.DELETE) {
                     that._last = undefined;
                     return;
@@ -512,11 +514,11 @@
                     word = word ? that._text(word) : '';
                 }
                 if (caretIdx <= 0) {
-                    caretIdx = value.toLowerCase().indexOf(word.toLowerCase()) + 1;
+                    caretIdx = (accentFoldingFiltering ? value.toLocaleLowerCase(accentFoldingFiltering) : value.toLowerCase()).indexOf(accentFoldingFiltering ? word.toLocaleLowerCase(accentFoldingFiltering) : word.toLowerCase()) + 1;
                 }
                 if (word) {
                     word = word.toString();
-                    idx = word.toLowerCase().indexOf(value.toLowerCase());
+                    idx = (accentFoldingFiltering ? word.toLocaleLowerCase(accentFoldingFiltering) : word.toLowerCase()).indexOf(accentFoldingFiltering ? value.toLocaleLowerCase(accentFoldingFiltering) : value.toLowerCase());
                     if (idx > -1) {
                         value += word.substring(idx + value.length);
                     }

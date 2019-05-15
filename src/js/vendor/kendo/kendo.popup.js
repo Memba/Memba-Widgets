@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -170,7 +170,7 @@
                     $(options.toggleTarget).off(NS);
                 }
                 if (!options.modal) {
-                    DOCUMENT_ELEMENT.unbind(that.downEvent, that._mousedownProxy);
+                    DOCUMENT_ELEMENT.off(that.downEvent, that._mousedownProxy);
                     that._toggleResize(false);
                 }
                 kendo.destroy(that.element.children());
@@ -202,7 +202,7 @@
                     }
                     that._activated = false;
                     if (!options.modal) {
-                        DOCUMENT_ELEMENT.unbind(that.downEvent, that._mousedownProxy).bind(that.downEvent, that._mousedownProxy);
+                        DOCUMENT_ELEMENT.off(that.downEvent, that._mousedownProxy).on(that.downEvent, that._mousedownProxy);
                         that._toggleResize(false);
                         that._toggleResize(true);
                     }
@@ -303,7 +303,7 @@
                             popup.close(skipEffects);
                         }
                     });
-                    DOCUMENT_ELEMENT.unbind(that.downEvent, that._mousedownProxy);
+                    DOCUMENT_ELEMENT.off(that.downEvent, that._mousedownProxy);
                     if (skipEffects) {
                         animation = {
                             hide: true,
@@ -350,7 +350,12 @@
                 if (!(support.mobileOS.ios || support.mobileOS.android)) {
                     eventNames += ' ' + SCROLL;
                 }
-                this._scrollableParents()[method](SCROLL, this._resizeProxy);
+                if (toggle && !this.scrollableParents) {
+                    this.scrollableParents = this._scrollableParents();
+                }
+                if (this.scrollableParents && this.scrollableParents.length) {
+                    this.scrollableParents[method](SCROLL, this._resizeProxy);
+                }
                 WINDOW[method](eventNames, this._resizeProxy);
             },
             _mousedown: function (e) {

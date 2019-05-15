@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -352,12 +352,12 @@
             focus: function () {
                 var table;
                 if (this._cell) {
-                    this._cell.closest('table').focus();
+                    this._cell.closest('table').trigger('focus');
                 } else if (this._current && this._dateInViews(this._current)) {
                     this._cell = this._cellByDate(this._current);
-                    this._cell.closest('table').focus();
+                    this._cell.closest('table').trigger('focus');
                 } else {
-                    table = this.element.find('table').first().focus();
+                    table = this.element.find('table').first().trigger('focus');
                     this._cell = table.find(CELLSELECTORVALID + ':first');
                     this._current = toDateObject(this._cell.find('a'));
                 }
@@ -806,8 +806,15 @@
                         multiple: Selectable.parseOptions(selectable).multiple,
                         filter: 'table.k-content ' + CELLSELECTORVALID,
                         change: proxy(that._selection, that),
+                        relatedTarget: proxy(that._onRelatedTarget, that),
                         unselect: proxy(that._unselecting, that)
                     });
+                }
+            },
+            _onRelatedTarget: function (target) {
+                var that = this;
+                if (that.selectable.options.multiple && target.is(CELLSELECTORVALID) && target.length > 1) {
+                    that._focusCell(target.first(), true);
                 }
             },
             _getFirstViewDate: function (currentView) {
@@ -1053,7 +1060,9 @@
                     header = $('<div class="k-calendar-header">' + '<a href="#" role="button" class="k-button k-title" aria-live="assertive" aria-atomic="true"></a>' + '<span class="k-calendar-nav">' + '<a href="#" role="button" class="k-button k-button-icon k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-icon k-i-arrow-60-left"></span></a>' + '<a href="#" role="button" class="k-button k-button-icon k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' + '</span>' + '</div>').prependTo(element);
                 }
                 that.header = header;
-                header.on(MOUSEENTER + ns + ' ' + MOUSELEAVE_NS + ' ' + FOCUS + ns + ' ' + BLUR + ns, '.k-button', mousetoggle).click(false).on(CLICK + ns, '.k-button.k-title', function () {
+                header.on(MOUSEENTER + ns + ' ' + MOUSELEAVE_NS + ' ' + FOCUS + ns + ' ' + BLUR + ns, '.k-button', mousetoggle).on('click', function () {
+                    return false;
+                }).on(CLICK + ns, '.k-button.k-title', function () {
                     that.navigateUp();
                     that._focusCell(that._cellByDate(that._current), true);
                     that.trigger(NAVIGATE);
@@ -1194,13 +1203,16 @@
                 var that = this;
                 var cellId = that._cellID;
                 var table = cell.closest('table');
-                if (that._cell) {
-                    that._cell.removeAttr(ARIA_SELECTED).removeAttr(ARIA_LABEL).removeClass(FOCUSED).removeAttr(ID);
-                    that._cell.closest('table').removeAttr('aria-activedescendant');
+                if (that._cell && that._cell.length) {
+                    that._cell[0].removeAttribute(ARIA_SELECTED);
+                    that._cell[0].removeAttribute(ARIA_LABEL);
+                    that._cell.removeClass(FOCUSED);
+                    that._cell[0].removeAttribute(ID);
+                    that._cell.closest('table')[0].removeAttribute('aria-activedescendant');
                 }
                 that._cell = cell;
                 if (focusTable) {
-                    table.focus();
+                    table.trigger('focus');
                 }
                 if (cellId) {
                     cell.attr(ID, cellId);
@@ -1402,7 +1414,7 @@
             if (dimension === 'month') {
                 current = new DATE(value.getFullYear(), value.getMonth() + numberOfViews, value.getDate());
                 current.setFullYear(value.getFullYear());
-                if (Math.abs(current.getMonth() - value.getMonth()) > numberOfViews) {
+                if (Math.abs(current.getMonth() - value.getMonth()) > numberOfViews || numberOfViews > 10) {
                     current.setMonth(value.getMonth() + numberOfViews);
                     current = calendar.views[0].last(current);
                 }

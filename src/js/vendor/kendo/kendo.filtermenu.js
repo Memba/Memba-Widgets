@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -54,8 +54,8 @@
         var booleanTemplate = '<div class="k-filter-menu-container">' + '<div class="k-filter-help-text">#=messages.info#</div>' + '<label>' + '<input type="radio" data-#=ns#bind="checked: filters[0].value" value="true" name="filters[0].value"/>' + '#=messages.isTrue#' + '</label>' + '<label>' + '<input type="radio" data-#=ns#bind="checked: filters[0].value" value="false" name="filters[0].value"/>' + '#=messages.isFalse#' + '</label>' + '<div class="k-action-buttons">' + '<button type="submit" class="k-button k-primary">#=messages.filter#</button>' + '<button type="reset" class="k-button">#=messages.clear#</button>' + '</div>' + '</div>';
         var customBooleanTemplate = '<div class="k-filter-menu-container">' + '<div class="k-filter-help-text">#=messages.info#</div>' + '<label>' + '<input class="k-textbox" data-#=ns#bind="value: filters[0].value" name="filters[0].value"/>' + '</label>' + '<div class="k-action-buttons">' + '<button type="submit" class="k-button k-primary">#=messages.filter#</button>' + '<button type="reset" class="k-button">#=messages.clear#</button>' + '</div>' + '</div>';
         var defaultTemplate = '<div class="k-filter-menu-container">' + '<div class="k-filter-help-text">#=messages.info#</div>' + '<select title="#=messages.operator#" data-#=ns#bind="value: filters[0].operator" data-#=ns#role="dropdownlist">' + '#for(var op in operators){#' + '<option value="#=op#">#=operators[op]#</option>' + '#}#' + '</select>' + '#if(values){#' + '<select title="#=messages.value#" data-#=ns#bind="value:filters[0].value" data-#=ns#text-field="text" data-#=ns#value-field="value" data-#=ns#source=\'#=kendo.stringify(values).replace(/\'/g,"&\\#39;")#\' data-#=ns#role="dropdownlist" data-#=ns#option-label="#=messages.selectValue#" data-#=ns#value-primitive="true">' + '</select>' + '#}else{#' + '<input title="#=messages.value#" data-#=ns#bind="value:filters[0].value" class="k-textbox" type="text" #=role ? "data-" + ns + "role=\'" + role + "\'" : ""# />' + '#}#' + '#if(extra){#' + '<select title="#=messages.logic#" class="k-filter-and" data-#=ns#bind="value: logic" data-#=ns#role="dropdownlist">' + '<option value="and">#=messages.and#</option>' + '<option value="or">#=messages.or#</option>' + '</select>' + '<select title="#=messages.additionalOperator#" data-#=ns#bind="value: filters[1].operator" data-#=ns#role="dropdownlist">' + '#for(var op in operators){#' + '<option value="#=op#">#=operators[op]#</option>' + '#}#' + '</select>' + '#if(values){#' + '<select title="#=messages.additionalValue#" data-#=ns#bind="value:filters[1].value" data-#=ns#text-field="text" data-#=ns#value-field="value" data-#=ns#source=\'#=kendo.stringify(values).replace(/\'/g,"&\\#39;")#\' data-#=ns#role="dropdownlist" data-#=ns#option-label="#=messages.selectValue#" data-#=ns#value-primitive="true">' + '</select>' + '#}else{#' + '<input title="#=messages.additionalValue#" data-#=ns#bind="value: filters[1].value" class="k-textbox" type="text" #=role ? "data-" + ns + "role=\'" + role + "\'" : ""#/>' + '#}#' + '#}#' + '<div class="k-action-buttons">' + '<button type="submit" class="k-button k-primary">#=messages.filter#</button>' + '<button type="reset" class="k-button">#=messages.clear#</button>' + '</div>' + '</div>';
-        var defaultMobileTemplate = '<div data-#=ns#role="view" data-#=ns#init-widgets="false" data-#=ns#use-native-scrolling="true" class="k-grid-filter-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<button class="k-button k-i-cancel">#=messages.cancel#</button>' + '#=title#' + '<button type="submit" class="k-button k-submit">#=messages.filter#</button>' + '</div>' + '<form title="#=messages.title#" class="k-filter-menu k-mobile-list">' + '<ul class="k-filter-help-text"><li><span class="k-link">#=messages.info#</span>' + '<ul>' + '<li class="k-item"><label class="k-label">#=messages.operator#' + '<select data-#=ns#bind="value: filters[0].operator">' + '#for(var op in operators){#' + '<option value="#=op#">#=operators[op]#</option>' + '#}#' + '</select>' + '</label></li>' + '<li class="k-item"><label class="k-label">#=messages.value#' + '#if(values){#' + '<select data-#=ns#bind="value:filters[0].value">' + '<option value="">#=messages.selectValue#</option>' + '#for(var val in values){#' + '<option value="#=values[val].value#">#=values[val].text#</option>' + '#}#' + '</select>' + '#}else{#' + '<input data-#=ns#bind="value:filters[0].value" class="k-textbox" type="#=inputType#" ' + '#=useRole ? "data-" + ns + "role=\'" + role + "\'" : ""# />' + '#}#' + '</label></li>' + '#if(extra){#' + '</ul>' + '<ul class="k-filter-help-text"><li><span class="k-link"></span>' + '<li class="k-item"><label class="k-label"><input type="radio" name="logic" class="k-check" data-#=ns#bind="checked: logic" value="and" />#=messages.and#</label></li>' + '<li class="k-item"><label class="k-label"><input type="radio" name="logic" class="k-check" data-#=ns#bind="checked: logic" value="or" />#=messages.or#</label></li>' + '</ul>' + '<ul class="k-filter-help-text"><li><span class="k-link"></span>' + '<li class="k-item"><label class="k-label">#=messages.additionalOperator#' + '<select data-#=ns#bind="value: filters[1].operator">' + '#for(var op in operators){#' + '<option value="#=op#">#=operators[op]#</option>' + '#}#' + '</select>' + '</label></li>' + '<li class="k-item"><label class="k-label">#=messages.additionalValue#' + '#if(values){#' + '<select data-#=ns#bind="value:filters[1].value">' + '<option value="">#=messages.selectValue#</option>' + '#for(var val in values){#' + '<option value="#=values[val].value#">#=values[val].text#</option>' + '#}#' + '</select>' + '#}else{#' + '<input data-#=ns#bind="value:filters[1].value" class="k-textbox" type="#=inputType#" ' + '#=useRole ? "data-" + ns + "role=\'" + role + "\'" : ""# />' + '#}#' + '</label></li>' + '#}#' + '</ul>' + '</li><li class="k-button-container">' + '<button type="reset" class="k-button">#=messages.clear#</button>' + '</li></ul>' + '</div>' + '</form>' + '</div>';
-        var booleanMobileTemplate = '<div data-#=ns#role="view" data-#=ns#init-widgets="false" data-#=ns#use-native-scrolling="true" class="k-grid-filter-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<button class="k-button k-i-cancel">#=messages.cancel#</button>' + '#=title#' + '<button type="submit" class="k-button k-submit">#=messages.filter#</button>' + '</div>' + '<form title="#=messages.title#" class="k-filter-menu k-mobile-list">' + '<ul class="k-filter-help-text"><li><span class="k-link">#=messages.info#</span>' + '<ul>' + '<li class="k-item"><label class="k-label">' + '<input class="k-check" type="radio" data-#=ns#bind="checked: filters[0].value" value="true" name="filters[0].value"/>' + '#=messages.isTrue#' + '</label></li>' + '<li class="k-item"><label class="k-label">' + '<input class="k-check" type="radio" data-#=ns#bind="checked: filters[0].value" value="false" name="filters[0].value"/>' + '#=messages.isFalse#' + '</label></li>' + '</ul>' + '</li><li class="k-button-container">' + '<button type="reset" class="k-button">#=messages.clear#</button>' + '</li></ul>' + '</form>' + '</div>';
+        var defaultMobileTemplate = '<div data-#=ns#role="view" class="k-grid-filter-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '#=messages.filter# #=messages.into# #=title#' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<form title="#=messages.title#" class="k-filter-menu k-mobile-list">' + '<ul>' + '<li>' + '<span class="k-filter-help-text">#=messages.info#</span>' + '<ul>' + '<li class="k-item">' + '<label class="k-label">' + '<span class="k-filter-operator-text">#=messages.operator#</span>' + '<select class="k-filter-operator" data-#=ns#bind="value: filters[0].operator">' + '#for(var op in operators){#' + '<option value="#=op#">#=operators[op]#</option>' + '#}#' + '</select>' + '</label>' + '</li>' + '<li class="k-item">' + '<label class="k-label">' + '<span class="k-filter-input-text">#=messages.value#</span>' + '#if(values){#' + '<select data-#=ns#bind="value:filters[0].value">' + '<option value="">#=messages.selectValue#</option>' + '#for(var val in values){#' + '<option value="#=values[val].value#">#=values[val].text#</option>' + '#}#' + '</select>' + '#}else{#' + '<input data-#=ns#bind="value:filters[0].value" class="k-value-input" type="#=inputType#"  />' + '#}#' + '</label>' + '</li>' + '</ul>' + '#if(extra){#' + '<ul>' + '<li class="k-item">' + '<label class="k-label">' + '<span class="k-filter-logic-and-text">#=messages.and#</span>' + '<input type="radio" id="#=andGuid#" name="logic" class="k-radio" data-#=ns#bind="checked: logic" value="and" />' + '<label class="k-radio-label" for="#=andGuid#"></label>' + '</label>' + '</li>' + '<li class="k-item">' + '<label class="k-label">' + '<span class="k-filter-logic-or-text">#=messages.or#</span>' + '<input type="radio" id="#=orGuid#" name="logic" class="k-radio" data-#=ns#bind="checked: logic" value="or" />' + '<label class="k-radio-label" for="#=orGuid#"></label>' + '</label>' + '</li>' + '</ul>' + '<ul>' + '<li class="k-item">' + '<label class="k-label">' + '<span class="k-filter-operator-text">#=messages.additionalOperator#</span>' + '<select class="k-filter-operator" data-#=ns#bind="value: filters[1].operator">' + '#for(var op in operators){#' + '<option value="#=op#">#=operators[op]#</option>' + '#}#' + '</select>' + '</label>' + '</li>' + '<li class="k-item">' + '<label class="k-label">' + '<span class="k-filter-input-text">#=messages.additionalValue#</span>' + '#if(values){#' + '<select data-#=ns#bind="value:filters[1].value">' + '<option value="">#=messages.selectValue#</option>' + '#for(var val in values){#' + '<option value="#=values[val].value#">#=values[val].text#</option>' + '#}#' + '</select>' + '#}else{#' + '<input data-#=ns#bind="value:filters[1].value" class="k-value-input" type="#=inputType#" />' + '#}#' + '</label>' + '</li>' + '</ul>' + '#}#' + '</li>' + '<li class="k-item k-clear-wrap">' + '<span class="k-label k-clear" title="#=messages.clear#" ' + 'aria-label="#=messages.clear#">#=messages.clear#</span>' + '</li>' + '</ul>' + '</form>' + '</div>';
+        var booleanMobileTemplate = '<div data-#=ns#role="view" class="k-grid-filter-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '#=messages.filter# #=messages.into# #=title#' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<form title="#=messages.title#" class="k-filter-menu k-mobile-list">' + '<ul>' + '<li>' + '<span class="k-filter-help-text">#=messages.info#</span>' + '<ul class="k-multicheck-bool-wrap">' + '<li class="k-item"><label class="k-label">' + '<input class="k-check" type="radio" data-#=ns#bind="checked: filters[0].value" value="true" name="filters[0].value"/>' + '<span class="k-item-title">#=messages.isTrue#</span>' + '</label></li>' + '<li class="k-item"><label class="k-label">' + '<input class="k-check" type="radio" data-#=ns#bind="checked: filters[0].value" value="false" name="filters[0].value"/>' + '<span class="k-item-title">#=messages.isFalse#</span>' + '</label></li>' + '</ul>' + '</li>' + '<li class="k-item k-clear-wrap">' + '<span class="k-label k-clear" title="#=messages.clear#" ' + 'aria-label="#=messages.clear#">#=messages.clear#</span>' + '</li>' + '</ul>' + '</form>' + '</div>';
         function removeFiltersForField(expression, field) {
             if (expression.filters) {
                 expression.filters = $.grep(expression.filters, function (filter) {
@@ -208,7 +208,7 @@
                 that.form.on('keydown' + NS, proxy(that._keydown, that));
             },
             _createMobileForm: function (role) {
-                var that = this, options = that.options, operators = that.operators || {}, type = that.type;
+                var that = this, options = that.options, operators = that.operators || {}, andGuid = kendo.guid(), orGuid = kendo.guid(), type = that.type;
                 operators = operators[type] || options.operators[type];
                 that.form = $('<div />').html(kendo.template(type === 'boolean' ? booleanMobileTemplate : defaultMobileTemplate)({
                     field: that.field,
@@ -218,20 +218,27 @@
                     messages: options.messages,
                     extra: options.extra,
                     operators: operators,
+                    andGuid: andGuid,
+                    orGuid: orGuid,
                     type: type,
                     role: role,
-                    useRole: !kendo.support.input.date && type === 'date' || type === 'number',
                     inputType: mobileRoles[type],
                     values: convertItems(options.values)
                 }));
                 that.view = that.pane.append(that.form.html());
                 that.form = that.view.element.find('form');
-                that.view.element.on('click', '.k-submit', function (e) {
+                that.view.element.on('click', '.k-header-done', function (e) {
                     that.form.submit();
                     e.preventDefault();
-                }).on('click', '.k-i-cancel', function (e) {
+                }).on('click', '.k-header-cancel', function (e) {
                     that._closeForm();
                     e.preventDefault();
+                }).on('click', '.k-clear', function (e) {
+                    that._mobileClear();
+                    e.preventDefault();
+                });
+                that.view.bind('show', function () {
+                    that.refresh();
                 });
             },
             refresh: function () {
@@ -241,7 +248,7 @@
                     };
                 var defaultFilters = [that._defaultFilter()];
                 var defaultOperator = that._defaultFilter().operator;
-                if (that.options.extra || defaultOperator !== 'isnull' && defaultOperator !== 'isnullorempty' && defaultOperator !== 'isnotnullorempty' && defaultOperator !== 'isnotnull') {
+                if (that.options.extra || defaultOperator !== 'isnull' && defaultOperator !== 'isnullorempty' && defaultOperator !== 'isnotnullorempty' && defaultOperator !== 'isnotnull' && defaultOperator !== 'isempty' && defaultOperator !== 'isnotempty') {
                     defaultFilters.push(that._defaultFilter());
                 }
                 that.filterModel = kendo.observable({
@@ -364,6 +371,38 @@
                     return;
                 }
                 that._removeFilter(expression);
+            },
+            _mobileClear: function () {
+                var that = this;
+                var viewElement = that.view.element;
+                if (that.type === 'boolean') {
+                    var booleanRadioButton = viewElement.find('.k-check:checked');
+                    var booleanRadioButtonValue = booleanRadioButton.val();
+                    booleanRadioButton.val('');
+                    booleanRadioButton.trigger('change');
+                    booleanRadioButton.val(booleanRadioButtonValue);
+                    booleanRadioButton.prop('checked', false);
+                } else {
+                    var operatorSelects = viewElement.find('select');
+                    operatorSelects.each(function (i, e) {
+                        var input = $(e);
+                        input.val(input.find('option:first').val());
+                        input.trigger('change');
+                    });
+                    if (that.type === 'string' || that.type === 'date' || that.type === 'number') {
+                        var valueInputs = viewElement.find('.k-value-input');
+                        valueInputs.each(function (i, e) {
+                            var input = $(e);
+                            input.val('');
+                            input.trigger('change');
+                        });
+                    }
+                    if (that.options.extra) {
+                        var andLogicRadio = viewElement.find('[name=logic]').first();
+                        andLogicRadio.prop('checked', true);
+                        andLogicRadio.trigger('change');
+                    }
+                }
             },
             _removeFilter: function (expression) {
                 var that = this;
@@ -529,7 +568,9 @@
                     additionalValue: 'Additional value',
                     additionalOperator: 'Additional operator',
                     logic: 'Filters logic',
-                    cancel: 'Cancel'
+                    cancel: 'Cancel',
+                    done: 'Done',
+                    into: 'in'
                 },
                 animations: {
                     left: 'slide',
@@ -582,7 +623,7 @@
             };
         }
         var DataSource = kendo.data.DataSource;
-        var multiCkeckMobileTemplate = '<div data-#=ns#role="view" data-#=ns#init-widgets="false" class="k-grid-filter-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<button class="k-button k-i-cancel">#=messages.cancel#</button>' + '#=title#' + '<button type="submit" class="k-button k-submit">#=messages.filter#</button>' + '</div>' + '<form class="k-filter-menu k-mobile-list">' + '#if(search){#' + '<div class=\'k-textbox k-space-right\'>' + '<input placeholder=\'#=messages.search#\'/>' + '<span class=\'k-icon k-i-zoom\' />' + '</div>' + '#}#' + '<ul class="k-multicheck-wrap"></ul>' + '</li><li class="k-button-container">' + '#if(messages.selectedItemsFormat){#<div class=\'k-filter-selected-items\'></div>#}#' + '<button type="reset" class="k-button">#=messages.clear#</button>' + '</li></ul>' + '</form>' + '</div>';
+        var multiCkeckMobileTemplate = '<div data-#=ns#role="view" class="k-grid-filter-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '#=messages.filter# #=messages.into# #=title#' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<form class="k-filter-menu k-mobile-list">' + '<ul>' + '#if(search){#' + '<li class="k-textbox k-space-right">' + '<input placeholder="#=messages.search#" />' + '<span class="k-icon k-i-zoom" />' + '</li>' + '#}#' + '<li class="k-filter-tools">' + '<span style="#=checkAll ? "" : "visibility: hidden;" #" class="k-label k-select-all" title="#=messages.checkAll#" ' + 'aria-label="#=messages.checkAll#">#=messages.checkAll#</span>' + '<span class="k-label k-clear-all" title="#=messages.clearAll#" ' + 'aria-label="#=messages.clearAll#">#=messages.clearAll#</span>' + '</li>' + '#if(messages.selectedItemsFormat){#' + '<li>' + '<div class="k-filter-selected-items"></div>' + '</li>' + '#}#' + '<li>' + '<ul class="k-multicheck-wrap"></ul>' + '</li>' + '</ul>' + '</form>' + '</div>';
         var FilterMultiCheck = Widget.extend({
             init: function (element, options) {
                 Widget.fn.init.call(this, element, options);
@@ -703,8 +744,12 @@
                 }
                 var i = 0;
                 if (this.options.checkAll && labels.length) {
-                    labels[0].parentNode.style.display = searchString ? 'none' : '';
-                    i++;
+                    if (!this._isMobile) {
+                        labels[0].parentNode.style.display = searchString ? 'none' : '';
+                        i++;
+                    } else {
+                        this.view.element.find('.k-select-all')[0].style.visibility = searchString ? 'hidden' : '';
+                    }
                 }
                 while (i < labels.length) {
                     var label = labels[i];
@@ -750,18 +795,28 @@
                         title: options.title || that.field,
                         ns: kendo.ns,
                         messages: options.messages,
-                        search: options.search
+                        search: options.search,
+                        checkAll: options.checkAll
                     }));
                     that.view = that.pane.append(that.form.html());
                     that.form = that.view.element.find('form');
                     var element = this.view.element;
                     this.container = element.find('.k-multicheck-wrap');
-                    element.on('click', '.k-submit', function (e) {
+                    element.on('click', '.k-header-done', function (e) {
                         that.form.submit();
                         e.preventDefault();
-                    }).on('click', '.k-i-cancel', function (e) {
+                    }).on('click', '.k-header-cancel', function (e) {
                         that._closeForm();
                         e.preventDefault();
+                    }).on('click', '.k-clear-all', function (e) {
+                        that._mobileCheckAll(false);
+                        e.preventDefault();
+                    }).on('click', '.k-select-all', function (e) {
+                        that._mobileCheckAll(true);
+                        e.preventDefault();
+                    });
+                    that.view.bind('show', function () {
+                        that.refresh();
                     });
                 } else {
                     if (!options.appendToElement) {
@@ -854,7 +909,7 @@
                 }
                 var template = kendo.template(options.itemTemplate(templateOptions));
                 var itemsHtml = kendo.render(template, data);
-                if (options.checkAll) {
+                if (options.checkAll && !this._isMobile) {
                     this.createCheckAllItem();
                 }
                 this.container.on(CHANGE + multiCheckNS, ':checkbox', proxy(this.updateCheckAllState, this));
@@ -890,6 +945,15 @@
                     }
                 })).prop('checked', true);
                 this.updateCheckAllState();
+            },
+            _mobileCheckAll: function (state) {
+                var that = this;
+                var checkboxes = that.container.find(':checkbox');
+                checkboxes.each(function (i, e) {
+                    var checkbox = $(e);
+                    checkbox.prop('checked', state);
+                    checkbox.trigger('change');
+                });
             },
             _filter: function (e) {
                 e.preventDefault();
@@ -984,7 +1048,7 @@
                     if (options.type == 'date') {
                         valueFormat = ':yyyy-MM-ddTHH:mm:sszzz';
                     }
-                    return '<li class=\'k-item\'>' + '<label class=\'k-label\'>' + '<input type=\'checkbox\' class=\'' + (mobile ? 'k-check' : '') + '\'  value=\'#:kendo.format(\'{0' + valueFormat + '}\',' + valueField + ')#\'/>' + '#:kendo.format(\'' + (format ? format : '{0}') + '\', ' + field + ')#' + '</label>' + '</li>';
+                    return '<li class=\'k-item\'>' + '<label class=\'k-label\'>' + '<input type=\'checkbox\' class=\'' + (mobile ? 'k-check' : '') + '\'  value=\'#:kendo.format(\'{0' + valueFormat + '}\',' + valueField + ')#\'/>' + '<span class=\'k-item-title\'>#:kendo.format(\'' + (format ? format : '{0}') + '\', ' + field + ')#</span>' + '</label>' + '</li>';
                 },
                 checkAll: true,
                 search: false,
@@ -992,11 +1056,14 @@
                 appendToElement: false,
                 messages: {
                     checkAll: 'Select All',
+                    clearAll: 'Clear All',
                     clear: 'Clear',
                     filter: 'Filter',
                     search: 'Search',
                     cancel: 'Cancel',
-                    selectedItemsFormat: '{0} items selected'
+                    selectedItemsFormat: '{0} items selected',
+                    done: 'Done',
+                    into: 'in'
                 },
                 forceUnique: true,
                 animations: {

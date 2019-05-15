@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -176,10 +176,12 @@
             },
             _bindInput: function () {
                 var that = this;
-                that.element.on('paste' + ns, proxy(that._paste, that)).on('keydown' + ns, proxy(that._keydown, that)).on(INPUT_EVENT_NAME, proxy(that._input, that)).on('mouseup' + ns, proxy(that._mouseUp, that)).on('DOMMouseScroll' + ns + ' mousewheel' + ns, proxy(that._scroll, that));
+                that.element.on('focusout' + ns, function () {
+                    that._change();
+                }).on('paste' + ns, proxy(that._paste, that)).on('keydown' + ns, proxy(that._keydown, that)).on(INPUT_EVENT_NAME, proxy(that._input, that)).on('mouseup' + ns, proxy(that._mouseUp, that)).on('DOMMouseScroll' + ns + ' mousewheel' + ns, proxy(that._scroll, that));
             },
             _unbindInput: function () {
-                this.element.off('keydown' + ns).off('paste' + ns).off(INPUT_EVENT_NAME).off('mouseup' + ns).off('DOMMouseScroll' + ns + ' mousewheel' + ns);
+                this.element.off('keydown' + ns).off('paste' + ns).off('focusout' + ns).off(INPUT_EVENT_NAME).off('mouseup' + ns).off('DOMMouseScroll' + ns + ' mousewheel' + ns);
             },
             _editable: function (options) {
                 var that = this;
@@ -190,13 +192,18 @@
                 that._unbindInput();
                 if (!readonly && !disable) {
                     wrapper.addClass(STATEDEFAULT).removeClass(STATEDISABLED);
-                    element.removeAttr(DISABLED).removeAttr(READONLY);
+                    if (element && element.length) {
+                        element[0].removeAttribute(DISABLED);
+                        element[0].removeAttribute(READONLY);
+                    }
                     that._bindInput();
                 } else {
                     if (disable) {
                         wrapper.addClass(STATEDISABLED).removeClass(STATEDEFAULT);
                         element.attr(DISABLED, disable);
-                        element.removeAttr(READONLY);
+                        if (element && element.length) {
+                            element[0].removeAttribute(READONLY);
+                        }
                     }
                     if (readonly) {
                         element.attr(READONLY, readonly);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3915,6 +3915,21 @@
             toDataURL(group, promise.resolve);
             return promise;
         }
+        function exportPDFToBlob(group, options) {
+            var promise = util.createPromise();
+            for (var i in options) {
+                if (i == 'margin' && group.options.pdf && group.options.pdf._ignoreMargin) {
+                    continue;
+                }
+                group.options.set('pdf.' + i, options[i]);
+            }
+            if (window.Blob && !supportBrowser.safari) {
+                toBlob(group, promise.resolve);
+            } else {
+                toDataURL(group, promise.resolve);
+            }
+            return promise;
+        }
         kendo.deepExtend(kendo.pdf, {
             Document: PDFDocument,
             BinaryStream: BinaryStream,
@@ -3927,6 +3942,7 @@
             clearImageCache: clearImageCache,
             TEXT_RENDERING_MODE: TEXT_RENDERING_MODE,
             exportPDF: exportPDF,
+            exportPDFToBlob: exportPDFToBlob,
             saveAs: saveAs$1,
             toDataURL: toDataURL,
             toBlob: toBlob,

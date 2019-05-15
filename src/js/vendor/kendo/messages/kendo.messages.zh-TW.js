@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -69,6 +69,15 @@
                 "settings": "列設置",
                 "lock": "鎖定",
                 "unlock": "解鎖"
+            });
+    }
+
+    /* DateRangePicker messages */
+    if (kendo.ui.DateRangePicker) {
+        kendo.ui.DateRangePicker.prototype.options.messages =
+            $.extend(true, kendo.ui.DateRangePicker.prototype.options.messages,{
+                "startLabel": "開始",
+                "endLabel": "結束"
             });
     }
 
@@ -419,7 +428,9 @@
                     "confirmDelete": "確定刪除"
                 },
                 "noRecords": "無相關資料",
-                "expandCollapseColumnHeader": ""
+                "expandCollapseColumnHeader": "",
+                "groupHeader": "按 Ctrl + 空格 進行分組",
+                "ungroupHeader": "按 Ctrl + 空格 取消分組"
             });
     }
 
@@ -674,6 +685,7 @@
                 "save": "保存",
                 "cancel": "取消",
                 "destroy": "刪除",
+                "resetSeries": "重置週期事件",
                 "deleteWindowTitle": "刪除事件",
                 "next": "往後",
                 "previous": "往前",
@@ -695,8 +707,11 @@
                 },
                 "recurrenceMessages": {
                     "deleteWindowTitle": "刪除週期類型事件",
+                    "resetSeriesWindowTitle": "重置週期事件",
                     "deleteWindowOccurrence": "刪除當前事件",
                     "deleteWindowSeries": "刪除整個週期事件",
+                    "deleteRecurringConfirmation": "你確定要刪除當前事件？",
+                    "deleteSeriesConfirmation": "你確定要刪除整個週期事件？",
                     "editWindowTitle": "編輯週期類型事件",
                     "editWindowOccurrence": "編輯當前事件",
                     "editWindowSeries": "編輯整個週期事件",
@@ -1275,6 +1290,15 @@
         kendo.ui.Chat.prototype.options.messages =
             $.extend(true, kendo.ui.Chat.prototype.options.messages, {
                 placeholder: "請輸入..."
+            });
+    }
+
+    /* Switch messages */
+    if (kendo.ui.Switch) {
+        kendo.ui.Switch.prototype.options.messages =
+            $.extend(true, kendo.ui.Switch.prototype.options.messages,{
+                "checked": "開",
+                "unchecked": "關"
             });
     }
 

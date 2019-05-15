@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -72,7 +72,9 @@
           "isnull": "Null ist",
           "isnotnull": "nicht Null ist",
           "isempty": "leer ist",
-          "isnotempty": "nicht leer ist"
+          "isnotempty": "nicht leer ist",
+          "isnullorempty": "Besitzt keinen Wert",
+          "isnotnullorempty": "Besitzt einen Wert"
         }
       });
   }
@@ -118,7 +120,9 @@
           "isnull": "Null ist",
           "isnotnull": "nicht Null ist",
           "isempty": "leer ist",
-          "isnotempty": "nicht leer ist"
+          "isnotempty": "nicht leer ist",
+          "isnullorempty": "Besitzt keinen Wert",
+          "isnotnullorempty": "Besitzt einen Wert"
         }
       });
   }

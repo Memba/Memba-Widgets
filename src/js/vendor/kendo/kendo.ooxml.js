@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -75,7 +75,8 @@
             var serial = packDate(date.getFullYear(), date.getMonth(), date.getDate());
             return serial < 0 ? serial - 1 + time : serial + time;
         }
-        var DATA_URL_PREFIX = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,';
+        var MIME_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        var DATA_URL_PREFIX = 'data:' + MIME_TYPE + ';base64,';
         var DATA_URL_OPTIONS = {
             compression: 'DEFLATE',
             type: 'base64'
@@ -99,8 +100,16 @@
         }
         function foreach(arr, func) {
             var str = '';
-            for (var i = 0; i < arr.length; ++i) {
-                str += func(arr[i], i);
+            if (arr != null) {
+                if (Array.isArray(arr)) {
+                    for (var i = 0; i < arr.length; ++i) {
+                        str += func(arr[i], i);
+                    }
+                } else if (typeof arr == 'object') {
+                    Object.keys(arr).forEach(function (key, i) {
+                        str += func(arr[key], key, i);
+                    });
+                }
             }
             return str;
         }
@@ -120,9 +129,15 @@
             }) + '</vt:vector>\n  </TitlesOfParts>\n  <LinksUpToDate>false</LinksUpToDate>\n  <SharedDoc>false</SharedDoc>\n  <HyperlinksChanged>false</HyperlinksChanged>\n  <AppVersion>14.0300</AppVersion>\n</Properties>';
         };
         var CONTENT_TYPES = function (ref) {
-            var count = ref.count;
-            return XMLHEAD + '\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />\n  <Default Extension="xml" ContentType="application/xml" />\n  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" />\n  <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>\n  <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>\n  ' + repeat(count, function (idx) {
+            var sheetCount = ref.sheetCount;
+            var commentFiles = ref.commentFiles;
+            var drawingFiles = ref.drawingFiles;
+            return XMLHEAD + '\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n  <Default Extension="png" ContentType="image/png"/>\n  <Default Extension="gif" ContentType="image/gif"/>\n  <Default Extension="jpg" ContentType="image/jpeg"/>\n  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />\n  <Default Extension="xml" ContentType="application/xml" />\n  <Default Extension="vml" ContentType="application/vnd.openxmlformats-officedocument.vmlDrawing"/>\n  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" />\n  <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>\n  <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>\n  ' + repeat(sheetCount, function (idx) {
                 return '<Override PartName="/xl/worksheets/sheet' + (idx + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" />';
+            }) + '\n  ' + foreach(commentFiles, function (filename) {
+                return '<Override PartName="/xl/' + filename + '" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml"/>';
+            }) + '\n  ' + foreach(drawingFiles, function (filename) {
+                return '<Override PartName="/xl/drawings/' + filename + '" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>';
             }) + '\n  <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml" />\n  <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" />\n</Types>';
         };
         var WORKBOOK = function (ref) {
@@ -154,6 +169,8 @@
             var validations = ref.validations;
             var defaultCellStyleId = ref.defaultCellStyleId;
             var rtl = ref.rtl;
+            var legacyDrawing = ref.legacyDrawing;
+            var drawing = ref.drawing;
             return XMLHEAD + '\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" mc:Ignorable="x14ac">\n   <dimension ref="A1" />\n\n   <sheetViews>\n     <sheetView ' + (rtl ? 'rightToLeft="1"' : '') + ' ' + (index === 0 ? 'tabSelected="1"' : '') + ' workbookViewId="0" ' + (showGridLines === false ? 'showGridLines="0"' : '') + '>\n     ' + (frozenRows || frozenColumns ? '\n       <pane state="frozen"\n         ' + (frozenColumns ? 'xSplit="' + frozenColumns + '"' : '') + '\n         ' + (frozenRows ? 'ySplit="' + frozenRows + '"' : '') + '\n         topLeftCell="' + (String.fromCharCode(65 + (frozenColumns || 0)) + ((frozenRows || 0) + 1)) + '"\n       />' : '') + '\n     </sheetView>\n   </sheetViews>\n\n   <sheetFormatPr x14ac:dyDescent="0.25" customHeight="1" defaultRowHeight="' + (defaults.rowHeight ? defaults.rowHeight * 0.75 : 15) + '"\n     ' + (defaults.columnWidth ? 'defaultColWidth="' + toWidth(defaults.columnWidth) + '"' : '') + ' />\n\n   ' + (defaultCellStyleId != null || columns && columns.length > 0 ? '\n     <cols>\n       ' + (!columns || !columns.length ? '\n         <col min="1" max="16384" style="' + defaultCellStyleId + '"\n              ' + (defaults.columnWidth ? 'width="' + toWidth(defaults.columnWidth) + '"' : '') + ' /> ' : '') + '\n       ' + foreach(columns, function (column, ci) {
                 var columnIndex = typeof column.index === 'number' ? column.index + 1 : ci + 1;
                 if (column.width === 0) {
@@ -169,9 +186,9 @@
                 return '<mergeCell ref="' + ref + '"/>';
             }) + '\n     </mergeCells>' : '') + '\n\n   ' + (validations.length ? '\n     <dataValidations>\n       ' + foreach(validations, function (val) {
                 return '\n         <dataValidation sqref="' + val.sqref.join(' ') + '"\n                         showErrorMessage="' + val.showErrorMessage + '"\n                         type="' + ESC(val.type) + '"\n                         ' + (val.type !== 'list' ? 'operator="' + ESC(val.operator) + '"' : '') + '\n                         allowBlank="' + val.allowBlank + '"\n                         showDropDown="' + val.showDropDown + '"\n                         ' + (val.error ? 'error="' + ESC(val.error) + '"' : '') + '\n                         ' + (val.errorTitle ? 'errorTitle="' + ESC(val.errorTitle) + '"' : '') + '>\n           ' + (val.formula1 ? '<formula1>' + ESC(val.formula1) + '</formula1>' : '') + '\n           ' + (val.formula2 ? '<formula2>' + ESC(val.formula2) + '</formula2>' : '') + '\n         </dataValidation>';
-            }) + '\n     </dataValidations>' : '') + '\n\n   ' + (hyperlinks.length ? '\n     <hyperlinks>\n       ' + foreach(hyperlinks, function (link, hi) {
-                return '\n         <hyperlink ref="' + link.ref + '" r:id="rId' + hi + '"/>';
-            }) + '\n     </hyperlinks>' : '') + '\n\n   <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3" />\n</worksheet>';
+            }) + '\n     </dataValidations>' : '') + '\n\n   ' + (hyperlinks.length ? '\n     <hyperlinks>\n       ' + foreach(hyperlinks, function (link) {
+                return '\n         <hyperlink ref="' + link.ref + '" r:id="' + link.rId + '"/>';
+            }) + '\n     </hyperlinks>' : '') + '\n\n   <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3" />\n   ' + (legacyDrawing ? '<legacyDrawing r:id="' + legacyDrawing + '"/>' : '') + '\n   ' + (drawing ? '<drawing r:id="' + drawing + '"/>' : '') + '\n</worksheet>';
         };
         var WORKBOOK_RELS = function (ref) {
             var count = ref.count;
@@ -181,8 +198,33 @@
         };
         var WORKSHEET_RELS = function (ref) {
             var hyperlinks = ref.hyperlinks;
-            return XMLHEAD + '\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n  ' + foreach(hyperlinks, function (link, i) {
-                return '\n    <Relationship Id="rId' + i + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="' + ESC(link.target) + '" TargetMode="External" />';
+            var comments = ref.comments;
+            var sheetIndex = ref.sheetIndex;
+            var drawings = ref.drawings;
+            return XMLHEAD + '\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n  ' + foreach(hyperlinks, function (link) {
+                return '\n    <Relationship Id="' + link.rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="' + ESC(link.target) + '" TargetMode="External" />';
+            }) + '\n  ' + (!comments.length ? '' : '\n    <Relationship Id="comment' + sheetIndex + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="../comments' + sheetIndex + '.xml"/>\n    <Relationship Id="vml' + sheetIndex + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing" Target="../drawings/vmlDrawing' + sheetIndex + '.vml"/>') + '\n  ' + (!drawings.length ? '' : '\n    <Relationship Id="drw' + sheetIndex + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing' + sheetIndex + '.xml"/>') + '\n</Relationships>';
+        };
+        var COMMENTS_XML = function (ref) {
+            var comments = ref.comments;
+            return XMLHEAD + '\n<comments xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">\n  <authors>\n    <author></author>\n  </authors>\n  <commentList>\n    ' + foreach(comments, function (comment) {
+                return '\n      <comment ref="' + comment.ref + '" authorId="0">\n        <text>\n          <r>\n            <rPr>\n              <sz val="8"/>\n              <color indexed="81"/>\n              <rFont val="Tahoma"/>\n              <charset val="1"/>\n            </rPr>\n            <t>' + ESC(comment.text) + '</t>\n          </r>\n        </text>\n      </comment>';
+            }) + '\n  </commentList>\n</comments>';
+        };
+        var LEGACY_DRAWING = function (ref) {
+            var comments = ref.comments;
+            return '<xml xmlns:v="urn:schemas-microsoft-com:vml"\n     xmlns:o="urn:schemas-microsoft-com:office:office"\n     xmlns:x="urn:schemas-microsoft-com:office:excel">\n  <v:shapetype id="_x0000_t202" path="m,l,21600r21600,l21600,xe"></v:shapetype>\n  ' + foreach(comments, function (comment) {
+                return '\n    <v:shape type="#_x0000_t202" style="visibility: hidden" fillcolor="#ffffe1" o:insetmode="auto">\n      <v:shadow on="t" color="black" obscured="t"/>\n      <x:ClientData ObjectType="Note">\n        <x:MoveWithCells/>\n        <x:SizeWithCells/>\n        <x:Anchor>' + comment.anchor + '</x:Anchor>\n        <x:AutoFill>False</x:AutoFill>\n        <x:Row>' + comment.row + '</x:Row>\n        <x:Column>' + comment.col + '</x:Column>\n      </x:ClientData>\n    </v:shape>';
+            }) + '\n</xml>';
+        };
+        var DRAWINGS_XML = function (drawings) {
+            return XMLHEAD + '\n<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"\n          xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"\n          xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">\n  ' + foreach(drawings, function (drawing, index) {
+                return '\n    <xdr:oneCellAnchor editAs="oneCell">\n      <xdr:from>\n        <xdr:col>' + drawing.col + '</xdr:col>\n        <xdr:colOff>' + drawing.colOffset + '</xdr:colOff>\n        <xdr:row>' + drawing.row + '</xdr:row>\n        <xdr:rowOff>' + drawing.rowOffset + '</xdr:rowOff>\n      </xdr:from>\n      <xdr:ext cx="' + drawing.width + '" cy="' + drawing.height + '" />\n      <xdr:pic>\n        <xdr:nvPicPr>\n          <xdr:cNvPr id="' + (index + 1) + '" name="Picture ' + (index + 1) + '"/>\n          <xdr:cNvPicPr/>\n        </xdr:nvPicPr>\n        <xdr:blipFill>\n          <a:blip r:embed="' + drawing.imageId + '"/>\n          <a:stretch>\n            <a:fillRect/>\n          </a:stretch>\n        </xdr:blipFill>\n        <xdr:spPr>\n          <a:prstGeom prst="rect">\n            <a:avLst/>\n          </a:prstGeom>\n        </xdr:spPr>\n      </xdr:pic>\n      <xdr:clientData/>\n    </xdr:oneCellAnchor>';
+            }) + '\n</xdr:wsDr>';
+        };
+        var DRAWINGS_RELS_XML = function (rels) {
+            return XMLHEAD + '\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n  ' + foreach(rels, function (rel) {
+                return '\n    <Relationship Id="' + rel.rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="' + rel.target + '"/>';
             }) + '\n</Relationships>';
         };
         var SHARED_STRINGS = function (ref) {
@@ -246,13 +288,24 @@
                 this._styles = styles;
                 this._borders = borders;
                 this._validations = {};
+                this._comments = [];
+                this._drawings = options.drawings || [];
+                this._hyperlinks = (this.options.hyperlinks || []).map(function (link, i) {
+                    return $.extend({}, link, { rId: 'link' + i });
+                });
             },
             relsToXML: function () {
-                var hyperlinks = this.options.hyperlinks || [];
-                if (!hyperlinks.length) {
-                    return '';
+                var hyperlinks = this._hyperlinks;
+                var comments = this._comments;
+                var drawings = this._drawings;
+                if (hyperlinks.length || comments.length || drawings.length) {
+                    return WORKSHEET_RELS({
+                        hyperlinks: hyperlinks,
+                        comments: comments,
+                        sheetIndex: this.options.sheetIndex,
+                        drawings: drawings
+                    });
                 }
-                return WORKSHEET_RELS({ hyperlinks: hyperlinks });
             },
             toXML: function (index) {
                 var this$1 = this;
@@ -294,11 +347,51 @@
                     autoFilter: autoFilter,
                     filter: filter,
                     showGridLines: this.options.showGridLines,
-                    hyperlinks: this.options.hyperlinks || [],
+                    hyperlinks: this._hyperlinks,
                     validations: validations,
                     defaultCellStyleId: defaultCellStyleId,
-                    rtl: this.options.rtl !== undefined ? this.options.rtl : defaults.rtl
+                    rtl: this.options.rtl !== undefined ? this.options.rtl : defaults.rtl,
+                    legacyDrawing: this._comments.length ? 'vml' + this.options.sheetIndex : null,
+                    drawing: this._drawings.length ? 'drw' + this.options.sheetIndex : null
                 });
+            },
+            commentsXML: function () {
+                if (this._comments.length) {
+                    return COMMENTS_XML({ comments: this._comments });
+                }
+            },
+            drawingsXML: function (images) {
+                if (this._drawings.length) {
+                    var rels = {};
+                    var main = this._drawings.map(function (drw) {
+                        var ref = parseRef(drw.topLeftCell);
+                        var img = rels[drw.image];
+                        if (!img) {
+                            img = rels[drw.image] = {
+                                rId: 'img' + drw.image,
+                                target: images[drw.image].target
+                            };
+                        }
+                        return {
+                            col: ref.col,
+                            colOffset: pixelsToExcel(drw.offsetX),
+                            row: ref.row,
+                            rowOffset: pixelsToExcel(drw.offsetY),
+                            width: pixelsToExcel(drw.width),
+                            height: pixelsToExcel(drw.height),
+                            imageId: img.rId
+                        };
+                    });
+                    return {
+                        main: DRAWINGS_XML(main),
+                        rels: DRAWINGS_RELS_XML(rels)
+                    };
+                }
+            },
+            legacyDrawing: function () {
+                if (this._comments.length) {
+                    return LEGACY_DRAWING({ comments: this._comments });
+                }
             },
             _lookupString: function (value) {
                 var key = '$' + value;
@@ -433,6 +526,25 @@
                 if (data.validation) {
                     this._addValidation(data.validation, cellName);
                 }
+                if (data.comment) {
+                    var anchor = [
+                        cellIndex + 1,
+                        15,
+                        rowIndex,
+                        10,
+                        cellIndex + 3,
+                        15,
+                        rowIndex + 3,
+                        4
+                    ];
+                    this._comments.push({
+                        ref: cellName,
+                        text: data.comment,
+                        row: rowIndex,
+                        col: cellIndex,
+                        anchor: anchor.join(', ')
+                    });
+                }
                 return {
                     value: value,
                     formula: data.formula,
@@ -530,10 +642,27 @@
                 };
                 this._styles = [];
                 this._borders = [];
-                this._sheets = map(this.options.sheets || [], function (options) {
+                this._images = this.options.images;
+                this._imgId = 0;
+                this._sheets = map(this.options.sheets || [], function (options, i) {
                     options.defaults = this$1.options;
+                    options.sheetIndex = i + 1;
                     return new Worksheet(options, this$1._strings, this$1._styles, this$1._borders);
                 });
+            },
+            imageFilename: function (mimeType) {
+                var id = ++this._imgId;
+                switch (mimeType) {
+                case 'image/jpg':
+                case 'image/jpeg':
+                    return 'image' + id + '.jpg';
+                case 'image/png':
+                    return 'image' + id + '.png';
+                case 'image/gif':
+                    return 'image' + id + '.gif';
+                default:
+                    return 'image' + id + '.bin';
+                }
             },
             toZIP: function () {
                 var this$1 = this;
@@ -552,6 +681,15 @@
                 var xl = zip.folder('xl');
                 var xlRels = xl.folder('_rels');
                 xlRels.file('workbook.xml.rels', WORKBOOK_RELS({ count: sheetCount }));
+                if (this._images) {
+                    var media = xl.folder('media');
+                    Object.keys(this._images).forEach(function (id) {
+                        var img = this$1._images[id];
+                        var filename = this$1.imageFilename(img.type);
+                        media.file(filename, img.data);
+                        img.target = '../media/' + filename;
+                    });
+                }
                 var sheetIds = {};
                 xl.file('workbook.xml', WORKBOOK({
                     sheets: this._sheets,
@@ -591,15 +729,37 @@
                     })
                 }));
                 var worksheets = xl.folder('worksheets');
+                var drawings = xl.folder('drawings');
+                var drawingsRels = drawings.folder('_rels');
                 var sheetRels = worksheets.folder('_rels');
+                var commentFiles = [];
+                var drawingFiles = [];
                 for (var idx = 0; idx < sheetCount; idx++) {
                     var sheet = this$1._sheets[idx];
                     var sheetName = 'sheet' + (idx + 1) + '.xml';
-                    var relsXml = sheet.relsToXML();
-                    if (relsXml) {
-                        sheetRels.file(sheetName + '.rels', relsXml);
+                    var sheetXML = sheet.toXML(idx);
+                    var relsXML = sheet.relsToXML();
+                    var commentsXML = sheet.commentsXML();
+                    var legacyDrawing = sheet.legacyDrawing();
+                    var drawingsXML = sheet.drawingsXML(this$1._images);
+                    if (relsXML) {
+                        sheetRels.file(sheetName + '.rels', relsXML);
                     }
-                    worksheets.file(sheetName, sheet.toXML(idx));
+                    if (commentsXML) {
+                        var name = 'comments' + sheet.options.sheetIndex + '.xml';
+                        xl.file(name, commentsXML);
+                        commentFiles.push(name);
+                    }
+                    if (legacyDrawing) {
+                        drawings.file('vmlDrawing' + sheet.options.sheetIndex + '.vml', legacyDrawing);
+                    }
+                    if (drawingsXML) {
+                        var name$1 = 'drawing' + sheet.options.sheetIndex + '.xml';
+                        drawings.file(name$1, drawingsXML.main);
+                        drawingsRels.file(name$1 + '.rels', drawingsXML.rels);
+                        drawingFiles.push(name$1);
+                    }
+                    worksheets.file(sheetName, sheetXML);
                 }
                 var borders = map(this._borders, parseJSON);
                 var styles = map(this._styles, parseJSON);
@@ -665,12 +825,23 @@
                     })
                 }));
                 xl.file('sharedStrings.xml', SHARED_STRINGS(this._strings));
-                zip.file('[Content_Types].xml', CONTENT_TYPES({ count: sheetCount }));
+                zip.file('[Content_Types].xml', CONTENT_TYPES({
+                    sheetCount: sheetCount,
+                    commentFiles: commentFiles,
+                    drawingFiles: drawingFiles
+                }));
                 return zip;
             },
             toDataURL: function () {
                 var zip = this.toZIP();
                 return zip.generateAsync ? zip.generateAsync(DATA_URL_OPTIONS).then(toDataURI) : toDataURI(zip.generate(DATA_URL_OPTIONS));
+            },
+            toBlob: function () {
+                var zip = this.toZIP();
+                if (zip.generateAsync) {
+                    return zip.generateAsync({ type: 'blob' });
+                }
+                return new Blob([zip.generate({ type: 'arraybuffer' })], { type: MIME_TYPE });
             }
         });
         function borderStyle(width) {
@@ -779,6 +950,9 @@
                 row: getrow(m[2]),
                 col: getcol(m[1])
             };
+        }
+        function pixelsToExcel(px) {
+            return Math.round(px * 9525);
         }
         function fillCells(data, ctx) {
             var row = data._source;

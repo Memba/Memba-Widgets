@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -57,7 +57,13 @@
             return parseInt(element.css(property), 10) || 0;
         }
         function constrain(value, low, high) {
-            return Math.max(Math.min(parseInt(value, 10), high === Infinity ? high : parseInt(high, 10)), low === -Infinity ? low : parseInt(low, 10));
+            var normalizedValue;
+            if (value && isNaN(value) && value.toString().indexOf('px') < 0) {
+                normalizedValue = value;
+            } else {
+                normalizedValue = Math.max(Math.min(parseInt(value, 10), high === Infinity ? high : parseInt(high, 10)), low === -Infinity ? low : parseInt(low, 10));
+            }
+            return normalizedValue;
         }
         function executableScript() {
             return !this.type || this.type.toLowerCase().indexOf('script') >= 0;
@@ -243,20 +249,12 @@
                     this.element.css('maxHeight', maxHeight);
                 }
                 if (width) {
-                    if (isNaN(width) && width.toString().indexOf('px') < 0) {
-                        wrapper.width(width);
-                    } else {
-                        wrapper.width(constrain(width, options.minWidth, options.maxWidth));
-                    }
+                    wrapper.width(constrain(width, options.minWidth, options.maxWidth));
                 } else {
                     wrapper.width('');
                 }
                 if (height) {
-                    if (isNaN(height) && height.toString().indexOf('px') < 0) {
-                        wrapper.height(height);
-                    } else {
-                        wrapper.height(constrain(height, options.minHeight, options.maxHeight));
-                    }
+                    wrapper.height(constrain(height, options.minHeight, options.maxHeight));
                 } else {
                     wrapper.height('');
                 }
@@ -628,6 +626,7 @@
                     newTop = this.minTop + (this.maxTop - this.minTop) / 2;
                     newLeft = this.minLeft + (this.maxLeft - this.minLeft) / 2;
                 } else {
+                    that._scrollIsAppended = true;
                     newLeft = scrollLeft + Math.max(0, (documentWindow.width() - wrapper.width()) / 2);
                     newTop = scrollTop + Math.max(0, (documentWindow.height() - wrapper.height() - toInt(wrapper, 'paddingTop')) / 2);
                 }
@@ -752,8 +751,8 @@
                     that._containerScrollLeft = doc.scrollLeft();
                     that._stopDocumentScrolling();
                 }
-                if (options.pinned && !that._isPinned) {
-                    that.pin();
+                if (this.options.pinned && !this._isPinned) {
+                    this.pin();
                 }
                 return that;
             },
@@ -1060,9 +1059,10 @@
                 if (!that.options.isMaximized) {
                     position.top = top;
                     position.left = left;
-                    if (!this.containment || this.containment.css('position') !== 'fixed') {
+                    if (that._scrollIsAppended && (!this.containment || this.containment.css('position') !== 'fixed')) {
                         position.top -= win.scrollTop();
                         position.left -= win.scrollLeft();
+                        that._scrollIsAppended = false;
                     }
                     wrapper.css(extend(position, { position: 'fixed' }));
                     wrapper.children(KWINDOWTITLEBAR).find(KPIN).addClass('k-i-unpin').removeClass('k-i-pin');
@@ -1081,6 +1081,7 @@
                 var that = this, win = $(window), wrapper = that.wrapper, options = that.options, position = that.options.position, containment = that.containment, top = parseInt(wrapper.css('top'), 10) + win.scrollTop(), left = parseInt(wrapper.css('left'), 10) + win.scrollLeft();
                 if (!that.options.isMaximized) {
                     that._isPinned = false;
+                    that._scrollIsAppended = true;
                     that.options.pinned = false;
                     if (containment) {
                         that._updateBoundaries();

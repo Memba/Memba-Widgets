@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -63,9 +63,13 @@ $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
   "sortAscending": "Sort Ascending",
   "sortDescending": "Sort Descending",
   "filter": "Filter",
+  "column": "Column",
   "columns": "Columns",
+  "columnVisibility": "Column Visibility",
+  "clear": "Clear",
+  "cancel": "Cancel",
   "done": "Done",
-  "settings": "Column Settings",
+  "settings": "Edit Column Settings",
   "lock": "Lock",
   "unlock": "Unlock"
 });
@@ -284,7 +288,9 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "selectValue": "-Select value-",
   "operator": "Operator",
   "value": "Value",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "done": "Done",
+  "into": "in"
 });
 }
 
@@ -342,9 +348,14 @@ if (kendo.ui.FilterMultiCheck) {
 kendo.ui.FilterMultiCheck.prototype.options.messages =
 $.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
   "checkAll": "Select All",
+  "clearAll": "Clear All",
   "clear": "Clear",
   "filter": "Filter",
-  "search": "Search"
+  "search": "Search",
+  "cancel": "Cancel",
+  "selectedItemsFormat": "{0} items selected",
+  "done": "Done",
+  "into": "in"
 });
 }
 
@@ -837,6 +848,18 @@ $.extend(true, kendo.spreadsheet.messages.dialogs,{
   },
   "unsupportedSelectionDialog": {
     "errorMessage": "That action cannot be performed on multiple selection."
+  },
+  "insertCommentDialog": {
+    "title": "Insert comment",
+    "labels": {
+      "comment": "Comment",
+      "removeComment": "Remove comment"
+    }
+  },
+  "insertImageDialog": {
+    "title": "Insert image",
+    "info": "Drag an image here, or click to select",
+    "typeError": "Please select a JPEG, PNG or GIF image"
   }
 });
 }
@@ -945,6 +968,8 @@ $.extend(true, kendo.spreadsheet.messages.toolbar,{
     "freezeColumns": "Freeze columns",
     "unfreeze": "Unfreeze panes"
   },
+  "insertComment": "Insert comment",
+  "insertImage": "Insert image",
   "italic": "Italic",
   "merge": "Merge cells",
   "mergeButtons": {

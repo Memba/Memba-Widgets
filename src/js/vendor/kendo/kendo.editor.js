@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.1.220 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -84,6 +84,7 @@
         var SELECT_OVERLAY_SELECTOR = 'select.k-select-overlay';
         var PLACEHOLDER_CLASS = 'k-placeholder';
         var PLACEHOLDER_TAG_ID = 'placeholder';
+        var REFRESH_INTERVAL = 200;
         var ToolTemplate = Class.extend({
             init: function (options) {
                 this.options = options;
@@ -724,7 +725,10 @@
                             keys.DELETE
                         ];
                         if ($.inArray(e.keyCode, selectionCodes) > -1 || e.keyCode == 65 && e.ctrlKey && !e.altKey && !e.shiftKey) {
-                            editor._selectionChange();
+                            window.clearTimeout(this._refreshInterval);
+                            this._refreshInterval = window.setTimeout(function () {
+                                editor._selectionChange();
+                            }, REFRESH_INTERVAL);
                         }
                         editor.keyboard.keyup(e);
                     },
@@ -796,7 +800,7 @@
                     return;
                 }
                 var target = $(e.target).closest('a[href]');
-                if ((e.which == 2 || e.which == 1 && e.ctrlKey) && target) {
+                if ((e.which == 2 || e.which == 1 && e.ctrlKey) && target && target.is('a[href]')) {
                     window.open(target.attr('href'), '_new');
                 }
             },
@@ -908,7 +912,7 @@
                     },
                     {
                         text: 'Times New Roman',
-                        value: '"Times New Roman", Times,serif'
+                        value: '"Times New Roman", Times, serif'
                     },
                     {
                         text: 'Trebuchet MS',
@@ -1903,6 +1907,7 @@
             restoreScrollTop: function (doc) {
                 if (typeof persistedScrollTop == 'number') {
                     Dom.scrollContainer(doc).scrollTop = persistedScrollTop;
+                    persistedScrollTop = undefined;
                 }
             },
             insertAt: function (parent, newElement, position) {
@@ -2061,6 +2066,16 @@
                     }
                 }
                 return extend(element, attributes);
+            },
+            mergeAttributes: function (origin, target) {
+                if (!origin.attributes.length) {
+                    return;
+                }
+                $.each(origin.attributes, function () {
+                    if (this.name !== 'contenteditable') {
+                        $(target).attr(this.name, this.value);
+                    }
+                });
             },
             style: function (node, value) {
                 $(node).css(value || {});
@@ -4990,7 +5005,7 @@
             },
             _showGroup: function (group, width) {
                 var position, previous;
-                if (group.length && width > this._groupsWidth() + group.data('outerWidth')) {
+                if (group.length && width > this._groupsWidth() + group.data('outerWidth') && !group.hasClass('k-state-disabled')) {
                     if (group.hasClass('k-overflow-tool-group')) {
                         position = group.data('position');
                         if (position === 0) {
@@ -6340,16 +6355,12 @@
                     formatNode = this.finder.findFormat(nodes[i]);
                     if (formatNode) {
                         name = dom.name(formatNode);
-                        if (name == 'div' && !formatNode.getAttribute('class')) {
-                            dom.unwrap(formatNode);
-                        } else {
-                            namedFormat = EditorUtils.formatByName(name, this.format);
-                            if (namedFormat.attr.style) {
-                                dom.unstyle(formatNode, namedFormat.attr.style);
-                            }
-                            if (namedFormat.attr.className) {
-                                dom.removeClass(formatNode, namedFormat.attr.className);
-                            }
+                        namedFormat = EditorUtils.formatByName(name, this.format);
+                        if (namedFormat.attr.style) {
+                            dom.unstyle(formatNode, namedFormat.attr.style);
+                        }
+                        if (namedFormat.attr.className) {
+                            dom.removeClass(formatNode, namedFormat.attr.className);
                         }
                     }
                 }
@@ -6835,6 +6846,9 @@
                 }
                 if (!formatNode) {
                     formatNode = dom.create(commonAncestor.ownerDocument, tag);
+                    if (dom.isBlock(ancestors[0])) {
+                        dom.mergeAttributes(ancestors[0], formatNode);
+                    }
                     dom.insertBefore(formatNode, ancestors[0]);
                 }
                 this.wrap(formatNode, ancestors);
@@ -8246,7 +8260,10 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('editor/plugins/tables', ['editor/plugins/formatblock'], f);
+    define('editor/plugins/tables', [
+        'editor/plugins/formatblock',
+        'editor/plugins/insert'
+    ], f);
 }(function () {
     (function ($, undefined) {
         var kendo = window.kendo, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, EditorUtils = Editor.EditorUtils, RangeUtils = Editor.RangeUtils, Command = Editor.Command, NS = 'kendoEditor', ACTIVESTATE = 'k-state-active', SELECTEDSTATE = 'k-state-selected', Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InsertHtmlCommand = Editor.InsertHtmlCommand, BlockFormatFinder = Editor.BlockFormatFinder, registerTool = Editor.EditorUtils.registerTool, getTouches = kendo.getTouches;
@@ -9885,6 +9902,10 @@
                     if (block.innerText === '') {
                         block.innerHTML = '\uFEFF';
                     }
+                    return true;
+                }
+                if (editorNS.RangeUtils.isStartOf(range, block) && (parseInt(block.style.marginLeft, 10) > 0 || parseInt(block.style.marginRight, 10) > 0)) {
+                    editor.exec('outdent');
                     return true;
                 }
                 if (block && previousSibling && editorNS.RangeUtils.isStartOf(range, block) || startAtNonFirstLi) {

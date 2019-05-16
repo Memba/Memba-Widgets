@@ -11,7 +11,6 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import openPropertyDialog from '../dialogs/dialogs.property.es6';
 import BaseDialog from '../dialogs/widgets.basedialog.es6';
-import editors from './util.editors.es6';
 
 const { Class } = window.kendo;
 
@@ -129,8 +128,7 @@ const BaseAdapter = Class.extend({
         }
         if (
             $.isFunction(this.editor) ||
-            ($.type(this.editor) === CONSTANTS.STRING &&
-                $.isFunction(editors[this.editor]))
+            $.type(this.editor) === CONSTANTS.STRING
         ) {
             row.editor = this.editor;
         }

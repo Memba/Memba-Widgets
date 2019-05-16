@@ -26,7 +26,7 @@ const TextAreaAdapter = BaseAdapter.extend({
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-        this.editor = 'textarea';
+        this.editor = CONSTANTS.TEXTAREA;
         this.attributes = $.extend({}, this.attributes, attributes, {
             class: 'k-textbox'
         });

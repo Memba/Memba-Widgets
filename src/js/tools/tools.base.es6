@@ -6,7 +6,7 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.core';
+import 'kendo.data';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import i18n from '../common/window.i18n.es6';
@@ -23,7 +23,16 @@ import {
     parseLibraryItem
 } from './util.libraries.es6';
 
-const { attr, Class, format, getter, htmlEncode, ns, template } = window.kendo;
+const {
+    attr,
+    Class,
+    data: { ObservableArray },
+    format,
+    getter,
+    htmlEncode,
+    ns,
+    template
+} = window.kendo;
 
 /**
  * i18n messages
@@ -418,8 +427,18 @@ const BaseTool = Class.extend({
                 return values;
             },
             variables() {
+                let ret = {};
                 const model = this.parent(); // a TestModel derived from BaseTest
-                return model.variables.at(this.pageIdx()).toJSON();
+                if (
+                    model instanceof BaseModel &&
+                    model.variables instanceof ObservableArray
+                ) {
+                    const variables = model.variables.at(this.pageIdx());
+                    if (variables && $.isFunction(variables.toJSON)) {
+                        ret = variables.toJSON();
+                    }
+                }
+                return ret;
             },
             // Format data for poolExec validation
             data() {

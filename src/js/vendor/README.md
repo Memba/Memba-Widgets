@@ -18,7 +18,7 @@
 > Attention! Kidoju Widgets use open source Kendo UI Core, not commercial Kendo UI
 
 1. Get Kendo UI Core from https://github.com/telerik/kendo-ui-core
-2. Get minimized versions from http://cdn.kendostatic.com/<version>/js/kendo.all.min.js, respectively http://cdn.kendostatic.com/<version>/styles/kendo.common.min.css
+2. Get minimized versions from https://kendo.cdn.telerik.com/<version>/js/kendo.all.min.js, respectively https://kendo.cdn.telerik.com/<version>/styles/kendo.common.min.css
 
 Required files can be found at http://www.telerik.com/download/custom-download
 

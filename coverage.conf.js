@@ -49,7 +49,7 @@ module.exports = config => {
             },
             // External jQuery and polyfill
             {
-                pattern: 'src/js/vendor/jquery/jquery-3.4.0.min.js',
+                pattern: 'src/js/vendor/jquery/jquery-3.4.1.min.js',
                 served: true,
                 included: true
             },

@@ -16,7 +16,7 @@
                 ],
                 "alias": {
                     // This takes over externals in webpack and includes jQuery in the builds
-                    // "jquery": "./src/js/vendor/jquery/jquery-3.4.0.min.js"
+                    // "jquery": "./src/js/vendor/jquery/jquery-3.4.1.min.js"
                 }
             }
         ]

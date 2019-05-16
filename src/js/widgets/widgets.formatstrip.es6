@@ -42,8 +42,8 @@ const {
 } = window.kendo;
 const logger = new Logger('widgets.formatstrip');
 
-const NS = '.kendoFormatStrip';
-const WIDGET_CLASS = 'kj-formatstrip'; // 'k-widget kj-formatstrip';
+// const NS = '.kendoFormatStrip';
+// const WIDGET_CLASS = 'kj-formatstrip'; // 'k-widget kj-formatstrip';
 
 const FORMATBAR_DISABLED =
     '<div data-role="formatbar" data-enabled="false"></div>';
@@ -82,14 +82,14 @@ const FONT_FAMILY = [
 const FONT_FAMILY_DEFAULT = 'Arial';
 const TEXT_ALIGN = [/* 'left', */ 'center', 'right', 'justify'];
 const TEXT_ALIGN_DEFAULT = 'left';
-const VERTICAL_ALIGN = [/* 'top', */ 'middle', 'bottom'];
-const VERTICAL_ALIGN_DEFAULT = 'top';
+const VERTICAL_ALIGN = ['top', 'middle', 'bottom'];
+const VERTICAL_ALIGN_DEFAULT = 'baseline';
 
 /** *******************************************************************************
  * Helpers
  ******************************************************************************** */
 
-var Style = Class.extend({
+const Style = Class.extend({
     /* Blocks are nested too deeply. */
     /* jshint -W073 */
 
@@ -103,10 +103,10 @@ var Style = Class.extend({
     init(style) {
         $.extend(this, this.defaults);
         if ($.type(style) === CONSTANTS.STRING) {
-            const styles = style.split(CONSTANTS.SEMI_COLON);
+            const styles = style.split(CONSTANTS.SEMICOLON);
             for (let i = 0, total = styles.length; i < total; i++) {
                 const pos = styles[i].indexOf(CONSTANTS.COLON);
-                const length = styles[i].length;
+                const { length } = styles[i];
                 if (pos > 0 && pos < length - 1) {
                     let name = styles[i]
                         .substr(0, pos)
@@ -231,7 +231,7 @@ var Style = Class.extend({
                     toHyphens(name) +
                     CONSTANTS.COLON +
                     this[name] +
-                    CONSTANTS.SEMI_COLON;
+                    CONSTANTS.SEMICOLON;
                 // TODO: handle shortened borders
             }
         }
@@ -252,7 +252,7 @@ if (window.DEBUG) {
  * @class FormatBar
  * @extends Widget
  */
-var FormatBar = ToolBar.extend({
+const FormatBar = ToolBar.extend({
     /**
      * Initialize formatBar
      * @param element
@@ -338,7 +338,7 @@ var FormatBar = ToolBar.extend({
      * @private
      */
     _enableBorderButtons(enable) {
-        enable = $.type(enable) === CONSTANTS.UNDEFINED ? true : enable;
+        const enabled = $.type(enable) === CONSTANTS.UNDEFINED ? true : enable;
         const borderpalette = $(roleSelector('borderpalette'));
         $.each(
             [
@@ -352,7 +352,7 @@ var FormatBar = ToolBar.extend({
                     .find(
                         format(ATTR_SELECTOR, attr('border-type'), borderType)
                     )
-                    .toggleClass('k-state-disabled', !enable);
+                    .toggleClass('k-state-disabled', !enabled);
             }
         );
     },
@@ -362,7 +362,8 @@ var FormatBar = ToolBar.extend({
      * @param args
      */
     _onAction(e) {
-        const command = this[`_${e.command}`]; // e.command is either BorderChangeCommand, PropertyChangeCommand or TextWrapCommand
+        // e.command is either BorderChangeCommand, PropertyChangeCommand or TextWrapCommand
+        const command = this[`_${e.command}`];
         if ($.isFunction(command)) {
             command.call(this, e.options);
             this.trigger('change');
@@ -485,48 +486,48 @@ var FormatBar = ToolBar.extend({
                 'Style'
             )
         );
+        // The spreadsheet toolbar assigns `center` instead of `middle`
+        // to verticalAlign which needs to be fixed here
+        const value =
+            options.property === 'verticalAlign' && options.value === 'center'
+                ? 'middle'
+                : options.value;
         switch (options.property) {
             case 'background':
-                this._value.backgroundColor = options.value
-                    ? options.value
-                    : null;
+                this._value.backgroundColor = value || null;
                 break;
             case 'bold':
-                this._value.fontWeight = options.value ? 'bold' : null;
+                this._value.fontWeight = value ? 'bold' : null;
                 break;
             case 'color':
-                this._value.color = options.value ? options.value : null;
+                this._value.color = value || null;
                 break;
             case 'fontFamily':
                 this._value.fontFamily =
-                    FONT_FAMILY.indexOf(options.value) > -1
-                        ? options.value
-                        : null;
+                    FONT_FAMILY.indexOf(value) > -1 ? value : null;
                 break;
             case 'fontSize':
                 this._value.fontSize =
-                    $.type(options.value) === CONSTANTS.NUMBER &&
-                    options.value !== FONT_SIZE_DEFAULT
-                        ? `${options.value}px`
+                    $.type(value) === CONSTANTS.NUMBER &&
+                    value !== FONT_SIZE_DEFAULT
+                        ? `${value}px`
                         : null;
                 break;
             case 'italic':
-                this._value.fontStyle = options.value ? 'italic' : null;
+                this._value.fontStyle = value ? 'italic' : null;
                 break;
             case 'textAlign':
                 this._value.textAlign =
-                    TEXT_ALIGN.indexOf(options.value) > -1
-                        ? options.value
-                        : null;
+                    TEXT_ALIGN.indexOf(value) > -1 ? value : null;
                 break;
             case 'underline':
-                this._value.textDecoration = options.value ? 'underline' : null;
+                this._value.textDecoration = value ? 'underline' : null;
                 break;
             case 'verticalAlign':
                 this._value.verticalAlign =
-                    VERTICAL_ALIGN.indexOf(options.value) > -1
-                        ? options.value
-                        : null;
+                    VERTICAL_ALIGN.indexOf(value) > -1 ? value : null;
+                break;
+            default:
                 break;
         }
     },
@@ -603,7 +604,9 @@ var FormatBar = ToolBar.extend({
             case 'underline':
                 return this._value.textDecoration === 'underline';
             case 'verticalAlign':
-                return this._value.verticalAlign || VERTICAL_ALIGN_DEFAULT;
+                return this._value.verticalAlign === 'middle'
+                    ? 'center'
+                    : this._value.verticalAlign || VERTICAL_ALIGN_DEFAULT;
             case 'wrap':
                 return this._value.whiteSpace !== 'nowrap';
             case 'alignment':
@@ -612,9 +615,10 @@ var FormatBar = ToolBar.extend({
                         return that._value.textAlign || TEXT_ALIGN_DEFAULT;
                     },
                     verticalAlign() {
-                        return (
-                            that._value.verticalAlign || VERTICAL_ALIGN_DEFAULT
-                        );
+                        return that._value.verticalAlign === 'middle'
+                            ? 'center'
+                            : that._value.verticalAlign ||
+                                  VERTICAL_ALIGN_DEFAULT;
                     }
                 };
             default:
@@ -643,8 +647,7 @@ var FormatBar = ToolBar.extend({
     refresh() {
         const tools = this._tools();
         function setToggle(tool, value) {
-            const toolbar = tool.toolbar;
-            const overflow = tool.overflow;
+            const { overflow, toolbar } = tool;
             const togglable =
                 (toolbar && toolbar.options.togglable) ||
                 (overflow && overflow.options.togglable);
@@ -652,9 +655,9 @@ var FormatBar = ToolBar.extend({
                 return;
             }
             let toggle = false;
-            if (typeof value === CONSTANTS.BOOLEAN) {
+            if ($.type(value) === CONSTANTS.BOOLEAN) {
                 toggle = value;
-            } else if (typeof value === CONSTANTS.STRING) {
+            } else if ($.type(value) === CONSTANTS.STRING) {
                 toggle = toolbar.options.value === value;
             }
             toolbar.toggle(toggle);
@@ -663,8 +666,7 @@ var FormatBar = ToolBar.extend({
             }
         }
         function update(tool, value) {
-            const toolbar = tool.toolbar;
-            const overflow = tool.overflow;
+            const { overflow, toolbar } = tool;
             if (toolbar && toolbar.update) {
                 toolbar.update(value);
             }
@@ -673,8 +675,7 @@ var FormatBar = ToolBar.extend({
             }
         }
         for (let i = 0; i < tools.length; i++) {
-            const property = tools[i].property;
-            const tool = tools[i].tool;
+            const { property, tool } = tools[i];
             const value = this._getValue(property);
             if (tool.type === 'button') {
                 setToggle(tool, value);
@@ -854,7 +855,7 @@ const FormatStrip = Widget.extend({
         const that = this;
         const tabs = [];
         if (this._value instanceof PageComponent) {
-            const tool = that._value.tool;
+            const { tool } = that._value;
             assert.instanceof(
                 Observable,
                 tools,
@@ -873,7 +874,7 @@ const FormatStrip = Widget.extend({
                     'BaseTool'
                 )
             );
-            const attributes = tools[tool].attributes;
+            const { attributes } = tools[tool];
             for (const attr in attributes) {
                 if (
                     Object.prototype.hasOwnProperty.call(attributes, attr) &&
@@ -971,7 +972,6 @@ const FormatStrip = Widget.extend({
      * @method destroy
      */
     destroy() {
-        const that = this;
         this._clearTabs();
         Widget.fn.destroy.call(this);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });

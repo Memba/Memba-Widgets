@@ -69,33 +69,19 @@ function normalizeValue(value) {
         CONSTANTS.STRING
     );
     return (
-        value.replace(/[\s]*(\:|\;)[\s]*/g, '$1') +
+        value.replace(/[\s]*([:;])[\s]*/g, '$1') +
         (value.length && value.charAt(value.length - 1) === CONSTANTS.SEMICOLON
             ? ''
             : CONSTANTS.SEMICOLON)
     );
 }
 
-function borderStyle(container, options) {
-    // https://www.w3schools.com/cssref/pr_border-style.asp
-    return comboBox.bind(this)(container, options, {
-        dataSource: [
-            'dashed',
-            'dotted',
-            'double',
-            'groove',
-            'hidden',
-            'inherit',
-            'initial',
-            'inset',
-            'none',
-            'outset',
-            'ridge',
-            'solid'
-        ]
-    });
-}
-
+/**
+ * comboBox editor
+ * @param container
+ * @param options
+ * @param widgetOptions
+ */
 function comboBox(container, options, widgetOptions) {
     // We cannot set the comboBox name for validation before initializing the kendo ui widget
     // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
@@ -118,105 +104,18 @@ function comboBox(container, options, widgetOptions) {
     );
 }
 
-function cssSize(container, options) {
-    // https://www.w3schools.com/cssref/css_units.asp
-    return unitInput.bind(this)(container, options, {
-        units: ['%', 'em', 'px', 'rem', 'vh', 'vw'],
-        nonUnits: ['auto', 'inherit', 'initial']
-    });
-}
-
-function colorPicker(container, options) {
-    const that = this;
-    // We cannot set the colorpicker name for validation before initializing the kendo ui widget
-    // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
-    // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.value + '">')
-    const colorPicker = $(
-        `<input data-bind="value: ${
-            options.field
-        }" required data-required-msg="${
-            that.options.messages.validation.value
-        }">`
-    )
-        .appendTo(container)
-        .kendoColorPicker()
-        .data('kendoColorPicker');
-    // The workaround for validation to work is to set the name after initializing the kendo ui widget
-    // TODO http://www.telerik.com/forums/how-to-enforce-validation-in-grid-sample
-    colorPicker.element.attr('name', 'value');
-    $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(
-        container
-    );
-}
-
-function fontFamily(container, options) {
-    // https://www.w3schools.com/cssref/pr_font_font-style.asp
-    return comboBox.bind(this)(container, options, {
-        dataSource: [
-            'Arial',
-            'Courier New',
-            'Georgia',
-            'Times New Roman',
-            'Trebuchet MS',
-            'Verdana'
-        ]
-    });
-}
-
-function fontStyle(container, options) {
-    // https://www.w3schools.com/cssref/pr_font_font-style.asp
-    return comboBox.bind(this)(container, options, {
-        dataSource: ['inherit', 'initial', 'italic', 'normal', 'oblique']
-    });
-}
-
-function fontWeight(container, options) {
-    return comboBox.bind(this)(container, options, {
-        dataSource: [
-            '100',
-            '200',
-            '300',
-            '400',
-            '500',
-            '600',
-            '700',
-            '800',
-            '900',
-            'bold',
-            'bolder',
-            'inherit',
-            'initial',
-            'lighter',
-            'normal'
-        ]
-    });
-}
-
-function textAlign(container, options) {
-    // https://www.w3schools.com/cssref/pr_text_text-align.asp
-    return comboBox.bind(this)(container, options, {
-        dataSource: ['center', 'inherit', 'initial', 'justify', 'left', 'right']
-    });
-}
-
-function textDecoration(container, options) {
-    // https://www.w3schools.com/cssref/pr_text_text-decoration.asp
-    return comboBox.bind(this)(container, options, {
-        dataSource: [
-            'inherit',
-            'initial',
-            'line-through',
-            'none',
-            'overline',
-            'underline'
-        ]
-    });
-}
-
+/*
 function opacitySlider(container, options) {
     // TODO
 }
+*/
 
+/**
+ * unitInput editor
+ * @param container
+ * @param options
+ * @param widgetOptions
+ */
 function unitInput(container, options, widgetOptions) {
     // We cannot set the comboBox name for validation before initializing the kendo ui widget
     // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
@@ -239,6 +138,174 @@ function unitInput(container, options, widgetOptions) {
     );
 }
 
+/**
+ * borderStyle editor
+ * @param container
+ * @param options
+ * @returns {F|F|never|any}
+ */
+function borderStyle(container, options) {
+    // https://www.w3schools.com/cssref/pr_border-style.asp
+    return comboBox.bind(this)(container, options, {
+        dataSource: [
+            'dashed',
+            'dotted',
+            'double',
+            'groove',
+            'hidden',
+            'inherit',
+            'initial',
+            'inset',
+            'none',
+            'outset',
+            'ridge',
+            'solid'
+        ]
+    });
+}
+
+/**
+ * cssSize editor
+ * @param container
+ * @param options
+ * @returns {F|F|never|any}
+ */
+function cssSize(container, options) {
+    // https://www.w3schools.com/cssref/css_units.asp
+    return unitInput.bind(this)(container, options, {
+        units: ['%', 'em', 'px', 'rem', 'vh', 'vw'],
+        nonUnits: ['auto', 'inherit', 'initial']
+    });
+}
+
+/**
+ * colorPicker editor
+ * @param container
+ * @param options
+ */
+function colorPicker(container, options) {
+    const that = this;
+    // We cannot set the colorpicker name for validation before initializing the kendo ui widget
+    // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
+    // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.value + '">')
+    const picker = $(
+        `<input data-bind="value: ${
+            options.field
+        }" required data-required-msg="${
+            that.options.messages.validation.value
+        }">`
+    )
+        .appendTo(container)
+        .kendoColorPicker()
+        .data('kendoColorPicker');
+    // The workaround for validation to work is to set the name after initializing the kendo ui widget
+    // TODO http://www.telerik.com/forums/how-to-enforce-validation-in-grid-sample
+    picker.element.attr('name', 'value');
+    $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(
+        container
+    );
+}
+
+/**
+ * fontFamily editor
+ * @param container
+ * @param options
+ * @returns {F|F|never|any}
+ */
+function fontFamily(container, options) {
+    // https://www.w3schools.com/cssref/pr_font_font-style.asp
+    return comboBox.bind(this)(container, options, {
+        dataSource: [
+            'Arial',
+            'Courier New',
+            'Georgia',
+            'Times New Roman',
+            'Trebuchet MS',
+            'Verdana'
+        ]
+    });
+}
+
+/**
+ * fontStyle editor
+ * @param container
+ * @param options
+ * @returns {F|F|never|any}
+ */
+function fontStyle(container, options) {
+    // https://www.w3schools.com/cssref/pr_font_font-style.asp
+    return comboBox.bind(this)(container, options, {
+        dataSource: ['inherit', 'initial', 'italic', 'normal', 'oblique']
+    });
+}
+
+/**
+ * fontWeight editor
+ * @param container
+ * @param options
+ * @returns {F|F|never|any}
+ */
+function fontWeight(container, options) {
+    return comboBox.bind(this)(container, options, {
+        dataSource: [
+            '100',
+            '200',
+            '300',
+            '400',
+            '500',
+            '600',
+            '700',
+            '800',
+            '900',
+            'bold',
+            'bolder',
+            'inherit',
+            'initial',
+            'lighter',
+            'normal'
+        ]
+    });
+}
+
+/**
+ * textAlign editor
+ * @param container
+ * @param options
+ * @returns {F|F|never|any}
+ */
+function textAlign(container, options) {
+    // https://www.w3schools.com/cssref/pr_text_text-align.asp
+    return comboBox.bind(this)(container, options, {
+        dataSource: ['center', 'inherit', 'initial', 'justify', 'left', 'right']
+    });
+}
+
+/**
+ * textDecoration editor
+ * @param container
+ * @param options
+ * @returns {F|F|never|any}
+ */
+function textDecoration(container, options) {
+    // https://www.w3schools.com/cssref/pr_text_text-decoration.asp
+    return comboBox.bind(this)(container, options, {
+        dataSource: [
+            'inherit',
+            'initial',
+            'line-through',
+            'none',
+            'overline',
+            'underline'
+        ]
+    });
+}
+
+/**
+ * verticalAlign editor
+ * @param container
+ * @param options
+ * @returns {F|F|never|any}
+ */
 function verticalAlign(container, options) {
     // https://www.w3schools.com/cssref/pr_pos_vertical-align.asp
     // https://www.w3schools.com/cssref/css_units.asp
@@ -291,9 +358,8 @@ const StyleEditor = DataBoundWidget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         const that = this;
-        options = options || {};
         DataBoundWidget.fn.init.call(that, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         // if ($.isFunction($.fn.kendoGrid)) {
@@ -302,7 +368,7 @@ const StyleEditor = DataBoundWidget.extend({
         that._layout();
         that._setEventHandlers();
         // }
-        // Note: a simple textarea would do when running kendo-core without grid
+        // Note: a simple textarea would do when running kendo.core without grid
     },
 
     /**
@@ -342,30 +408,32 @@ const StyleEditor = DataBoundWidget.extend({
      */
     value(value) {
         /*
-                 // Sort function on style names
-                 // Sorting is not user-friendly as positions change unexpectedly in the grid
-                 function sort(a, b) {
-                 if (a.name > b.name) {
-                 return 1;
-                 }
-                 if (a.name < b.name) {
-                 return -1;
-                 }
-                 // a must be equal to b
-                 return 0;
-                 }
-                 */
-
-        const that = this;
+        // Sort function on style names
+        // Sorting is not user-friendly as positions change unexpectedly in the grid
+        function sort(a, b) {
+            if (a.name > b.name) {
+                return 1;
+            }
+            if (a.name < b.name) {
+                return -1;
+            }
+            // a must be equal to b
+            return 0;
+        }
+        */
         let i;
         let data;
-        if ($.type(value) === CONSTANTS.STRING) {
-            const _value = that.value();
-            value = normalizeValue(value);
-            if (value !== _value) {
+        let ret = value;
+        if ($.type(ret) === CONSTANTS.NULL) {
+            ret = CONSTANTS.EMPTY;
+        }
+        if ($.type(ret) === CONSTANTS.STRING) {
+            const _value = this.value();
+            ret = normalizeValue(ret);
+            data = [];
+            if (ret !== _value) {
                 // Break the various style names/values and fill the data source
-                const styles = value.split(CONSTANTS.SEMICOLON);
-                data = [];
+                const styles = ret.split(CONSTANTS.SEMICOLON);
                 for (i = 0; i < styles.length; i++) {
                     const style = styles[i].split(CONSTANTS.COLON);
                     if ($.isArray(style) && style.length === 2) {
@@ -377,15 +445,16 @@ const StyleEditor = DataBoundWidget.extend({
                 }
                 // Because of this, we have to implement additional plumbing
                 // See: http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#methods-editCell
-                that._dataSource.data(data); // (data.sort(sort));
-                // that.trigger(CONSTANTS.CHANGE);
+                this._dataSource.data(data); // (data.sort(sort));
+                // this.trigger(CONSTANTS.CHANGE);
+                ret = undefined;
             }
-        } else if ($.type(value) === CONSTANTS.UNDEFINED) {
+        } else if ($.type(ret) === CONSTANTS.UNDEFINED) {
             // Convert the data source into an HTML style attribute
-            value = '';
-            data = that._dataSource.data();
+            ret = CONSTANTS.EMPTY;
+            data = this._dataSource.data();
             for (i = 0; i < data.length; i++) {
-                let name = data[i].name;
+                let { name } = data[i];
                 let val = data[i].value;
                 if (
                     $.type(name) === CONSTANTS.STRING &&
@@ -394,17 +463,17 @@ const StyleEditor = DataBoundWidget.extend({
                     name = name.trim();
                     val = val.trim();
                     if (name.length && val.length) {
-                        value +=
+                        ret +=
                             name + CONSTANTS.COLON + val + CONSTANTS.SEMICOLON;
                     }
                 }
             }
-            return value;
         } else {
             throw new TypeError(
                 'value is expected to be a string if not undefined'
             );
         }
+        return ret;
     },
 
     /**
@@ -424,7 +493,7 @@ const StyleEditor = DataBoundWidget.extend({
      */
     _setGrid() {
         const that = this;
-        const options = that.options;
+        const { options } = that;
         that.grid = that.element
             .kendoGrid({
                 columns: [
@@ -490,7 +559,9 @@ const StyleEditor = DataBoundWidget.extend({
                         const dataItem = e.sender.dataItem();
                         // var grid = container.closest('.k-grid').data('kendoGrid');
                         const grid = that.element.data('kendoGrid');
-                        const uid = container.parent().attr(attr(CONSTANTS.UID));
+                        const uid = container
+                            .parent()
+                            .attr(attr(CONSTANTS.UID));
                         if (
                             grid instanceof Grid &&
                             $.type(uid) === 'string' &&
@@ -545,7 +616,9 @@ const StyleEditor = DataBoundWidget.extend({
                 that.options.messages.validation.value
             }">`
         ).appendTo(container);
-        $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(container);
+        $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(
+            container
+        );
     },
 
     /**
@@ -692,7 +765,7 @@ const StyleEditor = DataBoundWidget.extend({
      */
     _setEventHandlers() {
         const that = this;
-        const element = that.element;
+        const { element } = that;
         element
             .find(TOOLBAR_SELECTOR)
             .on(
@@ -735,7 +808,7 @@ const StyleEditor = DataBoundWidget.extend({
             )
         );
         e.preventDefault();
-        const grid = this.grid;
+        const { grid } = this;
         const selected = grid.select();
         if (selected instanceof $ && selected.length) {
             // although shorter, the following displays an alert to confirm deletion, which we do not want
@@ -793,7 +866,7 @@ const StyleEditor = DataBoundWidget.extend({
      */
     destroy() {
         const that = this;
-        const wrapper = that.wrapper;
+        const { wrapper } = that;
         // Unbind events
         wrapper.find(TABLE_SELECTOR).off(CONSTANTS.KEYPRESS + NS);
         wrapper.find(TOOLBAR_SELECTOR).off(CONSTANTS.CLICK + NS);

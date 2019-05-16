@@ -10,6 +10,7 @@
 import $ from 'jquery';
 import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
+// import Style from '../common/window.style.es6';
 import BaseModel from './data.base.es6';
 
 const {
@@ -17,11 +18,11 @@ const {
 } = window.kendo;
 
 /**
- * Style
- * @class Style
+ * StyleProperty
+ * @class StyleProperty
  * @extends BaseModel
  */
-export const Style = BaseModel.define({
+export const StyleProperty = BaseModel.define({
     id: 'name',
     fields: {
         name: {
@@ -49,8 +50,8 @@ export const StyleDataSource = DataSource.extend({
             this,
             $.extend(true, {}, options, {
                 schema: {
-                    modelBase: Style,
-                    model: Style
+                    modelBase: StyleProperty,
+                    model: StyleProperty
                 }
             })
         );

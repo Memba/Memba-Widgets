@@ -1612,19 +1612,22 @@ const Stage = DataBoundWidget.extend({
             const tool = this.options.tools[component.tool];
 
             // Discard the old menu, probably referring to another component
-            e.sender.remove(`[${attr(CONSTANTS.ACTION)}="component"]`);
+            const menu = $(`[${attr(CONSTANTS.ACTION)}="component"]`);
+            if (e.sender.element.find(menu).length) {
+                e.sender.remove(menu);
+            }
 
             // Get the context menu from the relevant tool
             if (tool instanceof BaseTool && $.isFunction(tool.getContextMenu)) {
-                const menu = tool.getContextMenu();
-                if (Array.isArray(menu) && menu.length) {
+                const items = tool.getContextMenu();
+                if (Array.isArray(items) && items.length) {
                     const attributes = {};
                     attributes[attr(CONSTANTS.ACTION)] = 'component';
                     e.sender.append([
                         {
                             text: tool.name,
                             attr: attributes,
-                            items: tool.getContextMenu()
+                            items
                         }
                     ]);
                 }

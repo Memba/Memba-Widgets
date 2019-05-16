@@ -20,7 +20,7 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { textLibrary } from './util.libraries.es6';
-import {scoreValidator} from './util.validators.es6';
+import { scoreValidator } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;

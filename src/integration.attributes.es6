@@ -7,7 +7,6 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
-import 'kendo.dialog';
 
 import './js/widgets/widgets.explorer.es6';
 import './js/widgets/widgets.propertygrid.es6';
@@ -32,6 +31,7 @@ const viewModel = observable({
     current: null
 });
 
+// Change binding
 viewModel.bind('change', e => {
     if (e.field === 'current') {
         const grid1 = $('#grid1').data('kendoPropertyGrid');
@@ -48,7 +48,7 @@ viewModel.bind('change', e => {
     }
 });
 
-// Page ready and bindings
+// Page ready
 $(() => {
     bind('body', viewModel);
     pageComponentDataSource.fetch().then(() => {

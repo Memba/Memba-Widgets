@@ -392,7 +392,8 @@ const PropertyGrid = Widget.extend({
 
                     optimizeEditor(row);
 
-                    // TODO: the following line has been modified to care for complex values like CharGrid, which have a type of undefined
+                    // TODO: the following line has been modified to care for
+                    //  complex values like CharGrid, which have a type of undefined
                     // if (row.type) {
                     if (hasRows) {
                         // With this.options.rows, only designated properties are displayed

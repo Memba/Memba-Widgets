@@ -33,6 +33,7 @@ const editors = {
  * @param row
  */
 function optimizeEditor(row = {}) {
+    /* eslint-disable no-param-reassign */
     assert.isPlainObject(
         row,
         assert.format(assert.messages.isPlainObject.default, 'row')
@@ -155,6 +156,7 @@ function optimizeEditor(row = {}) {
             row.attributes = $.extend({ type: 'text' }, row.attributes);
             row.editor = editors.input;
     }
+    /* eslint-enable no-param-reassign */
 }
 
 /**

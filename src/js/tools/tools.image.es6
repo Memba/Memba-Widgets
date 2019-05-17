@@ -81,7 +81,7 @@ const ImageTool = BaseTool.extend({
     height: 250,
     help: i18n().tools.image.help,
     icon: 'painting_landscape',
-    menu: ['attributes.src', 'attributes.alt', 'attributes.style'],
+    menu: ['attributes.src', 'attributes.alt'],
     name: i18n().tools.image.name,
     width: 250,
     templates: {

@@ -16,15 +16,15 @@ const {
     ui: { BaseDialog }
 } = window.kendo;
 
+const TEMPLATE =
+    '<div class="k-widget k-notification k-notification-#: type #"><div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div></div>';
+
 /**
  * A shortcut function to display an alert dialog
  * @param options (Same as kendo.ui.Dialog, expect `title` and `content` should be replaced by `type` and `message`)
  * @returns {*}
  */
 function openAlert(options = {}) {
-    const ALERT_TEMPLATE =
-        '<div class="k-widget k-notification k-notification-#: type #"><div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div></div>';
-
     const dfd = $.Deferred();
 
     // Find or create the DOM element
@@ -40,7 +40,7 @@ function openAlert(options = {}) {
                         BaseDialog.fn.options.messages.title[
                             options.type || 'info'
                         ],
-                    content: template(ALERT_TEMPLATE)({
+                    content: template(TEMPLATE)({
                         type: options.type || 'info',
                         message: options.message || ''
                     }),

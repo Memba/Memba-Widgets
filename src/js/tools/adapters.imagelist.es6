@@ -39,7 +39,7 @@ const ImageListAdapter = BaseAdapter.extend({
         BaseAdapter.fn.init.call(that, options);
         that.type = undefined;
         that.defaultValue = that.defaultValue || [];
-        // that.editor is the list editor where the insert image button triggers this.showDialog
+        // that.editor is the list editor where the insert image button triggers this.onImageClick
         that.editor = (container, settings) => {
             const element = $(`<${CONSTANTS.DIV}/>`)
                 .attr(
@@ -55,7 +55,7 @@ const ImageListAdapter = BaseAdapter.extend({
             const widget = element
                 .kendoImageList({
                     schemes: assets.image.schemes,
-                    click: that.showDialog.bind(that, settings)
+                    click: that.onImageClick.bind(that, settings)
                 })
                 .data('kendoImageList');
             assert.instanceof(
@@ -81,16 +81,17 @@ const ImageListAdapter = BaseAdapter.extend({
      * @param options
      * @param e
      */
-    showDialog(options, e) {
+    onImageClick(options, e) {
         // Note should return a promise to be used with app.notification?
         if (e.action === 'image') {
             // TODO wrap in import('./dialogs/dialogs.assetmanager.es6').then(function () {...});
             openAssetManager({
                 title: options.title || this.title,
+                assets: assets.image,
+                cssClass: 'kj-dialog-2', // Potentially a sedonc level of depth considering contextual menu
                 data: {
                     value: e.item.get('url')
-                },
-                assets: assets.image
+                }
             })
                 .then(result => {
                     if (

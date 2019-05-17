@@ -36,9 +36,11 @@ if (!(i18n().tools && i18n().tools.variable)) {
                 attributes: {},
                 properties: {
                     variable: {
+                        help: 'Enter a variable name',
                         title: 'Variable'
                     },
                     expression: {
+                        help: 'Enter a math expression',
                         title: 'Expression'
                     }
                 }
@@ -66,7 +68,7 @@ const VariableTool = BaseTool.extend({
     height: 64,
     help: i18n().tools.variable.help,
     icon: 'magic_wand',
-    menu: ['attributes.variable', 'attributes.expression'],
+    menu: ['properties.variable', 'properties.expression'],
     name: i18n().tools.variable.name,
     width: 64,
     templates: {
@@ -75,12 +77,15 @@ const VariableTool = BaseTool.extend({
     // attributes: {},
     properties: {
         variable: new TextBoxAdapter({
-            title: i18n().tools.variable.properties.variable.title,
-            defaultValue: 'k'
+            defaultValue: 'k',
+            help: i18n().tools.variable.properties.variable.help,
+            title: i18n().tools.variable.properties.variable.title
         }),
+        // Note: an expression can handle more than random numbers, for example: 2 * pi
         expression: new ExpressionAdapter({
-            title: i18n().tools.variable.properties.expression.title,
-            defaultValue: 'round(random(0, 10), 2)'
+            defaultValue: 'round(random(0, 10), 2)',
+            help: i18n().tools.variable.properties.expression.help,
+            title: i18n().tools.variable.properties.expression.title
         })
     },
 
@@ -297,7 +302,6 @@ const VariableTool = BaseTool.extend({
                 message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
-        // TODO: We should also check that there is a dropZone/Selector on the page if draggable/selectable
         return ret;
     }
 });

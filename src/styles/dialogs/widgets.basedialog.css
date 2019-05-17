@@ -4,6 +4,9 @@
 .k-dialog .k-notification-wrap span.k-icon {
   margin-right: 0.7em;
 }
+.k-dialog .kj-dialog-row:first-child {
+  margin-top: 1em;
+}
 .k-dialog .kj-dialog-flexrow {
   display: flex;
   align-items: flex-start;

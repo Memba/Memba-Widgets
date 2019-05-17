@@ -84,7 +84,7 @@ const LabelTool = BaseTool.extend({
     height: 80,
     help: i18n().tools.label.help,
     icon: 'font',
-    menu: ['attributes.text', 'attributes.style'],
+    menu: ['attributes.text'],
     name: i18n().tools.label.name,
     width: 300,
     templates: {

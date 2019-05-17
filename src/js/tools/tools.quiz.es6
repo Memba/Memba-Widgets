@@ -43,7 +43,6 @@ if (!(i18n().tools && i18n().tools.quiz)) {
                 name: 'Quiz',
                 attributes: {
                     data: {
-                        title: 'Values',
                         defaultValue: [
                             {
                                 text: 'True',
@@ -55,11 +54,14 @@ if (!(i18n().tools && i18n().tools.quiz)) {
                                 image:
                                     'cdn://images/o_collection/svg/office/error.svg'
                             }
-                        ]
+                        ],
+                        help: 'Enter the answers to choose from',
+                        title: 'Values'
                     },
                     groupStyle: { title: 'Group Style' },
                     itemStyle: { title: 'Item Style' },
                     mode: {
+                        help: 'Enter a display mode',
                         source: [
                             { text: 'Button', value: 'button' },
                             { text: 'DropDown', value: 'dropdown' },
@@ -76,8 +78,14 @@ if (!(i18n().tools && i18n().tools.quiz)) {
                     failure: { title: 'Failure' },
                     omit: { title: 'Omit' },
                     name: { title: 'Name' },
-                    question: { title: 'Question' },
-                    solution: { title: 'Solution' },
+                    question: {
+                        help: 'Enter the question shown in score reports',
+                        title: 'Question'
+                    },
+                    solution: {
+                        help: 'Enter the solution shown in score reports',
+                        title: 'Solution'
+                    },
                     success: { title: 'Success' },
                     validation: { title: 'Validation' }
                 }
@@ -106,10 +114,10 @@ const QuizTool = BaseTool.extend({
     icon: 'radio_button_group',
     menu: [
         'attributes.data',
+        'attributes.mode',
         '', // separator
         'properties.question',
-        'properties.solution',
-        'properties.validation'
+        'properties.solution'
     ],
     name: i18n().tools.quiz.name,
     weight: 1,
@@ -130,6 +138,7 @@ const QuizTool = BaseTool.extend({
         mode: new DropDownListAdapter(
             {
                 defaultValue: 'button',
+                help: i18n().tools.quiz.attributes.mode.help,
                 source: i18n().tools.quiz.attributes.mode.source,
                 title: i18n().tools.quiz.attributes.mode.title
             },
@@ -139,8 +148,8 @@ const QuizTool = BaseTool.extend({
             title: i18n().tools.quiz.attributes.shuffle.title
         }),
         groupStyle: new StyleAdapter({
-            title: i18n().tools.quiz.attributes.groupStyle.title,
-            defaultValue: 'font-size:60px;'
+            defaultValue: 'font-size:60px;',
+            title: i18n().tools.quiz.attributes.groupStyle.title
         }),
         itemStyle: new StyleAdapter({
             title: i18n().tools.quiz.attributes.itemStyle.title
@@ -149,8 +158,9 @@ const QuizTool = BaseTool.extend({
             title: i18n().tools.quiz.attributes.selectedStyle.title
         }),
         data: new ImageListAdapter({
-            title: i18n().tools.quiz.attributes.data.title,
-            defaultValue: i18n().tools.quiz.attributes.data.defaultValue
+            defaultValue: i18n().tools.quiz.attributes.data.defaultValue,
+            help: i18n().tools.quiz.attributes.data.help,
+            title: i18n().tools.quiz.attributes.data.title
         })
     },
     properties: {
@@ -158,10 +168,12 @@ const QuizTool = BaseTool.extend({
             title: i18n().tools.quiz.properties.name.title
         }),
         question: new QuestionAdapter({
+            help: i18n().tools.quiz.properties.question.help,
             title: i18n().tools.quiz.properties.question.title,
             validation: questionValidator
         }),
         solution: new QuizAdapter({
+            help: i18n().tools.quiz.properties.solution.help,
             title: i18n().tools.quiz.properties.solution.title
             // TODO validation: solutionValidator
         }),

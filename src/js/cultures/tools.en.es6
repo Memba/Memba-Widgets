@@ -305,7 +305,6 @@ if (tools.multiquiz) {
     tools.multiquiz.constructor.prototype.description = 'MultiQuiz';
     // Attributes
     const { attributes } = tools.multiquiz.constructor.prototype;
-    attributes.data.title = 'Values';
     attributes.data.defaultValue = [
         {
             text: 'Option 1',
@@ -316,15 +315,20 @@ if (tools.multiquiz) {
             image: 'cdn://images/o_collection/svg/office/hand_point_up.svg'
         }
     ];
+    attributes.data.help = 'Enter the answers to choose from';
+    attributes.data.title = 'Values';
     attributes.groupStyle.title = 'Group Style';
     attributes.itemStyle.title = 'Item Style';
+    attributes.mode.help = 'Enter a display mode';
     attributes.mode.title = 'Mode';
     attributes.selectedStyle.title = 'Select. Style';
     attributes.shuffle.title = 'Shuffle';
     // Properties
     const { properties } = tools.multiquiz.constructor.prototype;
     properties.name.title = 'Name';
+    properties.question.help = 'Enter the question shown in score reports';
     properties.question.title = 'Question';
+    properties.solution.help = 'Enter the solution shown in score reports';
     properties.solution.title = 'Solution';
     properties.validation.title = 'Validation';
     properties.success.title = 'Success';
@@ -336,7 +340,25 @@ if (tools.multiquiz) {
  * tools.numericbox
  */
 if (tools.numericbox) {
-    // TODO
+    // Description
+    tools.numericbox.constructor.prototype.description = 'TextBox';
+    // Attributes
+    const { attributes } = tools.numericbox.constructor.prototype;
+    attributes.decimals.title = 'Decimals';
+    attributes.min.title = 'Minimum';
+    attributes.max.title = 'Maximum';
+    attributes.style.title = 'Style';
+    // Properties
+    const { properties } = tools.numericbox.constructor.prototype;
+    properties.name.title = 'Name';
+    properties.question.help = 'Enter the question shown in score reports';
+    properties.question.title = 'Question';
+    properties.solution.help = 'Enter the solution shown in score reports';
+    properties.solution.title = 'Solution';
+    properties.validation.title = 'Validation';
+    properties.success.title = 'Success';
+    properties.failure.title = 'Failure';
+    properties.omit.title = 'Omit';
 }
 
 /**
@@ -347,7 +369,6 @@ if (tools.quiz) {
     tools.quiz.constructor.prototype.description = 'Quiz';
     // Attributes
     const { attributes } = tools.quiz.constructor.prototype;
-    attributes.data.title = 'Values';
     attributes.data.defaultValue = [
         {
             text: 'True',
@@ -358,15 +379,20 @@ if (tools.quiz) {
             image: 'cdn://images/o_collection/svg/office/error.svg'
         }
     ];
+    attributes.data.help = 'Enter the answers to choose from';
+    attributes.data.title = 'Values';
     attributes.groupStyle.title = 'Group Style';
     attributes.itemStyle.title = 'Item Style';
+    attributes.mode.help = 'Enter a display mode';
     attributes.mode.title = 'Mode';
     attributes.selectedStyle.title = 'Select. Style';
     attributes.shuffle.title = 'Shuffle';
     // Properties
     const { properties } = tools.quiz.constructor.prototype;
     properties.name.title = 'Name';
+    properties.question.help = 'Enter the question shown in score reports';
     properties.question.title = 'Question';
+    properties.solution.help = 'Enter the solution shown in score reports';
     properties.solution.title = 'Solution';
     properties.validation.title = 'Validation';
     properties.success.title = 'Success';
@@ -421,7 +447,9 @@ if (tools.textarea) {
     // Properties
     const { properties } = tools.textarea.constructor.prototype;
     properties.name.title = 'Name';
+    properties.question.help = 'Enter the question shown in score reports';
     properties.question.title = 'Question';
+    properties.solution.help = 'Enter the solution shown in score reports';
     properties.solution.title = 'Solution';
     properties.validation.title = 'Validation';
     properties.success.title = 'Success';
@@ -442,7 +470,9 @@ if (tools.textbox) {
     // Properties
     const { properties } = tools.textbox.constructor.prototype;
     properties.name.title = 'Name';
+    properties.question.help = 'Enter the question shown in score reports';
     properties.question.title = 'Question';
+    properties.solution.help = 'Enter the solution shown in score reports';
     properties.solution.title = 'Solution';
     properties.validation.title = 'Validation';
     properties.success.title = 'Success';
@@ -471,6 +501,13 @@ if (tools.textgaps) {
     properties.success.title = 'Success';
     properties.failure.title = 'Failure';
     properties.omit.title = 'Omit';
+}
+
+/**
+ * tools.variable
+ */
+if (tools.variable) {
+    // TODO
 }
 
 /**

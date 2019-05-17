@@ -9,17 +9,19 @@ import $ from 'jquery';
 import 'kendo.core';
 import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import optimizeEditor from '../tools/util.editors.es6';
 
 const {
     bind,
     resize,
+    template,
     ui: { BaseDialog }
 } = window.kendo;
 
-/**
- * Initialize culture
- */
-// BaseDialog.getMessageNameSpace().chargrid = BaseDialog.getMessageNameSpace().chargrid || {};
+const NOTIFICATION =
+    '<div class="k-widget k-notification k-notification-info"><div class="k-notification-wrap"><span class="k-icon k-i-info"></span>#: help #</div></div>';
+const CONTENT =
+    '<div class="kj-dialog-form"><div class="kj-dialog-row"></div></div>';
 
 /**
  * A shortcut function to display a dialog with a property editor
@@ -33,7 +35,9 @@ function openPropertyDialog(options = {}) {
     const $dialog = BaseDialog.getElement(options.cssClass);
     $dialog.css({ padding: '' });
 
-    debugger;
+    // Optimize editor
+    $.extend(options.row, { editable: true });
+    optimizeEditor(options.row);
 
     // Create the dialog
     const dialog = $dialog
@@ -42,10 +46,10 @@ function openPropertyDialog(options = {}) {
                 {
                     title:
                         BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<${CONSTANTS.DIV}/>`,
-                    data: {
-                        value: []
-                    },
+                    content: options.row.help
+                        ? template(NOTIFICATION)(options.row) + CONTENT
+                        : CONTENT,
+                    data: options.model.toJSON(),
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel
@@ -59,8 +63,13 @@ function openPropertyDialog(options = {}) {
 
     dialog.unbind(CONSTANTS.INITOPEN);
     dialog.one(CONSTANTS.INITOPEN, e => {
+        // Add editor
+        const { row } = options;
+        row.model = e.sender.viewModel;
+        const container = e.sender.element.find('.kj-dialog-row');
+        row.editor(container, row);
         // Bind viewModel
-        bind(e.sender.element.children(), e.sender.viewModel);
+        bind(container, e.sender.viewModel);
     });
 
     // Bind the show event to resize once opened

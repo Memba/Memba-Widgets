@@ -16,14 +16,14 @@ const {
     ui: { BaseDialog }
 } = window.kendo;
 
+const TEMPLATE = `<div><div class="k-widget k-notification k-notification-#: type #"><div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div></div><div><input type="text" class="k-textbox" style="width:100%; margin-top: 1em;" data-${ns}bind="value: input"></div></div>`;
+
 /**
  * A shortcut function to display a prompt dialog
  * @param options (Same as kendo.ui.Dialog, expect `title` and `content` should be replaced by `type` and `message`)
  * @returns {*}
  */
 function openPrompt(options = {}) {
-    const PROMPT_TEMPLATE = `<div><div class="k-widget k-notification k-notification-#: type #"><div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div></div><div><input type="text" class="k-textbox" style="width:100%; margin-top: 1em;" data-${ns}bind="value: input"></div></div>`;
-
     const dfd = $.Deferred();
 
     // Find or create the DOM element
@@ -38,7 +38,7 @@ function openPrompt(options = {}) {
                         BaseDialog.fn.options.messages.title[
                             options.type || 'info'
                         ],
-                    content: template(PROMPT_TEMPLATE)({
+                    content: template(TEMPLATE)({
                         type: options.type || 'info',
                         message: options.message || ''
                     }),

@@ -46,14 +46,20 @@ if (!(i18n().tools && i18n().tools.numericbox)) {
                 name: 'NumericBox',
                 attributes: {
                     decimals: { title: 'Decimals' },
-                    min: { title: 'Min' },
-                    max: { title: 'Max' },
+                    min: { title: 'Minimum' },
+                    max: { title: 'Maximum' },
                     style: { title: 'Style' }
                 },
                 properties: {
                     name: { title: 'Name' },
-                    question: { title: 'Question' },
-                    solution: { title: 'Solution' },
+                    question: {
+                        help: 'Enter the question shown in score reports',
+                        title: 'Question'
+                    },
+                    solution: {
+                        help: 'Enter the solution shown in score reports',
+                        title: 'Solution'
+                    },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
@@ -82,13 +88,7 @@ const NumericBoxTool = BaseTool.extend({
     height: 80,
     help: i18n().tools.numericbox.help,
     icon: 'odometer',
-    menu: [
-        'attributes.style',
-        '', // separator
-        'properties.question',
-        'properties.solution',
-        'properties.validation'
-    ],
+    menu: ['properties.question', 'properties.solution'],
     name: i18n().tools.numericbox.name,
     weight: 1,
     width: 300,
@@ -146,10 +146,12 @@ const NumericBoxTool = BaseTool.extend({
             title: i18n().tools.numericbox.properties.name.title
         }),
         question: new QuestionAdapter({
+            help: i18n().tools.numericbox.properties.question.help,
             title: i18n().tools.numericbox.properties.question.title,
             validation: questionValidator
         }),
         solution: new ExpressionAdapter({
+            help: i18n().tools.numericbox.properties.solution.help,
             title: i18n().tools.numericbox.properties.solution.title
         }),
         validation: new ValidationAdapter({

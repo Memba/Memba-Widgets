@@ -54,8 +54,14 @@ if (!(i18n().tools && i18n().tools.textbox)) {
                 },
                 properties: {
                     name: { title: 'Name' },
-                    question: { title: 'Question' },
-                    solution: { title: 'Solution' },
+                    question: {
+                        help: 'Enter the question shown in score reports',
+                        title: 'Question'
+                    },
+                    solution: {
+                        help: 'Enter the solution shown in score reports',
+                        title: 'Solution'
+                    },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
@@ -84,13 +90,7 @@ const TextBoxTool = BaseTool.extend({
     height: 80,
     help: i18n().tools.textbox.help,
     icon: 'text_field',
-    menu: [
-        'attributes.style',
-        '', // separator
-        'properties.question',
-        'properties.solution',
-        'properties.validation'
-    ],
+    menu: ['properties.question', 'properties.solution'],
     name: i18n().tools.textbox.name,
     weight: 1,
     width: 300,
@@ -119,10 +119,12 @@ const TextBoxTool = BaseTool.extend({
             title: i18n().tools.textbox.properties.name.title
         }),
         question: new QuestionAdapter({
+            help: i18n().tools.textbox.properties.question.help,
             title: i18n().tools.textbox.properties.question.title,
             validation: questionValidator
         }),
         solution: new TextBoxAdapter({
+            help: i18n().tools.textbox.properties.solution.help,
             title: i18n().tools.textbox.properties.solution.title,
             validation: solutionValidator
         }),

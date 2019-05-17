@@ -306,7 +306,6 @@ if (tools.multiquiz) {
         'Question à Choix Multiple';
     // Attributes
     const { attributes } = tools.multiquiz.constructor.prototype;
-    attributes.data.title = 'Valeurs';
     attributes.data.defaultValue = [
         {
             text: 'Option 1',
@@ -317,15 +316,22 @@ if (tools.multiquiz) {
             image: 'cdn://images/o_collection/svg/office/hand_point_up.svg'
         }
     ];
+    attributes.data.help = 'Entrez les réponses possibles';
+    attributes.data.title = 'Valeurs';
     attributes.groupStyle.title = 'Style Groupe';
     attributes.itemStyle.title = 'Style Element';
+    attributes.mode.help = 'Choisissez un mode d´affichage';
     attributes.mode.title = 'Mode';
     attributes.selectedStyle.title = 'Style Sélection';
     attributes.shuffle.title = 'Mélanger';
     // Properties
     const { properties } = tools.multiquiz.constructor.prototype;
     properties.name.title = 'Nom';
+    properties.question.help =
+        'Entrez la question à afficher dans les rapports de correction';
     properties.question.title = 'Question';
+    properties.solution.help =
+        'Entrez la solution à afficher dans les rapports de correction';
     properties.solution.title = 'Solution';
     properties.validation.title = 'Validation';
     properties.success.title = 'Succès';
@@ -337,7 +343,27 @@ if (tools.multiquiz) {
  * tools.numericbox
  */
 if (tools.numericbox) {
-    // TODO
+    // Description
+    tools.numericbox.constructor.prototype.description = 'Saisie de nombre';
+    // Attributes
+    const { attributes } = tools.numericbox.constructor.prototype;
+    attributes.decimals.title = 'Décimales';
+    attributes.min.title = 'Minimum';
+    attributes.max.title = 'Maximum';
+    attributes.style.title = 'Style';
+    // Properties
+    const { properties } = tools.numericbox.constructor.prototype;
+    properties.name.title = 'Nom';
+    properties.question.help =
+        'Entrez la question à afficher dans les rapports de correction';
+    properties.question.title = 'Question';
+    properties.solution.help =
+        'Entrez la solution à afficher dans les rapports de correction';
+    properties.solution.title = 'Solution';
+    properties.validation.title = 'Validation';
+    properties.success.title = 'Succès';
+    properties.failure.title = 'Échec';
+    properties.omit.title = 'Omission';
 }
 
 /**
@@ -348,7 +374,6 @@ if (tools.quiz) {
     tools.quiz.constructor.prototype.description = 'Question à Choix Unique';
     // Attributes
     const { attributes } = tools.quiz.constructor.prototype;
-    attributes.data.title = 'Valeurs';
     attributes.data.defaultValue = [
         {
             text: 'Vrai',
@@ -359,15 +384,22 @@ if (tools.quiz) {
             image: 'cdn://images/o_collection/svg/office/error.svg'
         }
     ];
+    attributes.data.help = 'Entrez les réponses possibles';
+    attributes.data.title = 'Valeurs';
     attributes.groupStyle.title = 'Style Groupe';
     attributes.itemStyle.title = 'Style Element';
+    attributes.mode.help = 'Choisissez un mode d´affichage';
     attributes.mode.title = 'Mode';
     attributes.selectedStyle.title = 'Style Sélection';
     attributes.shuffle.title = 'Mélanger';
     // Properties
     const { properties } = tools.quiz.constructor.prototype;
     properties.name.title = 'Nom';
+    properties.question.help =
+        'Entrez la question à afficher dans les rapports de correction';
     properties.question.title = 'Question';
+    properties.solution.help =
+        'Entrez la solution à afficher dans les rapports de correction';
     properties.solution.title = 'Solution';
     properties.validation.title = 'Validation';
     properties.success.title = 'Succès';
@@ -375,8 +407,9 @@ if (tools.quiz) {
     properties.omit.title = 'Omission';
 }
 
-// if (tools.random) {}
-
+/**
+ * tools.selector
+ */
 if (tools.selector) {
     // Description
     tools.selector.constructor.prototype.description = 'Selecteur';
@@ -396,6 +429,9 @@ if (tools.selector) {
     properties.disabled.title = 'Désactiver';
 }
 
+/**
+ * tools.table
+ */
 if (tools.table) {
     // Description
     tools.table.constructor.prototype.description = 'Table Statique';
@@ -406,16 +442,23 @@ if (tools.table) {
     attributes.data.title = 'Données';
 }
 
+/**
+ * tools.textarea
+ */
 if (tools.textarea) {
     // Description
-    tools.textarea.constructor.prototype.description = 'Aire de Texte';
+    tools.textarea.constructor.prototype.description = 'Saisie de texte long';
     // Attributes
     const { attributes } = tools.textarea.constructor.prototype;
     attributes.style.title = 'Style';
     // Properties
     const { properties } = tools.textarea.constructor.prototype;
     properties.name.title = 'Nom';
+    properties.question.help =
+        'Entrez la question à afficher dans les rapports de correction';
     properties.question.title = 'Question';
+    properties.solution.help =
+        'Entrez la solution à afficher dans les rapports de correction';
     properties.solution.title = 'Solution';
     properties.validation.title = 'Validation';
     properties.success.title = 'Succès';
@@ -423,9 +466,12 @@ if (tools.textarea) {
     properties.omit.title = 'Omission';
 }
 
+/**
+ * tools.textbox
+ */
 if (tools.textbox) {
     // Description
-    tools.textbox.constructor.prototype.description = 'Boîte de Texte';
+    tools.textbox.constructor.prototype.description = 'Saisie de Texte court';
     // Attributes
     const { attributes } = tools.textbox.constructor.prototype;
     attributes.mask.title = 'Masque';
@@ -433,7 +479,11 @@ if (tools.textbox) {
     // Properties
     const { properties } = tools.textbox.constructor.prototype;
     properties.name.title = 'Nom';
+    properties.question.help =
+        'Entrez la question à afficher dans les rapports de correction';
     properties.question.title = 'Question';
+    properties.solution.help =
+        'Entrez la solution à afficher dans les rapports de correction';
     properties.solution.title = 'Solution';
     properties.validation.title = 'Validation';
     properties.success.title = 'Succès';
@@ -441,6 +491,9 @@ if (tools.textbox) {
     properties.omit.title = 'Omission';
 }
 
+/**
+ * tools.textgaps
+ */
 if (tools.textgaps) {
     // Description
     tools.textgaps.constructor.prototype.description = 'Texte à trous';
@@ -462,6 +515,16 @@ if (tools.textgaps) {
     properties.omit.title = 'Omission';
 }
 
+/**
+ * tools.variable
+ */
+if (tools.variable) {
+    // TODO
+}
+
+/**
+ * tools.video
+ */
 if (tools.video) {
     // Description
     tools.video.constructor.prototype.description = 'Lecteur Vidéo';

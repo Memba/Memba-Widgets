@@ -44,7 +44,6 @@ if (!(i18n().tools && i18n().tools.multiquiz)) {
                 name: 'MultiQuiz',
                 attributes: {
                     data: {
-                        title: 'Values',
                         defaultValue: [
                             {
                                 text: 'True',
@@ -56,11 +55,14 @@ if (!(i18n().tools && i18n().tools.multiquiz)) {
                                 image:
                                     'cdn://images/o_collection/svg/office/error.svg'
                             }
-                        ]
+                        ],
+                        help: 'Enter the answers to choose from',
+                        title: 'Values'
                     },
                     groupStyle: { title: 'Group Style' },
                     itemStyle: { title: 'Item Style' },
                     mode: {
+                        help: 'Enter a display mode',
                         source: [
                             { text: 'Button', value: 'button' },
                             { text: 'CheckBox', value: 'checkbox' },
@@ -77,8 +79,14 @@ if (!(i18n().tools && i18n().tools.multiquiz)) {
                     failure: { title: 'Failure' },
                     omit: { title: 'Omit' },
                     name: { title: 'Name' },
-                    question: { title: 'Question' },
-                    solution: { title: 'Solution' },
+                    question: {
+                        help: 'Enter the question shown in score reports',
+                        title: 'Question'
+                    },
+                    solution: {
+                        help: 'Enter the solution shown in score reports',
+                        title: 'Solution'
+                    },
                     success: { title: 'Success' },
                     validation: { title: 'Validation' }
                 }
@@ -105,6 +113,13 @@ const MultiQuizTool = BaseTool.extend({
     height: 150,
     help: null,
     icon: 'checkbox_group',
+    menu: [
+        'attributes.data',
+        'attributes.mode',
+        '', // separator
+        'properties.question',
+        'properties.solution'
+    ],
     name: i18n().tools.multiquiz.name,
     weight: 1,
     width: 420,

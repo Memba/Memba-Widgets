@@ -24,6 +24,7 @@ const NS = '.kendoToolBox';
 const WIDGET_CLASS = 'k-widget k-toolbar kj-toolbox';
 const BUTTON =
     '<a href="#" class="k-button kj-tool" title="{1}"><img src="{0}" alt="{1}"></a>';
+('<a href="#" class="k-button kj-tool" title="{1}"><img src="{0}" alt="{1}"></a>');
 const ROLE = 'role';
 const MENU = 'menu';
 const MENUITEM = 'menuitem';
@@ -164,11 +165,7 @@ const ToolBox = Widget.extend({
             if (options.tools[id] instanceof BaseTool) {
                 const tool = options.tools[id];
                 const button = $(
-                    format(
-                        BUTTON,
-                        format(this._iconPath, tool.icon),
-                        tool.description
-                    )
+                    format(BUTTON, format(this._iconPath, tool.icon), tool.name)
                 )
                     .attr(attr(TOOL), tool.id)
                     .attr(ROLE, MENUITEM)

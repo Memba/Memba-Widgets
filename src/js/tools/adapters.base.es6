@@ -10,9 +10,13 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import openPropertyDialog from '../dialogs/dialogs.property.es6';
-import BaseDialog from '../dialogs/widgets.basedialog.es6';
+import '../dialogs/widgets.basedialog.es6';
 
-const { Class } = window.kendo;
+const {
+    Class,
+    getter,
+    ui: { BaseDialog }
+} = window.kendo;
 
 /**
  * BaseAdapter
@@ -163,7 +167,8 @@ const BaseAdapter = Class.extend({
                 result.action ===
                 BaseDialog.fn.options.messages.actions.ok.action
             ) {
-                // options.model.set(options.field, result.data.value);
+                const value = getter(options.field)(result.data);
+                options.model.set(options.field, value);
             }
         });
     }

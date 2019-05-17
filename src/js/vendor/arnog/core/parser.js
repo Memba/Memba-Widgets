@@ -681,6 +681,8 @@ class Parser {
         const result = new MathAtom(this.parseMode, 'group');
         result.body = this.scanImplicitGroup(token => token.type === '}');
         this.parseToken('}');
+        result.latexOpen = '{';
+        result.latexClose = '}';
         return result;
     }
     scanSmartFence() {
@@ -794,14 +796,14 @@ class Parser {
         // If none is present (beginning of the mathlist, i.e. `{^2}`,
         // an empty atom will be created, equivalent to `{{}^2}`
         let result = false;
-        while (this.hasToken('^') || this.hasToken('_') || this.hasLiteral("'")) {
+        while (this.hasLiteral('^') || this.hasLiteral('_') || this.hasLiteral("'")) {
             let supsub;
-            if (this.hasToken('^')) {
+            if (this.hasLiteral('^')) {
                 supsub = 'superscript';
-            } else if (this.hasToken('_')) {
+            } else if (this.hasLiteral('_')) {
                 supsub = 'subscript';
             }
-            if (this.parseToken('^') || this.parseToken('_')) {
+            if (this.parseLiteral('^') || this.parseLiteral('_')) {
                 const arg = this.scanArg();
                 if (arg) {
                     const atom = this.lastMathAtom();

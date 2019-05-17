@@ -22,8 +22,9 @@ const INTL_KEY = {
 }
 
 const KEY_NAMES = {
-    'Escape':       'Esc',
+    'Space':        'Spacebar',
     ' ':            'Spacebar',
+    'Escape':       'Esc',
     'ArrowLeft':    'Left',
     'ArrowUp':      'Up',
     'ArrowRight':   'Right',
@@ -118,12 +119,16 @@ function keyboardEventToString(evt) {
         }
     }
 
+    if (!keyname && evt.code) {
+        keyname = KEY_NAMES[evt.code] || evt.code;
+    }
+
     if (!keyname) {
         if (INTL_KEY[evt.key]) {
             keyname = INTL_KEY[evt.key];
             useModifiers = false;
         } else {
-            keyname = KEY_NAMES[evt.key] || evt.code;
+            keyname = KEY_NAMES[evt.key];
         }
 
         // For virtual keyboards (iOS, Android) and Microsoft Edge (!)

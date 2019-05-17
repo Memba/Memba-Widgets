@@ -1,4 +1,4 @@
-@font-folder: "../khan/fonts";
+@font-folder: "fonts";
 @use-ttf: false;
 @use-woff: true;
 @use-woff2: true;
@@ -37,7 +37,7 @@
         .use-ttf(@family, @suffix);
         font-weight: @weight;
         font-style: @style;
-        font-display: swap;
+        font-display: "swap";
     }
 }
 

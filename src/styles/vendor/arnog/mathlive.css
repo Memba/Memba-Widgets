@@ -1,156 +1,156 @@
 @font-face {
   font-family: 'KaTeX_AMS';
-  src: url('../khan/fonts/KaTeX_AMS-Regular.woff2') format('woff2'), url('../khan/fonts/KaTeX_AMS-Regular.woff') format('woff');
+  src: url('fonts/KaTeX_AMS-Regular.woff2') format('woff2'), url('fonts/KaTeX_AMS-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Caligraphic';
-  src: url('../khan/fonts/KaTeX_Caligraphic-Bold.woff2') format('woff2'), url('../khan/fonts/KaTeX_Caligraphic-Bold.woff') format('woff');
+  src: url('fonts/KaTeX_Caligraphic-Bold.woff2') format('woff2'), url('fonts/KaTeX_Caligraphic-Bold.woff') format('woff');
   font-weight: bold;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Caligraphic';
-  src: url('../khan/fonts/KaTeX_Caligraphic-Regular.woff2') format('woff2'), url('../khan/fonts/KaTeX_Caligraphic-Regular.woff') format('woff');
+  src: url('fonts/KaTeX_Caligraphic-Regular.woff2') format('woff2'), url('fonts/KaTeX_Caligraphic-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Fraktur';
-  src: url('../khan/fonts/KaTeX_Fraktur-Bold.woff2') format('woff2'), url('../khan/fonts/KaTeX_Fraktur-Bold.woff') format('woff');
+  src: url('fonts/KaTeX_Fraktur-Bold.woff2') format('woff2'), url('fonts/KaTeX_Fraktur-Bold.woff') format('woff');
   font-weight: bold;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Fraktur';
-  src: url('../khan/fonts/KaTeX_Fraktur-Regular.woff2') format('woff2'), url('../khan/fonts/KaTeX_Fraktur-Regular.woff') format('woff');
+  src: url('fonts/KaTeX_Fraktur-Regular.woff2') format('woff2'), url('fonts/KaTeX_Fraktur-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Main';
-  src: url('../khan/fonts/KaTeX_Main-BoldItalic.woff2') format('woff2'), url('../khan/fonts/KaTeX_Main-BoldItalic.woff') format('woff');
+  src: url('fonts/KaTeX_Main-BoldItalic.woff2') format('woff2'), url('fonts/KaTeX_Main-BoldItalic.woff') format('woff');
   font-weight: bold;
   font-style: italic;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Main';
-  src: url('../khan/fonts/KaTeX_Main-Bold.woff2') format('woff2'), url('../khan/fonts/KaTeX_Main-Bold.woff') format('woff');
+  src: url('fonts/KaTeX_Main-Bold.woff2') format('woff2'), url('fonts/KaTeX_Main-Bold.woff') format('woff');
   font-weight: bold;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Main';
-  src: url('../khan/fonts/KaTeX_Main-Italic.woff2') format('woff2'), url('../khan/fonts/KaTeX_Main-Italic.woff') format('woff');
+  src: url('fonts/KaTeX_Main-Italic.woff2') format('woff2'), url('fonts/KaTeX_Main-Italic.woff') format('woff');
   font-weight: normal;
   font-style: italic;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Main';
-  src: url('../khan/fonts/KaTeX_Main-Regular.woff2') format('woff2'), url('../khan/fonts/KaTeX_Main-Regular.woff') format('woff');
+  src: url('fonts/KaTeX_Main-Regular.woff2') format('woff2'), url('fonts/KaTeX_Main-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Math';
-  src: url('../khan/fonts/KaTeX_Math-BoldItalic.woff2') format('woff2'), url('../khan/fonts/KaTeX_Math-BoldItalic.woff') format('woff');
+  src: url('fonts/KaTeX_Math-BoldItalic.woff2') format('woff2'), url('fonts/KaTeX_Math-BoldItalic.woff') format('woff');
   font-weight: bold;
   font-style: italic;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Math';
-  src: url('../khan/fonts/KaTeX_Math-Italic.woff2') format('woff2'), url('../khan/fonts/KaTeX_Math-Italic.woff') format('woff');
+  src: url('fonts/KaTeX_Math-Italic.woff2') format('woff2'), url('fonts/KaTeX_Math-Italic.woff') format('woff');
   font-weight: normal;
   font-style: italic;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_SansSerif';
-  src: url('../khan/fonts/KaTeX_SansSerif-Bold.woff2') format('woff2'), url('../khan/fonts/KaTeX_SansSerif-Bold.woff') format('woff');
+  src: url('fonts/KaTeX_SansSerif-Bold.woff2') format('woff2'), url('fonts/KaTeX_SansSerif-Bold.woff') format('woff');
   font-weight: bold;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_SansSerif';
-  src: url('../khan/fonts/KaTeX_SansSerif-Italic.woff2') format('woff2'), url('../khan/fonts/KaTeX_SansSerif-Italic.woff') format('woff');
+  src: url('fonts/KaTeX_SansSerif-Italic.woff2') format('woff2'), url('fonts/KaTeX_SansSerif-Italic.woff') format('woff');
   font-weight: normal;
   font-style: italic;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_SansSerif';
-  src: url('../khan/fonts/KaTeX_SansSerif-Regular.woff2') format('woff2'), url('../khan/fonts/KaTeX_SansSerif-Regular.woff') format('woff');
+  src: url('fonts/KaTeX_SansSerif-Regular.woff2') format('woff2'), url('fonts/KaTeX_SansSerif-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Script';
-  src: url('../khan/fonts/KaTeX_Script-Regular.woff2') format('woff2'), url('../khan/fonts/KaTeX_Script-Regular.woff') format('woff');
+  src: url('fonts/KaTeX_Script-Regular.woff2') format('woff2'), url('fonts/KaTeX_Script-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Size1';
-  src: url('../khan/fonts/KaTeX_Size1-Regular.woff2') format('woff2'), url('../khan/fonts/KaTeX_Size1-Regular.woff') format('woff');
+  src: url('fonts/KaTeX_Size1-Regular.woff2') format('woff2'), url('fonts/KaTeX_Size1-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Size2';
-  src: url('../khan/fonts/KaTeX_Size2-Regular.woff2') format('woff2'), url('../khan/fonts/KaTeX_Size2-Regular.woff') format('woff');
+  src: url('fonts/KaTeX_Size2-Regular.woff2') format('woff2'), url('fonts/KaTeX_Size2-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Size3';
-  src: url('../khan/fonts/KaTeX_Size3-Regular.woff2') format('woff2'), url('../khan/fonts/KaTeX_Size3-Regular.woff') format('woff');
+  src: url('fonts/KaTeX_Size3-Regular.woff2') format('woff2'), url('fonts/KaTeX_Size3-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Size4';
-  src: url('../khan/fonts/KaTeX_Size4-Regular.woff2') format('woff2'), url('../khan/fonts/KaTeX_Size4-Regular.woff') format('woff');
+  src: url('fonts/KaTeX_Size4-Regular.woff2') format('woff2'), url('fonts/KaTeX_Size4-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: 'KaTeX_Typewriter';
-  src: url('../khan/fonts/KaTeX_Typewriter-Regular.woff2') format('woff2'), url('../khan/fonts/KaTeX_Typewriter-Regular.woff') format('woff');
+  src: url('fonts/KaTeX_Typewriter-Regular.woff2') format('woff2'), url('fonts/KaTeX_Typewriter-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: KaTeX_Main;
   src: url(fonts/KaTeX_Main-Regular.woff2) format("woff2"), url(fonts/KaTeX_Main-Regular.woff) format("woff");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: "swap";
 }
 @font-face {
   font-family: KaTeX_Math;
   src: url(fonts/KaTeX_Math-Italic.woff2) format("woff2"), url(fonts/KaTeX_Math-Italic.woff) format("woff");
   font-weight: 400;
   font-style: italic;
-  font-display: swap;
+  font-display: "swap";
 }
 .sr-only {
   position: absolute;
@@ -311,7 +311,7 @@
   display: block;
   height: 0;
   position: relative;
-  line-height: 1;
+  line-height: 0;
 }
 .ML__mathlive .vlist > span > span {
   display: inline-block;
@@ -326,12 +326,11 @@
   width: 100%;
 }
 .ML__mathlive .mfrac .frac-line:after {
-  border-bottom-style: solid;
   content: "";
   display: block;
-  margin-top: -1px;
+  margin-top: -0.04em;
+  border-bottom-style: solid;
   border-bottom-width: 0.04em;
-  min-height: 1px;
   /* There's a bug since Chrome 62 where 
                 sub-pixel border lines don't draw at some zoom 
                 levels (110%, 90%). Setting the min-height seems to work around it.
@@ -462,19 +461,19 @@
   position: relative;
 }
 .ML__mathlive .sqrt .sqrt-line {
+  height: 0.04em;
   width: 100%;
 }
 .ML__mathlive .sqrt .sqrt-line:before {
+  content: "";
+  display: block;
+  margin-top: -0.04em;
   border-bottom-style: solid;
   border-bottom-width: 0.04em;
-  min-height: 0.5px;
   /* There's a bug since Chrome 62 where 
                 sub-pixel border lines don't draw at some zoom 
                 levels (110%, 90%). Setting the min-height seems to work around it.
                 */
-  content: " ";
-  display: block;
-  margin-top: -0.1em;
 }
 .ML__mathlive .sqrt .sqrt-line:after {
   border-bottom-width: 1px;
@@ -954,7 +953,6 @@
 }
 .ML__selection {
   background: var(--highlight-inactive);
-  border-radius: 4px;
   box-sizing: border-box;
 }
 .ML__focused .ML__selection {
@@ -1024,18 +1022,20 @@ body[theme="dark"] .ML__keystroke-caption {
   content: attr(data-tooltip);
   display: inline-table;
   top: 110%;
+  width: max-content;
+  max-width: 200px;
   padding: 8px 8px;
   background: #616161;
   color: #fff;
   text-align: center;
   z-index: 2;
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   font-weight: 400;
-  font-size: 10px;
+  font-size: 12px;
   /* Phone */
   opacity: 0;
-  border-radius: 2px;
   transform: scale(0.5);
   transition: all 0.15s cubic-bezier(0.4, 0, 1, 1);
 }
@@ -1908,10 +1908,9 @@ body[theme="dark"] div.ML__keyboard.material {
   opacity: 0.5;
 }
 .ML__placeholder {
-  padding-left: 1ex;
-  padding-right: 1ex;
-  font-size: 75%;
   opacity: 0.7;
+  padding-left: 0.5ex;
+  padding-right: 0.5ex;
 }
 .ML__keystroke-caption > span {
   min-width: 14px;
@@ -2057,4 +2056,14 @@ div.ML__popover.is-visible {
 (usually a "+" sign)*/
 .ML__shortcut-join {
   opacity: 0.5;
+}
+/* Styling for an element which is overlaid 
+to the left and right of the mathfield while 
+scrolling to prevent the capture of hover events */
+.ML__scroller {
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  height: 100vh;
+  width: 200px;
 }

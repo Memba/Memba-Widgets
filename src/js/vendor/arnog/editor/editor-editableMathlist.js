@@ -140,13 +140,13 @@ EditableMathlist.prototype.forEachSelected = function(cb, options) {
     const lastOffset = this.endOffset() + 1;
     if (options.recursive) {
         for (let i = firstOffset; i < lastOffset; i++) {
-            if (siblings[i].type !== 'first') {
+            if (siblings[i] && siblings[i].type !== 'first') {
                 siblings[i].forEach(cb);
             }
         }
     } else {
         for (let i = firstOffset; i < lastOffset; i++) {
-            if (siblings[i].type !== 'first') {
+            if (siblings[i] && siblings[i].type !== 'first') {
                 cb(siblings[i])
             }
         }
@@ -1118,7 +1118,9 @@ EditableMathlist.prototype.commitCommandStringBeforeInsertionPoint = function() 
         const siblings = this.siblings();
         const anchorOffset = this.anchorOffset() + 1;
         for (let i = command.start; i < anchorOffset; i++) {
-            siblings[i].suggestion = false;
+            if (siblings[i]) {
+                siblings[i].suggestion = false;
+            }
         }
     }
 }
@@ -1165,11 +1167,10 @@ EditableMathlist.prototype.spliceCommandStringAroundInsertionPoint = function(ma
  * @private
  */
 EditableMathlist.prototype.extractArgBeforeInsertionPoint = function() {
-    const result = [];
     const siblings = this.siblings();
-
     if (siblings.length <= 1) return [];
 
+    const result = [];
     let i = this.startOffset();
     if (siblings[i].mode === 'text') {
         while (i >= 1 && siblings[i].mode === 'text') {
@@ -1177,10 +1178,8 @@ EditableMathlist.prototype.extractArgBeforeInsertionPoint = function() {
             i--
         }
     } else {
-        while (i >= 1 && (siblings[i].type === 'mord' ||
-            siblings[i].type === 'surd'     ||
-            siblings[i].type === 'leftright'
-            )) {
+        while (i >= 1 && 
+            /mord|surd|msubsup|leftright|mop/.test(siblings[i].type)) {
             result.unshift(siblings[i]);
             i--
         }
@@ -1188,6 +1187,10 @@ EditableMathlist.prototype.extractArgBeforeInsertionPoint = function() {
 
     return result;
 }
+// 3 + 4(sin(x) > 3 + 4[sin(x)]/[ __ ]
+    // Add a frac inside a partial leftright: remove leftright
+// When smartfence, add paren at end of expr
+// a+3x=1 insert after + => paren before =
 
 
 /**
@@ -1958,6 +1961,27 @@ function removeParen(list) {
  * */
 EditableMathlist.prototype.simplifyParen = function(atoms) {
     if (atoms && this.config.removeExtraneousParentheses) {
+        for (let i = 0; atoms[i]; i++) {
+            if (atoms[i].type === 'leftright' && atoms[i].leftDelim === '(') {
+                if (Array.isArray(atoms[i].body)) {
+                    let genFracCount = 0;
+                    let genFracIndex = 0;
+                    let nonGenFracCount = 0;
+                    for (let j = 0; atoms[i].body; j++) {
+                        if (atoms[i].body[j].type === 'genfrac') {
+                            genFracCount++;
+                            genFracIndex = j;
+                        }
+                        if (atoms[i].body[j].type !== 'first') nonGenFracCount++;
+                    }
+                    if (nonGenFracCount === 0 && genFracCount === 1) {
+                        // This is a single frac inside a leftright: remove the leftright
+                        atoms[i] = atoms[i].body[genFracIndex];
+                    }
+                }
+            }
+        }
+
         atoms.forEach(atom => {
             if (atom.type === 'genfrac') {
                 this.simplifyParen(atom.numer);
@@ -2062,10 +2086,18 @@ function applyStyleToUnstyledAtoms(atom, style) {
  * handlers for the contentWillChange, contentDidChange, selectionWillChange and
  * selectionDidChange notifications will not be invoked. Default `false`.
  * 
+ * @param {object} options.style
+ * 
  * @method EditableMathlist#insert
  */
 EditableMathlist.prototype.insert = function(s, options) {
     options = options || {};
+
+    // Try to insert a smart fence.
+    if (options.smartFence && this._insertSmartFence(s, options.style)) {
+        return;
+    }
+
     const suppressChangeNotifications = this.suppressChangeNotifications;
     if (options.suppressChangeNotifications) {
         this.suppressChangeNotifications = true;
@@ -2200,8 +2232,17 @@ EditableMathlist.prototype.insert = function(s, options) {
     applyStyleToUnstyledAtoms(mathlist, options.style);
 
     // Insert the mathlist at the position following the anchor
-    Array.prototype.splice.apply(this.siblings(),
-        [this.anchorOffset() + 1, 0].concat(mathlist));
+    const parent = this.parent();
+    if (this.config.removeExtraneousParentheses && 
+        parent && parent.type === 'leftright' && parent.leftDelim === '(' &&
+        mathlist && mathlist.length === 1 && mathlist[0].type === 'genfrac') {
+        // If the insert is fraction inside a lefright, remove the leftright
+        this.path.pop();
+        this.siblings()[this.anchorOffset()] = mathlist[0];
+    } else {
+        Array.prototype.splice.apply(this.siblings(),
+            [this.anchorOffset() + 1, 0].concat(mathlist));
+    }
 
     // If needed, make sure there's a first atom in the siblings list
     this.insertFirstAtom();
@@ -2244,11 +2285,10 @@ EditableMathlist.prototype.insert = function(s, options) {
  * Insert a smart fence '(', '{', '[', etc...
  * If not handled (because `fence` wasn't a fence), return false.
  * @param {string} fence
+ * @param {object} style
  * @return {boolean}
  */
 EditableMathlist.prototype._insertSmartFence = function(fence, style) {
-    if (!this.config.smartFence) return false;
-
     const parent = this.parent();
 
     // We're inserting a middle punctuation, for example as in {...|...}
@@ -2279,8 +2319,17 @@ EditableMathlist.prototype._insertSmartFence = function(fence, style) {
         }
         s += (collapsed ? '?' : rDelim);
 
+        let content = [];
+        if (collapsed) {
+            // content = this.siblings().slice(this.anchorOffset() + 1);
+            content = this.siblings().splice(this.anchorOffset() + 1, this.siblings().length);
+        }
         this.insert(s, { mode: 'math', format: 'latex', style: style });
-        if (collapsed) this.move(-1);
+        if (collapsed) {
+            // Move everything that was after the anchor into the leftright
+            this.sibling(0).body = content; 
+            this.move(-1);
+        }
         return true;
     }
 
@@ -3161,13 +3210,13 @@ EditableMathlist.prototype._applyStyle = function(style) {
     if (style.series) style.fontSeries = style.series;
     if (style.fontSeries && everyStyle('fontSeries', style.fontSeries)) {
         // If the selection already has this series (weight), turn it off
-        style.fontSeries = 'm';
+        style.fontSeries = 'auto';
     }
 
     if (style.shape) style.fontShape = style.shape;
     if (style.fontShape && everyStyle('fontShape', style.fontShape)) {
         // If the selection already has this shape (italic), turn it off
-        style.fontShape = 'up';
+        style.fontShape = 'auto';
     }
 
     if (style.size) style.fontSize = style.size;
@@ -3427,7 +3476,7 @@ function parseMathArgument(s, config) {
         let m = s.match(/^([a-zA-Z]+)/);
         if (m) {
             // It's a string of letter, maybe a shortcut
-            let shortcut = Shortcuts.forString(null, s, config);
+            let shortcut = Shortcuts.forString('math', null, s, config);
             if (shortcut) {
                 shortcut = shortcut.replace('_{#?}', '');
                 shortcut = shortcut.replace('^{#?}', '');
@@ -3461,7 +3510,7 @@ function parseMathArgument(s, config) {
 }
 
 function paddedShortcut(s, config) {
-    let result = Shortcuts.forString(null, s, config);
+    let result = Shortcuts.forString('math', null, s, config);
     if (result) {
         result = result.replace('_{#?}', '');
         result = result.replace('^{#?}', '');

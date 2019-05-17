@@ -13,7 +13,8 @@ import Color from '../core/color.js';
 function findLongestRun(atoms, property, value) {
     let i = 0;
     while (atoms[i]) {
-        if (atoms[i].type !== 'mop' && atoms[i][property] !== value) break
+        if (atoms[i].type !== 'mop' && 
+            atoms[i][property] !== value) break
         i++;
     }
     return i;
@@ -124,6 +125,9 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             if (atoms[0].fontSeries === 'b') {
                 prefix = '\\mathbf{';
                 suffix = '}';
+            } else if (atoms[0].fontSeries && atoms[0].fontSeries !== 'n') {
+                prefix = '{\\fontSeries{' + atoms[0].fontSeries + '}';
+                suffix = '}';
             }
         } else if (prop === 'fontShape') {
             if (atoms[0].fontShape === 'it') {
@@ -132,6 +136,9 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             } else if (atoms[0].fontShape === 'n' && 
                 !(atoms[0].fontSeries === 'b' || atoms[0].fontFamily === 'cmr')) {
                 prefix = '\\mathup{';
+                suffix = '}';
+            } else if (atoms[0].fontShape && atoms[0].fontShape !== 'n') {
+                prefix = '{\\fontShape{' + atoms[0].fontShape + '}';
                 suffix = '}';
             }
 
@@ -180,6 +187,13 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
         suffix = '}';
     }
 
+    if (prop === 'backgroundColor' && atoms[0].backgroundColor &&
+         atoms[0].backgroundColor !== 'none' &&
+         (!parent || parent.backgroundColor !== atoms[0].backgroundColor)) {
+        prefix = '\\colorbox{' + Color.colorToString(atoms[0].backgroundColor) + '}{';
+        suffix = '}';
+    }
+
     result += prefix;
 
     result += latexifyArray(parent, 
@@ -221,9 +235,9 @@ function latexify(parent, value, expandMacro) {
             'backgroundColor', 
             'fontFamily'
             ], value, expandMacro);
-        if (result.startsWith('{') && result.endsWith('}')) {
-            result = result.slice(1, result.length - 1);
-        }
+        // if (result.startsWith('{') && result.endsWith('}')) {
+        //     result = result.slice(1, result.length - 1);
+        // }
 
     } else if (typeof value === 'number' || typeof value === 'boolean') {
         result = value.toString();
@@ -258,13 +272,18 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
             result += this.latexOpen || ((this.cssId || this.cssClass) ? '' : '{');
 
             if (this.cssId) result += '\\cssId{' + this.cssId + '}{';
-            if (this.cssClass) result += '\\class{' + this.cssClass + '}{';
 
-            result += expandMacro ? latexify(this, this.body, true) :
-                (this.latex || latexify(this, this.body, false));
+            if (this.cssClass === 'ML__emph') {
+                result += '\\emph{' + latexify(this, this.body, expandMacro) + '}';
+            } else {
+                if (this.cssClass) result += '\\class{' + this.cssClass + '}{';
 
+                result += expandMacro ? latexify(this, this.body, true) :
+                    (this.latex || latexify(this, this.body, false));
+
+                if (this.cssClass) result += '}';
+            }
             if (this.cssId) result += '}';
-            if (this.cssClass) result += '}';
 
             result += this.latexClose || ((this.cssId || this.cssClass) ? '' : '}');
             break;
@@ -334,10 +353,10 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 result += '\\right' + (this.rightDelim || '.');
                 if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             } else {
-                result += this.leftDelim === '.' ? '' : (this.leftDelim || '');
+                result += '\\mleft' + (this.leftDelim || '.');
                 if (this.leftDelim && this.leftDelim.length > 1) result += ' ';
                 result += latexify(this, this.body, expandMacro);
-                result += (!this.rightDelim || this.rightDelim === '?' || this.rightDelim === '.') ? '' : this.rightDelim;
+                result += '\\mright' + (this.rightDelim || '.');
                 if (this.rightDelim && this.rightDelim.length > 1) result += ' ';
             }
             break;
@@ -434,7 +453,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                     typeof this.backgroundcolor !== 'undefined') {
                     const bboxParams = [];
                     if (isFinite(this.padding)) {
-                        bboxParams.push(Math.floor(1e5 * this.padding) / 1e5 + 'em')
+                        bboxParams.push(Math.floor(1e2 * this.padding) / 1e2 + 'em')
                     }
                     if (this.border) {
                         bboxParams.push('border:' + this.border);

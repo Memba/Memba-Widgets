@@ -1,5 +1,5 @@
 .ML__mathlive {
-  line-height: initial;
+  line-height: 0;
   direction: ltr;
   text-align: left;
   text-indent: 0;
@@ -139,6 +139,10 @@ body[theme="dark"] .ML__fieldcontainer {
 .ML__fieldcontainer__field {
   align-self: center;
   position: relative;
+  overflow: hidden;
+  line-height: 0;
+  padding: 2px;
+  width: 100%;
 }
 .ML__virtual-keyboard-toggle {
   display: flex;

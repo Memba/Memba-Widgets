@@ -4,7 +4,6 @@
  */
 
 // TODO validators
-// TODO tooltips do not work!!!
 // TODO highlight selection from API
 // TODO set/get resize position handle
 // TODO disable some attributes/properties
@@ -584,7 +583,7 @@ const PropertyGrid = Widget.extend({
     _enableTooltip(enable) {
         const enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
-        const table = this.element.find(CONSTANTS.TABLE).first();
+        const table = this.element.find(CONSTANTS.TABLE).last();
         if (this.tooltip instanceof Tooltip) {
             this.tooltip.destroy();
             this.tooltip = undefined;
@@ -595,6 +594,7 @@ const PropertyGrid = Widget.extend({
                     filter: 'span.k-icon.k-i-help[title]',
                     width: 120,
                     position: 'top',
+                    showOn: 'click mouseenter',
                     animation: {
                         open: {
                             effects: 'zoom',

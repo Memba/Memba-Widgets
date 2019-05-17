@@ -9,6 +9,8 @@
   height: 32px;
   cursor: pointer;
   user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .kj-item .k-in {
   line-height: 30px;

@@ -39,7 +39,11 @@ if (!(i18n().tools && i18n().tools.label)) {
                 name: 'Label',
                 attributes: {
                     style: { title: 'Style' },
-                    text: { title: 'Text', defaultValue: 'Label' }
+                    text: {
+                        title: 'Text',
+                        help: 'Enter the label text',
+                        defaultValue: 'Label'
+                    }
                 },
                 properties: {
                     behavior: {
@@ -92,6 +96,7 @@ const LabelTool = BaseTool.extend({
         text: new TextAreaAdapter(
             {
                 title: i18n().tools.label.attributes.text.title,
+                help: i18n().tools.label.attributes.text.help,
                 defaultValue: i18n().tools.label.attributes.text.defaultValue,
                 validation: textValidator
             },

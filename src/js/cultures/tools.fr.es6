@@ -210,11 +210,13 @@ if (tools.image) {
     tools.image.constructor.prototype.description = 'Image';
     // Attributes
     const { attributes } = tools.image.constructor.prototype;
-    attributes.alt.title = 'Texte';
     attributes.alt.defaultValue = 'Image';
-    attributes.src.title = 'Source';
+    attributes.alt.help = 'Entrez la description pour les malvoyants';
+    attributes.alt.title = 'Texte';
     attributes.src.defaultValue =
         'cdn://images/o_collection/svg/office/painting_landscape.svg';
+    attributes.src.help = 'Sélectionnez une image';
+    attributes.src.title = 'Source';
     attributes.style.title = 'Style';
     // Properties
     const { properties } = tools.image.constructor.prototype;
@@ -263,8 +265,9 @@ if (tools.label) {
     // Attributes
     const { attributes } = tools.label.constructor.prototype;
     attributes.style.title = 'Style';
-    attributes.text.title = 'Texte';
     attributes.text.defaultValue = 'Label';
+    attributes.text.help = 'Entrez le texte de l´étiquette';
+    attributes.text.title = 'Texte';
     // Properties
     const { properties } = tools.label.constructor.prototype;
     properties.behavior.title = 'Comportement';

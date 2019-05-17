@@ -36,10 +36,12 @@ if (!(i18n().tools && i18n().tools.image)) {
                 attributes: {
                     alt: {
                         title: 'Text',
+                        help: 'Enter alternate text for disabled people',
                         defaultValue: 'Image'
                     },
                     src: {
                         title: 'Source',
+                        help: 'Select an image',
                         defaultValue:
                             'cdn://images/o_collection/svg/office/painting_landscape.svg'
                     },
@@ -88,10 +90,12 @@ const ImageTool = BaseTool.extend({
     attributes: {
         alt: new TextBoxAdapter({
             title: i18n().tools.image.attributes.alt.title,
+            help: i18n().tools.image.attributes.alt.help,
             defaultValue: i18n().tools.image.attributes.alt.defaultValue
         }),
         src: new AssetAdapter({
             title: i18n().tools.image.attributes.src.title,
+            help: i18n().tools.image.attributes.src.help,
             defaultValue: i18n().tools.image.attributes.src.defaultValue
         }),
         style: new StyleAdapter({

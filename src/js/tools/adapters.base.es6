@@ -48,6 +48,9 @@ const BaseAdapter = Class.extend({
         this.template = options.template;
         this.editor = options.editor;
         this.attributes = options.attributes;
+
+        // And our own little twist, that is help tooltips
+        this.help = options.help;
     },
 
     /**
@@ -134,6 +137,9 @@ const BaseAdapter = Class.extend({
         }
         if ($.isPlainObject(this.attributes)) {
             row.attributes = this.attributes;
+        }
+        if ($.type(this.help) === CONSTANTS.STRING) {
+            row.help = this.help;
         }
         return row;
     },

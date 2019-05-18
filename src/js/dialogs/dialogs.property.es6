@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.validator';
 import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import optimizeEditor from '../tools/util.editors.es6';
@@ -35,8 +36,26 @@ function openPropertyDialog(options = {}) {
     const $dialog = BaseDialog.getElement(options.cssClass);
     $dialog.css({ padding: '' });
 
+    // Get model field
+    const name =
+        options.field.indexOf(CONSTANTS.DOT) > -1
+            ? options.field.replace(CONSTANTS.DOT, '.fields.')
+            : `fields.${options.field}`;
+    const field = options.model.get(name);
+
     // Optimize editor
-    $.extend(options.row, { editable: true });
+    $.extend(true, options.row, {
+        attributes: {
+            required: field.validation.required,
+            min: field.validation.min,
+            max: field.validation.max,
+            maxlength: field.validation.maxlength, // See http://docs.telerik.com/kendo-ui/aspnet-mvc/helpers/editor/how-to/add-max-length-validation
+            step: field.validation.step,
+            pattern: field.validation.pattern,
+            type: field.validation.type
+        },
+        editable: true
+    });
     optimizeEditor(options.row);
 
     // Create the dialog
@@ -49,7 +68,7 @@ function openPropertyDialog(options = {}) {
                     content: options.row.help
                         ? template(NOTIFICATION)(options.row) + CONTENT
                         : CONTENT,
-                    data: options.model.toJSON(),
+                    data: options.model.clone(),
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
                         BaseDialog.fn.options.messages.actions.cancel
@@ -60,6 +79,20 @@ function openPropertyDialog(options = {}) {
             )
         )
         .data('kendoBaseDialog');
+
+    // Build rules
+    const rules = {};
+    Object.keys(field.validation).forEach(key => {
+        if ($.isFunction(field.validation[key])) {
+            rules[key] = field.validation[key];
+        }
+    });
+
+    // Add validator
+    const validator = $dialog
+        .find('.kj-dialog-form')
+        .kendoValidator({ rules })
+        .data('kendoValidator');
 
     dialog.unbind(CONSTANTS.INITOPEN);
     dialog.one(CONSTANTS.INITOPEN, e => {
@@ -79,10 +112,17 @@ function openPropertyDialog(options = {}) {
 
     // Bind the click event
     dialog.bind(CONSTANTS.CLICK, e => {
-        dfd.resolve({
-            action: e.action,
-            data: e.sender.viewModel.toJSON()
-        });
+        if (
+            e.action === BaseDialog.fn.options.messages.actions.cancel.action ||
+            validator.validate()
+        ) {
+            dfd.resolve({
+                action: e.action,
+                data: e.sender.viewModel.toJSON()
+            });
+        } else {
+            e.preventDefault();
+        }
     });
 
     // Display the message dialog

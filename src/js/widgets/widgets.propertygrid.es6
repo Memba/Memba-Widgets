@@ -372,9 +372,7 @@ const PropertyGrid = Widget.extend({
                     // and https://docs.telerik.com/kendo-ui/controls/editors/validator/overview#default-validation-rules
                     if (fields && fields[prop] && fields[prop].validation) {
                         const attributes = {
-                            required: fields[prop].validation.required
-                                ? true
-                                : undefined,
+                            required: fields[prop].validation.required, // ? true : undefined,
                             min: fields[prop].validation.min,
                             max: fields[prop].validation.max,
                             maxlength: fields[prop].validation.maxlength, // See http://docs.telerik.com/kendo-ui/aspnet-mvc/helpers/editor/how-to/add-max-length-validation
@@ -382,11 +380,7 @@ const PropertyGrid = Widget.extend({
                             pattern: fields[prop].validation.pattern,
                             type: fields[prop].validation.type
                         };
-                        row.attributes = $.extend(
-                            {},
-                            row.attributes,
-                            attributes
-                        );
+                        $.extend(row.attributes, attributes);
                     }
 
                     optimizeEditor(row);

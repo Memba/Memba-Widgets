@@ -119,10 +119,9 @@ export const PageComponent = BaseModel.define({
             !(tools instanceof ObservableObject) ||
             !(tools[tool] instanceof BaseTool)
         ) {
-            // setTimeout is required, otherwise the error is silent
-            setTimeout(() => {
-                throw new Error(format('`{0}` is not a valid tool', tool));
-            });
+            // without setTimeout, the error is silent in promises
+            // with setTimeout tests fail
+            throw new Error(format('`{0}` is not a valid tool', tool));
         }
     },
 

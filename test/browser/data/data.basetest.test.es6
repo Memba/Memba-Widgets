@@ -12,11 +12,11 @@ import 'kendo.data';
 import 'kendo.binder';
 import chai from 'chai';
 import JSC from 'jscheck';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
+// import sinon from 'sinon';
+// import sinonChai from 'sinon-chai';
 import { tryCatch } from '../_misc/test.util.es6';
 import { getStream } from '../_misc/test.components.es6';
-import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
 import BaseTest from '../../../src/js/data/data.basetest.es6';
 import Stream from '../../../src/js/data/data.stream.es6';
@@ -24,11 +24,11 @@ import '../../../src/js/app/app.tools.es6';
 
 const { describe, it, xit } = window;
 const {
-    data: { ObservableArray },
-    observable
+    data: { ObservableArray }
+    // observable
 } = window.kendo;
 const { expect } = chai;
-chai.use(sinonChai);
+// chai.use(sinonChai);
 
 function getTestModel() {
     const dfd = $.Deferred();
@@ -61,7 +61,7 @@ function assertBaseTest(test) {
     expect(test).to.respondTo('score');
     expect(test).to.respondTo('toJSON');
     Object.keys(test).forEach(key => {
-        if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
+        if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
             expect(test).to.have.nested.property(`${key}.result`);
             expect(test).to.have.nested.property(`${key}.score`);
             expect(test).to.have.nested.property(`${key}.value`);
@@ -99,7 +99,7 @@ describe('data.basetest', () => {
                             const table = test.getScoreTable();
                             const keys = Object.keys(test.fields).filter(
                                 key =>
-                                    CONSTANTS.RX_TEST_FIELD_NAME.test(key) &&
+                                    TOOLS.RX_TEST_FIELD_NAME.test(key) &&
                                     !test[key]
                                         .component()
                                         .get('properties.disabled')
@@ -129,7 +129,7 @@ describe('data.basetest', () => {
                         const test = new TestModel();
                         // Set the value of each field to the solution
                         Object.keys(test.fields).forEach(key => {
-                            if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
+                            if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                                 const field = test[key];
                                 const component = field.component();
                                 if (!component.get('properties.disabled')) {
@@ -146,7 +146,7 @@ describe('data.basetest', () => {
                                 tryCatch(done)(() => {
                                     Object.keys(test.fields).forEach(key => {
                                         if (
-                                            CONSTANTS.RX_TEST_FIELD_NAME.test(
+                                            TOOLS.RX_TEST_FIELD_NAME.test(
                                                 key
                                             )
                                         ) {
@@ -184,7 +184,7 @@ describe('data.basetest', () => {
                         // Set the value of each field to the solution
                         // also collect page indexes in the same iteration
                         Object.keys(test.fields).forEach(key => {
-                            if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
+                            if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                                 const field = test[key];
                                 const component = field.component();
                                 if (!component.get('properties.disabled')) {
@@ -207,7 +207,7 @@ describe('data.basetest', () => {
                                 tryCatch(done)(() => {
                                     Object.keys(test.fields).forEach(key => {
                                         if (
-                                            CONSTANTS.RX_TEST_FIELD_NAME.test(
+                                            TOOLS.RX_TEST_FIELD_NAME.test(
                                                 key
                                             )
                                         ) {
@@ -262,7 +262,7 @@ describe('data.basetest', () => {
                             const max = test.max();
                             let success = 0;
                             Object.keys(test.fields).forEach(key => {
-                                if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
+                                if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                                     const field = test[key];
                                     const component = field.component();
                                     if (!component.get('properties.disabled')) {

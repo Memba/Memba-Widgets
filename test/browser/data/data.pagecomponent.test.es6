@@ -295,6 +295,7 @@ describe('data.pagecomponent', () => {
         describe('Initialization', () => {
             it('It should initialize without options', done => {
                 const dataSource = new PageComponentDataSource();
+                debugger;
                 expect(dataSource).to.be.an.instanceof(PageComponentDataSource);
                 expect(dataSource).to.be.an.instanceof(DataSource);
                 expect(dataSource)

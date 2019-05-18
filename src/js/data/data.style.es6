@@ -22,7 +22,7 @@ const {
  * @class StyleProperty
  * @extends BaseModel
  */
-export const StyleProperty = BaseModel.define({
+const StyleProperty = BaseModel.define({
     id: 'name',
     fields: {
         name: {
@@ -39,7 +39,7 @@ export const StyleProperty = BaseModel.define({
  * @class StyleDataSource
  * @extends DataSource
  */
-export const StyleDataSource = DataSource.extend({
+const StyleDataSource = DataSource.extend({
     /**
      * Init
      * @constructor init
@@ -89,3 +89,8 @@ StyleDataSource.create = options => {
         ? dataSource
         : new StyleDataSource(dataSource);
 };
+
+/**
+ * Exports
+ */
+export { StyleProperty, StyleDataSource };

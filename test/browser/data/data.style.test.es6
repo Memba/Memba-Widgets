@@ -12,7 +12,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
-import { Style, StyleDataSource } from '../../../src/js/data/data.style.es6';
+import { StyleProperty, StyleDataSource } from '../../../src/js/data/data.style.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
@@ -41,10 +41,10 @@ const STYLE = {
 };
 
 describe('data.style', () => {
-    describe('Style', () => {
+    describe('StyleProperty', () => {
         it('It should initialize without options', () => {
-            const style = new Style();
-            expect(style).to.be.an.instanceof(Style);
+            const style = new StyleProperty();
+            expect(style).to.be.an.instanceof(StyleProperty);
             expect(style).to.be.an.instanceof(BaseModel);
             expect(style).to.be.an.instanceof(Model);
             // Test default values
@@ -53,8 +53,8 @@ describe('data.style', () => {
         });
 
         it('It should initialize with options', () => {
-            const style = new Style(STYLE);
-            expect(style).to.be.an.instanceof(Style);
+            const style = new StyleProperty(STYLE);
+            expect(style).to.be.an.instanceof(StyleProperty);
             expect(style).to.be.an.instanceof(BaseModel);
             expect(style).to.be.an.instanceof(Model);
             const json = style.toJSON();
@@ -78,7 +78,7 @@ describe('data.style', () => {
             expect(data)
                 .to.be.an.instanceof(ObservableArray)
                 .with.lengthOf(1);
-            expect(data[0]).to.be.an.instanceof(Style);
+            expect(data[0]).to.be.an.instanceof(StyleProperty);
         });
 
         it('It should insert an style', done => {
@@ -94,7 +94,7 @@ describe('data.style', () => {
                         expect(data)
                             .to.be.an.instanceof(ObservableArray)
                             .with.lengthOf(DATA.length + 1);
-                        expect(data[0]).to.be.an.instanceof(Style);
+                        expect(data[0]).to.be.an.instanceof(StyleProperty);
                     })
                 )
                 .catch(done);
@@ -109,7 +109,7 @@ describe('data.style', () => {
                 .then(
                     tryCatch(done)(() => {
                         const style = dataSource.at(0);
-                        expect(style).to.be.an.instanceof(Style);
+                        expect(style).to.be.an.instanceof(StyleProperty);
                         style.set('text', JSC.string()());
                         expect(change).to.have.been.calledTwice;
                     })

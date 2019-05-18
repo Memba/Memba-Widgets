@@ -18,7 +18,7 @@ const CHANGE = 'change';
 const CLICK = 'click';
 const NS = '.kendoMathInput';
 const UNDEFINED = 'undefined';
-const WIDGET_CLASS = 'k-widget kj-mathinput';
+const WIDGET_CLASS = 'k-widget k-multiselect-wrap kj-mathinput';
 
 /**
  * MathInput
@@ -88,18 +88,18 @@ const MathInput = Widget.extend({
     },
 
     /**
-     * MathLive configuration
+     * MathInput configuration
      * @returns {{virtualKeyboardMode: string}}
      * @private
      */
     _config() {
         const that = this;
         return {
-            onContentDidChange(/* mathfield */) {
+            onContentDidChange(mathField) {
                 that.trigger(CONSTANTS.CHANGE);
-                that._mathField.focus();
+                mathField.focus();
             },
-            virtualKeyboardMode: 'manual'
+            virtualKeyboardMode: 'onfocus'
         };
     },
 

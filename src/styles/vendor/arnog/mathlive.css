@@ -331,6 +331,7 @@
   margin-top: -0.04em;
   border-bottom-style: solid;
   border-bottom-width: 0.04em;
+  min-height: 0.04em;
   /* There's a bug since Chrome 62 where 
                 sub-pixel border lines don't draw at some zoom 
                 levels (110%, 90%). Setting the min-height seems to work around it.
@@ -470,6 +471,7 @@
   margin-top: -0.04em;
   border-bottom-style: solid;
   border-bottom-width: 0.04em;
+  min-height: 0.5px;
   /* There's a bug since Chrome 62 where 
                 sub-pixel border lines don't draw at some zoom 
                 levels (110%, 90%). Setting the min-height seems to work around it.

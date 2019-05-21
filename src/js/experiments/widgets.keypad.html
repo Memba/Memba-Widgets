@@ -10,7 +10,7 @@
     <link href="../../styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <!-- widgets.keypad stylesheet -->
-    <!--link href="../../styles/widgets.keypad.css" rel="stylesheet"-->
+    <link href="../../styles/experiments/widgets.keypad.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
@@ -208,7 +208,60 @@
             ]).then(function () {
                 var kendo = window.kendo;
                 $(function() {
-                    kendo.init('body');
+                    $('#keypad').kendoKeyPad({
+                        layout: [
+                            // keyboards
+                            // TODO Caps Lock?????
+                            // TODO Fonts, Images
+                            // TODO Key width (same height)
+                            {
+                                name: 'Alphabetic',
+                                pads: [
+                                    // First pad
+                                    [
+                                        // First row
+                                        [
+                                            {
+                                                key: 'a',
+                                                cmd: 'a'
+                                            },
+                                            {
+                                                key: 'b',
+                                                cmd: 'b'
+                                            },
+                                            {
+                                                key: 'c',
+                                                cmd: 'c'
+                                            }
+                                        ],
+                                        // Second row
+                                        [
+                                            {
+                                                key: 'A',
+                                                cmd: 'A'
+                                            },
+                                            {
+                                                key: 'B',
+                                                cmd: 'B'
+                                            },
+                                            {
+                                                key: 'C',
+                                                cmd: 'C'
+                                            }
+                                        ]
+                                    ]
+                                    // Second pad
+                                    // []
+                                ]
+                            }
+                        ],
+                        click(e) {
+                            const { activeTarget, command } = e;
+                            if (activeTarget instanceof $ && $.isFunction(activeTarget.val)) {
+                                activeTarget.val(activeTarget.val() + command);
+                            }
+                        }
+                    });
                 });
             });
         }());
@@ -216,13 +269,13 @@
 </head>
 <body>
 <h1>widgets.keypad</h1>
-<div class="kj-stage" style="position:relative; height:600px; width:800px; border:solid 1px black; transform: scale(0.75);">
-    <div data-role="stage" style="height:600px; width:800px;">
-        <div class="kj-element" style="position:absolute; top:50px; left:100px; height:35px; width:150px;">
+<div class="kj-stage" style="position: relative; height: 600px; width: 800px; border: solid 1px black; transform: scale(0.75);">
+    <div data-role="stage" style="height: 600px; width: 800px;">
+        <div class="kj-element" style="position: absolute; top: 50px; left: 100px; height: 35px; width: 150px;">
             <input type="text" class="k-textbox">
         </div>
-        <div class="kj-element" style="position:absolute; top:300px; left:100px; height:200px; width:550px;">
-            <textarea class="k-textbox" style="height:200px; width:550px;"></textarea>
+        <div class="kj-element" style="position: absolute; top: 300px; left: 100px; height: 200px; width: 550px;">
+            <textarea class="k-textbox" style="height: 200px; width: 550px;"></textarea>
         </div>
     </div>
 </div>

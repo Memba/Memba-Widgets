@@ -3,7 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
+// Note: this cursor concept is supposed to be similar to https://github.com/Khan/math-input
+
 // TODO check caret position with https://stackoverflow.com/questions/16212871/get-the-offset-position-of-the-caret-in-a-textarea-in-pixels
+// TODO See also https://github.com/component/textarea-caret-position
 // TODO use kendo.caret(element, start, end) to position or simply kendo.caret(element) to get position
 // TODO What if there are two such widgets on the same page?
 // TODO hide cursor with keypresses
@@ -63,7 +66,7 @@ const Cursor = Widget.extend({
     options: {
         name: 'Cursor',
         color: '#78C008',
-        enabled: true, // support.touch
+        enabled: support.touch,
         filter: 'input, textarea',
         size: 20,
         friction: 1
@@ -132,8 +135,16 @@ const Cursor = Widget.extend({
         }
         if (enabled) {
             $(document)
-                .on(`focusin${NS} mousedown${NS} touchdown${NS}`, filter, this._onFocusIn.bind(this))
-                .on(`focusout${NS} keydown${NS}`, filter, this._onFocusOut.bind(this));
+                .on(
+                    `focusin${NS} mousedown${NS} touchdown${NS}`,
+                    filter,
+                    this._onFocusIn.bind(this)
+                )
+                .on(
+                    `focusout${NS} keydown${NS}`,
+                    filter,
+                    this._onFocusOut.bind(this)
+                );
             this.userEvents = new UserEvents(this.element, {
                 global: true,
                 start: this._onDragStart.bind(this),
@@ -149,6 +160,7 @@ const Cursor = Widget.extend({
      * @private
      */
     _onFocusIn(e) {
+        debugger;
         this.element
             // TODO position
             .show();
@@ -180,7 +192,7 @@ const Cursor = Widget.extend({
      */
     _onDragMove(e) {
         // debugger;
-        const options = this.options;
+        const { options } = this;
         const position = e.target.position();
         const cursorPos = this._getCursorPosition();
         e.target.css({
@@ -209,9 +221,7 @@ const Cursor = Widget.extend({
      */
     _getPositionBounds(input) {
         if (input.is(CONSTANTS.INPUT)) {
-
         } else if (input.is(CONSTANTS.TEXTAREA)) {
-
         }
         // TODO mathquill
         // TODO content editable
@@ -232,9 +242,7 @@ const Cursor = Widget.extend({
      * @param input
      * @private
      */
-    _getCaretPosition(input) {
-
-    },
+    _getCaretPosition(input) {},
 
     /**
      * Utility method to set the caret position
@@ -244,9 +252,7 @@ const Cursor = Widget.extend({
      * @param mouse
      * @private
      */
-    _setCaretPosition(input, mouse) {
-
-    },
+    _setCaretPosition(input, mouse) {},
 
     /**
      * Destroy

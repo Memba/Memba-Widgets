@@ -204,7 +204,7 @@
             });
             Promise.all([
                 // SystemJS.import('kendo.binder'),
-                SystemJS.import('./widgets.keypad.es6')
+                SystemJS.import('./widgets.cursor.es6')
             ]).then(function () {
                 var kendo = window.kendo;
                 $(function() {
@@ -216,16 +216,16 @@
 </head>
 <body>
 <h1>widgets.cursor</h1>
-<div class="kj-stage" style="position:relative; height:600px; width:800px; border:solid 1px black; transform: scale(0.75);">
-    <div data-role="stage" style="height:600px; width:800px;">
-        <div class="kj-element" style="position:absolute; top:50px; left:100px; height:35px; width:150px;">
+<div class="kj-stage" style="position: relative; height: 600px; width: 800px; border: solid 1px black; transform: scale(0.75);">
+    <div data-role="stage" style="height: 600px; width: 800px;">
+        <div class="kj-element" style="position: absolute; top: 50px; left: 100px; height: 35px; width: 150px;">
             <input type="text" class="k-textbox">
         </div>
-        <div class="kj-element" style="position:absolute; top:300px; left:100px; height:200px; width:550px;">
-            <textarea class="k-textbox" style="height:200px; width:550px;"></textarea>
+        <div class="kj-element" style="position: absolute; top: 300px; left: 100px; height: 200px; width: 550px;">
+            <textarea class="k-textbox" style="height: 200px; width: 550px;"></textarea>
         </div>
     </div>
 </div>
-<span data-role="cursor"></span>
+<span data-role="cursor" data-enabled="true"></span>
 </body>
 </html>

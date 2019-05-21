@@ -43,19 +43,23 @@ function openPropertyDialog(options = {}) {
             : `fields.${options.field}`;
     const field = options.model.get(name);
 
+    // Add validation
+    if ($.isPlainObject(field.validation)) {
+        $.extend(true, options.row, {
+            attributes: {
+                required: field.validation.required,
+                min: field.validation.min,
+                max: field.validation.max,
+                maxlength: field.validation.maxlength, // See http://docs.telerik.com/kendo-ui/aspnet-mvc/helpers/editor/how-to/add-max-length-validation
+                step: field.validation.step,
+                pattern: field.validation.pattern,
+                type: field.validation.type
+            }
+        });
+    }
+
     // Optimize editor
-    $.extend(true, options.row, {
-        attributes: {
-            required: field.validation.required,
-            min: field.validation.min,
-            max: field.validation.max,
-            maxlength: field.validation.maxlength, // See http://docs.telerik.com/kendo-ui/aspnet-mvc/helpers/editor/how-to/add-max-length-validation
-            step: field.validation.step,
-            pattern: field.validation.pattern,
-            type: field.validation.type
-        },
-        editable: true
-    });
+    $.extend(options.row, { editable: true });
     optimizeEditor(options.row);
 
     // Create the dialog
@@ -82,11 +86,13 @@ function openPropertyDialog(options = {}) {
 
     // Build rules
     const rules = {};
-    Object.keys(field.validation).forEach(key => {
-        if ($.isFunction(field.validation[key])) {
-            rules[key] = field.validation[key];
-        }
-    });
+    if ($.isPlainObject(field.validation)) {
+        Object.keys(field.validation).forEach(key => {
+            if ($.isFunction(field.validation[key])) {
+                rules[key] = field.validation[key];
+            }
+        });
+    }
 
     // Add validator
     const validator = $dialog

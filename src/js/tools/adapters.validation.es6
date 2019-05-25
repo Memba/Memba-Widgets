@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO: This is another case of open dialog adapter
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -84,7 +82,6 @@ const ValidationAdapter = BaseAdapter.extend({
      */
     showDialog(options /* , e */) {
         const that = this;
-        // TODO import('./dialogs/dialogs.codeeditor.es6').then(function () {...});
         openCodeEditor({
             title: options.title || this.title,
             // defaultValue: that.defaultValue,

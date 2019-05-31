@@ -1,5 +1,18 @@
-.kj-formatstrip {
-  /*
+@include exports( "widgets.formatstrip/layout" ) {
+    .kj-formatstrip {
+        .k-tabstrip {
+            border: none;
+
+            .k-content {
+                border-left: 0;
+                border-right: 0;
+                border-bottom: 0;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+        }
+
+        /*
         .k-spreadsheet-toolbar {
             .k-button.k-state-disabled,
             .k-button-group.k-state-disabled,
@@ -23,12 +36,6 @@
                 }
             }
         }
-         */ }
-  .kj-formatstrip .k-tabstrip {
-    border: none; }
-    .kj-formatstrip .k-tabstrip .k-content {
-      border-left: 0;
-      border-right: 0;
-      border-bottom: 0;
-      margin: 0 !important;
-      padding: 0 !important; }
+         */
+    }
+}

@@ -1,0 +1,27 @@
+@include exports( "widgets.propertygrid/layout" ) {
+    .kj-propertygrid {
+        &.k-grid {
+            tbody {
+                .k-button {
+                    // Otherwise the ImageList has large buttons when embedded within a PropertyGrid
+                    // min-width: initial;
+                }
+
+                .k-icon.k-i-help {
+                    float: right;
+                    // margin-top: 0.2em;
+                }
+            }
+        }
+
+        > .k-resize-handle {
+            cursor: col-resize;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            height: auto !important; // because of .k-grid > .k-resize-handle
+            width: 10px;
+            z-index: 2;
+        }
+    }
+}

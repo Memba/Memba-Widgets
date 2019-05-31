@@ -1,0 +1,9 @@
+@include exports( "widgets.highlighter/layout" ) {
+    .kj-highlighter {
+        user-select: none;
+
+        &:not([data-enable="false"]) {
+            cursor: pointer;
+        }
+    }
+}

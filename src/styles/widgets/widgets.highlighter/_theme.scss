@@ -1,0 +1,10 @@
+@include exports( "widgets.highlighter/theme" ) {
+    .kj-highlighter {
+        .kj-highlighter-active {
+            background-color: #ff0;
+            color: #0f0f0f;
+        }
+
+        // .kj-highlighter-hover {}
+    }
+}

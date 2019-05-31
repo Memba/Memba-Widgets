@@ -1,0 +1,58 @@
+@include exports( "widgets.basedialog/layout" ) {
+    .k-dialog {
+        .k-notification-wrap {
+            white-space: initial;
+
+            span.k-icon {
+                margin-right: $icon-spacing;
+            }
+        }
+
+        .k-input,
+        .k-textbox {
+            width: 100%;
+        }
+
+        .k-dialog-buttongroup {
+            .k-button {
+                .k-image {
+                    height: 1.5em;
+                    width: 1.5em;
+                    margin-right: 0.25em;
+                    vertical-align: middle;
+                }
+            }
+        }
+
+        /*
+        .kj-dialog-flexrow {
+            display: flex;
+            align-items: flex-start;
+            line-height: 2em;
+
+            /// &.k-header.k-toolbar {
+            &.k-toolbar {
+                padding: 0.5em 1em;
+            }
+
+            // &:not(.k-header.k-toolbar) { => does not work!
+            &:not(.k-toolbar) {
+                margin-top: 1em;
+            }
+
+            .kj-label {
+                // Make white spaces count
+                white-space: pre-wrap;
+            }
+
+        }
+
+        .k-spreadsheet {
+            .k-content {
+                // Removes padding around the toolbar within tabstrip
+                padding: 0;
+            }
+        }
+        */
+    }
+}

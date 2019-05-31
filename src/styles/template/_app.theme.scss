@@ -1,0 +1,26 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// Global customization
+@import "../themes/common/global";
+
+// Kendo UI
+// ~ only works with webpack module resolution
+// @import "~@progress/kendo-theme-bootstrap/scss/all";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/all";
+
+// Bootstrap customization (using Kendo UI variables)
+// @import "../themes/common/bootstrap";
+
+// Bootstrap 4
+// ~ only works with webpack module resolution
+// @import "~bootstrap/scss/bootstrap";
+@import "../../../node_modules/bootstrap/scss/bootstrap";
+
+// Our widgets styles
+@import "../widgets/widgets.assetmanager.scss";
+
+// Our dialog styles
+@import "../dialogs/widgets.basedialog.scss";

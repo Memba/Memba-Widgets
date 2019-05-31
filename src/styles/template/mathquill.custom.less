@@ -1,0 +1,40 @@
+//---------------------------------------------
+// MathQuill
+//---------------------------------------------
+.mq-editable-field,
+.mq-math-mode {
+    background-color: @input-bg; /* @select-background-color; */
+    border-color: @widget-border-color;
+    border-radius: @border-radius;
+    color: @input-text;
+
+    .mq-selection {
+        color: #fff;
+
+        /* This is the default windows selection color */
+        background-color: #0561d1 !important;
+        border: none;
+    }
+
+    .mq-selection.mq-blur {
+        color: #fff;
+
+        /* This is the default windows selection color */
+        background-color: #0561d1 !important;
+        border: none;
+    }
+}
+
+.mq-editable-field:hover,
+.mq-math-mode:hover {
+    border-color: @hover-border-color;
+}
+
+.mq-editable-field:focus,
+.mq-editable-field.mq-focused,
+.mq-math-mode:focus,
+.mq-math-mode.mq-focused {
+    border-radius: @border-radius;
+    .box-shadow('none');
+    .box-shadow(@focused-shadow);
+}

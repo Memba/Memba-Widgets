@@ -3,8 +3,5 @@
  * Sources at https://github.com/Memba
  */
 
-.kj-mathexpression {
-    .katex-display {
-        margin: 0;
-    }
-}
+@import "flat/variables";
+@import "../template/app.theme";

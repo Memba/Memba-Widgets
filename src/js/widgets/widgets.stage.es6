@@ -156,6 +156,7 @@ const Stage = DataBoundWidget.extend({
         this._enabled = this.options.enabled;
         this._snapAngle = this.options.snapAngle;
         this._snapGrid = this.options.snapGrid;
+        // this._transformOrigin = this.options.transformOrigin;
         this._render();
         this._dataSource();
         this.style(this.options.style);
@@ -195,6 +196,7 @@ const Stage = DataBoundWidget.extend({
         enabled: true,
         snapAngle: 0,
         snapGrid: 0,
+        transformOrigin: 'center center',
         style: '',
         messages: {
             contextMenu: {
@@ -278,8 +280,7 @@ const Stage = DataBoundWidget.extend({
         } else if (value !== this._scale) {
             this._scale = value;
             this.wrapper.css({
-                // TODO Review
-                transformOrigin: '0 0',
+                // transformOrigin: this._transformOrigin,
                 transform: format(CSS_SCALE, this._scale)
             });
             this.wrapper.find(CONSTANTS.DOT + HANDLE_CLASS).css({
@@ -606,7 +607,7 @@ const Stage = DataBoundWidget.extend({
                 position: RELATIVE, // !important
                 height: _outerHeight(this.stage),
                 width: _outerWidth(this.stage),
-                transformOrigin: '0 0', // 'top left', // !important without such attribute, element top left calculations are wrong
+                // transformOrigin: this._transformOrigin, // 'top left', // !important without such attribute, element top left calculations are wrong
                 transform: format(CSS_SCALE, this.scale())
             });
     },

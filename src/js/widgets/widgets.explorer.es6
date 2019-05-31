@@ -38,8 +38,8 @@ const UL =
     '<ul tabindex="-1" unselectable="on" role="listbox" class="k-list k-reset" />';
 const PLACEHOLDER_CLASS = 'kj-placeholder';
 const HINT_CLASS = 'kj-hint';
-const ALL_ITEMS_SELECTOR = `li.kj-item[${attr(CONSTANTS.UID)}]`;
-const ITEM_BYUID_SELECTOR = `li.kj-item[${attr(CONSTANTS.UID)}="{0}"]`;
+const ALL_ITEMS_SELECTOR = `li.kj-explorer-item[${attr(CONSTANTS.UID)}]`;
+const ITEM_BYUID_SELECTOR = `li.kj-explorer-item[${attr(CONSTANTS.UID)}="{0}"]`;
 const ARIA_SELECTED = 'aria-selected';
 const DEFAULT_EXTENSION = '.svg';
 const DEFAULT_PATH = '../../styles/images/o_collection/svg/office/';
@@ -79,7 +79,7 @@ const Explorer = DataBoundWidget.extend({
         index: 0,
         id: null,
         autoBind: true,
-        itemTemplate: `<li data-${ns}uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-item"><span class="k-in"><img class="k-image kj-image" alt="#= tool #" src="#= icon$() #">#= description$() #</span></li>`,
+        itemTemplate: `<li data-${ns}uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-explorer-item"><span class="k-in"><img class="k-image kj-image" alt="#= tool #" src="#= icon$() #">#= description$() #</span></li>`,
         iconPath: DEFAULT_PATH,
         extension: DEFAULT_EXTENSION,
         messages: {

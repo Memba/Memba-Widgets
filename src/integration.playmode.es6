@@ -33,7 +33,7 @@ const viewModel = observable({
     stream: new LocalStream(),
     selectedPage: undefined,
     test: undefined,
-    calculate() {
+    compute() {
         return viewModel.test
             .grade()
             .then(() => {
@@ -115,7 +115,7 @@ $(() => {
         click(e) {
             const sections = $('div.centered>div');
             if (e.id === 'submit') {
-                viewModel.calculate().then(() => {
+                viewModel.compute().then(() => {
                     sections.first().css('display', 'none');
                     sections.last().css('display', 'block');
                 });

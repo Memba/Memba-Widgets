@@ -35,10 +35,12 @@ const WIDGET_CLASS = 'k-widget k-group kj-navigation';
 
 const PLACEHOLDER_CLASS = 'kj-placeholder';
 const HINT_CLASS = 'kj-hint';
-const ALL_ITEMS_SELECTOR = `div.kj-item[${attr(CONSTANTS.UID)}]`;
-const ITEM_BYUID_SELECTOR = `div.kj-item[${attr(CONSTANTS.UID)}="{0}"]`;
+const ALL_ITEMS_SELECTOR = `div.kj-navigation-item[${attr(CONSTANTS.UID)}]`;
+const ITEM_BYUID_SELECTOR = `div.kj-navigation-item[${attr(
+    CONSTANTS.UID
+)}="{0}"]`;
 const ARIA_SELECTED = 'aria-selected';
-const ITEM_TEMPLATE = `<div data-${ns}uid="#: uid #" class="kj-item" role="option" aria-selected="false"><div data-${ns}role="stage"></div></div>`;
+const ITEM_TEMPLATE = `<div data-${ns}uid="#: uid #" class="kj-navigation-item" role="option" aria-selected="false"><div data-${ns}role="stage"></div></div>`;
 
 /**
  * Navigation

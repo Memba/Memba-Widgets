@@ -1,0 +1,59 @@
+@include exports( "widgets.markdown/layout" ) {
+    .kj-markdown {
+
+        // Heading font
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: bold;
+        }
+
+        // h1 { font-size: 2em; }
+        h1 { font-size: 1.5em; }
+        h2 { font-size: 1.17em; }
+        h3 { font-size: 1.12em; }
+        h4 { font-size: .83em; }
+        h5 { font-size: .75em; }
+        h6 { font-size: .67em; }
+
+        // tables
+        table {
+            border-collapse: collapse;
+            th, td {
+                padding: 0.25rem;
+                border: 1px solid #ccc;
+            }
+            tbody {
+                tr:nth-child(odd) {
+                    background: #eee;
+                }
+            }
+        }
+
+        img.img-responsive {
+            width: 100%;
+            height: auto;
+            max-width: 400px;
+        }
+
+        // twemoji
+        img.emoji {
+            height: 1.1em;
+            width: 1.1em;
+            margin: 0 .1em;
+            vertical-align: middle;
+        }
+
+    }
+
+    // Mobile
+    .km-content {
+        .km-listview {
+            .kj-markdown {
+                // Margins
+                p, h1, h2, h3, h4, h5, h6 {
+                    margin-left: 0;
+                    margin-right: 0;
+                }
+            }
+        }
+    }
+}

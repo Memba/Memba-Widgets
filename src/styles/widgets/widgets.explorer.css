@@ -1,15 +1,15 @@
-.kj-explorer .k-list .kj-placeholder {
+.kj-explorer .kj-placeholder {
   opacity: 0.4; }
 
-.kj-item {
+.kj-explorer-item {
   height: 32px;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
   overflow: hidden; }
-  .kj-item .k-in {
+  .kj-explorer-item .k-in {
     line-height: 30px; }
-    .kj-item .k-in .kj-image {
+    .kj-explorer-item .k-in .kj-image {
       height: 1.5rem;
       width: 1.5rem;
       vertical-align: middle;

@@ -1,0 +1,23 @@
+@include exports( "widgets.navigation/layout" ) {
+    .kj-navigation {
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+        border: none;
+    }
+
+    // drag and drop hints are not embedded in .kj-navigation
+    .kj-navigation-item {
+        cursor: pointer;
+        user-select: none;
+
+        &.kj-placeholder {
+            opacity: 0.4;
+        }
+
+        .kj-stage {
+            transform-origin: 0 0 !important;
+        }
+    }
+}

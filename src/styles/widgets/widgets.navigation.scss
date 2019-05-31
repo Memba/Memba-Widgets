@@ -1,0 +1,9 @@
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+
+// Dependencies
+@import "widgets.stage.scss";
+
+// Component
+@import "widgets.navigation/layout";
+@import "widgets.navigation/theme";

@@ -2,15 +2,13 @@
 
 @include exports( "widgets.explorer/layout" ) {
     .kj-explorer {
-        .k-list {
-            .kj-placeholder {
-                opacity: 0.4;
-            }
+        .kj-placeholder {
+            opacity: 0.4;
         }
     }
 
     // drag and drop hints are not embedded in .kj-explorer
-    .kj-item {
+    .kj-explorer-item {
         height: 32px;
         cursor: pointer;
         user-select: none;

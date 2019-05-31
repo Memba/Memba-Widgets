@@ -2,16 +2,16 @@
   opacity: 0.4; }
 
 .kj-explorer-item {
-  height: 32px;
+  height: 2rem;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
   overflow: hidden; }
   .kj-explorer-item .k-in {
-    line-height: 30px; }
+    line-height: 1.875rem; }
     .kj-explorer-item .k-in .kj-image {
       height: 1.5rem;
       width: 1.5rem;
       vertical-align: middle;
-      margin-left: 5px;
-      margin-right: 10px; }
+      margin-left: 0.25rem;
+      margin-right: 0.5rem; }

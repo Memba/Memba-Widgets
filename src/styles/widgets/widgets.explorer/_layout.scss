@@ -1,5 +1,3 @@
-// TODO use rem measurements from bootstrap style
-
 @include exports( "widgets.explorer/layout" ) {
     .kj-explorer {
         .kj-placeholder {
@@ -9,21 +7,21 @@
 
     // drag and drop hints are not embedded in .kj-explorer
     .kj-explorer-item {
-        height: 32px;
+        height: 2rem;
         cursor: pointer;
         user-select: none;
         white-space: nowrap;
         overflow: hidden;
 
         .k-in {
-            line-height: 30px;
+            line-height: 1.875rem;
 
             .kj-image {
                 height: 1.5rem;
                 width: 1.5rem;
                 vertical-align: middle;
-                margin-left: 5px;
-                margin-right: 10px;
+                margin-left: 0.25rem;
+                margin-right: 0.5rem;
             }
         }
     }

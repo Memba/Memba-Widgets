@@ -1,0 +1,23 @@
+@include exports( "widgets.rating/layout" ) {
+    .kj-rating {
+        border: 0 !important;
+        outline: 0;
+
+        .kj-rating-star {
+            background: none;
+            border: 0;
+            box-shadow: none;
+        }
+    }
+
+    .kj-rating:not(.k-state-disabled) {
+        .kj-rating-star {
+            cursor: pointer;
+        }
+
+        .k-state-hover {
+            background: none;
+            border: 0;
+        }
+    }
+}

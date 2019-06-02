@@ -135,7 +135,9 @@ const CONSTANTS = {
         READ: 1,
         EDIT: 2
     },
+    TEXT: 'text',
     UID: 'uid',
+    VALUE: 'value',
     WORKFLOW: {
         DRAFT: 0,
         PUBLISHED: 5

@@ -7,15 +7,13 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
+import CONSTANTS from '../src/js/common/window.constants';
 
 const {
     destroy,
     ui: { plugin, Widget }
 } = window.kendo;
-const CHANGE = 'change';
-const CLICK = 'click';
 const NS = '.kendoValueWidget';
-const UNDEFINED = 'undefined';
 const WIDGET_CLASS = 'k-widget kj-value-widget';
 
 /**
@@ -45,7 +43,7 @@ const ValueWidget = Widget.extend({
      * Events
      * @property events
      */
-    events: [CHANGE],
+    events: [CONSTANTS.CHANGE],
 
     /**
      * Options
@@ -75,7 +73,7 @@ const ValueWidget = Widget.extend({
      */
     value(value) {
         let ret;
-        if ($.type(value) === UNDEFINED) {
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
             ret = this._value;
         } else if (this._value !== value) {
             this._value = value;
@@ -107,12 +105,13 @@ const ValueWidget = Widget.extend({
      * @param enable
      */
     enable(enable) {
-        const enabled = $.type(enable) === UNDEFINED ? true : !!enable;
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         const { element } = this;
         element.off(NS);
         element.css('cursor', 'default');
         if (enabled) {
-            element.on(CLICK + NS, this._onClick.bind(this));
+            element.on(CONSTANTS.CLICK + NS, this._onClick.bind(this));
             element.css('cursor', 'pointer');
         }
     },
@@ -124,7 +123,7 @@ const ValueWidget = Widget.extend({
      */
     _onClick() {
         this.value('');
-        this.trigger(CHANGE);
+        this.trigger(CONSTANTS.CHANGE);
     },
 
     /**

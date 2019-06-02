@@ -7,15 +7,13 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
+import CONSTANTS from '../src/js/common/window.constants';
 
 const {
     data: { DataSource },
     destroy,
     ui: { plugin, DataBoundWidget }
 } = window.kendo;
-const CHANGE = 'change';
-const NULL = 'null';
-const UNDEFINED = 'undefined';
 // const NS = '.kendoDataSourceWidget';
 const WIDGET_CLASS = 'k-widget kj-data-source-widget';
 
@@ -47,7 +45,7 @@ const DataSourceWidget = DataBoundWidget.extend({
      * Events
      * @property events
      */
-    events: [CHANGE],
+    events: [CONSTANTS.CHANGE],
 
     /**
      * Options
@@ -65,7 +63,10 @@ const DataSourceWidget = DataBoundWidget.extend({
      * @param options
      */
     setOptions(options) {
-        this.options.autoBind = options.autoBind;
+        this.options.autoBind =
+            $.type(options.autoBind) === CONSTANTS.BOOLEAN
+                ? options.autoBind
+                : true;
         this.enable(options.enabled);
         this.setDataSource(options.dataSource);
     },
@@ -92,17 +93,17 @@ const DataSourceWidget = DataBoundWidget.extend({
             this.dataSource instanceof DataSource &&
             $.isFunction(this._refreshHandler)
         ) {
-            this.dataSource.unbind(CHANGE, this._refreshHandler);
+            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHandler = undefined;
         }
 
-        if ($.type(this.options.dataSource) !== NULL) {
+        if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
             // returns the datasource OR creates one if using array or configuration object
             this.dataSource = DataSource.create(this.options.dataSource);
 
             // bind to the change event to refresh the widget
             this._refreshHandler = this.refresh.bind(this);
-            this.dataSource.bind(CHANGE, this._refreshHandler);
+            this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
 
             if (this.options.autoBind) {
                 this.dataSource.fetch();
@@ -143,7 +144,8 @@ const DataSourceWidget = DataBoundWidget.extend({
      * @param enable
      */
     enable(enable) {
-        const enabled = $.type(enable) === UNDEFINED ? true : !!enable;
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         // Do something with enabled
         this._enabled = enabled;
     },

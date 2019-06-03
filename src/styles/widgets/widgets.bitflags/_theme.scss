@@ -1,0 +1,26 @@
+@include exports( "widgets.bitflags/theme" ) {
+    // .kj-bitflags {}
+    .k-multiselect.k-readonly {
+        .k-multiselect-wrap {
+            li.k-button {
+                &:active {
+                    // background: initial;
+                    // border: initial;
+                    // color: initial;
+                }
+
+                &:focus {
+                    // background: initial;
+                    // border: initial;
+                    // color: initial;
+                }
+
+                &:hover {
+                    // background: initial;
+                    // border: initial;
+                    // color: initial;
+                }
+            }
+        }
+    }
+}

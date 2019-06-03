@@ -1,0 +1,25 @@
+@include exports( "widgets.bitflags/layout" ) {
+    .k-multiselect.k-readonly,
+    .k-multiselect.k-state-disabled {
+        .k-multiselect-wrap {
+            border: 0;
+            padding-right: 0;
+
+            li.k-button {
+                padding-right: 0.4em;
+
+                span.k-select {
+                    display: none;
+                }
+            }
+
+            input.k-input {
+                display: none;
+            }
+
+            span.k-clear-value {
+                display: none;
+            }
+        }
+    }
+}

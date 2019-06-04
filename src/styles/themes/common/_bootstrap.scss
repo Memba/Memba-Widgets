@@ -1,0 +1,21 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// Note: This file is for applying Kendo UI themes to Bootstrap components
+// or to fix bootstrap styles so that they match Kendo UI better
+
+// Check https://www.telerik.com/kendo-angular-ui/components/styling/theme-bootstrap/customization/
+// @import "../../../../node_modules/@progress/kendo-theme-default/scss/mixins/colors";
+
+/**
+ * List Group
+ */
+$list-group-action-active-bg: $selected-bg;
+$list-group-action-active-color: $selected-text;
+$list-group-action-hover-color: $hovered-text;
+$list-group-bg: $base-bg;
+$list-group-border-color: $border-color; // $component-border-color
+$list-group-color: $base-text;
+$list-group-hover-bg: $hovered-bg;

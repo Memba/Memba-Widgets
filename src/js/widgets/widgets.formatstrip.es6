@@ -90,12 +90,6 @@ const VERTICAL_ALIGN_DEFAULT = 'baseline';
  ******************************************************************************** */
 
 const Style = Class.extend({
-    /* Blocks are nested too deeply. */
-    /* jshint -W073 */
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Converts an HTML style attribute into a Style class
      * @param style
@@ -137,10 +131,6 @@ const Style = Class.extend({
             }
         }
     },
-
-    /* jshint +W073 */
-
-    /* jshint +W074 */
 
     /**
      * Default values
@@ -221,9 +211,9 @@ const Style = Class.extend({
      */
     toString() {
         let style = '';
-        for (const name in this) {
+        Object.keys(this).forEach(name => {
             if (
-                this.hasOwnProperty(name) &&
+                Object.prototype.hasOwnProperty.call(this, name) &&
                 $.type(this[name]) === CONSTANTS.STRING &&
                 this[name].length
             ) {
@@ -234,7 +224,7 @@ const Style = Class.extend({
                     CONSTANTS.SEMICOLON;
                 // TODO: handle shortened borders
             }
-        }
+        });
         return style;
     }
 });
@@ -258,9 +248,10 @@ const FormatBar = ToolBar.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
-        options = options || {};
-        options.tools = options.tools || FormatBar.prototype.options.tools;
+    init(element, options = {}) {
+        Object.assign(options, {
+            tools: options.tools || FormatBar.prototype.options.tools
+        });
         ToolBar.fn.init.call(this, element, options);
         this.ns = '.kendoFormatBar';
         this._dialogs = [];
@@ -328,7 +319,7 @@ const FormatBar = ToolBar.extend({
         const that = this;
         that.element
             .find(`a${format(ATTR_SELECTOR, attr('tool'), 'borders')}`)
-            .click(e => {
+            .click(() => {
                 that._enableBorderButtons(false);
             });
     },
@@ -359,7 +350,7 @@ const FormatBar = ToolBar.extend({
 
     /**
      * Action triggered when clicking a command button
-     * @param args
+     * @param e
      */
     _onAction(e) {
         // e.command is either BorderChangeCommand, PropertyChangeCommand or TextWrapCommand
@@ -373,7 +364,7 @@ const FormatBar = ToolBar.extend({
 
     /**
      * Dialog triggered when clicking a command button in overflow dropdown
-     * @param args
+     * @param e
      */
     _onDialog(e) {
         const dialog = dialogs.create(e.name, e.options);
@@ -392,9 +383,6 @@ const FormatBar = ToolBar.extend({
     _destroyDialog() {
         this._dialogs.pop();
     },
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
 
     /**
      * Action triggered when clicking a border button
@@ -462,14 +450,11 @@ const FormatBar = ToolBar.extend({
                 this._value.borderTopWidth =
                     this._value.borderTopWidth || '2px'; // options.style.size
                 break;
+            default:
+                break;
         }
         // this._enableBorderButtons();
     },
-
-    /* jshint +W074 */
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
 
     /**
      * PropertyChangeCommand
@@ -532,8 +517,6 @@ const FormatBar = ToolBar.extend({
         }
     },
 
-    /* jshint +W074 */
-
     /**
      * TextWrapCommand
      * @param options
@@ -545,9 +528,6 @@ const FormatBar = ToolBar.extend({
         // this._value.wordBreak = options.value ? null : 'nowrap';
         // this._value.textOverflow = options.value ? null : 'ellipsis';
     },
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
 
     /**
      * Get the tool value from its property
@@ -625,17 +605,15 @@ const FormatBar = ToolBar.extend({
         }
     },
 
-    /* jshint +W074 */
-
     _tools() {
         return this.element
             .find('[data-property]')
             .toArray()
             .map(element => {
-                element = $(element);
+                const $element = $(element);
                 return {
-                    property: element.attr('data-property'),
-                    tool: this._getItem(element)
+                    property: $element.attr('data-property'),
+                    tool: this._getItem($element)
                 };
             });
     },
@@ -684,9 +662,6 @@ const FormatBar = ToolBar.extend({
             }
         }
     },
-
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
 
     /**
      * Enable/disable the toolbar
@@ -747,8 +722,6 @@ const FormatBar = ToolBar.extend({
             }
         }
     },
-
-    /* jshint +W074 */
 
     /**
      * Destroy

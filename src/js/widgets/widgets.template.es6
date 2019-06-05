@@ -20,6 +20,32 @@ const logger = new Logger('widgets.template');
 const WIDGET_CLASS = 'kj-template'; // 'k-widget kj-template';
 
 /**
+ * Find through hierarchy of dataSources
+ * @param dataSource
+ * @param callback
+ * @returns {null}
+ */
+function find(dataSource, callback) {
+    let ret; // Return undefined like Array.prototype.find, if not found
+    const data = dataSource.data();
+    for (let i = 0, { length } = data; i < length; i++) {
+        const dataItem = data.at(i);
+        if (callback(dataItem)) {
+            ret = dataItem;
+            break;
+        } else if (dataItem.hasChildren) {
+            // dataItem.children.fetch();
+            const found = find(dataItem.children, callback);
+            if (found) {
+                ret = found;
+                break;
+            }
+        }
+    }
+    return ret;
+}
+
+/**
  * Template
  * @class Template
  * @extends DataBoundWidget
@@ -195,26 +221,29 @@ const Template = DataBoundWidget.extend({
         });
         element.empty();
         if ($.isFunction(this._template)) {
+            const value = this.value();
             if (
+                $.type(value) !== CONSTANTS.UNDEFINED &&
                 $.type(options.valueField) === CONSTANTS.STRING &&
                 this.dataSource instanceof DataSource
             ) {
                 this.trigger(CONSTANTS.DATABINDING);
-                // This requires that this.value() be the idField
-                // const data = this.dataSource.get(this.value());
-                // The following makes it possible to use any field
-                const data = this.dataSource
-                    .data()
-                    .find(item => item[options.valueField] === this.value());
-                if ($.type(data) !== CONSTANTS.UNDEFINED) {
-                    element.html(this.template(data));
+                if ($.type(value) !== CONSTANTS.UNDEFINED) {
+                    // This requires that this.value() be the idField
+                    // const data = this.dataSource.get(this.value());
+                    // The following makes it possible to use any field
+                    // and hierarchical dataSources
+                    const data = find(
+                        this.dataSource,
+                        item => item[options.valueField] === value
+                    );
+                    if ($.type(data) !== CONSTANTS.UNDEFINED) {
+                        element.html(this.template(data));
+                    }
                 }
                 this.trigger(CONSTANTS.DATABOUND);
-            } else {
-                const value = this.value();
-                if ($.type(value) !== CONSTANTS.UNDEFINED) {
-                    element.html(this.template(value));
-                }
+            } else if ($.type(value) !== CONSTANTS.UNDEFINED) {
+                element.html(this.template(value));
             }
             logger.debug({ method: 'refresh', message: 'Widget refreshed' });
         }

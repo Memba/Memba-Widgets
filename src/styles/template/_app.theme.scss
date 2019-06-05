@@ -21,6 +21,17 @@
 
 // Our widgets styles
 @import "../widgets/widgets.assetmanager.scss";
+@import "../widgets/widgets.explorer.scss";
+@import "../widgets/widgets.formatstrip.scss";
+@import "../widgets/widgets.highlighter.scss";
+@import "../widgets/widgets.latex.scss";
+@import "../widgets/widgets.markdown.scss";
+@import "../widgets/widgets.multiquiz.scss";
+@import "../widgets/widgets.navigation.scss";
+@import "../widgets/widgets.propertygrid.scss";
+@import "../widgets/widgets.quiz.scss";
+@import "../widgets/widgets.rating.scss";
+@import "../widgets/widgets.stage.scss";
 
 // Our dialog styles
 @import "../dialogs/widgets.basedialog.scss";

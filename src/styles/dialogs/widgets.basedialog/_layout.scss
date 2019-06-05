@@ -10,6 +10,7 @@
 
         .k-input,
         .k-textbox {
+            // TODO Check forms (might be a useless duplicate)
             width: 100%;
         }
 
@@ -25,6 +26,24 @@
         }
 
         /*
+        .kj-label {
+            // Make white spaces count
+            white-space: pre-wrap;
+        }
+        .k-dialog {
+            .k-spreadsheet {
+                .k-tabstrip {
+                    .k-content {
+                        padding: 0;
+                    }
+                }
+            }
+            .k-spreadsheet, .kj-assetmanager, .kj-codeeditor, .kj-styleeditor {
+                width: 100%;
+                border-style: none;
+            }
+        }
+
         .kj-dialog-flexrow {
             display: flex;
             align-items: flex-start;

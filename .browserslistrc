@@ -1,6 +1,11 @@
-# Browsers that we support
+### Supported browsers
+### https://github.com/browserslist/browserslist
 
-last 3 versions
 > 1%
-maintained node versions
+last 3 versions
+# maintained node versions (for Babel, but breaks autoprefixer)
+Firefox ESR
 not dead
+# no old flexbox prefixes - see https://github.com/angular/angular-cli/wiki/stories-autoprefixer#change-target-browsers-for-autoprefixer
+not ie <= 10
+not ie_mob <= 10

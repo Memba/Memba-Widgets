@@ -130,6 +130,12 @@ const CONSTANTS = {
     DRAFT: 'draft',
     ID: 'id',
     ME: 'me',
+    PANEL_ACTIONS: {
+        ADD: 'add',
+        CLOSE: 'close',
+        EDIT: 'edit',
+        OK: 'ok'
+    },
     PANEL_STATE: {
         CLOSED: 0,
         READ: 1,

@@ -7,7 +7,8 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
-import CONSTANTS from '../src/js/common/window.constants';
+import CONSTANTS from '../src/js/common/window.constants.es6';
+import assert from '../src/js/common/window.assert.es6';
 
 const {
     data: { DataSource },
@@ -77,8 +78,12 @@ const DataSourceWidget = DataBoundWidget.extend({
      * @private
      */
     _render() {
-        this.wrapper = this.element;
-        this.element.addClass(WIDGET_CLASS);
+        const { element } = this;
+        assert.ok(
+            element.is(CONSTANTS.DIV),
+            'Please use a div tag to instantiate a DataSourceWidget widget.'
+        );
+        this.wrapper = element.addClass(WIDGET_CLASS);
     },
 
     /**

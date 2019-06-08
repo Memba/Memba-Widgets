@@ -1,4 +1,4 @@
-import katex from '../katex.es6';
+import katex from '../katex.mjs';
 
 /* eslint no-constant-condition:0 */
 const findEndOfMath = function findEndOfMath(delimiter, text, startIndex) {

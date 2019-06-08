@@ -1,5 +1,5 @@
-import katex from '../khan/katex.es6';
-import '../khan/contrib/mhchem.es6';
+import katex from '../khan/katex.mjs';
+import '../khan/contrib/mhchem.mjs';
 
 /**
  * Backslash rule

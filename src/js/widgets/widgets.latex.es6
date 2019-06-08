@@ -7,8 +7,8 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import katex from '../vendor/khan/katex.es6';
-import '../vendor/khan/contrib/mhchem.es6';
+import katex from '../vendor/khan/katex.mjs';
+import '../vendor/khan/contrib/mhchem.mjs';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';

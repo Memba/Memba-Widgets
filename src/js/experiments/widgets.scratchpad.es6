@@ -12,18 +12,19 @@ import 'kendo.drawing';
 import 'kendo.userevents'; // Required for getTouches
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-// TODO: import Logger from '../window.logger.es6';
+import Logger from '../common/window.logger.es6';
 
 const {
     applyEventMap,
+    data: { ObservableArray },
+    drawing: { Path, Segment, Surface },
     destroy,
     getTouches,
     roleSelector,
     ui: { plugin, Widget }
     // UserEvents
 } = window.kendo;
-const { Path, Segment, Surface } = window.kendo.drawing;
-const { ObservableArray } = window.kendo.data;
+const logger = new Logger('widgets.scratchpad');
 const WIDGET_CLASS = 'k-widget kj-scratchpad';
 
 // TODO add asserts and logs
@@ -109,8 +110,7 @@ const ScratchPad = Widget.extend({
      */
     init(element, options) {
         Widget.fn.init.call(this, element, options);
-        // logger.debug({ method: 'init', message: 'widget initialized' });
-        this.wrapper = this.element;
+        logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
         this.enable(this.options.enable);
         this.value(this.options.value);
@@ -161,11 +161,16 @@ const ScratchPad = Widget.extend({
      * @private
      */
     _render() {
-        this.element.addClass(WIDGET_CLASS).css({
+        const { element } = this;
+        assert.ok(
+            element.is(CONSTANTS.DIV),
+            'Please use a div tag to instantiate a ScratchPad widget.'
+        );
+        this.wrapper = element.addClass(WIDGET_CLASS).css({
             touchAction: 'none', // Prevents scrolling when scratching (also pinching and zooming)
             userSelect: 'none' // Prevents selecting when scratching
         });
-        this.surface = Surface.create(this.element);
+        this.surface = Surface.create(element);
     },
 
     /**
@@ -205,6 +210,7 @@ const ScratchPad = Widget.extend({
             const path = Path.fromSegments(p.segments, p.options);
             this.surface.draw(path);
         });
+        logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
 
     /**
@@ -213,6 +219,7 @@ const ScratchPad = Widget.extend({
      */
     destroy() {
         Widget.fn.destroy.call(this);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
     }
 });

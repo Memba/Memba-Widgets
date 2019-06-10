@@ -9,11 +9,20 @@ import $ from 'jquery';
 import app from '../common/window.global.es6';
 
 const { i18n } = app;
-i18n.en = i18n.en || {};
-
-$.extend(true, i18n.en, {
+const res = {
     data: {}
-});
+};
+
+/**
+ * Load into i18n to make it easier to use with our widgets
+ */
+i18n.en = i18n.en || {};
+$.extend(true, i18n.en, res);
+
+/**
+ * Default export for loader
+ */
+export default res;
 
 /**
  * Page, PageComponent and Stream

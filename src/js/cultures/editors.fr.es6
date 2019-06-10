@@ -9,9 +9,17 @@ import $ from 'jquery';
 import app from '../common/window.global.es6';
 
 const { i18n } = app;
-
-i18n.fr = i18n.fr || {};
-
-$.extend(true, i18n.fr, {
+const res = {
     editors: {}
-});
+};
+
+/**
+ * Load into i18n to make it easier to use with our widgets
+ */
+i18n.fr = i18n.fr || {};
+$.extend(true, i18n.fr, res);
+
+/**
+ * Default export for loader
+ */
+export default res;

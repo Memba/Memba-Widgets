@@ -26,6 +26,12 @@ const base = window.__karma__
 const config = {};
 
 /**
+ * Locales for app.i18n
+ * @type {string[]}
+ */
+config.locales = ['en', 'fr'];
+
+/**
  * URIs
  */
 config.uris = {

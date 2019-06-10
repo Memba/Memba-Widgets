@@ -39,71 +39,27 @@ const TEMPLATE = `<div class="#: class$() #" data-${ns}role="template" data-${ns
 const DESIGN = `<div class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #">#= text$() #</div>`;
 
 /**
- * LabelTool
- * @class LabelTool
+ * LineTool
+ * @class LineTool
  * @extends BaseTool
  */
-const LabelTool = BaseTool.extend({
-    id: 'label',
+const LineTool = BaseTool.extend({
+    id: 'line',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: __('tools.label.description'),
+    description: __('tools.line.description'),
     height: 80,
-    help: __('tools.label.help'),
+    help: __('tools.line.help'),
     icon: 'font',
-    menu: ['attributes.text'],
-    name: __('tools.label.name'),
+    // menu: [],
+    name: __('tools.line.name'),
     width: 300,
     templates: {
         design: DESIGN,
         play: TEMPLATE,
         review: TEMPLATE
     },
-    attributes: {
-        text: new TextAreaAdapter(
-            {
-                title: __('tools.label.attributes.text.title'),
-                help: __('tools.label.attributes.text.help'),
-                defaultValue: __('tools.label.attributes.text.defaultValue'),
-                validation: textValidator
-            },
-            {
-                rows: 2,
-                style: 'resize:vertical; width: 100%;',
-                validationMessage: 'Oops'
-            }
-        ),
-        style: new StyleAdapter(
-            {
-                title: __('tools.label.attributes.style.title'),
-                defaultValue: 'font-size:60px;',
-                validation: styleValidator
-            },
-            {
-                validationMessage: 'Oops'
-            }
-        )
-    },
-    properties: {
-        behavior: new DropDownListAdapter(
-            {
-                defaultValue: 'none',
-                source: __('tools.label.properties.behavior.source'),
-                title: __('tools.label.properties.behavior.title')
-            },
-            {
-                style: 'width: 100%;'
-            }
-        ),
-        constant: new TextBoxAdapter(
-            {
-                title: __('tools.label.properties.constant.title'),
-                validation: constantValidator
-            },
-            {
-                validationMessage: 'Oops'
-            }
-        )
-    },
+    attributes: {},
+    // properties: {},
 
     /**
      * Get Html or jQuery content
@@ -133,33 +89,6 @@ const LabelTool = BaseTool.extend({
             )
         );
         const tmpl = template(that.templates[mode]);
-        $.extend(component, {
-            // The class$ function adds the kj-interactive class to draggable components
-            class$() {
-                return `kj-label${
-                    component.get('properties.behavior') === 'draggable'
-                        ? ` ${CONSTANTS.INTERACTIVE_CLASS}`
-                        : ''
-                }`;
-            },
-            // compute variables, html encode text, then replace line feeds with <br/>
-            template$() {
-                const text = component.get('attributes.text');
-                return text
-                    .replace(TOOLS.RX_MUSTACHE_VAR, TOOLS.KENDO_VAR)
-                    .replace(/\n/g, '<br/>');
-            },
-            text$() {
-                const text = component.get('attributes.text');
-                return htmlEncode(text).replace(/\n/g, '<br/>');
-            },
-            variables$() {
-                // We need this to avoid an error when binding the stage
-                // but in fact the variables$ will be supplied by data.basetest
-                // when binding the test properties
-                return {};
-            }
-        });
         return tmpl(component);
     },
 
@@ -188,15 +117,15 @@ const LabelTool = BaseTool.extend({
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(
                 component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
+                content.outerWidth(true) +
+                content.outerWidth()
             );
         }
         if ($.type(component.height) === CONSTANTS.NUMBER) {
             content.outerHeight(
                 component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
+                content.outerHeight(true) +
+                content.outerHeight()
             );
             // if (component.attributes && !TOOLS.RX_FONT_SIZE.test(component.attributes.style)) {
             /*
@@ -245,7 +174,7 @@ const LabelTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.text ||
             component.attributes.text ===
-                __('tools.label.attributes.text.defaultValue') ||
+            __('tools.line.attributes.text.defaultValue') ||
             !TOOLS.RX_TEXT.test(component.attributes.text)
         ) {
             ret.push({
@@ -276,4 +205,4 @@ const LabelTool = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(LabelTool);
+tools.register(LineTool);

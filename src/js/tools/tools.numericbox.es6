@@ -11,9 +11,9 @@ import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.numerictextbox';
 import math from '../vendor/josdejong/math';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ExpressionAdapter from './adapters.expression.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -35,42 +35,6 @@ const { format, htmlEncode, ns, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.numericbox)) {
-    $.extend(true, i18n(), {
-        tools: {
-            numericbox: {
-                description: 'NumericBox: <em>#: properties.name #</em>',
-                help: null,
-                name: 'NumericBox',
-                attributes: {
-                    decimals: { title: 'Decimals' },
-                    min: { title: 'Minimum' },
-                    max: { title: 'Maximum' },
-                    style: { title: 'Style' }
-                },
-                properties: {
-                    name: { title: 'Name' },
-                    question: {
-                        help: 'Enter the question shown in score reports',
-                        title: 'Question'
-                    },
-                    solution: {
-                        help: 'Enter the solution shown in score reports',
-                        title: 'Solution'
-                    },
-                    validation: { title: 'Validation' },
-                    success: { title: 'Success' },
-                    failure: { title: 'Failure' },
-                    omit: { title: 'Omit' }
-                }
-            }
-        }
-    });
-}
-
-/**
  * Template
  * @type {string}
  */
@@ -84,12 +48,12 @@ const TEMPLATE = `<input type="number" id="#: properties.name #" class="kj-inter
 const NumericBoxTool = BaseTool.extend({
     id: 'numericbox',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().tools.numericbox.description,
+    description: __('tools.numericbox.description'),
     height: 80,
-    help: i18n().tools.numericbox.help,
+    help: __('tools.numericbox.help'),
     icon: 'odometer',
     menu: ['properties.question', 'properties.solution'],
-    name: i18n().tools.numericbox.name,
+    name: __('tools.numericbox.name'),
     weight: 1,
     width: 300,
     templates: {
@@ -107,7 +71,7 @@ const NumericBoxTool = BaseTool.extend({
     attributes: {
         decimals: new NumberAdapter(
             {
-                title: i18n().tools.numericbox.attributes.decimals.title,
+                title: __('tools.numericbox.attributes.decimals.title'),
                 defaultValue: 0
             },
             {
@@ -118,7 +82,7 @@ const NumericBoxTool = BaseTool.extend({
         ),
         min: new NumberAdapter(
             {
-                title: i18n().tools.numericbox.attributes.min.title,
+                title: __('tools.numericbox.attributes.min.title'),
                 defaultValue: Number.MIN_SAFE_INTEGER
             },
             {
@@ -128,7 +92,7 @@ const NumericBoxTool = BaseTool.extend({
         ),
         max: new NumberAdapter(
             {
-                title: i18n().tools.numericbox.attributes.max.title,
+                title: __('tools.numericbox.attributes.max.title'),
                 defaultValue: Number.MAX_SAFE_INTEGER
             },
             {
@@ -137,40 +101,40 @@ const NumericBoxTool = BaseTool.extend({
             }
         ),
         style: new StyleAdapter({
-            title: i18n().tools.numericbox.attributes.style.title,
+            title: __('tools.numericbox.attributes.style.title'),
             validation: styleValidator
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n().tools.numericbox.properties.name.title
+            title: __('tools.numericbox.properties.name.title')
         }),
         question: new QuestionAdapter({
-            help: i18n().tools.numericbox.properties.question.help,
-            title: i18n().tools.numericbox.properties.question.title,
+            help: __('tools.numericbox.properties.question.help'),
+            title: __('tools.numericbox.properties.question.title'),
             validation: questionValidator
         }),
         solution: new ExpressionAdapter({
-            help: i18n().tools.numericbox.properties.solution.help,
-            title: i18n().tools.numericbox.properties.solution.title
+            help: __('tools.numericbox.properties.solution.help'),
+            title: __('tools.numericbox.properties.solution.title')
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${numberLibrary.defaultKey}`,
             library: numberLibrary.library,
-            title: i18n().tools.numericbox.properties.validation.title
+            title: __('tools.numericbox.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: i18n().tools.numericbox.properties.success.title,
+            title: __('tools.numericbox.properties.success.title'),
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n().tools.numericbox.properties.failure.title,
+            title: __('tools.numericbox.properties.failure.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n().tools.numericbox.properties.omit.title,
+            title: __('tools.numericbox.properties.omit.title'),
             defaultValue: 0,
             validation: scoreValidator
         })

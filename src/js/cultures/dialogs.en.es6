@@ -13,6 +13,22 @@ i18n.en = i18n.en || {};
 
 $.extend(true, i18n.en, {
     dialogs: {
+        /* basedialog */
+        /*
+        basedialog: {
+            actions: {
+                ok: {
+                    text:
+                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
+                },
+                cancel: {
+                    text:
+                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Annuler'
+                }
+            }
+        },
+        */
+
         /* dialogs.assetmanager */
         assetmanager: {},
 

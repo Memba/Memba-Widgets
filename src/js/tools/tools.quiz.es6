@@ -7,10 +7,10 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import assets from '../app/app.assets.es6';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
-import assets from '../app/app.assets.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
@@ -32,69 +32,6 @@ const { format, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.quiz)) {
-    $.extend(true, i18n(), {
-        tools: {
-            quiz: {
-                description: 'Quiz',
-                help: null,
-                name: 'Quiz',
-                attributes: {
-                    data: {
-                        defaultValue: [
-                            {
-                                text: 'True',
-                                image:
-                                    'cdn://images/o_collection/svg/office/ok.svg'
-                            },
-                            {
-                                text: 'False',
-                                image:
-                                    'cdn://images/o_collection/svg/office/error.svg'
-                            }
-                        ],
-                        help: 'Enter the answers to choose from',
-                        title: 'Values'
-                    },
-                    groupStyle: { title: 'Group Style' },
-                    itemStyle: { title: 'Item Style' },
-                    mode: {
-                        help: 'Enter a display mode',
-                        source: [
-                            { text: 'Button', value: 'button' },
-                            { text: 'DropDown', value: 'dropdown' },
-                            { text: 'Image', value: 'image' },
-                            { text: 'Link', value: 'link' },
-                            { text: 'Radio', value: 'radio' }
-                        ],
-                        title: 'Mode'
-                    },
-                    selectedStyle: { title: 'Select. Style' },
-                    shuffle: { title: 'Shuffle' }
-                },
-                properties: {
-                    failure: { title: 'Failure' },
-                    omit: { title: 'Omit' },
-                    name: { title: 'Name' },
-                    question: {
-                        help: 'Enter the question shown in score reports',
-                        title: 'Question'
-                    },
-                    solution: {
-                        help: 'Enter the solution shown in score reports',
-                        title: 'Solution'
-                    },
-                    success: { title: 'Success' },
-                    validation: { title: 'Validation' }
-                }
-            }
-        }
-    });
-}
-
-/**
  * Template
  * @type {string}
  */
@@ -108,9 +45,9 @@ const TEMPLATE = `<div data-${ns}role="quiz" data-${ns}mode="#: attributes.mode 
 const QuizTool = BaseTool.extend({
     id: 'quiz',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().tools.quiz.description,
+    description: __('tools.quiz.description'),
     height: 120,
-    help: i18n().tools.quiz.help,
+    help: __('tools.quiz.help'),
     icon: 'radio_button_group',
     menu: [
         'attributes.data',
@@ -119,7 +56,7 @@ const QuizTool = BaseTool.extend({
         'properties.question',
         'properties.solution'
     ],
-    name: i18n().tools.quiz.name,
+    name: __('tools.quiz.name'),
     weight: 1,
     width: 490,
     templates: {
@@ -138,62 +75,62 @@ const QuizTool = BaseTool.extend({
         mode: new DropDownListAdapter(
             {
                 defaultValue: 'button',
-                help: i18n().tools.quiz.attributes.mode.help,
-                source: i18n().tools.quiz.attributes.mode.source,
-                title: i18n().tools.quiz.attributes.mode.title
+                help: __('tools.quiz.attributes.mode.help'),
+                source: __('tools.quiz.attributes.mode.source'),
+                title: __('tools.quiz.attributes.mode.title')
             },
             { style: 'width: 100%;' }
         ),
         shuffle: new BooleanAdapter({
-            title: i18n().tools.quiz.attributes.shuffle.title
+            title: __('tools.quiz.attributes.shuffle.title')
         }),
         groupStyle: new StyleAdapter({
             defaultValue: 'font-size:60px;',
-            title: i18n().tools.quiz.attributes.groupStyle.title
+            title: __('tools.quiz.attributes.groupStyle.title')
         }),
         itemStyle: new StyleAdapter({
-            title: i18n().tools.quiz.attributes.itemStyle.title
+            title: __('tools.quiz.attributes.itemStyle.title')
         }),
         selectedStyle: new StyleAdapter({
-            title: i18n().tools.quiz.attributes.selectedStyle.title
+            title: __('tools.quiz.attributes.selectedStyle.title')
         }),
         data: new ImageListAdapter({
-            defaultValue: i18n().tools.quiz.attributes.data.defaultValue,
-            help: i18n().tools.quiz.attributes.data.help,
-            title: i18n().tools.quiz.attributes.data.title
+            defaultValue: __('tools.quiz.attributes.data.defaultValue'),
+            help: __('tools.quiz.attributes.data.help'),
+            title: __('tools.quiz.attributes.data.title')
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n().tools.quiz.properties.name.title
+            title: __('tools.quiz.properties.name.title')
         }),
         question: new QuestionAdapter({
-            help: i18n().tools.quiz.properties.question.help,
-            title: i18n().tools.quiz.properties.question.title,
+            help: __('tools.quiz.properties.question.help'),
+            title: __('tools.quiz.properties.question.title'),
             validation: questionValidator
         }),
         solution: new QuizAdapter({
-            help: i18n().tools.quiz.properties.solution.help,
-            title: i18n().tools.quiz.properties.solution.title
+            help: __('tools.quiz.properties.solution.help'),
+            title: __('tools.quiz.properties.solution.title')
             // TODO validation: solutionValidator
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
-            title: i18n().tools.quiz.properties.validation.title
+            title: __('tools.quiz.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: i18n().tools.quiz.properties.success.title,
+            title: __('tools.quiz.properties.success.title'),
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n().tools.quiz.properties.failure.title,
+            title: __('tools.quiz.properties.failure.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n().tools.quiz.properties.omit.title,
+            title: __('tools.quiz.properties.omit.title'),
             defaultValue: 0,
             validation: scoreValidator
         })
@@ -340,8 +277,7 @@ const QuizTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const { description } = this; // tool description
-        const { messages } = this.i18n;
+        const toolName = this.name;
         if (
             !component.attributes ||
             // Styles are only checked if there is any (optional)
@@ -355,7 +291,7 @@ const QuizTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
             });
         }
         if (
@@ -366,7 +302,7 @@ const QuizTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidData, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidData'), toolName, pageIdx + 1)
             });
         }
         // TODO: Check that solution matches one of the data

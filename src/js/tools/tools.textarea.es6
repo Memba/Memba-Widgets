@@ -25,19 +25,6 @@ import { scoreValidator } from './util.validators.es6';
 const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-/**
- * i18n
- * @returns {*|{}}
- */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).textarea ||
-        {
-            // TODO
-        }
-    );
-}
-
 const TEXTAREA =
     '<textarea id="#: properties.name #" class="k-textbox kj-interactive" style="#: attributes.style #" {0}></textarea>';
 /**
@@ -47,7 +34,9 @@ const TEXTAREA =
 const TextAreaTool = BaseTool.extend({
     id: 'textarea',
     icon: 'text_area',
-    description: i18n().description,
+    name: __('tools.textarea.name'),
+    description: __('tools.textarea.description'),
+    help: __('tools.textarea.help'),
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 2,
     templates: {
@@ -66,37 +55,37 @@ const TextAreaTool = BaseTool.extend({
     width: 500,
     attributes: {
         style: new StyleAdapter({
-            title: i18n().attributes.style.title,
+            title: __('tools.textarea.attributes.style.title'),
             defaultValue: 'font-size:40px;resize:none;'
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n().properties.name.title
+            title: __('tools.textarea.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: i18n().properties.question.title
+            title: __('tools.textarea.properties.question.title')
         }),
         solution: new TextAreaAdapter({
-            title: i18n().properties.solution.title
+            title: __('tools.textarea.properties.solution.title')
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${textLibrary.defaultKey}`,
             library: textLibrary.library,
-            title: i18n().properties.validation.title
+            title: __('tools.textarea.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: i18n().properties.success.title,
+            title: __('tools.textarea.properties.success.title'),
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n().properties.failure.title,
+            title: __('tools.textarea.properties.failure.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n().properties.omit.title,
+            title: __('tools.textarea.properties.omit.title'),
             defaultValue: 0,
             validation: scoreValidator
         })

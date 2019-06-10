@@ -7,8 +7,8 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import __ from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import '../widgets/widgets.chargrid.es6';
 import './widgets.basedialog.es6';
 
@@ -19,17 +19,6 @@ const {
     roleSelector,
     ui: { BaseDialog }
 } = window.kendo;
-
-/**
- * i18n messages
- */
-if (!(i18n().dialogs && i18n().dialogs.chargrid)) {
-    $.extend(true, i18n(), {
-        dialogs: {
-            chargrid: {}
-        }
-    });
-}
 
 /**
  * A shortcut function to display a dialog with a kendo.ui.CodeEditor

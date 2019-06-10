@@ -7,30 +7,15 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 
 const { format } = window.kendo;
-
-/**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.square)) {
-    $.extend(true, i18n(), {
-        tools: {
-            square: {
-                description: 'Square',
-                help: null,
-                name: 'Square'
-            }
-        }
-    });
-}
 
 /**
  * Template
@@ -47,12 +32,12 @@ const TEMPLATE =
 const SquareTool = BaseTool.extend({
     id: 'square',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().tools.square.description,
+    description: __('tools.square.description'),
     height: 300,
-    help: i18n().tools.square.help,
+    help: __('tools.square.help'),
     icon: 'shapes',
+    name: __('tools.square.name'),
     // menu: [],
-    name: i18n().tools.square.name,
     width: 300,
     templates: {
         play: format(TEMPLATE, '#0f0', 'PLAY'),

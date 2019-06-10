@@ -19,22 +19,10 @@ import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { mathLibrary } from './util.libraries.es6';
 import {scoreValidator} from './util.validators.es6';
+import __ from '../app/app.i18n';
 
 const { attr, format, ns, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
-
-/**
- * i18n
- * @returns {*|{}}
- */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).mathinput ||
-        {
-            // TODO
-        }
-    );
-}
 
 const MATHINPUT = `<div data-${ns}role="mathinput" data-${ns}toolbar="#: JSON.stringify(toolbar$()) #" style="#: attributes.style #" {0}>#: attributes.formula #</div>`;
 /**
@@ -44,7 +32,9 @@ const MATHINPUT = `<div data-${ns}role="mathinput" data-${ns}toolbar="#: JSON.st
 var MathInputTool = BaseTool.extend({
     id: 'mathinput',
     icon: 'formula_input',
-    description: i18n.mathinput.description,
+    name: __('tools.mathinput.name'),
+    description: __('tools.mathinput.description'),
+    help: __('tools.mathinput.help'),
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
         design: format(MATHINPUT, `data-${ns}enable="false"`),
@@ -62,74 +52,74 @@ var MathInputTool = BaseTool.extend({
     width: 370,
     attributes: {
         // The formula is intended to set several MathQuillMathFields, which requires to make the solution an array of mathinputs
-        // formula: new MathInputAdapter({ title: i18n.mathinput.attributes.formula.title }),
-        // backspace: new BooleanAdapter({ title: i18n.mathinput.attributes.backspace.title, defaultValue: false }),
-        // field: new BooleanAdapter({ title: i18n.mathinput.attributes.field.title, defaultValue: false }),
+        // formula: new MathInputAdapter({ title: __('tools.mathinput.attributes.formula.title') }),
+        // backspace: new BooleanAdapter({ title: __('tools.mathinput.attributes.backspace.title'), defaultValue: false }),
+        // field: new BooleanAdapter({ title: __('tools.mathinput.attributes.field.title'), defaultValue: false }),
         keypad: new BooleanAdapter({
-            title: i18n.mathinput.attributes.keypad.title,
+            title: __('tools.mathinput.attributes.keypad.title'),
             defaultValue: true
         }),
         basic: new BooleanAdapter({
-            title: i18n.mathinput.attributes.basic.title,
+            title: __('tools.mathinput.attributes.basic.title'),
             defaultValue: true
         }),
         greek: new BooleanAdapter({
-            title: i18n.mathinput.attributes.greek.title,
+            title: __('tools.mathinput.attributes.greek.title'),
             defaultValue: false
         }),
         operators: new BooleanAdapter({
-            title: i18n.mathinput.attributes.operators.title,
+            title: __('tools.mathinput.attributes.operators.title'),
             defaultValue: false
         }),
         expressions: new BooleanAdapter({
-            title: i18n.mathinput.attributes.expressions.title,
+            title: __('tools.mathinput.attributes.expressions.title'),
             defaultValue: false
         }),
         sets: new BooleanAdapter({
-            title: i18n.mathinput.attributes.sets.title,
+            title: __('tools.mathinput.attributes.sets.title'),
             defaultValue: false
         }),
         matrices: new BooleanAdapter({
-            title: i18n.mathinput.attributes.matrices.title,
+            title: __('tools.mathinput.attributes.matrices.title'),
             defaultValue: false
         }),
         statistics: new BooleanAdapter({
-            title: i18n.mathinput.attributes.statistics.title,
+            title: __('tools.mathinput.attributes.statistics.title'),
             defaultValue: false
         }),
         style: new StyleAdapter({
-            title: i18n.mathinput.attributes.style.title,
+            title: __('tools.mathinput.attributes.style.title'),
             defaultValue: 'font-size:50px;'
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n.mathinput.properties.name.title
+            title: __('tools.mathinput.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: i18n.mathinput.properties.question.title
+            title: __('tools.mathinput.properties.question.title')
         }),
         solution: new MathInputAdapter({
-            title: i18n.mathinput.properties.solution.title,
+            title: __('tools.mathinput.properties.solution.title'),
             defaultValue: ''
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${mathLibrary.defaultKey}`,
             library: mathLibrary.library,
-            title: i18n.mathinput.properties.validation.title
+            title: __('tools.mathinput.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: i18n.mathinput.properties.success.title,
+            title: __('tools.mathinput.properties.success.title'),
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n.mathinput.properties.failure.title,
+            title: __('tools.mathinput.properties.failure.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n.mathinput.properties.omit.title,
+            title: __('tools.mathinput.properties.omit.title'),
             defaultValue: 0,
             validation: scoreValidator
         })
@@ -264,18 +254,17 @@ var MathInputTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const { description } = this; // tool description
-        const { messages } = this.i18n;
+        const toolName = this.name;
         /*
         if (!component.attributes ||
             !component.attributes.formula ||
-            (component.attributes.formula === i18n.mathinput.attributes.formula.defaultValue) ||
+            (component.attributes.formula === __('tools.mathinput.attributes.formula.defaultValue)') ||
             !TOOLS.RX_FORMULA.test(component.attributes.formula)) {
             // TODO: replace TOOLS.RX_FORMULA with a LaTeX synthax checker
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(messages.invalidFormula, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidFormula'), toolName, pageIdx + 1)
             });
         }
         */
@@ -288,7 +277,7 @@ var MathInputTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
             });
         }
         return ret;

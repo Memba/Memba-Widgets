@@ -10,9 +10,9 @@
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.maskedtextbox';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ReadOnlyAdapter from './adapters.readonly.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -39,40 +39,6 @@ const {
 const ScoreAdapter = NumberAdapter;
 
 /**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.textbox)) {
-    $.extend(true, i18n(), {
-        tools: {
-            textbox: {
-                description: 'TextBox: <em>#: properties.name #</em>',
-                help: null,
-                name: 'TextBox',
-                attributes: {
-                    mask: { title: 'Mask' },
-                    style: { title: 'Style' }
-                },
-                properties: {
-                    name: { title: 'Name' },
-                    question: {
-                        help: 'Enter the question shown in score reports',
-                        title: 'Question'
-                    },
-                    solution: {
-                        help: 'Enter the solution shown in score reports',
-                        title: 'Solution'
-                    },
-                    validation: { title: 'Validation' },
-                    success: { title: 'Success' },
-                    failure: { title: 'Failure' },
-                    omit: { title: 'Omit' }
-                }
-            }
-        }
-    });
-}
-
-/**
  * Template
  * Note: Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
  * @type {string}
@@ -86,12 +52,12 @@ const TEMPLATE = `<input type="text" id="#: properties.name #" class="kj-interac
 const TextBoxTool = BaseTool.extend({
     id: 'textbox',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().tools.textbox.description,
+    description: __('tools.textbox.description'),
     height: 80,
-    help: i18n().tools.textbox.help,
+    help: __('tools.textbox.help'),
     icon: 'text_field',
     menu: ['properties.question', 'properties.solution'],
-    name: i18n().tools.textbox.name,
+    name: __('tools.textbox.name'),
     weight: 1,
     width: 300,
     templates: {
@@ -108,44 +74,44 @@ const TextBoxTool = BaseTool.extend({
     },
     attributes: {
         mask: new TextBoxAdapter({
-            title: i18n().tools.textbox.attributes.mask.title
+            title: __('tools.textbox.attributes.mask.title')
         }),
         style: new StyleAdapter({
-            title: i18n().tools.textbox.attributes.style.title
+            title: __('tools.textbox.attributes.style.title')
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n().tools.textbox.properties.name.title
+            title: __('tools.textbox.properties.name.title')
         }),
         question: new QuestionAdapter({
-            help: i18n().tools.textbox.properties.question.help,
-            title: i18n().tools.textbox.properties.question.title,
+            help: __('tools.textbox.properties.question.help'),
+            title: __('tools.textbox.properties.question.title'),
             validation: questionValidator
         }),
         solution: new TextBoxAdapter({
-            help: i18n().tools.textbox.properties.solution.help,
-            title: i18n().tools.textbox.properties.solution.title,
+            help: __('tools.textbox.properties.solution.help'),
+            title: __('tools.textbox.properties.solution.title'),
             validation: solutionValidator
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${stringLibrary.defaultKey}`,
             library: stringLibrary.library,
-            title: i18n().tools.textbox.properties.validation.title,
+            title: __('tools.textbox.properties.validation.title'),
             validation: validationValidator
         }),
         success: new ScoreAdapter({
-            title: i18n().tools.textbox.properties.success.title,
+            title: __('tools.textbox.properties.success.title'),
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n().tools.textbox.properties.failure.title,
+            title: __('tools.textbox.properties.failure.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n().tools.textbox.properties.omit.title,
+            title: __('tools.textbox.properties.omit.title'),
             defaultValue: 0,
             validation: scoreValidator
         })

@@ -21,38 +21,10 @@ import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
+import __ from '../app/app.i18n';
 
 const { attr, format, htmlEncode, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
-
-/**
- * i18n
- * @returns {*|{}}
- */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).textgaps || {
-            description: 'Text gaps',
-            attributes: {
-                inputStyle: { title: 'Input Style' },
-                style: { title: 'Style' },
-                text: {
-                    title: 'Text',
-                    defaultValue: 'Some text with gaps like [] or [] to fill.'
-                }
-            },
-            properties: {
-                name: { title: 'Name' },
-                question: { title: 'Question' },
-                solution: { title: 'Solution' },
-                validation: { title: 'Validation' },
-                success: { title: 'Success' },
-                failure: { title: 'Failure' },
-                omit: { title: 'Omit' }
-            }
-        }
-    );
-}
 
 /**
  * Template
@@ -68,7 +40,9 @@ const TEMPLATE = `<div data-${ns}role="textgaps" data-${ns}text="#: attributes.t
 const TextGapsTool = BaseTool.extend({
     id: 'textgaps',
     icon: 'text_gaps',
-    description: i18n.textgaps.description,
+    name: __('tools.textgaps.name'),
+    description: __('tools.textgaps.description'),
+    help: __('tools.textgaps.help'),
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
@@ -87,45 +61,45 @@ const TextGapsTool = BaseTool.extend({
     width: 420,
     attributes: {
         inputStyle: new StyleAdapter({
-            title: i18n.textgaps.attributes.inputStyle.title
+            title: __('tools.textgaps.attributes.inputStyle.title')
         }),
         style: new StyleAdapter({
-            title: i18n.textgaps.attributes.style.title,
+            title: __('tools.textgaps.attributes.style.title'),
             defaultValue: 'font-size:32px;'
         }),
         text: new TextBoxAdapter({
-            title: i18n.textgaps.attributes.text.title,
-            defaultValue: i18n.textgaps.attributes.text.defaultValue
+            title: __('tools.textgaps.attributes.text.title'),
+            defaultValue: __('tools.textgaps.attributes.text.defaultValue')
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n.textgaps.properties.name.title
+            title: __('tools.textgaps.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: i18n.textgaps.properties.question.title
+            title: __('tools.textgaps.properties.question.title')
         }),
         solution: new StringArrayAdapter({
-            title: i18n.textgaps.properties.solution.title,
+            title: __('tools.textgaps.properties.solution.title'),
             defaultValue: []
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${arrayLibrary.defaultKey}`,
             library: arrayLibrary.library,
-            title: i18n.textgaps.properties.validation.title
+            title: __('tools.textgaps.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: i18n.textgaps.properties.success.title,
+            title: __('tools.textgaps.properties.success.title'),
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n.textgaps.properties.failure.title,
+            title: __('tools.textgaps.properties.failure.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n.textgaps.properties.omit.title,
+            title: __('tools.textgaps.properties.omit.title'),
             defaultValue: 0,
             validation: scoreValidator
         })
@@ -244,19 +218,18 @@ const TextGapsTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const { description } = this; // tool description
-        const { messages } = this.i18n;
+        const toolName = this.name;
         if (
             !component.attributes ||
             !component.attributes.text ||
             component.attributes.text ===
-                i18n.textgaps.attributes.text.defaultValue ||
+                __('tools.textgaps.attributes.text.defaultValue') ||
             !TOOLS.RX_TEXT.test(component.attributes.text)
         ) {
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(messages.invalidText, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidText'), toolName, pageIdx + 1)
             });
         }
         if (
@@ -269,7 +242,7 @@ const TextGapsTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
             });
         }
         if (
@@ -282,7 +255,7 @@ const TextGapsTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
             });
         }
         // TODO also check that split regex is safe

@@ -9,9 +9,9 @@ import $ from 'jquery';
 import 'kendo.core';
 import math from '../vendor/josdejong/math';
 import config from '../app/app.config.jsx';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import Logger from '../common/window.logger.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ExpressionAdapter from './adapters.expression.es6';
@@ -22,32 +22,6 @@ import TOOLS from './util.constants.es6';
 
 const logger = new Logger('tools.variable');
 const { format, template } = window.kendo;
-
-/**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.variable)) {
-    $.extend(true, i18n(), {
-        tools: {
-            variable: {
-                description: 'Variable: <em>#: properties.variable #</em>',
-                help: null,
-                name: 'Variable',
-                attributes: {},
-                properties: {
-                    variable: {
-                        help: 'Enter a variable name',
-                        title: 'Variable'
-                    },
-                    expression: {
-                        help: 'Enter a math expression',
-                        title: 'Expression'
-                    }
-                }
-            }
-        }
-    });
-}
 
 /**
  * Template
@@ -64,12 +38,12 @@ const TEMPLATE =
 const VariableTool = BaseTool.extend({
     id: 'variable',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().tools.variable.description,
+    description: __('tools.variable.description'),
     height: 64,
-    help: i18n().tools.variable.help,
+    help: __('tools.variable.help'),
     icon: 'magic_wand',
     menu: ['properties.variable', 'properties.expression'],
-    name: i18n().tools.variable.name,
+    name: __('tools.variable.name'),
     width: 64,
     templates: {
         default: TEMPLATE
@@ -78,14 +52,14 @@ const VariableTool = BaseTool.extend({
     properties: {
         variable: new TextBoxAdapter({
             defaultValue: 'k',
-            help: i18n().tools.variable.properties.variable.help,
-            title: i18n().tools.variable.properties.variable.title
+            help: __('tools.variable.properties.variable.help'),
+            title: __('tools.variable.properties.variable.title')
         }),
         // Note: an expression can handle more than random numbers, for example: 2 * pi
         expression: new ExpressionAdapter({
             defaultValue: 'round(random(0, 10), 2)',
-            help: i18n().tools.variable.properties.expression.help,
-            title: i18n().tools.variable.properties.expression.title
+            help: __('tools.variable.properties.expression.help'),
+            title: __('tools.variable.properties.expression.title')
         })
     },
 
@@ -256,7 +230,7 @@ const VariableTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.alt ||
             component.attributes.alt ===
-                i18n().tools.variable.attributes.alt.defaultValue ||
+                __('tools.variable.attributes.alt.defaultValue') ||
             !TOOLS.RX_TEXT.test(component.attributes.alt)
         ) {
             ret.push({
@@ -273,13 +247,13 @@ const VariableTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.src ||
             component.attributes.src ===
-                i18n().tools.variable.attributes.src.defaultValue ||
+                __('tools.variable.attributes.src.defaultValue') ||
             !TOOLS.RX_IMAGE.test(component.attributes.src)
         ) {
             ret.push({
                 type:
                     component.attributes.src ===
-                    i18n().tools.variable.attributes.src.defaultValue
+                    __('tools.variable.attributes.src.defaultValue')
                         ? CONSTANTS.WARNING
                         : CONSTANTS.ERROR,
                 index: pageIdx,

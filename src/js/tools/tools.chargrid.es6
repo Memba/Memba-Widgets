@@ -8,9 +8,9 @@
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.data';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 // TODO import '../widgets/widgets.chargrid.es6';
 import CharGridAdapter from './adapters.chargrid.es6';
@@ -36,23 +36,6 @@ const {
 const ScoreAdapter = NumberAdapter;
 
 /**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.chargrid)) {
-    $.extend(true, i18n(), {
-        tools: {
-            chargrid: {
-                description: 'Audio Player',
-                help: null,
-                name: 'Audio',
-                attributes: {},
-                properties: {}
-            }
-        }
-    });
-}
-
-/**
  * Template
  * @type {string}
  */
@@ -65,7 +48,9 @@ const TEMPLATE = `<div data-${ns}role="chargrid" data-${ns}columns="#: attribute
 const CharGridTool = BaseTool.extend({
     id: 'chargrid',
     icon: 'dot_matrix',
-    description: i18n().description,
+    name: __('tools.chargrid.name'),
+    description: __('tools.chargrid.description'),
+    help: __('tools.chargrid.help'),
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 8,
     templates: {
@@ -87,7 +72,7 @@ const CharGridTool = BaseTool.extend({
     width: 400,
     attributes: {
         columns: new NumberAdapter(
-            { title: i18n().attributes.columns.title, defaultValue: 9 },
+            { title: __('tools.chargrid.attributes.columns.title'), defaultValue: 9 },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
@@ -96,7 +81,7 @@ const CharGridTool = BaseTool.extend({
             }
         ),
         rows: new NumberAdapter(
-            { title: i18n().attributes.rows.title, defaultValue: 9 },
+            { title: __('tools.chargrid.attributes.rows.title'), defaultValue: 9 },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
@@ -105,65 +90,65 @@ const CharGridTool = BaseTool.extend({
             }
         ),
         blank: new TextBoxAdapter({
-            title: i18n().attributes.blank.title,
+            title: __('tools.chargrid.attributes.blank.title'),
             defaultValue: '.'
         }),
         whitelist: new TextBoxAdapter({
-            title: i18n().attributes.whitelist.title,
+            title: __('tools.chargrid.attributes.whitelist.title'),
             defaultValue: '1-9'
         }),
         layout: new CharGridAdapter({
-            title: i18n().attributes.layout.title,
+            title: __('tools.chargrid.attributes.layout.title'),
             defaultValue: null
         }),
         gridFill: new ColorAdapter({
-            title: i18n().attributes.gridFill.title,
+            title: __('tools.chargrid.attributes.gridFill.title'),
             defaultValue: '#ffffff'
         }),
         gridStroke: new ColorAdapter({
-            title: i18n().attributes.gridStroke.title,
+            title: __('tools.chargrid.attributes.gridStroke.title'),
             defaultValue: '#000000'
         }),
         // blankFill = gridStroke
         selectedFill: new ColorAdapter({
-            title: i18n().attributes.selectedFill.title,
+            title: __('tools.chargrid.attributes.selectedFill.title'),
             defaultValue: '#ffffcc'
         }),
         lockedFill: new ColorAdapter({
-            title: i18n().attributes.lockedFill.title,
+            title: __('tools.chargrid.attributes.lockedFill.title'),
             defaultValue: '#e6e6e6'
         }),
         // lockedColor = valueColor = fontColor
         fontColor: new ColorAdapter({
-            title: i18n().attributes.fontColor.title,
+            title: __('tools.chargrid.attributes.fontColor.title'),
             defaultValue: '#9999b6'
         })
     },
     properties: {
-        name: new ReadOnlyAdapter({ title: i18n().properties.name.title }),
+        name: new ReadOnlyAdapter({ title: __('tools.chargrid.properties.name.title') }),
         question: new QuestionAdapter({
-            title: i18n().properties.question.title
+            title: __('tools.chargrid.properties.question.title')
         }),
         solution: new CharGridAdapter({
-            title: i18n().properties.solution.title
+            title: __('tools.chargrid.properties.solution.title')
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${charGridLibrary.defaultKey}`,
             library: charGridLibrary.library,
-            title: i18n().properties.validation.title
+            title: __('tools.chargrid.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: i18n().properties.success.title,
+            title: __('tools.chargrid.properties.success.title'),
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n().properties.failure.title,
+            title: __('tools.chargrid.properties.failure.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n().properties.omit.title,
+            title: __('tools.chargrid.properties.omit.title'),
             defaultValue: 0,
             validation: scoreValidator
         })

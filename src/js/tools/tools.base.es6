@@ -7,9 +7,9 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { randomVal } from '../common/window.util.es6';
 import BaseModel from '../data/data.base.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
@@ -35,48 +35,6 @@ const {
 } = window.kendo;
 
 /**
- * i18n messages
- */
-if (!i18n().basetool) {
-    $.extend(true, i18n(), {
-        basetool: {
-            top: { title: 'Top' },
-            left: { title: 'Left' },
-            height: { title: 'Height' },
-            width: { title: 'Width' },
-            rotate: { title: 'Rotate' },
-            icons: {
-                // Incors O-Collection check.svg
-                // const SVG_SUCCESS = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#76A797" d="M3840 5760l3934 -3934c124,-124 328,-124 452,0l1148 1148c124,124 124,328 0,452l-5308 5308c-124,124 -328,124 -452,0l-2748 -2748c-124,-124 -124,-328 0,-452l1148 -1148c124,-124 328,-124 452,0l1374 1374z"/></svg>';
-                SVG_SUCCESS:
-                    'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iIzc2QTc5NyIgZD0iTTM4NDAgNTc2MGwzOTM0IC0zOTM0YzEyNCwtMTI0IDMyOCwtMTI0IDQ1MiwwbDExNDggMTE0OGMxMjQsMTI0IDEyNCwzMjggMCw0NTJsLTUzMDggNTMwOGMtMTI0LDEyNCAtMzI4LDEyNCAtNDUyLDBsLTI3NDggLTI3NDhjLTEyNCwtMTI0IC0xMjQsLTMyOCAwLC00NTJsMTE0OCAtMTE0OGMxMjQsLTEyNCAzMjgsLTEyNCA0NTIsMGwxMzc0IDEzNzR6Ii8+PC9zdmc+',
-
-                // Incors O-Collection delete.svg
-                // const SVG_FAILURE = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#E68497" d="M1273 7156l2037 -2036 -2037 -2036c-124,-125 -124,-328 0,-453l1358 -1358c125,-124 328,-124 453,0l2036 2037 2036 -2037c125,-124 328,-124 453,0l1358 1358c124,125 124,328 0,453l-2037 2036 2037 2036c124,125 124,328 0,453l-1358 1358c-125,124 -328,124 -453,0l-2036 -2037 -2036 2037c-125,124 -328,124 -453,0l-1358 -1358c-124,-125 -124,-328 0,-453z"/></svg>',
-                SVG_FAILURE:
-                    'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iI0U2ODQ5NyIgZD0iTTEyNzMgNzE1NmwyMDM3IC0yMDM2IC0yMDM3IC0yMDM2Yy0xMjQsLTEyNSAtMTI0LC0zMjggMCwtNDUzbDEzNTggLTEzNThjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMjAzNiAyMDM3IDIwMzYgLTIwMzdjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMTM1OCAxMzU4YzEyNCwxMjUgMTI0LDMyOCAwLDQ1M2wtMjAzNyAyMDM2IDIwMzcgMjAzNmMxMjQsMTI1IDEyNCwzMjggMCw0NTNsLTEzNTggMTM1OGMtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTIwMzYgLTIwMzcgLTIwMzYgMjAzN2MtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTEzNTggLTEzNThjLTEyNCwtMTI1IC0xMjQsLTMyOCAwLC00NTN6Ii8+PC9zdmc+',
-
-                // Incors O-Collection sign_warning.svg
-                // SVG_WARNING: '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" clip-rule="evenodd" viewBox="0 0 10240 10240"><path fill="#EDC87E" d="M5680 1282l3846 6712c117 205 117 439 0 644s-319 322-554 322H1281c-234 0-436-117-553-322s-117-439 0-644l3846-6712c117-205 318-322 553-322s436 117 553 322zm-560 318L1280 8320h7680L5120 1600z"/><path fill="gray" d="M5120 6720c353 0 640 287 640 640s-287 640-640 640-640-287-640-640 287-640 640-640zm-320-2880h640c176 0 320 144 320 320v802c0 110-12 204-38 311l-252 1006c-18 72-81 121-155 121h-390c-74 0-137-49-155-121l-252-1006c-26-107-38-201-38-311v-802c0-176 144-320 320-320z"/></svg>',
-                SVG_WARNING:
-                    'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY2xpcC1ydWxlPSJldmVub2RkIiB2aWV3Qm94PSIwIDAgMTAyNDAgMTAyNDAiPjxwYXRoIGZpbGw9IiNFREM4N0UiIGQ9Ik01NjgwIDEyODJsMzg0NiA2NzEyYzExNyAyMDUgMTE3IDQzOSAwIDY0NHMtMzE5IDMyMi01NTQgMzIySDEyODFjLTIzNCAwLTQzNi0xMTctNTUzLTMyMnMtMTE3LTQzOSAwLTY0NGwzODQ2LTY3MTJjMTE3LTIwNSAzMTgtMzIyIDU1My0zMjJzNDM2IDExNyA1NTMgMzIyem0tNTYwIDMxOEwxMjgwIDgzMjBoNzY4MEw1MTIwIDE2MDB6Ii8+PHBhdGggZmlsbD0iZ3JheSIgZD0iTTUxMjAgNjcyMGMzNTMgMCA2NDAgMjg3IDY0MCA2NDBzLTI4NyA2NDAtNjQwIDY0MC02NDAtMjg3LTY0MC02NDAgMjg3LTY0MCA2NDAtNjQwem0tMzIwLTI4ODBoNjQwYzE3NiAwIDMyMCAxNDQgMzIwIDMyMHY4MDJjMCAxMTAtMTIgMjA0LTM4IDMxMWwtMjUyIDEwMDZjLTE4IDcyLTgxIDEyMS0xNTUgMTIxaC0zOTBjLTc0IDAtMTM3LTQ5LTE1NS0xMjFsLTI1Mi0xMDA2Yy0yNi0xMDctMzgtMjAxLTM4LTMxMXYtODAyYzAtMTc2IDE0NC0zMjAgMzIwLTMyMHoiLz48L3N2Zz4='
-            }
-        },
-        validation: {
-            messages: {
-                invalidConstant: '',
-                invalidFailure: '',
-                invalidName: '',
-                invalidQuestion: '',
-                invalidSolution: '',
-                invalidSuccess: '',
-                invalidValidation: ''
-            }
-        }
-    });
-}
-
-/**
  * BaseTool
  * @class BaseTool
  * @extends Class
@@ -87,7 +45,7 @@ const BaseTool = Class.extend({
     description: null,
     field: {
         // The field definition for building the TestModel (see getTestModelField)
-        type: CONSTANTS.STRING,
+        type: CONSTANTS.STRING, // TODO check whether we need a type?
         // defaultValue: null,
         // editable: true
         nullable: true
@@ -99,14 +57,10 @@ const BaseTool = Class.extend({
     help: null,
     icon: null,
     id: null,
+    name: null,
     properties: {},
     weight: 0,
     width: 250,
-    svg: {
-        success: i18n().basetool.icons.SVG_SUCCESS,
-        failure: i18n().basetool.icons.SVG_FAILURE,
-        warning: i18n().basetool.icons.SVG_WARNING
-    },
 
     /**
      * Init
@@ -148,31 +102,31 @@ const BaseTool = Class.extend({
         // Add top, left, height, width, rotation
         rows.push(
             new NumberAdapter(
-                { title: i18n().basetool.top.title },
+                { title: __('tools.basetool.top.title') },
                 data
             ).getRow('top')
         );
         rows.push(
             new NumberAdapter(
-                { title: i18n().basetool.left.title },
+                { title: __('tools.basetool.left.title') },
                 data
             ).getRow('left')
         );
         rows.push(
             new NumberAdapter(
-                { title: i18n().basetool.height.title },
+                { title: __('tools.basetool.height.title') },
                 data
             ).getRow('height')
         );
         rows.push(
             new NumberAdapter(
-                { title: i18n().basetool.width.title },
+                { title: __('tools.basetool.width.title') },
                 data
             ).getRow('width')
         );
         rows.push(
             new NumberAdapter(
-                { title: i18n().basetool.rotate.title },
+                { title: __('tools.basetool.rotate.title') },
                 data
             ).getRow('rotate')
         );
@@ -507,9 +461,7 @@ const BaseTool = Class.extend({
                             that.set('score', that.defaults.score);
                             dfd.reject(
                                 new Error(
-                                    `The grading result pertains to task name ${
-                                        res.name
-                                    } instead of ${name}`
+                                    `The grading result pertains to task name ${res.name} instead of ${name}`
                                 )
                             );
                         }
@@ -589,8 +541,8 @@ const BaseTool = Class.extend({
         // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
         /* eslint-disable prettier/prettier */
         return `<div class=".kj-element-result" data-${ns}bind="visible: #: properties.name #">
-                    <div data-${ns}bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,'${BaseTool.fn.svg.success}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
-                    <div data-${ns}bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${BaseTool.fn.svg.failure}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
+                    <div data-${ns}bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,'${__('tools.basetool.icon.success')}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
+                    <div data-${ns}bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${__('tools.basetool.icon.failure')}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
                 </div>`;
         /* eslint-ensable prettier/prettier */
     },
@@ -616,7 +568,7 @@ const BaseTool = Class.extend({
             return {
                 text: adapter.title,
                 attr: attributes
-                // Note: consider adding SVG_WARNING when attribute/property is invalid
+                // Note: consider adding warning when attribute/property is invalid
             };
         });
     },
@@ -767,7 +719,7 @@ const BaseTool = Class.extend({
         );
         const ret = [];
         const { properties } = component;
-        const { description } = this;
+        const toolName = this.name;
         if (properties && !properties.disabled) {
             if (
                 $.type(properties.behavior) === CONSTANTS.STRING &&
@@ -779,21 +731,21 @@ const BaseTool = Class.extend({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
                         message: format(
-                            i18n().validation.messages.invalidConstant,
-                            description,
+                            __('tools.messages.invalidConstant'),
+                            toolName,
                             /* name, */ pageIdx + 1
                         )
                     });
                 }
-            } else if ($.type(component.properties.name) === CONSTANTS.STRING) {
+            } else if ($.type(properties.name) === CONSTANTS.STRING) {
                 const { name } = properties;
                 if (!TOOLS.RX_NAME.test(name)) {
                     ret.push({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
                         message: format(
-                            i18n().validation.messages.invalidName,
-                            description,
+                            __('tools.messages.invalidName'),
+                            toolName,
                             name,
                             pageIdx + 1
                         )
@@ -807,8 +759,8 @@ const BaseTool = Class.extend({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
                         message: format(
-                            i18n().validation.messages.invalidQuestion,
-                            description,
+                            __('tools.messages.invalidQuestion'),
+                            toolName,
                             name,
                             pageIdx + 1
                         )
@@ -823,8 +775,8 @@ const BaseTool = Class.extend({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
                         message: format(
-                            i18n().validation.messages.invalidSolution,
-                            description,
+                            __('tools.messages.invalidSolution'),
+                            toolName,
                             name,
                             pageIdx + 1
                         )
@@ -838,8 +790,8 @@ const BaseTool = Class.extend({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
                         message: format(
-                            i18n().validation.messages.invalidValidation,
-                            description,
+                            __('tools.messages.invalidValidation'),
+                            toolName,
                             name,
                             pageIdx + 1
                         )
@@ -854,8 +806,8 @@ const BaseTool = Class.extend({
                         type: CONSTANTS.WARNING,
                         index: pageIdx,
                         message: format(
-                            i18n().validation.messages.invalidFailure,
-                            description,
+                            __('tools.messages.invalidFailure'),
+                            toolName,
                             name,
                             pageIdx + 1
                         )
@@ -870,8 +822,8 @@ const BaseTool = Class.extend({
                         type: CONSTANTS.WARNING,
                         index: pageIdx,
                         message: format(
-                            i18n().validation.messages.invalidSuccess,
-                            description,
+                            __('tools.messages.invalidSuccess'),
+                            toolName,
                             name,
                             pageIdx + 1
                         )

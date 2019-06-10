@@ -22,32 +22,15 @@ import TOOLS from './util.constants';
 const { format, ns, roleSelector, template } = window.kendo;
 
 /**
- * i18n
- * @returns {*|{}}
- */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).video || {
-            description: 'VideoTool Player',
-            attributes: {
-                autoplay: { title: 'Autoplay' },
-                toolbarHeight: { title: 'Toolbar Height' },
-                mp4: { title: 'MP4 File' },
-                ogv: { title: 'OGV File' },
-                wbem: { title: 'WBEM File' }
-            }
-        }
-    );
-}
-
-/**
  * VideoTool tool
  * @class VideoTool
  */
 var VideoTool = BaseTool.extend({
     id: 'video',
     icon: 'movie',
-    description: i18n.video.description,
+    name: __('tools.video.name'),
+    description: __('tools.video.description'),
+    help: __('tools.video.help'),
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
         default: `<div data-${ns}role="mediaplayer" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`
@@ -56,16 +39,22 @@ var VideoTool = BaseTool.extend({
     width: 600,
     attributes: {
         autoplay: new BooleanAdapter({
-            title: 'Autoplay',
+            title: __('tools.video.attributes.autoplay.title'),
             defaultValue: false
         }),
         toolbarHeight: new NumberAdapter({
-            title: 'Toolbar Height',
+            title: __('tools.video.attributes.toolbarHeight.title'),
             defaultValue: 48
         }),
-        mp4: new AssetAdapter({ title: 'MP4 File' }),
-        ogv: new AssetAdapter({ title: 'OGV File' }),
-        wbem: new AssetAdapter({ title: 'WBEM File' })
+        mp4: new AssetAdapter({
+            title: __('tools.video.attributes.mp4.title')
+        }),
+        ogv: new AssetAdapter({
+            title: __('tools.video.attributes.ogv.title')
+        }),
+        wbem: new AssetAdapter({
+            title: __('tools.video.attributes.wbem.title')
+        })
     },
 
     /**

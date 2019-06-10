@@ -13,6 +13,22 @@ i18n.fr = i18n.fr || {};
 
 $.extend(true, i18n.fr, {
     dialogs: {
+        /* basedialog */
+        /*
+        basedialog: {
+            actions: {
+                ok: {
+                    text:
+                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
+                },
+                cancel: {
+                    text:
+                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Annuler'
+                }
+            }
+        },
+         */
+
         /* dialogs.assetmanager */
         assetmanager: {},
 

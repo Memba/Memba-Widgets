@@ -13,105 +13,72 @@ i18n.fr = i18n.fr || {};
 
 $.extend(true, i18n.fr, {
     libraries: {
+        /* custom */
+        custom: { name: 'Personnalisé' },
 
+        /* arrayLibrary */
+        arrayLibrary: {
+            equal: { name: 'Égal' },
+            ignoreCaseEqual: { name: 'Égal (sans maj.)' },
+            sumEqual: { name: 'Égal (sommes)' }
+        },
+
+        /* booleanLibrary */
+        booleanLibrary: {
+            equal: { name: 'Égal' },
+            notEqual: { name: 'Pas égal' }
+        },
+
+        /* charGridLibrary */
+        charGridLibrary: {
+            equal: { name: 'Égal' }
+        },
+
+        /* dateLibrary */
+        dateLibrary: {
+            equal: { name: 'Égal' }
+        },
+
+        /* genericLibrary */
+        genericLibrary: {
+            equal: { name: 'Égal' }
+        },
+
+        /* mathLibrary */
+        mathLibrary: {
+            equal: { name: 'Égal' }
+        },
+
+        /* multiQuizLibrary */
+        multiQuizLibrary: {
+            equal: { name: 'Égal' }
+        },
+
+        /* numberLibrary */
+        numberLibrary: {
+            equal: { name: '=' },
+            greaterThan: { name: '>' },
+            greaterThanOrEqual: { name: '>=' },
+            lowerThan: { name: '<' },
+            lowerThanOrEqual: { name: '<=' }
+        },
+
+        /* stringLibrary */
+        stringLibrary: {
+            equal: { name: 'Égal' },
+            ignoreCaseEqual: { name: 'Égal (sans maj.)' },
+            ignoreCaseMatch: { name: 'Correspond (sans maj.)' },
+            ignoreDiacriticsEqual: { name: 'Égal (sans diacritique)' },
+            match: { name: 'Correspond' },
+            metaphone: { name: 'Métaphone' },
+            soundex: { name: 'Soundex' }
+        },
+
+        /* textLibrary */
+        textLibrary: {
+            euqal: { name: 'Égal' },
+            ignoreSpacesEqual: { name: 'Égal (sans espace)' },
+            ignorePunctuationEqual: { name: 'Égal (sans ponctuation)' }
+        }
     }
-});
-
-/**
- * CUSTOM
- */
-$.extend(true, CUSTOM, {
-    name: 'Personnalisé'
-});
-
-/**
- * arrayLibrary
- */
-$.extend(true, arrayLibrary, {
-    library: [
-        { name: 'Égal' },
-        { name: 'Égal (sans maj.)' },
-        { name: 'Égal (sommes)' }
-    ]
-});
-
-/**
- * booleanLibrary
- */
-$.extend(true, booleanLibrary, {
-    library: [{ name: 'Égal' }, { name: 'Pas égal' }]
-});
-
-/**
- * charGridLibrary
- */
-$.extend(true, charGridLibrary, {
-    library: [{ name: 'Égal' }]
-});
-
-/**
- * dateLibrary
- */
-$.extend(true, dateLibrary, {
-    library: [{ name: 'Égal' }]
-});
-
-/**
- * genericLibrary
- */
-$.extend(true, genericLibrary, {
-    library: [{ name: 'Égal' }]
-});
-
-/**
- * mathLibrary
- */
-$.extend(true, mathLibrary, {
-    library: [{ name: 'Égal' }]
-});
-
-/**
- * multiQuizLibrary
- */
-$.extend(true, multiQuizLibrary, {
-    library: [{ name: 'Égal' }]
-});
-
-/**
- * numberLibrary
- */
-$.extend(true, numberLibrary, {
-    library: [
-        { name: '=' },
-        { name: '>' },
-        { name: '>=' },
-        { name: '<' },
-        { name: '<=' }
-    ]
-});
-
-/**
- * stringLibrary
- */
-$.extend(true, stringLibrary, {
-    library: [
-        { name: 'Égal' },
-        { name: 'Égal (sans maj.)' },
-        { name: 'Correspond (sans maj.)' },
-        { name: 'Égal (sans diacritique)' },
-        { name: 'Correspond' },
-        { name: 'Métaphone' },
-        { name: 'Soundex' }
-    ]
-});
-
-/**
- * textLibrary
- */
-$.extend(true, textLibrary, {
-    library: [
-        { name: 'Égal' },
-        { name: 'Égal (sans espace)' },
-        { name: 'Égal (sans ponctuation)' }
-    ]
 });

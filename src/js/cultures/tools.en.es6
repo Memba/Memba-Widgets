@@ -7,35 +7,41 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import app from '../common/window.global.es6';
-import tools from '../tools/tools.es6';
 
 const { i18n } = app;
 i18n.en = i18n.en || {};
-
-// TODO search for attr(
 
 /**
  * BaseTool and tools
  */
 $.extend(true, i18n.en, {
     tools: {
+        // basetool
         basetool: {
             top: { title: 'Top' },
             left: { title: 'Left' },
             height: { title: 'Height' },
             width: { title: 'Width' },
-            rotate: { title: 'Rotate' }
-        },
-        dialogs: {
-            ok: {
-                text:
-                    '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
-            },
-            cancel: {
-                text:
-                    '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel'
+            rotate: { title: 'Rotate' },
+            icons: {
+                // Incors O-Collection check.svg
+                // const SVG_SUCCESS = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#76A797" d="M3840 5760l3934 -3934c124,-124 328,-124 452,0l1148 1148c124,124 124,328 0,452l-5308 5308c-124,124 -328,124 -452,0l-2748 -2748c-124,-124 -124,-328 0,-452l1148 -1148c124,-124 328,-124 452,0l1374 1374z"/></svg>';
+                success:
+                    'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iIzc2QTc5NyIgZD0iTTM4NDAgNTc2MGwzOTM0IC0zOTM0YzEyNCwtMTI0IDMyOCwtMTI0IDQ1MiwwbDExNDggMTE0OGMxMjQsMTI0IDEyNCwzMjggMCw0NTJsLTUzMDggNTMwOGMtMTI0LDEyNCAtMzI4LDEyNCAtNDUyLDBsLTI3NDggLTI3NDhjLTEyNCwtMTI0IC0xMjQsLTMyOCAwLC00NTJsMTE0OCAtMTE0OGMxMjQsLTEyNCAzMjgsLTEyNCA0NTIsMGwxMzc0IDEzNzR6Ii8+PC9zdmc+',
+
+                // Incors O-Collection delete.svg
+                // const SVG_FAILURE = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#E68497" d="M1273 7156l2037 -2036 -2037 -2036c-124,-125 -124,-328 0,-453l1358 -1358c125,-124 328,-124 453,0l2036 2037 2036 -2037c125,-124 328,-124 453,0l1358 1358c124,125 124,328 0,453l-2037 2036 2037 2036c124,125 124,328 0,453l-1358 1358c-125,124 -328,124 -453,0l-2036 -2037 -2036 2037c-125,124 -328,124 -453,0l-1358 -1358c-124,-125 -124,-328 0,-453z"/></svg>',
+                failure:
+                    'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iI0U2ODQ5NyIgZD0iTTEyNzMgNzE1NmwyMDM3IC0yMDM2IC0yMDM3IC0yMDM2Yy0xMjQsLTEyNSAtMTI0LC0zMjggMCwtNDUzbDEzNTggLTEzNThjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMjAzNiAyMDM3IDIwMzYgLTIwMzdjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMTM1OCAxMzU4YzEyNCwxMjUgMTI0LDMyOCAwLDQ1M2wtMjAzNyAyMDM2IDIwMzcgMjAzNmMxMjQsMTI1IDEyNCwzMjggMCw0NTNsLTEzNTggMTM1OGMtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTIwMzYgLTIwMzcgLTIwMzYgMjAzN2MtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTEzNTggLTEzNThjLTEyNCwtMTI1IC0xMjQsLTMyOCAwLC00NTN6Ii8+PC9zdmc+',
+
+                // Incors O-Collection sign_warning.svg
+                // SVG_WARNING: '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" clip-rule="evenodd" viewBox="0 0 10240 10240"><path fill="#EDC87E" d="M5680 1282l3846 6712c117 205 117 439 0 644s-319 322-554 322H1281c-234 0-436-117-553-322s-117-439 0-644l3846-6712c117-205 318-322 553-322s436 117 553 322zm-560 318L1280 8320h7680L5120 1600z"/><path fill="gray" d="M5120 6720c353 0 640 287 640 640s-287 640-640 640-640-287-640-640 287-640 640-640zm-320-2880h640c176 0 320 144 320 320v802c0 110-12 204-38 311l-252 1006c-18 72-81 121-155 121h-390c-74 0-137-49-155-121l-252-1006c-26-107-38-201-38-311v-802c0-176 144-320 320-320z"/></svg>',
+                warning:
+                    'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY2xpcC1ydWxlPSJldmVub2RkIiB2aWV3Qm94PSIwIDAgMTAyNDAgMTAyNDAiPjxwYXRoIGZpbGw9IiNFREM4N0UiIGQ9Ik01NjgwIDEyODJsMzg0NiA2NzEyYzExNyAyMDUgMTE3IDQzOSAwIDY0NHMtMzE5IDMyMi01NTQgMzIySDEyODFjLTIzNCAwLTQzNi0xMTctNTUzLTMyMnMtMTE3LTQzOSAwLTY0NGwzODQ2LTY3MTJjMTE3LTIwNSAzMTgtMzIyIDU1My0zMjJzNDM2IDExNyA1NTMgMzIyem0tNTYwIDMxOEwxMjgwIDgzMjBoNzY4MEw1MTIwIDE2MDB6Ii8+PHBhdGggZmlsbD0iZ3JheSIgZD0iTTUxMjAgNjcyMGMzNTMgMCA2NDAgMjg3IDY0MCA2NDBzLTI4NyA2NDAtNjQwIDY0MC02NDAtMjg3LTY0MC02NDAgMjg3LTY0MCA2NDAtNjQwem0tMzIwLTI4ODBoNjQwYzE3NiAwIDMyMCAxNDQgMzIwIDMyMHY4MDJjMCAxMTAtMTIgMjA0LTM4IDMxMWwtMjUyIDEwMDZjLTE4IDcyLTgxIDEyMS0xNTUgMTIxaC0zOTBjLTc0IDAtMTM3LTQ5LTE1NS0xMjFsLTI1Mi0xMDA2Yy0yNi0xMDctMzgtMjAxLTM4LTMxMXYtODAyYzAtMTc2IDE0NC0zMjAgMzIwLTMyMHoiLz48L3N2Zz4='
             }
         },
+
+        // validation messages
         messages: {
             invalidAltText:
                 'A(n) {0} on page {1} requires some alternate text in display attributes.',
@@ -71,461 +77,591 @@ $.extend(true, i18n.en, {
                 'A(n) {0} named `{1}` on page {2} requires a validation formula in test logic.',
             invalidVideoFile:
                 'A(n) {0} on page {1} requires an mp4 file in display attributes.'
+        },
+
+        // audio
+        audio: {
+            description: 'Audio Player',
+            help: 'TODO',
+            name: 'Audio Player',
+            attributes: {
+                autoplay: { title: 'Autoplay' },
+                mp3: { title: 'MP3 File' },
+                ogg: { title: 'OGG File' }
+            }
+        },
+
+        // chargrid
+        chargrid: {
+            description: 'Character Grid',
+            help: 'TODO',
+            name: 'Character Grid',
+            // Attributes
+            attributes: {
+                blank: { title: 'Blank' },
+                // blankFill = gridStroke,
+                columns: { title: 'Columns' },
+                fontColor: { title: 'Font Color' },
+                gridFill: { title: 'Grid Fill' },
+                gridStroke: { title: 'Grid Stroke' },
+                layout: { title: 'Layout' },
+                // lockedColor = valueColor = fontColor,
+                lockedFill: { title: 'Locked Fill' },
+                rows: { title: 'Rows' },
+                selectedFill: { title: 'Selection Fill' },
+                whitelist: { title: 'Whitelist' }
+            },
+            // Properties
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' }
+            }
+        },
+
+        // chart
+        chart: {
+            description: 'Chart',
+            help: 'TODO',
+            name: 'Chart',
+            attributes: {
+                categories: { title: 'Categories' },
+                data: { title: 'Data' },
+                legend: { title: 'Legend' },
+                style: { title: 'Style' },
+                title: { title: 'Title' },
+                type: { title: 'Type' },
+                values: { title: 'Values' }
+            }
+        },
+
+        // connector
+        connector: {
+            description: 'Connector',
+            help: 'TODO',
+            name: 'Connector',
+            attributes: {
+                color: { title: 'Color' }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' },
+                disabled: { title: 'Disabled' }
+            }
+        },
+
+        // dropzone
+        dropzone: {
+            description: 'Drop Zone',
+            help: 'TODO',
+            name: 'Drop Zone',
+            attributes: {
+                center: {
+                    defaultValue: false, // TODO
+                    title: 'Centre'
+                },
+                empty: { title: 'Empty' },
+                style: { title: 'Style' },
+                text: {
+                    defaultValue: 'Please drop here.',
+                    title: 'Text'
+                }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' },
+                disabled: { title: 'Disabled' }
+            }
+        },
+
+        // highlighter
+        highlighter: {
+            description: 'Highlighter',
+            help: 'TODO',
+            name: 'Highlighter',
+            attributes: {
+                highlightStyle: { title: 'Highlight' },
+                split: { title: 'Split' },
+                style: { title: 'Style' },
+                text: {
+                    defaultValue: 'Some text you can highlight.',
+                    title: 'Text'
+                }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' }
+            }
+        },
+
+        // image
+        image: {
+            description: 'Image',
+            help: 'TODO',
+            name: 'Image',
+            attributes: {
+                alt: {
+                    defaultValue: 'Image',
+                    help: 'Enter alternate text for disabled people',
+                    title: 'Text'
+                },
+                src: {
+                    defaultValue:
+                        'cdn://images/o_collection/svg/office/painting_landscape.svg',
+                    help: 'Select an image',
+                    title: 'Source'
+                },
+                style: { title: 'Style' }
+            },
+            properties: {
+                behavior: {
+                    source: JSON.stringify([
+                        { text: 'None', value: 'none' },
+                        { text: 'Draggable', value: 'draggable' },
+                        { text: 'Selectable', value: 'selectable' }
+                    ]),
+                    title: 'Behaviour'
+                },
+                constant: { title: 'Constant' }
+            }
+        },
+
+        // imageset
+        imageset: {
+            description: 'Image Set',
+            help: 'TODO',
+            name: 'Image Set',
+            attributes: {
+                data: {
+                    defaultValue: [
+                        {
+                            text: 'Image set',
+                            image:
+                                'cdn://images/o_collection/svg/office/photos.svg'
+                        }
+                    ],
+                    title: 'Images'
+                },
+                style: { title: 'Style' }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' }
+            }
+        },
+
+        // label
+        label: {
+            description: 'Label',
+            help: 'TODO',
+            name: 'Label',
+            attributes: {
+                style: { title: 'Style' },
+                text: {
+                    defaultValue: 'Label',
+                    help: 'Enter the label text',
+                    title: 'Text'
+                }
+            },
+            properties: {
+                behavior: {
+                    source: JSON.stringify([
+                        { text: 'None', value: 'none' },
+                        { text: 'Draggable', value: 'draggable' },
+                        { text: 'Selectable', value: 'selectable' }
+                    ]),
+                    title: 'Behaviour'
+                },
+                constant: { title: 'Constant' }
+            }
+        },
+
+        // latex
+        latex: {
+            description: 'Mathematic Expression',
+            help: 'TODO',
+            name: 'Mathematic Expression',
+            attributes: {
+                formula: {
+                    defaultValue: '\\sum_{n=1}^{\\infty}2^{-n}=1',
+                    title: 'Formula'
+                },
+                inline: {
+                    defaultValue: false, // TODO
+                    title: 'Inline'
+                },
+                style: { title: 'Style' }
+            },
+            properties: {
+                behavior: {
+                    source: JSON.stringify([
+                        { text: 'None', value: 'none' },
+                        { text: 'Draggable', value: 'draggable' },
+                        { text: 'Selectable', value: 'selectable' }
+                    ]),
+                    title: 'Behaviour'
+                },
+                constant: { title: 'Constant' }
+            }
+        },
+
+        // line
+        // TODO
+        line: {
+            description: 'Line',
+            help: 'TODO',
+            name: 'Line',
+            attributes: {},
+            properties: {}
+        },
+
+        // mathinput
+        // TODO
+        mathinput: {
+            description: 'Math input',
+            help: 'TODO',
+            name: 'Math input',
+            attributes: {},
+            properties: {}
+        },
+
+        // multiquiz
+        multiquiz: {
+            description: 'MultiQuiz',
+            help: 'TODO',
+            name: 'MultiQuiz',
+            attributes: {
+                data: {
+                    defaultValue: [
+                        {
+                            text: 'Option 1',
+                            image:
+                                'cdn://images/o_collection/svg/office/hand_count_one.svg'
+                        },
+                        {
+                            text: 'Option 2',
+                            image:
+                                'cdn://images/o_collection/svg/office/hand_point_up.svg'
+                        }
+                    ],
+                    help: 'Enter the answers to choose from',
+                    title: 'Values'
+                },
+                groupStyle: { title: 'Group Style' },
+                itemStyle: { title: 'Item Style' },
+                mode: {
+                    help: 'Enter a display mode',
+                    title: 'Mode'
+                    // TODO JSON source
+                },
+                selectedStyle: { title: 'Selection Style' },
+                shuffle: { title: 'Shuffle' }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' }
+            }
+        },
+
+        // numericbox
+        numericbox: {
+            description: 'Numeric box',
+            help: 'TODO',
+            name: 'Numeric box',
+            attributes: {
+                decimals: { title: 'Decimals' },
+                min: { title: 'Minimum' },
+                max: { title: 'Maximum' },
+                style: { title: 'Style' }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' }
+            }
+        },
+
+        // pointer
+        pointer: {
+            description: 'Pointer',
+            help: 'TODO',
+            name: 'Pointer'
+        },
+
+        // quiz
+        quiz: {
+            description: 'Quiz',
+            help: 'TODO',
+            name: 'Quiz',
+            attributes: {
+                data: {
+                    defaultValue: [
+                        {
+                            text: 'True',
+                            image: 'cdn://images/o_collection/svg/office/ok.svg'
+                        },
+                        {
+                            text: 'False',
+                            image:
+                                'cdn://images/o_collection/svg/office/error.svg'
+                        }
+                    ],
+                    help: 'Enter the answers to choose from',
+                    title: 'Values'
+                },
+                groupStyle: { title: 'Group Style' },
+                itemStyle: { title: 'Item Style' },
+                mode: {
+                    help: 'Enter a display mode',
+                    title: 'Mode'
+                    // TODO JSON source
+                },
+                selectedStyle: { title: 'Selection Style' },
+                shuffle: { title: 'Shuffle' }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' }
+            }
+        },
+
+        // selector
+        selector: {
+            description: 'Selector',
+            help: 'TODO',
+            name: 'Selector',
+            attributes: {
+                color: { title: 'Color' },
+                shape: {
+                    // TODO add JSON source
+                    title: 'Shape'
+                }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' },
+                disabled: { title: 'Disabled' }
+            }
+        },
+
+        // table
+        table: {
+            description: 'Table',
+            help: 'TODO',
+            name: 'Table',
+            attributes: {
+                columns: { title: 'Columns' },
+                data: { title: 'Data' },
+                rows: { title: 'Rows' }
+            }
+        },
+
+        // textarea
+        textarea: {
+            description: 'TextArea',
+            help: 'TODO',
+            name: 'TextArea',
+            attributes: {
+                style: { title: 'Style' }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' }
+                // disabled: { title: 'Disabled' }
+            }
+        },
+
+        // textbox
+        textbox: {
+            description: 'TextBox',
+            help: 'TODO',
+            name: 'TextBox',
+            attributes: {
+                mask: {
+                    // TODO: Add help
+                    title: 'Mask'
+                },
+                style: { title: 'Style' }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' }
+                // disabled: { title: 'Disabled' }
+            }
+        },
+
+        // textgaps
+        textgaps: {
+            description: 'Text gap',
+            help: 'TODO',
+            name: 'Text gap',
+            attributes: {
+                inputStyle: { title: 'Input Style' },
+                style: { title: 'Style' },
+                text: {
+                    title: 'Text',
+                    defaultValue: 'Some text with gaps like [] or [] to fill.'
+                }
+            },
+            properties: {
+                name: { title: 'Name' },
+                question: {
+                    help: 'Enter the question shown in score reports',
+                    title: 'Question'
+                },
+                solution: {
+                    help: 'Enter the solution shown in score reports',
+                    title: 'Solution'
+                },
+                validation: { title: 'Validation' },
+                success: { title: 'Success' },
+                failure: { title: 'Failure' },
+                omit: { title: 'Omit' }
+                // disabled: { title: 'Disabled' }
+            }
+        },
+
+        // variable
+        // TODO
+        variable: {
+            description: 'TODO',
+            help: 'TODO',
+            name: 'TODO',
+            attributes: {},
+            properties: {}
+        },
+
+        // video
+        video: {
+            description: 'Video Player',
+            help: 'TODO',
+            name: 'Video Player',
+            attributes: {
+                autoplay: { title: 'Autoplay' },
+                mp4: { title: 'MP4 File' },
+                ogv: { title: 'OGV File' },
+                toolbarHeight: { title: 'Toolbar Height' }, // TODO: Make style
+                wbem: { title: 'WBEM File' }
+            }
         }
     }
 });
-
-/**
- * tools.audio
- */
-if (tools.audio) {
-    // Description
-    tools.audio.constructor.prototype.description = 'Audio Player';
-    // Attributes
-    const { attributes } = tools.audio.constructor.prototype;
-    attributes.autoplay.title = 'Autoplay';
-    attributes.mp3.title = 'MP3 File';
-    attributes.ogg.title = 'OGG File';
-}
-
-/**
- * tools.chart
- */
-if (tools.chart) {
-    // Description
-    tools.chart.constructor.prototype.description = 'Chart';
-    // Attributes
-    const { attributes } = tools.chart.constructor.prototype;
-    attributes.type.title = 'Type';
-    attributes.title.title = 'Title';
-    attributes.categories.title = 'Categories';
-    attributes.values.title = 'Values';
-    attributes.legend.title = 'Legend';
-    attributes.data.title = 'Data';
-    attributes.style.title = 'Style';
-}
-
-/**
- * tools.chargrid
- */
-if (tools.chargrid) {
-    // Description
-    tools.chargrid.constructor.prototype.description = 'Character Grid';
-    // Attributes
-    const { attributes } = tools.chargrid.constructor.prototype;
-    attributes.blank.title = 'Blank';
-    attributes.columns.title = 'Columns';
-    attributes.layout.title = 'Layout';
-    attributes.rows.title = 'Rows';
-    attributes.whitelist.title = 'Whitelist';
-    attributes.gridFill.title = 'Grid Fill';
-    attributes.gridStroke.title = 'Grid Stroke';
-    // blankFill = gridStroke
-    attributes.selectedFill.title = 'Selection Fill';
-    attributes.lockedFill.title = 'Locked Fill';
-    // lockedColor = valueColor = fontColor
-    attributes.fontColor.title = 'Font Color';
-    // Properties
-    const { properties } = tools.chargrid.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.title = 'Question';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-}
-
-/**
- * tools.connector
- */
-if (tools.connector) {
-    // Description
-    tools.connector.constructor.prototype.description = 'Connector';
-    // Attributes
-    const { attributes } = tools.connector.constructor.prototype;
-    attributes.color.title = 'Color';
-    // Properties
-    const { properties } = tools.connector.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.title = 'Question';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-    properties.disabled.title = 'Disabled';
-}
-
-/**
- * tools.dropzone
- */
-if (tools.dropzone) {
-    // Description
-    tools.dropzone.constructor.prototype.description = 'Drop Zone';
-    // Attributes
-    const { attributes } = tools.dropzone.constructor.prototype;
-    attributes.center.title = 'Centre';
-    attributes.center.defaultValue = false;
-    attributes.empty.title = 'Empty';
-    attributes.style.title = 'Style';
-    attributes.text.title = 'Text';
-    attributes.text.defaultValue = 'Please drop here.';
-    // Properties
-    const { properties } = tools.dropzone.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.title = 'Question';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-    properties.disabled.title = 'Disabled';
-}
-
-/**
- * tools.highlighter
- */
-if (tools.highlighter) {
-    // Description
-    tools.highlighter.constructor.prototype.description = 'Highlighter';
-    // Attributes
-    const { attributes } = tools.highlighter.constructor.prototype;
-    attributes.highlightStyle.title = 'Highlight';
-    attributes.split.title = 'Split';
-    attributes.style.title = 'Style';
-    attributes.text.title = 'Text';
-    attributes.text.defaultValue = 'Some text you can highlight.';
-    // Properties
-    const { properties } = tools.highlighter.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.title = 'Question';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-}
-
-/**
- * tools.image
- */
-if (tools.image) {
-    // Description
-    tools.image.constructor.prototype.description = 'Image';
-    // Attributes
-    const { attributes } = tools.image.constructor.prototype;
-    attributes.alt.defaultValue = 'Image';
-    attributes.alt.help = 'Enter alternate text for disabled people';
-    attributes.alt.title = 'Text';
-    attributes.src.defaultValue =
-        'cdn://images/o_collection/svg/office/painting_landscape.svg';
-    attributes.src.help = 'Select an image';
-    attributes.src.title = 'Source';
-    attributes.style.title = 'Style';
-    // Properties
-    const { properties } = tools.image.constructor.prototype;
-    properties.behavior.attributes[attr('source')] = JSON.stringify([
-        { text: 'None', value: 'none' },
-        { text: 'Draggable', value: 'draggable' },
-        { text: 'Selectable', value: 'selectable' }
-    ]);
-    properties.behavior.title = 'Behaviour';
-    properties.constant.title = 'Constant';
-}
-
-/**
- * tools.imageset
- */
-if (tools.imageset) {
-    // Description
-    tools.imageset.constructor.prototype.description = 'Image Set';
-    // Attributes
-    const { attributes } = tools.imageset.constructor.prototype;
-    attributes.style.title = 'Style';
-    attributes.data.title = 'Images';
-    attributes.data.defaultValue = [
-        {
-            text: 'Image set',
-            image: 'cdn://images/o_collection/svg/office/photos.svg'
-        }
-    ];
-    // Properties
-    const { properties } = tools.imageset.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.title = 'Question';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-}
-
-/**
- * tools.label
- */
-if (tools.label) {
-    // Description
-    tools.label.constructor.prototype.description = 'Label';
-    // Attributes
-    const { attributes } = tools.label.constructor.prototype;
-    attributes.style.title = 'Style';
-    attributes.text.defaultValue = 'Label';
-    attributes.text.help = 'Enter the label text';
-    attributes.text.title = 'Text';
-    // Properties
-    const { properties } = tools.label.constructor.prototype;
-    properties.behavior.title = 'Behaviour';
-    properties.constant.title = 'Constant';
-}
-
-/**
- * tools.mathexpression
- */
-if (tools.mathexpression) {
-    // Description
-    tools.mathexpression.constructor.prototype.description =
-        'Mathematic Expression';
-    // Attributes
-    const { attributes } = tools.mathexpression.constructor.prototype;
-    attributes.formula.title = 'Formula';
-    attributes.formula.defaultValue = '\\sum_{n=1}^{\\infty}2^{-n}=1';
-    attributes.inline.title = 'Inline';
-    attributes.inline.defaultValue = false;
-    attributes.style.title = 'Style';
-}
-
-/**
- * tools.mathinput
- */
-if (tools.mathinput) {
-    // TODO
-}
-
-/**
- * tools.multiquiz
- */
-if (tools.multiquiz) {
-    // Description
-    tools.multiquiz.constructor.prototype.description = 'MultiQuiz';
-    // Attributes
-    const { attributes } = tools.multiquiz.constructor.prototype;
-    attributes.data.defaultValue = [
-        {
-            text: 'Option 1',
-            image: 'cdn://images/o_collection/svg/office/hand_count_one.svg'
-        },
-        {
-            text: 'Option 2',
-            image: 'cdn://images/o_collection/svg/office/hand_point_up.svg'
-        }
-    ];
-    attributes.data.help = 'Enter the answers to choose from';
-    attributes.data.title = 'Values';
-    attributes.groupStyle.title = 'Group Style';
-    attributes.itemStyle.title = 'Item Style';
-    attributes.mode.help = 'Enter a display mode';
-    attributes.mode.title = 'Mode';
-    attributes.selectedStyle.title = 'Select. Style';
-    attributes.shuffle.title = 'Shuffle';
-    // Properties
-    const { properties } = tools.multiquiz.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.help = 'Enter the question shown in score reports';
-    properties.question.title = 'Question';
-    properties.solution.help = 'Enter the solution shown in score reports';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-}
-
-/**
- * tools.numericbox
- */
-if (tools.numericbox) {
-    // Description
-    tools.numericbox.constructor.prototype.description = 'TextBox';
-    // Attributes
-    const { attributes } = tools.numericbox.constructor.prototype;
-    attributes.decimals.title = 'Decimals';
-    attributes.min.title = 'Minimum';
-    attributes.max.title = 'Maximum';
-    attributes.style.title = 'Style';
-    // Properties
-    const { properties } = tools.numericbox.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.help = 'Enter the question shown in score reports';
-    properties.question.title = 'Question';
-    properties.solution.help = 'Enter the solution shown in score reports';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-}
-
-/**
- * tools.quiz
- */
-if (tools.quiz) {
-    // Description
-    tools.quiz.constructor.prototype.description = 'Quiz';
-    // Attributes
-    const { attributes } = tools.quiz.constructor.prototype;
-    attributes.data.defaultValue = [
-        {
-            text: 'True',
-            image: 'cdn://images/o_collection/svg/office/ok.svg'
-        },
-        {
-            text: 'False',
-            image: 'cdn://images/o_collection/svg/office/error.svg'
-        }
-    ];
-    attributes.data.help = 'Enter the answers to choose from';
-    attributes.data.title = 'Values';
-    attributes.groupStyle.title = 'Group Style';
-    attributes.itemStyle.title = 'Item Style';
-    attributes.mode.help = 'Enter a display mode';
-    attributes.mode.title = 'Mode';
-    attributes.selectedStyle.title = 'Select. Style';
-    attributes.shuffle.title = 'Shuffle';
-    // Properties
-    const { properties } = tools.quiz.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.help = 'Enter the question shown in score reports';
-    properties.question.title = 'Question';
-    properties.solution.help = 'Enter the solution shown in score reports';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-}
-
-/**
- * tools.selector
- */
-if (tools.selector) {
-    // Description
-    tools.selector.constructor.prototype.description = 'Selector';
-    // Attributes
-    const { attributes } = tools.selector.constructor.prototype;
-    attributes.color.title = 'Color';
-    attributes.shape.title = 'Shape';
-    // Properties
-    const { properties } = tools.selector.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.title = 'Question';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-    properties.disabled.title = 'Disabled';
-}
-
-/**
- * tools.table
- */
-if (tools.table) {
-    // Description
-    tools.table.constructor.prototype.description = 'Static Table';
-    // Attributes
-    const { attributes } = tools.table.constructor.prototype;
-    attributes.columns.title = 'Columns';
-    attributes.rows.title = 'Rows';
-    attributes.data.title = 'Data';
-}
-
-/**
- * tools.textarea
- */
-if (tools.textarea) {
-    // Description
-    tools.textarea.constructor.prototype.description = 'TextArea';
-    // Attributes
-    const { attributes } = tools.textarea.constructor.prototype;
-    attributes.style.title = 'Style';
-    // Properties
-    const { properties } = tools.textarea.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.help = 'Enter the question shown in score reports';
-    properties.question.title = 'Question';
-    properties.solution.help = 'Enter the solution shown in score reports';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-}
-
-/**
- * tools.textbox
- */
-if (tools.textbox) {
-    // Description
-    tools.textbox.constructor.prototype.description = 'TextBox';
-    // Attributes
-    const { attributes } = tools.textbox.constructor.prototype;
-    attributes.mask.title = 'Mask';
-    attributes.style.title = 'Style';
-    // Properties
-    const { properties } = tools.textbox.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.help = 'Enter the question shown in score reports';
-    properties.question.title = 'Question';
-    properties.solution.help = 'Enter the solution shown in score reports';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-}
-
-/**
- * tools.textgaps
- */
-if (tools.textgaps) {
-    // Description
-    tools.textgaps.constructor.prototype.description = 'Text gaps';
-    // Attributes
-    const { attributes } = tools.textgaps.constructor.prototype;
-    attributes.inputStyle.title = 'Input Style';
-    attributes.style.title = 'Style';
-    attributes.text.title = 'Text';
-    attributes.text.defaultValue = 'Some text with gaps like [] or [] to fill.';
-    // Properties
-    const { properties } = tools.textgaps.constructor.prototype;
-    properties.name.title = 'Name';
-    properties.question.title = 'Question';
-    properties.solution.title = 'Solution';
-    properties.validation.title = 'Validation';
-    properties.success.title = 'Success';
-    properties.failure.title = 'Failure';
-    properties.omit.title = 'Omit';
-}
-
-/**
- * tools.variable
- */
-if (tools.variable) {
-    // TODO
-}
-
-/**
- * tools.video
- */
-if (tools.video) {
-    // Description
-    tools.video.constructor.prototype.description = 'Video Player';
-    // Attributes
-    const { attributes } = tools.video.constructor.prototype;
-    attributes.autoplay.title = 'Autoplay';
-    attributes.toolbarHeight.title = 'Toolbar Height';
-    attributes.mp4.title = 'MP4 File';
-    attributes.ogv.title = 'OGV File';
-    attributes.wbem.title = 'Fichier WBEM';
-}

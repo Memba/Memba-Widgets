@@ -23,30 +23,6 @@ import {scoreValidator} from './util.validators.es6';
 const { attr, format, htmlEncode, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-/**
- * i18n
- * @returns {*|{}}
- */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).selector || {
-            selector: {
-                // TODO
-                attributes: {
-                    shape: {
-                        title: '',
-                        source: [
-                            { text: 'Circle', value: 'circle' },
-                            { text: 'Cross', value: 'cross' },
-                            { text: 'Rectangle', value: 'rect' }
-                        ]
-                    }
-                }
-            }
-        }
-    );
-}
-
 const SELECTOR = `<div data-${ns}role="selector" data-${ns}id="#: properties.name #" data-${ns}shape="#: attributes.shape #" data-${ns}stroke="{ color: \'#: attributes.color #\', dashType: \'solid\', opacity: 1, width: \'#: attributes.strokeWidth #\' }" data-${ns}empty="#: attributes.empty #" data-${ns}hit-radius="#: attributes.hitRadius #" {0}></div>`;
 /**
  * @class SelectorTool tool
@@ -55,7 +31,9 @@ const SELECTOR = `<div data-${ns}role="selector" data-${ns}id="#: properties.nam
 const SelectorTool = BaseTool.extend({
     id: 'selector',
     icon: 'selector',
-    description: i18n.selector.description,
+    name: __('tools.selector.name'),
+    description: __('tools.selector.description'),
+    help: __('tools.selector.help'),
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
@@ -76,15 +54,15 @@ const SelectorTool = BaseTool.extend({
     width: 50,
     attributes: {
         color: new ColorAdapter({
-            title: i18n.selector.attributes.color.title,
+            title: __('tools.selector.attributes.color.title'),
             defaultValue: '#FF0000'
         }),
         empty: new TextBoxAdapter({
-            title: i18n.selector.attributes.empty.title
+            title: __('tools.selector.attributes.empty.title')
         }),
         hitRadius: new NumberAdapter(
             {
-                title: i18n.selector.attributes.hitRadius.title,
+                title: __('tools.selector.attributes.hitRadius.title'),
                 defaultValue: 15
             },
             {
@@ -96,15 +74,15 @@ const SelectorTool = BaseTool.extend({
         ),
         shape: new DropDownListAdapter(
             {
-                title: i18n.selector.attributes.shape.title,
+                title: __('tools.selector.attributes.shape.title'),
                 defaultValue: 'circle',
-                source: i18n.selector.attributes.shape.source
+                source: __('tools.selector.attributes.shape.source')
             },
             { style: 'width: 100%;' }
         ),
         strokeWidth: new NumberAdapter(
             {
-                title: i18n.selector.attributes.strokeWidth.title,
+                title: __('tools.selector.attributes.strokeWidth.title'),
                 defaultValue: 12
             },
             {
@@ -117,36 +95,36 @@ const SelectorTool = BaseTool.extend({
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n.selector.properties.name.title
+            title: __('tools.selector.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: i18n.selector.properties.question.title
+            title: __('tools.selector.properties.question.title')
         }),
         solution: new StringArrayAdapter({
-            title: i18n.selector.properties.solution.title
+            title: __('tools.selector.properties.solution.title')
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${arrayLibrary.defaultKey}`,
             library: arrayLibrary.library,
-            title: i18n.selector.properties.validation.title
+            title: __('tools.selector.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: i18n.selector.properties.success.title,
+            title: __('tools.selector.properties.success.title'),
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n.selector.properties.failure.title,
+            title: __('tools.selector.properties.failure.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n.selector.properties.omit.title,
+            title: __('tools.selector.properties.omit.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         disabled: new DisabledAdapter({
-            title: i18n.selector.properties.disabled.title,
+            title: __('tools.selector.properties.disabled.title'),
             defaultValue: false
         })
     },
@@ -228,8 +206,7 @@ const SelectorTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const { description } = this; // tool description
-        const { messages } = this.i18n;
+        const toolName = this.name;
         if (
             !component.attributes ||
             !TOOLS.RX_COLOR.test(component.attributes.color)
@@ -237,7 +214,7 @@ const SelectorTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(messages.invalidColor, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidColor'), toolName, pageIdx + 1)
             });
         }
         // TODO: We should have a generic validation for  enumerators
@@ -249,7 +226,7 @@ const SelectorTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(messages.invalidShape, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidShape'), toolName, pageIdx + 1)
             });
         }
         // TODO: Check selectors on top of static images and labels

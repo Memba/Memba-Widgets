@@ -12,117 +12,75 @@ const { i18n } = app;
 i18n.en = i18n.en || {};
 
 $.extend(true, i18n.en, {
-    libraries: {}
-});
+    libraries: {
+        /* custom */
+        custom: {
+            name: 'Custom'
+        },
 
+        /* arrayLibrary */
+        arrayLibrary: {
+            equal: { name: 'Equal' },
+            ignoreCaseEqual: { name: 'Equal (ignore case)' },
+            sumEqual: { name: 'Equal (compare sums)' }
+        },
 
-import {
-    CUSTOM,
-    arrayLibrary,
-    booleanLibrary,
-    charGridLibrary,
-    dateLibrary,
-    genericLibrary,
-    mathLibrary,
-    multiQuizLibrary,
-    numberLibrary,
-    stringLibrary,
-    textLibrary
-} from '../tools/util.libraries.es6';
+        /* booleanLibrary */
+        booleanLibrary: {
+            equal: { name: 'Equal' },
+            notEqual: { name: 'Not equal' }
+        },
 
-/**
- * CUSTOM
- */
-$.extend(true, CUSTOM, { name: 'Custom' });
+        /* charGridLibrary */
+        charGridLibrary: {
+            equal: { name: 'Equal' }
+        },
 
-/**
- * arrayLibrary
- */
-$.extend(true, arrayLibrary, {
-    library: [
-        { name: 'Equal' },
-        { name: 'Equal (ignore case)' },
-        { name: 'Equal (compare sums)' }
-    ]
-});
+        /* dateLibrary */
+        dateLibrary: {
+            equal: { name: 'Equal' }
+        },
 
-/**
- * booleanLibrary
- */
-$.extend(true, booleanLibrary, {
-    library: [{ name: 'Equal' }, { name: 'Not equal' }]
-});
+        /* genericLibrary */
+        genericLibrary: {
+            equal: { name: 'Equal' }
+        },
 
-/**
- * charGridLibrary
- */
-$.extend(true, charGridLibrary, {
-    library: [{ name: 'Equal' }]
-});
+        /* mathLibrary */
+        mathLibrary: {
+            equal: { name: 'Equal' }
+        },
 
-/**
- * dateLibrary
- */
-$.extend(true, dateLibrary, {
-    library: [{ name: 'Equal' }]
-});
+        /* multiQuizLibrary */
+        multiQuizLibrary: {
+            equal: { name: 'Equal' }
+        },
 
-/**
- * genericLibrary
- */
-$.extend(true, genericLibrary, {
-    library: [{ name: 'Equal' }]
-});
+        /* numberLibrary */
+        numberLibrary: {
+            equal: { name: '=' },
+            greaterThan: { name: '>' },
+            greaterThanOrEqual: { name: '>=' },
+            lowerThan: { name: '<' },
+            lowerThanOrEqual: { name: '<=' }
+        },
 
-/**
- * mathLibrary
- */
-$.extend(true, mathLibrary, {
-    library: [{ name: 'Equal' }]
-});
+        /* stringLibrary */
+        stringLibrary: {
+            equal: { name: 'Equal' },
+            ignoreCaseEqual: { name: 'Equal (ignore case)' },
+            ignoreCaseMatch: { name: 'Match (ignore case)' },
+            ignoreDiacriticsEqual: { name: 'Equal (ignore diacritics)' },
+            match: { name: 'Match' },
+            metaphone: { name: 'Metaphone' },
+            soundex: { name: 'Soundex' }
+        },
 
-/**
- * multiQuizLibrary
- */
-$.extend(true, multiQuizLibrary, {
-    library: [{ name: 'Equal' }]
-});
-
-/**
- * numberLibrary
- */
-$.extend(true, numberLibrary, {
-    library: [
-        { name: '=' },
-        { name: '>' },
-        { name: '>=' },
-        { name: '<' },
-        { name: '<=' }
-    ]
-});
-
-/**
- * stringLibrary
- */
-$.extend(true, stringLibrary, {
-    library: [
-        { name: 'Equal' },
-        { name: 'Equal (ignore case)' },
-        { name: 'Match (ignore case)' },
-        { name: 'Equal (ignore diacritics)' },
-        { name: 'Match' },
-        { name: 'Metaphone' },
-        { name: 'Soundex' }
-    ]
-});
-
-/**
- * textLibrary
- */
-$.extend(true, textLibrary, {
-    library: [
-        { name: 'Equal' },
-        { name: 'Equal (ignore spaces)' },
-        { name: 'Equal (ignore punctuation)' }
-    ]
+        /* textLibrary */
+        textLibrary: {
+            equal: { name: 'Equal' },
+            ignoreSpacesEqual: { name: 'Equal (ignore spaces)' },
+            ignorePunctuationEqual: { name: 'Equal (ignore punctuation)' }
+        }
+    }
 });

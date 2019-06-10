@@ -6,6 +6,7 @@
 // TODO Add flags including case insensitive
 // TODO Add button to open https://regexr.com?expression=([A-B]*[0-9])\w+
 // Add safe-regex to test regex
+// TODO CHeck https://codemirror.net/demo/markselection.html
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -16,7 +17,7 @@ import '../vendor/codemirror/mode/regex/regex.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import { escapeRegExp } from '../common/window.util.es6';
+// import { escapeRegExp } from '../common/window.util.es6';
 
 const {
     destroy,

@@ -7,9 +7,9 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ChartAdapter from './adapters.chart.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
@@ -20,23 +20,6 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 
 const { format, ns, roleSelector, template } = window.kendo;
-
-/**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.chart)) {
-    $.extend(true, i18n(), {
-        tools: {
-            chart: {
-                description: 'Chart',
-                help: null,
-                name: 'Chart',
-                attributes: {},
-                properties: {}
-            }
-        }
-    });
-}
 
 /**
  * Build default chart data
@@ -115,7 +98,9 @@ const TEMPLATE = `<div data-${ns}role="chart" data-${ns}chart-area="#: chartArea
 var ChartTool = BaseTool.extend({
     id: 'chart',
     icon: 'chart_area',
-    description: i18n().tools.chart.description,
+    name: __('tools.chart.name'),
+    description: __('tools.chart.description'),
+    help: __('tools.chart.help'),
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
         default: TEMPLATE
@@ -125,7 +110,7 @@ var ChartTool = BaseTool.extend({
     attributes: {
         type: new DropDownListAdapter(
             {
-                title: i18n().tools.chart.attributes.type.title,
+                title: __('tools.chart.attributes.type.title'),
                 defaultValue: 'column',
                 enum: [
                     'area',
@@ -145,11 +130,11 @@ var ChartTool = BaseTool.extend({
             { style: 'width: 100%;' }
         ),
         title: new TextBoxAdapter({
-            title: i18n().tools.chart.attributes.title.title
+            title: __('tools.chart.attributes.title.title')
         }),
         categories: new NumberAdapter(
             {
-                title: i18n().tools.chart.attributes.categories.title,
+                title: __('tools.chart.attributes.categories.title'),
                 defaultValue: 4
             },
             {
@@ -161,7 +146,7 @@ var ChartTool = BaseTool.extend({
         ),
         values: new NumberAdapter(
             {
-                title: i18n().tools.chart.attributes.values.title,
+                title: __('tools.chart.attributes.values.title'),
                 defaultValue: 2
             },
             {
@@ -173,18 +158,18 @@ var ChartTool = BaseTool.extend({
         ),
         legend: new DropDownListAdapter(
             {
-                title: i18n().tools.chart.attributes.legend.title,
+                title: __('tools.chart.attributes.legend.title'),
                 defaultValue: 'none',
                 enum: ['none', 'top', 'bottom', 'left', 'right']
             },
             { style: 'width: 100%;' }
         ),
         data: new ChartAdapter({
-            title: i18n().tools.chart.attributes.data.title,
+            title: __('tools.chart.attributes.data.title'),
             defaultValue: util.defaultChartData(4, 2)
         }),
         style: new StyleAdapter({
-            title: i18n().tools.chart.attributes.style.title
+            title: __('tools.chart.attributes.style.title')
         })
     },
 

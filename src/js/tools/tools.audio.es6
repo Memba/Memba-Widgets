@@ -8,9 +8,9 @@
 import $ from 'jquery';
 import 'kendo.core';
 import assets from '../app/app.assets.es6';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import AssetAdapter from './adapters.asset.es6';
 import BooleanAdapter from './adapters.boolean.es6';
@@ -20,26 +20,6 @@ import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants';
 
 const { format, ns, roleSelector, template } = window.kendo;
-
-/**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.audio)) {
-    $.extend(true, i18n(), {
-        tools: {
-            audio: {
-                description: 'Audio Player',
-                help: null,
-                name: 'Audio',
-                attributes: {
-                    autoplay: { title: 'Autoplay' },
-                    mp3: { title: 'MP3 File' },
-                    ogg: { title: 'OGG File' }
-                }
-            }
-        }
-    });
-}
 
 /**
  * Template
@@ -52,24 +32,27 @@ const TEMPLATE = `<div data-${ns}role="mediaplayer" data-${ns}mode="audio" data-
  */
 const AudioTool = BaseTool.extend({
     id: 'audio',
-    icon: 'loudspeaker3',
-    description: i18n().tools.audio.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    description: __('tools.audio.description'),
+    height: 100,
+    help: __('tools.audio.help'),
+    icon: 'loudspeaker3',
+    // TODO menu: [],
+    name: __('tools.audio.name'),
+    width: 400,
     templates: {
         default: TEMPLATE
     },
-    height: 100,
-    width: 400,
     attributes: {
         autoplay: new BooleanAdapter({
-            title: i18n().tools.audio.attributes.autoplay.title,
+            title: __('tools.audio.attributes.autoplay.title'),
             defaultValue: false
         }),
         mp3: new AssetAdapter({
-            title: i18n().tools.audio.attributes.mp3.title
+            title: __('tools.audio.attributes.mp3.title')
         }),
         ogg: new AssetAdapter({
-            title: i18n().tools.audio.attributes.ogg.title
+            title: __('tools.audio.attributes.ogg.title')
         })
     },
 
@@ -215,10 +198,7 @@ const AudioTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const {
-            description,
-            i18n: { messages }
-        } = this; // tool description
+        const toolName = this.name;
         if (
             !component.attributes ||
             !TOOLS.RX_AUDIO.test(component.attributes.mp3)
@@ -227,8 +207,8 @@ const AudioTool = BaseTool.extend({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
                 message: format(
-                    messages.invalidAudioFile,
-                    description,
+                    __('tools.messages.invalidAudioFile'),
+                    toolName,
                     pageIdx + 1
                 )
             });

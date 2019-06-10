@@ -8,9 +8,9 @@
 import $ from 'jquery';
 import 'kendo.core';
 import assets from '../app/app.assets.es6';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import AssetAdapter from './adapters.asset.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
@@ -22,46 +22,6 @@ import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 
 const { format, ns, template } = window.kendo;
-
-/**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.image)) {
-    $.extend(true, i18n(), {
-        tools: {
-            image: {
-                description: 'Image: <em>#: attributes.alt #</em>',
-                help: null,
-                name: 'Image',
-                attributes: {
-                    alt: {
-                        title: 'Text',
-                        help: 'Enter alternate text for disabled people',
-                        defaultValue: 'Image'
-                    },
-                    src: {
-                        title: 'Source',
-                        help: 'Select an image',
-                        defaultValue:
-                            'cdn://images/o_collection/svg/office/painting_landscape.svg'
-                    },
-                    style: { title: 'Style' }
-                },
-                properties: {
-                    behavior: {
-                        source: [
-                            { text: 'None', value: 'none' },
-                            { text: 'Draggable', value: 'draggable' },
-                            { text: 'Selectable', value: 'selectable' }
-                        ],
-                        title: 'Behaviour'
-                    },
-                    constant: { title: 'Constant' }
-                }
-            }
-        }
-    });
-}
 
 /**
  * Template
@@ -77,44 +37,44 @@ const TEMPLATE = `<img src="#: src$() #" alt="#: attributes.alt #" class="#: cla
 const ImageTool = BaseTool.extend({
     id: 'image',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().tools.image.description,
+    description: __('tools.image.description'),
     height: 250,
-    help: i18n().tools.image.help,
+    help: __('tools.image.help'),
     icon: 'painting_landscape',
     menu: ['attributes.src', 'attributes.alt'],
-    name: i18n().tools.image.name,
+    name: __('tools.image.name'),
     width: 250,
     templates: {
         default: TEMPLATE
     },
     attributes: {
         alt: new TextBoxAdapter({
-            title: i18n().tools.image.attributes.alt.title,
-            help: i18n().tools.image.attributes.alt.help,
-            defaultValue: i18n().tools.image.attributes.alt.defaultValue
+            title: __('tools.image.attributes.alt.title'),
+            help: __('tools.image.attributes.alt.help'),
+            defaultValue: __('tools.image.attributes.alt.defaultValue')
         }),
         src: new AssetAdapter({
-            title: i18n().tools.image.attributes.src.title,
-            help: i18n().tools.image.attributes.src.help,
-            defaultValue: i18n().tools.image.attributes.src.defaultValue
+            title: __('tools.image.attributes.src.title'),
+            help: __('tools.image.attributes.src.help'),
+            defaultValue: __('tools.image.attributes.src.defaultValue')
         }),
         style: new StyleAdapter({
-            title: i18n().tools.image.attributes.style.title
+            title: __('tools.image.attributes.style.title')
         })
     },
     properties: {
         behavior: new DropDownListAdapter(
             {
                 defaultValue: 'none',
-                source: i18n().tools.image.properties.behavior.source,
-                title: i18n().tools.image.properties.behavior.title
+                source: __('tools.image.properties.behavior.source'),
+                title: __('tools.image.properties.behavior.title')
             },
             {
                 style: 'width: 100%;'
             }
         ),
         constant: new TextBoxAdapter({
-            title: i18n().tools.image.properties.constant.title
+            title: __('tools.image.properties.constant.title')
         })
     },
 
@@ -298,7 +258,7 @@ const ImageTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.alt ||
             component.attributes.alt ===
-                i18n().tools.image.attributes.alt.defaultValue ||
+                __('tools.image.attributes.alt.defaultValue') ||
             !TOOLS.RX_TEXT.test(component.attributes.alt)
         ) {
             ret.push({
@@ -315,13 +275,13 @@ const ImageTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.src ||
             component.attributes.src ===
-                i18n().tools.image.attributes.src.defaultValue ||
+                __('tools.image.attributes.src.defaultValue') ||
             !TOOLS.RX_IMAGE.test(component.attributes.src)
         ) {
             ret.push({
                 type:
                     component.attributes.src ===
-                    i18n().tools.image.attributes.src.defaultValue
+                    __('tools.image.attributes.src.defaultValue')
                         ? CONSTANTS.WARNING
                         : CONSTANTS.ERROR,
                 index: pageIdx,

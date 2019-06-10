@@ -7,9 +7,9 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import '../widgets/widgets.highlighter.es6';
 import HighLighterAdapter from './adapters.highlighter.es6';
@@ -30,44 +30,6 @@ const { format, ns, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.highlighter)) {
-    $.extend(true, i18n(), {
-        tools: {
-            highlighter: {
-                description: 'Highlighter',
-                help: null,
-                name: 'Highlighter',
-                attributes: {
-                    highlightStyle: {
-                        title: 'Highlight'
-                    },
-                    style: {
-                        title: 'Style'
-                    },
-                    text: {
-                        title: 'Text'
-                    },
-                    split: {
-                        title: 'Split'
-                    }
-                },
-                properties: {
-                    name: { title: 'Name' },
-                    question: { title: 'Question' },
-                    solution: { title: 'Solution' },
-                    validation: { title: 'Validation' },
-                    success: { title: 'Success' },
-                    failure: { title: 'Failure' },
-                    omit: { title: 'Omit' }
-                }
-            }
-        }
-    });
-}
-
-/**
  * Template
  * @type {string}
  */
@@ -81,7 +43,9 @@ const TEMPLATE = `<div class="kj-interactive" data-${ns}role="highlighter" data-
 const HighLighterTool = BaseTool.extend({
     id: 'highlighter',
     icon: 'marker',
-    description: i18n().tools.highlighter.description,
+    name: __('tools.highlighter.name'),
+    description: __('tools.highlighter.description'),
+    help: __('tools.highlighter.help'),
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
@@ -100,49 +64,49 @@ const HighLighterTool = BaseTool.extend({
     width: 250,
     attributes: {
         highlightStyle: new StyleAdapter({
-            title: i18n().tools.highlighter.attributes.highlightStyle.title
+            title: __('tools.highlighter.attributes.highlightStyle.title')
         }),
         style: new StyleAdapter({
-            title: i18n().tools.highlighter.attributes.style.title,
+            title: __('tools.highlighter.attributes.style.title'),
             defaultValue: 'font-size:32px;'
         }),
         text: new TextAreaAdapter({
-            title: i18n().tools.highlighter.attributes.text.title,
-            defaultValue: i18n().tools.highlighter.attributes.text.defaultValue
+            title: __('tools.highlighter.attributes.text.title'),
+            defaultValue: __('tools.highlighter.attributes.text.defaultValue')
         }),
         split: new TextBoxAdapter({
-            title: i18n().tools.highlighter.attributes.split.title,
+            title: __('tools.highlighter.attributes.split.title'),
             defaultValue: '([\\s\\.,;:\\?¿!<>\\(\\)&"`«»\\[\\]{}])'
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n().tools.highlighter.properties.name.title
+            title: __('tools.highlighter.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: i18n().tools.highlighter.properties.question.title,
+            title: __('tools.highlighter.properties.question.title'),
             validator: questionValidator
         }),
         solution: new HighLighterAdapter({
-            title: i18n().tools.highlighter.properties.solution.title
+            title: __('tools.highlighter.properties.solution.title')
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
-            title: i18n().tools.highlighter.properties.validation.title
+            title: __('tools.highlighter.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: i18n().tools.highlighter.properties.success.title,
+            title: __('tools.highlighter.properties.success.title'),
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n().tools.highlighter.properties.failure.title,
+            title: __('tools.highlighter.properties.failure.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n().tools.highlighter.properties.omit.title,
+            title: __('tools.highlighter.properties.omit.title'),
             defaultValue: 0,
             validation: scoreValidator
         })
@@ -237,19 +201,18 @@ const HighLighterTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const { description } = this; // tool description
-        const { messages } = this.i18n;
+        const toolName = this.name;
         if (
             !component.attributes ||
             !component.attributes.text ||
             component.attributes.text ===
-                i18n().tools.highlighter.attributes.text.defaultValue ||
+                __('tools.highlighter.attributes.text.defaultValue') ||
             !TOOLS.RX_TEXT.test(component.attributes.text)
         ) {
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(messages.invalidText, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidText'), toolName, pageIdx + 1)
             });
         }
         if (
@@ -262,7 +225,7 @@ const HighLighterTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
             });
         }
         if (
@@ -275,7 +238,7 @@ const HighLighterTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
             });
         }
         // TODO also check that split regex is safe

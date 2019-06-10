@@ -21,19 +21,6 @@ import BaseTool from './tools.base.es6';
 const { format, ns, template } = window.kendo;
 
 /**
- * i18n
- * @returns {*|{}}
- */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).latex ||
-        {
-            // TODO
-        }
-    );
-}
-
-/**
  * Template
  * @type {string}
  */
@@ -44,32 +31,35 @@ const TEMPLATE = `<div data-${ns}role="latex" class="#: class$() #" style="#: at
  */
 const LatexTool = BaseTool.extend({
     id: 'latex',
-    icon: 'formula',
-    description: i18n.latex.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    description: __('tools.latex.description'),
+    height: 180,
+    help: __('tools.latex.help'),
+    icon: 'formula',
+    // menu: [],
+    name: __('tools.latex.name'),
+    width: 370,
     templates: {
         default: TEMPLATE
     },
-    height: 180,
-    width: 370,
     attributes: {
         formula: new MathInputAdapter({
-            title: i18n.latex.attributes.formula.title,
-            defaultValue: i18n.latex.attributes.formula.defaultValue
+            title: __('tools.latex.attributes.formula.title'),
+            defaultValue: __('tools.latex.attributes.formula.defaultValue')
         }),
         inline: new BooleanAdapter({
-            title: i18n.latex.attributes.inline.title,
-            defaultValue: i18n.latex.attributes.inline.defaultValue
+            title: __('tools.latex.attributes.inline.title'),
+            defaultValue: __('tools.latex.attributes.inline.defaultValue')
         }),
         style: new StyleAdapter({
-            title: i18n.latex.attributes.style.title,
+            title: __('tools.latex.attributes.style.title'),
             defaultValue: 'font-size:50px;'
         })
     },
     properties: {
         behavior: new DropDownListAdapter(
             {
-                title: i18n.latex.properties.behavior.title,
+                title: __('tools.latex.properties.behavior.title'),
                 defaultValue: 'none',
                 enum: ['none', 'draggable', 'selectable']
             },
@@ -78,7 +68,7 @@ const LatexTool = BaseTool.extend({
             }
         ),
         constant: new TextBoxAdapter({
-            title: i18n.image.properties.constant.title
+            title: __('tools.image.properties.constant.title')
         })
     },
 
@@ -193,7 +183,7 @@ const LatexTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.formula ||
             component.attributes.formula ===
-                i18n.latex.attributes.formula.defaultValue ||
+                __('tools.latex.attributes.formula.defaultValue') ||
             !TOOLS.RX_FORMULA.test(component.attributes.formula)
         ) {
             // TODO: replace TOOLS.RX_FORMULA with a LaTeX synthax checker

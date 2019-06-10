@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
@@ -22,27 +23,9 @@ import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
-import i18n from '../common/window.i18n';
 
 const { attr, format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
-
-/**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.connector)) {
-    $.extend(true, i18n(), {
-        tools: {
-            connector: {
-                description: 'Connector',
-                help: null,
-                name: 'Connector',
-                attributes: {},
-                properties: {}
-            }
-        }
-    });
-}
 
 /**
  * Template
@@ -57,7 +40,9 @@ const TEMPLATE = `<div data-${ns}role="connector" data-${ns}id="#: properties.na
 const ConnectorTool = BaseTool.extend({
     id: 'connector',
     icon: 'target',
-    description: i18n.connector.description,
+    name: __('tools.connector.name'),
+    description: __('tools.connector.description'),
+    help: __('tools.connector.help'),
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 0.25,
     templates: {
@@ -79,42 +64,42 @@ const ConnectorTool = BaseTool.extend({
     width: 70,
     attributes: {
         color: new ColorAdapter({
-            title: i18n.connector.attributes.color.title,
+            title: __('tools.connector.attributes.color.title'),
             defaultValue: '#FF0000'
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n.connector.properties.name.title
+            title: __('tools.connector.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: i18n.connector.properties.question.title
+            title: __('tools.connector.properties.question.title')
         }),
         solution: new ConnectorAdapter({
-            title: i18n.connector.properties.solution.title
+            title: __('tools.connector.properties.solution.title')
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
-            title: i18n.connector.properties.validation.title
+            title: __('tools.connector.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: i18n.connector.properties.success.title,
+            title: __('tools.connector.properties.success.title'),
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n.connector.properties.failure.title,
+            title: __('tools.connector.properties.failure.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n.connector.properties.omit.title,
+            title: __('tools.connector.properties.omit.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         disabled: new DisabledAdapter({
-            title: i18n.connector.properties.disabled.title,
+            title: __('tools.connector.properties.disabled.title'),
             defaultValue: false
         })
     },
@@ -183,8 +168,7 @@ const ConnectorTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const { description } = this; // tool description
-        const { messages } = this.i18n;
+        const toolName = this.name;
         if (
             !component.attributes ||
             !TOOLS.RX_COLOR.test(component.attributes.color)
@@ -192,7 +176,7 @@ const ConnectorTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(messages.invalidColor, description, pageIdx + 1)
+                message: format(__('tools.messages.invalidColor'), toolName, pageIdx + 1)
             });
         }
         if (
@@ -205,8 +189,8 @@ const ConnectorTool = BaseTool.extend({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
                 message: format(
-                    messages.invalidSolution,
-                    description,
+                    __('tools.messages.invalidSolution'),
+                    toolName,
                     component.properties.name,
                     pageIdx + 1
                 )

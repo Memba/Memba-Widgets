@@ -206,24 +206,25 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./dialogs.vectordrawing.es6').then(function (module) {
+            Promise.all([
+                SystemJS.import('../cultures/all.en.es6'),
+                SystemJS.import('./dialogs.vectordrawing.es6')
+            ]).then(function (modules) {
                 var kendo = window.kendo;
-                var openVectorDrawing = module.default;
-                SystemJS.import('../cultures/dialogs.en.es6').then(function () {
-                    $(function () {
-                        $('#button1').click(function (e) {
-                            openVectorDrawing({
-                                // TODO assets
-                            }).then(function(result) {
-                                $("#console1").append(
-                                    // TODO
-                                    kendo.format(
-                                        '<div>action `{0}` with data `{1}` at {2}</div>',
-                                        result.action,
-                                        JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
-                                    )
-                                );
-                            });
+                var openVectorDrawing = modules[1].default;
+                $(function () {
+                    $('#button1').click(function (e) {
+                        openVectorDrawing({
+                            // TODO assets
+                        }).then(function(result) {
+                            $("#console1").append(
+                                // TODO
+                                kendo.format(
+                                    '<div>action `{0}` with data `{1}` at {2}</div>',
+                                    result.action,
+                                    JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
+                                )
+                            );
                         });
                     });
                 });

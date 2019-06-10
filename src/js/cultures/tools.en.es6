@@ -258,11 +258,11 @@ $.extend(true, i18n.en, {
             },
             properties: {
                 behavior: {
-                    source: JSON.stringify([
+                    source: [
                         { text: 'None', value: 'none' },
                         { text: 'Draggable', value: 'draggable' },
                         { text: 'Selectable', value: 'selectable' }
-                    ]),
+                    ],
                     title: 'Behaviour'
                 },
                 constant: { title: 'Constant' }
@@ -319,11 +319,11 @@ $.extend(true, i18n.en, {
             },
             properties: {
                 behavior: {
-                    source: JSON.stringify([
+                    source: [
                         { text: 'None', value: 'none' },
                         { text: 'Draggable', value: 'draggable' },
                         { text: 'Selectable', value: 'selectable' }
-                    ]),
+                    ],
                     title: 'Behaviour'
                 },
                 constant: { title: 'Constant' }
@@ -348,11 +348,11 @@ $.extend(true, i18n.en, {
             },
             properties: {
                 behavior: {
-                    source: JSON.stringify([
+                    source: [
                         { text: 'None', value: 'none' },
                         { text: 'Draggable', value: 'draggable' },
                         { text: 'Selectable', value: 'selectable' }
-                    ]),
+                    ],
                     title: 'Behaviour'
                 },
                 constant: { title: 'Constant' }
@@ -405,8 +405,14 @@ $.extend(true, i18n.en, {
                 itemStyle: { title: 'Item Style' },
                 mode: {
                     help: 'Enter a display mode',
+                    source: [
+                        { text: 'Button', value: 'button' },
+                        { text: 'Checkbox', value: 'checkbox' },
+                        { text: 'Image', value: 'image' },
+                        { text: 'Link', value: 'link' },
+                        { text: 'Multiselection', value: 'multiselect' }
+                    ],
                     title: 'Mode'
-                    // TODO JSON source
                 },
                 selectedStyle: { title: 'Selection Style' },
                 shuffle: { title: 'Shuffle' }
@@ -488,8 +494,14 @@ $.extend(true, i18n.en, {
                 itemStyle: { title: 'Item Style' },
                 mode: {
                     help: 'Enter a display mode',
+                    source: [
+                        { text: 'Button', value: 'button' },
+                        { text: 'Drop-down list', value: 'dropdown' },
+                        { text: 'Image', value: 'image' },
+                        { text: 'Link', value: 'link' },
+                        { text: 'Radio button', value: 'radio' }
+                    ],
                     title: 'Mode'
-                    // TODO JSON source
                 },
                 selectedStyle: { title: 'Selection Style' },
                 shuffle: { title: 'Shuffle' }
@@ -519,7 +531,11 @@ $.extend(true, i18n.en, {
             attributes: {
                 color: { title: 'Color' },
                 shape: {
-                    // TODO add JSON source
+                    source: [
+                        { text: 'Circle', value: 'circle' },
+                        { text: 'Cross', value: 'cross' },
+                        { text: 'Rectangle', value: 'rect' }
+                    ],
                     title: 'Shape'
                 }
             },

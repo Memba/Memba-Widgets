@@ -11,6 +11,7 @@ import 'kendo.data';
 import 'kendo.grid';
 import 'kendo.toolbar';
 import CONSTANTS from './js/common/window.constants.es6';
+import './js/cultures/all.en.es6';
 import './js/widgets/widgets.playbar.es6';
 import './js/widgets/widgets.stage.es6';
 import LocalStream from './integration.data.es6';

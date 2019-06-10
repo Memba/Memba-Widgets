@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
-
+import './js/cultures/all.en.es6';
 import './js/widgets/widgets.explorer.es6';
 import './js/widgets/widgets.formatstrip.es6';
 import './js/widgets/widgets.styleeditor.es6';

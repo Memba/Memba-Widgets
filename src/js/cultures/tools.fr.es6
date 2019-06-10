@@ -264,11 +264,11 @@ $.extend(true, i18n.fr, {
             },
             properties: {
                 behavior: {
-                    source: JSON.stringify([
+                    source: [
                         { text: 'Aucun', value: 'none' },
                         { text: 'Glissable', value: 'draggable' },
                         { text: 'Sélectionnable', value: 'selectable' }
-                    ]),
+                    ],
                     title: 'Comportement'
                 },
                 constant: { title: 'Constante' }
@@ -327,11 +327,11 @@ $.extend(true, i18n.fr, {
             },
             properties: {
                 behavior: {
-                    source: JSON.stringify([
+                    source: [
                         { text: 'Aucun', value: 'none' },
                         { text: 'Glissable', value: 'draggable' },
                         { text: 'Sélectionnable', value: 'selectable' }
-                    ]),
+                    ],
                     title: 'Comportement'
                 },
                 constant: { title: 'Constante' }
@@ -356,11 +356,11 @@ $.extend(true, i18n.fr, {
             },
             properties: {
                 behavior: {
-                    source: JSON.stringify([
+                    source: [
                         { text: 'Aucun', value: 'none' },
                         { text: 'Glissable', value: 'draggable' },
                         { text: 'Sélectionnable', value: 'selectable' }
-                    ]),
+                    ],
                     title: 'Comportement'
                 },
                 constant: { title: 'Constante' }
@@ -413,8 +413,14 @@ $.extend(true, i18n.fr, {
                 itemStyle: { title: 'Style Element' },
                 mode: {
                     help: 'Choisissez un mode d´affichage',
+                    source: [
+                        { text: 'Bouton', value: 'button' },
+                        { text: 'Case à cocher', value: 'checkbox' },
+                        { text: 'Image', value: 'image' },
+                        { text: 'Lien', value: 'link' },
+                        { text: 'Multisélection', value: 'multiselect' }
+                    ],
                     title: 'Mode'
-                    // TODO JSON source
                 },
                 selectedStyle: { title: 'Style Sélection' },
                 shuffle: { title: 'Mélanger' }
@@ -500,8 +506,14 @@ $.extend(true, i18n.fr, {
                 itemStyle: { title: 'Style Element' },
                 mode: {
                     help: 'Choisissez un mode d´affichage',
+                    source: [
+                        { text: 'Bouton', value: 'button' },
+                        { text: 'Liste déroulante', value: 'dropdown' },
+                        { text: 'Image', value: 'image' },
+                        { text: 'Lien', value: 'link' },
+                        { text: 'Option', value: 'radio' }
+                    ],
                     title: 'Mode'
-                    // TODO JSON source
                 },
                 selectedStyle: { title: 'Style Sélection' },
                 shuffle: { title: 'Mélanger' }
@@ -533,7 +545,11 @@ $.extend(true, i18n.fr, {
             attributes: {
                 color: { title: 'Couleur' },
                 shape: {
-                    // TODO add JSON source
+                    source: [
+                        { text: 'Cercle', value: 'circle' },
+                        { text: 'Croix', value: 'cross' },
+                        { text: 'Rectangle', value: 'rect' }
+                    ],
                     title: 'Forme'
                 }
             },

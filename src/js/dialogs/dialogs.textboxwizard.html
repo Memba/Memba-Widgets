@@ -207,7 +207,7 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
-                SystemJS.import('../cultures/dialogs.en.es6'),
+                SystemJS.import('../cultures/all.en.es6'),
                 SystemJS.import('./dialogs.textboxwizard.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;

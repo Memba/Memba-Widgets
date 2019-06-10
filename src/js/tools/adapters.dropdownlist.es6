@@ -36,7 +36,7 @@ const DropDownListAdapter = BaseAdapter.extend({
         this.attributes[attr('value-field')] = 'value';
         this.attributes[attr('value-primitive')] = true;
         this.attributes[attr('source')] = JSON.stringify(
-            options && options.source ? options.source : []
+            Array.isArray((options || {}).source) ? options.source : []
         );
     }
 });

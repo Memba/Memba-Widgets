@@ -10,8 +10,9 @@ import 'kendo.core';
 import 'kendo.data';
 import 'kendo.grid';
 import 'kendo.validator';
-import './widgets.basedialog.es6';
+import __ from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import './widgets.basedialog.es6';
 
 const {
     bind,
@@ -22,25 +23,6 @@ const {
     support: { touch },
     ui: { BaseDialog }
 } = window.kendo;
-
-/**
- * Initialize culture
- */
-BaseDialog.getMessageNameSpace().quizwizard = BaseDialog.getMessageNameSpace()
-    .quizwizard || {
-    add: 'Add',
-    message:
-        'Please enter a question and fill in the grid with multiple choices.',
-    option: 'Option',
-    question: 'Question',
-    solution: 'Solution',
-    text: 'Option 1',
-    validation: {
-        grid:
-            'At least one option and one checked solution are required. Also options cannot be left empty.',
-        question: 'A question is required.'
-    }
-};
 
 /**
  * A shortcut function to display a dialog with a quiz wizard
@@ -54,9 +36,8 @@ function openQuizWizard(options = {}) {
     const $dialog = BaseDialog.getElement(options.cssClass);
     $dialog.css({ padding: '' });
 
-    // Unique ids and culture
+    // Unique ids
     const ids = { question: guid(), grid: guid() };
-    const culture = BaseDialog.getMessageNameSpace().quizwizard;
 
     // Create the dialog
     const dialog = $dialog
@@ -67,11 +48,11 @@ function openQuizWizard(options = {}) {
                         BaseDialog.fn.options.messages[options.type || 'info'],
                     /* eslint-disable prettier/prettier */
                     content: `<div class="k-widget k-notification k-notification-info" role="alert">
-                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${culture.message}</div>
+                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${__('dialogs.quizwizard.message')}</div>
                           </div>
                           <div class="kj-dialog-form">
                             <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${ids.question}">${culture.question}:</label></div>
+                              <div class="kj-dialog-col25"><label for="${ids.question}">${__('dialogs.quizwizard.question')}:</label></div>
                               <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="question" class="k-input k-textbox" data-${ns}bind="value:question"></div>
                             </div>  
                             <div class="kj-dialog-flexrow">
@@ -89,7 +70,7 @@ function openQuizWizard(options = {}) {
                             autoSync: true,
                             data: [
                                 {
-                                    text: culture.text,
+                                    text: __('dialogs.quizwizard.text'),
                                     solution: true
                                 }
                             ],
@@ -150,8 +131,8 @@ function openQuizWizard(options = {}) {
                 }
             },
             messages: {
-                question: culture.validation.question,
-                grid: culture.validation.grid
+                question: __('dialogs.quizwizard.validation.question'),
+                grid: __('dialogs.quizwizard.validation.grid')
             }
         })
         .data('kendoValidator');
@@ -170,7 +151,7 @@ function openQuizWizard(options = {}) {
                     },
                     {
                         field: 'text',
-                        title: culture.option
+                        title: __('dialogs.quizwizard.option')
                     },
                     {
                         attributes: {
@@ -182,7 +163,7 @@ function openQuizWizard(options = {}) {
                         field: 'solution',
                         template:
                             '<input type="checkbox" #= solution ? \'checked="checked"\' : "" #>',
-                        title: culture.solution,
+                        title: __('dialogs.quizwizard.solution'),
                         width: '5em'
                     },
                     {
@@ -199,7 +180,7 @@ function openQuizWizard(options = {}) {
                 },
                 navigatable: true,
                 scrollable: false,
-                toolbar: [{ name: 'create', text: culture.add }]
+                toolbar: [{ name: 'create', text: __('dialogs.quizwizard.add') }]
             })
             .data('kendoGrid');
 

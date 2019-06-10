@@ -206,28 +206,22 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./dialogs.textboxwizard.es6').then(function (module) {
+            Promise.all([
+                SystemJS.import('../cultures/dialogs.en.es6'),
+                SystemJS.import('./dialogs.textboxwizard.es6')
+            ]).then(function (modules) {
                 var kendo = window.kendo;
-                var openTextBoxWizard = module.default;
-                SystemJS.import('../cultures/dialogs.fr.es6').then(function () {
-                    $(function () {
-                        $('#button1').click(function (e) {
-                            openTextBoxWizard({
-                                title: 'New Open Question',
-                                data: {
-                                    question : '',
-                                    solution: null
-                                },
-                                width: 860
-                            }).then(function(result) {
-                                $("#console1").append(
-                                    kendo.format(
-                                        '<div>action `{0}` with data `{1}` at {2}</div>',
-                                        result.action,
-                                        JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
-                                    )
-                                );
-                            });
+                var openTextBoxWizard = modules[1].default;
+                $(function () {
+                    $('#button1').click(function (e) {
+                        openTextBoxWizard().then(function(result) {
+                            $("#console1").append(
+                                kendo.format(
+                                    '<div>action `{0}` with data `{1}` at {2}</div>',
+                                    result.action,
+                                    JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
+                                )
+                            );
                         });
                     });
                 });

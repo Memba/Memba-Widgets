@@ -6,9 +6,12 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import i18n from '../common/window.i18n.es6';
+import app from '../common/window.global.es6';
 
-$.extend(true, i18n(), {
+const { i18n } = app;
+i18n.en = i18n.en || {};
+
+$.extend(true, i18n.en, {
     dialogs: {
         /* dialogs.assetmanager */
         assetmanager: {},
@@ -36,7 +39,10 @@ $.extend(true, i18n(), {
         newsummary: {},
 
         /* dialogs.publish */
-        publish: {},
+        publish: {
+            message: 'message', // TODO
+            title: 'title' // TODO
+        },
 
         /* dialogs.quizwizard */
         quizwizard: {
@@ -67,6 +73,7 @@ $.extend(true, i18n(), {
         textboxwizard: {
             message:
                 'Please enter a question and solutions (one per line) to compare answers with.',
+            title: 'New open question',
             question: 'Question',
             solution: 'Solution',
             validation: {

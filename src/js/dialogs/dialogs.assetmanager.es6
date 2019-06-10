@@ -24,11 +24,6 @@ const {
 // const { ToolAssets } = window.kidoju;
 
 /**
- * Initialize culture
- */
-// BaseDialog.getMessageNameSpace().assetmanager = BaseDialog.getMessageNameSpace().assetmanager || {};
-
-/**
  * A shortcut function to display a dialog with a kendo.ui.AssetManager
  * @param options
  * @returns {*}
@@ -141,7 +136,7 @@ function openAssetManager(options = {}) {
             });
         } else {
             // We do not know how to handle that url
-            dfd.reject(new Error('Unknown url scheme'));
+            dfd.reject(new Error('Unknown url scheme')); // TODO i18n
         }
     });
 

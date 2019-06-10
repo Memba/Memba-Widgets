@@ -206,16 +206,14 @@
                 transpiler: 'plugin-babel'
             });
             Promise.all([
+                SystemJS.import('../cultures/dialogs.en.es6'),
                 SystemJS.import('./dialogs.quizwizard.es6')
-                // SystemJS.import('../cultures/dialogs.fr.es6')
             ]).then(function (modules) {
                     var kendo = window.kendo;
-                    var openQuizWizard = modules[0].default;
+                    var openQuizWizard = modules[1].default;
                     $(function () {
                         $('#button1').click(function (e) {
-                            openQuizWizard({
-                                title: 'New Quiz'
-                            }).then(function(result) {
+                            openQuizWizard().then(function(result) {
                                 $("#console1").append(
                                     kendo.format(
                                         '<div>action `{0}` with data `{1}` at {2}</div>',

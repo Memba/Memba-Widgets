@@ -6,20 +6,16 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-// IMPORTANT! util.libraries.es6 must be as lean as possible because it is imported with every page
-import {
-    CUSTOM,
-    arrayLibrary,
-    booleanLibrary,
-    charGridLibrary,
-    dateLibrary,
-    genericLibrary,
-    mathLibrary,
-    multiQuizLibrary,
-    numberLibrary,
-    stringLibrary,
-    textLibrary
-} from '../tools/util.libraries.es6';
+import app from '../common/window.global.es6';
+
+const { i18n } = app;
+i18n.fr = i18n.fr || {};
+
+$.extend(true, i18n.fr, {
+    libraries: {
+
+    }
+});
 
 /**
  * CUSTOM

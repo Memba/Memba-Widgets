@@ -6,67 +6,72 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.core';
-import i18n from '../common/window.i18n.es6';
+import app from '../common/window.global.es6';
 import tools from '../tools/tools.es6';
 
-const { attr } = window.kendo;
+const { i18n } = app;
+i18n.en = i18n.en || {};
+
+// TODO search for attr(
 
 /**
  * BaseTool and tools
  */
-$.extend(true, i18n(), {
-    basetool: {
-        top: { title: 'Top' },
-        left: { title: 'Left' },
-        height: { title: 'Height' },
-        width: { title: 'Width' },
-        rotate: { title: 'Rotate' }
-    },
-    dialogs: {
-        ok: {
-            text:
-                '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
+$.extend(true, i18n.en, {
+    tools: {
+        basetool: {
+            top: { title: 'Top' },
+            left: { title: 'Left' },
+            height: { title: 'Height' },
+            width: { title: 'Width' },
+            rotate: { title: 'Rotate' }
         },
-        cancel: {
-            text:
-                '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel'
+        dialogs: {
+            ok: {
+                text:
+                    '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
+            },
+            cancel: {
+                text:
+                    '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel'
+            }
+        },
+        messages: {
+            invalidAltText:
+                'A(n) {0} on page {1} requires some alternate text in display attributes.',
+            invalidAudioFile:
+                'A(n) {0} on page {1} requires an mp3 file in display attributes.',
+            invalidColor:
+                'A(n) {0} on page {1} has an invalid color in display attributes.',
+            invalidData:
+                'A(n) {0} on page {1} requires values in display attributes.',
+            invalidQuestion:
+                'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
+            invalidConstant:
+                'A(n) {0} on page {1} requires a constant in test logic.',
+            invalidFailure:
+                'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
+            invalidFormula:
+                'A(n) {0} on page {1} requires a formula in display attributes.',
+            invalidImageFile:
+                'A(n) {0} on page {1} requires an image file in display attributes.',
+            invalidName:
+                'A(n) {0} named `{1}` on page {2} has an invalid name.',
+            invalidShape:
+                'A(n) {0} named `{1}` on page {2} requires a shape in display attributes.',
+            invalidSolution:
+                'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
+            invalidStyle:
+                'A(n) {0} on page {1} has an invalid style in display attributes.',
+            invalidSuccess:
+                'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
+            invalidText:
+                'A(n) {0} on page {1} requires some text in display attributes.',
+            invalidValidation:
+                'A(n) {0} named `{1}` on page {2} requires a validation formula in test logic.',
+            invalidVideoFile:
+                'A(n) {0} on page {1} requires an mp4 file in display attributes.'
         }
-    },
-    messages: {
-        invalidAltText:
-            'A(n) {0} on page {1} requires some alternate text in display attributes.',
-        invalidAudioFile:
-            'A(n) {0} on page {1} requires an mp3 file in display attributes.',
-        invalidColor:
-            'A(n) {0} on page {1} has an invalid color in display attributes.',
-        invalidData:
-            'A(n) {0} on page {1} requires values in display attributes.',
-        invalidQuestion:
-            'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
-        invalidConstant:
-            'A(n) {0} on page {1} requires a constant in test logic.',
-        invalidFailure:
-            'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
-        invalidFormula:
-            'A(n) {0} on page {1} requires a formula in display attributes.',
-        invalidImageFile:
-            'A(n) {0} on page {1} requires an image file in display attributes.',
-        invalidName: 'A(n) {0} named `{1}` on page {2} has an invalid name.',
-        invalidShape:
-            'A(n) {0} named `{1}` on page {2} requires a shape in display attributes.',
-        invalidSolution:
-            'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
-        invalidStyle:
-            'A(n) {0} on page {1} has an invalid style in display attributes.',
-        invalidSuccess:
-            'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
-        invalidText:
-            'A(n) {0} on page {1} requires some text in display attributes.',
-        invalidValidation:
-            'A(n) {0} named `{1}` on page {2} requires a validation formula in test logic.',
-        invalidVideoFile:
-            'A(n) {0} on page {1} requires an mp4 file in display attributes.'
     }
 });
 

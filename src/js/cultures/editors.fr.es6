@@ -5,4 +5,13 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-// import $ from 'jquery';
+import $ from 'jquery';
+import app from '../common/window.global.es6';
+
+const { i18n } = app;
+
+i18n.fr = i18n.fr || {};
+
+$.extend(true, i18n.fr, {
+    editors: {}
+});

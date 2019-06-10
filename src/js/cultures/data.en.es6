@@ -5,8 +5,15 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-// import $ from 'jquery';
-// import i18n from '../common/window.i18n.es6';
+import $ from 'jquery';
+import app from '../common/window.global.es6';
+
+const { i18n } = app;
+i18n.en = i18n.en || {};
+
+$.extend(true, i18n.en, {
+    data: {}
+});
 
 /**
  * Page, PageComponent and Stream

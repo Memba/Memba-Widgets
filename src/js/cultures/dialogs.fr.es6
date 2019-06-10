@@ -6,9 +6,12 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import i18n from '../common/window.i18n.es6';
+import app from '../common/window.global.es6';
 
-$.extend(true, i18n(), {
+const { i18n } = app;
+i18n.fr = i18n.fr || {};
+
+$.extend(true, i18n.fr, {
     dialogs: {
         /* dialogs.assetmanager */
         assetmanager: {},
@@ -36,7 +39,10 @@ $.extend(true, i18n(), {
         newsummary: {},
 
         /* dialogs.publish */
-        publish: {},
+        publish: {
+            message: 'message', // TODO
+            title: 'title' // TODO
+        },
 
         /* dialogs.quizwizard */
         quizwizard: {
@@ -69,6 +75,7 @@ $.extend(true, i18n(), {
                 'Veuillez saisir une question et des solutions (une par ligne) à comparer aux réponses',
             question: 'Question',
             solution: 'Solution',
+            title: 'Nouvelle question ouverte',
             validation: {
                 question: 'Une question est requise.',
                 solution: 'Une solution est requise.'

@@ -8,6 +8,7 @@
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.validator';
+import __ from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import './widgets.basedialog.es6';
 
@@ -17,21 +18,6 @@ const {
     resize,
     ui: { BaseDialog }
 } = window.kendo;
-
-/**
- * Initialize culture
- */
-BaseDialog.getMessageNameSpace().textboxwizard = BaseDialog.getMessageNameSpace()
-    .textboxwizard || {
-    message:
-        'Please enter a question and solutions (one per line) to compare answers with.',
-    question: 'Question',
-    solution: 'Solution',
-    validation: {
-        question: 'A question is required.',
-        solution: 'A solution is required.'
-    }
-};
 
 /**
  * A shortcut function to display a dialog with a textbox wizard
@@ -45,28 +31,26 @@ function openTextBoxWizard(options = {}) {
     const $dialog = BaseDialog.getElement(options.cssClass);
     $dialog.css({ padding: '' });
 
-    // Unique ids and culture
+    // Unique ids
     const ids = { question: guid(), solution: guid() };
-    const culture = BaseDialog.getMessageNameSpace().textboxwizard;
 
     // Create the dialog
     const dialog = $dialog
         .kendoBaseDialog(
             Object.assign(
                 {
-                    title:
-                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    title: __('dialogs.textboxwizard.title'),
                     /* eslint-disable prettier/prettier */
                     content: `<div class="k-widget k-notification k-notification-info" role="alert">
-                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${culture.message}</div>
+                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${__('dialogs.textboxwizard.message')}</div>
                           </div>
                           <div class="kj-dialog-form">
                             <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${ids.question}">${culture.question}:</label></div>
+                              <div class="kj-dialog-col25"><label for="${ids.question}">${__('dialogs.textboxwizard.question')}:</label></div>
                               <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="question" class="k-input k-textbox" data-${ns}bind="value: question"></div>
                             </div>
                             <div class="kj-dialog-flexrow">
-                              <div class="kj-dialog-col25"><label for="${ids.solution}">${culture.solution}:</label></div>
+                              <div class="kj-dialog-col25"><label for="${ids.solution}">${__('dialogs.textboxwizard.solution')}:</label></div>
                               <div class="kj-dialog-col75"><textarea id="${ids.solution}" type="text" name="solution" class="k-input k-textbox" data-${ns}bind="value: solution" style="height:5em;"></textarea></div>
                             </div>
                           </div>`,
@@ -104,8 +88,8 @@ function openTextBoxWizard(options = {}) {
                 }
             },
             messages: {
-                question: culture.validation.question,
-                solution: culture.validation.solution
+                question: __('dialogs.textboxwizard.validation.question'),
+                solution: __('dialogs.textboxwizard.validation.solution')
             }
         })
         .data('kendoValidator');

@@ -365,18 +365,6 @@ BaseDialog.getElement = function getElement(cssClass = 'kj-dialog-tools') {
 };
 
 /**
- * Global references for i18n
- * Static getter the message namespace (see ../cultures/dialogs.*)
- * @method getMessageNameSpace
- */
-BaseDialog.getMessageNameSpace = () => {
-    window.kendo.ex = window.kendo.ex || {};
-    window.kendo.ex.dialogs = window.kendo.ex.dialogs || {};
-    window.kendo.ex.dialogs.messages = window.kendo.ex.dialogs.messages || {};
-    return window.kendo.ex.dialogs.messages;
-};
-
-/**
  * Registration
  */
 plugin(BaseDialog);

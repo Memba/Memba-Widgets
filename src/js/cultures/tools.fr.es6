@@ -6,16 +6,18 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.core';
-import i18n from '../common/window.i18n.es6';
+import app from '../common/window.global.es6';
 import tools from '../tools/tools.es6';
 
-const { attr } = window.kendo;
+const { i18n } = app;
+i18n.fr = i18n.fr || {};
+
+// TODO search for attr(
 
 /**
  * BaseTool and tools
  */
-$.extend(true, i18n(), {
+$.extend(true, i18n.fr, {
     basetool: {
         top: { title: 'Pos. Haut' },
         left: { title: 'Pos. Gauche' },

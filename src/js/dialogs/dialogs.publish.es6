@@ -8,8 +8,9 @@
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.validator';
-import './widgets.basedialog.es6';
+import __ from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import './widgets.basedialog.es6';
 
 const {
     // guid,
@@ -17,14 +18,6 @@ const {
     resize,
     ui: { BaseDialog }
 } = window.kendo;
-
-/**
- * Initialize culture
- */
-BaseDialog.getMessageNameSpace().publish = BaseDialog.getMessageNameSpace()
-    .publish || {
-    message: ''
-};
 
 /**
  * A shortcut function to display a dialog with a textbox wizard
@@ -37,20 +30,18 @@ function openPublish(options = {}) {
     // Find or create the DOM element
     const $dialog = BaseDialog.getElement(options.cssClass);
 
-    // Unique ids and culture
+    // Unique ids
     // const ids = { question: guid(), solution: guid() };
-    const culture = BaseDialog.getMessageNameSpace().publish;
 
     // Create the dialog
     const dialog = $dialog
         .kendoBaseDialog(
             Object.assign(
                 {
-                    title:
-                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    title: __('dialogs.publish.title'),
                     /* eslint-disable prettier/prettier */
                     content: `<div class="k-widget k-notification k-notification-info" role="alert">
-                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${culture.message}</div>
+                            <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${__('dialogs.publish.message')}</div>
                           </div>
                           <div class="kj-dialog-form">
                             <div class="kj-dialog-flexrow">

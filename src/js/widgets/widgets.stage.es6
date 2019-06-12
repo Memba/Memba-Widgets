@@ -48,6 +48,7 @@ const {
     init,
     keys,
     support,
+    throttle,
     ui: { plugin, ContextMenu, DataBoundWidget },
     unbind,
     UserEvents
@@ -64,10 +65,10 @@ const DEFAULTS = {
 
 const LOADING_OVERLAY =
     '<div contenteditable="false" class="k-loading-mask" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;"><div class="k-loading-image"></div><div class="k-loading-color"></div></div>';
-
-const MOUSEDOWN = `mousedown${NS} touchstart${NS}`;
-const MOUSEMOVE = `mousemove${NS} touchmove${NS}`;
-const MOUSEUP = `mouseup${NS} touchend${NS}`;
+const MOUSEMOVE_DELAY = 20;
+// const MOUSEDOWN = `mousedown${NS} touchstart${NS}`;
+// const MOUSEMOVE = `mousemove${NS} touchmove${NS}`;
+// const MOUSEUP = `mouseup${NS} touchend${NS}`;
 const PROPERTYBINDING = 'propertyBinding';
 const ENABLE = 'enable';
 const MOVE = 'move';
@@ -878,7 +879,7 @@ const Stage = DataBoundWidget.extend({
                 // filter: '.kj-handle',
                 press: this._onMousePress.bind(this),
                 start: this._onMouseStart.bind(this),
-                move: this._onMouseMove.bind(this),
+                move: throttle(this._onMouseMove.bind(this), MOUSEMOVE_DELAY),
                 end: this._onMouseEnd.bind(this)
             });
         }

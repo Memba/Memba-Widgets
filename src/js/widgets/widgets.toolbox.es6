@@ -24,7 +24,6 @@ const NS = '.kendoToolBox';
 const WIDGET_CLASS = 'k-widget k-toolbar kj-toolbox';
 const BUTTON =
     '<a href="#" class="k-button kj-tool" title="{1}"><img src="{0}" alt="{1}"></a>';
-('<a href="#" class="k-button kj-tool" title="{1}"><img src="{0}" alt="{1}"></a>');
 const ROLE = 'role';
 const MENU = 'menu';
 const MENUITEM = 'menuitem';

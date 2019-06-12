@@ -1110,7 +1110,13 @@ const Stage = DataBoundWidget.extend({
                                     format(CSS_ROTATE, component.rotate)
                                 );
                                 adorner
-                                    .children(CONSTANTS.DOT + HANDLE_CLASS)
+                                    .children(
+                                        `${
+                                            CONSTANTS.DOT
+                                        }${HANDLE_CLASS}:not([${attr(
+                                            CONSTANTS.ACTION
+                                        )}="resize"])`
+                                    )
                                     .css(
                                         TRANSFORM,
                                         `${format(

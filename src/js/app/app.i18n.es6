@@ -129,35 +129,42 @@ __.load = function load(value) {
 
     const dfd = $.Deferred();
     if ($.type(i18n[locale]) === CONSTANTS.UNDEFINED) {
-        // locale needs to be loaded (see https://github.com/webpack/webpack/issues/923)
-        // eslint-disable-next-line global-require, import/no-dynamic-require
-        const loader = require(`bundle-loader?name=[name]!../cultures/app.culture.${locale}.es6`);
-        loader(module => {
-            /*
-            try {
-                localStorage.setItem(LANGUAGE, locale);
-            } catch (exception) {
-                // A QuotaExceededError in raised in private browsing, which we do not care about
-                // @see https://github.com/jlchereau/Kidoju-Webapp/issues/181
-                // @see http://chrisberkhout.com/blog/localstorage-errors/
-                if (
-                    !window.DOMException ||
-                    !(exception instanceof window.DOMException) ||
-                    exception.code !== window.DOMException.QUOTA_EXCEEDED_ERR
-                ) {
-                    throw exception;
+        // https://webpack.js.org/api/module-methods#magic-comments
+        import(
+            /* webpackMode: "lazy" */
+            /* webpackChunkName: "[request]" */
+            `../cultures/app.culture.${locale}.es6`
+        )
+            .then(module => {
+                /*
+                try {
+                    localStorage.setItem(LANGUAGE, locale);
+                } catch (exception) {
+                    // A QuotaExceededError in raised in private browsing, which we do not care about
+                    // @see https://github.com/jlchereau/Kidoju-Webapp/issues/181
+                    // @see http://chrisberkhout.com/blog/localstorage-errors/
+                    if (
+                        !window.DOMException ||
+                        !(exception instanceof window.DOMException) ||
+                        exception.code !==
+                            window.DOMException.QUOTA_EXCEEDED_ERR
+                    ) {
+                        throw exception;
+                    }
                 }
-            }
-            */
-            // Load culture
-            $.extend(true, i18n[locale], module.default);
-            // Log readiness
-            logger.debug({
-                message: `${locale} locale loaded`,
-                method: 'load'
-            });
-            dfd.resolve();
-        });
+                */
+
+                // Load culture
+                i18n[locale] = i18n[locale] || {};
+                $.extend(true, i18n[locale], module.default);
+                // Log readiness
+                logger.debug({
+                    message: `${locale} locale loaded`,
+                    method: 'load'
+                });
+                dfd.resolve();
+            })
+            .catch(dfd.reject);
     }
     return dfd.promise();
 };

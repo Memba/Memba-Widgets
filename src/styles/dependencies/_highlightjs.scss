@@ -19,8 +19,8 @@
     display: block;
     overflow-x: auto;
     padding: 0.5em;
-    background: #333;
-    color: white;
+    background: $widget-bg;
+    color: $widget-text;
 }
 
 .hljs-name,
@@ -34,19 +34,19 @@
 }
 
 .hljs-tag {
-    color: #62c8f3;
+    color: $series-a;
 }
 
 .hljs-variable,
 .hljs-template-variable,
 .hljs-selector-id,
 .hljs-selector-class {
-    color: #ade5fc;
+    color: $series-b;
 }
 
 .hljs-string,
 .hljs-bullet {
-    color: #a2fca2;
+    color: $series-c;
 }
 
 .hljs-type,
@@ -56,44 +56,44 @@
 .hljs-quote,
 .hljs-built_in,
 .hljs-builtin-name {
-    color: #ffa;
+    color: $series-d;
 }
 
 .hljs-number,
 .hljs-symbol,
 .hljs-bullet {
-    color: #d36363;
+    color: $series-e;
 }
 
 .hljs-keyword,
 .hljs-selector-tag,
 .hljs-literal {
-    color: #fcc28c;
+    color: $series-f;
 }
 
 .hljs-comment,
 .hljs-deletion,
 .hljs-code {
-    color: #888;
+    color: $widget-text;
 }
 
 .hljs-regexp,
 .hljs-link {
-    color: #c6b4f0;
+    color: $link-text;
 }
 
 .hljs-meta {
-    color: #fc9b9b;
+    color: $series-b;
 }
 
 .hljs-deletion {
-    background-color: #fc9b9b;
-    color: #333;
+    background-color: $notification-error-bg;
+    color: $notification-error-text;
 }
 
 .hljs-addition {
-    background-color: #a2fca2;
-    color: #333;
+    background-color: $notification-success-bg;
+    color: $notification-success-text;
 }
 
 .hljs a {

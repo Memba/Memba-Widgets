@@ -78,10 +78,10 @@ describe('CharGrid', () => {
         var html;
 
         // If we do not submit a page component
-        expect(fn1).to.throw;
+        expect(fn1).to.throw();
 
         // If we do not submit a mode
-        expect(fn2).to.throw;
+        expect(fn2).to.throw();
 
         // If we submit a valid page component in design mode
         html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.DESIGN);

@@ -48,8 +48,8 @@ if (!Modernizr.webworkers) {
                     noop(pool); // to please eslint
                 }
 
-                expect(fn1).to.throw;
-                expect(fn2).to.throw;
+                expect(fn1).to.throw();
+                expect(fn2).to.throw();
             });
 
             it('It should create a WorkerPool from valid values', () => {

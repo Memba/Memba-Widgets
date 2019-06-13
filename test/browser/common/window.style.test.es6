@@ -66,11 +66,11 @@ describe('window.style', () => {
         it('It should throw with invalid data', () => {
             function test() {
                 const style = new Style(
-                    JSC.any([JSC.array(), JSC.falsy(), JSC.number()])()
+                    JSC.one_of([JSC.array(), JSC.falsy(), JSC.number()])()
                 );
                 noop(style); // to please eslint
             }
-            expect(test).to.throw;
+            expect(test).to.throw();
         });
 
         it('It should discard dummy strings', () => {

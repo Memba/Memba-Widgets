@@ -178,7 +178,7 @@ describe('widgets.multiinput', () => {
             expect(widget.tagList.children('li').length).to.equal(
                 options.value.length
             );
-            expect(fn).to.throw;
+            expect(fn).to.throw();
             const value = ['omega', 'psi'];
             widget.value(value);
             expect(widget.value()).to.deep.equal(value);

@@ -98,7 +98,7 @@ if (!Modernizr.filesystem) {
                     fileSystem.getDirectoryEntry(path, window.TEMPORARY);
                 }
 
-                expect(fn).to.throw;
+                expect(fn).to.throw();
             });
 
             it('it should get a directoryEntry in a temporary FileSystem', done => {

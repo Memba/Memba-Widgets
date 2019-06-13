@@ -32,10 +32,10 @@ describe('window.objectid', () => {
                 return new ObjectId(new Date());
             }
 
-            expect(test1).to.throw;
-            expect(test2).to.throw;
-            expect(test3).to.throw;
-            expect(test4).to.throw;
+            expect(test1).to.throw();
+            expect(test2).to.throw();
+            expect(test3).to.throw();
+            expect(test4).to.throw();
         });
 
         it('It should have a toString method returning a MongoDB ObjectId', () => {

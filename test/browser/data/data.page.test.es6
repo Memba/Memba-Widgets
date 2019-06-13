@@ -74,9 +74,9 @@ describe('data.page', () => {
                 expect(page).to.have.property('instructions', '');
                 expect(page).to.have.property('style', '');
                 expect(page).to.have.property('time', 30);
-                expect(components.fetch).to.throw;
-                expect(components.read).to.throw;
-                expect(page.load).to.throw;
+                expect(components.fetch).to.throw();
+                expect(components.read).to.throw();
+                expect(page.load).to.throw();
             });
 
             it('It should initialize from a dummy object', done => {

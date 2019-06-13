@@ -81,7 +81,7 @@ describe('window.logger', () => {
             function test() {
                 logger.log(MESSAGE, DATA);
             }
-            expect(test).to.throw;
+            expect(test).to.throw();
         });
 
         it('log messages with level param', () => {

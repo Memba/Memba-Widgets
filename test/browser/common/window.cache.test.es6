@@ -67,7 +67,7 @@ describe('window.cache', () => {
                 function fn() {
                     cache.setItem(data.key, data.value);
                 }
-                expect(fn).to.throw;
+                expect(fn).to.throw();
             }
             INVALID.forEach(test);
         });
@@ -95,7 +95,7 @@ describe('window.cache', () => {
                 function fn() {
                     cache.getItem(data.key);
                 }
-                expect(fn).to.throw;
+                expect(fn).to.throw();
             }
             INVALID.forEach(test);
         });
@@ -120,7 +120,7 @@ describe('window.cache', () => {
                 function fn() {
                     cache.removeItems(data.key);
                 }
-                expect(fn).to.throw;
+                expect(fn).to.throw();
             }
             INVALID.forEach(test);
         });
@@ -194,7 +194,7 @@ describe('window.cache', () => {
                 function fn() {
                     cache.setItem(data.key, data.value);
                 }
-                expect(fn).to.throw;
+                expect(fn).to.throw();
             }
             INVALID.forEach(test);
         });
@@ -222,7 +222,7 @@ describe('window.cache', () => {
                 function fn() {
                     cache.getItem(data.key);
                 }
-                expect(fn).to.throw;
+                expect(fn).to.throw();
             }
             INVALID.forEach(test);
         });
@@ -247,7 +247,7 @@ describe('window.cache', () => {
                 function fn() {
                     cache.removeItems(data.key);
                 }
-                expect(fn).to.throw;
+                expect(fn).to.throw();
             }
             INVALID.forEach(test);
         });

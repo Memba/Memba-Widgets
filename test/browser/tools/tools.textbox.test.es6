@@ -219,13 +219,13 @@ describe('tools.textbox', () => {
                 function fn1() {
                     return tool.getHtmlContent({});
                 }
-                expect(fn1).to.throw;
+                expect(fn1).to.throw();
 
                 // If we do not submit a mode
                 function fn2() {
                     return tool.getHtmlContent(component);
                 }
-                expect(fn2).to.throw;
+                expect(fn2).to.throw();
 
                 // Test all stage CONSTANTS.STAGE_MODES
                 Object.values(CONSTANTS.STAGE_MODES).forEach(mode => {

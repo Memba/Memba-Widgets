@@ -5,110 +5,35 @@
 
 /* eslint-disable no-unused-expressions */
 
+import 'kendo.core';
 import chai from 'chai';
+import res from '../../../src/js/cultures/tools.fr.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
-import '../../../src/js/app/app.tools.es6';
-import '../../../src/js/cultures/tools.fr.es6';
 
-const { describe, it, xit } = window;
+const { describe, it } = window;
+const { Observable } = window.kendo;
 const { expect } = chai;
 
 describe('tools.fr', () => {
-    (tools.audio instanceof BaseTool ? it : xit)('tools.audio', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.chargrid instanceof BaseTool ? it : xit)('tools.chargrid', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.chart instanceof BaseTool ? it : xit)('tools.chart', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.connector instanceof BaseTool ? it : xit)('tools.connector', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.dropzone instanceof BaseTool ? it : xit)('tools.dropzone', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.highlighter instanceof BaseTool ? it : xit)(
-        'tools.highlighter',
-        () => {
-            expect(true).to.be.false;
-        }
-    );
-
-    (tools.image instanceof BaseTool ? it : xit)('tools.image', () => {
-        expect(tools.image.attributes.alt.title).to.equal('Texte');
-    });
-
-    (tools.imageset instanceof BaseTool ? it : xit)('tools.imageset', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.label instanceof BaseTool ? it : xit)('tools.label', () => {
-        expect(tools.label.attributes.text.title).to.equal('Texte');
-    });
-
-    (tools.mathexpression instanceof BaseTool ? it : xit)(
-        'tools.mathexpression',
-        () => {
-            expect(true).to.be.false;
-        }
-    );
-
-    (tools.mathinput instanceof BaseTool ? it : xit)('tools.mathinput', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.multiquiz instanceof BaseTool ? it : xit)('tools.multiquiz', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.numericbox instanceof BaseTool ? it : xit)(
-        'tools.numericbox',
-        () => {
-            expect(true).to.be.false;
-        }
-    );
-
-    (tools.quiz instanceof BaseTool ? it : xit)('tools.quiz', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.random instanceof BaseTool ? it : xit)('tools.random', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.selector instanceof BaseTool ? it : xit)('tools.selector', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.table instanceof BaseTool ? it : xit)('tools.table', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.textarea instanceof BaseTool ? it : xit)('tools.textarea', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.textbox instanceof BaseTool ? it : xit)('tools.textbox', () => {
-        expect(tools.textbox.attributes.mask.title).to.equal('Masque');
-    });
-
-    (tools.textgaps instanceof BaseTool ? it : xit)('tools.textgaps', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.textgaps instanceof BaseTool ? it : xit)('tools.textgaps', () => {
-        expect(true).to.be.false;
-    });
-
-    (tools.video instanceof BaseTool ? it : xit)('tools.video', () => {
-        expect(true).to.be.false;
+    it('It should have i18n resources for each tool', () => {
+        Object.keys(tools).forEach(tool => {
+            if (tools[tool] instanceof Observable) {
+                expect(res)
+                    .to.have.property(tool)
+                    .that.is.an('object');
+                expect(res)
+                    .to.have.nested.property(`${tool}.description`)
+                    .that.is.a('string');
+                expect(res)
+                    .to.have.nested.property(`${tool}.help`)
+                    .that.is.a('string');
+                expect(res)
+                    .to.have.nested.property(`${tool}.icon`)
+                    .that.is.a('string');
+                expect(res)
+                    .to.have.nested.property(`${tool}.name`)
+                    .that.is.a('string');
+            }
+        });
     });
 });

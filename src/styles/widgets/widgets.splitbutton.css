@@ -1,28 +1,21 @@
-/**
- * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
- * Sources at https://github.com/Memba
- */
-.kj-splitbutton {
-  display: inline-block;
-  outline: 0;
-}
-.kj-splitbutton .k-button:not(.kj-splitbutton-arrow) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  margin-right: 0 !important;
-}
-.kj-splitbutton .k-button.kj-splitbutton-arrow {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  margin: 0 0 0 -1px;
-  padding-left: 0.4em;
-  padding-right: 0.4em;
-}
-.kj-splitbutton .k-button:not(.kj-splitbutton-arrow) .k-image,
-.k-popup .k-button:not(.kj-splitbutton-arrow) .k-image {
+.k-popup .k-button .k-image {
   height: 1.2em;
   width: 1.2em;
   outline: 0;
   border: 0;
-  vertical-align: sub;
-}
+  vertical-align: sub; }
+
+.k-split-button.kj-split-button {
+  align-content: center;
+  align-items: stretch;
+  border-radius: 0.25rem;
+  display: inline-flex; }
+  .k-split-button.kj-split-button .k-button:not(.k-split-button-arrow) .k-image {
+    height: 1.5em;
+    width: 1.5em; }
+  .k-split-button.kj-split-button .k-button.k-split-button-arrow {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin: 0 0 0 -1px;
+    padding-left: 0.4em;
+    padding-right: 0.4em; }

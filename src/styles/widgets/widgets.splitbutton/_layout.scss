@@ -1,0 +1,48 @@
+@include exports( "widgets.splitbutton/layout" ) {
+    .k-popup {
+        .k-button {
+            .k-image {
+                height: 1.2em;
+                width: 1.2em;
+                outline: 0;
+                border: 0;
+                vertical-align: sub;
+            }
+
+            // .k-icon,
+            // .k-image {
+            //     margin-right: 0.25em;
+            // }
+        }
+    }
+
+    .k-split-button.kj-split-button {
+        align-content: center;
+        align-items: stretch;
+        border-radius: 0.25rem; // TODO
+        display: inline-flex;
+        // outline: 0;
+        // line-height: 1.72em;
+        // vertical-align: middle;
+
+        .k-button {
+            &:not(.k-split-button-arrow) {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+
+                .k-image {
+                    height: 1.5em; // TODO
+                    width: 1.5em; // TODO
+                }
+            }
+
+            &.k-split-button-arrow {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+                margin: 0 0 0 -1px; // TODO
+                padding-left: 0.4em; // TODO
+                padding-right: 0.4em; // TODO
+            }
+        }
+    }
+}

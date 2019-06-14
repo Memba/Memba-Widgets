@@ -1,0 +1,11 @@
+@include exports( "widgets.styleeditor/layout" ) {
+    .kj-styleeditor {
+        .k-grid {
+            .k-edit-cell {
+                & > .k-colorpicker {
+                    width: auto;
+                }
+            }
+        }
+    }
+}

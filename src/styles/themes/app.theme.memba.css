@@ -25921,6 +25921,9 @@ body > .k-list-item,
     padding-left: 0.4em;
     padding-right: 0.4em; }
 
+.kj-styleeditor .k-grid .k-edit-cell > .k-colorpicker {
+  width: auto; }
+
 .kj-unitinput {
   display: flex; }
   .kj-unitinput > .k-numerictextbox {

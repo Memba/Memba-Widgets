@@ -1,12 +1,15 @@
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+
 //---------------------------------------------
 // MathQuill
 //---------------------------------------------
 .mq-editable-field,
 .mq-math-mode {
-    background-color: @input-bg; /* @select-background-color; */
-    border-color: @widget-border-color;
-    border-radius: @border-radius;
-    color: @input-text;
+    background-color: $input-bg; /* $select-background-color; */
+    border-color: $widget-border-color;
+    border-radius: $border-radius;
+    color: $input-text;
 
     .mq-selection {
         color: #fff;
@@ -27,14 +30,14 @@
 
 .mq-editable-field:hover,
 .mq-math-mode:hover {
-    border-color: @hover-border-color;
+    border-color: $hover-border-color;
 }
 
 .mq-editable-field:focus,
 .mq-editable-field.mq-focused,
 .mq-math-mode:focus,
 .mq-math-mode.mq-focused {
-    border-radius: @border-radius;
+    border-radius: $border-radius;
     .box-shadow('none');
-    .box-shadow(@focused-shadow);
+    .box-shadow($focused-shadow);
 }

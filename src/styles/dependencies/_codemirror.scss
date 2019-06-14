@@ -1,23 +1,28 @@
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+
 //---------------------------------------------
-// MathQuill
+// CodeMirror
 //---------------------------------------------
 .CodeMirror,
 .CodeMirror-scrollbar-filler,
 .CodeMirror-gutter-filler {
-    background-color: @widget-background-color;
-    color: @widget-text-color;
+    background-color: $widget-bg;
+    color: $widget-text;
 }
 
 // Gutters
 .CodeMirror-gutters {
-    border-right: 1px solid @widget-border-color;
-    background-color: @alt-background-color;
+    border-right: $border-width solid $border-color;
+    background-color: rgba(contrast-wcag($widget-bg), 0.04);
 }
 
 // .CodeMirror-linenumbers {}
 
 .CodeMirror-linenumber {
-    color: @disabled-text-color;
+    color: $widget-text;
+
+    @include disabled;
 }
 
 .CodeMirror-guttermarker {
@@ -25,53 +30,49 @@
 }
 
 .CodeMirror-guttermarker-subtle {
-    color: @disabled-text-color;
+    color: $widget-text;
+
+    @include disabled;
 }
 
 // Cursor
 
 .CodeMirror-cursor {
-    border-left: 1px solid @widget-text-color;
+    border-left: 1px solid $widget-text;
 }
 
 /* Shown when moving in bi-directional text */
 .CodeMirror div.CodeMirror-secondarycursor {
-    border-left: 1px solid @disabled-text-color;
+    border-left: 1px solid #f00; // TODO
 }
 
 .cm-fat-cursor .CodeMirror-cursor {
-    background: #7e7;
+    background: #7e7; // TODO
 }
 
 .cm-animate-fat-cursor {
-    background-color: #7e7;
+    background-color: #7e7; // TODO
 }
 
 /* DEFAULT THEME */
 
-/* Note: everything I have not been able to play in CodeMirror markdown and JavaScript modes is @series-f */
+/* Note: everything I have not been able to play in CodeMirror markdown and JavaScript modes is $series-f */
 
 .cm-s-default .cm-header {
-    color:
-        contrast(
-            @widget-background-color,
-            lighten(@series-a, 15%),
-            darken(@series-a, 15%),
-            0.5
-        );
+    color: contrast-wcag($series-a);
 }
 
 .cm-s-default .cm-quote {
-    color: @series-a;
+    color: $series-a;
     font-style: italic;
 }
 
 .cm-negative {
-    color: @error;
+    color: $error;
 }
 
 .cm-positive {
-    color: @success;
+    color: $success;
 }
 
 .cm-link {
@@ -83,25 +84,19 @@
 }
 
 .cm-s-default .cm-keyword {
-    color: @series-c;
+    color: $series-c;
 }
 
 .cm-s-default .cm-atom {
-    color: @series-f;
+    color: $series-f;
 }
 
 .cm-s-default .cm-number {
-    color:
-        contrast(
-            @widget-background-color,
-            lighten(@series-e, 15%),
-            darken(@series-e, 15%),
-            0.5
-        );
+    color: contrast-wcag($series-e);
 }
 
 .cm-s-default .cm-def {
-    color: @info;
+    color: $info;
 }
 
 .cm-s-default .cm-variable,
@@ -110,91 +105,83 @@
 .cm-s-default .cm-operator { /* default text color */ }
 
 .cm-s-default .cm-variable-2 {
-    color:
-        contrast(
-            @widget-background-color,
-            lighten(@series-d, 15%),
-            darken(@series-d, 15%),
-            0.5
-        );
+    color: contrast-wcag($series-d);
 }
 
 .cm-s-default .cm-variable-3,
 .cm-s-default .cm-type {
-    color: @series-d;
+    color: $series-d;
 }
 
 .cm-s-default .cm-comment {
-    color: @disabled-text-color;
+    color: $widget-text;
+
+    @include disabled;
 }
 
 .cm-s-default .cm-string {
-    color:
-        contrast(
-            @widget-background-color,
-            lighten(@series-e, 15%),
-            darken(@series-e, 15%),
-            0.5
-        );
+    color: contrast-wcag($series-e);
 }
 
 .cm-s-default .cm-string-2 {
-    color: @series-e;
+    color: $series-e;
 }
 
 .cm-s-default .cm-meta {
-    color: @series-f;
+    color: $series-f;
 }
 
 .cm-s-default .cm-qualifier {
-    color: @series-f;
+    color: $series-f;
 }
 
 .cm-s-default .cm-builtin {
-    color: @series-f;
+    color: $series-f;
 }
 
 .cm-s-default .cm-bracket {
-    color: @series-f;
+    color: $series-f;
 }
 
 .cm-s-default .cm-tag {
-    color: @series-f;
+    color: $series-f;
 }
 
 .cm-s-default .cm-attribute {
-    color: @series-f;
+    color: $series-f;
 }
 
 .cm-s-default .cm-hr {
-    color: @disabled-text-color;
+    color: $widget-text;
     font-weight: bold;
+
+    @include disabled;
 }
 
 .cm-s-default .cm-link {
-    color: @series-b;
+    color: $series-b;
 }
 
 .cm-s-default .cm-error {
-    color: @error;
+    color: $error;
 }
 
 .cm-invalidchar {
-    color: @error;
+    color: $error;
 }
 
 /* Default styles for common addons */
 
 div.CodeMirror span.CodeMirror-matchingbracket {
-    color: @success;
+    color: $success;
 }
 
 div.CodeMirror span.CodeMirror-nonmatchingbracket {
-    color: @error;
+    color: $error;
 }
 
 .CodeMirror-matchingtag {
-    background: @success;
+    background: $success;
 }
 
 .CodeMirror-activeline-background {
@@ -210,12 +197,12 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 // bold uses .cm-strong and italic uses .cm-em
 // lists use .cm-variable-2
 .cm-s-default .cm-image {
-    color: @series-b;
+    color: $series-b;
     text-decoration: none !important;
 }
 
 .cm-s-default .cm-url {
-    color: @series-b;
+    color: $series-b;
     font-style: italic;
 }
 

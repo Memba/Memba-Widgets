@@ -2,7 +2,8 @@
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
 
 // Dependencies
-// TODO highlighter
+@import "../dependencies/highlightjs";
+// @import "../vendor/khan/katex"; // Error in  webpack
 
 // Component
 @import "widgets.markdown/layout";

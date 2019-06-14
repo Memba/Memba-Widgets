@@ -21,18 +21,34 @@
 
 // Our widgets styles
 @import "../widgets/widgets.assetmanager.scss";
+// @import "../widgets/widgets.basiclist.scss"; --> widgets.array
+@import "../widgets/widgets.bitflags.scss";
+// @import "../widgets/widgets.codeeditor.scss";
 @import "../widgets/widgets.explorer.scss";
+// @import "../widgets/widgets.floating.scss";
 @import "../widgets/widgets.formatstrip.scss";
 @import "../widgets/widgets.highlighter.scss";
 @import "../widgets/widgets.imagelist.scss";
 @import "../widgets/widgets.latex.scss";
+// @import "../widgets/widgets.license.scss";
 @import "../widgets/widgets.markdown.scss";
+// @import "../widgets/widgets.markeditor.scss";
+// @import "../widgets/widgets.mathinput.scss";
+// @import "../widgets/widgets.mediaplayer.scss";
+// @import "../widgets/widgets.multiinput.scss";
 @import "../widgets/widgets.multiquiz.scss";
 @import "../widgets/widgets.navigation.scss";
+// @import "../widgets/widgets.playbar.scss";
 @import "../widgets/widgets.propertygrid.scss";
 @import "../widgets/widgets.quiz.scss";
 @import "../widgets/widgets.rating.scss";
+@import "../widgets/widgets.splitbutton.scss";
 @import "../widgets/widgets.stage.scss";
+// @import "../widgets/widgets.styleeditor.scss";
+// @import "../widgets/widgets.table.scss";
+// @import "../widgets/widgets.textgaps.scss";
+@import "../widgets/widgets.unitinput.scss";
+// @import "../widgets/widgets.vectordrawing.scss";
 
 // Our dialog styles
 @import "../dialogs/widgets.basedialog.scss";

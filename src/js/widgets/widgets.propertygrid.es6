@@ -107,7 +107,7 @@ const PropertyGrid = Widget.extend({
     },
 
     /**
-     * Rows setter/getter (TODO: Do we really need/use this?? Seems to be someting for setOptions)
+     * Rows setter/getter
      * @param rows
      * @returns {*}
      */
@@ -290,7 +290,8 @@ const PropertyGrid = Widget.extend({
         const that = this;
         let rows = [];
         const { defaults, fields } = properties;
-        const hasRows = !$.isEmptyObject(hashedOptionRows);
+        // if hashedOptionRows is an empty object, then there won't be any rows
+        const hasRows = $.isPlainObject(hashedOptionRows);
         Object.keys(properties).forEach(prop => {
             // Select only public properties that are not functions (discards _events)
             if (
@@ -408,8 +409,9 @@ const PropertyGrid = Widget.extend({
      * @returns {{}}
      */
     _hash(rows) {
-        const ret = {};
+        let ret = null;
         if ($.isArray(rows)) {
+            ret = {};
             $.each(rows, (index, row) => {
                 // check fields like attributes.src
                 const hierarchy = row.field.split('.');

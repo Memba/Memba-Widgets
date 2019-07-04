@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -23,6 +23,318 @@
 
 */
 (function (f, define) {
+    define('chat/messageBox', ['kendo.core'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo;
+        var Widget = kendo.ui.Widget;
+        var extend = $.extend;
+        var proxy = $.proxy;
+        var DOT = '.';
+        var NS = '.kendoChat';
+        var keys = kendo.keys;
+        var SEND_ICON = '<svg version="1.1" ixmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 16 16" xml:space="preserve"><path d="M0,14.3c-0.1,0.6,0.3,0.8,0.8,0.6l14.8-6.5c0.5-0.2,0.5-0.6,0-0.8L0.8,1.1C0.3,0.9-0.1,1.1,0,1.7l0.7,4.2C0.8,6.5,1.4,7,1.9,7.1l8.8,0.8c0.6,0.1,0.6,0.1,0,0.2L1.9,8.9C1.4,9,0.8,9.5,0.7,10.1L0,14.3z"/></svg>';
+        var TOGGLE_ICON = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>   <path d="M128,240c0-26.4-21.6-48-48-48s-48,21.6-48,48s21.6,48,48,48S128,266.4,128,240z"/>   <path d="M192,240c0,26.4,21.6,48,48,48c26.4,0,48-21.6,48-48s-21.6-48-48-48C213.6,192,192,213.6,192,240z"/>   <path d="M352,240c0,26.4,21.6,48,48,48c26.4,0,48-21.6,48-48s-21.6-48-48-48C373.6,192,352,213.6,352,240z"/></g></svg>';
+        var messageBoxStyles = {
+            input: 'k-input',
+            button: 'k-button',
+            buttonFlat: 'k-flat',
+            buttonIcon: 'k-button-icon',
+            buttonSend: 'k-button-send',
+            buttonToggle: 'k-button-toggle',
+            iconAdd: 'k-icon k-i-add',
+            hidden: 'k-hidden'
+        };
+        var ChatMessageBox = Widget.extend({
+            init: function (element, options) {
+                Widget.fn.init.call(this, element, options);
+                this._wrapper();
+                this._attachEvents();
+                this._typing = false;
+            },
+            events: [],
+            options: { messages: { placeholder: 'Type a message...' } },
+            destroy: function () {
+                Widget.fn.destroy.call(this);
+                if (this.input) {
+                    this.input.off(NS);
+                    this.input.remove();
+                    this.input = null;
+                }
+                this.element.off(NS);
+                this.element.empty();
+            },
+            _wrapper: function () {
+                var styles = ChatMessageBox.styles;
+                var options = this.options;
+                var messages = options.messages;
+                var inputId = 'inputId_' + kendo.guid();
+                $('<label>').addClass(styles.hidden).html(messages.placeholder).attr('for', inputId).appendTo(this.element);
+                this.input = $('<input type=\'text\'>').addClass(styles.input).attr('id', inputId).attr('placeholder', messages.placeholder).appendTo(this.element);
+                if (options.toolbar && options.toolbar.toggleable && options.toolbar.buttons) {
+                    $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.buttonIcon).addClass(styles.buttonToggle).attr('type', 'button').append($(TOGGLE_ICON)).appendTo(this.element);
+                }
+                $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.buttonIcon).addClass(styles.buttonSend).append($(SEND_ICON)).appendTo(this.element);
+            },
+            _attachEvents: function () {
+                var styles = ChatMessageBox.styles;
+                this.input.on('keydown' + NS, proxy(this._keydown, this)).on('input' + NS, proxy(this._input, this)).on('focusout' + NS, proxy(this._inputFocusout, this));
+                this.element.on('click' + NS, DOT + styles.buttonSend, proxy(this._buttonClick, this));
+                this.element.on('click' + NS, DOT + styles.buttonToggle, proxy(this._toggleToolbar, this));
+            },
+            _input: function () {
+                var currentValue = this.input.val();
+                var start = currentValue.length > 0;
+                this._triggerTyping(start);
+            },
+            _keydown: function (e) {
+                var key = e.keyCode;
+                switch (key) {
+                case keys.ENTER:
+                    e.preventDefault();
+                    this._sendMessage();
+                    break;
+                }
+            },
+            _buttonClick: function (e) {
+                e.preventDefault();
+                this._sendMessage();
+            },
+            _sendMessage: function () {
+                var value = this.input.val();
+                if (!value.length) {
+                    return;
+                }
+                this._triggerTyping(false);
+                var args = { text: value };
+                this.trigger('sendMessage', args);
+                this.input.val('');
+            },
+            _inputFocusout: function () {
+                this._triggerTyping(false);
+            },
+            _triggerTyping: function (start) {
+                if (start) {
+                    if (!this._typing) {
+                        this.trigger('typingStart', {});
+                        this._typing = true;
+                    }
+                } else {
+                    if (this._typing) {
+                        this.trigger('typingEnd', {});
+                        this._typing = false;
+                    }
+                }
+            },
+            _toggleToolbar: function (ev) {
+                this.trigger('toggleToolbar', { originalEvent: ev });
+            }
+        });
+        extend(true, ChatMessageBox, { styles: messageBoxStyles });
+        extend(kendo, { chat: { ChatMessageBox: ChatMessageBox } });
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('chat/toolbar', ['kendo.core'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo;
+        var Widget = kendo.ui.Widget;
+        var extend = $.extend;
+        var proxy = $.proxy;
+        var DOT = '.';
+        var NS = '.kendoChat';
+        var DATA_K_BUTTON_NAME = 'kButtonName';
+        var SCROLL_LEFT_NAME = 'chatToolbarScrollLeft';
+        var SCROLL_RIGHT_NAME = 'chatToolbarScrollRight';
+        var VISIBLE = ':visible';
+        var DEFAULT_ANIMATION = {
+            effects: 'expand:vertical',
+            duration: 200
+        };
+        var NO_ANIMATION = {
+            expand: { show: true },
+            collapse: { hide: true }
+        };
+        var toolbarStyles = {
+            button: 'k-button',
+            buttonFlat: 'k-flat',
+            buttonList: 'k-button-list',
+            scrollButton: 'k-scroll-button',
+            scrollButtonLeft: 'k-scroll-button-left',
+            scrollButtonRight: 'k-scroll-button-right',
+            scrollButtonLeftIcon: 'k-icon k-i-arrow-chevron-left',
+            scrollButtonRightIcon: 'k-icon k-i-arrow-chevron-right',
+            buttonIcon: 'k-button-icon'
+        };
+        var ChatToolBar = Widget.extend({
+            init: function (element, options) {
+                options = extend({}, options, { name: 'ChatToolbar' });
+                var toolbarOptions = options.toolbar;
+                var buttonsDefined = toolbarOptions.buttons && toolbarOptions.buttons.length;
+                Widget.fn.init.call(this, element, options);
+                if (buttonsDefined) {
+                    this._createButtonList();
+                }
+                if (buttonsDefined && toolbarOptions.scrollable && this.buttonsWidth() > this.element.width()) {
+                    this._initScrolling();
+                }
+                this._setupAnimation();
+                if (toolbarOptions.toggleable) {
+                    this.toggle(true);
+                }
+                this.element.on('click' + NS, proxy(this._onClick, this));
+            },
+            events: ['click'],
+            destroy: function () {
+                Widget.fn.destroy.call(this);
+                this.element.off(NS);
+                this.element.empty();
+            },
+            _createButtonList: function () {
+                var that = this;
+                var styles = ChatToolBar.styles;
+                var buttons = that.options.toolbar.buttons;
+                var buttonList = $('<div class=\'' + styles.buttonList + '\'></div>');
+                for (var i = 0; i < buttons.length; i++) {
+                    var button = that._createButton(buttons[i]);
+                    buttonList.append(button);
+                }
+                buttonList.appendTo(this.element);
+                this.buttonList = buttonList;
+            },
+            _createButton: function (btnOptions) {
+                var styles = ChatToolBar.styles;
+                var buttonElm = $('<button>');
+                if (typeof btnOptions === 'string') {
+                    btnOptions = { name: btnOptions };
+                }
+                buttonElm.attr(btnOptions.attr || {}).attr('title', btnOptions.text).attr('type', 'button').addClass(btnOptions.name).data(DATA_K_BUTTON_NAME, btnOptions.name).addClass(styles.button);
+                if (btnOptions.iconClass) {
+                    buttonElm.addClass(styles.buttonIcon);
+                    buttonElm.prepend('<span class=\'' + btnOptions.iconClass + '\'></span>');
+                }
+                return buttonElm;
+            },
+            _onClick: function (ev) {
+                var styles = ChatToolBar.styles;
+                var target = $(ev.target).closest(DOT + styles.button);
+                if (target.is(DOT + styles.scrollButton) && !this._scrolling) {
+                    this._scroll(target.data(DATA_K_BUTTON_NAME));
+                }
+                if (target.data(DATA_K_BUTTON_NAME)) {
+                    this.trigger('click', {
+                        button: target[0],
+                        name: target.data(DATA_K_BUTTON_NAME),
+                        originalEvent: ev
+                    });
+                }
+            },
+            _initScrolling: function () {
+                var styles = ChatToolBar.styles;
+                this.scrollButtonLeft = this._createButton({
+                    name: SCROLL_LEFT_NAME,
+                    iconClass: styles.scrollButtonLeftIcon,
+                    attr: { 'class': styles.scrollButton + ' ' + styles.scrollButtonLeft }
+                });
+                this.scrollButtonRight = this._createButton({
+                    name: SCROLL_RIGHT_NAME,
+                    iconClass: styles.scrollButtonRightIcon,
+                    attr: { 'class': styles.scrollButton + ' ' + styles.scrollButtonRight }
+                });
+                this.element.prepend(this.scrollButtonLeft);
+                this.element.append(this.scrollButtonRight);
+                this._refreshScrollButtons();
+                this.element.on('keydown' + NS, proxy(this._refreshScrollButtons, this));
+            },
+            _scroll: function (commandName) {
+                var that = this;
+                var buttonWidth = that.buttonWidth();
+                var maxScrollSize = this.maxScrollSize();
+                var scrollAmmount = commandName === SCROLL_LEFT_NAME ? buttonWidth * -1 : buttonWidth;
+                var currentScroll = this.currentScrollLeft();
+                var scrollValue = currentScroll + scrollAmmount;
+                scrollValue = Math.min(Math.max(scrollValue, 0), maxScrollSize);
+                if (commandName !== SCROLL_LEFT_NAME && commandName !== SCROLL_RIGHT_NAME) {
+                    return;
+                }
+                that.buttonList.scrollLeft(scrollValue);
+                that._refreshScrollButtons(scrollValue);
+            },
+            _refreshScrollButtons: function (value) {
+                var maxScrollSize = this.maxScrollSize();
+                var currentScrollLeft = value === undefined || isNaN(parseInt(value, 10)) ? this.currentScrollLeft() : value;
+                if (!this.scrollButtonLeft && !this.scrollButtonRight) {
+                    return;
+                }
+                this.scrollButtonLeft.toggle(currentScrollLeft !== 0);
+                this.scrollButtonRight.toggle(currentScrollLeft !== maxScrollSize);
+            },
+            _setupAnimation: function () {
+                var animation = this.options.toolbar.animation;
+                var defaultExpandAnimation = extend({}, DEFAULT_ANIMATION);
+                var defaultCollapseAnimation = extend({
+                    reverse: true,
+                    hide: true
+                }, DEFAULT_ANIMATION);
+                if (animation === false) {
+                    animation = extend(true, {}, NO_ANIMATION);
+                } else {
+                    animation = extend(true, {
+                        expand: defaultExpandAnimation,
+                        collapse: defaultCollapseAnimation
+                    }, animation);
+                }
+                this.options.toolbar.animation = animation;
+            },
+            _animationComplete: function () {
+                this._refreshScrollButtons();
+            },
+            currentScrollLeft: function () {
+                return Math.round(this.buttonList.scrollLeft());
+            },
+            maxScrollSize: function () {
+                return Math.round(this.buttonList[0].scrollWidth - this.buttonList[0].clientWidth);
+            },
+            buttons: function () {
+                var styles = ChatToolBar.styles;
+                return this.buttonList ? this.buttonList.children(DOT + styles.button) : null;
+            },
+            buttonWidth: function () {
+                return Math.round(this.buttons().last().outerWidth(true));
+            },
+            buttonsWidth: function () {
+                var width = 0;
+                if (this.buttons()) {
+                    width = this.buttonWidth() * this.buttons().length;
+                }
+                return width;
+            },
+            toggle: function (skipAnimation) {
+                var animation = this.options.toolbar.animation;
+                if (skipAnimation) {
+                    animation = extend(true, {}, NO_ANIMATION);
+                }
+                animation.expand.complete = proxy(this._animationComplete, this);
+                animation.collapse.complete = proxy(this._animationComplete, this);
+                if (this.element.is(VISIBLE)) {
+                    this.element.kendoStop().kendoAnimate(animation.collapse);
+                } else {
+                    this.element.kendoStop().kendoAnimate(animation.expand);
+                }
+            }
+        });
+        extend(true, ChatToolBar, { styles: toolbarStyles });
+        extend(kendo.chat, { ChatToolBar: ChatToolBar });
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
     define('chat/view', [
         'kendo.core',
         'kendo.draganddrop'
@@ -42,10 +354,10 @@
         var TYPING_INDICATOR_TEMPLATE = kendo.template('<div class="#=styles.messageListContent# #=styles.typingIndicatorBubble#">' + '<p class="#=styles.author#">#:text#</p>' + '<div class="#=styles.message#">' + '<div class="#=styles.bubble#">' + '<div class="#=styles.typingIndicator#">' + '<span></span><span></span><span></span>' + '</div>' + '</div>' + '</div>' + '</div>');
         var SUGGESTED_ACTIONS_TEMPLATE = kendo.template('<div class="#=styles.suggestedActions#">' + '# for (var i = 0; i < suggestedActions.length; i++) { #' + '<span class="#=styles.suggestedAction#" data-value="#:suggestedActions[i].value#">#:suggestedActions[i].title#</span>' + '# } #' + '</div>');
         var HERO_CARD_TEMPLATE = kendo.template('<div class="#=styles.card# #=styles.cardRich#">' + '# if (typeof images !== "undefined" && images.length > 0) { #' + '<img src="#:images[0].url#" alt="#:images[0].alt#" class="#=styles.cardImage#" />' + '# } #' + '<div class="#=styles.cardBody#">' + '# if (typeof title !== "undefined") { #' + '<h5 class="#=styles.cardTitle#">#:title#</h5>' + '# } #' + '# if (typeof subtitle !== "undefined") { #' + '<h6 class="#=styles.cardSubtitle#">#:subtitle#</h6>' + '# } #' + '# if (typeof text !== "undefined") { #' + '<p>#:text#</p>' + '# } #' + '</div>' + '# if (typeof buttons !== "undefined" && buttons.length > 0) { #' + '<div class="#=styles.cardActions# #=styles.cardActionsVertical#">' + '# for (var i = 0; i < buttons.length; i++) { #' + '<span class="#=styles.cardAction#"><span class="#=styles.button# #=styles.buttonPrimary#" data-value="#:buttons[i].value#">#:buttons[i].title#</span></span>' + '# } #' + '</div>' + '# } #' + '</div>');
-        kendo.chat = {
+        extend(kendo.chat, {
             Templates: {},
             Components: {}
-        };
+        });
         kendo.chat.registerTemplate = function (templateName, template) {
             kendo.chat.Templates[templateName] = kendo.template(template);
         };
@@ -412,320 +724,10 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('chat/messageBox', ['kendo.core'], f);
-}(function () {
-    (function ($, undefined) {
-        var kendo = window.kendo;
-        var Widget = kendo.ui.Widget;
-        var extend = $.extend;
-        var proxy = $.proxy;
-        var DOT = '.';
-        var NS = '.kendoChat';
-        var keys = kendo.keys;
-        var SEND_ICON = '<svg version="1.1" ixmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 16 16" xml:space="preserve"><path d="M0,14.3c-0.1,0.6,0.3,0.8,0.8,0.6l14.8-6.5c0.5-0.2,0.5-0.6,0-0.8L0.8,1.1C0.3,0.9-0.1,1.1,0,1.7l0.7,4.2C0.8,6.5,1.4,7,1.9,7.1l8.8,0.8c0.6,0.1,0.6,0.1,0,0.2L1.9,8.9C1.4,9,0.8,9.5,0.7,10.1L0,14.3z"/></svg>';
-        var TOGGLE_ICON = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>   <path d="M128,240c0-26.4-21.6-48-48-48s-48,21.6-48,48s21.6,48,48,48S128,266.4,128,240z"/>   <path d="M192,240c0,26.4,21.6,48,48,48c26.4,0,48-21.6,48-48s-21.6-48-48-48C213.6,192,192,213.6,192,240z"/>   <path d="M352,240c0,26.4,21.6,48,48,48c26.4,0,48-21.6,48-48s-21.6-48-48-48C373.6,192,352,213.6,352,240z"/></g></svg>';
-        var messageBoxStyles = {
-            input: 'k-input',
-            button: 'k-button',
-            buttonFlat: 'k-flat',
-            buttonIcon: 'k-button-icon',
-            buttonSend: 'k-button-send',
-            buttonToggle: 'k-button-toggle',
-            iconAdd: 'k-icon k-i-add',
-            hidden: 'k-hidden'
-        };
-        var ChatMessageBox = kendo.chat.ChatMessageBox = Widget.extend({
-            init: function (element, options) {
-                Widget.fn.init.call(this, element, options);
-                this._wrapper();
-                this._attachEvents();
-                this._typing = false;
-            },
-            events: [],
-            options: { messages: { placeholder: 'Type a message...' } },
-            destroy: function () {
-                Widget.fn.destroy.call(this);
-                if (this.input) {
-                    this.input.off(NS);
-                    this.input.remove();
-                    this.input = null;
-                }
-                this.element.off(NS);
-                this.element.empty();
-            },
-            _wrapper: function () {
-                var styles = ChatMessageBox.styles;
-                var options = this.options;
-                var messages = options.messages;
-                var inputId = 'inputId_' + kendo.guid();
-                $('<label>').addClass(styles.hidden).html(messages.placeholder).attr('for', inputId).appendTo(this.element);
-                this.input = $('<input type=\'text\'>').addClass(styles.input).attr('id', inputId).attr('placeholder', messages.placeholder).appendTo(this.element);
-                if (options.toolbar && options.toolbar.toggleable && options.toolbar.buttons) {
-                    $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.buttonIcon).addClass(styles.buttonToggle).attr('type', 'button').append($(TOGGLE_ICON)).appendTo(this.element);
-                }
-                $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.buttonIcon).addClass(styles.buttonSend).append($(SEND_ICON)).appendTo(this.element);
-            },
-            _attachEvents: function () {
-                var styles = ChatMessageBox.styles;
-                this.input.on('keydown' + NS, proxy(this._keydown, this)).on('input' + NS, proxy(this._input, this)).on('focusout' + NS, proxy(this._inputFocusout, this));
-                this.element.on('click' + NS, DOT + styles.buttonSend, proxy(this._buttonClick, this));
-                this.element.on('click' + NS, DOT + styles.buttonToggle, proxy(this._toggleToolbar, this));
-            },
-            _input: function () {
-                var currentValue = this.input.val();
-                var start = currentValue.length > 0;
-                this._triggerTyping(start);
-            },
-            _keydown: function (e) {
-                var key = e.keyCode;
-                switch (key) {
-                case keys.ENTER:
-                    e.preventDefault();
-                    this._sendMessage();
-                    break;
-                }
-            },
-            _buttonClick: function (e) {
-                e.preventDefault();
-                this._sendMessage();
-            },
-            _sendMessage: function () {
-                var value = this.input.val();
-                if (!value.length) {
-                    return;
-                }
-                this._triggerTyping(false);
-                var args = { text: value };
-                this.trigger('sendMessage', args);
-                this.input.val('');
-            },
-            _inputFocusout: function () {
-                this._triggerTyping(false);
-            },
-            _triggerTyping: function (start) {
-                if (start) {
-                    if (!this._typing) {
-                        this.trigger('typingStart', {});
-                        this._typing = true;
-                    }
-                } else {
-                    if (this._typing) {
-                        this.trigger('typingEnd', {});
-                        this._typing = false;
-                    }
-                }
-            },
-            _toggleToolbar: function (ev) {
-                this.trigger('toggleToolbar', { originalEvent: ev });
-            }
-        });
-        extend(true, ChatMessageBox, { styles: messageBoxStyles });
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('chat/toolbar', ['kendo.core'], f);
-}(function () {
-    (function ($, undefined) {
-        var kendo = window.kendo;
-        var Widget = kendo.ui.Widget;
-        var extend = $.extend;
-        var proxy = $.proxy;
-        var DOT = '.';
-        var NS = '.kendoChat';
-        var DATA_K_BUTTON_NAME = 'kButtonName';
-        var SCROLL_LEFT_NAME = 'chatToolbarScrollLeft';
-        var SCROLL_RIGHT_NAME = 'chatToolbarScrollRight';
-        var VISIBLE = ':visible';
-        var DEFAULT_ANIMATION = {
-            effects: 'expand:vertical',
-            duration: 200
-        };
-        var NO_ANIMATION = {
-            expand: { show: true },
-            collapse: { hide: true }
-        };
-        var toolbarStyles = {
-            button: 'k-button',
-            buttonFlat: 'k-flat',
-            buttonList: 'k-button-list',
-            scrollButton: 'k-scroll-button',
-            scrollButtonLeft: 'k-scroll-button-left',
-            scrollButtonRight: 'k-scroll-button-right',
-            scrollButtonLeftIcon: 'k-icon k-i-arrow-chevron-left',
-            scrollButtonRightIcon: 'k-icon k-i-arrow-chevron-right',
-            buttonIcon: 'k-button-icon'
-        };
-        var ChatToolBar = kendo.chat.ChatToolBar = Widget.extend({
-            init: function (element, options) {
-                options = extend({}, options, { name: 'ChatToolbar' });
-                var toolbarOptions = options.toolbar;
-                var buttonsDefined = toolbarOptions.buttons && toolbarOptions.buttons.length;
-                Widget.fn.init.call(this, element, options);
-                if (buttonsDefined) {
-                    this._createButtonList();
-                }
-                if (buttonsDefined && toolbarOptions.scrollable && this.buttonsWidth() > this.element.width()) {
-                    this._initScrolling();
-                }
-                this._setupAnimation();
-                if (toolbarOptions.toggleable) {
-                    this.toggle(true);
-                }
-                this.element.on('click' + NS, proxy(this._onClick, this));
-            },
-            events: ['click'],
-            destroy: function () {
-                Widget.fn.destroy.call(this);
-                this.element.off(NS);
-                this.element.empty();
-            },
-            _createButtonList: function () {
-                var that = this;
-                var styles = ChatToolBar.styles;
-                var buttons = that.options.toolbar.buttons;
-                var buttonList = $('<div class=\'' + styles.buttonList + '\'></div>');
-                for (var i = 0; i < buttons.length; i++) {
-                    var button = that._createButton(buttons[i]);
-                    buttonList.append(button);
-                }
-                buttonList.appendTo(this.element);
-                this.buttonList = buttonList;
-            },
-            _createButton: function (btnOptions) {
-                var styles = ChatToolBar.styles;
-                var buttonElm = $('<button>');
-                if (typeof btnOptions === 'string') {
-                    btnOptions = { name: btnOptions };
-                }
-                buttonElm.attr(btnOptions.attr || {}).attr('title', btnOptions.text).attr('type', 'button').addClass(btnOptions.name).data(DATA_K_BUTTON_NAME, btnOptions.name).addClass(styles.button);
-                if (btnOptions.iconClass) {
-                    buttonElm.addClass(styles.buttonIcon);
-                    buttonElm.prepend('<span class=\'' + btnOptions.iconClass + '\'></span>');
-                }
-                return buttonElm;
-            },
-            _onClick: function (ev) {
-                var styles = ChatToolBar.styles;
-                var target = $(ev.target).closest(DOT + styles.button);
-                if (target.is(DOT + styles.scrollButton) && !this._scrolling) {
-                    this._scroll(target.data(DATA_K_BUTTON_NAME));
-                }
-                if (target.data(DATA_K_BUTTON_NAME)) {
-                    this.trigger('click', {
-                        button: target[0],
-                        name: target.data(DATA_K_BUTTON_NAME),
-                        originalEvent: ev
-                    });
-                }
-            },
-            _initScrolling: function () {
-                var styles = ChatToolBar.styles;
-                this.scrollButtonLeft = this._createButton({
-                    name: SCROLL_LEFT_NAME,
-                    iconClass: styles.scrollButtonLeftIcon,
-                    attr: { 'class': styles.scrollButton + ' ' + styles.scrollButtonLeft }
-                });
-                this.scrollButtonRight = this._createButton({
-                    name: SCROLL_RIGHT_NAME,
-                    iconClass: styles.scrollButtonRightIcon,
-                    attr: { 'class': styles.scrollButton + ' ' + styles.scrollButtonRight }
-                });
-                this.element.prepend(this.scrollButtonLeft);
-                this.element.append(this.scrollButtonRight);
-                this._refreshScrollButtons();
-                this.element.on('keydown' + NS, proxy(this._refreshScrollButtons, this));
-            },
-            _scroll: function (commandName) {
-                var that = this;
-                var buttonWidth = that.buttonWidth();
-                var maxScrollSize = this.maxScrollSize();
-                var scrollAmmount = commandName === SCROLL_LEFT_NAME ? buttonWidth * -1 : buttonWidth;
-                var currentScroll = this.currentScrollLeft();
-                var scrollValue = currentScroll + scrollAmmount;
-                scrollValue = Math.min(Math.max(scrollValue, 0), maxScrollSize);
-                if (commandName !== SCROLL_LEFT_NAME && commandName !== SCROLL_RIGHT_NAME) {
-                    return;
-                }
-                that.buttonList.scrollLeft(scrollValue);
-                that._refreshScrollButtons(scrollValue);
-            },
-            _refreshScrollButtons: function (value) {
-                var maxScrollSize = this.maxScrollSize();
-                var currentScrollLeft = value === undefined || isNaN(parseInt(value, 10)) ? this.currentScrollLeft() : value;
-                if (!this.scrollButtonLeft && !this.scrollButtonRight) {
-                    return;
-                }
-                this.scrollButtonLeft.toggle(currentScrollLeft !== 0);
-                this.scrollButtonRight.toggle(currentScrollLeft !== maxScrollSize);
-            },
-            _setupAnimation: function () {
-                var animation = this.options.toolbar.animation;
-                var defaultExpandAnimation = extend({}, DEFAULT_ANIMATION);
-                var defaultCollapseAnimation = extend({
-                    reverse: true,
-                    hide: true
-                }, DEFAULT_ANIMATION);
-                if (animation === false) {
-                    animation = extend(true, {}, NO_ANIMATION);
-                } else {
-                    animation = extend(true, {
-                        expand: defaultExpandAnimation,
-                        collapse: defaultCollapseAnimation
-                    }, animation);
-                }
-                this.options.toolbar.animation = animation;
-            },
-            _animationComplete: function () {
-                this._refreshScrollButtons();
-            },
-            currentScrollLeft: function () {
-                return Math.round(this.buttonList.scrollLeft());
-            },
-            maxScrollSize: function () {
-                return Math.round(this.buttonList[0].scrollWidth - this.buttonList[0].clientWidth);
-            },
-            buttons: function () {
-                var styles = ChatToolBar.styles;
-                return this.buttonList ? this.buttonList.children(DOT + styles.button) : null;
-            },
-            buttonWidth: function () {
-                return Math.round(this.buttons().last().outerWidth(true));
-            },
-            buttonsWidth: function () {
-                var width = 0;
-                if (this.buttons()) {
-                    width = this.buttonWidth() * this.buttons().length;
-                }
-                return width;
-            },
-            toggle: function (skipAnimation) {
-                var animation = this.options.toolbar.animation;
-                if (skipAnimation) {
-                    animation = extend(true, {}, NO_ANIMATION);
-                }
-                animation.expand.complete = proxy(this._animationComplete, this);
-                animation.collapse.complete = proxy(this._animationComplete, this);
-                if (this.element.is(VISIBLE)) {
-                    this.element.kendoStop().kendoAnimate(animation.collapse);
-                } else {
-                    this.element.kendoStop().kendoAnimate(animation.expand);
-                }
-            }
-        });
-        extend(true, ChatToolBar, { styles: toolbarStyles });
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
     define('kendo.chat', [
-        'chat/view',
         'chat/messageBox',
-        'chat/toolbar'
+        'chat/toolbar',
+        'chat/view'
     ], f);
 }(function () {
     var __meta__ = {

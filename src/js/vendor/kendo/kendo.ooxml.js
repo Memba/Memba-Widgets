@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -171,7 +171,8 @@
             var rtl = ref.rtl;
             var legacyDrawing = ref.legacyDrawing;
             var drawing = ref.drawing;
-            return XMLHEAD + '\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" mc:Ignorable="x14ac">\n   <dimension ref="A1" />\n\n   <sheetViews>\n     <sheetView ' + (rtl ? 'rightToLeft="1"' : '') + ' ' + (index === 0 ? 'tabSelected="1"' : '') + ' workbookViewId="0" ' + (showGridLines === false ? 'showGridLines="0"' : '') + '>\n     ' + (frozenRows || frozenColumns ? '\n       <pane state="frozen"\n         ' + (frozenColumns ? 'xSplit="' + frozenColumns + '"' : '') + '\n         ' + (frozenRows ? 'ySplit="' + frozenRows + '"' : '') + '\n         topLeftCell="' + (String.fromCharCode(65 + (frozenColumns || 0)) + ((frozenRows || 0) + 1)) + '"\n       />' : '') + '\n     </sheetView>\n   </sheetViews>\n\n   <sheetFormatPr x14ac:dyDescent="0.25" customHeight="1" defaultRowHeight="' + (defaults.rowHeight ? defaults.rowHeight * 0.75 : 15) + '"\n     ' + (defaults.columnWidth ? 'defaultColWidth="' + toWidth(defaults.columnWidth) + '"' : '') + ' />\n\n   ' + (defaultCellStyleId != null || columns && columns.length > 0 ? '\n     <cols>\n       ' + (!columns || !columns.length ? '\n         <col min="1" max="16384" style="' + defaultCellStyleId + '"\n              ' + (defaults.columnWidth ? 'width="' + toWidth(defaults.columnWidth) + '"' : '') + ' /> ' : '') + '\n       ' + foreach(columns, function (column, ci) {
+            var lastRow = ref.lastRow;
+            return XMLHEAD + '\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" mc:Ignorable="x14ac">\n   <dimension ref="A1:A' + lastRow + '" />\n\n   <sheetViews>\n     <sheetView ' + (rtl ? 'rightToLeft="1"' : '') + ' ' + (index === 0 ? 'tabSelected="1"' : '') + ' workbookViewId="0" ' + (showGridLines === false ? 'showGridLines="0"' : '') + '>\n     ' + (frozenRows || frozenColumns ? '\n       <pane state="frozen"\n         ' + (frozenColumns ? 'xSplit="' + frozenColumns + '"' : '') + '\n         ' + (frozenRows ? 'ySplit="' + frozenRows + '"' : '') + '\n         topLeftCell="' + (String.fromCharCode(65 + (frozenColumns || 0)) + ((frozenRows || 0) + 1)) + '"\n       />' : '') + '\n     </sheetView>\n   </sheetViews>\n\n   <sheetFormatPr x14ac:dyDescent="0.25" customHeight="1" defaultRowHeight="' + (defaults.rowHeight ? defaults.rowHeight * 0.75 : 15) + '"\n     ' + (defaults.columnWidth ? 'defaultColWidth="' + toWidth(defaults.columnWidth) + '"' : '') + ' />\n\n   ' + (defaultCellStyleId != null || columns && columns.length > 0 ? '\n     <cols>\n       ' + (!columns || !columns.length ? '\n         <col min="1" max="16384" style="' + defaultCellStyleId + '"\n              ' + (defaults.columnWidth ? 'width="' + toWidth(defaults.columnWidth) + '"' : '') + ' /> ' : '') + '\n       ' + foreach(columns, function (column, ci) {
                 var columnIndex = typeof column.index === 'number' ? column.index + 1 : ci + 1;
                 if (column.width === 0) {
                     return '<col ' + (defaultCellStyleId != null ? 'style="' + defaultCellStyleId + '"' : '') + '\n                        min="' + columnIndex + '" max="' + columnIndex + '" hidden="1" customWidth="1" />';
@@ -336,6 +337,7 @@
                 }
                 var freezePane = this.options.freezePane || {};
                 var defaults = this.options.defaults || {};
+                var lastRow = this.options.rows ? this._getLastRow() : 1;
                 return WORKSHEET({
                     frozenColumns: this.options.frozenColumns || freezePane.colSplit,
                     frozenRows: this.options.frozenRows || freezePane.rowSplit,
@@ -352,7 +354,8 @@
                     defaultCellStyleId: defaultCellStyleId,
                     rtl: this.options.rtl !== undefined ? this.options.rtl : defaults.rtl,
                     legacyDrawing: this._comments.length ? 'vml' + this.options.sheetIndex : null,
-                    drawing: this._drawings.length ? 'drw' + this.options.sheetIndex : null
+                    drawing: this._drawings.length ? 'drw' + this.options.sheetIndex : null,
+                    lastRow: lastRow
                 });
             },
             commentsXML: function () {
@@ -571,6 +574,16 @@
                     tmp.sqref = [];
                 }
                 this._validations[json].sqref.push(ref);
+            },
+            _getLastRow: function () {
+                var rows = this.options.rows;
+                var lastRow = rows.length;
+                rows.forEach(function (row) {
+                    if (row.index && row.index >= lastRow) {
+                        lastRow = row.index + 1;
+                    }
+                });
+                return lastRow;
             }
         });
         var MAP_EXCEL_OPERATOR = {

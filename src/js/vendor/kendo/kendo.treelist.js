@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -178,6 +178,7 @@
         var NAVROW = 'tr:visible';
         var NAVCELL = 'td:visible';
         var NAVHEADER = 'th:visible';
+        var NORECORDSCLASS = 'k-grid-norecords';
         var ITEMROW = 'tr:not(.k-footer-template):visible';
         var FIRSTNAVITEM = NAVROW + ' > td:first:visible';
         var LASTITEMROW = ITEMROW + ':last';
@@ -618,6 +619,11 @@
                 var that = this;
                 if (that._isPageable()) {
                     that._dataMaps = {};
+                    if (!that._modelOptions().expanded) {
+                        that._skip = 0;
+                        that._page = 1;
+                        that._collapsedTotal = undefined;
+                    }
                 }
                 return DataSource.fn.read.call(that, data);
             },
@@ -1971,7 +1977,7 @@
                 }
             },
             _items: function (container) {
-                return container.find('tr').filter(function () {
+                return container.find('tr[data-uid]').filter(function () {
                     return !$(this).hasClass(classNames.footerTemplate);
                 });
             },
@@ -1995,6 +2001,18 @@
                 }
                 return dataItems;
             },
+            _showNoRecordsTemplate: function () {
+                var wrapper = '<div class="{0}">{1}</div>';
+                var defaultTemplate = '<div class="k-grid-norecords-template"{1}>{0}</div>';
+                var scrollableNoGridHeightStyles = this.options.scrollable && !this.wrapper[0].style.height ? ' style="margin:0 auto;position:static;"' : '';
+                var template;
+                this._contentTree.render([]);
+                if (this._hasLockedColumns) {
+                    this._lockedContentTree.render([]);
+                }
+                template = kendo.format(defaultTemplate, this.options.messages.noRows, scrollableNoGridHeightStyles);
+                $(kendo.template(kendo.format(wrapper, NORECORDSCLASS, template))({})).insertAfter(this.table);
+            },
             _showStatus: function (message) {
                 var status = this.element.find('.k-status');
                 var content = $(this.content).add(this.lockedContent);
@@ -2010,7 +2028,11 @@
             },
             _hideStatus: function () {
                 this.element.find('.k-status').remove();
+                this._hideNoRecordsTempalte();
                 $(this.content).add(this.lockedContent).show();
+            },
+            _hideNoRecordsTempalte: function () {
+                this.element.find('.' + NORECORDSCLASS).remove();
             },
             _adjustHeight: function () {
                 var that = this;
@@ -2018,6 +2040,7 @@
                 var contentWrap = element.find(DOT + classNames.gridContentWrap);
                 var header = element.find(DOT + classNames.gridHeader);
                 var toolbar = element.find(DOT + classNames.gridToolbar);
+                var status = element.find(DOT + classNames.status);
                 var pagerHeight = that._isPageable() && that.pager && that.pager.element.is(':visible') ? outerHeight(that.pager.element) : 0;
                 var height;
                 var scrollbar = kendo.support.scrollbar();
@@ -2035,7 +2058,7 @@
                     return initialHeight != newHeight;
                 };
                 if (isHeightSet(element)) {
-                    height = element.height() - outerHeight(header) - outerHeight(toolbar) - pagerHeight;
+                    height = element.height() - outerHeight(header) - outerHeight(toolbar) - outerHeight(status) - pagerHeight;
                     contentWrap.height(height);
                     if (this._hasLockedColumns) {
                         scrollbar = this.table[0].offsetWidth > this.table.parent()[0].clientWidth ? scrollbar : 0;
@@ -3075,6 +3098,7 @@
                     delete this._autoExpandable.expandable;
                 }
                 var visibleColumns = grep(this.columns, not(is('hidden')));
+                visibleColumns = grep(visibleColumns, not(is('command')));
                 var expandableColumns = grep(visibleColumns, is('expandable'));
                 if (this.columns.length && !expandableColumns.length) {
                     this._autoExpandable = visibleColumns[0];
@@ -3271,7 +3295,8 @@
                         messages: messages
                     }));
                 } else if (!data.length) {
-                    this._showStatus(kendo.htmlEncode(messages.noRows));
+                    this._hideStatus();
+                    this._showNoRecordsTemplate();
                 } else {
                     if (pageable) {
                         viewChildrenMap = that._viewChildrenMap(options);
@@ -4000,8 +4025,12 @@
                 var left;
                 var cellWidth = outerWidth(th);
                 var container = th.closest('div');
+                var button = typeof e.buttons !== 'undefined' ? e.buttons : e.which || e.button;
                 var indicatorWidth = this.options.columnResizeHandleWidth || 3;
                 left = cellWidth;
+                if (typeof button !== 'undefined' && button !== 0) {
+                    return;
+                }
                 if (!resizeHandle) {
                     resizeHandle = this.resizeHandle = $('<div class="k-resize-handle"><div class="k-resize-handle-inner" /></div>');
                 }
@@ -4850,6 +4879,7 @@
                 column.hidden = hidden;
                 this._setParentsVisibility(column, !hidden);
                 this._ensureExpandableColumn();
+                this._clearColsCache();
                 this._renderCols();
                 this._renderHeader();
                 this._render();

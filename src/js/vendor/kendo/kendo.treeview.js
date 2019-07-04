@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -193,7 +193,8 @@
                 }).on(CLICK + NS, clickableItems, proxy(that._click, that)).on('dblclick' + NS, '.k-in:not(.k-state-disabled)', proxy(that._toggleButtonClick, that)).on(CLICK + NS, '.k-i-expand,.k-i-collapse', proxy(that._toggleButtonClick, that)).on('keydown' + NS, proxy(that._keydown, that)).on('keypress' + NS, proxy(that._keypress, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('mousedown' + NS, '.k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse', proxy(that._mousedown, that)).on('change' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxChange, that)).on('click' + NS, '.checkbox-span', proxy(that._checkboxLabelClick, that)).on('click' + NS, '.k-request-retry', proxy(that._retryRequest, that)).on('click' + NS, '.k-link.k-state-disabled', function (e) {
                     e.preventDefault();
                 }).on('click' + NS, function (e) {
-                    if (!$(e.target).is(':kendoFocusable')) {
+                    var target = $(e.target);
+                    if (!target.is(':kendoFocusable') && !target.find('input,select,textarea,button,object').is(':kendoFocusable')) {
                         that.focus();
                     }
                 });
@@ -359,6 +360,16 @@
                 }
                 that._checkboxes();
                 that.templates = {
+                    setAttributes: function (item) {
+                        var result = '';
+                        var attributes = item.attr || {};
+                        for (var attr in attributes) {
+                            if (attributes.hasOwnProperty(attr) && attr !== 'class') {
+                                result += attr + '="' + attributes[attr] + '" ';
+                            }
+                        }
+                        return result;
+                    },
                     wrapperCssClass: function (group, item) {
                         var result = 'k-item', index = item.index;
                         if (group.firstLevel && index === 0) {
@@ -423,7 +434,7 @@
                     group: templateNoWith('<ul class=\'#= data.r.groupCssClass(data.group) #\'#= data.r.groupAttributes(data.group) #>' + '#= data.renderItems(data) #' + '</ul>'),
                     itemContent: templateNoWith('# var imageUrl = ' + fieldAccessor('imageUrl') + '(data.item); #' + '# var spriteCssClass = ' + fieldAccessor('spriteCssClass') + '(data.item); #' + '# if (imageUrl) { #' + '<img class=\'k-image\' alt=\'\' src=\'#= imageUrl #\'>' + '# } #' + '# if (spriteCssClass) { #' + '<span class=\'k-sprite #= spriteCssClass #\' />' + '# } #' + '#= data.treeview.template(data) #'),
                     itemElement: templateNoWith('# var item = data.item, r = data.r; #' + '# var url = ' + fieldAccessor('url') + '(item); #' + '<div class=\'#= r.cssClass(data.group, item) #\'>' + '# if (item.hasChildren) { #' + '<span class=\'#= r.toggleButtonClass(item) #\'/>' + '# } #' + '# if (data.treeview.checkboxes) { #' + '<span class=\'k-checkbox-wrapper\' role=\'presentation\'>' + '#= data.treeview.checkboxes.template(data) #' + '</span>' + '# } #' + '# var tag = url ? \'a\' : \'span\'; #' + '# var textAttr = url ? \' href=\\\'\' + url + \'\\\'\' : \'\'; #' + '<#=tag# class=\'#= r.textClass(item, !!url) #\'#= textAttr #>' + '#= r.itemContent(data) #' + '</#=tag#>' + '</div>'),
-                    item: templateNoWith('# var item = data.item, r = data.r; #' + '<li role=\'treeitem\' class=\'#= r.wrapperCssClass(data.group, item) #\'' + kendo.attr('uid') + '=\'#= item.uid #\' ' + '# if (data.treeview.checkboxes) { #' + 'aria-checked=\'#= item.checked ? "true" : "false" #\' ' + '# } #' + 'aria-selected=\'#= item.selected ? "true" : "false" #\' ' + '#=item.enabled === false ? "aria-disabled=\'true\'" : \'\'#' + 'aria-expanded=\'#= item.expanded ? "true" : "false" #\' ' + 'data-expanded=\'#= item.expanded ? "true" : "false" #\' ' + '>' + '#= r.itemElement(data) #' + '</li>'),
+                    item: templateNoWith('# var item = data.item, r = data.r; #' + '<li role=\'treeitem\' class=\'#= r.wrapperCssClass(data.group, item) #\'' + kendo.attr('uid') + '=\'#= item.uid #\' ' + '#= r.setAttributes(item.toJSON ? item.toJSON() : item) # ' + '# if (data.treeview.checkboxes) { #' + 'aria-checked=\'#= item.checked ? "true" : "false" #\' ' + '# } #' + 'aria-selected=\'#= item.selected ? "true" : "false" #\' ' + '#=item.enabled === false ? "aria-disabled=\'true\'" : \'\'#' + 'aria-expanded=\'#= item.expanded ? "true" : "false" #\' ' + 'data-expanded=\'#= item.expanded ? "true" : "false" #\' ' + '>' + '#= r.itemElement(data) #' + '</li>'),
                     loading: templateNoWith('<div class=\'k-icon k-i-loading\' /> #: data.messages.loading #'),
                     retry: templateNoWith('#: data.messages.requestFailed # ' + '<button class=\'k-button k-request-retry\'>#: data.messages.retry #</button>')
                 };

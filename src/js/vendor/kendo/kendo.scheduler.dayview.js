@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1175,7 +1175,8 @@
                 for (var idx = 0, length = columns.length; idx < length; idx++) {
                     columnEvents = columns[idx].events;
                     for (var j = 0, eventLength = columnEvents.length; j < eventLength; j++) {
-                        columnEvents[j].element[0].style.width = columnWidth - 4 + 'px';
+                        var calculatedWidth = columnWidth - 4;
+                        columnEvents[j].element[0].style.width = (calculatedWidth > 0 ? calculatedWidth : columnWidth) + 'px';
                         columnEvents[j].element[0].style.left = (this._isRtl ? eventRightOffset : 0) + startSlot.offsetLeft + idx * columnWidth + 2 + 'px';
                     }
                 }

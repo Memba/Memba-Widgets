@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -518,8 +518,8 @@
                 } else if (lastItemIndex >= rangeStart + take && !scrollingUp) {
                     fetching = true;
                     rangeStart = math.min(firstItemIndex, dataSource.total() - take);
-                    if (scrollbar.scrollTop() >= scrollbar[0].scrollHeight - scrollbar.height() - webkitCorrection) {
-                        that._scrollTop = that.wrapper[0].scrollHeight - that.wrapper.height();
+                    if (scrollbar.scrollTop() >= scrollbar[0].scrollHeight - scrollbar[0].offsetHeight - webkitCorrection) {
+                        that._scrollTop = that.wrapper[0].scrollHeight - that.wrapper[0].offsetHeight;
                     } else {
                         that._scrollTop = itemHeight;
                     }
@@ -838,7 +838,7 @@
                 }
             }
         }
-        function moveCellsBetweenContainers(sources, target, leafs, columns, container, destination, groups) {
+        function moveCellsBetweenContainers(sources, target, leafs, columns, container, destination, groups, action) {
             var sourcesDepth = depth(sources);
             var targetDepth = depth([target]);
             if (sourcesDepth > targetDepth) {
@@ -847,7 +847,7 @@
                 $(new Array(sourcesDepth - targetDepth + 1).join('<tr>' + groupCells + '</tr>')).insertAfter(rows.last());
             }
             addRowSpanValue(destination, sourcesDepth - targetDepth);
-            moveCells(leafs, columns, container, destination);
+            moveCells(leafs, columns, container, destination, action);
         }
         function updateCellIndex(thead, columns, offset) {
             offset = offset || 0;
@@ -884,7 +884,7 @@
             }
             return result + max;
         }
-        function moveCells(leafs, columns, container, destination) {
+        function moveCells(leafs, columns, container, destination, action) {
             var sourcePosition = columnVisiblePosition(leafs[0], columns);
             var ths = container.find('>tr:not(.k-filter-row):eq(' + sourcePosition.row + ')>th.k-header');
             var t = $();
@@ -893,7 +893,7 @@
             for (idx = 0; idx < leafs.length; idx++) {
                 t = t.add(ths.eq(sourceIndex + idx));
             }
-            destination.find('>tr:not(.k-filter-row)').eq(sourcePosition.row).append(t);
+            destination.find('>tr:not(.k-filter-row)').eq(sourcePosition.row)[action](t);
             var children = [];
             for (idx = 0; idx < leafs.length; idx++) {
                 if (leafs[idx].columns) {
@@ -901,7 +901,7 @@
                 }
             }
             if (children.length) {
-                moveCells(children, columns, container, destination);
+                moveCells(children, columns, container, destination, action);
             }
         }
         function columnPosition(column, columns, row, cellCounts) {
@@ -953,10 +953,10 @@
                 var index = inArray(target, parentColumns);
                 if (index === 0 && before) {
                     index++;
-                } else if (index == parentColumns.length - 1 && !before) {
+                } else if (index == parentColumns.length - 1 && !before || !source.locked && !target.columns && !before) {
                     index--;
                 } else if (index > 0 || index === 0 && !before) {
-                    index += before ? -1 : 1;
+                    index++;
                 }
                 var sourceIndex = inArray(source, parentColumns);
                 target = findParentColumnWithChildren(parentColumns, index, source, sourceIndex > index);
@@ -1676,7 +1676,7 @@
                 dataSource.options.data = initialData;
                 result.dataSource.data = initialData;
                 result.dataSource.page = dataSource.page();
-                result.dataSource.filter = dataSource.filter();
+                result.dataSource.filter = $.extend(true, {}, dataSource.filter());
                 result.dataSource.pageSize = dataSource.pageSize();
                 result.dataSource.sort = dataSource.sort();
                 result.dataSource.group = dataSource.group();
@@ -1799,7 +1799,6 @@
                 var indicatorWidth = that.options.columnResizeHandleWidth;
                 var scrollable = that.options.scrollable;
                 var resizeHandle = that.resizeHandle;
-                var groups = this._groups();
                 var left;
                 var top;
                 if (resizeHandle && that.lockedContent && resizeHandle.data('th')[0] !== th[0]) {
@@ -1810,23 +1809,10 @@
                     resizeHandle = that.resizeHandle = $('<div class="k-resize-handle"><div class="k-resize-handle-inner"></div></div>');
                     container.append(resizeHandle);
                 }
+                left = th.offset().left - parseFloat(th.css('marginLeft')) - (container.offset().left + parseFloat(container.css('borderLeftWidth')));
                 if (!isRtl) {
-                    left = th[0].offsetWidth;
-                    var cells = leafDataCells(th.closest('thead')).filter(':visible');
-                    for (var idx = 0; idx < cells.length; idx++) {
-                        if (cells[idx] == th[0]) {
-                            break;
-                        }
-                        left += cells[idx].offsetWidth;
-                    }
-                    if (groups > 0) {
-                        left += outerWidth(container.find('.k-group-cell:first')) * groups;
-                    }
-                    if (that._hasDetails()) {
-                        left += outerWidth(container.find('.k-hierarchy-cell:first'));
-                    }
+                    left += th[0].offsetWidth;
                 } else {
-                    left = th.offset().left - parseFloat(th.css('marginLeft')) - (container.offset().left + parseFloat(container.css('borderLeftWidth')));
                     if (scrollable) {
                         var headerWrap = th.closest('.k-grid-header-wrap, .k-grid-header-locked'), ieCorrection = browser.msie ? headerWrap.scrollLeft() : 0, webkitCorrection = browser.webkit ? headerWrap[0].scrollWidth - headerWrap[0].offsetWidth - headerWrap.scrollLeft() : 0, firefoxCorrection = browser.mozilla ? headerWrap[0].scrollWidth - headerWrap[0].offsetWidth - (headerWrap[0].scrollWidth - headerWrap[0].offsetWidth - headerWrap.scrollLeft()) : 0;
                         left -= webkitCorrection - firefoxCorrection + ieCorrection;
@@ -2161,29 +2147,43 @@
                     });
                 }
             },
-            _reorderHeader: function (sources, target, before) {
+            _reorderHeader: function (sources, target, before, container) {
                 var that = this;
                 var sourcePosition = columnPosition(sources[0], that.columns);
                 var destPosition = columnPosition(target, that.columns);
+                var action;
+                var ths;
                 var leafs = [];
                 for (var idx = 0; idx < sources.length; idx++) {
                     if (sources[idx].columns) {
                         leafs = leafs.concat(sources[idx].columns);
                     }
                 }
-                var ths = elements(that.lockedHeader, that.thead, 'tr:eq(' + sourcePosition.row + ')>th.k-header:not(.k-group-cell,.k-hierarchy-cell)');
+                if (container) {
+                    ths = elements(container, container, 'tr:eq(' + sourcePosition.row + ')>th.k-header:not(.k-group-cell,.k-hierarchy-cell)');
+                } else {
+                    ths = elements(that.lockedHeader, that.thead, 'tr:eq(' + sourcePosition.row + ')>th.k-header:not(.k-group-cell,.k-hierarchy-cell)');
+                }
                 var sourceLockedColumns = lockedColumns(sources).length;
                 var targetLockedColumns = lockedColumns([target]).length;
                 if (leafs.length) {
                     if (sourceLockedColumns > 0 && targetLockedColumns === 0) {
-                        moveCellsBetweenContainers(sources, target, leafs, that.columns, that.lockedHeader.find('thead'), that.thead, this._groups());
+                        action = 'prepend';
+                        moveCellsBetweenContainers(sources, target, leafs, that.columns, that.lockedHeader.find('thead'), that.thead, this._groups(), action);
                     } else if (sourceLockedColumns === 0 && targetLockedColumns > 0) {
-                        moveCellsBetweenContainers(sources, target, leafs, nonLockedColumns(that.columns), that.thead, that.lockedHeader.find('thead'), this._groups());
+                        action = destPosition.cell === 0 && sources[0].columns && !target.columns && !that._group ? 'prepend' : 'append';
+                        moveCellsBetweenContainers(sources, target, leafs, nonLockedColumns(that.columns), that.thead, that.lockedHeader.find('thead'), this._groups(), action);
                     }
                     if (target.columns || sourcePosition.cell - destPosition.cell > 1 || destPosition.cell - sourcePosition.cell > 1) {
                         target = findReorderTarget(that.columns, target, sources[0], before, that.columns);
                         if (target) {
-                            that._reorderHeader(leafs, target, before);
+                            if (sourceLockedColumns > 0 && targetLockedColumns === 0) {
+                                that._reorderHeader(leafs, target, before, that.thead);
+                            } else if (sourceLockedColumns === 0 && targetLockedColumns > 0) {
+                                that._reorderHeader(leafs, target, before, that.lockedHead);
+                            } else {
+                                that._reorderHeader(leafs, target, before);
+                            }
                         }
                     }
                 } else if (sourceLockedColumns !== targetLockedColumns) {
@@ -2513,7 +2513,7 @@
                                     }
                                 });
                             }
-                            that.wrapper.on(CLICK + NS, 'tr:not(.k-grouping-row) > td', function (e) {
+                            that.wrapper.on(kendo.support.touch ? 'touchstart' + NS : CLICK + NS, 'tr:not(.k-grouping-row) > td', function (e) {
                                 var td = $(this), isLockedCell = that.lockedTable && td.closest('table')[0] === that.lockedTable[0];
                                 that._mousedownOnEditCell = false;
                                 if (td.hasClass('k-hierarchy-cell') || td.hasClass('k-detail-cell') || td.hasClass('k-group-cell') || td.hasClass('k-edit-cell') || td.has('a.k-grid-delete').length || td.has('button.k-grid-delete').length || td.closest('tbody')[0] !== that.tbody[0] && !isLockedCell || $(e.target).is(':input')) {
@@ -2891,6 +2891,7 @@
                 var tempCommand;
                 var columns = leafColumns(that.columns);
                 var attr;
+                var editMenuGuid = kendo.guid();
                 var editable = that.options.editable;
                 var template = editable.template;
                 var options = isPlainObject(editable) ? editable.window : {};
@@ -2926,6 +2927,7 @@
                                 if (isColumnEditable(column, model)) {
                                     fields.push({
                                         field: column.field,
+                                        title: column.title,
                                         format: column.format,
                                         editor: column.editor,
                                         values: column.values
@@ -2947,12 +2949,13 @@
                                 if (isColumnEditable(column, model)) {
                                     fields.push({
                                         field: column.field,
+                                        title: column.title,
                                         format: column.format,
                                         editor: column.editor,
                                         values: column.values
                                     });
                                     html += '<label class="k-label"><span class="k-item-title">' + (column.title || column.field || '') + '</span>';
-                                    html += '<div ' + kendo.attr('container-for') + '="' + column.field + '"></div>';
+                                    html += '<div id="' + column.field + '_' + editMenuGuid + '" ' + kendo.attr('container-for') + '="' + column.field + '"></div>';
                                 } else {
                                     state = {
                                         storage: {},
@@ -3081,6 +3084,7 @@
                     if (!column.command && isColumnEditable(column, model)) {
                         fields.push({
                             field: column.field,
+                            title: column.title,
                             format: column.format,
                             editor: column.editor,
                             values: column.values
@@ -3683,7 +3687,7 @@
                                 selectedValues = that.selectable.value();
                                 that._uncheckCheckBoxes();
                                 that._checkRows(selectedValues);
-                                if (selectedValues === that.items().length) {
+                                if (selectedValues.length && selectedValues.length === that.items().length) {
                                     that._toggleHeaderCheckState(true);
                                 } else {
                                     that._toggleHeaderCheckState(false);
@@ -6303,6 +6307,8 @@
                         if (columns[idx].colSpan > 1) {
                             html += 'colspan="' + (columns[idx].colSpan - hiddenLeafColumnsCount(th.columns)) + '" ';
                             html += kendo.attr('colspan') + '=\'' + columns[idx].colSpan + '\'';
+                        } else if (columns[idx].colSpan === 1) {
+                            html += kendo.attr('colspan') + '=\'' + columns[idx].colSpan + '\'';
                         }
                         if (th.title) {
                             title = th.title.replace('"', '&quot;').replace(/'/g, '\'');
@@ -6442,7 +6448,7 @@
                 this.selectable = null;
             },
             _thead: function () {
-                var that = this, columns = that.columns, hasDetails = that._hasDetails() && columns.length, hasFilterRow = that._hasFilterRow(), idx, html = '', thead = that.table.find('>thead'), hasTHead = that.element.find('thead:first').length > 0, tr;
+                var that = this, columns = that.columns, hasDetails = that._hasDetails() && columns.length, hasFilterRow = that._hasFilterRow(), idx, html = '', thead = that.table.find('>thead'), hasTHead = that.element.find('thead:first').length > 0, headerContent = that.options.messages.expandCollapseColumnHeader, tr;
                 if (!thead.length) {
                     thead = $('<thead/>').insertBefore(that.tbody);
                 }
@@ -6468,7 +6474,7 @@
                         for (idx = 0; idx < rows.length; idx++) {
                             html += '<tr>';
                             if (hasDetails) {
-                                html += '<th class="k-hierarchy-cell" scope="col">' + that.options.messages.expandCollapseColumnHeader + '</th>';
+                                html += '<th class="k-hierarchy-cell" scope="col">' + headerContent + '</th>';
                             }
                             html += that._createHeaderCells(rows[idx].cells, rows[idx].rowSpan);
                             html += '</tr>';
@@ -6479,7 +6485,7 @@
                     for (idx = 0; idx < columns.length; idx++) {
                         var columnIndex = inArray(columns[idx], leafColumns(columns));
                         var cell = leafDataCells(tr.parent()).filter('th:not(.k-group-cell):not(.k-hierarchy-cell)').eq(columnIndex);
-                        if (columns[idx].hidden) {
+                        if (columns[idx].hidden && columnIndex >= 0) {
                             cell[0].style.display = 'none';
                         }
                     }
@@ -6505,7 +6511,7 @@
                     html += that._createHeaderCells(columns);
                     tr.html(html);
                 } else if (hasDetails && !tr.find('.k-hierarchy-cell')[0]) {
-                    tr.prepend('<th class="k-hierarchy-cell" scope="col">&nbsp;</th>');
+                    tr.prepend('<th class="k-hierarchy-cell" scope="col">' + (headerContent ? headerContent : '&nbsp;') + '</th>');
                 }
                 tr.attr('role', 'row').find('th').addClass('k-header');
                 if (!that.options.scrollable) {
@@ -7180,6 +7186,9 @@
                 }
                 if (this.lockedTable) {
                     this.lockedContent[0].scrollTop = this.content[0].scrollTop;
+                    if (this.virtualScrollable) {
+                        this.lockedContent[0].scrollTop = this.wrapper.find('.k-virtual-scrollable-wrap')[0].scrollTop;
+                    }
                 }
                 if (this.virtualScrollable && (force || this._rowHeight)) {
                     if (force) {
@@ -7294,7 +7303,7 @@
                 if (that._checkBoxSelection) {
                     that._toggleHeaderCheckState(false);
                 }
-                if (that.options.persistSelection && (that.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell || that._checkBoxSelection)) {
+                if (that.options.persistSelection && (that.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell || that._checkBoxSelection) && that.items().length) {
                     that._restoreSelection();
                 } else {
                     that._selectedIds = {};

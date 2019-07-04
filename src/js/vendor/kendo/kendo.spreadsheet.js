@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2698,11 +2698,14 @@
                 this._observer = observer || window;
                 this.keyDownProxy = this.keyDown.bind(this);
                 this.mouseProxy = this.mouse.bind(this);
+                this.touchProxy = this.touch.bind(this);
                 this.threshold = 5;
                 this._pressLocation = null;
                 target.on('keydown', this.keyDownProxy);
                 target.on('contextmenu mousedown cut copy paste scroll wheel click dblclick focus', this.mouseProxy);
+                target.on('touchmove touchend', this.touchProxy);
                 $(document.documentElement).on('mousemove mouseup', this.mouseProxy);
+                $(document.documentElement).on('touchmove touchend', this.touchProxy);
                 if (handlers) {
                     for (var key in handlers) {
                         this.on(key, handlers[key]);
@@ -2711,6 +2714,9 @@
             },
             keyDown: function (e) {
                 this.handleEvent(e, keyName(e.originalEvent));
+            },
+            touch: function (e) {
+                this.handleEvent(e, e.type);
             },
             mouse: function (e) {
                 var rightClick;
@@ -6189,34 +6195,37 @@
                 });
             },
             _adjustRowHeight: function () {
-                var sheet = this._sheet;
-                var mc = sheet._getMergedCells(this._ref.toRangeRef());
+                var that = this;
+                var sheet = that._sheet;
+                var mc = sheet._getMergedCells(that._ref.toRangeRef());
                 var primary = mc.primary;
                 var secondary = mc.secondary;
-                this.forEachRow(function (rowRange) {
-                    var row = rowRange._ref.topLeft.row;
-                    var height = sheet.rowHeight(row);
-                    rowRange.forEachCell(function (row, col, cell) {
-                        var id = new CellRef(row, col).print();
-                        if (secondary[id]) {
-                            return;
-                        }
-                        var merged = primary[id];
-                        var width;
-                        if (merged) {
-                            width = sheet._columns.sum(merged.topLeft.col, merged.bottomRight.col);
-                        } else {
-                            width = sheet.columnWidth(col);
-                        }
-                        var data = cell.value;
-                        if (cell.format && data != null) {
-                            data = kendo.spreadsheet.formatting.format(data, cell.format);
-                        }
-                        var textHeight = kendo.spreadsheet.util.getTextHeight(data, width, cell.fontFamily, cell.fontSize, cell.wrap);
-                        height = Math.max(height, textHeight);
+                sheet.batch(function () {
+                    that.forEachRow(function (rowRange) {
+                        var row = rowRange._ref.topLeft.row;
+                        var height = sheet.rowHeight(row);
+                        rowRange.forEachCell(function (row, col, cell) {
+                            var id = new CellRef(row, col).print();
+                            if (secondary[id]) {
+                                return;
+                            }
+                            var merged = primary[id];
+                            var width;
+                            if (merged) {
+                                width = sheet._columns.sum(merged.topLeft.col, merged.bottomRight.col);
+                            } else {
+                                width = sheet.columnWidth(col);
+                            }
+                            var data = cell.value;
+                            if (cell.format && data != null) {
+                                data = kendo.spreadsheet.formatting.format(data, cell.format);
+                            }
+                            var textHeight = kendo.spreadsheet.util.getTextHeight(data, width, cell.fontFamily, cell.fontSize, cell.wrap);
+                            height = Math.max(height, textHeight);
+                        });
+                        sheet.rowHeight(row, height);
                     });
-                    sheet.rowHeight(row, height);
-                });
+                }, { layout: true });
             },
             forEachCell: function (callback) {
                 this._ref.forEach(function (ref) {
@@ -11546,7 +11555,7 @@
         if (!(n = input.skip(rxnum))) {
             return null;
         }
-        format += '#';
+        format += '0';
         if (m = input.skip(rxcur)) {
             if (has_currency) {
                 return null;
@@ -11562,7 +11571,8 @@
             return null;
         }
         if (n[2] || has_currency) {
-            format += ',#';
+            format = format.replace('0', '#');
+            format += ',0';
         }
         if (n[3]) {
             format += '.' + repeat('0', n[3].length - 1);
@@ -13443,7 +13453,7 @@
                         data.images = images;
                         var workbook = new kendo.ooxml.Workbook(data);
                         kendo.saveAs({
-                            dataURI: workbook.toBlob(),
+                            dataURI: options.forceProxy ? workbook.toDataURL() : workbook.toBlob(),
                             fileName: data.fileName || options.fileName,
                             proxyURL: options.proxyURL,
                             forceProxy: options.forceProxy
@@ -13627,7 +13637,7 @@
                     return;
                 }
                 this._drawPDF(options, progress).then(function (root) {
-                    return kendo.pdf.exportPDFToBlob(root);
+                    return options.forceProxy ? kendo.pdf.exportPDF(root) : kendo.pdf.exportPDFToBlob(root);
                 }).done(function (dataURI) {
                     kendo.saveAs({
                         dataURI: dataURI,
@@ -13900,7 +13910,9 @@
             '*+mousedrag': 'onMouseDrag',
             '*+mouseup': 'onMouseUp',
             '*+dblclick': 'onDblClick',
-            'mousemove': 'onMouseMove'
+            'mousemove': 'onMouseMove',
+            'touchmove': 'onTouchMove',
+            'touchend': 'onTouchEnd'
         };
         var CLIPBOARD_EVENTS = {
             'pageup': 'onPageUp',
@@ -14207,6 +14219,12 @@
                 }
                 this.scrollWith(deltaX, deltaY);
                 event.preventDefault();
+            },
+            onTouchMove: function () {
+                this.view.forceScrollerStackingOrder(2);
+            },
+            onTouchEnd: function () {
+                this.view.forceScrollerStackingOrder(1);
             },
             onAction: function (event, action) {
                 var sheet = this._workbook.activeSheet();
@@ -14609,14 +14627,6 @@
                     var clipboardData = e.originalEvent.clipboardData;
                     if (clipboardData && clipboardData.getData) {
                         e.preventDefault();
-                        if (clipboardData.items && clipboardData.items.length) {
-                            for (var i = 0; i < clipboardData.items.length; ++i) {
-                                var item = clipboardData.items[i];
-                                if (item.kind == 'file' && /^image\/(?:png|jpe?g|gif)$/i.test(item.type)) {
-                                    return self._pasteImage(item);
-                                }
-                            }
-                        }
                         var hasHTML = false;
                         var hasPlainText = false;
                         if (window.DOMStringList && clipboardData.types instanceof window.DOMStringList) {
@@ -14631,6 +14641,14 @@
                         }
                         if (hasPlainText) {
                             plain = clipboardData.getData('text/plain').trim();
+                        }
+                        if (!hasHTML && !hasPlainText && clipboardData.items && clipboardData.items.length) {
+                            for (var i = 0; i < clipboardData.items.length; ++i) {
+                                var item = clipboardData.items[i];
+                                if (item.kind == 'file' && /^image\/(?:png|jpe?g|gif)$/i.test(item.type)) {
+                                    return self._pasteImage(item);
+                                }
+                            }
                         }
                     } else {
                         var table = self.clipboardElement.find('table.kendo-clipboard-' + self.clipboard._uid).detach();
@@ -14995,6 +15013,7 @@
         var CellRef = kendo.spreadsheet.CellRef;
         var DOT = '.';
         var RESIZE_HANDLE_WIDTH = 7;
+        var EDIT_BUTTON_WIDTH = 20;
         var viewClassNames = {
             view: 'k-spreadsheet-view',
             fixedContainer: 'k-spreadsheet-fixed-container',
@@ -15561,7 +15580,7 @@
                 if (ed) {
                     var r = this.activeCellRectangle();
                     if (y >= r.top && y <= r.bottom) {
-                        return pane._editorInLastColumn ? x < r.left && x >= r.left - 20 : x > r.right && x <= r.right + 20;
+                        return pane._editorInLastColumn ? x < r.left && x >= r.left - EDIT_BUTTON_WIDTH : x > r.right && x <= r.right + EDIT_BUTTON_WIDTH;
                     }
                 }
             },
@@ -15861,16 +15880,9 @@
                 var resizeDirection = !sheet.resizingInProgress() ? 'none' : sheet.resizeHandlePosition().col === -Infinity ? 'column' : 'row';
                 this.wrapper.toggleClass(viewClassNames.editContainer, this.editor.isActive()).toggleClass(viewClassNames.horizontalResize, resizeDirection == 'row').toggleClass(viewClassNames.verticalResize, resizeDirection == 'column');
                 var grid = sheet._grid;
-                var scrollTop = this.scroller.scrollTop;
-                var scrollLeft = this.scroller.scrollLeft;
-                if (scrollTop < 0) {
-                    scrollTop = 0;
-                }
-                if (scrollLeft < 0) {
-                    scrollLeft = 0;
-                }
+                var scroller = this.scroller;
                 var result = this.panes.map(function (pane) {
-                    return pane.render(scrollLeft, scrollTop);
+                    return pane.render(scroller);
                 });
                 var topCorner = kendo.dom.element('div', {
                     style: {
@@ -15969,6 +15981,9 @@
                 }));
                 pane.refresh(this.scroller.clientWidth, this.scroller.clientHeight);
                 return pane;
+            },
+            forceScrollerStackingOrder: function (value) {
+                $(this.scroller).css('z-index', value);
             }
         });
         var paneClassNames = {
@@ -16020,7 +16035,15 @@
             isVisible: function (scrollLeft, scrollTop, ref) {
                 return this._grid.view(scrollLeft, scrollTop).ref.intersects(ref);
             },
-            render: function (scrollLeft, scrollTop) {
+            render: function (scroller) {
+                var scrollLeft = scroller.scrollLeft;
+                var scrollTop = scroller.scrollTop;
+                if (scrollTop < 0) {
+                    scrollTop = 0;
+                }
+                if (scrollLeft < 0) {
+                    scrollLeft = 0;
+                }
                 var classNames = Pane.classNames;
                 var sheet = this._sheet;
                 var grid = this._grid;
@@ -16031,7 +16054,7 @@
                 var children = [];
                 children.push(this.renderData());
                 if (!sheet._activeDrawing) {
-                    children.push(this.renderSelection());
+                    children.push(this.renderSelection(scroller));
                 }
                 children.push(this.renderAutoFill());
                 children.push(this.renderEditorSelection());
@@ -16355,7 +16378,7 @@
                 }.bind(this));
                 return kendo.dom.element('div', { className: classNames.selectionWrapper }, selections);
             },
-            renderSelection: function () {
+            renderSelection: function (scroller) {
                 var classNames = Pane.classNames;
                 var selections = [];
                 var selectionClasses = [classNames.selection];
@@ -16374,7 +16397,7 @@
                         this._addDiv(selections, ref, selectionClasses.join(' '));
                     }
                 }.bind(this));
-                this._renderCustomEditorButton(selections, activeCell);
+                this._renderCustomEditorButton(selections, activeCell, scroller);
                 return kendo.dom.element('div', { className: classNames.selectionWrapper }, selections);
             },
             renderAutoFill: function () {
@@ -16423,7 +16446,7 @@
                 }
                 return div;
             },
-            _renderCustomEditorButton: function (collection, ref) {
+            _renderCustomEditorButton: function (collection, ref, scroller) {
                 var self = this;
                 var sheet = self._sheet;
                 var view = self._currentView;
@@ -16437,7 +16460,7 @@
                         cell.width = rectangle.width;
                         cell.height = rectangle.height;
                         var btnClass = 'k-button k-spreadsheet-editor-button';
-                        var isLastColumn = col == columnCount - 1;
+                        var isLastColumn = col == columnCount - 1 || self._buttonOutOfVisiblePane(row, col, scroller);
                         if (isLastColumn) {
                             btnClass += ' k-spreadsheet-last-column';
                         }
@@ -16490,6 +16513,17 @@
             },
             _rectangle: function (ref) {
                 return this._grid.boundingRectangle(ref.toRangeRef()).offset(-this._currentView.mergedCellLeft, -this._currentView.mergedCellTop);
+            },
+            _buttonOutOfVisiblePane: function (row, col, scroller) {
+                var self = this;
+                var theGrid = self._grid;
+                var sheet = self._sheet;
+                var ref = sheet.range(row, col)._ref;
+                var boundaries = theGrid.scrollBoundaries(ref);
+                var scrollLeft = theGrid.columns.frozen ? 0 : scroller.scrollLeft;
+                if (boundaries.right + EDIT_BUTTON_WIDTH > scrollLeft || col + 1 === sheet.frozenColumns()) {
+                    return true;
+                }
             }
         });
         function drawingResizeHandles(container) {
@@ -18333,19 +18367,25 @@
         },
         formatInt: function (culture, value, parts, declen, sep) {
             value = runtime.toFixed(value, declen).replace(/\..*$/, '');
-            if (declen > 0) {
+            var lastPart = parts[parts.length - 1];
+            if (declen > 0 && lastPart[parts.length - 1] != '0') {
                 if (value === '0') {
                     value = '';
                 } else if (value === '-0') {
                     value = '-';
                 }
             }
+            var shouldInsertMinus = false;
             var iv = value.length - 1;
             var result = [];
             var len = 0, str;
-            function add(ch) {
+            function add(ch, skipMinus) {
                 if (sep && len && len % 3 === 0 && /^[0-9]$/.test(ch)) {
                     str = culture.numberFormat[','] + str;
+                }
+                if (skipMinus && ch === '-') {
+                    shouldInsertMinus = true;
+                    ch = '0';
                 }
                 str = ch + str;
                 len++;
@@ -18364,6 +18404,8 @@
                     } else {
                         if (value == '0' && chf == '?') {
                             add(' ');
+                        } else if (chf == '0') {
+                            add(value.charAt(iv), true);
                         } else {
                             add(value.charAt(iv));
                         }
@@ -18376,6 +18418,9 @@
                     }
                 }
                 result.unshift(str);
+            }
+            if (shouldInsertMinus) {
+                result[0] = '-' + result[0];
             }
             return result;
         },

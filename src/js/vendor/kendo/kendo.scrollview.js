@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -802,13 +802,21 @@
             },
             refresh: function () {
                 var content = this._content;
+                var options = this.options;
                 content.resizeTo(this.pane.size());
                 this.page = content.page;
                 if (content instanceof ScrollViewContent || content.dataReader.initialFetch) {
-                    this.trigger(REFRESH, {
-                        pageCount: content.pageCount,
-                        page: content.page
-                    });
+                    if (options.enablePager) {
+                        this.trigger(REFRESH, {
+                            pageCount: content.pageCount,
+                            page: content.page
+                        });
+                    } else {
+                        this.trigger(CHANGE, {
+                            pageCount: content.pageCount,
+                            currentPage: content.page
+                        });
+                    }
                 }
             },
             content: function (html) {

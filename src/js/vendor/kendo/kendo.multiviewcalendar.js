@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -41,7 +41,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, calendar = kendo.calendar, support = kendo.support, isInRange = calendar.isInRange, toDateObject = calendar.toDateObject, createDate = calendar.createDate, isEqualDate = calendar.isEqualDate, getToday = calendar.getToday, keys = kendo.keys, ui = kendo.ui, Widget = ui.Widget, Selectable = ui.Selectable, template = kendo.template, ns = '.kendoMultiViewCalendar', CLICK = 'click', KEYDOWN = 'keydown', ID = 'id', MIN = 'min', MONTH = 'month', DOT = '.', CENTURY = 'century', DECADE = 'decade', CHANGE = 'change', NAVIGATE = 'navigate', VALUE = 'value', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', MID = 'k-range-mid', SPLITEND = 'k-range-split-end', SPLITSTART = 'k-range-split-start', START = 'k-range-start', END = 'k-range-end', HOVER = 'k-state-hover', DISABLED = 'k-state-disabled', TODAY = 'k-nav-today', OTHERMONTH = 'k-other-month', OUTOFRANGE = 'k-out-of-range', CELLSELECTOR = 'td:has(.k-link):not(.' + OUTOFRANGE + ')', CELLSELECTORVALID = 'td:has(.k-link):not(.' + DISABLED + '):not(.' + OUTOFRANGE + ')', BLUR = 'blur', FOCUS = 'focus', MOUSEENTER = support.touch ? 'touchstart' : 'mouseenter', MOUSELEAVE_NS = support.touch ? 'touchend' + ns + ' touchmove' + ns : 'mouseleave' + ns, PREVARROW = '_prevArrow', NEXTARROW = '_nextArrow', ARIA_SELECTED = 'aria-selected', INPUTSELECTOR = 'input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up', ARIA_DISABLED = 'aria-disabled', ARIA_LABEL = 'aria-label', proxy = $.proxy, DATE = Date, views = {
+        var kendo = window.kendo, calendar = kendo.calendar, support = kendo.support, isInRange = calendar.isInRange, toDateObject = calendar.toDateObject, createDate = calendar.createDate, isEqualDate = calendar.isEqualDate, getToday = calendar.getToday, keys = kendo.keys, ui = kendo.ui, Widget = ui.Widget, Selectable = ui.Selectable, template = kendo.template, mobileOS = support.mobileOS, ns = '.kendoMultiViewCalendar', CLICK = 'click', KEYDOWN = 'keydown', ID = 'id', MIN = 'min', MONTH = 'month', DOT = '.', CENTURY = 'century', DECADE = 'decade', CHANGE = 'change', NAVIGATE = 'navigate', VALUE = 'value', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', MID = 'k-range-mid', SPLITEND = 'k-range-split-end', SPLITSTART = 'k-range-split-start', START = 'k-range-start', END = 'k-range-end', HOVER = 'k-state-hover', DISABLED = 'k-state-disabled', TODAY = 'k-nav-today', OTHERMONTH = 'k-other-month', OUTOFRANGE = 'k-out-of-range', CELLSELECTOR = 'td:has(.k-link):not(.' + OUTOFRANGE + ')', CELLSELECTORVALID = 'td:has(.k-link):not(.' + DISABLED + '):not(.' + OUTOFRANGE + ')', BLUR = 'blur', FOCUS = 'focus', MOUSEENTER = support.touch ? 'touchstart' : 'mouseenter', MOUSELEAVE_NS = support.touch ? 'touchend' + ns + ' touchmove' + ns : 'mouseleave' + ns, PREVARROW = '_prevArrow', NEXTARROW = '_nextArrow', ARIA_SELECTED = 'aria-selected', INPUTSELECTOR = 'input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up', ARIA_DISABLED = 'aria-disabled', ARIA_LABEL = 'aria-label', proxy = $.proxy, DATE = Date, views = {
                 month: 0,
                 year: 1,
                 decade: 2,
@@ -1013,12 +1013,12 @@
             _unselecting: function (e) {
                 var that = this;
                 var element = e.element;
-                if (that.options.selectable === 'single' && element.hasClass(FOCUSED)) {
+                if (that.options.selectable === 'single' && !mobileOS && element.hasClass(FOCUSED)) {
                     e.preventDefault();
                 }
             },
             _visibleRange: function () {
-                var tables = this.element.find('table');
+                var tables = this.element.find('.k-calendar-view table');
                 var firstDateInView = toDateObject(tables.first().find(CELLSELECTOR + ':first').find('a'));
                 var lastDateInView = toDateObject(tables.last().find(CELLSELECTOR + ':last').find('a'));
                 return {
@@ -1028,7 +1028,7 @@
             },
             _dateInViews: function (date) {
                 var that = this;
-                var tables = that.element.find('table');
+                var tables = that.element.find('.k-calendar-view table');
                 var firstDateInView = toDateObject(tables.first().find(CELLSELECTOR + ':first').find('a'));
                 var lastDateInView = toDateObject(tables.last().find(CELLSELECTOR + ':last').find('a'));
                 return +date <= +lastDateInView && +date >= +firstDateInView;

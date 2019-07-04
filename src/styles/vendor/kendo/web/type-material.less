@@ -33,7 +33,7 @@
 @button-background-color: contrast(@background, lighten(@background, 17%), darken(@background, 4%), 0.5);
 @button-border-color: @button-background-color;
 @button-gradient: false;
-@button-shadow: none;
+@button-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.2);
 @button-hover-text-color: @normal-text-color;
 @button-hover-background-color: contrast(@background, lighten(@background, 23%), darken(@background, 8%), 0.5);
 @button-hover-border-color: contrast(@background, lighten(@background, 23%), darken(@background, 8%), 0.5);
@@ -54,7 +54,7 @@
 @primary-background-color: @accent;
 @primary-border-color: @accent;
 @primary-gradient: false;
-@primary-shadow: false;
+@primary-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.2);
 @primary-hover-text-color: @primary-text-color;
 @primary-hover-background-color: lighten(desaturate(@accent, 5%), 8%);
 @primary-hover-border-color: @primary-hover-background-color;
@@ -118,6 +118,7 @@
 @error-text-color: #b94a48;
 @error-background-color: #f2dede;
 @error-border-color: #eed3d7;
+@notification-border-radius: @border-radius;
 @notification-info-background-color: @info;
 @notification-info-text-color: contrast(@info, lighten(@info, 70%), darken(@info, 30%), 0.5);
 @notification-info-border-color: @info;
@@ -426,7 +427,7 @@
 @pdf-viewer-canvas-text: null;
 @pdf-viewer-canvas-border: null;
 
-@pdf-viewer-page-bg: @component-bg;
+@pdf-viewer-page-bg: white;
 @pdf-viewer-page-text: @component-text;
 @pdf-viewer-page-border: @component-border;
 @pdf-viewer-page-shadow: 0 0 15px @pdf-viewer-page-border;
@@ -473,8 +474,8 @@
 @drawer-focused-shadow: @focused-item-shadow;
 
 @drawer-selected-text: @selected-text-color;
-@drawer-selected-bg: @selected-background;
-@drawer-selected-hover-bg: contrast(@background, lighten(@selected-background, 5%), darken(@selected-background, 5%), 0.5);
+@drawer-selected-bg: @selected-background-color;
+@drawer-selected-hover-bg: @hover-background;
 @drawer-selected-hover-text: @selected-text-color;
 
 
@@ -1717,7 +1718,6 @@ div.k-filebrowser-dropzone em
 .k-timepicker,
 .k-colorpicker,
 .k-datetimepicker,
-.k-notification,
 .k-numerictextbox,
 .k-picker-wrap,
 .k-numeric-wrap,
@@ -2191,6 +2191,10 @@ div.k-filebrowser-dropzone em
 .k-button-group {
     .box-shadow(@button-shadow);
 
+    &.k-state-disabled {
+        box-shadow: none;
+    }
+
     .k-button {
         box-shadow: none;
 
@@ -2200,26 +2204,6 @@ div.k-filebrowser-dropzone em
             background-color: @button-active-background;
             border-color: @button-active-border-color;
             .composite-background(@button-active-gradient);
-        }
-
-        // Focus Active
-        &:focus.k-state-active,
-        &.k-state-focused.k-state-active {
-            color: @button-focused-active-color;
-            border-color: @button-focused-active-background;
-            background: @button-focused-active-background;
-            box-shadow: none;
-        }
-
-        // Disabled state
-        &.k-state-disabled,
-        .k-state-disabled&,
-        &.k-state-disabled.k-state-active,
-        .k-state-disabled&.k-state-active {
-            color: @disabled-text-color;
-            border-color: @disabled-background-color;
-            background-color: @disabled-background-color;
-            box-shadow: none;
         }
 
         // Focused state
@@ -3220,20 +3204,14 @@ div.k-scheduler-marquee:after {
 
 @media only screen and (max-width: 1024px) {
 
-    .k-scheduler-toolbar > ul.k-scheduler-views {
-        right: 13px;
-        top: 0;
-    }
-
     .k-webkit,
     .k-ff,
-    .k-ie11,
+    .k-ie,
     .k-edge,
     .k-safari {
         // Responsive Scheduler
 
         .k-scheduler-toolbar > ul.k-scheduler-views {
-            right: 13px;
             top: 0;
         }
 
@@ -3244,7 +3222,6 @@ div.k-scheduler-marquee:after {
             background-color: transparent;
             border-color: transparent;
             border-radius: @border-radius;
-            text-align: right;
         }
 
         .k-scheduler-toolbar > ul.k-scheduler-views.k-state-expanded > li {

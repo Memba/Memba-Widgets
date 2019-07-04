@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -37,7 +37,7 @@
         var NS = '.kendoResponsivePanel';
         var OPEN = 'open';
         var CLOSE = 'close';
-        var ACTIVATE_EVENTS = 'click' + NS + ' touchstart' + NS;
+        var ACTIVATE_EVENTS = 'click' + NS + ' touchstart' + NS + ' touchend' + NS;
         var Widget = kendo.ui.Widget;
         var ResponsivePanel = Widget.extend({
             init: function (element, options) {
@@ -87,6 +87,9 @@
             },
             _toggleButtonClick: function (e) {
                 e.preventDefault();
+                if (e.type == 'touchend') {
+                    return;
+                }
                 if (this.element.hasClass('k-rpanel-expanded')) {
                     this.close();
                 } else {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -608,8 +608,10 @@
                 var overflowWrapper = this._overflowWrapper();
                 if (item.length || candidate === this.element) {
                     return item;
+                } else if (overflowWrapper) {
+                    return overflowWrapper.find(candidate);
                 } else {
-                    return overflowWrapper && overflowWrapper.find(candidate);
+                    return $();
                 }
             },
             append: function (item, referenceItem) {
@@ -719,6 +721,7 @@
                 var that = this;
                 if (dataItem.loaded()) {
                     that.open(element);
+                    that._loading = false;
                 } else {
                     dataItem.one(CHANGE, function () {
                         element.find(ICON_SELECTOR).removeClass('k-i-loading');
@@ -819,6 +822,7 @@
                                         });
                                     },
                                     deactivate: function (e) {
+                                        that._closing = false;
                                         e.sender.element.removeData('targetTransform').css({ opacity: '' });
                                         that._triggerEvent({
                                             item: this.wrapper.parent(),
@@ -836,6 +840,7 @@
                                     },
                                     open: proxy(that._popupOpen, that),
                                     close: function (e) {
+                                        that._closing = true;
                                         var li = e.sender.wrapper.parent();
                                         if (overflowWrapper) {
                                             var popupId = e.sender.element.data(POPUP_ID_ATTR);
@@ -1080,7 +1085,7 @@
                 if (popupId) {
                     that._openedPopups[popupId.toString()] = true;
                 }
-                if (e.delegateTarget != element.parents(menuSelector)[0] && e.delegateTarget != element.parents('.k-menu-scroll-wrapper,.k-popups-wrapper')[0]) {
+                if (that._closing || e.delegateTarget != element.parents(menuSelector)[0] && e.delegateTarget != element.parents('.k-menu-scroll-wrapper,.k-popups-wrapper')[0]) {
                     return;
                 }
                 that._keyTriggered = false;

@@ -115,6 +115,7 @@
 @error-text-color: lighten(@normal-text-color, 22%);
 @error-background-color: darken(@base, 3%);
 @error-border-color: darken(@background, 14%);
+@notification-border-radius: @border-radius;
 @notification-info-background-color: @info;
 @notification-info-text-color: darken(@info, 50%);
 @notification-info-border-color: darken(@info, 10%);
@@ -416,7 +417,7 @@
 @pdf-viewer-canvas-text: null;
 @pdf-viewer-canvas-border: null;
 
-@pdf-viewer-page-bg: @component-bg;
+@pdf-viewer-page-bg: white;
 @pdf-viewer-page-text: @component-text;
 @pdf-viewer-page-border: @component-border;
 @pdf-viewer-page-shadow: 0 0 15px @pdf-viewer-page-border;
@@ -1615,7 +1616,6 @@ div.k-filebrowser-dropzone em
 .k-timepicker,
 .k-colorpicker,
 .k-datetimepicker,
-.k-notification,
 .k-numerictextbox,
 .k-picker-wrap,
 .k-numeric-wrap,

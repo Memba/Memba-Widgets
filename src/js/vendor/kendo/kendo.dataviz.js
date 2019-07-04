@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2019.2.514'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2019.2.619'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -3757,7 +3757,11 @@
                     options.duration = $.fx ? $.fx.speeds[options.duration] || options.duration : options.duration;
                     css = normalizeCSS(element, properties);
                     $.merge(oldKeys, keys(css));
-                    element.data('keys', $.uniqueSort(oldKeys)).height();
+                    if ($.hasOwnProperty('uniqueSort')) {
+                        element.data('keys', $.uniqueSort(oldKeys)).height();
+                    } else {
+                        element.data('keys', $.unique(oldKeys)).height();
+                    }
                     element.css(TRANSITION, options.exclusive + ' ' + options.duration + 'ms ' + options.ease).css(TRANSITION);
                     element.css(css).css(TRANSFORM);
                     if (transitions.event) {
@@ -14875,6 +14879,7 @@
                     this.element.removeAttr('id').attr('aria-hidden', true);
                     DOCUMENT.off('keydown' + NS, that._documentKeyDownHandler);
                 });
+                that.popup._hovered = true;
                 that.popup.open();
             },
             _initPopup: function () {
@@ -14899,6 +14904,7 @@
                         this.element.removeAttr('aria-hidden');
                         DOCUMENT.on('keydown' + NS, that._documentKeyDownHandler);
                         that.trigger(SHOW);
+                        that.popup._hovered = undefined;
                     },
                     close: function () {
                         that.trigger(HIDE);
@@ -68273,8 +68279,21 @@
                 }
             },
             _dateInView: function (date) {
-                var that = this, firstDateInView = toDateObject(that._cellsBySelector(CELLSELECTOR + ':first').find('a')), lastDateInView = toDateObject(that._cellsBySelector(CELLSELECTOR + ':last').find('a'));
+                var that = this, firstDateInView = toDateObject(that._cellsBySelector(CELLSELECTORVALID + ':first').find('a')), lastDateInView = toDateObject(that._cellsBySelector(CELLSELECTORVALID + ':last').find('a'));
                 return +date <= +lastDateInView && +date >= +firstDateInView;
+            },
+            _isNavigatable: function (currentValue, cellIndex) {
+                var that = this;
+                var isDisabled = that.options.disableDates;
+                var cell;
+                var index;
+                if (that._view.name == 'month') {
+                    return !isDisabled(currentValue);
+                } else {
+                    index = that.wrapper.find('.' + FOCUSED).index();
+                    cell = that.wrapper.find('.k-content td:eq(' + (index + cellIndex) + ')');
+                    return cell.is(CELLSELECTORVALID) || !isDisabled(currentValue);
+                }
             },
             _move: function (e) {
                 var that = this, options = that.options, key = e.keyCode, view = that._view, index = that._index, min = that.options.min, max = that.options.max, currentValue = new DATE(+that._current), isRtl = kendo.support.isRtl(that.wrapper), isDisabled = that.options.disableDates, value, prevent, method, temp;
@@ -68364,7 +68383,7 @@
                         if (!isInRange(currentValue, min, max)) {
                             currentValue = restrictValue(currentValue, options.min, options.max);
                         }
-                        if (isDisabled(currentValue)) {
+                        if (!that._isNavigatable(currentValue, value)) {
                             currentValue = that._nextNavigatable(currentValue, value);
                         }
                         if (that._isMultipleSelection()) {
@@ -71455,7 +71474,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, oldIE = kendo.support.browser.msie && kendo.support.browser.version < 9, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, inArray = $.inArray, POINT = '.', nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g, ERRORTEMPLATE = '<div class="k-widget k-tooltip k-tooltip-validation" style="margin:0.5em"><span class="k-icon k-i-warning"> </span>' + '#=message#<div class="k-callout k-callout-n"></div></div>', CHANGE = 'change';
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, oldIE = kendo.support.browser.msie && kendo.support.browser.version < 9, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, inArray = $.inArray, POINT = '.', support = kendo.support, AUTOCOMPLETEVALUE = support.browser.chrome ? 'disabled' : 'off', nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g, ERRORTEMPLATE = '<div class="k-widget k-tooltip k-tooltip-validation" style="margin:0.5em"><span class="k-icon k-i-warning"> </span>' + '#=message#<div class="k-callout k-callout-n"></div></div>', CHANGE = 'change';
         var EQUAL_SET = 'equalSet';
         var specialRules = [
             'url',
@@ -71480,7 +71499,7 @@
         function createAttributes(options) {
             var field = (options.model.fields || options.model)[options.field], type = fieldType(field), validation = field ? field.validation : {}, ruleName, DATATYPE = kendo.attr('type'), BINDING = kendo.attr('bind'), rule, attr = {
                     name: options.field,
-                    title: options.title
+                    title: options.title ? options.title : options.field
                 };
             for (ruleName in validation) {
                 rule = validation[ruleName];
@@ -71497,11 +71516,20 @@
                     }
                 }
                 attr[kendo.attr(ruleName + '-msg')] = rule.message;
+                attr.autocomplete = AUTOCOMPLETEVALUE;
             }
             if (inArray(type, specialRules) >= 0) {
                 attr[DATATYPE] = type;
             }
             attr[BINDING] = (type === 'boolean' ? 'checked:' : 'value:') + options.field;
+            return attr;
+        }
+        function addIdAttribute(container, attr) {
+            var id = container.attr('id');
+            if (id) {
+                attr.id = id;
+                container.removeAttr('id');
+            }
             return attr;
         }
         function convertItems(items) {
@@ -71537,7 +71565,7 @@
             },
             'string': function (container, options) {
                 var attr = createAttributes(options);
-                $('<input type="text" class="k-input k-textbox"/>').attr(attr).appendTo(container);
+                $('<input type="text" class="k-textbox"/>').attr(attr).appendTo(container);
             },
             'boolean': function (container, options) {
                 var attr = createAttributes(options);
@@ -71553,24 +71581,29 @@
         var mobileEditors = {
             'number': function (container, options) {
                 var attr = createAttributes(options);
+                attr = addIdAttribute(container, attr);
                 $('<input type="number"/>').attr(attr).appendTo(container);
             },
             'date': function (container, options) {
                 var attr = createAttributes(options);
+                attr = addIdAttribute(container, attr);
                 $('<input type="date"/>').attr(attr).appendTo(container);
             },
             'string': function (container, options) {
                 var attr = createAttributes(options);
+                attr = addIdAttribute(container, attr);
                 $('<input type="text" />').attr(attr).appendTo(container);
             },
             'boolean': function (container, options) {
                 var attr = createAttributes(options);
+                attr = addIdAttribute(container, attr);
                 $('<input type="checkbox" />').attr(attr).appendTo(container);
             },
             'values': function (container, options) {
                 var attr = createAttributes(options);
                 var items = options.values;
                 var select = $('<select />');
+                attr = addIdAttribute(container, attr);
                 for (var index in items) {
                     $('<option value="' + items[index].value + '">' + items[index].text + '</option>').appendTo(select);
                 }
@@ -73945,6 +73978,16 @@
                     list.columnsHeader.css(isRtl ? 'padding-left' : 'padding-right', height !== 'auto' ? scrollbar : 0);
                 }
             },
+            _refreshScroll: function () {
+                var listView = this.listView;
+                var enableYScroll = listView.element.height() > listView.content.height();
+                if (this.options.autoWidth) {
+                    listView.content.css({
+                        overflowX: 'hidden',
+                        overflowY: enableYScroll ? 'scroll' : 'auto'
+                    });
+                }
+            },
             _resizePopup: function (force) {
                 if (this.options.virtual) {
                     return;
@@ -73955,6 +73998,7 @@
                             this._calculatePopupHeight(force);
                         }, this);
                     }.call(this, force));
+                    this.popup.one('activate', proxy(this._refreshScroll, this));
                 } else {
                     this._calculatePopupHeight(force);
                 }
@@ -74719,6 +74763,7 @@
                 var selectable = that.options.selectable;
                 var singleSelection = selectable !== 'multiple' && selectable !== false;
                 var selectedIndices = that._selectedIndices;
+                var uiSelectedIndices = [this.element.find('.k-state-selected').index()];
                 var added = [];
                 var removed = [];
                 var result;
@@ -74734,7 +74779,7 @@
                 if (filtered && !singleSelection && that._deselectFiltered(indices)) {
                     return deferred;
                 }
-                if (singleSelection && !filtered && $.inArray(last(indices), selectedIndices) !== -1) {
+                if (singleSelection && !filtered && $.inArray(last(indices), selectedIndices) !== -1 && $.inArray(last(indices), uiSelectedIndices) !== -1) {
                     if (that._dataItems.length && that._view.length) {
                         that._dataItems = [that._view[selectedIndices[0]].item];
                     }
@@ -75053,7 +75098,7 @@
                     return;
                 }
                 var visibleItem = this._firstVisibleItem();
-                if (visibleItem && visibleItem.group) {
+                if (visibleItem && visibleItem.group.toString().length) {
                     this.header.html(template(visibleItem.group));
                 }
             },
@@ -76307,7 +76352,7 @@
                 var listType = this.options.type, itemHeight = this.options.itemHeight, currentIndex = this._focusedIndex, selected = false, current = false, newGroup = false, group = null, match = false, valueGetter = this._valueGetter;
                 if (listType === 'group') {
                     if (item) {
-                        newGroup = index === 0 || this._currentGroup && this._currentGroup !== item.group;
+                        newGroup = index === 0 || this._currentGroup !== false && this._currentGroup !== item.group;
                         this._currentGroup = item.group;
                     }
                     group = item ? item.group : null;
@@ -76347,7 +76392,7 @@
             _range: function (index) {
                 var itemCount = this.itemCount, value = this._values.slice(), items = [], item;
                 this._view = {};
-                this._currentGroup = null;
+                this._currentGroup = false;
                 for (var i = index, length = index + itemCount; i < length; i++) {
                     item = this._itemMapper(this.getter(i, index), i, value);
                     if (items[items.length - 1]) {

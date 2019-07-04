@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -178,7 +178,6 @@
         'pdf-viewer/processors/pdfjs-processor',
         'pdf-viewer/processors/dpl-processor',
         'pdf-viewer/toolbar',
-        'pdf-viewer/pager',
         'pdf-viewer/page',
         'pdf-viewer/dialogs',
         'pdf-viewer/commands'
@@ -188,7 +187,7 @@
         id: 'pdfviewer',
         name: 'PDFViewer',
         category: 'web',
-        description: 'PdfViewer to display pdfs in the browser',
+        description: 'PDFViewer to display pdfs in the browser',
         depends: [
             'core',
             'window',
@@ -197,14 +196,13 @@
         ]
     };
     (function ($, undefined) {
-        var NS = '.kendoPDFViewer', kendo = window.kendo, ui = kendo.ui, proxy = $.proxy, extend = $.extend, drawing = kendo.drawing, Toolbar = kendo.pdfviewer.Toolbar, Page, Widget = ui.Widget, progress = kendo.ui.progress, SCROLL = 'scroll', RENDER = 'render', OPEN = 'open', ERROR = 'error', FOCUS = 'focus', WHITECOLOR = '#ffffff', TABINDEX = 'tabindex', PROCESSORS = {
+        var NS = '.kendoPDFViewer', kendo = window.kendo, ui = kendo.ui, proxy = $.proxy, extend = $.extend, drawing = kendo.drawing, Page, Widget = ui.Widget, progress = kendo.ui.progress, SCROLL = 'scroll', RENDER = 'render', OPEN = 'open', ERROR = 'error', FOCUS = 'focus', WHITECOLOR = '#ffffff', TABINDEX = 'tabindex', PROCESSORS = {
                 pdfjs: 'pdfjs',
                 dpl: 'dpl'
             }, styles = {
                 viewer: 'k-pdf-viewer k-widget',
                 scroller: 'k-canvas k-list-scroller'
             };
-        kendo.pdfviewer = kendo.pdfviewer || {};
         var PDFViewer = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -326,7 +324,7 @@
                 };
                 var toolbarElement = $('<div />');
                 toolbarElement.appendTo(that.element);
-                that.toolbar = new Toolbar(toolbarElement, toolbarOptions);
+                that.toolbar = new kendo.pdfviewer.Toolbar(toolbarElement, toolbarOptions);
             },
             _initErrorDialog: function (options) {
                 var that = this;
@@ -351,10 +349,6 @@
                 extend(options, { dialog: dialog });
                 if (this.pageContainer) {
                     progress(this.pageContainer, false);
-                }
-                if (options.renderBlankPage) {
-                    this._renderBlankPage();
-                    this.resize(true);
                 }
                 if (this.trigger(ERROR, options)) {
                     return;
@@ -461,7 +455,8 @@
                 var that = this;
                 var page = that.options.page;
                 progress(that.pageContainer, true);
-                that.processor.fetchDocument().then(function (document) {
+                that.processor.fetchDocument().done(function (document) {
+                    that._clearPages();
                     that.document = document;
                     that._renderPages();
                     that.resize(true);
@@ -499,19 +494,15 @@
                 }
             },
             fromFile: function (file) {
-                this._clearPages();
                 this.processor._updateDocument(file);
                 this._loadDocument();
             },
             exportImage: function (options) {
                 var that = this;
                 var pageNumber = options.page;
-                var page = that.pages[pageNumber - 1];
+                var page = that.pages[pageNumber - 1] || that._blankPage;
                 var rootGroup = new drawing.Group();
                 page.load();
-                if (!page.group) {
-                    return;
-                }
                 var background = kendo.drawing.Path.fromRect(new kendo.geometry.Rect([
                     0,
                     0
@@ -538,7 +529,7 @@
             exportSVG: function (options) {
                 var that = this;
                 var pageNumber = options.page;
-                var page = that.pages[pageNumber - 1];
+                var page = that.pages[pageNumber - 1] || that._blankPage;
                 progress(that.pageContainer, true);
                 page.load();
                 drawing.exportSVG(page.group).done(function (data) {
@@ -596,6 +587,7 @@
             },
             _clearPages: function () {
                 this.pages = [];
+                this.document = null;
                 this.options.page = 1;
                 this.pageContainer.empty();
                 this.pageContainer.off(SCROLL + NS);

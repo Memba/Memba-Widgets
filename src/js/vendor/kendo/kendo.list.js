@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.514 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -753,6 +753,16 @@
                     list.columnsHeader.css(isRtl ? 'padding-left' : 'padding-right', height !== 'auto' ? scrollbar : 0);
                 }
             },
+            _refreshScroll: function () {
+                var listView = this.listView;
+                var enableYScroll = listView.element.height() > listView.content.height();
+                if (this.options.autoWidth) {
+                    listView.content.css({
+                        overflowX: 'hidden',
+                        overflowY: enableYScroll ? 'scroll' : 'auto'
+                    });
+                }
+            },
             _resizePopup: function (force) {
                 if (this.options.virtual) {
                     return;
@@ -763,6 +773,7 @@
                             this._calculatePopupHeight(force);
                         }, this);
                     }.call(this, force));
+                    this.popup.one('activate', proxy(this._refreshScroll, this));
                 } else {
                     this._calculatePopupHeight(force);
                 }
@@ -1527,6 +1538,7 @@
                 var selectable = that.options.selectable;
                 var singleSelection = selectable !== 'multiple' && selectable !== false;
                 var selectedIndices = that._selectedIndices;
+                var uiSelectedIndices = [this.element.find('.k-state-selected').index()];
                 var added = [];
                 var removed = [];
                 var result;
@@ -1542,7 +1554,7 @@
                 if (filtered && !singleSelection && that._deselectFiltered(indices)) {
                     return deferred;
                 }
-                if (singleSelection && !filtered && $.inArray(last(indices), selectedIndices) !== -1) {
+                if (singleSelection && !filtered && $.inArray(last(indices), selectedIndices) !== -1 && $.inArray(last(indices), uiSelectedIndices) !== -1) {
                     if (that._dataItems.length && that._view.length) {
                         that._dataItems = [that._view[selectedIndices[0]].item];
                     }
@@ -1861,7 +1873,7 @@
                     return;
                 }
                 var visibleItem = this._firstVisibleItem();
-                if (visibleItem && visibleItem.group) {
+                if (visibleItem && visibleItem.group.toString().length) {
                     this.header.html(template(visibleItem.group));
                 }
             },

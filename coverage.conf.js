@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 const path = require('path');
 
 // Karma configuration
@@ -26,6 +28,9 @@ module.exports = config => {
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
         frameworks: ['mocha', 'sinon-chai'],
+
+        // https://github.com/vlkosinov/karma-chai-as-promised/issues/5#issuecomment-296440839
+        // plugins: []
 
         // list of files / patterns to load in the browser
         // See: http://karma-runner.github.io/0.12/config/files.html
@@ -173,7 +178,8 @@ module.exports = config => {
                                 }
                             }
                         ]
-                    },
+                    }
+                    /* ,
                     {
                         // import sinonChai from 'sinon-chai' does not work
                         // @see https://github.com/domenic/sinon-chai/issues/85
@@ -186,6 +192,7 @@ module.exports = config => {
                             }
                         ]
                     }
+                    */
                 ]
             },
             resolve: {

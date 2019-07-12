@@ -20,8 +20,7 @@ import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { charGridLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
@@ -31,6 +30,7 @@ const {
     format,
     htmlEncode,
     ns,
+    roleSelector,
     ui: { CharGrid }
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -47,12 +47,11 @@ const TEMPLATE = `<div data-${ns}role="chargrid" data-${ns}columns="#: attribute
  */
 const CharGridTool = BaseTool.extend({
     id: 'chargrid',
-    icon: 'dot_matrix',
-    name: __('tools.chargrid.name'),
-    description: __('tools.chargrid.description'),
-    help: __('tools.chargrid.help'),
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    childSelector: `${CONSTANTS.DIV}${roleSelector('chargrid')}`, // div.kj-chargrid
+    height: 400,
+    width: 400,
     weight: 8,
+    // menu: [],
     templates: {
         design: format(
             TEMPLATE,
@@ -68,8 +67,6 @@ const CharGridTool = BaseTool.extend({
                 `data-${ns}bind="value: #: properties.name #.value" data-${ns}locked="#: JSON.stringify(attributes.layout) #" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
-    height: 400,
-    width: 400,
     attributes: {
         columns: new NumberAdapter(
             { title: __('tools.chargrid.attributes.columns.title'), defaultValue: 9 },
@@ -203,36 +200,11 @@ const CharGridTool = BaseTool.extend({
      * @param component
      */
     onResize(e, component) {
+        BaseTool.fn.onResize.call(this, e, component);
         const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children('div.kj-chargrid');
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
+        const content = stageElement.children(this.childSelector);
         // Redraw the charGrid widget
+        // TODO Consider implementing a resize method on CharGridWidget to remove onResize here
         const charGridWidget = content.data('kendoCharGrid');
         assert.instanceof(
             CharGrid,
@@ -244,10 +216,6 @@ const CharGridTool = BaseTool.extend({
             )
         );
         charGridWidget.refresh();
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
     }
 
     /**
@@ -269,6 +237,6 @@ const CharGridTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(CharGridTool);
+export default CharGridTool;

@@ -3,53 +3,66 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO help and menu
+// TODO help and menu properties
 
 /* eslint-disable no-unused-expressions */
+
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import __ from '../../../src/js/app/app.i18n.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
-import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
+import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
+import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 
-// Load tool
-import '../../../src/js/tools/tools.dummy.es6';
-// Load component
+// Component data
 import { getDummy } from '../_misc/test.components.es6';
 
-const { describe, it } = window;
+const { before, describe, it } = window;
 const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
 const FIXTURES = '#fixtures';
 
 describe('tools.dummy', () => {
-    before(() => {
+    before(done => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
+        // Load tool
+        tools.load('dummy').always(done);
     });
 
-    describe('SquareTool', () => {
-        const tool = tools.square;
-        const component = new PageComponent(getDummy());
+    describe('DummyTool', () => {
+        let tool;
+        let component;
+
+        before(() => {
+            tool = tools('dummy');
+            component = new PageComponent(getDummy());
+        });
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);
             expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
-            expect(tool).to.have.property('description', 'Square');
+            expect(tool).to.have.property(
+                'description',
+                __('tools.dummy.description')
+            );
             expect(tool).to.have.property('height', 300);
-            expect(tool).to.have.property('help'); // , '');
-            expect(tool).to.have.property('id', 'square');
-            expect(tool).to.have.property('icon', 'shapes');
-            // TODO expect(tool).to.have.property('menu');
-            expect(tool).to.have.property('name', 'Square');
+            expect(tool).to.have.property('help', __('tools.dummy.help'));
+            expect(tool).to.have.property('id', 'dummy');
+            expect(tool).to.have.property('icon', __('tools.dummy.icon'));
+            expect(tool.menu).to.be.undefined;
+            expect(tool).to.have.property('name', __('tools.dummy.name'));
             expect(tool).to.have.property('weight', 0);
             expect(tool).to.have.property('width', 300);
         });
@@ -146,26 +159,17 @@ describe('tools.dummy', () => {
             expect(fn2).to.throw();
 
             // If we submit a valid page component in design mode
-            element = tool.getHtmlContent(
-                component,
-                CONSTANTS.STAGE_MODES.DESIGN
-            );
+            element = tool.getHtmlContent(component, TOOLS.STAGE_MODES.DESIGN);
             expect(element).to.be.an.instanceof($);
             expect(element).to.match(CONSTANTS.DIV);
 
             // If we submit a valid page component in play mode
-            element = tool.getHtmlContent(
-                component,
-                CONSTANTS.STAGE_MODES.PLAY
-            );
+            element = tool.getHtmlContent(component, TOOLS.STAGE_MODES.PLAY);
             expect(element).to.be.an.instanceof($);
             expect(element).to.match(CONSTANTS.DIV);
 
             // If we submit a valid page component in review mode
-            element = tool.getHtmlContent(
-                component,
-                CONSTANTS.STAGE_MODES.REVIEW
-            );
+            element = tool.getHtmlContent(component, TOOLS.STAGE_MODES.REVIEW);
             expect(element).to.be.an.instanceof($);
             expect(element).to.match(CONSTANTS.DIV);
         });

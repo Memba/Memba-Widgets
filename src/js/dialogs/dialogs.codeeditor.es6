@@ -31,67 +31,67 @@ function openCodeEditor(options = {}) {
      * will not include codemirror.js which is also used by widgets.markeditor.es6
      * but will include the linting code used in the code editor in JavaScript mode
      */
-    import(
-        /* webpackChunkName: "jshint" */ '../widgets/widgets.codeeditor.es6'
-    ).then(() => {
-        // Find or create the DOM element
-        const $dialog = BaseDialog.getElement(options.cssClass);
-        $dialog.css({ padding: 0 });
+    import(/* webpackChunkName: "jshint" */ '../widgets/widgets.codeeditor.es6')
+        .then(() => {
+            // Find or create the DOM element
+            const $dialog = BaseDialog.getElement(options.cssClass);
+            $dialog.css({ padding: 0 });
 
-        // Create the dialog
-        const dialog = $dialog
-            .kendoBaseDialog(
-                Object.assign(
-                    {
-                        title:
-                            BaseDialog.fn.options.messages[
-                                options.type || 'info'
+            // Create the dialog
+            const dialog = $dialog
+                .kendoBaseDialog(
+                    Object.assign(
+                        {
+                            title:
+                                BaseDialog.fn.options.messages[
+                                    options.type || 'info'
+                                ],
+                            content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" data-${ns}default="${htmlEncode(
+                                options.default
+                            )}" data-${ns}solution="${htmlEncode(
+                                JSON.stringify(options.solution)
+                            )}"></div>`,
+                            data: {
+                                value: '',
+                                library: [] // Do we really need this?
+                            },
+                            actions: [
+                                BaseDialog.fn.options.messages.actions.ok,
+                                BaseDialog.fn.options.messages.actions.cancel
                             ],
-                        content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" data-${ns}default="${htmlEncode(
-                            options.default
-                        )}" data-${ns}solution="${htmlEncode(
-                            JSON.stringify(options.solution)
-                        )}"></div>`,
-                        data: {
-                            value: '',
-                            library: [] // Do we really need this?
+                            width: 860
                         },
-                        actions: [
-                            BaseDialog.fn.options.messages.actions.ok,
-                            BaseDialog.fn.options.messages.actions.cancel
-                        ],
-                        width: 860
-                    },
-                    options
+                        options
+                    )
                 )
-            )
-            .data('kendoBaseDialog');
+                .data('kendoBaseDialog');
 
-        // Bind the show event to resize once opened
-        dialog.one(CONSTANTS.SHOW, e => {
-            resize(e.sender.element);
-            const codeEditor = e.sender.element
-                .find(roleSelector('codeeditor'))
-                .data('kendoCodeEditor');
-            // IMPORTANT, we need to refresh CodeMirror here otherwise the open animation messes with CodeMirror calculations
-            // and gutter and line numbers are not displayed properly
-            codeEditor.codeMirror.refresh();
-        });
-
-        // Bind the click event
-        dialog.bind(CONSTANTS.CLICK, e => {
-            dfd.resolve({
-                action: e.action,
-                // data: e.sender.viewModel.toJSON() <-- we do not need to return the library
-                data: {
-                    value: e.sender.viewModel.get('value')
-                }
+            // Bind the show event to resize once opened
+            dialog.one(CONSTANTS.SHOW, e => {
+                resize(e.sender.element);
+                const codeEditor = e.sender.element
+                    .find(roleSelector('codeeditor'))
+                    .data('kendoCodeEditor');
+                // IMPORTANT, we need to refresh CodeMirror here otherwise the open animation messes with CodeMirror calculations
+                // and gutter and line numbers are not displayed properly
+                codeEditor.codeMirror.refresh();
             });
-        });
 
-        // Display the message dialog
-        dialog.open();
-    });
+            // Bind the click event
+            dialog.bind(CONSTANTS.CLICK, e => {
+                dfd.resolve({
+                    action: e.action,
+                    // data: e.sender.viewModel.toJSON() <-- we do not need to return the library
+                    data: {
+                        value: e.sender.viewModel.get('value')
+                    }
+                });
+            });
+
+            // Display the message dialog
+            dialog.open();
+        })
+        .catch(dfd.reject);
 
     return dfd.promise();
 }

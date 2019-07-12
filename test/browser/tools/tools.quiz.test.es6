@@ -3,54 +3,74 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO help and menu
 // TODO getHtmlContent return html text, not a jQuery instance
 
 /* eslint-disable no-unused-expressions */
+
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import __ from '../../../src/js/app/app.i18n.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
-import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
+import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
+import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 
-// Load tool
-import '../../../src/js/tools/tools.quiz.es6';
-// Load component
+// Component data
 import { getQuiz } from '../_misc/test.components.es6';
 
-const { describe, it } = window;
+const { describe, it, xit } = window;
 const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
 const FIXTURES = '#fixtures';
 
 describe('tools.quiz', () => {
-    before(() => {
+    before(done => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
+        // Load tool
+        tools.load('quiz').always(done);
     });
 
     describe('QuizTool', () => {
-        const tool = tools.quiz;
-        const component = new PageComponent(getQuiz());
+        let tool;
+        let component;
+
+        before(() => {
+            tool = tools('quiz');
+            component = new PageComponent(getQuiz());
+        });
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);
             expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
-            expect(tool).to.have.property('description', 'Quiz');
+            expect(tool).to.have.property(
+                'description',
+                __('tools.quiz.description')
+            );
             expect(tool).to.have.property('height', 120);
-            expect(tool).to.have.property('help', null);
+            expect(tool).to.have.property('help', __('tools.quiz.help'));
             expect(tool).to.have.property('id', 'quiz');
-            expect(tool).to.have.property('icon', 'radio_button_group');
-            // expect(tool).to.have.property('menu', []);
-            expect(tool).to.have.property('name', 'Quiz');
+            expect(tool).to.have.property('icon', __('tools.quiz.icon'));
+            expect(tool)
+                .to.have.property('menu')
+                .that.eql([
+                    'attributes.data',
+                    'attributes.mode',
+                    '', // separator
+                    'properties.question',
+                    'properties.solution'
+                ]);
+            expect(tool).to.have.property('name', __('tools.quiz.name'));
             expect(tool).to.have.property('weight', 1);
             expect(tool).to.have.property('width', 490);
         });
@@ -174,15 +194,15 @@ describe('tools.quiz', () => {
             expect(fn2).to.throw();
 
             // If we submit a valid page component in design mode
-            html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.DESIGN);
+            html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.DESIGN);
             expect(html).to.match(/^<div data-role="quiz"/);
 
             // If we submit a valid page component in play mode
-            html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.PLAY);
+            html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.PLAY);
             expect(html).to.match(/^<div data-role="quiz"/);
 
             // If we submit a valid page component in review mode
-            html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.REVIEW);
+            html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.REVIEW);
             expect(html).to.match(/^<div data-role="quiz"/);
         });
 

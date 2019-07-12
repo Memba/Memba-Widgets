@@ -63,9 +63,8 @@ const MarkEditor = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         const that = this;
-        options = options || {};
         Widget.fn.init.call(that, element, options);
         logger.debug({ method: 'init', message: 'Widget initialized' });
         // We need to set tools otherwise the options.toolbar.tools array is simply pasted over the TOOLBAR array, which creates duplicates in the overflow

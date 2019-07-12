@@ -15,8 +15,7 @@ import DropDownListAdapter from './adapters.dropdownlist.es6';
 import MathInputAdapter from './adapters.mathinput.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 
 const { format, ns, template } = window.kendo;
 
@@ -31,14 +30,9 @@ const TEMPLATE = `<div data-${ns}role="latex" class="#: class$() #" style="#: at
  */
 const LatexTool = BaseTool.extend({
     id: 'latex',
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: __('tools.latex.description'),
     height: 180,
-    help: __('tools.latex.help'),
-    icon: 'formula',
-    // menu: [],
-    name: __('tools.latex.name'),
     width: 370,
+    // menu: [],
     templates: {
         default: TEMPLATE
     },
@@ -80,92 +74,23 @@ const LatexTool = BaseTool.extend({
      * @returns {*}
      */
     getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            LatexTool,
-            that,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this',
-                'LatexTool'
-            )
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.values(TOOLS.STAGE_MODES)
-            )
-        );
-        const tmpl = template(that.templates.default);
-        // The class$ function adds the kj-interactive class to draggable components
-        component.class$ = function() {
-            return component.properties.behavior === 'draggable'
-                ? CONSTANTS.INTERACTIVE_CLASS
-                : '';
-        };
-        // The id$ function returns the component id for components that have a behavior
-        component.id$ = function() {
-            return component.properties.behavior !== 'none' &&
-                $.type(component.id) === CONSTANTS.STRING &&
-                component.id.length
-                ? component.id
-                : '';
-        };
-        return tmpl(component);
-    },
-
-    /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            assert.format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children('div');
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
+        $.extend(component, {
+            // The class$ function adds the kj-interactive class to draggable components
+            class$() {
+                return component.properties.behavior === 'draggable'
+                    ? CONSTANTS.INTERACTIVE_CLASS
+                    : '';
+            },
+            // The id$ function returns the component id for components that have a behavior
+            id$() {
+                return component.properties.behavior !== 'none' &&
+                    $.type(component.id) === CONSTANTS.STRING &&
+                    component.id.length
+                    ? component.id
+                    : '';
+            }
+        });
+        return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
 
     /**
@@ -215,6 +140,6 @@ const LatexTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(LatexTool);
+export default LatexTool;

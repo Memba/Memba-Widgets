@@ -20,13 +20,12 @@ import StyleAdapter from './adapters.style.es6';
 import TextAreaAdapter from './adapters.textarea.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
 import { questionValidator, scoreValidator } from './util.validators.es6';
 
-const { format, ns, template } = window.kendo;
+const { format, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -42,12 +41,11 @@ const TEMPLATE = `<div class="kj-interactive" data-${ns}role="highlighter" data-
  */
 const HighLighterTool = BaseTool.extend({
     id: 'highlighter',
-    icon: 'marker',
-    name: __('tools.highlighter.name'),
-    description: __('tools.highlighter.description'),
-    help: __('tools.highlighter.help'),
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    childSelector: `${CONSTANTS.DIV}${roleSelector('highlighter')}`,
+    height: 250,
+    width: 250,
     weight: 1,
+    // menu: [],
     templates: {
         design: format(TEMPLATE, `data-${ns}enable="false"`),
         play: format(
@@ -60,8 +58,6 @@ const HighLighterTool = BaseTool.extend({
                 `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
-    height: 250,
-    width: 250,
     attributes: {
         highlightStyle: new StyleAdapter({
             title: __('tools.highlighter.attributes.highlightStyle.title')
@@ -110,88 +106,6 @@ const HighLighterTool = BaseTool.extend({
             defaultValue: 0,
             validation: scoreValidator
         })
-    },
-
-    /**
-     * Get Html or jQuery content
-     * @method getHtmlContent
-     * @param component
-     * @param mode
-     * @returns {*}
-     */
-    getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            HighLighterTool,
-            that,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this',
-                'HighLighterTool'
-            )
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.keys(TOOLS.STAGE_MODES)
-            )
-        );
-        const tmpl = template(that.templates[mode]);
-        return tmpl(component);
-    },
-
-    /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children('div');
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
     },
 
     /**
@@ -247,6 +161,6 @@ const HighLighterTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(HighLighterTool);
+export default HighLighterTool;

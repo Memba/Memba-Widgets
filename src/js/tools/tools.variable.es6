@@ -16,12 +16,11 @@ import Logger from '../common/window.logger.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ExpressionAdapter from './adapters.expression.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 
 const logger = new Logger('tools.variable');
-const { format, template } = window.kendo;
+const { format } = window.kendo;
 
 /**
  * Template
@@ -37,13 +36,9 @@ const TEMPLATE =
  */
 const VariableTool = BaseTool.extend({
     id: 'variable',
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: __('tools.variable.description'),
+    childSelector: CONSTANTS.IMG,
     height: 64,
-    help: __('tools.variable.help'),
-    icon: 'magic_wand',
     menu: ['properties.variable', 'properties.expression'],
-    name: __('tools.variable.name'),
     width: 64,
     templates: {
         default: TEMPLATE
@@ -99,26 +94,7 @@ const VariableTool = BaseTool.extend({
      * @returns {*}
      */
     getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.values(TOOLS.STAGE_MODES)
-            )
-        );
-        const tmpl = template(that.templates.default);
+        const { icon } = this;
         $.extend(component, {
             // alternate text of an image
             alt$() {
@@ -130,10 +106,10 @@ const VariableTool = BaseTool.extend({
             },
             // The src$ function resolves the icon path
             src$() {
-                return format(config.uris.cdn.icons, that.icon);
+                return format(config.uris.cdn.icons, icon);
             }
         });
-        return tmpl(component);
+        BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
 
     /**
@@ -144,19 +120,6 @@ const VariableTool = BaseTool.extend({
      */
     onResize(e, component) {
         const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
         const content = stageElement.children('img');
         // Assuming we can get the natural size of the image, we shall keep proportions
         // TODO Cannot get naturalHeight for SVG images
@@ -198,21 +161,7 @@ const VariableTool = BaseTool.extend({
              }
              */
         }
-        // Set content size
-        content.outerHeight(
-            component.get('height') -
-                content.outerHeight(true) +
-                content.outerHeight()
-        );
-        content.outerWidth(
-            component.get('width') -
-                content.outerWidth(true) +
-                content.outerWidth()
-        );
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
+        BaseTool.fn.onResize.call(this, e, component);
     },
 
     /**
@@ -281,6 +230,6 @@ const VariableTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default export
  */
-tools.register(VariableTool);
+export default VariableTool;

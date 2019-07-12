@@ -212,141 +212,145 @@
             Promise.all([
                 SystemJS.import('kendo.binder'),
                 SystemJS.import('kendo.slider'),
-                SystemJS.import('./widgets.toolbox.es6'),
-                SystemJS.import('./widgets.stage.es6'),
+                SystemJS.import('../cultures/all.en.es6'),
                 SystemJS.import('../data/data.pagecomponent.es6'),
                 SystemJS.import('../helpers/helpers.data.es6'),
                 SystemJS.import('../helpers/helpers.grid.es6'),
-                SystemJS.import('../app/app.tools.es6'),
-
+                SystemJS.import('../tools/tools.es6'),
+                SystemJS.import('./widgets.toolbox.es6'),
+                SystemJS.import('./widgets.stage.es6'),
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                var PageComponentDataSource = modules[4].PageComponentDataSource;
-                var data = modules[5].getComponentArray();
-                var viewModel = kendo.observable({
-                    components: new PageComponentDataSource({ data }),
-                    component: null,
-                    onSliderChange(e) {
-                        var stage = $('#stage').data('kendoStage');
-                        stage.scale(e.value/100);
-                    },
-                    onInputModeChange(e) {
-                        var stage = $('#stage').data('kendoStage');
-                        var m = e.currentTarget.value;
-                        window.location.hash = m;
-                        stage.mode(m);
-                    },
-                    onEnabledChange(e) {
-                        var stage = $('#stage').data('kendoStage');
-                        switch(e.currentTarget.id) {
-                            case "enabled":
-                                stage.enable(e.currentTarget.checked);
-                                break;
-                            case "readonly":
-                                stage.readonly(e.currentTarget.checked);
-                                break;
-                        }
-                    },
-                    onGridSelect(e) {
-                        var stage = $('#stage').data('kendoStage');
-                        var rows = this.select();
-                        var component = this.dataItem(rows[0]);
-                        if(component) {
-                            stage.value(component);
-                        }
-                    },
-                    onStageSelect(e) {
-                        var grid = $('#grid').data('kendoGrid');
-                        if(e.value) {
-                            var uid = grid.dataSource.get(e.value.id).uid;
-                            var rows = grid.table.find('tr[data-uid="' + uid + '"]');
-                            if (!rows.hasClass('k-state-selected')) {
-                                grid.select(rows);
-                            }
-                        } else {
-                            grid.clearSelection();
-                        }
-                    }
+                var PageComponentDataSource = modules[3].PageComponentDataSource;
+                var data = modules[4].getComponentArray();
+                var tools = modules[6].default;
+                var promises = data.map(function (component) {
+                    // Load tool
+                    return tools.load(component.tool);
                 });
-                $(function() {
-                    var mode = window.location.hash.substr(1);
-                    mode = mode.length ? mode : 'design';
+                $.when.apply($, promises).then(() => {
+                    var viewModel = kendo.observable({
+                        components: new PageComponentDataSource({data}),
+                        component: null,
+                        onSliderChange(e) {
+                            var stage = $('#stage').data('kendoStage');
+                            stage.scale(e.value / 100);
+                        },
+                        onInputModeChange(e) {
+                            var stage = $('#stage').data('kendoStage');
+                            var m = e.currentTarget.value;
+                            window.location.hash = m;
+                            stage.mode(m);
+                        },
+                        onEnabledChange(e) {
+                            var stage = $('#stage').data('kendoStage');
+                            switch (e.currentTarget.id) {
+                                case "enabled":
+                                    stage.enable(e.currentTarget.checked);
+                                    break;
+                                case "readonly":
+                                    stage.readonly(e.currentTarget.checked);
+                                    break;
+                            }
+                        },
+                        onGridSelect(e) {
+                            var stage = $('#stage').data('kendoStage');
+                            var rows = this.select();
+                            var component = this.dataItem(rows[0]);
+                            if (component) {
+                                stage.value(component);
+                            }
+                        },
+                        onStageSelect(e) {
+                            var grid = $('#grid').data('kendoGrid');
+                            if (e.value) {
+                                var uid = grid.dataSource.get(e.value.id).uid;
+                                var rows = grid.table.find('tr[data-uid="' + uid + '"]');
+                                if (!rows.hasClass('k-state-selected')) {
+                                    grid.select(rows);
+                                }
+                            } else {
+                                grid.clearSelection();
+                            }
+                        }
+                    });
+                    $(function() {
+                        var mode = window.location.hash.substr(1);
+                        mode = mode.length ? mode : 'design';
 
-                    // Prepare slider for binding
-                    $('#slider')
-                        .attr(kendo.attr('role'), 'slider')
-                        .attr(kendo.attr('decreaseButtonTitle'), 'Zoom out')
-                        .attr(kendo.attr('increaseButtonTitle'), 'Zoom in')
-                        .attr(kendo.attr('largeStep'), 10)
-                        .attr(kendo.attr('min'), 0)
-                        .attr(kendo.attr('max'), 100)
-                        .attr(kendo.attr('smallStep'), 1);
+                        // Prepare slider for binding
+                        $('#slider').
+                            attr(kendo.attr('role'), 'slider').
+                            attr(kendo.attr('decreaseButtonTitle'), 'Zoom out').
+                            attr(kendo.attr('increaseButtonTitle'), 'Zoom in').
+                            attr(kendo.attr('largeStep'), 10).
+                            attr(kendo.attr('min'), 0).
+                            attr(kendo.attr('max'), 100).
+                            attr(kendo.attr('smallStep'), 1);
 
-                    $('input#' + mode).prop('checked', true);
+                        $('input#' + mode).prop('checked', true);
 
-                    $('input[type="radio"][name="mode"]')
-                        .attr(kendo.attr('bind'), 'events: { change: onInputModeChange }');
+                        $('input[type="radio"][name="mode"]').
+                            attr(kendo.attr('bind'), 'events: { change: onInputModeChange }');
 
-                    $('input[type="checkbox"]')
-                        .attr(kendo.attr('bind'), 'events: { change: onEnabledChange }');
+                        $('input[type="checkbox"]').attr(kendo.attr('bind'), 'events: { change: onEnabledChange }');
 
-                    // Prepare toolbox
-                    $('#toolbox')
-                        .attr(kendo.attr('role'), 'toolbox');
+                        // Prepare toolbox
+                        $('#toolbox').attr(kendo.attr('role'), 'toolbox');
 
-                    // Prepare stage for binding
-                    // TODO $('#stage, #stage2')
-                    $('#stage')
-                        .attr(kendo.attr('role'), 'stage')
-                        .attr(kendo.attr('autoBind'), false)
-                        .attr(kendo.attr('bind'), 'source: components, value: component')
-                        .attr(kendo.attr('mode'), mode);
+                        // Prepare stage for binding
+                        // TODO $('#stage, #stage2')
+                        $('#stage').
+                            attr(kendo.attr('role'), 'stage').
+                            attr(kendo.attr('autoBind'), false).
+                            attr(kendo.attr('bind'), 'source: components, value: component').
+                            attr(kendo.attr('mode'), mode);
 
-                    // Prepare grid for binding
-                    $('#grid')
-                        .attr(kendo.attr('role'), 'grid')
-                        .attr(kendo.attr('autoBind'), false)
-                        .attr(kendo.attr('bind'), 'source: components')
-                        .attr(kendo.attr('editable'), true)
-                        .attr(kendo.attr('height'), 300)
-                        .attr(kendo.attr('selectable'), true)
-                        .attr(kendo.attr('columns'), JSON.stringify([
-                            {
-                                field: "id",
-                                title: "Id",
-                                width: 320
-                            },
-                            {
-                                field: "tool",
-                                title: "Tool",
-                                width: 100
-                            },
-                            {
-                                field: "top",
-                                title: "Top",
-                                width: 60
-                            },
-                            {
-                                field: "left",
-                                title: "Left",
-                                width: 60
-                            },
-                            {
-                                field: "height",
-                                title: "Hei.",
-                                width: 60
-                            },
-                            {
-                                field: "width",
-                                title: "Wid.",
-                                width: 60
-                            },
-                            {
-                                field: "rotate",
-                                title: "Rot.",
-                                width: 60
-                            },
-                            /*
+                        // Prepare grid for binding
+                        $('#grid').
+                            attr(kendo.attr('role'), 'grid').
+                            attr(kendo.attr('autoBind'), false).
+                            attr(kendo.attr('bind'), 'source: components').
+                            attr(kendo.attr('editable'), true).
+                            attr(kendo.attr('height'), 300).
+                            attr(kendo.attr('selectable'), true).
+                            attr(kendo.attr('columns'), JSON.stringify([
+                                {
+                                    field: "id",
+                                    title: "Id",
+                                    width: 320
+                                },
+                                {
+                                    field: "tool",
+                                    title: "Tool",
+                                    width: 100
+                                },
+                                {
+                                    field: "top",
+                                    title: "Top",
+                                    width: 60
+                                },
+                                {
+                                    field: "left",
+                                    title: "Left",
+                                    width: 60
+                                },
+                                {
+                                    field: "height",
+                                    title: "Hei.",
+                                    width: 60
+                                },
+                                {
+                                    field: "width",
+                                    title: "Wid.",
+                                    width: 60
+                                },
+                                {
+                                    field: "rotate",
+                                    title: "Rot.",
+                                    width: 60
+                                },
+                                /*
                             {
                                 field: "attributes",
                                 title: "Attributes"
@@ -356,23 +360,24 @@
                                 title: "Properties"
                             },
                             */
-                            {
-                                command: "destroy",
-                                title: "&nbsp;",
-                                width: 120
-                            }
-                        ]))
-                        .attr(kendo.attr('height'), 300);
+                                {
+                                    command: "destroy",
+                                    title: "&nbsp;",
+                                    width: 120
+                                }
+                            ])).
+                            attr(kendo.attr('height'), 300);
 
-                    // Bind html and events
-                    kendo.bind('body', viewModel);
-                    $('#slider').data('kendoSlider').bind('change', viewModel.onSliderChange);
-                    $('#stage').data('kendoStage').bind('select', viewModel.onStageSelect);
-                    $('#grid').data('kendoGrid').bind('change', viewModel.onGridSelect);
+                        // Bind html and events
+                        kendo.bind('body', viewModel);
+                        $('#slider').data('kendoSlider').bind('change', viewModel.onSliderChange);
+                        $('#stage').data('kendoStage').bind('select', viewModel.onStageSelect);
+                        $('#grid').data('kendoGrid').bind('change', viewModel.onGridSelect);
 
-                    //Note: we have autoBind = false, so we need to read manually
-                    viewModel.components.read();
+                        //Note: we have autoBind = false, so we need to read manually
+                        viewModel.components.read();
 
+                    });
                 });
             });
         }());

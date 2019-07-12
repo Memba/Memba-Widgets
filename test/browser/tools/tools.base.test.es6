@@ -5,9 +5,13 @@
 
 /* eslint-disable no-unused-expressions */
 
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
+
 import chai from 'chai';
 import BaseModel from '../../../src/js/data/data.base.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
+import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 const { describe, it } = window;
 const { expect } = chai;

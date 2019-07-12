@@ -8,7 +8,7 @@
 import $ from 'jquery';
 import 'kendo.core';
 import Stream from './js/data/data.stream.es6';
-import './js/app/app.tools.es6'; // Load tools
+import tools from './js/tools/tools.es6';
 import ToolAssets from './js/tools/util.assets.es6';
 
 const { localStorage, location } = window;
@@ -347,9 +347,24 @@ const LocalStream = Stream.define({
         return dfd.promise();
     },
     load() {
+        const dfd = $.Deferred();
         const stream = JSON.parse(localStorage.getItem(storageKey)) || {};
-        this.accept(stream);
-        return this._fetchAll();
+        const promises = [];
+        stream.pages.forEach(page => {
+            page.components.forEach(component => {
+                // Note: possibly discard components without registered tools
+                promises.push(tools.load(component.tool));
+            });
+        });
+        $.when(...promises)
+            .then(() => {
+                this.accept(stream);
+                this._fetchAll()
+                    .then(dfd.resolve)
+                    .catch(dfd.reject);
+            })
+            .catch(dfd.reject);
+        return dfd.promise();
     },
     save() {
         const that = this;
@@ -379,9 +394,7 @@ LocalStream.reset();
 // Schemes
 const schemes = {
     cdn: 'https://cdn.kidoju.com/',
-    data: `${location.protocol}//${
-        location.host
-    }/Kidoju.Widgets/test/data/images/miscellaneous/`
+    data: `${location.protocol}//${location.host}/Kidoju.Widgets/test/data/images/miscellaneous/`
 };
 
 // Assets

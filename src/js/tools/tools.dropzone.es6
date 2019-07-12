@@ -18,14 +18,13 @@ import QuestionAdapter from './adapters.question.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
-import {scoreValidator} from './util.validators.es6';
-import __ from '../app/app.i18n';
+import { scoreValidator } from './util.validators.es6';
+import __ from '../app/app.i18n.es6';
 
-const { attr, format, htmlEncode, ns } = window.kendo;
+const { attr, format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 const DROPZONE = `<div id="#: properties.name #" data-${ns}role="dropzone" data-${ns}center="#: attributes.center #"  data-${ns}empty="#: attributes.empty #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>`;
@@ -36,12 +35,11 @@ const DROPZONE = `<div id="#: properties.name #" data-${ns}role="dropzone" data-
  */
 const DropZoneTool = BaseTool.extend({
     id: 'dropzone',
-    icon: 'elements_selection',
-    name: __('tools.dropzone.name'),
-    description: __('tools.dropzone.description'),
-    help: __('tools.dropzone.help'),
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    childSelector: `${CONSTANTS.DIV}${roleSelector('dropzone')}`,
+    height: 250,
+    width: 250,
     weight: 1,
+    // menu: [],
     templates: {
         design: format(DROPZONE, `data-${ns}enable="false"`),
         play: format(
@@ -54,8 +52,6 @@ const DropZoneTool = BaseTool.extend({
                 `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
-    height: 250,
-    width: 250,
     attributes: {
         center: new BooleanAdapter({
             title: __('tools.dropzone.attributes.center.title'),
@@ -134,48 +130,6 @@ const DropZoneTool = BaseTool.extend({
     },
 
     /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children('div');
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
-    },
-
-    /**
      * Component validation
      * @param component
      * @param pageIdx
@@ -203,6 +157,6 @@ const DropZoneTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(DropZoneTool);
+export default DropZoneTool;

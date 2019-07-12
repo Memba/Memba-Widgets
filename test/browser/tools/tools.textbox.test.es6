@@ -3,9 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO help and menu
-
 /* eslint-disable no-unused-expressions */
+
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -13,165 +14,153 @@ import $ from 'jquery';
 import 'kendo.core';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import __ from '../../../src/js/app/app.i18n.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
-import Page from '../../../src/js/data/models.page.es6';
-import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
+import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
-import { tryCatch } from '../_misc/test.util.es6';
+import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
+// import { tryCatch } from '../_misc/test.util.es6';
 
-// Load tool
-import '../../../src/js/tools/tools.textbox.es6';
-// Load component
+// Component data
 import { getTextBox } from '../_misc/test.components.es6';
 
-const { describe, it } = window;
-const { htmlEncode } = window.kendo;
+const { describe, it, xit } = window;
+// const { htmlEncode } = window.kendo;
 const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
 const FIXTURES = '#fixtures';
 
 describe('tools.textbox', () => {
-    before(() => {
+    before(done => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
+        // Load tool
+        tools.load('textbox').always(done);
     });
 
     describe('TextBoxTool', () => {
-        const tool = tools.textbox;
-        const component = new PageComponent(getTextBox());
+        let tool;
+        let component;
 
-        describe('Descriptors', () => {
-            it('It should have descriptors', () => {
-                expect(tool).to.be.an.instanceof(BaseTool);
-                expect(tool).to.have.property(
-                    'cursor',
-                    CONSTANTS.CROSSHAIR_CURSOR
-                );
-                expect(tool).to.have.property('description', 'TextBox');
-                expect(tool).to.have.property('height', 80);
-                expect(tool).to.have.property('help', null); // TODO
-                expect(tool).to.have.property('id', 'textbox');
-                expect(tool).to.have.property('icon', 'text_field');
-                expect(tool).to.have.property('weight', 1);
-                expect(tool).to.have.property('width', 300);
-            });
+        before(() => {
+            tool = tools('textbox');
+            component = new PageComponent(getTextBox());
         });
 
-        describe('getAttributeModel', () => {
-            it('It should get an attribute model', () => {
-                const Model = tool.getAttributeModel(component);
-                expect(
-                    Object.prototype.isPrototypeOf.call(
-                        BaseModel.prototype,
-                        Model.prototype
-                    )
-                ).to.be.true;
-                expect(Model.fields).to.have.property('mask');
-                expect(Model.fields).to.have.property('style');
-            });
+        it('It should have descriptors', () => {
+            expect(tool).to.be.an.instanceof(BaseTool);
+            expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
+            expect(tool).to.have.property(
+                'description',
+                __('tools.textbox.description')
+            );
+            expect(tool).to.have.property('height', 80);
+            expect(tool).to.have.property('help', __('tools.textbox.help'));
+            expect(tool).to.have.property('id', 'textbox');
+            expect(tool).to.have.property('icon', __('tools.textbox.icon'));
+            expect(tool)
+                .to.have.property('menu')
+                .that.eql(['properties.question', 'properties.solution']);
+            expect(tool).to.have.property('name', __('tools.textbox.name'));
+            expect(tool).to.have.property('weight', 1);
+            expect(tool).to.have.property('width', 300);
         });
 
-        describe('getAttributeRows', () => {
-            it('It should get attribute rows', () => {
-                const rows = tool.getAttributeRows(component);
-                expect(rows)
-                    .to.be.an('array')
-                    .with.lengthOf(7);
-                expect(rows[0]).to.have.property('field', 'top');
-                expect(rows[1]).to.have.property('field', 'left');
-                expect(rows[2]).to.have.property('field', 'height');
-                expect(rows[3]).to.have.property('field', 'width');
-                expect(rows[4]).to.have.property('field', 'rotate');
-                expect(rows[5]).to.have.property('field', 'attributes.mask');
-                expect(rows[6]).to.have.property('field', 'attributes.style');
-            });
+        it('getAttributeModel', () => {
+            const Model = tool.getAttributeModel(component);
+            expect(
+                Object.prototype.isPrototypeOf.call(
+                    BaseModel.prototype,
+                    Model.prototype
+                )
+            ).to.be.true;
+            expect(Model.fields).to.have.property('mask');
+            expect(Model.fields).to.have.property('style');
         });
 
-        describe('getPropertyModel', () => {
-            it('It should get a property model', () => {
-                const Model = tool.getPropertyModel(component);
-                expect(
-                    Object.prototype.isPrototypeOf.call(
-                        BaseModel.prototype,
-                        Model.prototype
-                    )
-                ).to.be.true;
-                expect(Model.fields).to.have.property('failure');
-                expect(Model.fields).to.have.property('name');
-                expect(Model.fields).to.have.property('omit');
-                expect(Model.fields).to.have.property('question');
-                expect(Model.fields).to.have.property('solution');
-                expect(Model.fields).to.have.property('success');
-                expect(Model.fields).to.have.property('validation');
-            });
+        it('getAttributeRows', () => {
+            const rows = tool.getAttributeRows(component);
+            expect(rows)
+                .to.be.an('array')
+                .with.lengthOf(7);
+            expect(rows[0]).to.have.property('field', 'top');
+            expect(rows[1]).to.have.property('field', 'left');
+            expect(rows[2]).to.have.property('field', 'height');
+            expect(rows[3]).to.have.property('field', 'width');
+            expect(rows[4]).to.have.property('field', 'rotate');
+            expect(rows[5]).to.have.property('field', 'attributes.mask');
+            expect(rows[6]).to.have.property('field', 'attributes.style');
         });
 
-        describe('getPropertyRows', () => {
-            it('It should get property rows', () => {
-                const rows = tool.getPropertyRows(component);
-                expect(rows)
-                    .to.be.an('array')
-                    .with.lengthOf(7);
-                expect(rows[0]).to.have.property('field', 'properties.name');
-                expect(rows[1]).to.have.property(
-                    'field',
-                    'properties.question'
-                );
-                expect(rows[2]).to.have.property(
-                    'field',
-                    'properties.solution'
-                );
-                expect(rows[3]).to.have.property(
-                    'field',
-                    'properties.validation'
-                );
-                expect(rows[4]).to.have.property('field', 'properties.success');
-                expect(rows[5]).to.have.property('field', 'properties.failure');
-                expect(rows[6]).to.have.property('field', 'properties.omit');
-            });
+        it('getPropertyModel', () => {
+            const Model = tool.getPropertyModel(component);
+            expect(
+                Object.prototype.isPrototypeOf.call(
+                    BaseModel.prototype,
+                    Model.prototype
+                )
+            ).to.be.true;
+            expect(Model.fields).to.have.property('failure');
+            expect(Model.fields).to.have.property('name');
+            expect(Model.fields).to.have.property('omit');
+            expect(Model.fields).to.have.property('question');
+            expect(Model.fields).to.have.property('solution');
+            expect(Model.fields).to.have.property('success');
+            expect(Model.fields).to.have.property('validation');
         });
 
-        describe('getAssets', () => {
-            it('It should get assets', () => {
-                const assets = tool.getAssets(component);
-                expect(assets)
-                    .to.have.property('audio')
-                    .that.is.an('array')
-                    .with.lengthOf(0);
-                expect(assets)
-                    .to.have.property('image')
-                    .that.is.an('array')
-                    .with.lengthOf(0);
-                expect(assets)
-                    .to.have.property('video')
-                    .that.is.an('array')
-                    .with.lengthOf(0);
-            });
+        it('getPropertyRows', () => {
+            const rows = tool.getPropertyRows(component);
+            expect(rows)
+                .to.be.an('array')
+                .with.lengthOf(7);
+            expect(rows[0]).to.have.property('field', 'properties.name');
+            expect(rows[1]).to.have.property('field', 'properties.question');
+            expect(rows[2]).to.have.property('field', 'properties.solution');
+            expect(rows[3]).to.have.property('field', 'properties.validation');
+            expect(rows[4]).to.have.property('field', 'properties.success');
+            expect(rows[5]).to.have.property('field', 'properties.failure');
+            expect(rows[6]).to.have.property('field', 'properties.omit');
         });
 
-        describe('getDescription', () => {
-            it('It should return a description', () => {
-                expect(
-                    Object.prototype.hasOwnProperty.call(tool, 'getDescription')
-                ).to.be.false;
-                expect(tool).to.respondTo('getDescription');
-            });
+        it('getAssets', () => {
+            const assets = tool.getAssets(component);
+            expect(assets)
+                .to.have.property('audio')
+                .that.is.an('array')
+                .with.lengthOf(0);
+            expect(assets)
+                .to.have.property('image')
+                .that.is.an('array')
+                .with.lengthOf(0);
+            expect(assets)
+                .to.have.property('video')
+                .that.is.an('array')
+                .with.lengthOf(0);
         });
 
-        describe('getHelp', () => {
-            it('It should return contextual help', () => {
-                expect(Object.prototype.hasOwnProperty.call(tool, 'getHelp')).to
-                    .be.be.false;
-                expect(tool).to.respondTo('getHelp');
-            });
+        it('getDescription', () => {
+            expect(Object.prototype.hasOwnProperty.call(tool, 'getDescription'))
+                .to.be.false;
+            expect(tool).to.respondTo('getDescription');
         });
 
-        describe('getTestModelField', () => {
-            it('It should grade a test model field', done => {
+        it('getHelp', () => {
+            expect(Object.prototype.hasOwnProperty.call(tool, 'getHelp')).to.be
+                .be.false;
+            expect(tool).to.respondTo('getHelp');
+        });
+
+        it('getTestModelField', () => {
+            expect(
+                Object.prototype.hasOwnProperty.call(tool, 'getTestModelField')
+            ).to.be.false;
+            expect(tool).to.respondTo('getTestModelField');
+            /*
                 // Note: we would normally use stream.getTestModel
                 const textBox = getTextBox();
                 const page = new Page({
@@ -210,80 +199,59 @@ describe('tools.textbox', () => {
                         })
                     )
                     .catch(done);
+                */
+        });
+
+        it('getHtmlContent', () => {
+            // If we do not submit a page component
+            function fn1() {
+                return tool.getHtmlContent({});
+            }
+            expect(fn1).to.throw();
+
+            // If we do not submit a mode
+            function fn2() {
+                return tool.getHtmlContent(component);
+            }
+            expect(fn2).to.throw();
+
+            // Test all stage TOOLS.STAGE_MODES
+            Object.values(TOOLS.STAGE_MODES).forEach(mode => {
+                const html = tool.getHtmlContent(component, mode);
+                expect(html).to.match(/^<input/);
             });
         });
 
-        describe('getHtmlContent', () => {
-            it('getHtmlContent', () => {
-                // If we do not submit a page component
-                function fn1() {
-                    return tool.getHtmlContent({});
-                }
-                expect(fn1).to.throw();
-
-                // If we do not submit a mode
-                function fn2() {
-                    return tool.getHtmlContent(component);
-                }
-                expect(fn2).to.throw();
-
-                // Test all stage CONSTANTS.STAGE_MODES
-                Object.values(CONSTANTS.STAGE_MODES).forEach(mode => {
-                    const html = tool.getHtmlContent(component, mode);
-                    expect(html).to.match(/^<input/);
-                });
-            });
+        it('getHtmlCheckMarks', () => {
+            expect(
+                Object.prototype.hasOwnProperty.call(tool, 'getHtmlCheckMarks')
+            ).to.be.false;
+            expect(tool).to.respondTo('getHtmlCheckMarks');
         });
 
-        describe('getHtmlCheckMarks', () => {
-            it('getHtmlCheckMarks', () => {
-                expect(
-                    Object.prototype.hasOwnProperty.call(
-                        tool,
-                        'getHtmlCheckMarks'
-                    )
-                ).to.be.false;
-                expect(tool).to.respondTo('getHtmlCheckMarks');
-            });
+        it('getHtmlValue', () => {
+            expect(Object.prototype.hasOwnProperty.call(tool, 'getHtmlValue'))
+                .to.be.false;
+            expect(tool).to.respondTo('getHtmlValue');
         });
 
-        describe('getHtmlValue', () => {
-            it('getHtmlValue', () => {
-                expect(
-                    Object.prototype.hasOwnProperty.call(tool, 'getHtmlValue')
-                ).to.be.false;
-                expect(tool).to.respondTo('getHtmlValue');
-            });
+        it('getHtmlSolution', () => {
+            expect(
+                Object.prototype.hasOwnProperty.call(tool, 'getHtmlSolution')
+            ).to.be.false;
+            expect(tool).to.respondTo('getHtmlSolution');
         });
 
-        describe('getHtmlSolution', () => {
-            it('getHtmlSolution', () => {
-                expect(
-                    Object.prototype.hasOwnProperty.call(
-                        tool,
-                        'getHtmlSolution'
-                    )
-                ).to.be.false;
-                expect(tool).to.respondTo('getHtmlSolution');
-            });
+        xit('onEnable', () => {
+            expect(tool).to.respondTo('onEnable');
         });
 
-        describe('onEnable', () => {
-            xit('onEnable', () => {
-                expect(tool).to.respondTo('onEnable');
-            });
+        xit('onResize', () => {
+            expect(tool).to.respondTo('onResize');
         });
 
-        describe('onResize', () => {
-            xit('onResize', () => {
-                expect(tool).to.respondTo('onResize');
-            });
-        });
-
-        describe('validate', () => {
-            xit('validate', () => {
-                expect(tool).to.respondTo('validate');
-            });
+        xit('validate', () => {
+            expect(tool).to.respondTo('validate');
         });
     });
 });

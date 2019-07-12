@@ -212,15 +212,15 @@
             Promise.all([
                 SystemJS.import('kendo.binder'),
                 SystemJS.import('kendo.splitter'),
-                SystemJS.import('../app/app.tools.es6'),
+                SystemJS.import('../cultures/all.es6'),
                 SystemJS.import('../data/data.page.es6'),
                 SystemJS.import('../helpers/helpers.data.es6'),
                 SystemJS.import('./widgets.navigation.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                var Page = modules[3].Page;
-                var PageDataSource = modules[3].PageDataSource;
-                var data = modules[4].getPageArray();
+                var Page = modules[2].Page;
+                var PageDataSource = modules[2].PageDataSource;
+                var data = modules[3].getPageArray();
                 var pageDataSource = new PageDataSource({ data });
                 var viewModel = window.viewModel = kendo.observable({
                     current: undefined,
@@ -259,10 +259,7 @@
                         ]
                     }).data("kendoSplitter");
 
-                    kendo.bind('body', viewModel);
-
                     $(window).on('resize', window.onResize);
-
                     $(document).on('keypress', function(e) {
                         //Add empty pages when pressing the space bar
                         if (e.type === 'keypress' && e.keyCode === 32) {
@@ -271,8 +268,19 @@
                         }
                     });
 
-                    pageDataSource.fetch(function() {
+                    pageDataSource
+                        .fetch()
+                        .then(function() {
+                            const promises = [];
+                            pageDataSource.data().forEach(page => {
+                                page.components.fetch(function ())
+                            $.when(promises)
+                                .then(() => {
+
+                                });
+                        });
                         window.viewModel.set('current', pageDataSource.at(0));
+                        kendo.bind('body', viewModel);
                         window.onResize();
                     });
                 });

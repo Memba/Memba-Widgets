@@ -13,8 +13,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import NumberAdapter from './adapters.number.es6';
 import TableAdapter from './adapters.table.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 // import {} from './util.validators.es6';
 
@@ -32,16 +31,13 @@ const TEMPLATE = `<div data-${ns}role="table" style="#: attributes.style #" data
  */
 const TableTool = BaseTool.extend({
     id: 'table',
-    icon: 'table',
-    name: __('tools.table.name'),
-    description: __('tools.table.description'),
-    help: __('tools.table.help'),
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    childSelector: `${CONSTANTS.DIV}${roleSelector('table')}`,
+    height: 350,
+    width: 600,
+    // menu: [],
     templates: {
         default: TEMPLATE
     },
-    height: 350,
-    width: 600,
     attributes: {
         columns: new NumberAdapter(
             {
@@ -91,48 +87,6 @@ const TableTool = BaseTool.extend({
     },
 
     /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children(roleSelector('table'));
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
-    },
-
-    /**
      * Component validation
      * @param component
      * @param pageIdx
@@ -162,6 +116,6 @@ const TableTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(TableTool);
+export default TableTool;

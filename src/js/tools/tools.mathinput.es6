@@ -14,12 +14,11 @@ import ReadOnlyAdapter from './adapters.readonly.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
 import ValidationAdapter from './adapters.validation.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { mathLibrary } from './util.libraries.es6';
-import {scoreValidator} from './util.validators.es6';
-import __ from '../app/app.i18n';
+import { scoreValidator } from './util.validators.es6';
+import __ from '../app/app.i18n.es6';
 
 const { attr, format, ns, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -29,13 +28,12 @@ const MATHINPUT = `<div data-${ns}role="mathinput" data-${ns}toolbar="#: JSON.st
  * @class MathInputTool tool
  * @type {void|*}
  */
-var MathInputTool = BaseTool.extend({
+const MathInputTool = BaseTool.extend({
     id: 'mathinput',
-    icon: 'formula_input',
-    name: __('tools.mathinput.name'),
-    description: __('tools.mathinput.description'),
-    help: __('tools.mathinput.help'),
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    height: 120,
+    width: 370,
+    weight: 1,
+    // menu: [],
     templates: {
         design: format(MATHINPUT, `data-${ns}enable="false"`),
         play: format(
@@ -48,8 +46,6 @@ var MathInputTool = BaseTool.extend({
                 `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
-    height: 120,
-    width: 370,
     attributes: {
         // The formula is intended to set several MathQuillMathFields, which requires to make the solution an array of mathinputs
         // formula: new MathInputAdapter({ title: __('tools.mathinput.attributes.formula.title') }),
@@ -133,118 +129,49 @@ var MathInputTool = BaseTool.extend({
      * @returns {*}
      */
     getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            MathInputTool,
-            that,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this',
-                'MathInputTool'
-            )
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.keys(TOOLS.STAGE_MODES)
-            )
-        );
-        const tmpl = template(that.templates[mode]);
-        component.toolbar$ = function() {
-            const tools = [];
-            /*
-            if (this.get('attributes.backspace')) {
-                tools.push('backspace');
+        $.extend(component, {
+            toolbar$() {
+                const tools = [];
+                /*
+                if (this.get('attributes.backspace')) {
+                    tools.push('backspace');
+                }
+                if (this.get('attributes.field')) {
+                    tools.push('field');
+                }
+                */
+                if (this.get('attributes.keypad')) {
+                    tools.push('keypad');
+                }
+                if (this.get('attributes.basic')) {
+                    tools.push('basic');
+                }
+                if (this.get('attributes.greek')) {
+                    tools.push('greek');
+                }
+                if (this.get('attributes.operators')) {
+                    tools.push('operators');
+                }
+                if (this.get('attributes.expressions')) {
+                    tools.push('expressions');
+                }
+                if (this.get('attributes.sets')) {
+                    tools.push('sets');
+                }
+                if (this.get('attributes.matrices')) {
+                    tools.push('matrices');
+                }
+                if (this.get('attributes.statistics')) {
+                    tools.push('statistics');
+                }
+                return {
+                    container: '#floating .kj-floating-content',
+                    resizable: false,
+                    tools
+                };
             }
-            if (this.get('attributes.field')) {
-                tools.push('field');
-            }
-            */
-            if (this.get('attributes.keypad')) {
-                tools.push('keypad');
-            }
-            if (this.get('attributes.basic')) {
-                tools.push('basic');
-            }
-            if (this.get('attributes.greek')) {
-                tools.push('greek');
-            }
-            if (this.get('attributes.operators')) {
-                tools.push('operators');
-            }
-            if (this.get('attributes.expressions')) {
-                tools.push('expressions');
-            }
-            if (this.get('attributes.sets')) {
-                tools.push('sets');
-            }
-            if (this.get('attributes.matrices')) {
-                tools.push('matrices');
-            }
-            if (this.get('attributes.statistics')) {
-                tools.push('statistics');
-            }
-            return {
-                container: '#floating .kj-floating-content',
-                resizable: false,
-                tools
-            };
-        };
-        return tmpl(component);
-    },
-
-    /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children('div');
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
+        });
+        return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
 
     /**
@@ -285,6 +212,6 @@ var MathInputTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(MathInputTool);
+export default MathInputTool;

@@ -8,35 +8,28 @@
 import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
-import '../widgets/widgets.template.es6';
-import DropDownListAdapter from './adapters.dropdownlist.es6';
-import StyleAdapter from './adapters.style.es6';
-import TextAreaAdapter from './adapters.textarea.es6';
-import TextBoxAdapter from './adapters.textbox.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.line.es6';
+import ColorAdapter from './adapters.color.es6';
+// import DropDownListAdapter from './adapters.dropdownlist.es6';
+import NumberAdapter from './adapters.dropdownlist.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
-import {
-    constantValidator,
-    styleValidator,
-    textValidator
-} from './util.validators.es6';
 
-const { format, htmlEncode, ns, template } = window.kendo;
+const { format, ns } = window.kendo;
 
 /**
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div class="#: class$() #" data-${ns}role="template" data-${ns}template="t-#: id #" style="#: attributes.style #" data-${ns}id="#: id #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #" data-${ns}bind="value: variables$()"></div><script id="t-#: id #" type="text/x-kendo-template">#= template$() #</script>`;
-// We need to designate the template in a script, because kendo.init calls parseOption from kendo.core.js
-// which tranforms any data-*template tag into a template function assigned to options.template and
-// it won't work otherwise because ${'#' + value) fails if value is the template content
-
-const DESIGN = `<div class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #">#= text$() #</div>`;
+const TEMPLATE = `<div
+    data-${ns}role="line"
+    data-${ns}end-cap="{shape:&quot;arrow&quot;,fill:{color:&quot;#: attributes.lineColor #&quot;}}"
+    data-${ns}line="{stroke:{color:&quot;#: attributes.lineColor #&quot;}}"
+    data-${ns}start-cap="{shape:&quot;circle&quot;,fill:{color:&quot;#: attributes.lineColor #&quot;}}">
+</div>`;
 
 /**
  * LineTool
@@ -45,119 +38,24 @@ const DESIGN = `<div class="#: class$() #" style="#: attributes.style #" data-${
  */
 const LineTool = BaseTool.extend({
     id: 'line',
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: __('tools.line.description'),
-    height: 80,
-    help: __('tools.line.help'),
-    icon: 'font',
-    // menu: [],
-    name: __('tools.line.name'),
+    height: 60,
     width: 300,
+    // menu: [],
     templates: {
-        design: DESIGN,
-        play: TEMPLATE,
-        review: TEMPLATE
+        default: TEMPLATE
     },
-    attributes: {},
+    attributes: {
+        lineColor: new ColorAdapter({
+            title: __('tools.line.attributes.lineColor.title'),
+            defaultValue: TOOLS.MEDIUM_GREY
+        }),
+        lineWidth: new NumberAdapter({
+            title: __('tools.line.attributes.lineWidth.title'),
+            defaultValue: 5
+            // TODO min, nax, step... -----> Consider slider
+        })
+    },
     // properties: {},
-
-    /**
-     * Get Html or jQuery content
-     * @method getHtmlContent
-     * @param component
-     * @param mode
-     * @returns {*}
-     */
-    getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.values(TOOLS.STAGE_MODES)
-            )
-        );
-        const tmpl = template(that.templates[mode]);
-        return tmpl(component);
-    },
-
-    /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            assert.format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children('div');
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                content.outerWidth(true) +
-                content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                content.outerHeight(true) +
-                content.outerHeight()
-            );
-            // if (component.attributes && !TOOLS.RX_FONT_SIZE.test(component.attributes.style)) {
-            /*
-             * We make a best guess for the number of lines as follows
-             * Let's suppose the height (line-height, not font-size) and width of a character are respectively y and x
-             * We have y = x * sizeRatio
-             * How many of these character rectangles (x, y) can we fit in the content div (width, height)?
-             *
-             * the label only takes 1 line, if we have:
-             * y = height and length <= width/x, that is length <= width*sizeRatio/y or y = height <= length*sizeRatio/width, which is length >= width*sizeRatio/height
-             *
-             * the label takes 2 lines, if we have:
-             * y = height/2 and length <= width/x, that is length <= 2*width*sizeRatio/y or y = height/2 <= length*sizeRatio/width, which is length >= 4*width*sizeRatio/height
-             *
-             * the label takes n lines if we have sqrt((length*height)/sizeRatio*width) <= lines < sqrt(((length + 1)*height)/sizeRatio*width)
-             *
-             */
-            // var length = component.attributes.text.length;
-            // var sizeRatio = 1.6; // font-size being the height, this is the line-height/char-width ratio
-            // var lines = Math.max(1, Math.floor(Math.sqrt((length * component.height) / (width * sizeRatio))));
-            // We can now make a best guess for the font size
-            // var fontRatio = 1.2; // this is the line-height/font-size ration
-            // content.css('font-size', Math.floor(component.height / lines / fontRatio));
-            // Note: in previous versions, we have tried to iterate through a hidden clone
-            // to find that font size that does not trigger an overflow but it is too slow
-            // }
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
-    },
 
     /**
      * Component validation
@@ -170,6 +68,7 @@ const LineTool = BaseTool.extend({
             description,
             i18n: { messages }
         } = this; // tool description
+        /*
         if (
             !component.attributes ||
             !component.attributes.text ||
@@ -196,6 +95,7 @@ const LineTool = BaseTool.extend({
                 message: format(messages.invalidStyle, description, pageIdx + 1)
             });
         }
+         */
         // TODO: We should also check that there is a dropZone on the page if draggable
         // TODO check selectable too
         return ret;
@@ -203,6 +103,6 @@ const LineTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default export
  */
-tools.register(LineTool);
+export default LineTool;

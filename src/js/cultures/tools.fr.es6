@@ -70,7 +70,7 @@ const res = {
     audio: {
         description: 'Lecteur Audio',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'loudspeaker3',
         name: 'Lecteur Audio',
         attributes: {
             autoplay: { title: 'Auto.' },
@@ -83,7 +83,7 @@ const res = {
     chargrid: {
         description: 'Character Grid',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'dot_matrix',
         name: 'Character Grid',
         attributes: {
             blank: { title: 'Vide' },
@@ -122,7 +122,7 @@ const res = {
     chart: {
         description: 'Diagramme',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'chart_area',
         name: 'Diagramme',
         attributes: {
             categories: { title: 'Catégories' },
@@ -139,7 +139,7 @@ const res = {
     connector: {
         description: 'Connecteur',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'target',
         name: 'Connecteur',
         attributes: {
             color: { title: 'Couleur' }
@@ -168,7 +168,7 @@ const res = {
     dropzone: {
         description: 'Zone de Dépot',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'elements_selection',
         name: 'Zone de Dépot',
         attributes: {
             center: {
@@ -202,11 +202,19 @@ const res = {
         }
     },
 
+    // dummy
+    dummy: {
+        description: 'Carré',
+        help: 'TODO',
+        icon: 'shapes',
+        name: 'Carré'
+    },
+
     // highlighter
     highlighter: {
         description: 'Surligneur',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'marker',
         name: 'Surligneur',
         attributes: {
             highlightStyle: { title: 'Surligne' },
@@ -238,7 +246,7 @@ const res = {
 
     // image
     image: {
-        description: 'Image',
+        description: 'Image: <em>#: attributes.alt #</em>',
         help: 'TODO',
         icon: 'painting_landscape',
         name: 'Image',
@@ -273,7 +281,7 @@ const res = {
     imageset: {
         description: 'Jeu d’images',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'photos',
         name: 'Jeu d’images',
         attributes: {
             data: {
@@ -308,7 +316,7 @@ const res = {
 
     // label
     label: {
-        description: 'Étiquette',
+        description: 'Étiquette: <em>#: attributes.text #</em>',
         help: 'TODO',
         icon: 'font',
         name: 'Étiquette',
@@ -337,7 +345,7 @@ const res = {
     latex: {
         description: 'Expression Mathématique',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'formula',
         name: 'Expression Mathématique',
         attributes: {
             formula: {
@@ -364,13 +372,20 @@ const res = {
     },
 
     // line
-    // TODO
     line: {
-        description: 'Line',
+        description:
+            'Line: <div styles="background-color: #: attributes.lineColor #; height: 1em; width: 1em;"/>',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'vector_line',
         name: 'Line',
-        attributes: {},
+        attributes: {
+            lineColor: {
+                title: 'Coleurr'
+            },
+            lineWidth: {
+                title: 'Épaisseur'
+            }
+        },
         properties: {}
     },
 
@@ -379,7 +394,7 @@ const res = {
     mathinput: {
         description: 'Math input',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'formula_input',
         name: 'Mat input',
         attributes: {},
         properties: {}
@@ -387,9 +402,9 @@ const res = {
 
     // multiquiz
     multiquiz: {
-        description: 'Question à Choix Multiple',
+        description: 'Choix Multiple: <em>#: properties.name #</em>',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'marker',
         name: 'Question à Choix Multiple',
         attributes: {
             data: {
@@ -447,7 +462,7 @@ const res = {
     numericbox: {
         description: 'Saisie de nombre',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'odometer',
         name: 'Saisie de nombre',
         attributes: {
             decimals: { title: 'Décimales' },
@@ -484,7 +499,7 @@ const res = {
 
     // quiz
     quiz: {
-        description: 'Question à Choix Unique',
+        description: 'Choix Unique: <em>#: properties.name #</em>',
         help: 'TODO',
         icon: 'radio_button_group',
         name: 'Question à Choix Unique',
@@ -542,7 +557,7 @@ const res = {
     selector: {
         description: 'Sélecteur',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'selector',
         name: 'Sélecteur',
         attributes: {
             color: { title: 'Couleur' },
@@ -590,10 +605,10 @@ const res = {
 
     // textarea
     textarea: {
-        description: 'Saisie de texte long',
+        description: 'Texte Long: <em>#: properties.name #</em>',
         help: 'TODO',
-        icon: 'box_surprise',
-        name: 'Saisie de texte long',
+        icon: 'text_area',
+        name: 'Saisie de Texte Long',
         attributes: {
             style: { title: 'Style' }
         },
@@ -620,10 +635,10 @@ const res = {
 
     // textbox
     textbox: {
-        description: 'Saisie de Texte court',
+        description: 'Texte Court: <em>#: properties.name #</em>',
         help: 'TODO',
         icon: 'text_field',
-        name: 'Saisie de Texte court',
+        name: 'Saisie de Texte Court',
         attributes: {
             mask: {
                 // TODO: Add help
@@ -656,8 +671,8 @@ const res = {
     textgaps: {
         description: 'Texte à trous',
         help: 'TODO',
-        icon: 'box_surprise',
-        name: 'Texte à trous',
+        icon: 'text_gaps',
+        name: 'Texte à Trous',
         attributes: {
             inputStyle: { title: 'Style saisie' },
             style: { title: 'Style' },
@@ -703,7 +718,7 @@ const res = {
     video: {
         description: 'Lecteur Vidéo',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'movie',
         name: 'Lecteur Vidéo',
         attributes: {
             autoplay: { title: 'Auto.' },

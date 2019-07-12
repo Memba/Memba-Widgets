@@ -11,10 +11,12 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import tools from '../tools/tools.es6';
-import BaseTool from '../tools/tools.base.es6';
+import { StubTool } from '../tools/tools.base.es6';
+import TOOLS from '../tools/util.constants.es6';
 
 const {
     attr,
+    destroy,
     format,
     ui: { plugin, Widget }
 } = window.kendo;
@@ -28,8 +30,6 @@ const ROLE = 'role';
 const MENU = 'menu';
 const MENUITEM = 'menuitem';
 const TOOL = 'tool';
-const ACTIVE_TOOL = 'active';
-const POINTER = 'pointer';
 const DEFAULT_EXTENSION = '.svg';
 const DEFAULT_PATH = '../../styles/images/o_collection/svg/office/';
 const DEFAULT_SIZE = 32;
@@ -84,7 +84,7 @@ const ToolBox = Widget.extend({
         size: DEFAULT_SIZE,
         iconPath: DEFAULT_PATH,
         extension: DEFAULT_EXTENSION,
-        tools
+        tools // This is a function to defer loading
     },
 
     /**
@@ -99,7 +99,6 @@ const ToolBox = Widget.extend({
      * @param value
      * @returns {*}
      */
-    // TODO: was tool(id)
     value(value) {
         assert.nullableTypeOrUndef(
             CONSTANTS.STRING,
@@ -113,13 +112,10 @@ const ToolBox = Widget.extend({
         const { element, options } = this;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
             ret = element.find(`.${CONSTANTS.SELECTED_CLASS}`).attr(attr(TOOL));
-        } else if (
-            Object.prototype.hasOwnProperty.call(options.tools, value) &&
-            options.tools[value] instanceof BaseTool
-        ) {
-            if (value !== options.tools.get(ACTIVE_TOOL)) {
+        } else if (options.tools(value) instanceof StubTool) {
+            if (value !== options.tools.active) {
                 // the change handler refreshes the widget
-                options.tools.set(ACTIVE_TOOL, value);
+                options.tools.active = value;
             }
         } else {
             throw new RangeError(
@@ -134,7 +130,7 @@ const ToolBox = Widget.extend({
      * @method reset
      */
     reset() {
-        this.value(POINTER);
+        this.value(TOOLS.POINTER);
     },
 
     /**
@@ -158,15 +154,18 @@ const ToolBox = Widget.extend({
      */
     _render() {
         const { element, options } = this;
-        this.wrapper = element;
-        element.addClass(WIDGET_CLASS).attr(ROLE, MENU);
-        Object.keys(options.tools).forEach(id => {
-            if (options.tools[id] instanceof BaseTool) {
-                const tool = options.tools[id];
+        assert.ok(
+            element.is(CONSTANTS.DIV),
+            'Please use a div tag to instantiate a ToolBox widget.'
+        );
+        this.wrapper = element.addClass(WIDGET_CLASS).attr(ROLE, MENU);
+        Object.keys(options.tools()).forEach(id => {
+            const tool = options.tools(id);
+            if (tool instanceof StubTool) {
                 const button = $(
                     format(BUTTON, format(this._iconPath, tool.icon), tool.name)
                 )
-                    .attr(attr(TOOL), tool.id)
+                    .attr(attr(TOOL), id)
                     .attr(ROLE, MENUITEM)
                     .css({
                         lineHeight: 'normal',
@@ -180,12 +179,11 @@ const ToolBox = Widget.extend({
             }
         });
         this.refresh();
-        // TODO kendo.bind(element, options.tools);
         if ($.isFunction(this._refreshHandler)) {
-            options.tools.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            options.tools().unbind(CONSTANTS.CHANGE, this._refreshHandler);
         }
         this._refreshHandler = this.refresh.bind(this);
-        options.tools.bind(CONSTANTS.CHANGE, this._refreshHandler);
+        options.tools().bind(CONSTANTS.CHANGE, this._refreshHandler);
     },
 
     /**
@@ -198,8 +196,9 @@ const ToolBox = Widget.extend({
             .find(`${CONSTANTS.DOT}${CONSTANTS.SELECTED_CLASS}`)
             .removeClass(CONSTANTS.SELECTED_CLASS);
         element
-            .find(`[${attr(TOOL)}=${options.tools.get(ACTIVE_TOOL)}]`)
+            .find(`[${attr(TOOL)}=${options.tools.active}]`)
             .addClass(CONSTANTS.SELECTED_CLASS);
+        logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
 
     /**
@@ -208,32 +207,23 @@ const ToolBox = Widget.extend({
      * @param enable
      */
     enable(enable) {
-        const { element, options } = this;
+        const { element } = this;
         const enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         element.off(CONSTANTS.CLICK + NS);
         if (enabled) {
             element
                 .removeClass(CONSTANTS.DISABLED_CLASS)
-                .on(CONSTANTS.CLICK + NS, 'a', e => {
+                .on(CONSTANTS.CLICK + NS, 'a.kj-tool', e => {
                     e.preventDefault();
                     const value = $(e.currentTarget).attr(attr(TOOL));
-                    assert.instanceof(
-                        BaseTool,
-                        options.tools[value],
-                        assert.format(
-                            assert.messages.instanceof.default,
-                            'options.tools[value]',
-                            'BaseTool'
-                        )
-                    );
                     if (!this.trigger(CONSTANTS.CHANGE, { value })) {
                         this.value(value);
                     }
                 });
         } else {
             element.addClass(CONSTANTS.DISABLED_CLASS);
-            this.value(POINTER);
+            this.value(TOOLS.POINTER);
         }
     },
 
@@ -246,11 +236,13 @@ const ToolBox = Widget.extend({
         // Unbind events
         element.off(NS);
         if ($.isFunction(this._refreshHandler)) {
-            options.tools.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            options.tools().unbind(CONSTANTS.CHANGE, this._refreshHandler);
         }
         delete this._iconPath;
         delete this.wrapper;
         Widget.fn.destroy.call(this);
+        destroy(element);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });
 

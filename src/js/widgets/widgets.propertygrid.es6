@@ -292,6 +292,7 @@ const PropertyGrid = Widget.extend({
         const { defaults, fields } = properties;
         // if hashedOptionRows is an empty object, then there won't be any rows
         const hasRows = $.isPlainObject(hashedOptionRows);
+        const optionRows = hashedOptionRows || {};
         Object.keys(properties).forEach(prop => {
             // Select only public properties that are not functions (discards _events)
             if (
@@ -300,7 +301,7 @@ const PropertyGrid = Widget.extend({
                 // if rows are designated in this.options.rows, only select these rows
                 (!hasRows ||
                     Object.prototype.hasOwnProperty.call(
-                        hashedOptionRows,
+                        optionRows,
                         prop
                     ))
             ) {
@@ -313,7 +314,7 @@ const PropertyGrid = Widget.extend({
                     rows = rows.concat(
                         this._buildRows(
                             properties[prop],
-                            hashedOptionRows[prop] || {},
+                            optionRows[prop] || {},
                             path.length === 0 ? prop : `${path}.${prop}`
                         )
                     );
@@ -321,9 +322,9 @@ const PropertyGrid = Widget.extend({
                     const row = {
                         attributes:
                             hasRows &&
-                            hashedOptionRows[prop] &&
-                            hashedOptionRows[prop].attributes
-                                ? hashedOptionRows[prop].attributes
+                            optionRows[prop] &&
+                            optionRows[prop].attributes
+                                ? optionRows[prop].attributes
                                 : undefined,
                         // defaultValue
                         editable: !(
@@ -333,29 +334,29 @@ const PropertyGrid = Widget.extend({
                         ),
                         editor:
                             hasRows &&
-                            hashedOptionRows[prop] &&
-                            hashedOptionRows[prop].editor
-                                ? hashedOptionRows[prop].editor
+                            optionRows[prop] &&
+                            optionRows[prop].editor
+                                ? optionRows[prop].editor
                                 : undefined,
                         field: path.length === 0 ? prop : `${path}.${prop}`,
                         help:
                             hasRows &&
-                            hashedOptionRows[prop] &&
-                            hashedOptionRows[prop].help
-                                ? hashedOptionRows[prop].help
+                            optionRows[prop] &&
+                            optionRows[prop].help
+                                ? optionRows[prop].help
                                 : CONSTANTS.EMPTY,
                         // nullable
                         template:
                             hasRows &&
-                            hashedOptionRows[prop] &&
-                            hashedOptionRows[prop].template
-                                ? hashedOptionRows[prop].template
+                            optionRows[prop] &&
+                            optionRows[prop].template
+                                ? optionRows[prop].template
                                 : undefined,
                         title:
                             hasRows &&
-                            hashedOptionRows[prop] &&
-                            hashedOptionRows[prop].title
-                                ? hashedOptionRows[prop].title
+                            optionRows[prop] &&
+                            optionRows[prop].title
+                                ? optionRows[prop].title
                                 /* eslint-disable prettier/prettier */
                                 : toHyphens(prop).replace(/(^\w|-\w)/g, v =>
                                     v.replace('-', ' ').toUpperCase()
@@ -391,7 +392,7 @@ const PropertyGrid = Widget.extend({
                     // if (row.type) {
                     if (hasRows) {
                         // With this.options.rows, only designated properties are displayed
-                        rows[hashedOptionRows[prop]._index] = row;
+                        rows[optionRows[prop]._index] = row;
                     } else {
                         // Without this.options.rows, all public properties are displayed
                         rows.push(row);

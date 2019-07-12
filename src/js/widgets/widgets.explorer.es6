@@ -17,7 +17,7 @@ import {
     PageComponentDataSource
 } from '../data/data.pagecomponent.es6';
 import tools from '../tools/tools.es6';
-import BaseTool from '../tools/tools.base.es6';
+import { StubTool } from '../tools/tools.base.es6';
 
 const {
     attr,
@@ -75,16 +75,17 @@ const Explorer = DataBoundWidget.extend({
      */
     options: {
         name: 'Explorer',
-        enabled: true,
-        index: 0,
-        id: null,
         autoBind: true,
-        itemTemplate: `<li data-${ns}uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-explorer-item"><span class="k-in"><img class="k-image kj-image" alt="#= tool #" src="#= icon$() #">#= description$() #</span></li>`,
-        iconPath: DEFAULT_PATH,
+        enabled: true,
         extension: DEFAULT_EXTENSION,
+        id: null,
+        iconPath: DEFAULT_PATH,
+        index: 0,
+        itemTemplate: `<li data-${ns}uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-explorer-item"><span class="k-in"><img class="k-image" alt="#= tool #" src="#= icon$() #"><span class="k-text">#= description$() #</span></span></li>`,
         messages: {
             empty: 'No item to display'
-        }
+        },
+        tools
     },
 
     /**
@@ -272,12 +273,12 @@ const Explorer = DataBoundWidget.extend({
      * @private
      */
     _templates() {
-        const that = this;
-        that.iconPath = `${that.options.iconPath +
-            (/\/$/.test(`${that.options.iconPath}`) ? '' : '/')}{0}${
-            /^\./.test(`${that.options.extension}`) ? '' : '.'
-        }${that.options.extension}`;
-        that.itemTemplate = template(that.options.itemTemplate);
+        const { extension, iconPath, itemTemplate } = this.options;
+        this.iconPath = `${iconPath +
+            (/\/$/.test(`${iconPath}`) ? '' : '/')}{0}${
+            /^\./.test(`${extension}`) ? '' : '.'
+        }${extension}`;
+        this.itemTemplate = template(itemTemplate);
     },
 
     /**
@@ -285,16 +286,14 @@ const Explorer = DataBoundWidget.extend({
      * @private
      */
     _render() {
-        const that = this;
+        const { element } = this;
         // Add wrapper property for visible bindings
-        that.wrapper = that.element;
+        this.wrapper = element.addClass(WIDGET_CLASS).attr('role', 'listbox');
         // Add ul property
-        that.ul = that.element.find('ul.k-list');
-        if (!that.ul.length) {
-            that.ul = $(UL).appendTo(that.element);
+        this.ul = element.find('ul.k-list');
+        if (!this.ul.length) {
+            this.ul = $(UL).appendTo(element);
         }
-        // Define element
-        that.element.addClass(WIDGET_CLASS).attr('role', 'listbox');
     },
 
     /**
@@ -303,12 +302,14 @@ const Explorer = DataBoundWidget.extend({
      * @param enable
      */
     enable(enable) {
+        const { element } = this;
         const enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
-        this.element.off(NS);
+        element.off(NS);
         if (enabled) {
             // TODO Add touch and pointer events
-            this.element
+            // CONSTANTS.TAP event does not exist
+            element
                 .on(
                     `${CONSTANTS.MOUSEENTER}${NS} ${CONSTANTS.MOUSELEAVE}${NS}`,
                     ALL_ITEMS_SELECTOR,
@@ -618,39 +619,41 @@ const Explorer = DataBoundWidget.extend({
      * @private
      */
     _addItem(component, index) {
-        const that = this;
-        const list = that.ul;
+        const { iconPath, options, ul } = this;
 
         // Check that we get a component that is not already in explorer
         if (
-            list instanceof $ &&
-            list.length &&
+            ul instanceof $ &&
+            ul.length &&
             component instanceof PageComponent &&
-            list.find(format(ITEM_BYUID_SELECTOR, component.uid)).length === 0
+            ul.find(format(ITEM_BYUID_SELECTOR, component.uid)).length === 0
         ) {
-            const tool = tools[component.tool];
-            if (tool instanceof BaseTool) {
+            const tool = options.tools(component.tool);
+            if (tool instanceof StubTool) {
                 // Create explorer item
-                const explorerItem = that.itemTemplate(
+                const explorerItem = this.itemTemplate(
                     $.extend(component, {
+                        descriptions$() {
+                            return tool.getDescription(component);
+                        },
                         icon$() {
-                            return format(that.iconPath, tool.icon);
+                            return format(iconPath, tool.icon);
                         }
                     })
                 );
 
-                // Add to explorer list
+                // Add to explorer ul
                 const nextIndex =
                     $.type(index) === CONSTANTS.NUMBER
                         ? index
-                        : list.children(ALL_ITEMS_SELECTOR).length;
-                const nextExplorerItem = list.children(
+                        : ul.children(ALL_ITEMS_SELECTOR).length;
+                const nextExplorerItem = ul.children(
                     `${ALL_ITEMS_SELECTOR}:eq(${nextIndex})`
                 );
                 if (nextExplorerItem.length) {
                     nextExplorerItem.before(explorerItem);
                 } else {
-                    list.append(explorerItem);
+                    ul.append(explorerItem);
                 }
             }
         }

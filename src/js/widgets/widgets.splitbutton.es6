@@ -24,17 +24,17 @@ const {
 const logger = new Logger('widgets.splitbutton');
 
 const NS = '.kendoSplitButton';
-const WIDGET_CLASS = /* 'k-widget */ 'kj-splitbutton';
+const WIDGET_CLASS = /* 'k-widget */ 'k-split-button kj-split-button';
 
 const BUTTON_TMPL = '<a class="k-button">{0}</a>';
 // var ARROW_BUTTON_TMPL = '<a class="k-button kj-splitbutton-arrow"><span class="' + (options.mobile ? 'km-icon km-arrowdown' : 'k-icon k-i-arrow-60-down') + '"></span></a>';
 const ARROW_BUTTON_TMPL =
-    '<a class="k-button kj-splitbutton-arrow"><span class="k-icon k-i-arrow-60-down"></span></a>';
+    '<a class="k-button k-split-button-arrow"><span class="k-icon k-i-arrow-60-down"></span></a>';
 const ICON_TMPL = '<span class="k-icon k-i-{0}"></span>';
 const IMAGE_TMPL = '<img alt="icon" class="k-image" src="{0}">';
 const POPUP_TMPL = '<ul class="k-list-container k-split-container"></ul>';
 const BUTTON_SELECTOR = 'a.k-button';
-const ARROW_BUTTON_SELECTOR = '.kj-splitbutton-arrow';
+const ARROW_BUTTON_SELECTOR = '.k-split-button-arrow';
 
 /** *******************************************************************************
  * Helpers
@@ -167,8 +167,8 @@ const SplitButton = Widget.extend({
      * @private
      */
     _createPopup() {
-        const options = this.options;
-        const element = this.element;
+        const { options } = this;
+        const { element } = this;
         const items = options.menuButtons;
         this.popupElement = $(POPUP_TMPL).appendTo(element);
         /*
@@ -176,11 +176,7 @@ const SplitButton = Widget.extend({
             this.popupElement = actionSheetWrap(this.popupElement);
         }
         */
-        for (
-            var i = 0, length = items.length, item, icon;
-            i < items.length;
-            i++
-        ) {
+        for (let i = 0, { length } = items, item, icon; i < length; i++) {
             item = items[i];
             icon = item.icon
                 ? format(ICON_TMPL, item.icon)

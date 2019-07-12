@@ -5,6 +5,9 @@
 
 /* eslint-disable no-unused-expressions */
 
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -13,14 +16,15 @@ import 'kendo.data';
 import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
+import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 const { describe, it, kendo, xit } = window;
 const { expect } = chai;
 
 describe('tools.chargrid', () => {
     describe('CharGridTool', () => {
-        const tool = tools.chargrid;
+        const tool = tools('chargrid');
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);

@@ -3,9 +3,9 @@
 @include exports( "widgets.stage/layout" ) {
     .kj-stage {
         font-family: Helvetica, Arial, sans-serif;
-        font-size: 14px;
+        font-size: 40px;
         font-weight: normal;
-        text-align: initial; // For tooltips
+        text-align: initial; // For playbar tooltips
         transform-origin: center center;
 
         .kj-element {

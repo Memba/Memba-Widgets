@@ -5,6 +5,9 @@
 
 /* eslint-disable no-unused-expressions */
 
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
+
 import 'kendo.core';
 import chai from 'chai';
 import JSC from 'jscheck';

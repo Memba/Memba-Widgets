@@ -34,7 +34,7 @@ import {
     PageComponentDataSource
 } from '../data/data.pagecomponent.es6';
 import tools from '../tools/tools.es6';
-import BaseTool from '../tools/tools.base.es6';
+import { BaseTool } from '../tools/tools.base.es6';
 import TOOLS from '../tools/util.constants.es6';
 
 const {
@@ -1292,6 +1292,7 @@ const Stage = DataBoundWidget.extend({
      * @private
      */
     _prepareStageElement(stageElement, component) {
+        const { options } = this;
         assert.instanceof(
             $,
             stageElement,
@@ -1317,7 +1318,7 @@ const Stage = DataBoundWidget.extend({
         );
 
         // Get tool
-        const tool = this.options.tools[component.tool];
+        const tool = options.tools(component.tool);
         assert.instanceof(
             BaseTool,
             tool,
@@ -1430,16 +1431,7 @@ const Stage = DataBoundWidget.extend({
      */
     _onEnableStageElement(e, component, enable) {
         const { options } = this;
-        assert.instanceof(
-            ObservableObject,
-            options.tools,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.options.tools',
-                'kendo.data.ObservableObject'
-            )
-        );
-        const tool = options.tools[component.tool];
+        const tool = options.tools(component.tool);
         assert.instanceof(
             BaseTool,
             tool,
@@ -1463,16 +1455,7 @@ const Stage = DataBoundWidget.extend({
      */
     _onMoveStageElement(e, component) {
         const { options } = this;
-        assert.instanceof(
-            ObservableObject,
-            options.tools,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.options.tools',
-                'kendo.data.ObservableObject'
-            )
-        );
-        const tool = options.tools[component.tool];
+        const tool = options.tools(component.tool);
         assert.instanceof(
             BaseTool,
             tool,
@@ -1496,16 +1479,7 @@ const Stage = DataBoundWidget.extend({
      */
     _onResizeStageElement(e, component) {
         const { options } = this;
-        assert.instanceof(
-            ObservableObject,
-            options.tools,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.options.tools',
-                'kendo.data.ObservableObject'
-            )
-        );
-        const tool = options.tools[component.tool];
+        const tool = options.tools(component.tool);
         assert.instanceof(
             BaseTool,
             tool,
@@ -1529,16 +1503,7 @@ const Stage = DataBoundWidget.extend({
      */
     _onRotateStageElement(e, component) {
         const { options } = this;
-        assert.instanceof(
-            ObservableObject,
-            options.tools,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.options.tools',
-                'kendo.data.ObservableObject'
-            )
-        );
-        const tool = options.tools[component.tool];
+        const tool = options.tools(component.tool);
         assert.instanceof(
             BaseTool,
             tool,
@@ -1583,10 +1548,11 @@ const Stage = DataBoundWidget.extend({
                 )
                 .appendTo(this.wrapper)
                 .kendoContextMenu({
-                    target: `.kj-handle[${attr(CONSTANTS.ACTION)}="menu"]`,
-                    showOn: support.click,
+                    copyAnchorStyles: false,
                     open: this._onContextMenuOpen.bind(this),
-                    select: this._onContextMenuSelect.bind(this)
+                    select: this._onContextMenuSelect.bind(this),
+                    showOn: support.click,
+                    target: `.kj-handle[${attr(CONSTANTS.ACTION)}="menu"]`
                 })
                 .data('kendoContextMenu');
         }
@@ -1599,6 +1565,7 @@ const Stage = DataBoundWidget.extend({
      * @private
      */
     _onContextMenuOpen(e) {
+        const { dataSource, options } = this;
         assert.isNonEmptyPlainObject(
             e,
             assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
@@ -1612,12 +1579,11 @@ const Stage = DataBoundWidget.extend({
                 'kendo.ui.ContextMenu'
             )
         );
-
         if ($(e.item).is(`ul.${MENU_CLASS}`)) {
             // This is the top menu, so let's find the component and tool
             const uid = this._getSelectedUid();
-            const component = this.dataSource.getByUid(uid);
-            const tool = this.options.tools[component.tool];
+            const component = dataSource.getByUid(uid);
+            const tool = options.tools(component.tool);
 
             // Discard the old menu, probably referring to another component
             const menu = $(`[${attr(CONSTANTS.ACTION)}="component"]`);
@@ -1691,7 +1657,7 @@ const Stage = DataBoundWidget.extend({
                     this.dataSource.insert(index + 1, clone);
                     break;
                 default:
-                    tool = this.options.tools[component.tool];
+                    tool = this.options.tools(component.tool);
                     if (
                         tool instanceof BaseTool &&
                         $.isFunction(tool.onContextMenu)
@@ -1779,11 +1745,12 @@ const Stage = DataBoundWidget.extend({
      * @private
      */
     _onMousePress(e) {
+        const { options } = this;
         assert.isNonEmptyPlainObject(
             e,
             assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
-        const active = this.options.tools.get(TOOLS.ACTIVE);
+        const { active } = options.tools;
         const target = $((e.touch || {}).initialTouch);
         // Close any context menu left opened
         if (
@@ -1812,53 +1779,63 @@ const Stage = DataBoundWidget.extend({
                 this.value(null);
                 this.trigger(CONSTANTS.SELECT, { value: null });
             }
-        } else if (active !== TOOLS.POINTER) {
+
+            // Focus on the stage to receive keyboard events
+            this.stage.focus();
+        } else {
             e.preventDefault();
-            // Find the selected tool
-            const tool = tools[active];
-            assert.instanceof(
-                BaseTool,
-                tool,
-                assert.format(
-                    assert.messages.instanceof.default,
-                    'tool',
-                    'BaseTool'
-                )
-            );
-            // Find the mouse/touch position and add a component
-            const scale = getTransformScale(this.wrapper);
-            const offset = this.stage.offset();
-            const left = (e.x.location - offset.left) / scale;
-            const top = (e.y.location - offset.top) / scale;
-            // Check that the mousedown occured within the boundaries of the stage
-            if (
-                left >= 0 &&
-                left <= this.stage.width() &&
-                top >= 0 &&
-                top <= this.stage.height()
-            ) {
-                const component = new PageComponent({
-                    // id: kendo.guid(),
-                    tool: tool.id,
-                    left,
-                    top,
-                    width: tool.width,
-                    height: tool.height
-                    // rotate: tool.rotate
+            options.tools
+                .load(active)
+                .then(() => {
+                    // Get the active tool
+                    const tool = options.tools(active);
+                    assert.instanceof(
+                        BaseTool,
+                        tool,
+                        assert.format(
+                            assert.messages.instanceof.default,
+                            'tool',
+                            'BaseTool'
+                        )
+                    );
+                    // Find the mouse/touch position and add a component
+                    const scale = getTransformScale(this.wrapper);
+                    const offset = this.stage.offset();
+                    const left = (e.x.location - offset.left) / scale;
+                    const top = (e.y.location - offset.top) / scale;
+                    // Check that the mousedown occured within the boundaries of the stage
+                    if (
+                        left >= 0 &&
+                        left <= this.stage.width() &&
+                        top >= 0 &&
+                        top <= this.stage.height()
+                    ) {
+                        const component = new PageComponent({
+                            // id: kendo.guid(),
+                            tool: tool.id,
+                            left,
+                            top,
+                            width: tool.width,
+                            height: tool.height
+                            // rotate: tool.rotate
+                        });
+                        // Add triggers the change event on the dataSource
+                        // which calls the refresh method
+                        this.dataSource.add(component);
+                        this._showAdorner(component.uid);
+                        this.trigger(CONSTANTS.SELECT, { value: component });
+
+                        // Reset the pointer tool
+                        options.tools.active = TOOLS.POINTER;
+
+                        // Focus on the stage to receive keyboard events
+                        this.stage.focus();
+                    }
+                })
+                .catch(err => {
+                    // TODO
                 });
-                // Add triggers the change event on the dataSource
-                // which calls the refresh method
-                this.dataSource.add(component);
-                this._showAdorner(component.uid);
-                this.trigger(CONSTANTS.SELECT, { value: component });
-
-                // Reset the pointer tool
-                tools.set(TOOLS.ACTIVE, TOOLS.POINTER);
-            }
         }
-
-        // Focus on the stage to receive keyboard events
-        this.stage.focus();
     },
 
     /**
@@ -1869,11 +1846,12 @@ const Stage = DataBoundWidget.extend({
      * @private
      */
     _onMouseStart(e) {
+        const { options } = this;
         assert.isNonEmptyPlainObject(
             e,
             assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
-        const active = this.options.tools.get(TOOLS.ACTIVE);
+        const { active } = options.tools;
         const target = $((e.touch || {}).initialTouch);
         const action = target.attr(attr(CONSTANTS.ACTION));
         if (

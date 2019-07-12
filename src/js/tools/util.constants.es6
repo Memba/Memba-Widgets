@@ -11,6 +11,8 @@ const TOOLS = {
     LIB_COMMENT: '// ',
     LIB_PARAMS: ' [{0}]',
 
+    MEDIUM_GREY: '#808080',
+
     POINTER: 'pointer',
 
     RX_COLOR: /#[0-9a-f]{3}([0-9a-f]{3})?/i,

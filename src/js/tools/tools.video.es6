@@ -8,35 +8,33 @@
 import $ from 'jquery';
 import 'kendo.core';
 import assets from '../app/app.assets.es6';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
 import AssetAdapter from './adapters.asset.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import NumberAdapter from './adapters.number.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants';
 
-const { format, ns, roleSelector, template } = window.kendo;
+const { format, ns, roleSelector } = window.kendo;
+const TEMPLATE = `<div data-${ns}role="mediaplayer" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`;
 
 /**
- * VideoTool tool
+ * VideoTool
  * @class VideoTool
+ * @extends BaseTool
  */
-var VideoTool = BaseTool.extend({
+const VideoTool = BaseTool.extend({
     id: 'video',
-    icon: 'movie',
-    name: __('tools.video.name'),
-    description: __('tools.video.description'),
-    help: __('tools.video.help'),
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    templates: {
-        default: `<div data-${ns}role="mediaplayer" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`
-    },
+    childSelector: `${CONSTANTS.DIV}${roleSelector('mediaplayer')}`,
     height: 300,
     width: 600,
+    // menu: [],
+    templates: {
+        default: TEMPLATE
+    },
     attributes: {
         autoplay: new BooleanAdapter({
             title: __('tools.video.attributes.autoplay.title'),
@@ -65,34 +63,6 @@ var VideoTool = BaseTool.extend({
      * @returns {*}
      */
     getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            VideoTool,
-            that,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this',
-                'VideoTool'
-            )
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.values(TOOLS.STAGE_MODES)
-            )
-        );
         assert.instanceof(
             ToolAssets,
             assets.video,
@@ -102,8 +72,6 @@ var VideoTool = BaseTool.extend({
                 'ToolAssets'
             )
         );
-        const tmpl = template(this.templates.default);
-
         $.extend(component, {
             // The files$ function resolves urls with schemes like cdn://video.mp4 and returns a stringified array
             files$() {
@@ -129,56 +97,7 @@ var VideoTool = BaseTool.extend({
                 return JSON.stringify(files);
             }
         });
-
-        return tmpl(component);
-    },
-
-    /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children(
-            `div${roleSelector('mediaplayer')}`
-        );
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        const widget = content.data('kendoMediaPlayer');
-        if (kendo.ui.MediaPlayer && widget instanceof kendo.ui.MediaPlayer) {
-            widget.resize();
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
+        return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
 
     /**
@@ -212,6 +131,6 @@ var VideoTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(VideoTool);
+export default VideoTool;

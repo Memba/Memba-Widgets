@@ -13,8 +13,7 @@ import './js/widgets/widgets.propertygrid.es6';
 import { PageComponentDataSource } from './js/data/data.pagecomponent.es6';
 import tools from './js/tools/tools.es6';
 
-// Load tools and data
-import './js/app/app.tools.es6';
+// Component data
 import { getComponentArray } from './js/helpers/helpers.data.es6';
 
 const {
@@ -23,35 +22,39 @@ const {
     ui: { PropertyGrid }
 } = window.kendo;
 
-// Data source and viewModel
+// Get components
 const data = getComponentArray();
-const pageComponentDataSource = new PageComponentDataSource({ data });
-const viewModel = observable({
-    items: pageComponentDataSource,
-    current: null
-});
+// Load tools
+const promises = data.map(component => tools.load(component.tool));
+$.when(...promises).then(() => {
+    const pageComponentDataSource = new PageComponentDataSource({ data });
+    const viewModel = observable({
+        items: pageComponentDataSource,
+        current: null
+    });
 
-// Change binding
-viewModel.bind('change', e => {
-    if (e.field === 'current') {
-        const grid1 = $('#grid1').data('kendoPropertyGrid');
-        const grid2 = $('#grid2').data('kendoPropertyGrid');
-        const tool = tools[e.sender.current.tool];
-        const rows1 = tool.getAttributeRows();
-        const rows2 = tool.getPropertyRows();
-        if (grid1 instanceof PropertyGrid) {
-            grid1.rows(rows1);
+    // Change binding
+    viewModel.bind('change', e => {
+        if (e.field === 'current') {
+            const grid1 = $('#grid1').data('kendoPropertyGrid');
+            const grid2 = $('#grid2').data('kendoPropertyGrid');
+            const tool = tools(e.sender.current.tool);
+            const rows1 = tool.getAttributeRows();
+            const rows2 = tool.getPropertyRows();
+            if (grid1 instanceof PropertyGrid) {
+                grid1.rows(rows1);
+            }
+            if (grid2 instanceof PropertyGrid) {
+                grid2.rows(rows2);
+            }
         }
-        if (grid2 instanceof PropertyGrid) {
-            grid2.rows(rows2);
-        }
-    }
-});
+    });
 
-// Page ready
-$(() => {
-    bind('body', viewModel);
-    pageComponentDataSource.fetch().then(() => {
-        viewModel.set('current', pageComponentDataSource.at(1));
+    // Page ready
+    $(() => {
+        bind('body', viewModel);
+        pageComponentDataSource.fetch().then(() => {
+            viewModel.set('current', pageComponentDataSource.at(1));
+        });
     });
 });

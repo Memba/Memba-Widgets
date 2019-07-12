@@ -14,13 +14,12 @@ import ReadOnlyAdapter from './adapters.readonly.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
 import ValidationAdapter from './adapters.validation.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
-import {scoreValidator} from './util.validators.es6';
+import { scoreValidator } from './util.validators.es6';
 
-const { attr, format, htmlEncode, ns } = window.kendo;
+const { attr, format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 const SELECTOR = `<div data-${ns}role="selector" data-${ns}id="#: properties.name #" data-${ns}shape="#: attributes.shape #" data-${ns}stroke="{ color: \'#: attributes.color #\', dashType: \'solid\', opacity: 1, width: \'#: attributes.strokeWidth #\' }" data-${ns}empty="#: attributes.empty #" data-${ns}hit-radius="#: attributes.hitRadius #" {0}></div>`;
@@ -30,12 +29,11 @@ const SELECTOR = `<div data-${ns}role="selector" data-${ns}id="#: properties.nam
  */
 const SelectorTool = BaseTool.extend({
     id: 'selector',
-    icon: 'selector',
-    name: __('tools.selector.name'),
-    description: __('tools.selector.description'),
-    help: __('tools.selector.help'),
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    childSelector: `${CONSTANTS.DIV}${roleSelector('selector')}`,
+    height: 50,
+    width: 50,
     weight: 1,
+    // MENU: [],
     templates: {
         design:
             '<img src="https://cdn.kidoju.com/images/o_collection/svg/office/selector.svg" alt="selector">',
@@ -50,12 +48,10 @@ const SelectorTool = BaseTool.extend({
                 `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
-    height: 50,
-    width: 50,
     attributes: {
         color: new ColorAdapter({
             title: __('tools.selector.attributes.color.title'),
-            defaultValue: '#FF0000'
+            defaultValue: '#ff0000'
         }),
         empty: new TextBoxAdapter({
             title: __('tools.selector.attributes.empty.title')
@@ -130,55 +126,6 @@ const SelectorTool = BaseTool.extend({
     },
 
     /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children(
-            `div[${attr('role')}="selector"]`
-        );
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        // Redraw the selector widget
-        // var selectorWidget = content.data('kendoSelector');
-        // assert.instanceof(kendo.ui.SelectorTool, selectorWidget, assert.format(assert.messages.instanceof.default, 'selectorWidget', 'kendo.ui.SelectorTool'));
-        // selectorWidget._drawPlaceholder();
-
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
-    },
-
-    /**
      * Improved display of value in score grid
      * Note: search for getScoreArray in kidoju.data
      * @param testItem
@@ -235,6 +182,6 @@ const SelectorTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(SelectorTool);
+export default SelectorTool;

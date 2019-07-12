@@ -16,8 +16,7 @@ import AssetAdapter from './adapters.asset.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 
@@ -36,13 +35,9 @@ const TEMPLATE = `<img src="#: src$() #" alt="#: attributes.alt #" class="#: cla
  */
 const ImageTool = BaseTool.extend({
     id: 'image',
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: __('tools.image.description'),
+    childSelector: CONSTANTS.IMG,
     height: 250,
-    help: __('tools.image.help'),
-    icon: 'painting_landscape',
     menu: ['attributes.src', 'attributes.alt'],
-    name: __('tools.image.name'),
     width: 250,
     templates: {
         default: TEMPLATE
@@ -109,35 +104,6 @@ const ImageTool = BaseTool.extend({
      * @returns {*}
      */
     getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.values(TOOLS.STAGE_MODES)
-            )
-        );
-        assert.instanceof(
-            ToolAssets,
-            assets.image,
-            assert.format(
-                assert.messages.instanceof.default,
-                'assets.image',
-                'ToolAssets'
-            )
-        );
-        const tmpl = template(that.templates.default);
         $.extend(component, {
             // The class$ function adds the kj-interactive class to draggable components
             class$() {
@@ -161,7 +127,7 @@ const ImageTool = BaseTool.extend({
                 return assets.image.scheme2http(src);
             }
         });
-        return tmpl(component);
+        return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
 
     /**
@@ -172,20 +138,7 @@ const ImageTool = BaseTool.extend({
      */
     onResize(e, component) {
         const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children('img');
+        const content = stageElement.children(CONSTANTS.IMG);
         // Assuming we can get the natural size of the image, we shall keep proportions
         // TODO Cannot get naturalHeight for SVG inages
         const { naturalHeight, naturalWidth } = content[0];
@@ -199,10 +152,10 @@ const ImageTool = BaseTool.extend({
             /*
              // Note: comparing rectLimitedByHeight and rectLimitedByWidth does not work because
              // we are using the component size and not the mouse position
-             // therefore, we can only reduce the size proportionnaly, not increase it
+             // therefore, we can only reduce the size proportionaly, not increase it
              var rectLimitedByWidth = {
-             height: Math.round(width * naturalHeight / naturalWidth),
-             width: Math.round(width)
+                height: Math.round(width * naturalHeight / naturalWidth),
+                width: Math.round(width)
              };
              // if (rectLimitedByHeight.height * rectLimitedByHeight.width <= rectLimitedByWidth.height * rectLimitedByWidth.width) {
              if (rectLimitedByHeight.width <= width) {
@@ -226,21 +179,7 @@ const ImageTool = BaseTool.extend({
              }
              */
         }
-        // Set content size
-        content.outerHeight(
-            component.get('height') -
-                content.outerHeight(true) +
-                content.outerHeight()
-        );
-        content.outerWidth(
-            component.get('width') -
-                content.outerWidth(true) +
-                content.outerWidth()
-        );
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
+        BaseTool.fn.onResize.call(this, e, component);
     },
 
     /**
@@ -310,6 +249,6 @@ const ImageTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default export
  */
-tools.register(ImageTool);
+export default ImageTool;

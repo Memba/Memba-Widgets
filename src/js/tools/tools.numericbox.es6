@@ -21,8 +21,7 @@ import QuestionAdapter from './adapters.question.es6';
 import ReadOnlyAdapter from './adapters.readonly.es6';
 import StyleAdapter from './adapters.style.es6';
 import ValidationAdapter from './adapters.validation.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { numberLibrary } from './util.libraries.es6';
 import {
@@ -31,7 +30,7 @@ import {
     styleValidator
 } from './util.validators.es6';
 
-const { format, htmlEncode, ns, template } = window.kendo;
+const { format, htmlEncode, ns, template, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -47,15 +46,11 @@ const TEMPLATE = `<input type="number" id="#: properties.name #" class="kj-inter
  */
 const NumericBoxTool = BaseTool.extend({
     id: 'numericbox',
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: __('tools.numericbox.description'),
+    childSelector: `${CONSTANTS.INPUT}${roleSelector('numerictextbox')}`,
     height: 80,
-    help: __('tools.numericbox.help'),
-    icon: 'odometer',
-    menu: ['properties.question', 'properties.solution'],
-    name: __('tools.numericbox.name'),
-    weight: 1,
     width: 300,
+    weight: 1,
+    menu: ['properties.question', 'properties.solution'],
     templates: {
         design: format(TEMPLATE, ''),
         play: format(
@@ -229,7 +224,7 @@ const NumericBoxTool = BaseTool.extend({
             stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`) &&
             component instanceof PageComponent
         ) {
-            stageElement.find('input').prop({
+            stageElement.find(this.childSelector).prop({
                 // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
                 readonly: !enabled
             });
@@ -243,45 +238,15 @@ const NumericBoxTool = BaseTool.extend({
      * @param component
      */
     onResize(e, component) {
+        BaseTool.fn.onResize.call(this, e, component);
         const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.find(CONSTANTS.INPUT); // span > input
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
+        const content = stageElement.find(this.childSelector);
+        if (
+            component.attributes &&
+            !TOOLS.RX_FONT_SIZE.test(component.get('attributes.style'))
+        ) {
+            content.css('font-size', Math.floor(0.65 * content.height()));
         }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-            if (
-                component.attributes &&
-                !TOOLS.RX_FONT_SIZE.test(component.get('attributes.style'))
-            ) {
-                content.css('font-size', Math.floor(0.65 * content.height()));
-            }
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
     },
 
     /**
@@ -313,6 +278,6 @@ const NumericBoxTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(NumericBoxTool);
+export default NumericBoxTool;

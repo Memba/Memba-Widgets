@@ -24139,20 +24139,34 @@ a.text-dark:hover, a.text-dark:focus {
 .kj-explorer .kj-placeholder {
   opacity: 0.4; }
 
-.kj-explorer-item {
-  height: 2rem;
+.k-item.kj-explorer-item {
   cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
-  overflow: hidden; }
-  .kj-explorer-item .k-in {
-    line-height: 1.875rem; }
-    .kj-explorer-item .k-in .kj-image {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  user-select: none; }
+  .k-item.kj-explorer-item .k-in {
+    align-items: center;
+    display: flex; }
+    .k-item.kj-explorer-item .k-in .k-image {
       height: 1.5rem;
       width: 1.5rem;
-      vertical-align: middle;
-      margin-left: 0.25rem;
       margin-right: 0.5rem; }
+    .k-item.kj-explorer-item .k-in .k-text {
+      flex: 1 1 0;
+      min-width: 0;
+      white-space: nowrap; }
+      .k-item.kj-explorer-item .k-in .k-text em {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; }
+
+.kj-explorer .k-in em {
+  outline: none;
+  cursor: default;
+  opacity: 0.65;
+  filter: grayscale(0.1);
+  pointer-events: none;
+  box-shadow: none; }
 
 .kj-formatstrip {
   /*
@@ -25629,7 +25643,7 @@ body > .k-list-item,
 
 .kj-stage {
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 14px;
+  font-size: 40px;
   font-weight: normal;
   text-align: initial;
   transform-origin: center center; }

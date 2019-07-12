@@ -6,10 +6,7 @@
 import JSC from 'jscheck';
 import ObjectId from '../common/window.objectid.es6';
 import { randomVal } from '../common/window.util.es6';
-import '../app/app.tools.es6';
 import input from '../editors/editors.input.es6';
-// import tools from '../tools/tools.es6';
-// import BaseTool from '../tools/tools.base.es6';
 
 const MAX_HEIGHT = 768;
 const MAX_RATIO = 0.25;
@@ -202,10 +199,10 @@ export function getQuiz() {
 }
 
 /**
- * getSquare
- * @function getSquare
+ * getDummy
+ * @function getDummy
  */
-export function getSquare() {
+export function getDummy() {
     const height = JSC.integer(
         MIN_HEIGHT,
         Math.floor(MAX_HEIGHT * MAX_RATIO)
@@ -213,7 +210,7 @@ export function getSquare() {
     const width = JSC.integer(MIN_WIDTH, Math.floor(MAX_WIDTH * MAX_RATIO))();
     return {
         id: new ObjectId().toString(),
-        tool: 'square',
+        tool: 'dummy',
         top: JSC.integer(MAX_HEIGHT - height)(),
         left: JSC.integer(MAX_WIDTH - width)(),
         height,
@@ -253,7 +250,7 @@ export function getTextBox() {
  */
 export function getComponentArray() {
     return [
-        getSquare(),
+        getDummy(),
         getImage(0),
         // getAudio(),
         getLabel(),

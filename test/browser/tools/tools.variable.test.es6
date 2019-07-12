@@ -5,6 +5,9 @@
 
 /* eslint-disable no-unused-expressions */
 
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -12,13 +15,12 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
-import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
+import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
+import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 
-// Load tool
-import '../../../src/js/tools/tools.variable.es6';
-// Load component
+// Component data
 import { getVariable } from '../_misc/test.components.es6';
 
 const { describe, it, xit } = window;
@@ -35,7 +37,7 @@ describe('tools.variable', () => {
     });
 
     describe('VariableTool', () => {
-        const tool = tools.variable;
+        const tool = tools('variable');
         const component = new PageComponent(getVariable());
 
         it('It should have descriptors', () => {
@@ -144,8 +146,8 @@ describe('tools.variable', () => {
             }
             expect(fn2).to.throw();
 
-            // Test all stage CONSTANTS.STAGE_MODES
-            Object.values(CONSTANTS.STAGE_MODES).forEach(mode => {
+            // Test all stage TOOLS.STAGE_MODES
+            Object.values(TOOLS.STAGE_MODES).forEach(mode => {
                 const html = tool.getHtmlContent(component, mode);
                 expect(html).to.match(/^<img/);
             });

@@ -70,7 +70,7 @@ const res = {
     audio: {
         description: 'Audio Player',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'loudspeaker3',
         name: 'Audio Player',
         attributes: {
             autoplay: { title: 'Autoplay' },
@@ -83,7 +83,7 @@ const res = {
     chargrid: {
         description: 'Character Grid',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'dot_matrix',
         name: 'Character Grid',
         // Attributes
         attributes: {
@@ -122,7 +122,7 @@ const res = {
     chart: {
         description: 'Chart',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'chart_area',
         name: 'Chart',
         attributes: {
             categories: { title: 'Categories' },
@@ -139,7 +139,7 @@ const res = {
     connector: {
         description: 'Connector',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'target',
         name: 'Connector',
         attributes: {
             color: { title: 'Color' }
@@ -166,7 +166,7 @@ const res = {
     dropzone: {
         description: 'Drop Zone',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'elements_selection',
         name: 'Drop Zone',
         attributes: {
             center: {
@@ -198,11 +198,19 @@ const res = {
         }
     },
 
+    // dummy
+    dummy: {
+        description: 'Square tool',
+        help: 'TODO',
+        icon: 'shapes',
+        name: 'Square'
+    },
+
     // highlighter
     highlighter: {
         description: 'Highlighter',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'marker',
         name: 'Highlighter',
         attributes: {
             highlightStyle: { title: 'Highlight' },
@@ -232,7 +240,7 @@ const res = {
 
     // image
     image: {
-        description: 'Image',
+        description: 'Image: <em>#: attributes.alt #</em>',
         help: 'TODO',
         icon: 'painting_landscape',
         name: 'Image',
@@ -267,7 +275,7 @@ const res = {
     imageset: {
         description: 'Image Set',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'photos',
         name: 'Image Set',
         attributes: {
             data: {
@@ -300,7 +308,7 @@ const res = {
 
     // label
     label: {
-        description: 'Label',
+        description: 'Label: <em>#: attributes.text #</em>',
         help: 'TODO',
         icon: 'font',
         name: 'Label',
@@ -329,7 +337,7 @@ const res = {
     latex: {
         description: 'Mathematic Expression',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'formula',
         name: 'Mathematic Expression',
         attributes: {
             formula: {
@@ -356,13 +364,21 @@ const res = {
     },
 
     // line
-    // TODO
+    // TODO endCap and startCap
     line: {
-        description: 'Line',
+        description:
+            'Line: <div styles="background-color: #: attributes.lineColor #; height: 1em; width: 1em;"/>',
         help: 'TODO',
         icon: 'vector_line',
         name: 'Line',
-        attributes: {},
+        attributes: {
+            lineColor: {
+                title: 'Color'
+            },
+            lineWidth: {
+                title: 'Thickness'
+            }
+        },
         properties: {}
     },
 
@@ -371,7 +387,7 @@ const res = {
     mathinput: {
         description: 'Math input',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'formula_input',
         name: 'Math input',
         attributes: {},
         properties: {}
@@ -379,9 +395,9 @@ const res = {
 
     // multiquiz
     multiquiz: {
-        description: 'MultiQuiz',
+        description: 'MultiQuiz: <em>#: properties.name #</em>',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'checkbox_group',
         name: 'MultiQuiz',
         attributes: {
             data: {
@@ -437,7 +453,7 @@ const res = {
     numericbox: {
         description: 'Numeric box',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'odometer',
         name: 'Numeric box',
         attributes: {
             decimals: { title: 'Decimals' },
@@ -472,7 +488,7 @@ const res = {
 
     // quiz
     quiz: {
-        description: 'Quiz',
+        description: 'Quiz: <em>#: properties.name #</em>',
         help: 'TODO',
         icon: 'radio_button_group',
         name: 'Quiz',
@@ -528,7 +544,7 @@ const res = {
     selector: {
         description: 'Selector',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'selector',
         name: 'Selector',
         attributes: {
             color: { title: 'Color' },
@@ -574,9 +590,9 @@ const res = {
 
     // textarea
     textarea: {
-        description: 'TextArea',
+        description: 'TextArea: <em>#: properties.name #</em>',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'text_area',
         name: 'TextArea',
         attributes: {
             style: { title: 'Style' }
@@ -601,7 +617,7 @@ const res = {
 
     // textbox
     textbox: {
-        description: 'TextBox',
+        description: 'TextBox: <em>#: properties.name #</em>',
         help: 'TODO',
         icon: 'text_field',
         name: 'TextBox',
@@ -634,7 +650,7 @@ const res = {
     textgaps: {
         description: 'Text gap',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'text_gaps',
         name: 'Text gap',
         attributes: {
             inputStyle: { title: 'Input Style' },
@@ -677,7 +693,7 @@ const res = {
     video: {
         description: 'Video Player',
         help: 'TODO',
-        icon: 'box_surprise',
+        icon: 'movie',
         name: 'Video Player',
         attributes: {
             autoplay: { title: 'Autoplay' },

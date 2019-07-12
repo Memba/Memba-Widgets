@@ -5,107 +5,132 @@
 
 /* eslint-disable no-unused-expressions */
 
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
-import 'kendo.data';
 import chai from 'chai';
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-import 'jquery.mockjax';
+import JSC from 'jscheck';
+// import sinon from 'sinon';
+// import sinonChai from 'sinon-chai';
+import { tryCatch } from '../_misc/test.util.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
+import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
+import PointerTool from '../../../src/js/tools/tools.pointer.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 
-
-const { describe, it, kendo, xit } = window;
+const { describe, it } = window;
+const { Observable } = window.kendo;
 const { expect } = chai;
-const { data: ObservableObject } = kendo;
+const DATA = ['image', 'label', 'textbox'];
 
-describe('tools', function() {
-    describe('Loading', function() {
-        it('it should find tools', function() {
-            expect(tools).to.be.an.instanceof(ObservableObject);
-            expect(tools).to.have.property('active');
-            expect(tools).to.respondTo('register');
+describe('tools', () => {
+    describe('Initializing', () => {
+        it('it should be an Observable', () => {
+            expect(tools).to.be.an.instanceof(Observable);
+            expect(tools).to.have.property(TOOLS.ACTIVE);
+            expect(tools).to.have.property(TOOLS.POINTER);
+            expect(tools).to.respondTo('load');
         });
 
-        it('it should have a pointer, a label and an image tool', () => {
-                expect(tools).to.have.property('pointer').that.is.an.instanceof(Tool);
-                expect(tools).to.have.property('label').that.is.an.instanceof(Tool);
-                expect(tools).to.have.property('image').that.is.an.instanceof(Tool);
-                expect(tools).to.have.property('active', 'pointer');
+        it('it should at least have a pointer, a label, a textbox and an image tool', () => {
+            expect(tools)
+                .to.have.property(TOOLS.POINTER)
+                .that.is.an.instanceof(PointerTool);
+            expect(tools).to.have.property(TOOLS.ACTIVE, TOOLS.POINTER);
+            DATA.forEach(id => {
+                expect(tools)
+                    .to.have.property(id)
+                    .that.is.an.instanceof(Observable);
             });
+        });
     });
 
-    describe('Registering a new tool', () => {
-        it('it should throw when registering a tool that is not a class', function () {
+    describe('Loading tools', () => {
+        it('it should throw when loading a tool that is not designated by a string id', () => {
+            const id = JSC.one_of([
+                undefined,
+                null,
+                JSC.boolean(),
+                JSC.number(),
+                JSC.object(),
+                JSC.array()
+            ])();
             function fn() {
-                var obj = { id:'dummy' };
-                tools.register(obj);
+                tools.load(id);
             }
-            expect(fn).to.throw;
+            expect(fn).to.throw();
         });
 
-        it('it should throw when registering a tool that is not inherited from Tool', function () {
-            function DummyTool(options) {
-                this.id = 'dummy';
-                this.options = options;
-            }
-            function fn() {
-                tools.register(DummyTool);
-            }
-            expect(fn).to.throw;
-        });
-
-        it('it should throw if tool has no id', function () {
-            function fn() {
-                var ToolWithoutId = Tool.extend({});
-                tools.register(ToolWithoutId);
-            }
-            expect(fn).to.throw;
-        });
-
-        it('it should throw when registering a tool named `active`', function () {
-            function fn() {
-                var Active = Tool.extend({ id: 'active' });
-                tools.register(Active);
-            }
-            expect(fn).to.throw;
-        });
-
-        it('it should throw when registering a tool named `register`', function () {
-            function fn() {
-                var Register = Tool.extend({ id: 'register' });
-                tools.register(Register);
-            }
-            expect(fn).to.throw;
-        });
-
-        it('it should throw when registering a tool with an existing id', function () {
-            function fn () {
-                var ExistingTool = Tool.extend({
-                    id: 'image', add: function (a, b) {
-                        return a + b;
-                    }
+        it('it should reject when loading a tool that is designated by an unknown string id', done => {
+            const id = JSC.one_of([
+                '_events',
+                '_handlers',
+                'load',
+                TOOLS.ACTIVE,
+                JSC.string()()
+            ])();
+            expect(tools[id]).not.to.be.an.instanceof(Observable);
+            expect(tools[id]).not.to.be.an.instanceof(BaseTool);
+            tools
+                .load('id')
+                .then(() => {
+                    done(new Error(`It should not have loaded tool ${id}`));
+                })
+                .catch(err => {
+                    expect(err).to.be.an.instanceof(Error);
+                    done();
                 });
-                tools.register(ExistingTool);
+        });
+
+        it('it should load a tool with a known id', done => {
+            function test(id) {
+                const dfd = $.Deferred();
+                expect(tools[id]).to.be.an.instanceof(Observable);
+                expect(tools[id]).not.to.be.an.instanceof(BaseTool);
+                tools
+                    .load(id)
+                    .then(
+                        tryCatch(dfd)(() => {
+                            expect(tools[id]).to.be.an.instanceof(BaseTool);
+                        })
+                    )
+                    .catch(dfd.reject);
+                return dfd.promise();
             }
-            expect(fn).to.throw;
-            expect(tools).to.have.property('image').that.is.an.instanceof(Tool);
-            expect(tools.image.add).to.be.undefined;
+            const promises = DATA.map(test);
+            $.when(...promises)
+                .then(() => {
+                    done();
+                })
+                .catch(done);
         });
 
-        it('it should accept a tool with a new id', function () {
-            var CalculatorTool = Tool.extend({ id: 'calculator', add: function (a, b) { return a + b; }});
-            var keys = Object.keys(tools);
-            tools.register(CalculatorTool);
-            expect(Object.keys(tools)).to.not.eql(keys);
-            expect(tools).to.have.property('calculator').that.is.an.instanceof(CalculatorTool);
-            expect(tools.calculator.add(1, 2)).to.equal(3);
-            // clean
-            delete tools.calculator;
+        it('it should reload a tool with a known id', done => {
+            function test(id) {
+                const dfd = $.Deferred();
+                expect(tools[id]).not.to.be.an.instanceof(Observable);
+                expect(tools[id]).to.be.an.instanceof(BaseTool);
+                tools
+                    .load(id)
+                    .then(
+                        tryCatch(dfd)(() => {
+                            expect(tools[id]).to.be.an.instanceof(BaseTool);
+                        })
+                    )
+                    .catch(dfd.reject);
+                return dfd.promise();
+            }
+            const promises = DATA.map(test);
+            $.when(...promises)
+                .then(() => {
+                    done();
+                })
+                .catch(done);
         });
-
     });
 });

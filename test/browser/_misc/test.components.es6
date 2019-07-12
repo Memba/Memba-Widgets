@@ -7,7 +7,7 @@ import JSC from 'jscheck';
 import ObjectId from '../../../src/js/common/window.objectid.es6';
 import { randomVal } from '../../../src/js/common/window.util.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
+import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 
 // Note: floating numbers generate errors due to changes in the last digit
 const angleGenerator = JSC.integer(0, 359);
@@ -58,7 +58,7 @@ export function getDummy() {
         id: new ObjectId().toString(),
         left: positionGenerator(),
         rotate: angleGenerator(),
-        tool: 'square',
+        tool: 'dummy',
         top: positionGenerator(),
         width: positionGenerator()
     };

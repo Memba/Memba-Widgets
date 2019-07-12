@@ -6,22 +6,33 @@
     }
 
     // drag and drop hints are not embedded in .kj-explorer
-    .kj-explorer-item {
-        height: 2rem;
+    .k-item.kj-explorer-item {
         cursor: pointer;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
         user-select: none;
-        white-space: nowrap;
-        overflow: hidden;
 
         .k-in {
-            line-height: 1.875rem;
+            align-items: center;
+            display: flex;
 
-            .kj-image {
+            .k-image {
                 height: 1.5rem;
                 width: 1.5rem;
-                vertical-align: middle;
-                margin-left: 0.25rem;
                 margin-right: 0.5rem;
+            }
+
+            .k-text {
+                // https://css-tricks.com/flexbox-truncated-text/
+                flex: 1 1 0;
+                min-width: 0;
+                white-space: nowrap;
+
+                em {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
             }
         }
     }

@@ -22,8 +22,8 @@ import Logger from '../common/window.logger.es6';
 // import Style from '../common/window.style.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import StyleAdapter from '../tools/adapters.style.es6';
-import tools from '../tools/tools.es6';
-import BaseTool from '../tools/tools.base.es6';
+import _tools from '../tools/tools.es6';
+import { BaseTool } from '../tools/tools.base.es6';
 
 const {
     attr,
@@ -32,7 +32,6 @@ const {
     destroy,
     format,
     init,
-    Observable,
     roleSelector,
     spreadsheet: { dialogs, ToolBar }, // TODO Remove! this is not kendo.ui.ToolBar;
     toCamelCase,
@@ -830,24 +829,15 @@ const FormatStrip = Widget.extend({
         if (this._value instanceof PageComponent) {
             const { tool } = that._value;
             assert.instanceof(
-                Observable,
-                tools,
-                assert.format(
-                    assert.messages.instanceof.default,
-                    'tools',
-                    'kendo.Observable'
-                )
-            );
-            assert.instanceof(
                 BaseTool,
-                tools[tool],
+                _tools(tool),
                 assert.format(
                     assert.messages.instanceof.default,
                     'tools[tool]',
                     'BaseTool'
                 )
             );
-            const { attributes } = tools[tool];
+            const { attributes } = _tools(tool);
             for (const attr in attributes) {
                 if (
                     Object.prototype.hasOwnProperty.call(attributes, attr) &&

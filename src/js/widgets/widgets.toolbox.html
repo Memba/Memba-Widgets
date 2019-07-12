@@ -206,27 +206,23 @@
             });
             Promise.all([
                 SystemJS.import('kendo.binder'),
+                SystemJS.import('../cultures/all.en.es6'),
                 SystemJS.import('../tools/tools.es6'),
-                SystemJS.import('../tools/tools.base.es6'),
-                SystemJS.import('../app/app.tools.es6'),
                 SystemJS.import('./widgets.toolbox.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                var tools = modules[1].default;
-                var BaseTool = modules[2].default;
+                var tools = modules[2].default();
                 // Use tools as viewModel for bindings
                 tools.set('visible', true);
                 tools.set('enabled', true);
                 tools.source$ = function() {
                     var ret = [];
-                    for (var tool in this) {
-                        if (
-                            Object.prototype.hasOwnProperty.call(this, tool) &&
-                            this[tool] instanceof BaseTool
-                        ) {
-                            ret.push(tool);
+                    Object.keys(this).forEach(id => {
+                        const tool = this[id];
+                        if (tool instanceof kendo.Class && tool.icon && tool.name) {
+                            ret.push(id);
                         }
-                    }
+                    });
                     return ret;
                 };
 

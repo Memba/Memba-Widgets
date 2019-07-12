@@ -16,8 +16,7 @@ import ReadOnlyAdapter from './adapters.readonly.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextAreaAdapter from './adapters.textarea.es6';
 import ValidationAdapter from './adapters.validation.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { textLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
@@ -25,34 +24,29 @@ import { scoreValidator } from './util.validators.es6';
 const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-const TEXTAREA =
-    '<textarea id="#: properties.name #" class="k-textbox kj-interactive" style="#: attributes.style #" {0}></textarea>';
+const TEMPLATE = `<textarea
+    class="k-textbox kj-interactive"
+    id="#: properties.name #"
+    style="#: attributes.style #" {0}>
+</textarea>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+
 /**
  * @class TextAreaTool tool
  * @type {void|*}
  */
 const TextAreaTool = BaseTool.extend({
     id: 'textarea',
-    icon: 'text_area',
-    name: __('tools.textarea.name'),
-    description: __('tools.textarea.description'),
-    help: __('tools.textarea.help'),
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    weight: 2,
-    templates: {
-        design: format(TEXTAREA, ''),
-        play: format(
-            TEXTAREA,
-            `data-${ns}bind="value: #: properties.name #.value"`
-        ),
-        review:
-            format(
-                TEXTAREA,
-                `data-${ns}bind="value: #: properties.name #.value"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
-    },
+    childSelector: CONSTANTS.TEXTAREA,
     height: 300,
     width: 500,
+    weight: 2,
+    // menu: [],
+    templates: {
+        design: format(TEMPLATE, ''),
+        play: format(TEMPLATE, BINDING),
+        review: format(TEMPLATE, BINDING) + BaseTool.fn.getHtmlCheckMarks()
+    },
     attributes: {
         style: new StyleAdapter({
             title: __('tools.textarea.attributes.style.title'),
@@ -100,29 +94,12 @@ const TextAreaTool = BaseTool.extend({
      * @param enabled
      */
     onEnable(e, component, enabled) {
-        const stageElement = $(e.currentTarget);
-        if (
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`) &&
-            component instanceof PageComponent
-        ) {
-            stageElement.children('textarea').prop({
-                // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
-                readonly: !enabled
-            });
-        }
-    },
-
-    /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
+        assert.type(
+            CONSTANTS.OBJECT,
+            e,
+            // Note: we are not asserting that e is a $.Event
+            // to call onEnable({ currentTarget: el[0] }, component )
+            assert.format(assert.messages.type.default, 'e', CONSTANTS.OBJECT)
         );
         assert.instanceof(
             PageComponent,
@@ -133,25 +110,17 @@ const TextAreaTool = BaseTool.extend({
                 'PageComponent'
             )
         );
-        const content = stageElement.children('textarea');
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
+        const stageElement = $(e.currentTarget);
+        assert.ok(
+            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
+            assert.format('e.currentTarget is expected to be a stage element')
+        );
+        stageElement.children(this.childSelector).prop({
+            // disabled elements do not receive mousedown events in Edge
+            // and cannot be selected in design mode
+            // disabled: !enabled,
+            readonly: !enabled
+        });
     },
 
     /**
@@ -161,8 +130,10 @@ const TextAreaTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const {
+            description,
+            i18n: { messages }
+        } = this;
         if (
             !component.attributes ||
             // Styles are only checked if there is any (optional)
@@ -180,6 +151,6 @@ const TextAreaTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(TextAreaTool);
+export default TextAreaTool;

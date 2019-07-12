@@ -3,54 +3,74 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO help and menu
 // TODO getHtmlContent return html text, not a jQuery instance
 
 /* eslint-disable no-unused-expressions */
+
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import __ from '../../../src/js/app/app.i18n.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
-import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
+import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
+import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 
-// Load tool
-import '../../../src/js/tools/tools.multiquiz.es6';
-// Load component
+// Component data
 import { getMultiQuiz } from '../_misc/test.components.es6';
 
-const { describe, it } = window;
+const { describe, it, xit } = window;
 const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
 const FIXTURES = '#fixtures';
 
 describe('tools.multiquiz', () => {
-    before(() => {
+    before(done => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
+        // load tool
+        tools.load('multiquiz').always(done);
     });
 
     describe('MultiQuizTool', () => {
-        const tool = tools.multiquiz;
-        const component = new PageComponent(getMultiQuiz());
+        let tool;
+        let component;
+
+        before(() => {
+            tool = tools('multiquiz');
+            component = new PageComponent(getMultiQuiz());
+        });
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);
             expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
-            expect(tool).to.have.property('description', 'MultiQuiz');
+            expect(tool).to.have.property(
+                'description',
+                __('tools.multiquiz.description')
+            );
             expect(tool).to.have.property('height', 150);
-            expect(tool).to.have.property('help', null);
+            expect(tool).to.have.property('help', __('tools.multiquiz.help'));
             expect(tool).to.have.property('id', 'multiquiz');
-            expect(tool).to.have.property('icon', 'checkbox_group');
-            // expect(tool).to.have.property('menu', []);
-            expect(tool).to.have.property('name', 'MultiQuiz');
+            expect(tool).to.have.property('icon', __('tools.multiquiz.icon'));
+            expect(tool)
+                .to.have.property('menu')
+                .that.eql([
+                    'attributes.data',
+                    'attributes.mode',
+                    '', // separator
+                    'properties.question',
+                    'properties.solution'
+                ]);
+            expect(tool).to.have.property('name', __('tools.multiquiz.name'));
             expect(tool).to.have.property('weight', 1);
             expect(tool).to.have.property('width', 420);
         });
@@ -175,15 +195,15 @@ describe('tools.multiquiz', () => {
             expect(fn2).to.throw();
 
             // If we submit a valid page component in design mode
-            html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.DESIGN);
+            html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.DESIGN);
             expect(html).to.match(/^<div data-role="multiquiz"/);
 
             // If we submit a valid page component in play mode
-            html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.PLAY);
+            html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.PLAY);
             expect(html).to.match(/^<div data-role="multiquiz"/);
 
             // If we submit a valid page component in review mode
-            html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.REVIEW);
+            html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.REVIEW);
             expect(html).to.match(/^<div data-role="multiquiz"/);
         });
 

@@ -26,7 +26,6 @@ import {
     PageComponentDataSource
 } from '../../../src/js/data/data.pagecomponent.es6';
 import { normalizeSchema } from '../../../src/js/data/data.util.es6';
-import '../../../src/js/app/app.tools.es6';
 import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
 import { getComponentArray, getPage } from '../_misc/test.components.es6';
 import { getSpyingTransport } from '../_misc/test.transports.es6';

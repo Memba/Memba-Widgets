@@ -211,29 +211,37 @@
             });
             Promise.all([
                 SystemJS.import('kendo.binder'),
+                SystemJS.import('../cultures/all.en.es6'),
+                SystemJS.import('../helpers/helpers.data.es6'),
                 SystemJS.import('../data/data.pagecomponent.es6'),
-                SystemJS.import('../app/app.tools.es6'),
-                SystemJS.import('./widgets.explorer.es6'),
-                SystemJS.import('../helpers/helpers.data.es6')
+                SystemJS.import('../tools/tools.es6'),
+                SystemJS.import('./widgets.explorer.es6')
             ])
                 .then(function (modules) {
                     var kendo = window.kendo;
-                    var PageComponentDataSource = modules[1].PageComponentDataSource;
-                    var data = modules[4].getComponentArray();
-                    var pageComponentDataSource = new PageComponentDataSource({ data });
-                    var viewModel = kendo.observable({
-                        components: pageComponentDataSource,
-                        current: null,
-                        isVisible: true,
-                        reset: function(e) {
-                            this.set('current', null);
-                        }
+                    var data = modules[2].getComponentArray();
+                    var PageComponentDataSource = modules[3].PageComponentDataSource;
+                    var tools = modules[4].default;
+                    var promises = data.map(function (component) {
+                        // Load tool
+                        return tools.load(component.tool);
                     });
+                    $.when.apply($, promises).then(() => {
+                        var pageComponentDataSource = new PageComponentDataSource({ data });
+                        var viewModel = kendo.observable({
+                            components: pageComponentDataSource,
+                            current: null,
+                            isVisible: true,
+                            reset: function(e) {
+                                this.set('current', null);
+                            }
+                        });
 
-                    $(function() {
-                        kendo.bind('body', viewModel);
-                        pageComponentDataSource.fetch(function() {
-                            // viewModel.set('current', pageComponentDataSource.at(1));
+                        $(function() {
+                            kendo.bind('body', viewModel);
+                            pageComponentDataSource.fetch(function() {
+                                viewModel.set('current', pageComponentDataSource.at(0));
+                            });
                         });
                     });
                 });
@@ -243,6 +251,7 @@
         body > div:first-of-type {
             height: 22px;
         }
+
         button {
             margin: 5px 0;
         }
@@ -250,15 +259,15 @@
 </head>
 <body>
 <h1>widgets.explorer</h1>
-<h2>HTML declaration</h2>
+<!--h2>HTML declaration</h2-->
 
-<h2>JavaScript code</h2>
+<!--h2>JavaScript code</h2-->
 
 <h2>Bound to observable</h2>
 <div data-bind="text: current.uid"></div>
 <button data-bind="click: reset">Clear Selection</button><br/>
-<div id="explorer1" data-role="explorer" data-bind="source: components, value: current" style="width:200px; display:inline-block;" data-auto-bind="false"></div>
-<div><input type="checkbox" data-bind="checked: isVisible" />Second Explorer</div>
-<div id="explorer2" data-role="explorer" data-bind="source: components, value: current, visible: isVisible" style="width:200px; display:inline-block;" data-auto-bind="false"></div>
+<div id="explorer1" data-role="explorer" data-bind="source: components, value: current" style="width: 200px; display: inline-block;" data-auto-bind="false"></div>
+<div><input type="checkbox" data-bind="checked: isVisible">Second Explorer</div>
+<div id="explorer2" data-role="explorer" data-bind="source: components, value: current, visible: isVisible" style="width: 200px; display: inline-block;" data-auto-bind="false"></div>
 </body>
 </html>

@@ -44,8 +44,7 @@ function openQuizWizard(options = {}) {
         .kendoBaseDialog(
             Object.assign(
                 {
-                    title:
-                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    title: __('dialogs.quizwizard.title'), // __('webapp.editor.dialogs.addQuizPage.title'), // TODO
                     /* eslint-disable prettier/prettier */
                     content: `<div class="k-widget k-notification k-notification-info" role="alert">
                             <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${__('dialogs.quizwizard.message')}</div>

@@ -20,8 +20,8 @@ import QuestionAdapter from './adapters.question.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+// import tools from './tools.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { stringLibrary } from './util.libraries.es6';
 import {
@@ -34,6 +34,7 @@ import {
 const {
     format,
     ns,
+    roleSelector,
     ui: { MaskedTextBox }
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -43,7 +44,14 @@ const ScoreAdapter = NumberAdapter;
  * Note: Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
  * @type {string}
  */
-const TEMPLATE = `<input type="text" id="#: properties.name #" class="kj-interactive" data-${ns}role="maskedtextbox" data-${ns}prompt-char="\u25CA" style="#: attributes.style #" {0}>`;
+const TEMPLATE = `<input
+    type="text"
+    id="#: properties.name #"
+    class="kj-interactive"
+    data-${ns}role="maskedtextbox"
+    data-${ns}prompt-char="\u25CA"
+    style="#: attributes.style #" {0}>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
 
 /**
  * @class TextBoxTool tool
@@ -51,26 +59,15 @@ const TEMPLATE = `<input type="text" id="#: properties.name #" class="kj-interac
  */
 const TextBoxTool = BaseTool.extend({
     id: 'textbox',
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: __('tools.textbox.description'),
+    childSelector: `${CONSTANTS.INPUT}${roleSelector('maskedtextbox')}`,
     height: 80,
-    help: __('tools.textbox.help'),
-    icon: 'text_field',
     menu: ['properties.question', 'properties.solution'],
-    name: __('tools.textbox.name'),
     weight: 1,
     width: 300,
     templates: {
         design: format(TEMPLATE, ''),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value"`
-        ),
-        review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+        play: format(TEMPLATE, BINDING),
+        review: format(TEMPLATE, BINDING) + BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         mask: new TextBoxAdapter({
@@ -131,7 +128,7 @@ const TextBoxTool = BaseTool.extend({
             stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`) &&
             component instanceof PageComponent
         ) {
-            stageElement.find('input').prop({
+            stageElement.children(this.childSelector).prop({
                 // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
                 // disabled: !enabled,
                 readonly: !enabled
@@ -146,56 +143,26 @@ const TextBoxTool = BaseTool.extend({
      * @param component
      */
     onResize(e, component) {
+        BaseTool.fn.onResize.call(this, e, component);
         const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.find('input'); // span > input
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
+        const content = stageElement.find(this.childSelector);
+        if (
+            component.attributes &&
+            !TOOLS.RX_FONT_SIZE.test(component.get('attributes.style'))
+        ) {
+            content.css('font-size', Math.floor(0.65 * content.height()));
         }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-            if (
-                component.attributes &&
-                !TOOLS.RX_FONT_SIZE.test(component.attributes.style)
-            ) {
-                content.css('font-size', Math.floor(0.65 * content.height()));
-            }
-        }
-        // This is a trick because of http://docs.telerik.com/kendo-ui/framework/mvvm/overview#imnpm updateportant-notes
+        // This is a trick because of http://docs.telerik.com/kendo-ui/framework/mvvm/overview#important-notes
         // In other words it is impossible to set a mask that only contains digits declaratively (data-mask attribute)
         // See also http://docs.telerik.com/kendo-ui/api/javascript/ui/maskedtextbox#configuration-mask
-        const maskedTextBoxWidget = content.data('kendoMaskedTextBox');
+        const maskedTextBox = content.data('kendoMaskedTextBox');
         if (
             MaskedTextBox &&
-            maskedTextBoxWidget instanceof MaskedTextBox &&
-            maskedTextBoxWidget.options.mask !== component.attributes.mask
+            maskedTextBox instanceof MaskedTextBox &&
+            maskedTextBox.options.mask !== component.attributes.mask
         ) {
-            maskedTextBoxWidget.setOptions({ mask: component.attributes.mask });
+            maskedTextBox.setOptions({ mask: component.attributes.mask });
         }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
     },
 
     /**
@@ -227,6 +194,6 @@ const TextBoxTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default export
  */
-tools.register(TextBoxTool);
+export default TextBoxTool;

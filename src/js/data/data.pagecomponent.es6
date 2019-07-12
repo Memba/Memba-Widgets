@@ -4,7 +4,6 @@
  */
 
 // TODO Consider a better way to round height, top, left, width only when saving
-// TODO List tools to load them
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -12,22 +11,24 @@ import $ from 'jquery';
 import 'kendo.data';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 import BaseModel from './data.base.es6';
 import tools from '../tools/tools.es6';
-import BaseTool from '../tools/tools.base.es6';
+import { BaseTool } from '../tools/tools.base.es6';
 import TOOLS from '../tools/util.constants.es6';
 
 const {
-    data: { DataSource, ObservableArray, ObservableObject },
+    data: { DataSource, ObservableArray /* , ObservableObject */ },
     format
 } = window.kendo;
+const logger = new Logger('data.pagecomponent');
 
 /**
  * PageComponent
  * @class PageComponent
  * @extends BaseModel
  */
-export const PageComponent = BaseModel.define({
+const PageComponent = BaseModel.define({
     id: CONSTANTS.ID,
     fields: {
         id: {
@@ -91,7 +92,7 @@ export const PageComponent = BaseModel.define({
     },
 
     /**
-     *
+     * Accept data
      * @param options
      */
     accept(options) {
@@ -116,12 +117,15 @@ export const PageComponent = BaseModel.define({
             $.type(tool) !== CONSTANTS.STRING ||
             tool.length === 0 ||
             tool === TOOLS.POINTER ||
-            !(tools instanceof ObservableObject) ||
-            !(tools[tool] instanceof BaseTool)
+            // !(tools() instanceof ObservableObject) ||
+            // This requires that tool has been loaded
+            !(tools(tool) instanceof BaseTool)
         ) {
+            const error = new Error(format('Tool `{0}` is not loaded', tool));
+            logger.error(error);
+            // when wrapping with setTimeout tests fail
             // without setTimeout, the error is silent in promises
-            // with setTimeout tests fail
-            throw new Error(format('`{0}` is not a valid tool', tool));
+            throw error;
         }
     },
 
@@ -137,7 +141,7 @@ export const PageComponent = BaseModel.define({
     _parse(name, value) {
         if (this._options && name === 'attributes') {
             // If this._options is not undefined, we should have passed _assertTool
-            const tool = tools[this._options.tool];
+            const tool = tools(this._options.tool);
             // Let the tool build a Model for attributes to allow validation in the property grid
             const Attributes = tool.getAttributeModel();
             // Extend options attributes with possible new attributes as tools improve
@@ -152,7 +156,7 @@ export const PageComponent = BaseModel.define({
         }
         if (this._options && name === 'properties') {
             // If this._options is not undefined, we should have passed _assertTool
-            const tool = tools[this._options.tool];
+            const tool = tools(this._options.tool);
             // Let the tool build a Model for properties to allow validation in the property grid
             const Properties = tool.getPropertyModel();
             // Extend options properties with possible new properties as tools improve
@@ -174,7 +178,7 @@ export const PageComponent = BaseModel.define({
      * @returns {{audio: Array, image: Array, video: Array}}
      */
     assets() {
-        const tool = tools[this.get('tool')];
+        const tool = tools(this.get('tool'));
         return tool.getAssets(this);
     },
 
@@ -220,7 +224,7 @@ export const PageComponent = BaseModel.define({
      * @method description$
      */
     description$() {
-        const tool = tools[this.get('tool')];
+        const tool = tools(this.get('tool'));
         return tool.getDescription(this);
     },
 
@@ -229,7 +233,7 @@ export const PageComponent = BaseModel.define({
      * @method help$
      */
     help$() {
-        const tool = tools[this.get('tool')];
+        const tool = tools(this.get('tool'));
         return tool.getHelp(this);
     },
 
@@ -240,7 +244,7 @@ export const PageComponent = BaseModel.define({
     /*
     question() {
         // TODO: work in progress with variables and numeric box
-        const tool = tools[this.get('tool')];
+        const tool = tools(this.get('tool'));
         return tool.getQuestion(this);
     },
     */
@@ -252,7 +256,7 @@ export const PageComponent = BaseModel.define({
     /*
     solution() {
         // TODO: work in progress with variables and numeric box
-        const tool = tools[this.get('tool')];
+        const tool = tools(this.get('tool'));
         return tool.getSolution(this);
     },
      */
@@ -345,10 +349,10 @@ export const PageComponent = BaseModel.define({
         );
         assert.instanceof(
             kendo.Observable,
-            tools,
+            tools(),
             assert.format(
                 assert.messages.instanceof.default,
-                'tools',
+                'tools()',
                 'kendo.Observable'
             )
         );
@@ -364,8 +368,8 @@ export const PageComponent = BaseModel.define({
                 CONSTANTS.STRING
             )
         );
-        if (tools[tool] instanceof BaseTool) {
-            ret = tools[tool].validate(component, pageIdx);
+        if (tools(tool) instanceof BaseTool) {
+            ret = tools(tool).validate(component, pageIdx);
         }
         return ret;
     }
@@ -400,7 +404,7 @@ function dataMethod(name) {
  * @class PageComponentDataSource
  * @extends DataSource
  */
-export const PageComponentDataSource = DataSource.extend({
+const PageComponentDataSource = DataSource.extend({
     /**
      * Init
      * @constructor init
@@ -503,3 +507,8 @@ PageComponentDataSource.create = options => {
         ? dataSource
         : new PageComponentDataSource(dataSource);
 };
+
+/**
+ * Exports
+ */
+export { PageComponent, PageComponentDataSource };

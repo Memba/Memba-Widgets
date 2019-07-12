@@ -3,24 +3,25 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO help and menu
-
 /* eslint-disable no-unused-expressions */
+
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import __ from '../../../src/js/app/app.i18n.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
-import PageComponent from '../../../src/js/data/models.pagecomponent.es6';
+import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
+import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 
-// Load tool
-import '../../../src/js/tools/tools.label.es6';
-// Load component
+// Component data
 import { getLabel } from '../_misc/test.components.es6';
 
 const { describe, it } = window;
@@ -30,26 +31,38 @@ chai.use((c, u) => chaiJquery(c, u, $));
 const FIXTURES = '#fixtures';
 
 describe('tools.label', () => {
-    before(() => {
+    before(done => {
         if (window.__karma__ && $(FIXTURES).length === 0) {
             $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
         }
+        // Load tool
+        tools.load('label').always(done);
     });
 
     describe('LabelTool', () => {
-        const tool = tools.label;
-        const component = new PageComponent(getLabel());
+        let tool;
+        let component;
+
+        before(() => {
+            tool = tools('label');
+            component = new PageComponent(getLabel());
+        });
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);
             expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
-            expect(tool).to.have.property('description', 'Label');
+            expect(tool).to.have.property(
+                'description',
+                __('tools.label.description')
+            );
             expect(tool).to.have.property('height', 80);
-            expect(tool).to.have.property('help', null); // TODO
+            expect(tool).to.have.property('help', __('tools.label.help'));
             expect(tool).to.have.property('id', 'label');
-            expect(tool).to.have.property('icon', 'font');
-            // TODO expect(tool).to.have.property('menu', 'Label');
-            expect(tool).to.have.property('name', 'Label');
+            expect(tool).to.have.property('icon', __('tools.label.icon'));
+            expect(tool)
+                .to.have.property('menu')
+                .that.eql(['attributes.text']);
+            expect(tool).to.have.property('name', __('tools.label.name'));
             expect(tool).to.have.property('weight', 0);
             expect(tool).to.have.property('width', 300);
         });
@@ -149,8 +162,8 @@ describe('tools.label', () => {
             }
             expect(fn2).to.throw();
 
-            // Test all stage CONSTANTS.STAGE_MODES
-            Object.values(CONSTANTS.STAGE_MODES).forEach(mode => {
+            // Test all stage TOOLS.STAGE_MODES
+            Object.values(TOOLS.STAGE_MODES).forEach(mode => {
                 const html = tool.getHtmlContent(component, mode);
                 expect(html).to.match(/^<div/);
             });

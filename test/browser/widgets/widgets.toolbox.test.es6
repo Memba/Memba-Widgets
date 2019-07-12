@@ -15,6 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.toolbox.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
@@ -31,14 +32,11 @@ const {
 const FIXTURES = '#fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'toolbox';
+const ICON_PATH = '../../src/styles/images/';
+const TOOLBOX2 = `<div id="toolbox2" data-role="widget" data-size="48" data-icon-path="${ICON_PATH}"></div>`;
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
-
-const kidoju = window.kidoju;
-const CLICK = 'click';
-const ICON_PATH = '../../src/styles/images/';
-const TOOLBOX2 = `<div id="toolbox2" data-role="widget" data-size="48" data-icon-path="${ICON_PATH}"></div>`;
 
 describe('widgets.toolbox', () => {
     before(() => {
@@ -196,7 +194,7 @@ describe('widgets.toolbox', () => {
                 .to.be.an.instanceof(ObservableObject)
                 .with.property('active', 'pointer');
             expect(widget.tool()).to.equal('pointer');
-            element.find('[data-tool="label"]').simulate(CLICK);
+            element.find('[data-tool="label"]').simulate(CONSTANTS.CLICK);
             expect(kidoju.tools.get('active')).to.equal('label');
             expect(widget.tool()).to.equal('label');
             expect(

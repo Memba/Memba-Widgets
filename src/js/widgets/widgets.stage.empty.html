@@ -203,14 +203,9 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            Promise.all([
-                SystemJS.import('../app/app.tools.es6'),
-                SystemJS.import('./widgets.toolbox.es6'),
-                SystemJS.import('./widgets.stage.es6')
-            ]).then(function () {
+            SystemJS.import('./widgets.stage.es6').then(function () {
             	var kendo = window.kendo;
                 $(function() {
-                    $('#toolbox').kendoToolBox();
                     $('#stage').kendoStage({
                         dataSource: undefined,
                         mode: 'design'
@@ -219,15 +214,9 @@
             });
         }());
     </script>
-    <style>
-        body {
-            background-color: darkgrey;
-        }
-    </style>
 </head>
 <body>
 <h1>widgets.stage</h1>
-<div id="toolbox"></div>
-<div id="stage"></div>
+<div id="stage" class="k-loading"></div>
 </body>
 </html>

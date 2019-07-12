@@ -14,24 +14,30 @@ import './js/widgets/widgets.styleeditor.es6';
 import { PageComponentDataSource } from './js/data/data.pagecomponent.es6';
 // import tools from './js/tools/tools.es6';
 
-// Load tools and data
-import './js/app/app.tools.es6';
+// Component data
 import { getComponentArray } from './js/helpers/helpers.data.es6';
+import tools from './js/tools/tools.es6';
 
 const { bind, observable } = window.kendo;
 
-// Data source and viewModel
+// Get components
 const data = getComponentArray();
-const pageComponentDataSource = new PageComponentDataSource({ data });
-const viewModel = observable({
-    items: pageComponentDataSource,
-    current: null
-});
+// Load tools
+const promises = data.map(component => tools.load(component.tool));
+$.when(...promises).then(() => {
+    const pageComponentDataSource = new PageComponentDataSource({ data });
+    const viewModel = observable({
+        items: pageComponentDataSource,
+        current: null
+    });
 
-// Page ready
-$(() => {
-    bind('body', viewModel);
-    pageComponentDataSource.fetch().then(() => {
-        viewModel.set('current', pageComponentDataSource.at(1));
+    // Page ready
+    $(() => {
+        pageComponentDataSource.fetch().then(() => {
+            viewModel.set('current', pageComponentDataSource.at(1));
+            // We need to set current before binding the viewModel
+            // otherwise current.attributes.style is not available to the StyleEditor
+            bind('body', viewModel);
+        });
     });
 });

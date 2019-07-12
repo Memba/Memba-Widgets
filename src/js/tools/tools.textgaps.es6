@@ -16,12 +16,11 @@ import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import QuestionAdapter from './adapters.question.es6';
 import ValidationAdapter from './adapters.validation.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
-import __ from '../app/app.i18n';
+import __ from '../app/app.i18n.es6';
 
 const { attr, format, htmlEncode, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -39,12 +38,10 @@ const TEMPLATE = `<div data-${ns}role="textgaps" data-${ns}text="#: attributes.t
  */
 const TextGapsTool = BaseTool.extend({
     id: 'textgaps',
-    icon: 'text_gaps',
-    name: __('tools.textgaps.name'),
-    description: __('tools.textgaps.description'),
-    help: __('tools.textgaps.help'),
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    height: 150,
+    width: 420,
     weight: 1,
+    // menu: [],
     templates: {
         design: format(TEMPLATE, `data-${ns}enable="false"`),
         play: format(
@@ -57,8 +54,6 @@ const TextGapsTool = BaseTool.extend({
                 `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
-    height: 150,
-    width: 420,
     attributes: {
         inputStyle: new StyleAdapter({
             title: __('tools.textgaps.attributes.inputStyle.title')
@@ -106,46 +101,6 @@ const TextGapsTool = BaseTool.extend({
     },
 
     /**
-     * Get Html or jQuery content
-     * @method getHtmlContent
-     * @param component
-     * @param mode
-     * @returns {*}
-     */
-    getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            TextGapsTool,
-            that,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this',
-                'TextGapsTool'
-            )
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.keys(TOOLS.STAGE_MODES)
-            )
-        );
-        const tmpl = template(that.templates[mode]);
-        return tmpl(component);
-    },
-
-    /**
      * Improved display of value in score grid
      * @param testItem
      */
@@ -167,48 +122,6 @@ const TextGapsTool = BaseTool.extend({
             ret[i] = htmlEncode((ret[i] || '').trim());
         }
         return ret.join('<br/>');
-    },
-
-    /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children(`div${roleSelector('textgaps')}`);
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
     },
 
     /**
@@ -264,6 +177,6 @@ const TextGapsTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(TextGapsTool);
+export default TextGapsTool;

@@ -13,6 +13,7 @@ import 'kendo.data';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { escapeRegExp } from '../common/window.util.es6';
+import tools from '../tools/tools.es6';
 import {
     PageComponent,
     PageComponentDataSource
@@ -30,7 +31,7 @@ const {
  * @class Page
  * @extends BaseModel
  */
-export const Page = BaseModel.define({
+const Page = BaseModel.define({
     id: CONSTANTS.ID,
     fields: {
         id: {
@@ -513,59 +514,69 @@ Page.createTextBoxPage = options => {
             CONSTANTS.STRING
         )
     );
+    const dfd = $.Deferred();
     const solutions = options.solution
         .split('\n')
         .filter(item => item.trim() !== '');
     const escaped = solutions.map(escapeRegExp);
-    return new Page({
-        components: [
-            new PageComponent({
-                tool: 'label',
-                top: 40,
-                left: 40,
-                width: 940,
-                height: 160,
-                attributes: {
-                    text: options.question
-                }
-            }),
-            new PageComponent({
-                tool: 'image',
-                top: 250,
-                left: 580,
-                width: 360,
-                height: 360,
-                attributes: {
-                    alt: options.question
-                }
-            }),
-            new PageComponent({
-                tool: 'textbox',
-                top: 380,
-                left: 80,
-                width: 380,
-                height: 100,
-                properties: {
-                    question: options.question,
-                    solution: solutions[0],
-                    validation:
-                        solutions.length > 1
-                            ? `// ignoreCaseMatch ${JSON.stringify([
-                                `^(?:${escaped.join('|')})$`// eslint-disable-line prettier/prettier
-                            ])}` // eslint-disable-line prettier/prettier
-                            : '// ignoreCaseEqual'
-                }
-            })
-        ],
-        instructions: format(
-            Page.prototype.messages.createTextBoxInstructions,
-            options.question
-        ),
-        explanations: format(
-            Page.prototype.messages.createTextBoxExplanations,
-            solutions[0]
-        )
-    });
+    const promises = ['image', 'label', 'textbox'].map(tool =>
+        tools.load(tool)
+    );
+    $.when(...promises)
+        .then(() => {
+            const page = Page({
+                components: [
+                    new PageComponent({
+                        tool: 'label',
+                        top: 40,
+                        left: 40,
+                        width: 940,
+                        height: 160,
+                        attributes: {
+                            text: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'image',
+                        top: 250,
+                        left: 580,
+                        width: 360,
+                        height: 360,
+                        attributes: {
+                            alt: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'textbox',
+                        top: 380,
+                        left: 80,
+                        width: 380,
+                        height: 100,
+                        properties: {
+                            question: options.question,
+                            solution: solutions[0],
+                            validation:
+                                solutions.length > 1
+                                    ? `// ignoreCaseMatch ${JSON.stringify([
+                                        `^(?:${escaped.join('|')})$`// eslint-disable-line prettier/prettier
+                                    ])}` // eslint-disable-line prettier/prettier
+                                    : '// ignoreCaseEqual'
+                        }
+                    })
+                ],
+                instructions: format(
+                    Page.prototype.messages.createTextBoxInstructions,
+                    options.question
+                ),
+                explanations: format(
+                    Page.prototype.messages.createTextBoxExplanations,
+                    solutions[0]
+                )
+            });
+            dfd.resolve(page);
+        })
+        .catch(dfd.reject);
+    return dfd.promise();
 };
 
 /**
@@ -598,55 +609,63 @@ Page.createQuizPage = options => {
             CONSTANTS.STRING
         )
     );
-    // TODO Check that options.data has text and image
-    return new Page({
-        components: [
-            new PageComponent({
-                tool: 'label',
-                top: 40,
-                left: 40,
-                width: 940,
-                height: 160,
-                attributes: {
-                    text: options.question
-                }
-            }),
-            new PageComponent({
-                tool: 'image',
-                top: 250,
-                left: 580,
-                width: 360,
-                height: 360,
-                attributes: {
-                    alt: options.question
-                }
-            }),
-            new PageComponent({
-                tool: 'quiz',
-                top: 250,
-                left: 80,
-                width: 440,
-                height: 360,
-                attributes: {
-                    mode: 'radio',
-                    data: options.data
-                },
-                properties: {
-                    question: options.question,
-                    solution: options.solution,
-                    validation: '// equal'
-                }
-            })
-        ],
-        instructions: format(
-            Page.prototype.messages.createQuizInstructions,
-            options.question
-        ),
-        explanations: format(
-            Page.prototype.messages.createQuizExplanations,
-            options.solution
-        )
-    });
+    const dfd = $.Deferred();
+    const promises = ['image', 'label', 'quiz'].map(tool => tools.load(tool));
+    $.when(...promises)
+        .then(() => {
+            // TODO Check that options.data has text and image
+            const page = new Page({
+                components: [
+                    new PageComponent({
+                        tool: 'label',
+                        top: 40,
+                        left: 40,
+                        width: 940,
+                        height: 160,
+                        attributes: {
+                            text: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'image',
+                        top: 250,
+                        left: 580,
+                        width: 360,
+                        height: 360,
+                        attributes: {
+                            alt: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'quiz',
+                        top: 250,
+                        left: 80,
+                        width: 440,
+                        height: 360,
+                        attributes: {
+                            mode: 'radio',
+                            data: options.data
+                        },
+                        properties: {
+                            question: options.question,
+                            solution: options.solution,
+                            validation: '// equal'
+                        }
+                    })
+                ],
+                instructions: format(
+                    Page.prototype.messages.createQuizInstructions,
+                    options.question
+                ),
+                explanations: format(
+                    Page.prototype.messages.createQuizExplanations,
+                    options.solution
+                )
+            });
+            dfd.resolve(page);
+        })
+        .catch(dfd.reject);
+    return dfd.promise();
 };
 
 /**
@@ -675,54 +694,63 @@ Page.createMultiQuizPage = options => {
         options.solution,
         assert.format(assert.messages.isArray.default, options.solution)
     );
-    return new Page({
-        components: [
-            new PageComponent({
-                tool: 'label',
-                top: 40,
-                left: 40,
-                width: 940,
-                height: 160,
-                attributes: {
-                    text: options.question
-                }
-            }),
-            new PageComponent({
-                tool: 'image',
-                top: 250,
-                left: 580,
-                width: 360,
-                height: 360,
-                attributes: {
-                    alt: options.question
-                }
-            }),
-            new PageComponent({
-                tool: 'multiquiz',
-                top: 250,
-                left: 80,
-                width: 440,
-                height: 360,
-                attributes: {
-                    mode: 'checkbox',
-                    data: options.data
-                },
-                properties: {
-                    question: options.question,
-                    solution: options.solution,
-                    validation: '// equal'
-                }
-            })
-        ],
-        instructions: format(
-            Page.prototype.messages.createQuizInstructions,
-            options.question
-        ),
-        explanations: format(
-            Page.prototype.messages.createMultiQuizExplanations,
-            options.solution.join('**,\n- **')
-        )
-    });
+    const dfd = $.Deferred();
+    const promises = ['image', 'label', 'multiquiz'].map(tool => tools.load(tool));
+    $.when(...promises)
+        .then(() => {
+            // TODO Check that options.data has text and image
+            const page = new Page({
+                components: [
+                    new PageComponent({
+                        tool: 'label',
+                        top: 40,
+                        left: 40,
+                        width: 940,
+                        height: 160,
+                        attributes: {
+                            text: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'image',
+                        top: 250,
+                        left: 580,
+                        width: 360,
+                        height: 360,
+                        attributes: {
+                            alt: options.question
+                        }
+                    }),
+                    new PageComponent({
+                        tool: 'multiquiz',
+                        top: 250,
+                        left: 80,
+                        width: 440,
+                        height: 360,
+                        attributes: {
+                            mode: 'checkbox',
+                            data: options.data
+                        },
+                        properties: {
+                            question: options.question,
+                            solution: options.solution,
+                            validation: '// equal'
+                        }
+                    })
+                ],
+                instructions: format(
+                    Page.prototype.messages.createQuizInstructions,
+                    options.question
+                ),
+                explanations: format(
+                    Page.prototype.messages.createMultiQuizExplanations,
+                    options.solution.join('**,\n- **')
+                )
+            });
+            dfd.resolve(page);
+        })
+        .catch(dfd.reject);
+    return dfd.promise();
 };
 
 /**
@@ -753,7 +781,7 @@ function dataMethod(name) {
  * @class PageDataSource
  * @extends DataSource
  */
-export const PageDataSource = DataSource.extend({
+const PageDataSource = DataSource.extend({
     /**
      * Init
      * @constructor init
@@ -855,3 +883,8 @@ PageDataSource.create = options => {
         ? dataSource
         : new PageDataSource(dataSource);
 };
+
+/**
+ * Exports
+ */
+export { Page, PageDataSource };

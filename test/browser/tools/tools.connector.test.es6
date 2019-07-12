@@ -5,6 +5,9 @@
 
 /* eslint-disable no-unused-expressions */
 
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -13,14 +16,15 @@ import 'kendo.data';
 import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import BaseTool from '../../../src/js/tools/tools.base.es6';
+import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 const { describe, it, kendo, xit } = window;
 const { expect } = chai;
 
 describe('tools.connector', () => {
     describe('ConnectorTool', () => {
-        const tool = tools.connector;
+        const tool = tools('connector');
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);
@@ -54,7 +58,7 @@ describe('tools.connector', () => {
 describe('Connector', () => {
 
     it('Validate properties', function () {
-        var tool = tools.connector;
+        var tool = tools('connector');
         expect(tool.id).to.equal('connector');
         expect(tool.icon).to.equal('target');
         expect(tool.cursor).to.equal('crosshair');
@@ -73,7 +77,7 @@ describe('Connector', () => {
         function fn2() {
             return tool.getHtmlContent(component);
         }
-        var tool = tools.connector;
+        var tool = tools('connector');
         var component = new PageComponent({ tool: 'connector' });
         var html;
 
@@ -84,15 +88,15 @@ describe('Connector', () => {
         expect(fn2).to.throw();
 
         // If we submit a valid page component in design mode
-        html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.DESIGN);
+        html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.DESIGN);
         expect(html).to.match(/^<div data-role="connector"/);
 
         // If we submit a valid page component in play mode
-        html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.PLAY);
+        html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.PLAY);
         expect(html).to.match(/^<div data-role="connector"/);
 
         // If we submit a valid page component in review mode
-        html = tool.getHtmlContent(component, CONSTANTS.STAGE_MODES.REVIEW);
+        html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.REVIEW);
         expect(html).to.match(/^<div data-role="connector"/);
     });
 

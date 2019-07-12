@@ -17,7 +17,7 @@ import './js/cultures/all.en.es6';
 import { Page } from './js/data/data.page.es6';
 import StyleAdapter from './js/tools/adapters.style.es6';
 import tools from './js/tools/tools.es6';
-import BaseTool from './js/tools/tools.base.es6';
+import { BaseTool } from './js/tools/tools.base.es6';
 import './js/widgets/widgets.explorer.es6';
 import './js/widgets/widgets.formatstrip.es6';
 import './js/widgets/widgets.markeditor.es6';
@@ -53,6 +53,11 @@ const Settings = Model.define({
     }
 });
 
+const $centerPane = $('#center-pane');
+const $rightPane = $('#right-pane');
+const $grid1 = $('#attributes');
+const $grid2 = $('#properties');
+
 /**
  * viewModel
  */
@@ -72,8 +77,8 @@ viewModel.bind('change', e => {
     } else if (e.field === 'selectedComponent') {
         const tool = tools[e.sender.get('selectedComponent.tool')];
         if (tool instanceof BaseTool) {
-            const grid1 = $('#attributes').data('kendoPropertyGrid');
-            const grid2 = $('#properties').data('kendoPropertyGrid');
+            const grid1 = $grid1.data('kendoPropertyGrid');
+            const grid2 = $grid2.data('kendoPropertyGrid');
             if (grid1 instanceof PropertyGrid) {
                 grid1.rows(tool.getAttributeRows());
             }
@@ -82,18 +87,18 @@ viewModel.bind('change', e => {
             }
         }
     } else if (e.field === 'settings.snapAngle') {
-        const stage = $('#center-pane').find(roleSelector('stage'));
+        const stage = $centerPane.find(roleSelector('stage'));
         const stageWidget = stage.data('kendoStage');
         stageWidget.snapAngle(e.sender.get('settings.snapAngle'));
     } else if (e.field === 'settings.snapGrid') {
-        const stage = $('#center-pane').find(roleSelector('stage'));
+        const stage = $centerPane.find(roleSelector('stage'));
         const stageWidget = stage.data('kendoStage');
         stageWidget.snapGrid(e.sender.get('settings.snapGrid'));
     } else if (e.field === 'settings.style') {
         const style = e.sender.get('settings.style');
         e.sender.set('selectedPage.style', style);
         setTimeout(() => {
-            const stage = $('#center-pane').find(roleSelector('stage'));
+            const stage = $centerPane.find(roleSelector('stage'));
             const stageWidget = stage.data('kendoStage');
             stageWidget.style(style);
         });
@@ -116,15 +121,15 @@ function onResize() {
         'kendoNavigation'
     );
 
-    const stage = $('#center-pane').find(roleSelector('stage'));
+    const stage = $centerPane.find(roleSelector('stage'));
 
     const stageWidget = stage.data('kendoStage');
     if (navigationWidget instanceof Navigation) {
         navigationWidget.resize();
     }
     if (stageWidget instanceof Stage) {
-        const width = $('#center-pane').width();
-        const height = $('#center-pane').height();
+        const width = $centerPane.width();
+        const height = $centerPane.height();
         const scale = Math.min((0.9 * width) / 1024, (0.9 * height) / 768);
         stageWidget.scale(scale);
         $('.centered')
@@ -170,10 +175,10 @@ $(() => {
                     navigation = $(roleSelector('navigation')).data(
                         'kendoNavigation'
                     );
-                    stage = $('#center-pane')
+                    stage = $centerPane
                         .find(roleSelector('stage'))
                         .data('kendoStage');
-                    explorer = $('#right-pane')
+                    explorer = $rightPane
                         .find(roleSelector('explorer'))
                         .data('kendoExplorer');
                     page = navigation.value();

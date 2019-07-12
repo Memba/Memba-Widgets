@@ -283,7 +283,7 @@ const Stream = BaseModel.define({
 
                 // Binding properties for val_xxxxxx fields
                 if (TOOLS.RX_TEST_FIELD_NAME.test(name)) {
-                    const tool = tools[component.tool];
+                    const tool = tools(component.tool);
 
                     // TODO What if component.properties.disabled ??????
 
@@ -303,7 +303,7 @@ const Stream = BaseModel.define({
                     component.tool === 'variable' &&
                     TOOLS.RX_VARIABLE.test(variable)
                 ) {
-                    const tool = tools[component.tool];
+                    const tool = tools(component.tool);
                     const value = tool.eval(component);
                     if ($.type(value) !== CONSTANTS.UNDEFINED) {
                         fields.variables.defaultValue[pageIdx] =
@@ -379,7 +379,7 @@ const Stream = BaseModel.define({
                             values._total += 1;
                             values[tool] = (values[tool] || 0) + 1;
                         }
-                        values._weight += tools[tool].weight;
+                        values._weight += tools(tool).weight;
                     }
                 }
             }
@@ -431,10 +431,10 @@ const Stream = BaseModel.define({
                 if (proportion >= QTY_VARIETY) {
                     assert.instanceof(
                         kendo.Observable,
-                        tools,
+                        tools(),
                         assert.format(
                             assert.messages.instanceof.default,
-                            'tools',
+                            'tools()',
                             'kendo.Observable'
                         )
                     );
@@ -444,7 +444,7 @@ const Stream = BaseModel.define({
                         message: format(
                             this.messages.qtyVariety,
                             proportion,
-                            tools[prop].description
+                            tools(prop).description
                         )
                     });
                 }

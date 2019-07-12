@@ -78,7 +78,8 @@
     "stylelint": "^10.1.0",
     "stylelint-config-standard": "^18.3.0",
     "stylelint-scss": "^3.9.1",
-    "systemjs-plugin-babel": "0.0.25"
+    "systemjs-plugin-babel": "0.0.25",
+    "webpack": "^4.35.3"
   },
   "engines": {
     "node": ">=8"

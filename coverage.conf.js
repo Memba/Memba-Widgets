@@ -30,7 +30,7 @@ module.exports = config => {
         frameworks: ['mocha', 'sinon-chai'],
 
         // https://github.com/vlkosinov/karma-chai-as-promised/issues/5#issuecomment-296440839
-        // plugins: []
+        // plugins: [],
 
         // list of files / patterns to load in the browser
         // See: http://karma-runner.github.io/0.12/config/files.html

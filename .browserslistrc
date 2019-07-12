@@ -1,6 +1,10 @@
 ### Supported browsers
 ### https://github.com/browserslist/browserslist
 
+## https://github.com/twbs/bootstrap/blob/v4.3.1/.browserslistrc
+## https://github.com/telerik/kendo-themes/issues/780
+## https://github.com/GoogleChrome/workbox/issues/1567
+
 > 1%
 last 3 versions
 # maintained node versions (for Babel, but breaks autoprefixer)

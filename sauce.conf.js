@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+'use strict';
+
+const path = require('path');
+
 // Karma configuration
 module.exports = config => {
     // Example set of browsers to run on Sauce Labs
@@ -81,6 +90,8 @@ module.exports = config => {
         // list of files / patterns to load in the browser
         // See: http://karma-runner.github.io/0.12/config/files.html
         files: [
+            // LESS/CSS Stylesheets have to be included
+            /*
             {
                 pattern: 'src/styles/vendor/kendo/web/kendo.common.min.css',
                 served: true,
@@ -97,112 +108,56 @@ module.exports = config => {
                 served: true,
                 included: true
             },
+             */
+            // SCSS/CSS Stylesheets have to be included
+            {
+                pattern: 'src/styles/themes/app.theme.bootstrap.css',
+                served: true,
+                included: true
+            },
+            // External jQuery and polyfill
             {
                 pattern: 'src/js/vendor/jquery/jquery-3.4.1.min.js',
                 served: true,
                 included: true
             },
             {
-                pattern: 'src/js/vendor/kendo/kendo.all.min.js',
+                pattern: 'test/vendor/polyfill.min.js',
                 served: true,
                 included: true
             },
+            // Other files made available on demand
             {
-                pattern: 'src/js/window.assert.js',
-                served: true,
-                included: true
-            },
-            { pattern: 'src/js/window.log.js', served: true, included: true },
-            { pattern: 'src/js/kidoju.data.js', served: true, included: true },
-            {
-                pattern: 'src/js/kidoju.data.workerlibjs',
+                pattern: 'src/js/**/*',
                 served: true,
                 included: false
             },
-            { pattern: 'src/js/kidoju.tools.js', served: true, included: true },
             {
-                pattern: 'src/js/kidoju.widgets.assetmanager.js',
+                pattern: 'src/styles/**/*',
                 served: true,
-                included: true
+                included: false
             },
+            // Our mocha tests
             {
-                pattern: 'src/js/kidoju.widgets.codeeditor.js',
+                // pattern: 'test/browser/**/*.test.es6',
+                pattern: 'test/browser/{app,data}/*.test.es6',
+                // pattern: 'test/browser/app/*.test.es6',
+                // pattern: 'test/browser/data/*.test.es6',
+                // pattern: 'test/browser/common/*.test.es6',
+                // pattern: 'test/browser/dialogs/*.test.es6',
+                // pattern: 'test/browser/editors/*.test.es6',
+                // pattern: 'test/browser/experiments/*.test.es6',
+                // pattern: 'test/browser/tools/*.test.es6',
+                // pattern: 'test/browser/widgets/*.test.es6',
                 served: true,
-                included: true
+                included: true // They need to be included!
             },
+            // Our test data
             {
-                pattern: 'src/js/kidoju.widgets.codeinput.js',
+                pattern: 'test/data/**/*',
                 served: true,
-                included: true
-            },
-            {
-                pattern: 'src/js/kidoju.widgets.explorer.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'src/js/kidoju.widgets.mediaplayer.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'src/js/kidoju.widgets.multiinput.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'src/js/kidoju.widgets.navigation.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'src/js/kidoju.widgets.playbar.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'src/js/kidoju.widgets.propertygrid.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'src/js/kidoju.widgets.quiz.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'src/js/kidoju.widgets.rating.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'src/js/kidoju.widgets.stage.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'src/js/kidoju.widgets.styleeditor.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'src/js/kidoju.widgets.toolbox.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'test/vendor/chai-jquery.js',
-                served: true,
-                included: true
-            },
-            {
-                pattern: 'test/vendor/jquery.simulate.js',
-                served: true,
-                included: true
-            },
-            { pattern: 'test/browsers/*.js', served: true, included: true },
-            { pattern: 'src/**/*.*', served: true, included: false },
-            { pattern: 'test/data/*.json', served: true, included: false }
+                included: false
+            }
         ],
 
         // list of files to exclude
@@ -210,7 +165,118 @@ module.exports = config => {
 
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {},
+        preprocessors: {
+            // Do not add the coverage preprocessor
+            // @see https://github.com/istanbuljs/babel-plugin-istanbul#karma
+            // '/src/js/*.js': ['coverage'],
+            '/src/js/**/*.es6': ['coverage'],
+            'test/browser/**/*.test.es6': ['webpack', 'sourcemap']
+        },
+
+        webpack: {
+            context: path.join(__dirname, '/'),
+            devtool: 'inline-source-map', // Requires --max-old-space-size=4096
+            externals: {
+                // CDN modules
+                jquery: 'jQuery'
+            },
+            mode:
+                process.env.NODE_ENV === 'production'
+                    ? 'production'
+                    : 'development',
+            module: {
+                rules: [
+                    {
+                        test: /\.es6$/,
+                        exclude: /node_modules/,
+                        use: [
+                            {
+                                loader: 'babel-loader',
+                                options: { babelrc: true }
+                            }
+                        ]
+                    },
+                    {
+                        // Append  module.exports = JSC; to jscheck.js
+                        // @see https://webpack.js.org/loaders/exports-loader/
+                        test: require.resolve(
+                            path.join(__dirname, '/test/vendor/jscheck.js')
+                        ),
+                        use: 'exports-loader?JSC'
+                    },
+                    {
+                        // Prepend var jQuery = require("jquery"); to jquery.simulate.js.js.
+                        // @see https://webpack.js.org/loaders/imports-loader/#usage
+                        test: require.resolve(
+                            path.join(
+                                __dirname,
+                                '/test/vendor/jquery.simulate.js'
+                            )
+                        ),
+                        use: [
+                            {
+                                loader: 'imports-loader',
+                                options: { jQuery: 'jquery' }
+                            }
+                        ]
+                    },
+                    {
+                        // Assign this=window and prevent AMD + CJS loading
+                        // @see https://github.com/jakerella/jquery-mockjax/issues/285#issuecomment-342411363
+                        // @see https://webpack.js.org/loaders/imports-loader/#disable-amd
+                        // @see https://webpack.js.org/guides/shimming/
+                        test: require.resolve(
+                            path.join(
+                                __dirname,
+                                '/test/vendor/jquery.mockjax.js'
+                            )
+                        ),
+                        use: [
+                            {
+                                loader: 'imports-loader',
+                                options: {
+                                    // define: '>false',
+                                    exports: '>false',
+                                    this: '>window'
+                                }
+                            }
+                        ]
+                    }
+                    /* ,
+                    {
+                        // import sinonChai from 'sinon-chai' does not work
+                        // @see https://github.com/domenic/sinon-chai/issues/85
+                        // @see https://webpack.js.org/loaders/imports-loader/#disable-amd
+                        test: require.resolve('sinon-chai'),
+                        use: [
+                            {
+                                loader: 'imports-loader',
+                                options: { require: '>function(){}' }
+                            }
+                        ]
+                    }
+                    */
+                ]
+            },
+            resolve: {
+                extensions: ['.es6', '.js'],
+                modules: [
+                    path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
+                    path.resolve(__dirname, 'src/js/vendor/modernizr'),
+                    path.resolve(__dirname, 'test/vendor'),
+                    'node_modules'
+                ]
+            }
+        },
+
+        /*
+        webpackMiddleware: {
+            // webpack-dev-middleware configuration
+            // i. e.
+            // noInfo: false,
+            stats: 'errors-only'
+        },
+        */
 
         // test results reporter to use
         // possible values: 'dots', 'progress'
@@ -242,5 +308,8 @@ module.exports = config => {
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
         singleRun: true
+
+        // Concurrency (Infinity by default)
+        // concurrency: 1
     });
 };

@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
+'use strict';
+
 module.exports = grunt => {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -21,7 +23,7 @@ module.exports = grunt => {
                 'src/js/helpers/*.es6',
                 'src/js/sockets/*.es6',
                 // 'src/js/tools/*.es6',
-                'src/js/widgets/*.es6',
+                // 'src/js/widgets/*.es6',
                 'src/js/workers/*.es6'
                 // 'test/**/*.es6'
             ],

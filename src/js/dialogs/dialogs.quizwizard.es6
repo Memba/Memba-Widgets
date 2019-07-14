@@ -179,7 +179,9 @@ function openQuizWizard(options = {}) {
                 },
                 navigatable: true,
                 scrollable: false,
-                toolbar: [{ name: 'create', text: __('dialogs.quizwizard.add') }]
+                toolbar: [
+                    { name: 'create', text: __('dialogs.quizwizard.add') }
+                ]
             })
             .data('kendoGrid');
 

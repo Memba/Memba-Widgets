@@ -35,7 +35,8 @@ module.exports = config => {
         // list of files / patterns to load in the browser
         // See: http://karma-runner.github.io/0.12/config/files.html
         files: [
-            // CSS Stylesheets have to be included
+            // LESS/CSS Stylesheets have to be included
+            /*
             {
                 pattern: 'src/styles/vendor/kendo/web/kendo.common.min.css',
                 served: true,
@@ -49,6 +50,13 @@ module.exports = config => {
             {
                 pattern:
                     'src/styles/vendor/kendo/web/kendo.default.mobile.min.css',
+                served: true,
+                included: true
+            },
+             */
+            // SCSS/CSS Stylesheets have to be included
+            {
+                pattern: 'src/styles/themes/app.theme.bootstrap.css',
                 served: true,
                 included: true
             },
@@ -77,10 +85,10 @@ module.exports = config => {
             // Our mocha tests
             {
                 // pattern: 'test/browser/**/*.test.es6',
-                // pattern: 'test/browser/{app,common,data,editors}/*.test.es6',
+                pattern: 'test/browser/{app,data}/*.test.es6',
                 // pattern: 'test/browser/app/*.test.es6',
+                // pattern: 'test/browser/data/*.test.es6',
                 // pattern: 'test/browser/common/*.test.es6',
-                pattern: 'test/browser/data/*.test.es6',
                 // pattern: 'test/browser/dialogs/*.test.es6',
                 // pattern: 'test/browser/editors/*.test.es6',
                 // pattern: 'test/browser/experiments/*.test.es6',

@@ -695,7 +695,9 @@ Page.createMultiQuizPage = options => {
         assert.format(assert.messages.isArray.default, options.solution)
     );
     const dfd = $.Deferred();
-    const promises = ['image', 'label', 'multiquiz'].map(tool => tools.load(tool));
+    const promises = ['image', 'label', 'multiquiz'].map(tool =>
+        tools.load(tool)
+    );
     $.when(...promises)
         .then(() => {
             // TODO Check that options.data has text and image

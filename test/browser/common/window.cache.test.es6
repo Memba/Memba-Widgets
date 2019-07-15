@@ -11,11 +11,12 @@ import {
     localCache,
     sessionCache
 } from '../../../src/js/common/window.cache.es6';
+import support from '../../../src/js/common/window.support.es6';
 import { dateReviver } from '../../../src/js/common/window.util.es6';
 import md5 from '../../../src/js/vendor/blueimp/md5';
 import LZString from '../../../src/js/vendor/pieroxy/lz-string';
 
-const { before, describe, it } = window;
+const { before, describe, it, xdescribe } = window;
 const { expect } = chai;
 
 const INVALID = [
@@ -54,7 +55,7 @@ function getKey(index) {
 }
 
 describe('window.cache', () => {
-    describe('localCache', () => {
+    (support.localstorage ? describe : xdescribe)('localCache', () => {
         const cache = localCache;
         const storage = window.localStorage;
 
@@ -196,7 +197,7 @@ describe('window.cache', () => {
         });
     });
 
-    describe('sessionCache', () => {
+    (support.sessionstorage ? describe : xdescribe)('sessionCache', () => {
         const cache = sessionCache;
         const storage = window.sessionStorage;
 

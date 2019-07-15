@@ -14,7 +14,7 @@ module.exports = grunt => {
                 'templates/*.es6',
                 // 'src/js/**/*.es6',
                 'src/js/app/*.es6',
-                // 'src/js/common/*.es6',
+                'src/js/common/*.es6',
                 'src/js/cultures/*.es6',
                 'src/js/data/*.es6',
                 'src/js/dialogs/*.es6',

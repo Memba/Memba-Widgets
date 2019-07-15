@@ -112,7 +112,22 @@ describe('window.cache', () => {
         it('It should getItems', () => {
             const rx = new RegExp(`^${getKey('')}`);
             const items = cache.getItems(rx);
-            expect(items).to.eql(DATA);
+            // expect(items).to.have.eql(DATA);
+            // expect(items).to.have.members(DATA);
+            expect(items.length).to.equal(DATA.length);
+            items.forEach(item => {
+                const keys = Object.keys(item)
+                    .sort()
+                    .toString();
+                const found = DATA.find(data => {
+                    return (
+                        Object.keys(data)
+                            .sort()
+                            .toString() === keys
+                    );
+                });
+                expect(item).to.eql(found);
+            });
         });
 
         it('It should fail to removeItems with an invalid key', () => {
@@ -239,7 +254,22 @@ describe('window.cache', () => {
         it('It should getItems', () => {
             const rx = new RegExp(`^${getKey('')}`);
             const items = cache.getItems(rx);
-            expect(items).to.eql(DATA);
+            // expect(items).to.have.eql(DATA);
+            // expect(items).to.have.members(DATA);
+            expect(items.length).to.equal(DATA.length);
+            items.forEach(item => {
+                const keys = Object.keys(item)
+                    .sort()
+                    .toString();
+                const found = DATA.find(data => {
+                    return (
+                        Object.keys(data)
+                            .sort()
+                            .toString() === keys
+                    );
+                });
+                expect(item).to.eql(found);
+            });
         });
 
         it('It should fail to removeItems with an invalid key', () => {

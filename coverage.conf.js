@@ -85,7 +85,7 @@ module.exports = config => {
             // Our mocha tests
             {
                 // pattern: 'test/browser/**/*.test.es6',
-                pattern: 'test/browser/{app,data}/*.test.es6',
+                pattern: 'test/browser/{app,common,data,workers}/*.test.es6',
                 // pattern: 'test/browser/app/*.test.es6',
                 // pattern: 'test/browser/data/*.test.es6',
                 // pattern: 'test/browser/common/*.test.es6',

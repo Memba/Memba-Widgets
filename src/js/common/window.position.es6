@@ -18,6 +18,7 @@ const {
     getComputedStyles,
     getOffset
 } = window.kendo;
+const Matrix = window.WebKitCSSMatrix || window.DOMMatrix;
 
 /**
  * Constrain a value within a range

@@ -3,11 +3,15 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Consider grouping label like Workbox in browser only (not nodeJS)
+
 /* eslint-disable valid-typeof */
 
 import CONSTANTS from './window.constants.es6';
 
-const { console, Error, ErrorEvent, location } = window;
+// Note: we cannot assign window.console to console here
+// otherwise spying on console.log for qa/tests won't work
+const { Error, ErrorEvent, location } = window;
 const plugins = new Set();
 
 /**
@@ -149,6 +153,7 @@ function log2Console(entry) {
     const FIRST = ' ';
     const SEP = '; '; // '  |  ';
     const DATA_LENGTH = 500;
+    const { console } = window;
     if (console && typeof console.log === CONSTANTS.FUNCTION) {
         let message = `[${entry.level.toUpperCase()}${
             entry.level.length === 4 ? ' ' : ''

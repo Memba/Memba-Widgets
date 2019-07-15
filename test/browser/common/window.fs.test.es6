@@ -8,17 +8,16 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'modernizr';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import support from '../../../src/js/common/window.support.es6';
 import FileSystem from '../../../src/js/common/window.fs.es6';
 
 const {
     before,
     describe,
     it,
-    Modernizr,
     navigator: { userAgent, vendor },
     xdescribe
 } = window;
@@ -26,18 +25,12 @@ const { expect } = chai;
 
 chai.use(sinonChai);
 
-if (!Modernizr.filesystem) {
+if (!support.filesystem) {
     document.getElementById('mocha').innerHTML =
         '<span>FileSystem is not supported</span>';
     // return; // Cannot have a return statement here (check in IE)
 } else {
     describe('window.fs', () => {
-        describe('Legacy export', () => {
-            it('Check window.app.tts.*', () => {
-                expect(window.app.FileSystem).to.equal(FileSystem);
-            });
-        });
-
         describe('Initialization', () => {
             it('it should init a window.TEMPORARY file system', done => {
                 const fileSystem = new FileSystem();
@@ -329,7 +322,7 @@ if (!Modernizr.filesystem) {
             }
 
             function test(remoteUrl, fileName, done) {
-                if (Modernizr.xhr2) {
+                if (support.xhr2) {
                     download(remoteUrl, fileName)
                         .then(e => {
                             try {

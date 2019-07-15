@@ -86,6 +86,7 @@ describe('window.logger', () => {
 
         it('log messages with level param', () => {
             function test(level) {
+                debugger;
                 logger.log(level, { message: MESSAGE, data: DATA });
                 expect(console.error).to.have.callCount(0);
                 expect(console.log).to.have.been.calledWith(

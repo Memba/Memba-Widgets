@@ -25,7 +25,7 @@ const { expect } = chai;
 const libraries = [
     `${base}/src/js/vendor/jashkenas/underscore.js`,
     `${base}/src/js/vendor/khan/kas.js`,
-    `${base}/src/js/kidoju.data.workerlib.js`
+    `${base}/src/js/workers/workers.lib.js`
 ];
 
 function noop() {}

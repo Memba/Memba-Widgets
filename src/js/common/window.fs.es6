@@ -551,9 +551,3 @@ export default class FileSystem {
     // Beware of Firefox sendAsBinary: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data#Firefox-specific_examples
     // upload(fileEntry, remoteUrl) {};
 }
-
-/**
- * Legacy code
- */
-window.app = window.app || {};
-window.app.FileSystem = FileSystem;

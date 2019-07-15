@@ -69,9 +69,7 @@ class LocalCache {
                     ) {
                         value = raw ? item : item.value;
                         logger.debug({
-                            message: `${key} value read from ${
-                                this._storeName
-                            } cache`,
+                            message: `${key} value read from ${this._storeName} cache`,
                             method: 'getItem',
                             data: { key, value }
                         });
@@ -83,9 +81,7 @@ class LocalCache {
             }
         } catch (error) {
             logger.error({
-                message: `Error getting ${key} value from ${
-                    this._storeName
-                } cache`,
+                message: `Error getting ${key} value from ${this._storeName} cache`,
                 method: 'getItem',
                 error
             });
@@ -164,9 +160,7 @@ class LocalCache {
             }
         } catch (error) {
             logger.error({
-                message: `Error setting ${key} value into ${
-                    this._storeName
-                } cache`,
+                message: `Error setting ${key} value into ${this._storeName} cache`,
                 method: 'setItem',
                 error
             });
@@ -191,18 +185,14 @@ class LocalCache {
             if (this._cache) {
                 this._store.removeItem(key);
                 logger.debug({
-                    message: `${key} value removed from ${
-                        this._storeName
-                    } cache`,
+                    message: `${key} value removed from ${this._storeName} cache`,
                     method: 'removeItem',
                     data: { key }
                 });
             }
         } catch (error) {
             logger.error({
-                message: `Error removing ${key} value from ${
-                    this._storeName
-                } cache`,
+                message: `Error removing ${key} value from ${this._storeName} cache`,
                 method: 'removeItem',
                 error
             });

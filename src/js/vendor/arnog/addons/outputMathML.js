@@ -69,7 +69,7 @@ function scanIdentifier(stream, final, options) {
 
     if (stream.index < final &&
         (atom.type === 'mord' || atom.type === 'textord') &&
-        '0123456789,.'.indexOf(atom.latex) < 0) {
+        '0123456789,.'.indexOf(atom.body) < 0) {
         body = atom.toMathML(options);
         if (atom.superscript) {
             superscript = stream.index;
@@ -128,6 +128,7 @@ function scanIdentifier(stream, final, options) {
 
         if ((stream.lastType === 'mi' ||
             stream.lastType === 'mn' ||
+            stream.lastType === 'mtext' ||
             stream.lastType === 'fence') &&
             !/^<mo>(.*)<\/mo>$/.test(mathML)) {
             mathML = '<mo>&InvisibleTimes;</mo>' + mathML;
@@ -154,6 +155,7 @@ function scanIdentifier(stream, final, options) {
  * Superscripts can be encoded either as an attribute on the last atom
  * or as a standalone, empty, atom following the one to which it applies.
  * @param {object} stream
+ * @private
  */
 function isSuperscriptAtom(stream) {
     return stream.index < stream.atoms.length &&
@@ -179,7 +181,7 @@ function indexOfSuperscriptInNumber(stream) {
     let found = false;
     while (i < stream.atoms.length && !done && !found) {
         done = stream.atoms[i].type !== 'mord' ||
-            '0123456789,.'.indexOf(stream.atoms[i].latex) < 0;
+            '0123456789,.'.indexOf(stream.atoms[i].body) < 0;
         found = !done && stream.atoms[i].superscript;
         i++
     }
@@ -232,6 +234,28 @@ function parseSubsup(base, stream, options) {
 }
 
 
+function scanText(stream, final, options) {
+    let result = false;
+    final = final || stream.atoms.length;
+    const initial = stream.index;
+    let mathML = '';
+    while (stream.index < final &&
+           stream.atoms[stream.index].mode === 'text'
+        ) {
+        mathML += stream.atoms[stream.index].body ? stream.atoms[stream.index].body : ' ';
+        stream.index += 1;
+    }
+
+    if (mathML.length > 0) {
+        result = true;
+        mathML = '<mtext' + makeID(stream.atoms[initial].id, options) + '>' + mathML + '</mtext>';
+
+        stream.mathML += mathML;
+        stream.lastType = 'mtext';
+    }
+
+    return result;
+}
 
 function scanNumber(stream, final, options) {
     let result = false;
@@ -246,9 +270,9 @@ function scanNumber(stream, final, options) {
 
     while (stream.index < final &&
         stream.atoms[stream.index].type === 'mord' &&
-        '0123456789,.'.indexOf(stream.atoms[stream.index].latex) >= 0
+        '0123456789,.'.indexOf(stream.atoms[stream.index].body) >= 0
     ) {
-        mathML += stream.atoms[stream.index].latex;
+        mathML += stream.atoms[stream.index].body;
         stream.index += 1;
     }
 
@@ -376,7 +400,11 @@ function scanOperator(stream, final, options) {
             lastType = 'mo';
 
         } else {
-            const op = toMo(stream.atoms[stream.index], options);
+            const atom = stream.atoms[stream.index];
+            const isUnit = atom.latex.indexOf('\\operatorname') === 0;
+            const op = isUnit ?
+                '<mi class="MathML-Unit"' + makeID(atom.id, options) + '>' + toString(atom.body) + '</mi>' :
+                toMo(atom, options);
             mathML += op;
             stream.index += 1;
             if (parseSubsup(mathML, stream, options)) {
@@ -385,12 +413,12 @@ function scanOperator(stream, final, options) {
                 mathML = '';
             }
             stream.index -= 1;
-            if (!/^<mo>(.*)<\/mo>$/.test(op)) {
-                mathML += '<mo> &ApplyFunction; </mo>';
+            if (!isUnit && !/^<mo>(.*)<\/mo>$/.test(op)) {
+                mathML += '<mo>&#x2061;</mo>';      // APPLY FUNCTION
                 // mathML += scanArgument(stream);
                 lastType = 'applyfunction';
             } else {
-                lastType = 'mo';
+                lastType = isUnit ? 'mi' : 'mo';
             }
         }
         // mathML += '</mrow>';
@@ -440,7 +468,8 @@ function toMathML(input, initial, final, options) {
         let count = 0;
 
         while (result.index < final) {
-            if (scanNumber(result, final, options) ||
+            if (scanText(result, final, options) ||
+                scanNumber(result, final, options) ||
                 scanIdentifier(result, final, options) ||
                 scanOperator(result, final, options) ||
                 scanFence(result, final, options)) {
@@ -504,19 +533,20 @@ function toString(atoms) {
  * Return a MathML fragment representation of a single atom
  *
  * @return {string}
+ * @private
  */
 MathAtom.MathAtom.prototype.toMathML = function(options) {
     const SPECIAL_IDENTIFIERS = {
-        '\\exponentialE': '&ExponentialE;',
-        '\\imaginaryI': '&ImaginaryI;',
-        '\\differentialD': '&DifferentialD;',
-        '\\capitalDifferentialD': '&CapitalDifferentialD;',
-        '\\alpha': '&alpha;',
-        '\\pi': '&pi;',
-        '\\infty' : '&infin;',
-        '\\forall' : '&forall;',
-        '\\nexists': '&nexists;',
-        '\\exists': '&exist;',
+        '\\exponentialE': '&#x02147;',
+        '\\imaginaryI': '&#x2148;',
+        '\\differentialD': '&#x2146;',
+        '\\capitalDifferentialD': '&#x2145;',
+        '\\alpha': '&#x03b1;',
+        '\\pi': '&#x03c0;',
+        '\\infty' : '&#x221e;',
+        '\\forall' : '&#x2200;',
+        '\\nexists': '&#x2204;',
+        '\\exists': '&#x2203;',
         '\\hbar': '\u210f',
         '\\cdotp': '\u22c5',
         '\\ldots': '\u2026',
@@ -714,7 +744,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
             }
             break;
 
-        case 'mord':
+        case 'mord': {
             result = SPECIAL_IDENTIFIERS[command] || command || (typeof this.body === 'string' ? this.body : '');
             m = command ? command.match(/[{]?\\char"([0-9abcdefABCDEF]*)[}]?/) : null;
             if (m) {
@@ -729,12 +759,13 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
                 } else if (typeof this.body === 'string') {
                     result = this.body.charAt(0);
                 } else {
-                    result = this.latex;
+                    result = this.body;
                 }
             }
-            result = '<mi' + variant + makeID(this.id, options) + '>' + xmlEscape(result) + '</mi>';
+            const tag = /\d/.test(result) ? 'mn' : 'mi';
+            result = '<' + tag + variant + makeID(this.id, options) + '>' + xmlEscape(result) + '</' + tag + '>';
             break;
-
+        }
         case 'mbin':
         case 'mrel':
         case 'textord':
@@ -792,7 +823,7 @@ MathAtom.MathAtom.prototype.toMathML = function(options) {
         case 'enclose':
             result = '<menclose notation="';
             for (const notation in this.notation) {
-                if (this.notation.hasOwnProperty(notation) &&
+                if (Object.prototype.hasOwnProperty.call(this.notation, notation) &&
                     this.notation[notation]) {
                     result += sep + notation;
                     sep = ' ';

@@ -108,8 +108,7 @@ const SIZING_MULTIPLIER = {
  * right after this element, it automatically moves to the last position
  * inside this element.
  * 
- * @class module:core/mathatom#MathAtom
- * @global
+ * @class
  * @private
  */
 class MathAtom {
@@ -270,6 +269,7 @@ class MathAtom {
      *
      * @return {MathAtom[]}
      * @method MathAtom#filter
+     * @private
      */
     filter(cb) {
         let result = [];
@@ -510,6 +510,7 @@ class MathAtom {
      * also be set to 'auto', which indicates it should use the current mathstyle
      *
      * @method MathAtom#decomposeGenfrac
+     * @private
      */
     decomposeGenfrac(context) {
         const mathstyle = this.mathstyle === 'auto' ?
@@ -637,7 +638,7 @@ class MathAtom {
 
         const result = makeOrd([leftDelim, frac, rightDelim], ((context.parentSize !== context.size) ?
             ('sizing reset-' + context.parentSize + ' ' + context.size) : ''));
-        return result;
+        return this.bind(context, result);
     }
 
 
@@ -649,7 +650,8 @@ class MathAtom {
       * leftDelim (resp. rightDelim) will be undefined. We still need to handle
       * those cases.
       *
-     * @method MathAtom#decomposeLeftright
+      * @method MathAtom#decomposeLeftright
+      * @private
       */
     decomposeLeftright(context) {
         if (!this.body) {
@@ -704,6 +706,7 @@ class MathAtom {
         // Add the right delimiter to the end of the expression.
         if (this.rightDelim) {
             let delim = this.rightDelim;
+            let classes;
             if (delim === '?') {
                 // Use a placeholder delimiter matching the open delimiter
                 delim = {
@@ -715,12 +718,13 @@ class MathAtom {
                     '\\lgroup': '\\rgroup', '\\lmoustache': '\\rmoustache'
                 }[this.leftDelim];
                 delim = delim || this.leftDelim;
-                localContext.opacity = .5;
+                classes = 'ML__smart-fence__close';
             }
             result.push(Delimiters.makeLeftRightDelim('mclose', 
                 delim, 
                 innerHeight, innerDepth, 
-                localContext
+                localContext,
+                classes
             ));
             result[result.length - 1].applyStyle(this.getStyle());
         }
@@ -774,7 +778,7 @@ class MathAtom {
         const body = makeVlist(context, [inner, lineClearance, line, ruleWidth]);
 
         if (!this.index) {
-            return makeOrd([delim, body], 'sqrt');
+            return this.bind(context, makeOrd([delim, body], 'sqrt'));
         }
 
         // Handle the optional root index
@@ -791,7 +795,7 @@ class MathAtom {
         const rootVlist = makeVlist(context, [root], 'shift', -toShift);
         // Add a class surrounding it so we can add on the appropriate
         // kerning
-        return makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt');
+        return this.bind(context, makeOrd([makeSpan(rootVlist, 'root'), delim, body], 'sqrt'));
     }
 
 
@@ -841,6 +845,7 @@ class MathAtom {
      * \overline and \underline
      *
      * @method MathAtom#decomposeLine
+     * @private
      */
     decomposeLine(context) {
         const mathstyle = context.mathstyle;
@@ -882,6 +887,7 @@ class MathAtom {
      * \rule
      * @memberof MathAtom
      * @instance
+     * @private
      */
     decomposeRule(context) {
         const mathstyle = context.mathstyle;
@@ -1152,6 +1158,7 @@ class MathAtom {
      * calculate the placement of the supsub
      * @return {Span[]}
      * @method MathAtom#decompose
+     * @private
      */
     decompose(context, phantomBase) {
         console.assert(context instanceof Context.Context);
@@ -1395,6 +1402,7 @@ class MathAtom {
      * @param {Context} context
      * @param {Span} span
      * @method MathAtom#bind
+     * @private
      */
     bind(context, span) {
         if (this.type !== 'first' && this.body !== '\u200b') {
@@ -1416,6 +1424,7 @@ class MathAtom {
      * @param {(string|Span[])} body
      * @return {Span}
      * @method MathAtom#makeSpan
+     * @private
      */
     makeSpan(context, body) {
         const type = this.type === 'textord' ? 'mord' : this.type;

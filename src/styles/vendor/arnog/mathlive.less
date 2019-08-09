@@ -13,7 +13,7 @@
     src: url(fonts/KaTeX_Main-Regular.woff2) format("woff2"),url(fonts/KaTeX_Main-Regular.woff) format("woff");
     font-weight: 400;
     font-style: normal;
-    font-display: "swap";
+    font-display: swap;
 }
 
 @font-face {
@@ -21,7 +21,7 @@
     src: url(fonts/KaTeX_Math-Italic.woff2) format("woff2"),url(fonts/KaTeX_Math-Italic.woff) format("woff");
     font-weight: 400;
     font-style: italic;
-    font-display: "swap";
+    font-display: swap;
 }
 
 
@@ -61,11 +61,11 @@
 
 .ML__mathit {
     font-family: @math_math;
-    /* The @math_math (KaTeX_Math) font is italic 
-        by default, so the font-style below is only 
+    /* The @math_math (KaTeX_Math) font is italic
+        by default, so the font-style below is only
         useful when a fallback font is used
     */
-    font-style: italic;        
+    font-style: italic;
 }
 
 .ML__mathrm {
@@ -230,10 +230,10 @@
                 display: block;
                 margin-top: -0.04em;
                 border-bottom-style: solid;
-                border-bottom-width: 0.04em; 
-                min-height: 0.04em;   
-                 /* There's a bug since Chrome 62 where 
-                sub-pixel border lines don't draw at some zoom 
+                border-bottom-width: 0.04em;
+                min-height: 0.04em;
+                 /* There's a bug since Chrome 62 where
+                sub-pixel border lines don't draw at some zoom
                 levels (110%, 90%). Setting the min-height seems to work around it.
                 */
             }
@@ -285,7 +285,7 @@
             margin-right: 2em;
         }
     }
-    
+
     .mspace {
         display: inline-block;
 
@@ -375,9 +375,9 @@
 
         &:after {
             border-bottom-style: solid;
-            border-bottom-width: 0.04em; 
-            min-height: thin;    /* There's a bug since Chrome 62 where 
-            sub-pixel border lines don't draw at some zoom 
+            border-bottom-width: 0.04em;
+            min-height: thin;    /* There's a bug since Chrome 62 where
+            sub-pixel border lines don't draw at some zoom
             levels (110%, 90%). Setting the min-height seems to work around it.
             */
             content: "";
@@ -404,10 +404,10 @@
                 display: block;
                 margin-top: -0.04em;
                 border-bottom-style: solid;
-                border-bottom-width: .04em; 
-                min-height: 0.5px;    
-                /* There's a bug since Chrome 62 where 
-                sub-pixel border lines don't draw at some zoom 
+                border-bottom-width: .04em;
+                min-height: 0.5px;
+                /* There's a bug since Chrome 62 where
+                sub-pixel border lines don't draw at some zoom
                 levels (110%, 90%). Setting the min-height seems to work around it.
                 */
             }
@@ -546,6 +546,10 @@
     }
 }
 
+.ML__smart-fence__close {
+    opacity: .5;
+}
+
 
 .ML__selection {
     background: var(--highlight-inactive);
@@ -578,6 +582,12 @@
     padding-left: .25em;
 }
 
+
+/* When using smartFence, the anticipated closing fence is displayed
+with this style */
+.ML__smart-fence__close {
+    opacity: .5;
+}
 
 /* The element that displays the keys as the user type them */
 .ML__keystroke-caption {
@@ -616,9 +626,9 @@ body[theme="dark"] .ML__keystroke-caption {
     --keystroke-border: hsl(var(--hue), 50%, 25%);
 }
 
-/* Add an attribute 'data-tooltip' to automatically show a 
-   tooltip over a element on hover. 
-   Use 'data-position="top"' to place the tooltip above the 
+/* Add an attribute 'data-tooltip' to automatically show a
+   tooltip over a element on hover.
+   Use 'data-position="top"' to place the tooltip above the
    element rather than below.
    Use 'data-delay' to delay the triggering of the tooltip.
 */
@@ -632,7 +642,7 @@ body[theme="dark"] .ML__keystroke-caption {
         position: absolute;
         visibility: hidden;
         content: attr(data-tooltip);
-        
+
         display: inline-table;
 
         top: 110%;
@@ -674,7 +684,7 @@ body[theme="dark"] .ML__keystroke-caption {
         visibility: visible;          // Visible triggers the animation...
         opacity: 1;                   // ... but we start fully transparent to
                                     // give ourselves a delay before showing
-        transform: scale(1);        
+        transform: scale(1);
     }
 }
 
@@ -760,7 +770,7 @@ body[theme="dark"] .ML__keystroke-caption {
 
     padding-top: 5px;
 
-    transform: translate(0, 0); 
+    transform: translate(0, 0);
     opacity: 0;
     visibility: hidden;
     // To make the keyboard visible, add the .is-visible class
@@ -768,7 +778,7 @@ body[theme="dark"] .ML__keystroke-caption {
     transition: .28s cubic-bezier(0.0, 0.0, 0.2, 1);    // Deceleration curve
     transition-property: transform, opacity;
     &.is-visible {
-        transform: translate(0, -267px); 
+        transform: translate(0, -267px);
         opacity: 1;
         visibility: visible;
         transition-timing-function: cubic-bezier(0.4, 0.0, 1, 1); // Acceleration curve
@@ -821,12 +831,12 @@ body[theme="dark"] .ML__keystroke-caption {
         box-sizing: content-box;    // "
         transform: none;            // "
         z-index: 106;               // Above the keyboard (105)
-    
+
         display: flex;
         flex-direction: row;
         justify-content: center;
         align-content: center;
-    
+
         box-shadow: @shadow4;
 
         transition: none;
@@ -847,7 +857,7 @@ body[theme="dark"] .ML__keystroke-caption {
                 align-items: center;
                 justify-content: center;
                 font-size: 30px;
-                
+
                 height: 70px;
                 width: 70px;
 
@@ -911,13 +921,13 @@ body[theme="dark"] .ML__keystroke-caption {
             }
         }
     }
-    
+
 
     & > div.keyboard-layer {
         display: none;
         outline: none;
-        &.is-visible { 
-            display: flex; 
+        &.is-visible {
+            display: flex;
             flex-flow: column;
         }
     }
@@ -936,7 +946,7 @@ body[theme="dark"] .ML__keystroke-caption {
             width: 365px;
             max-width: 100vw;       // iPhone 5 is 320px
         }
-        
+
         /* Icons for undo/redo, etc.. */
         svg {
             height: 20px;
@@ -1026,7 +1036,7 @@ body[theme="dark"] .ML__keystroke-caption {
             padding: 0;
 
 
-            
+
             & > li {
                 /* Key widths. A standard key is 10 units wide (w10) */
                 /* The formula for wn = n * w10 / 10 + (n -1) * margin-right */
@@ -1184,12 +1194,12 @@ body[theme="dark"] .ML__keystroke-caption {
                     font-size: 80%;
                     padding-top: 10px;
                     font-weight: 100;
-                }            
+                }
                 small {
                     color: #555;
                     @media only screen and (max-width : 767px)  {
                         font-size: 9px;
-                    }                
+                    }
                 }
                 aside {
                     font-family: @system;
@@ -1206,7 +1216,7 @@ body[theme="dark"] .ML__keystroke-caption {
         }
         /* iPhone 5 */
         @media only screen and (max-width : 414px)  {
-            & > ul { 
+            & > ul {
                 & > li {
                     width: 29px;
                     margin-right: 2px;
@@ -1219,7 +1229,7 @@ body[theme="dark"] .ML__keystroke-caption {
         }
         /* Pixel, iPhone 6,7,8+ */
         @media only screen and (min-width : 415px) and (max-width : 768px)  {
-            & > ul { 
+            & > ul {
                 & > li {
                     width: 37px;
                     margin-right: 3px;
@@ -1232,8 +1242,8 @@ body[theme="dark"] .ML__keystroke-caption {
         }
         /* Tablet size */
         @media only screen and (min-width : 768px) and (max-width : 1024px)  {
-            & > ul { 
-                height: 52px; 
+            & > ul {
+                height: 52px;
                 & > li {
                     height: 52px;
                     width: 51px;
@@ -1247,8 +1257,8 @@ body[theme="dark"] .ML__keystroke-caption {
         }
         /* Desktop size */
         @media only screen and (min-width : 1025px)  {
-            & > ul { 
-                height: 52px; 
+            & > ul {
+                height: 52px;
                 & > li {
                     height: 52px;
                     width: 66px;
@@ -1387,7 +1397,7 @@ div.ML__keyboard.material  {
             background: var(--keycap-background-active);
             box-shadow: none;
         }
-        &:not([data-key=' ']).pressed, 
+        &:not([data-key=' ']).pressed,
         &:not([data-key=' ']).active,
         &:not([data-key=' ']):active  {
             background: var(--keyboard-alternate-background);
@@ -1411,7 +1421,7 @@ div.ML__keyboard.material  {
                 width: 16.5px;
             }
         }
-        &:last-child:active, 
+        &:last-child:active,
         &:last-child.active {
             @media only screen and (max-width : 767px) {
                 margin-right: 0;
@@ -1513,7 +1523,7 @@ body[theme="dark"] div.ML__keyboard.material {
 
 .ML__error {
     // Wavy pattern
-    background-image: radial-gradient(ellipse at center, 
+    background-image: radial-gradient(ellipse at center,
         hsl(341,100%,40%),rgba(0,0,0,0) 70%);
 
     background-repeat: repeat-x;
@@ -1567,13 +1577,13 @@ body[theme="dark"] div.ML__keyboard.material {
 }
 
 
-.ML__virtual-keyboard-toggle.active:hover, 
+.ML__virtual-keyboard-toggle.active:hover,
 .ML__virtual-keyboard-toggle.active {
     background: hsla(0, 0%, 70%, .5);
     color: #000;
     fill: currentColor;
 }
-    
+
 
 div.ML__popover.is-visible {
     visibility: visible;
@@ -1607,7 +1617,7 @@ div.ML__popover.is-visible {
         }
     }
     /* Since the content can be clicked on, provide feedback on hover */
-    &:hover, 
+    &:hover,
     &.pressed,
     &.active {
         background: rgba(255, 255, 255, .1);
@@ -1632,7 +1642,7 @@ div.ML__popover.is-visible {
     padding-bottom: 2px;
 }
 
-.ML__popover__prev-shortcut:hover, 
+.ML__popover__prev-shortcut:hover,
 .ML__popover__next-shortcut:hover{
     opacity: .3;
 }
@@ -1642,12 +1652,12 @@ div.ML__popover.is-visible {
     opacity: 1;
 }
 
-.ML__popover__prev-shortcut.active, 
+.ML__popover__prev-shortcut.active,
 .ML__popover__next-shortcut.active {
     opacity: 1;
 }
 
-.ML__popover__prev-shortcut > span, 
+.ML__popover__prev-shortcut > span,
 .ML__popover__next-shortcut > span {
     padding: 5px;
     border-radius: 50%;
@@ -1667,7 +1677,7 @@ div.ML__popover.is-visible {
 }
 
 
-.ML__popover__prev-shortcut:hover > span, 
+.ML__popover__prev-shortcut:hover > span,
 .ML__popover__next-shortcut:hover > span {
     background: rgba(255, 255, 255, .1);
 }
@@ -1706,14 +1716,14 @@ div.ML__popover.is-visible {
     padding-top: .25em;
 }
 
-/* Style for the character that joins the modifiers of a keyboard shortcut 
+/* Style for the character that joins the modifiers of a keyboard shortcut
 (usually a "+" sign)*/
 .ML__shortcut-join {
     opacity: .5;
 }
 
-/* Styling for an element which is overlaid 
-to the left and right of the mathfield while 
+/* Styling for an element which is overlaid
+to the left and right of the mathfield while
 scrolling to prevent the capture of hover events */
 .ML__scroller {
     position: fixed;

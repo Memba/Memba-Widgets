@@ -1,5 +1,4 @@
 /**
- * @module editor/shortcuts
  * @private
  */
 
@@ -44,8 +43,8 @@ import Definitions from '../core/definitions.js';
  * - 'extend' keeps the anchor of the  selection, but moves the focus (extends,
  * or shrinks, the range of selected items)
  * 
- * @memberof module:editor/shortcuts
  * @type {Object<string,string>}
+ * @private
  */
 const KEYBOARD_SHORTCUTS = {
     'Left':                     'moveToPreviousChar',
@@ -230,8 +229,8 @@ const KEYBOARD_SHORTCUTS = {
 */
     'mac:Ctrl-Meta-Up':           ['speak', 'parent', {withHighlighting: false}],
     '!mac:Ctrl-Alt-Up':           ['speak', 'parent', {withHighlighting: false}],
-    'mac:Ctrl-Meta-Down':         ['speak', 'group', {withHighlighting: false}],
-    '!mac:Ctrl-Alt-Down':         ['speak', 'group', {withHighlighting: false}],
+    'mac:Ctrl-Meta-Down':         ['speak', 'all', {withHighlighting: false}],
+    '!mac:Ctrl-Alt-Down':         ['speak', 'all', {withHighlighting: false}],
     'mac:Ctrl-Meta-Left':         ['speak', 'left', {withHighlighting: false}],
     '!mac:Ctrl-Alt-Left':         ['speak', 'left', {withHighlighting: false}],
     'mac:Ctrl-Meta-Right':        ['speak', 'right', {withHighlighting: false}],
@@ -241,8 +240,8 @@ const KEYBOARD_SHORTCUTS = {
   
     'mac:Ctrl-Meta-Shift-Up':     ['speak', 'parent', {withHighlighting: true}],
     '!mac:Ctrl-Alt-Shift-Up':     ['speak', 'parent', {withHighlighting: true}],
-    'mac:Ctrl-Meta-Shift-Down':   ['speak', 'group', {withHighlighting: true}],
-    '!mac:Ctrl-Alt-Shift-Down':   ['speak', 'group', {withHighlighting: true}],
+    'mac:Ctrl-Meta-Shift-Down':   ['speak', 'all', {withHighlighting: true}],
+    '!mac:Ctrl-Alt-Shift-Down':   ['speak', 'all', {withHighlighting: true}],
     'mac:Ctrl-Meta-Shift-Left':   ['speak', 'left', {withHighlighting: true}],
     '!mac:Ctrl-Alt-Shift-Left':   ['speak', 'left', {withHighlighting: true}],
     'mac:Ctrl-Meta-Shift-Right':  ['speak', 'right', {withHighlighting: true}],
@@ -262,8 +261,8 @@ const KEYBOARD_SHORTCUTS = {
  * For example, '\sqrt' -> 'math:Alt-KeyV'. This table provides the reverse
  * mapping for those more complex commands. It is used when displaying 
  * keyboard shortcuts for specific commands in the popover.
- * @memberof module:editor/shortcuts
  * @type {Object<string,string>}
+ * @private
  */
 const REVERSE_KEYBOARD_SHORTCUTS = {
     '\\theta':                  'Alt-KeyQ',
@@ -295,7 +294,7 @@ const REVERSE_KEYBOARD_SHORTCUTS = {
  * without requiring an escape sequence or command.
  * 
  * @type {Object.<string,string>}
- * @memberof module:editor/shortcuts
+ * @private
  */
 const INLINE_SHORTCUTS = {
     // Primes
@@ -307,8 +306,7 @@ const INLINE_SHORTCUTS = {
     'Delta':                '\\Delta',
     'pi':                   { mode: 'math', value: '\\pi'},
     'pi ':                  { mode: 'text', value: '\\pi '},
-    'π':                    '\\pi',
-    'Pi':                   '\\Pi',
+    'Pi':                   { mode: 'math', value: '\\Pi'},
     'theta':                '\\theta',
     'Theta':                '\\Theta',
 
@@ -937,14 +935,13 @@ function forCommand(command) {
             replace('$', '\\$').
             replace('^', '\\^')
         + '([^*a-zA-Z]|$)');
-    for (const shortcut in KEYBOARD_SHORTCUTS) { 
-        if (KEYBOARD_SHORTCUTS.hasOwnProperty(shortcut)) {
+    Object.keys(KEYBOARD_SHORTCUTS).forEach(shortcut  => {
             if (regex.test(commandToString(KEYBOARD_SHORTCUTS[shortcut]))) {
                 const m = shortcut.match(/:([^:]*)$/);
                 if (m) result.push(m[1]);
             }
         }
-    }
+    );
 
     return stringify(result);
 }

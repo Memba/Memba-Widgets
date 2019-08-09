@@ -12,10 +12,18 @@ import Color from '../core/color.js';
 
 function findLongestRun(atoms, property, value) {
     let i = 0;
-    while (atoms[i]) {
-        if (atoms[i].type !== 'mop' && 
-            atoms[i][property] !== value) break
-        i++;
+    if (property === 'fontFamily') {
+        while (atoms[i]) {
+            if (atoms[i].type !== 'mop' && 
+                (atoms[i].fontFamily || atoms[i].baseFontFamily) !== value) break
+            i++;
+        }
+    } else {
+        while (atoms[i]) {
+            if (atoms[i].type !== 'mop' && 
+                atoms[i][property] !== value) break
+            i++;
+        }
     }
     return i;
 }
@@ -26,6 +34,7 @@ function findLongestRun(atoms, property, value) {
  * @param {MathAtom[]} atoms the list of atoms to transform to LaTeX
  * @param {boolean} expandMacro true if macros should be expanded
  * @result {string} a LaTeX string
+ * @private
  */
 function latexifyArray(parent, properties, atoms, expandMacro) {
     if (atoms.length === 0) return '';
@@ -40,8 +49,10 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
     let prefix = '';
     let suffix = '';
     const prop = properties[0];
+    let propValue = atoms[0][prop];
+    if (prop === 'fontFamily') propValue = atoms[0].fontFamily || atoms[0].baseFontFamily;
 
-    const i = findLongestRun(atoms, prop, atoms[0][prop]);
+    const i = findLongestRun(atoms, prop, propValue);
 
     if (atoms[0].mode === 'text') {
         if (prop === 'fontShape' && atoms[0].fontShape) {
@@ -78,7 +89,10 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
         } else if (prop === 'mode') {
             let allAtomsHaveShapeOrSeriesOrFontFamily = true;
             for (let j = 0; j < i; j++) {
-                if (!atoms[j].fontSeries && !atoms[j].fontShape && !atoms[j].fontFamily) {
+                if (!atoms[j].fontSeries && 
+                    !atoms[j].fontShape && 
+                    !atoms[j].fontFamily &&
+                    !atoms[j].baseFontFamily) {
                     allAtomsHaveShapeOrSeriesOrFontFamily = false;
                     break;
                 }
@@ -106,14 +120,15 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             prefix = '{\\' + command + ' ';
             suffix = '}';
 
-        } else if (prop === 'fontFamily' && atoms[0].fontFamily) {
+        } else if (prop === 'fontFamily' && 
+            (atoms[0].fontFamily || atoms[0].baseFontFamily)) {
             const command = {
                 'cmr': 'textrm',
                 'cmtt': 'texttt',
                 'cmss': 'textsf'
-            }[atoms[0].fontFamily] || '';
+            }[atoms[0].fontFamily || atoms[0].baseFontFamily] || '';
             if (!command) {
-                prefix += '{\\fontfamily{' + atoms[0].fontFamily + '}';
+                prefix += '{\\fontfamily{' + (atoms[0].fontFamily || atoms[0].baseFontFamily) + '}';
                 suffix = '}';
             } else {
                 prefix = '\\' + command + '{';
@@ -157,8 +172,8 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
             prefix = '{\\' + command + ' ';
             suffix = '}';
 
-        } else if (prop === 'fontFamily' && atoms[0].fontFamily) {
-            if (!/^(math|main|mainrm)$/.test(atoms[0].fontFamily)) {
+        } else if (prop === 'fontFamily' && (atoms[0].fontFamily || atoms[0].baseFontFamily)) {
+            if (!/^(math|main|mainrm)$/.test(atoms[0].fontFamily || atoms[0].baseFontFamily)) {
                 const command = {
                     'cal': 'mathcal', 
                     'frak': 'mathfrak', 
@@ -167,13 +182,21 @@ function latexifyArray(parent, properties, atoms, expandMacro) {
                     'cmr': 'mathrm',
                     'cmtt': 'mathtt',
                     'cmss': 'mathsf'
-                }[atoms[0].fontFamily] || '';
+                }[atoms[0].fontFamily || atoms[0].baseFontFamily] || '';
                 if (!command) {
-                    prefix += '{\\fontfamily{' + atoms[0].fontFamily + '}';
+                    prefix += '{\\fontfamily{' + (atoms[0].fontFamily || atoms[0].baseFontFamily) + '}';
                     suffix = '}';
                 } else {
-                    prefix = '\\' + command + '{';
-                    suffix = '}';
+                    if (/^\\operatorname{/.test(atoms[0].latex)) {
+                        return atoms[0].latex + latexifyArray(parent, properties, atoms.slice(i), expandMacro);
+                    }
+                    if (!atoms[0].isFunction) {
+                        prefix = '\\' + command + '{';
+                        suffix = '}';
+                    }
+                    // These command have an implicit fontSeries/fontShape, so
+                    // we're done checking properties now.
+                    properties = [];
                 }
             }
         }
@@ -227,12 +250,12 @@ function latexify(parent, value, expandMacro) {
 
         result = latexifyArray(parent, [
             'mode', 
-            'fontShape', 
-            'fontSeries', 
-            'fontSize',
             'color', 
             'backgroundColor', 
-            'fontFamily'
+            'fontSize',
+            'fontFamily',
+            'fontShape', 
+            'fontSeries', 
             ], value, expandMacro);
         // if (result.startsWith('{') && result.endsWith('}')) {
         //     result = result.slice(1, result.length - 1);
@@ -257,7 +280,8 @@ function latexify(parent, value, expandMacro) {
  * no longer round-trip.
  *
  * @return {string}
- * @method MathAtom#toLatex
+ * @memberof module:core/mathAtom~MathAtom
+ * @private
  */
 MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
     expandMacro = expandMacro === undefined ? false : expandMacro;
@@ -508,7 +532,7 @@ MathAtom.MathAtom.prototype.toLatex = function(expandMacro) {
                 result += '{';
                 let sep = '';
                 for (const notation in this.notation) {
-                    if (this.notation.hasOwnProperty(notation) &&
+                    if (Object.prototype.hasOwnProperty.call(this.notation, notation) &&
                         this.notation[notation]) {
                         result += sep + notation;
                         sep = ' ';

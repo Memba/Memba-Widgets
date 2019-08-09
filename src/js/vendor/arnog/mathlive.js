@@ -113,10 +113,10 @@ function toMarkup(text, mathstyle, format, macros) {
  * return a reference to the mathfield object. This value is also returned 
  * by `makeMathField`
  * 
- * @param {Element|string} element A DOM element, for example as obtained 
+ * @param {HTMLElement|string} element A DOM element, for example as obtained 
  * by `document.getElementById()`, or the ID of a DOM element as a string.
  * 
- * @param {Object<string, any>} [config={}] See {@tutorial CONFIG} for details.
+ * @param {MathFieldConfig} [config={}] See {@tutorial CONFIG} for details.
  *
  *
  * @return {MathField}
@@ -495,7 +495,7 @@ function readAloud(element, text, config) {
  * - `paused`
  * - `unavailable`
  * 
- * **See** {@linkcode module:editor-mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
+ * **See** {@linkcode module:editor-mathfield#speak speak}
  * @return {string}
  * @function module:mathlive#readAloudStatus
  */
@@ -513,7 +513,7 @@ function readAloudStatus() {
 /**
  * If a Read Aloud operation is in progress, stop it.
  * 
- * **See** {@linkcode module:editor/mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
+ * **See** {@linkcode module:editor/mathfield#speak speak}
  * @function module:mathlive#pauseReadAloud
  */
 function pauseReadAloud() {
@@ -530,7 +530,7 @@ function pauseReadAloud() {
 /**
  * If a Read Aloud operation is paused, resume it
  * 
- * **See** {@linkcode module:editor-mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
+ * **See** {@linkcode module:editor-mathfield#speak speak}
  * @function module:mathlive#resumeReadAloud
  */
 function resumeReadAloud() {
@@ -547,7 +547,7 @@ function resumeReadAloud() {
 /**
  * If a Read Aloud operation is in progress, read from a specified token
  * 
- * **See** {@linkcode module:editor-mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
+ * **See** {@linkcode module:editor-mathfield#speak speak}
  *
  * @param {string} token
  * @param {number} [count]
@@ -594,7 +594,7 @@ function playReadAloud(token, count) {
  *
  * **See:** {@tutorial USAGE_GUIDE}
  *
- * @param {object} [options={}] See {@linkcode module:mathlive#renderMathInElement renderMathInElement()}
+ * @param {object<string, any>} [options={}] See {@linkcode module:mathlive#renderMathInElement renderMathInElement()}
  * for details
  * @example
  * import MathLive from 'dist/mathlive.mjs';
@@ -624,7 +624,7 @@ function getElement(element) {
  *
  * **See:** {@tutorial USAGE_GUIDE}
  *
- * @param {Element|string} element An HTML DOM element, or a string containing
+ * @param {HTMLElement|string} element An HTML DOM element, or a string containing
  * the ID of an element.
  * @param {object} [options={}]
  *
@@ -672,7 +672,7 @@ function getElement(element) {
  *      elem.innerHTML = elem.dataset.originalContent;
  * ```
  * @param {boolean} [options.readAloud=false] if true, generate markup that can
- * be read aloud later using {@linkcode module:editor-mathfield#speakAllWithSynchronizedHighlighting speakAllWithSynchronizedHighlighting}
+ * be read aloud later using {@linkcode module:editor-mathfield#speak speak}
  * 
  * @param {boolean} [options.TeX.processEnvironments=true] if false, math expression
  * that start with `\begin{` will not automatically be rendered.
@@ -724,7 +724,7 @@ function validateNamespace(options) {
 
 /**
  *
- * @param {string|Element|MathField} element
+ * @param {string|HTMLElement|MathField} element
  * @param {Object.<string, any>} [options={}]
  * @param {string} options.namespace The namespace used for the `data-`
  * attributes. If you used a namespace with `renderMathInElement`, you must
@@ -767,7 +767,7 @@ function revertToOriginalContent(element, options) {
  * ```
  * $$f(x)=sin(x)$$
  * ```
- * @param {string | Element | MathField} element - A DOM element ID, a DOM 
+ * @param {string | HTMLElement | MathField} element - A DOM element ID, a DOM 
  * element or a MathField.
  * @param {object} [options={}]
  * @param {string} [options.namespace=""] The namespace used for the `data-`

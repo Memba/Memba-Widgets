@@ -20,7 +20,7 @@ const { expect } = chai;
 // const global = __karma__ ? window.parent : window;
 const global = window.parent;
 
-describe('workers.lib', () => {
+(__karma__ ? xdescribe : describe)('workers.lib', () => {
     it('Blacklisted globals', () => {
         expect(global.ActiveXObject).to.be.undefined;
         expect(global.Blob).to.be.undefined;

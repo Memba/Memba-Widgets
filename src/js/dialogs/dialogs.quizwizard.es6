@@ -41,12 +41,10 @@ function openQuizWizard(options = {}) {
 
     // Create the dialog
     const dialog = $dialog
-        .kendoBaseDialog(
-            Object.assign(
-                {
-                    title: __('dialogs.quizwizard.title'), // __('webapp.editor.dialogs.addQuizPage.title'), // TODO
-                    /* eslint-disable prettier/prettier */
-                    content: `<div class="k-widget k-notification k-notification-info" role="alert">
+        .kendoBaseDialog({
+            title: __('dialogs.quizwizard.title'), // __('webapp.editor.dialogs.addQuizPage.title'), // TODO
+            /* eslint-disable prettier/prettier */
+            content: `<div class="k-widget k-notification k-notification-info" role="alert">
                             <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${__('dialogs.quizwizard.message')}</div>
                           </div>
                           <div class="kj-dialog-form">
@@ -62,40 +60,38 @@ function openQuizWizard(options = {}) {
                               <span class="k-invalid-msg" data-for="grid"></span>
                             </div> 
                           </div>`,
-                    /* eslint-enable prettier/prettier */
-                    data: {
-                        question: '',
-                        source: new DataSource({
-                            autoSync: true,
-                            data: [
-                                {
-                                    text: __('dialogs.quizwizard.text'),
-                                    solution: true
+            /* eslint-enable prettier/prettier */
+            data: {
+                question: '',
+                source: new DataSource({
+                    autoSync: true,
+                    data: [
+                        {
+                            text: __('dialogs.quizwizard.text'),
+                            solution: true
+                        }
+                    ],
+                    schema: {
+                        model: Model.define({
+                            fields: {
+                                text: {
+                                    type: CONSTANTS.STRING
+                                },
+                                solution: {
+                                    type: CONSTANTS.BOOLEAN
                                 }
-                            ],
-                            schema: {
-                                model: Model.define({
-                                    fields: {
-                                        text: {
-                                            type: CONSTANTS.STRING
-                                        },
-                                        solution: {
-                                            type: CONSTANTS.BOOLEAN
-                                        }
-                                    }
-                                })
                             }
                         })
-                    },
-                    actions: [
-                        BaseDialog.fn.options.messages.actions.ok,
-                        BaseDialog.fn.options.messages.actions.cancel
-                    ],
-                    width: 860
-                },
-                options
-            )
-        )
+                    }
+                })
+            },
+            actions: [
+                BaseDialog.fn.options.messages.actions.ok,
+                BaseDialog.fn.options.messages.actions.cancel
+            ],
+            width: 860,
+            ...options
+        })
         .data('kendoBaseDialog');
 
     const validator = $dialog

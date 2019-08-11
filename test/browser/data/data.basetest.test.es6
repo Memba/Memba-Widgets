@@ -20,7 +20,7 @@ import TOOLS from '../../../src/js/tools/util.constants.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
 import BaseTest from '../../../src/js/data/data.basetest.es6';
 import Stream from '../../../src/js/data/data.stream.es6';
-import '../../../src/js/app/app.tools.es6';
+import tools from '../../../src/js/tools/tools.es6';
 
 const { describe, it, xit } = window;
 const {
@@ -71,6 +71,15 @@ function assertBaseTest(test) {
 }
 
 describe('data.basetest', () => {
+    before(done => {
+        const promises = ['image', 'label', 'textbox'].map(tool =>
+            tools.load(tool)
+        );
+        $.when(...promises)
+            .then(done)
+            .catch(done);
+    });
+
     describe('BaseTest', () => {
         describe('Initialization', () => {
             it('It should initialize without options', () => {
@@ -146,9 +155,7 @@ describe('data.basetest', () => {
                                 tryCatch(done)(() => {
                                     Object.keys(test.fields).forEach(key => {
                                         if (
-                                            TOOLS.RX_TEST_FIELD_NAME.test(
-                                                key
-                                            )
+                                            TOOLS.RX_TEST_FIELD_NAME.test(key)
                                         ) {
                                             const field = test[key];
                                             const component = field.component();
@@ -207,9 +214,7 @@ describe('data.basetest', () => {
                                 tryCatch(done)(() => {
                                     Object.keys(test.fields).forEach(key => {
                                         if (
-                                            TOOLS.RX_TEST_FIELD_NAME.test(
-                                                key
-                                            )
+                                            TOOLS.RX_TEST_FIELD_NAME.test(key)
                                         ) {
                                             const field = test[key];
                                             const component = field.component();

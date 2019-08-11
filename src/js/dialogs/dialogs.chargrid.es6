@@ -34,25 +34,21 @@ function openCharGrid(options = {}) {
 
     // Create the dialog
     const dialog = $dialog
-        .kendoBaseDialog(
-            Object.assign(
-                {
-                    title:
-                        options.title ||
-                        BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div style="display:flex;flex-direction:row"><div data-${ns}role="chargrid" data-${ns}bind="value:value" style="flex-shrink:0"></div><div class="kj-chargrid-message" style="margin-left:1em;">${options.message}</div></div>`,
-                    data: {
-                        value: []
-                    },
-                    actions: [
-                        BaseDialog.fn.options.messages.actions.ok,
-                        BaseDialog.fn.options.messages.actions.cancel
-                    ],
-                    width: 860
-                },
-                options
-            )
-        )
+        .kendoBaseDialog({
+            title:
+                options.title ||
+                BaseDialog.fn.options.messages[options.type || 'info'],
+            content: `<div style="display:flex;flex-direction:row"><div data-${ns}role="chargrid" data-${ns}bind="value:value" style="flex-shrink:0"></div><div class="kj-chargrid-message" style="margin-left:1em;">${options.message}</div></div>`,
+            data: {
+                value: []
+            },
+            actions: [
+                BaseDialog.fn.options.messages.actions.ok,
+                BaseDialog.fn.options.messages.actions.cancel
+            ],
+            width: 860,
+            ...options
+        })
         .data('kendoBaseDialog');
 
     dialog.unbind(CONSTANTS.INITOPEN);

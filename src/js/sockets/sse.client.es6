@@ -10,12 +10,15 @@
 // You need to send "comment" messages each 15-30 seconds, these messages will be used as heartbeat to detect disconnects - see https://bugzilla.mozilla.org/show_bug.cgi?id=444328
 
 // Polyfill for IE11 at https://github.com/Yaffle/EventSource
+/*
 import {
     NativeEventSource,
     EventSourcePolyfill
 } from '../vendor/yaffle/eventsource';
+*/
+import es from '../vendor/yaffle/eventsource';
 
-const EventSource = NativeEventSource || EventSourcePolyfill;
+const EventSource = es.NativeEventSource || es.EventSourcePolyfill;
 
 const url = 'http://localhost:8080/events';
 const source = new EventSource(url);

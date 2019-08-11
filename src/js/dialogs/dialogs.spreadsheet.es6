@@ -35,24 +35,18 @@ function openSpreadsheet(options = {}) {
 
             // Create the dialog
             const dialog = $dialog
-                .kendoBaseDialog(
-                    Object.assign(
-                        {
-                            title:
-                                BaseDialog.fn.options.messages[
-                                    options.type || 'info'
-                                ],
-                            content: `<div data-${ns}role="spreadsheet" style="width:100%; border:0;"></div>`,
-                            // data: {}
-                            actions: [
-                                BaseDialog.fn.options.messages.actions.ok,
-                                BaseDialog.fn.options.messages.actions.cancel
-                            ],
-                            width: 860
-                        },
-                        options
-                    )
-                )
+                .kendoBaseDialog({
+                    title:
+                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    content: `<div data-${ns}role="spreadsheet" style="width:100%; border:0;"></div>`,
+                    // data: {}
+                    actions: [
+                        BaseDialog.fn.options.messages.actions.ok,
+                        BaseDialog.fn.options.messages.actions.cancel
+                    ],
+                    width: 860,
+                    ...options
+                })
                 .data('kendoBaseDialog');
 
             // Rebind the initOpen event considering the kendo.ui.Spreadsheet widget cannot bind to a viewModel
@@ -60,15 +54,11 @@ function openSpreadsheet(options = {}) {
             dialog.one(CONSTANTS.INITOPEN, e => {
                 e.sender.element
                     .find(roleSelector('spreadsheet'))
-                    .kendoSpreadsheet(
-                        Object.assign(
-                            {
-                                sheetsbar: false,
-                                sheets: []
-                            },
-                            e.sender.options.data
-                        )
-                    );
+                    .kendoSpreadsheet({
+                        sheetsbar: false,
+                        sheets: [],
+                        ...e.sender.options.data
+                    });
             });
 
             // Bind the show event to resize once opened

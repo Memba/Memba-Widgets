@@ -31,24 +31,19 @@ function openStyleEditor(options = {}) {
 
     // Create the dialog
     const dialog = $dialog
-        .kendoBaseDialog(
-            Object.assign(
-                {
-                    title:
-                        BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div data-${ns}role="styleeditor" data-${ns}bind="value:value" data-${ns}height="400"></div>`,
-                    data: {
-                        value: ''
-                    },
-                    actions: [
-                        BaseDialog.fn.options.messages.actions.ok,
-                        BaseDialog.fn.options.messages.actions.cancel
-                    ],
-                    width: 860
-                },
-                options
-            )
-        )
+        .kendoBaseDialog({
+            title: BaseDialog.fn.options.messages[options.type || 'info'],
+            content: `<div data-${ns}role="styleeditor" data-${ns}bind="value:value" data-${ns}height="400"></div>`,
+            data: {
+                value: ''
+            },
+            actions: [
+                BaseDialog.fn.options.messages.actions.ok,
+                BaseDialog.fn.options.messages.actions.cancel
+            ],
+            width: 860,
+            ...options
+        })
         .data('kendoBaseDialog');
 
     // Bind the show event to resize once opened

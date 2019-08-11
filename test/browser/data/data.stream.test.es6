@@ -23,7 +23,7 @@ import BaseModel from '../../../src/js/data/data.base.es6';
 import { Page, PageDataSource } from '../../../src/js/data/data.page.es6';
 import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import Stream from '../../../src/js/data/data.stream.es6';
-import '../../../src/js/app/app.tools.es6';
+import tools from '../../../src/js/tools/tools.es6';
 
 const { describe, it, xit } = window;
 const { observable } = window.kendo;
@@ -50,6 +50,15 @@ function loadStream() {
 }
 
 describe('data.stream', () => {
+    before(done => {
+        const promises = ['image', 'label', 'textbox'].map(tool =>
+            tools.load(tool)
+        );
+        $.when(...promises)
+            .then(done)
+            .catch(done);
+    });
+
     describe('Stream', () => {
         describe('Initialization', () => {
             it('it should initialize without options', done => {

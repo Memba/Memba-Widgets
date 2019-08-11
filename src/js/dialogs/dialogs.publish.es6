@@ -35,12 +35,10 @@ function openPublish(options = {}) {
 
     // Create the dialog
     const dialog = $dialog
-        .kendoBaseDialog(
-            Object.assign(
-                {
-                    title: __('dialogs.publish.title'),
-                    /* eslint-disable prettier/prettier */
-                    content: `<div class="k-widget k-notification k-notification-info" role="alert">
+        .kendoBaseDialog({
+            title: __('dialogs.publish.title'),
+            /* eslint-disable prettier/prettier */
+            content: `<div class="k-widget k-notification k-notification-info" role="alert">
                             <div class="k-notification-wrap"><span class="k-icon k-i-info"></span>${__('dialogs.publish.message')}</div>
                           </div>
                           <div class="kj-dialog-form">
@@ -49,19 +47,17 @@ function openPublish(options = {}) {
                             <div class="kj-dialog-flexrow">
                             </div>
                           </div>`,
-                    /* eslint-enable prettier/prettier */
-                    data: {
-                        // TODO
-                    },
-                    actions: [
-                        BaseDialog.fn.options.messages.actions.ok,
-                        BaseDialog.fn.options.messages.actions.cancel
-                    ],
-                    width: 860
-                },
-                options
-            )
-        )
+            /* eslint-enable prettier/prettier */
+            data: {
+                // TODO
+            },
+            actions: [
+                BaseDialog.fn.options.messages.actions.ok,
+                BaseDialog.fn.options.messages.actions.cancel
+            ],
+            width: 860,
+            ...options
+        })
         .data('kendoBaseDialog');
 
     const validator = $dialog

@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+/* eslint max-classes-per-file: ["error", 2] */
+
 // TODO Test 'localStorage' in window and private mode!
 // TODO Test 'sessionStorage' in window and private mode!
 

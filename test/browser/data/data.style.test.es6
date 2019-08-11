@@ -12,7 +12,10 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
-import { StyleProperty, StyleDataSource } from '../../../src/js/data/data.style.es6';
+import {
+    StyleProperty,
+    StyleDataSource
+} from '../../../src/js/data/data.style.es6';
 
 const { describe, it } = window;
 const { expect } = chai;

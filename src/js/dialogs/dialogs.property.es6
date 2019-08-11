@@ -64,24 +64,19 @@ function openPropertyDialog(options = {}) {
 
     // Create the dialog
     const dialog = $dialog
-        .kendoBaseDialog(
-            Object.assign(
-                {
-                    title:
-                        BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: options.row.help
-                        ? template(NOTIFICATION)(options.row) + CONTENT
-                        : CONTENT,
-                    data: options.model.clone(),
-                    actions: [
-                        BaseDialog.fn.options.messages.actions.ok,
-                        BaseDialog.fn.options.messages.actions.cancel
-                    ],
-                    width: 500
-                },
-                options
-            )
-        )
+        .kendoBaseDialog({
+            title: BaseDialog.fn.options.messages[options.type || 'info'],
+            content: options.row.help
+                ? template(NOTIFICATION)(options.row) + CONTENT
+                : CONTENT,
+            data: options.model.clone(),
+            actions: [
+                BaseDialog.fn.options.messages.actions.ok,
+                BaseDialog.fn.options.messages.actions.cancel
+            ],
+            width: 500,
+            ...options
+        })
         .data('kendoBaseDialog');
 
     // Build rules

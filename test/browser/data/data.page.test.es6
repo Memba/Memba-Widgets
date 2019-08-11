@@ -30,8 +30,6 @@ import {
     // getSpyingTransport
 } from '../_misc/test.transports.es6';
 
-import '../../../src/js/app/app.tools.es6';
-
 const { describe, it } = window;
 const { expect } = chai;
 const {
@@ -76,7 +74,8 @@ describe('data.page', () => {
                 expect(page).to.have.property('time', 30);
                 expect(components.fetch).to.throw();
                 expect(components.read).to.throw();
-                expect(page.load).to.throw();
+                // page.load is undefined
+                // expect(page.load).not.to.throw();
             });
 
             it('It should initialize from a dummy object', done => {
@@ -306,19 +305,15 @@ describe('data.page', () => {
                 const pageChange = sinon.spy();
                 const componentsChange = sinon.spy();
                 page.bind(CONSTANTS.CHANGE, e => {
-                    debugger;
                     pageChange(e);
                 });
                 components.bind(CONSTANTS.CHANGE, e => {
-                    debugger;
                     componentsChange(e);
                 });
-                debugger;
                 components
                     .fetch()
                     .then(
                         tryCatch(done)(() => {
-                            debugger;
                             let hasLabel = false;
                             components.data().forEach(component => {
                                 if (component.get('tool') === 'label') {
@@ -677,14 +672,15 @@ describe('data.page', () => {
                             PageComponentDataSource
                         );
                         expect(page.components.total()).to.equal(0);
-                        /* jshint -W083 */
+                        /*
+                        // page.load does not exist anymore
                         const promise = page.load().then(() => {
                             expect(page.components.total()).to.equal(
                                 data[i].components.length
                             );
                         });
-                        /* jshint +W083 */
                         promises.push(promise);
+                        */
                     }
                     $.when(...promises).then(done);
                 });

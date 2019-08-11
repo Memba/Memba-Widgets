@@ -247,7 +247,7 @@ export function getComponentArray() {
     const generators = [];
     Object.keys(componentGenerator).forEach(key => {
         // This ensures we only create components for registered tools
-        if (tools[key] instanceof BaseTool) {
+        if (tools(key) instanceof BaseTool) {
             if (key === 'label') {
                 // First component is always a label for some tests
                 ret.push(getLabel());

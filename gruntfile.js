@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-'use strict';
-
 module.exports = grunt => {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),

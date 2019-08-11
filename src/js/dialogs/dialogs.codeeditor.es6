@@ -39,31 +39,25 @@ function openCodeEditor(options = {}) {
 
             // Create the dialog
             const dialog = $dialog
-                .kendoBaseDialog(
-                    Object.assign(
-                        {
-                            title:
-                                BaseDialog.fn.options.messages[
-                                    options.type || 'info'
-                                ],
-                            content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" data-${ns}default="${htmlEncode(
-                                options.default
-                            )}" data-${ns}solution="${htmlEncode(
-                                JSON.stringify(options.solution)
-                            )}"></div>`,
-                            data: {
-                                value: '',
-                                library: [] // Do we really need this?
-                            },
-                            actions: [
-                                BaseDialog.fn.options.messages.actions.ok,
-                                BaseDialog.fn.options.messages.actions.cancel
-                            ],
-                            width: 860
-                        },
-                        options
-                    )
-                )
+                .kendoBaseDialog({
+                    title:
+                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" data-${ns}default="${htmlEncode(
+                        options.default
+                    )}" data-${ns}solution="${htmlEncode(
+                        JSON.stringify(options.solution)
+                    )}"></div>`,
+                    data: {
+                        value: '',
+                        library: [] // Do we really need this?
+                    },
+                    actions: [
+                        BaseDialog.fn.options.messages.actions.ok,
+                        BaseDialog.fn.options.messages.actions.cancel
+                    ],
+                    width: 860,
+                    ...options
+                })
                 .data('kendoBaseDialog');
 
             // Bind the show event to resize once opened

@@ -31,28 +31,21 @@ function openPrompt(options = {}) {
 
     // Create the dialog
     const dialog = $dialog
-        .kendoBaseDialog(
-            Object.assign(
-                {
-                    title:
-                        BaseDialog.fn.options.messages.title[
-                            options.type || 'info'
-                        ],
-                    content: template(TEMPLATE)({
-                        type: options.type || 'info',
-                        message: options.message || ''
-                    }),
-                    data: {
-                        input: ''
-                    },
-                    actions: [
-                        BaseDialog.fn.options.messages.actions.ok,
-                        BaseDialog.fn.options.messages.actions.cancel
-                    ]
-                },
-                options
-            )
-        )
+        .kendoBaseDialog({
+            title: BaseDialog.fn.options.messages.title[options.type || 'info'],
+            content: template(TEMPLATE)({
+                type: options.type || 'info',
+                message: options.message || ''
+            }),
+            data: {
+                input: ''
+            },
+            actions: [
+                BaseDialog.fn.options.messages.actions.ok,
+                BaseDialog.fn.options.messages.actions.cancel
+            ],
+            ...options
+        })
         .data('kendoBaseDialog');
 
     // Bind the click event

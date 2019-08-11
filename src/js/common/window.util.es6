@@ -93,6 +93,7 @@ export function getLocation(url) {
     // however .href will return an absolute URL which then can be used on itself
     // to populate these additional fields.
     if (location.host === '') {
+        // eslint-disable-next-line no-self-assign
         location.href = location.href;
     }
     return {

@@ -49,22 +49,17 @@ function openAssetManager(options = {}) {
 
     // Create the dialog
     const dialog = $dialog
-        .kendoBaseDialog(
-            Object.assign(
-                {
-                    title:
-                        BaseDialog.fn.options.messages[options.type || 'info'],
-                    content: `<div data-${ns}role="assetmanager" data-${ns}bind="value:value"></div>`,
-                    data: { value: '' },
-                    actions: [
-                        BaseDialog.fn.options.messages.actions.ok,
-                        BaseDialog.fn.options.messages.actions.cancel
-                    ],
-                    width: 860
-                },
-                options
-            )
-        )
+        .kendoBaseDialog({
+            title: BaseDialog.fn.options.messages[options.type || 'info'],
+            content: `<div data-${ns}role="assetmanager" data-${ns}bind="value:value"></div>`,
+            data: { value: '' },
+            actions: [
+                BaseDialog.fn.options.messages.actions.ok,
+                BaseDialog.fn.options.messages.actions.cancel
+            ],
+            width: 860,
+            ...options
+        })
         .data('kendoBaseDialog');
 
     // Rebind the initOpen event considering the kendo.ui.AssetManager widget requires assets which cannot be bound via a viewModel

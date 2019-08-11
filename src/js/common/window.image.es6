@@ -1520,49 +1520,44 @@ function PNGEncoder(/* options */) {
         parts.push(new Uint8Array(PNG_SIGNATURE));
         parts.push(writeIHDRChunk(imgData.width, imgData.height, colorType));
         const filtered = filterData(imgData, colorType); // this._filterData(imgData);
-        const compressed = pako.deflate(
-            filtered,
-            Object.assign(
-                {
-                    /**
-                     * Compression level 0-9
-                     * #define Z_NO_COMPRESSION         0
-                     * #define Z_BEST_SPEED             1
-                     * #define Z_BEST_COMPRESSION       9
-                     */
-                    level: 6, // Apparently 6 is the default compression level in GIMP
-                    /**
-                     * The windowBits parameter is the base two logarithm of the window size (the size of the history buffer).
-                     * It should be in the range 8..15 for this version of the library. Larger values of this parameter result in better compression at the expense of memory usage.
-                     * The default value is 15 if deflateInit is used instead.
-                     * windowBits can also be –8..–15 for raw deflate. In this case, -windowBits determines the window size.
-                     * deflate() will then generate raw deflate data with no zlib header or trailer, and will not compute an adler32 check value.
-                     */
-                    windowBits: 15,
-                    /**
-                     * Chunk size used for deflating data chunks, this should be power of 2 and must not be less than 256 and more than 32 * 1024
-                     */
-                    chunkSize: 32 * 1024,
-                    /**
-                     * var Z_FILTERED            = 1;
-                     * var Z_HUFFMAN_ONLY        = 2;
-                     * var Z_RLE                 = 3;
-                     * var Z_FIXED               = 4;
-                     * var Z_DEFAULT_STRATEGY    = 0;
-                     * The strategy parameter is used to tune the compression algorithm. Use the value Z_DEFAULT_STRATEGY for normal data,
-                     * Z_FILTERED for data produced by a filter (or predictor), Z_HUFFMAN_ONLY to force Huffman encoding only (no string match),
-                     * or Z_RLE to limit match distances to one (run-length encoding). Filtered data consists mostly of small values with a somewhat random distribution.
-                     * In this case, the compression algorithm is tuned to compress them better. The effect of Z_FILTERED is to force more Huffman coding and less string matching;
-                     * it is somewhat intermediate between Z_DEFAULT_STRATEGY and Z_HUFFMAN_ONLY.
-                     * Z_RLE is designed to be almost as fast as Z_HUFFMAN_ONLY, but give better compression for PNG image data.
-                     * The strategy parameter only affects the compression ratio but not the correctness of the compressed output even if it is not set appropriately.
-                     * Z_FIXED prevents the use of dynamic Huffman codes, allowing for a simpler decoder for special applications.
-                     */
-                    strategy: 3
-                },
-                options
-            )
-        ); // as Uint8Array;
+        const compressed = pako.deflate(filtered, {
+            /**
+             * Compression level 0-9
+             * #define Z_NO_COMPRESSION         0
+             * #define Z_BEST_SPEED             1
+             * #define Z_BEST_COMPRESSION       9
+             */
+            level: 6, // Apparently 6 is the default compression level in GIMP
+            /**
+             * The windowBits parameter is the base two logarithm of the window size (the size of the history buffer).
+             * It should be in the range 8..15 for this version of the library. Larger values of this parameter result in better compression at the expense of memory usage.
+             * The default value is 15 if deflateInit is used instead.
+             * windowBits can also be –8..–15 for raw deflate. In this case, -windowBits determines the window size.
+             * deflate() will then generate raw deflate data with no zlib header or trailer, and will not compute an adler32 check value.
+             */
+            windowBits: 15,
+            /**
+             * Chunk size used for deflating data chunks, this should be power of 2 and must not be less than 256 and more than 32 * 1024
+             */
+            chunkSize: 32 * 1024,
+            /**
+             * var Z_FILTERED            = 1;
+             * var Z_HUFFMAN_ONLY        = 2;
+             * var Z_RLE                 = 3;
+             * var Z_FIXED               = 4;
+             * var Z_DEFAULT_STRATEGY    = 0;
+             * The strategy parameter is used to tune the compression algorithm. Use the value Z_DEFAULT_STRATEGY for normal data,
+             * Z_FILTERED for data produced by a filter (or predictor), Z_HUFFMAN_ONLY to force Huffman encoding only (no string match),
+             * or Z_RLE to limit match distances to one (run-length encoding). Filtered data consists mostly of small values with a somewhat random distribution.
+             * In this case, the compression algorithm is tuned to compress them better. The effect of Z_FILTERED is to force more Huffman coding and less string matching;
+             * it is somewhat intermediate between Z_DEFAULT_STRATEGY and Z_HUFFMAN_ONLY.
+             * Z_RLE is designed to be almost as fast as Z_HUFFMAN_ONLY, but give better compression for PNG image data.
+             * The strategy parameter only affects the compression ratio but not the correctness of the compressed output even if it is not set appropriately.
+             * Z_FIXED prevents the use of dynamic Huffman codes, allowing for a simpler decoder for special applications.
+             */
+            strategy: 3,
+            ...options
+        }); // as Uint8Array;
         parts.push(writeIDATChunk(compressed));
         parts.push(writeIENDChunk());
         const bufferSize = parts.reduce((pr, cu) => cu.length + pr, 0);

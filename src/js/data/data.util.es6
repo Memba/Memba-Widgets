@@ -210,27 +210,25 @@ export function getValueBinding(field, source) {
  * @returns {*}
  */
 export function normalizeSchema(schema) {
-    return Object.assign(
-        {
-            // aggregates
-            data(response) {
-                return $.isPlainObject(response) &&
-                    Array.isArray(response.data) &&
-                    $.type(response.total) === CONSTANTS.NUMBER
-                    ? response.data
-                    : response;
-            },
-            // Note: this is for errors sent with a status code of 200
-            // If the response has a field named `error`, it will trigger the error event
-            errors: 'error', // 'errors'
-            // groups
-            // model
-            // parse
-            total: 'total'
-            // type: 'json'
+    return {
+        // aggregates
+        data(response) {
+            return $.isPlainObject(response) &&
+                Array.isArray(response.data) &&
+                $.type(response.total) === CONSTANTS.NUMBER
+                ? response.data
+                : response;
         },
-        schema
-    );
+        // Note: this is for errors sent with a status code of 200
+        // If the response has a field named `error`, it will trigger the error event
+        errors: 'error', // 'errors'
+        // groups
+        // model
+        // parse
+        total: 'total',
+        // type: 'json',
+        ...schema
+    };
 }
 
 /**

@@ -291,7 +291,6 @@ describe('data.basetest', () => {
                     .then(
                         tryCatch(done)(TestModel => {
                             const test = new TestModel();
-                            debugger;
                         })
                     )
                     .catch(done);
@@ -304,7 +303,6 @@ describe('data.basetest', () => {
                     .then(
                         tryCatch(done)(TestModel => {
                             const test = new TestModel();
-                            debugger;
                         })
                     )
                     .catch(done);

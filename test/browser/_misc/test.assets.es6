@@ -253,7 +253,6 @@ const COMPLEX_PROJECT = {
             const vectorDrawingWidget = this.element
                 .find(kendo.roleSelector('vectordrawing'))
                 .data('kendoVectorDrawing');
-            debugger;
         },
         openUrl(url) {
             assert.instanceof(
@@ -294,12 +293,12 @@ const COMPLEX_PROJECT = {
             vectorDrawingWidget.resize();
         },
         saveAs(name, assetManager) {
-            debugger;
+            // debugger;
         }
     },
     transport: {
         create(options) {
-            debugger;
+            // debugger;
         },
         destroy(options) {
             // options.error(new Error('Oops'));
@@ -331,10 +330,10 @@ const COMPLEX_PROJECT = {
             }
         },
         import(options) {
-            debugger;
+            // debugger;
         },
         stream(options) {
-            debugger;
+            // debugger;
         }
     }
 };

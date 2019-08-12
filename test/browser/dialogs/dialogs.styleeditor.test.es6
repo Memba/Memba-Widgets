@@ -40,12 +40,10 @@ describe('dialogs.styleeditor', () => {
                 .then(
                     tryCatch(done)(resp => {
                         expect(resp.action).to.equal('ok');
-                        debugger;
                         expect(resp.data).to.have.property('value', '');
                     })
                 )
                 .catch(done);
-            debugger;
             expect($(SELECTORS.TITLE)).to.have.text(title);
             setTimeout(() => {
                 // We need to give time for data to show

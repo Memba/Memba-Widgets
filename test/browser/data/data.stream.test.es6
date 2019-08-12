@@ -693,32 +693,26 @@ describe('data.stream', () => {
 
                 viewModel.unbind('change');
                 viewModel.bind('change', e => {
-                    debugger;
                     change.viewModel(e);
                 });
                 viewModel.version.stream.unbind('change');
                 viewModel.version.stream.bind('change', e => {
-                    debugger;
                     change.stream(e);
                 });
                 viewModel.version.stream.pages.unbind('change');
                 viewModel.version.stream.pages.bind('change', e => {
-                    debugger;
                     change.pages(e);
                 });
             });
 
             it('Reading', done => {
                 const { stream } = viewModel.version;
-                debugger;
                 stream.load().always(() => {
-                    debugger;
                     stream.pages
                         .at(0)
                         .load()
                         .then(
                             tryCatch(done)(() => {
-                                debugger;
                                 expect(pageSpies.read).to.have.been.calledOnce;
                                 expect(stream.pages.total()).to.equal(1);
                                 expect(componentSpies.read).to.have.been

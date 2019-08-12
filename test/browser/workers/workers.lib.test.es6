@@ -17,9 +17,13 @@ import '../../../src/js/workers/workers.lib';
 
 const { __karma__, describe, it } = window;
 const { expect } = chai;
-// const global = __karma__ ? window.parent : window;
-const global = window.parent;
+const global = window;
 
+/*
+ * IMPORTANT!
+ * We cannot run these tests in Karma, because blacklisting features like Blob
+ * prevents other tests from working
+ */
 (__karma__ ? xdescribe : describe)('workers.lib', () => {
     it('Blacklisted globals', () => {
         expect(global.ActiveXObject).to.be.undefined;

@@ -61,7 +61,7 @@
      * Blacklist unsafe functions
      * Alternatively, use a white list as in http://stackoverflow.com/questions/10653809/making-webworkers-a-safe-environment
      */
-    if (global.hasOwnProperty('ActiveXObject')) {
+    if (Object.prototype.hasOwnProperty.call(global, 'ActiveXObject')) {
         // true in IE where typeof global.ActiveXObject === 'undefined'
         global.ActiveXObject = undefined;
     }
@@ -580,7 +580,7 @@
         return ret;
     };
 
-}(this)); // this is WorkerGlobalScope
+}(this)); // this is WorkerGlobalScope (beware Karma though!)
 
 /* jshint +W074 */
 /* jshint +W071 */

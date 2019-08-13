@@ -21,7 +21,7 @@
 
 // Our widgets styles
 @import "../widgets/widgets.assetmanager.scss";
-// @import "../widgets/widgets.basiclist.scss"; --> widgets.array
+@import "../widgets/widgets.basiclist.scss"; // --> widgets.array
 @import "../widgets/widgets.bitflags.scss";
 // @import "../widgets/widgets.codeeditor.scss";
 @import "../widgets/widgets.explorer.scss";

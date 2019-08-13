@@ -71,12 +71,22 @@ module.exports = config => {
             },
             // Other files made available on demand
             {
-                pattern: 'src/js/**/*',
+                pattern: 'src/js/**/*.es6',
                 served: true,
                 included: false
             },
             {
-                pattern: 'src/styles/**/*',
+                pattern: 'src/js/**/*.js',
+                served: true,
+                included: false
+            },
+            {
+                pattern: 'src/js/**/*.mjs',
+                served: true,
+                included: false
+            },
+            {
+                pattern: 'src/styles/**/*.css',
                 served: true,
                 included: false
             },

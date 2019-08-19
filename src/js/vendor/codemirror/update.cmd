@@ -25,5 +25,5 @@ COPY "%DIR%\mode\markdown\markdown.js" ".\mode\markdown\markdown.js"
 COPY "%DIR%\mode\xml\xml.js" ".\mode\xml\xml.js"
 
 REM \theme\
-DEL "..\..\..\styles\vendor\codemirror\theme\*.*" /Y
+DEL "..\..\..\styles\vendor\codemirror\theme\*.*" /Q
 COPY "%DIR%\theme\*.*" "..\..\..\styles\vendor\codemirror\theme\"

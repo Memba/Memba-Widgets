@@ -1,4 +1,9 @@
 {
+    "env": {
+        "test": {
+            "plugins": ["istanbul"]
+        }
+    },
     // Webpack does not need the plugin section to build, kept for SystemJS
     "plugins": [
         [
@@ -22,6 +27,12 @@
         ]
     ],
     "presets": [
-        "@babel/env"
+        [
+            "@babel/preset-env",
+            {
+                "useBuiltIns": "entry",
+                "corejs": 3
+            }
+        ]
     ]
 }

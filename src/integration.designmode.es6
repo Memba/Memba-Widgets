@@ -75,7 +75,7 @@ viewModel.bind('change', e => {
         e.sender.set('selectedComponent', undefined);
         e.sender.set('settings.style', e.sender.get('selectedPage.style'));
     } else if (e.field === 'selectedComponent') {
-        const tool = tools[e.sender.get('selectedComponent.tool')];
+        const tool = tools(e.sender.get('selectedComponent.tool'));
         if (tool instanceof BaseTool) {
             const grid1 = $grid1.data('kendoPropertyGrid');
             const grid2 = $grid2.data('kendoPropertyGrid');

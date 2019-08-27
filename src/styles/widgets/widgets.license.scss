@@ -1,25 +1,8 @@
-/**
- * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
- * Sources at https://github.com/Memba
- */
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
 
-.kj-license {
-    a {
-        font-size: 3em;
-        text-decoration: none;
+// Dependencies
 
-        i.kf {
-            vertical-align: initial;
-
-            &:nth-child(n+1) {
-                margin-left: 0.1em;
-            }
-        }
-    }
-
-    &.k-state-disabled {
-        a {
-            cursor: default;
-        }
-    }
-}
+// Component
+@import "widgets.license/layout";
+@import "widgets.license/theme";

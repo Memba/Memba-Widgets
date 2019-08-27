@@ -1,0 +1,22 @@
+@include exports( "widgets.license/layout" ) {
+    .kj-license {
+        a {
+            font-size: 3em;
+            text-decoration: none;
+
+            i.kf {
+                vertical-align: initial;
+
+                &:nth-child(n+1) {
+                    margin-left: 0.1em;
+                }
+            }
+        }
+
+        &.k-state-disabled {
+            a {
+                cursor: default;
+            }
+        }
+    }
+}

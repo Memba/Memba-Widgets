@@ -88,7 +88,7 @@ const ImageListAdapter = BaseAdapter.extend({
             openAssetManager({
                 title: options.title || this.title,
                 assets: assets.image,
-                cssClass: 'kj-dialog-2', // Potentially a sedonc level of depth considering contextual menu
+                cssClass: 'kj-dialog-2', // Potentially a second level of depth considering contextual menu
                 data: {
                     value: e.item.get('url')
                 }
@@ -101,9 +101,7 @@ const ImageListAdapter = BaseAdapter.extend({
                         e.item.set('url', result.data.value);
                     }
                 })
-                .catch(err => {
-                    $.noop(err);
-                });
+                .catch($.noop); // TODO error management
         }
     }
 });

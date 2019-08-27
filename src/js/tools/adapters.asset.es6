@@ -3,9 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Consider a generic opendialog adapter with/without value
-// TODO finish catch
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -115,9 +112,7 @@ const AssetAdapter = BaseAdapter.extend({
                     options.model.set(options.field, result.data.value);
                 }
             })
-            .catch(err => {
-                // TODO
-            });
+            .catch($.noop); // TODO error management
     }
 });
 

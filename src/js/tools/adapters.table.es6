@@ -89,9 +89,7 @@ const TableAdapter = BaseAdapter.extend({
                     options.model.set(options.field, result.data);
                 }
             })
-            .catch(err => {
-                // TODO
-            });
+            .catch($.noop); // TODO error management
     }
 });
 

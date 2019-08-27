@@ -10,11 +10,11 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
+import BasicListAdapter from './adapters.basiclist.es6';
 import BooleanAdapter from './adapters.boolean.es6';
-import ReadOnlyAdapter from './adapters.readonly.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
-// import StringArrayAdapter from './adapters..es6';
+import ReadOnlyAdapter from './adapters.readonly.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
@@ -76,7 +76,7 @@ const DropZoneTool = BaseTool.extend({
         question: new QuestionAdapter({
             title: __('tools.dropzone.properties.question.title')
         }),
-        solution: new StringArrayAdapter({
+        solution: new BasicListAdapter({
             title: __('tools.dropzone.properties.solution.title')
         }),
         validation: new ValidationAdapter({

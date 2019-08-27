@@ -28,7 +28,6 @@ const BaseAdapter = Class.extend({
      * Init
      * @constructor init
      * @param options
-     * @param attributes
      */
     init(options = {}) {
         assert.isPlainObject(

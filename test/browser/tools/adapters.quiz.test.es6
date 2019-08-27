@@ -18,7 +18,7 @@ describe('adapters.quiz', () => {
         const adapter = new QuizAdapter();
 
         it('It should have descriptors', () => {
-            expect(Object.keys(adapter)).to.have.lengthOf(13);
+            expect(Object.keys(adapter)).to.have.lengthOf(14);
             expect(adapter)
                 .to.have.property('attributes')
                 .that.deep.equals({ 'data-role': 'datepicker' });
@@ -29,7 +29,8 @@ describe('adapters.quiz', () => {
             expect(adapter).to.have.property('editor', 'input');
             expect(adapter).to.have.property('field').that.is.undefined;
             expect(adapter).to.have.property('format').that.is.undefined;
-            expect(adapter).to.have.property('from').that.is.undefined;
+            expect(adapter).to.have.property('from').that.is.undefined;expect(adapter).to.have.property('from').that.is.undefined;
+            expect(adapter).to.have.property('help').that.is.undefined;
             expect(adapter).to.have.property('nullable').that.is.undefined;
             expect(adapter).to.have.property('parse').that.is.undefined;
             expect(adapter).to.have.property('template').that.is.undefined;

@@ -11,7 +11,7 @@
  * IMPORTANT
  * Add params as in:
  *      key: 'oneOf',
- *      params: new StringArrayAdapter(), <-- note the use of an adapter/editor
+ *      params: new BasicListAdapter(), <-- note the use of an adapter/editor
  *      formula: 'function (value, params, all) { return params.indexOf(value) }'
  * Then SolutionAdapter possibly selects one of params in ComboBox
  * Check how such design affects all existing tools

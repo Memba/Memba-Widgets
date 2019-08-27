@@ -10,11 +10,12 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
+import BasicListAdapter from './adapters.basiclist.es6';
 import NumberAdapter from './adapters.number.es6';
+import QuestionAdapter from './adapters.question.es6';
 import ReadOnlyAdapter from './adapters.readonly.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
-import QuestionAdapter from './adapters.question.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
@@ -74,7 +75,7 @@ const TextGapsTool = BaseTool.extend({
         question: new QuestionAdapter({
             title: __('tools.textgaps.properties.question.title')
         }),
-        solution: new StringArrayAdapter({
+        solution: new BasicListAdapter({
             title: __('tools.textgaps.properties.solution.title'),
             defaultValue: []
         }),

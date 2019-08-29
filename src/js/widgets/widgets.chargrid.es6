@@ -101,32 +101,29 @@ const CharGrid = Widget.extend({
      * @private
      */
     _setValue(value) {
-        const that = this;
-        const options = this.options;
-        const colTotal = options.columns;
-        const rowTotal = options.rows;
-        const locked = options.locked;
-        const blank = options.blank;
-        const whitelist = (options.whitelist || '').trim();
-        const rx = new RegExp(format(RX_WHITELIST, whitelist), 'i');
-        that._value = [];
-        for (let r = 0; r < rowTotal; r++) {
-            that._value.push(new Array(rowTotal));
-            for (let c = 0; c < colTotal; c++) {
+        const { columns, locked, rows, whitelist } = this.options;
+        const rxWhitelist = new RegExp(
+            format(RX_WHITELIST, (whitelist || '').trim()),
+            'i'
+        );
+        this._value = [];
+        for (let r = 0; r < rows; r++) {
+            this._value.push(new Array(rows));
+            for (let c = 0; c < columns; c++) {
                 if (
                     isAnyArray(locked) &&
                     isAnyArray(locked[r]) &&
                     locked[r][c]
                 ) {
-                    that._value[r][c] = `${locked[r][c]}`;
+                    this._value[r][c] = `${locked[r][c]}`;
                 } else if (
                     isAnyArray(value) &&
                     isAnyArray(value[r]) &&
-                    rx.test(`${value[r][c]}`)
+                    rxWhitelist.test(`${value[r][c]}`)
                 ) {
-                    that._value[r][c] = `${value[r][c]}`;
+                    this._value[r][c] = `${value[r][c]}`;
                 } else {
-                    that._value[r][c] = null;
+                    this._value[r][c] = null;
                 }
             }
         }
@@ -166,16 +163,16 @@ const CharGrid = Widget.extend({
      * @param value
      */
     value(value) {
-        const that = this;
+        let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            return that._compareValues(that._value, that.options.locked)
+            ret = this._compareValues(this._value, this.options.locked)
                 ? null
-                : that._value;
+                : this._value;
+        } else if (!this._compareValues(this._value, value)) {
+            this._setValue(value || '');
+            this.refresh();
         }
-        if (!that._compareValues(that._value, value)) {
-            that._setValue(value || '');
-            that.refresh();
-        }
+        return ret;
     },
 
     /**
@@ -195,28 +192,30 @@ const CharGrid = Widget.extend({
             c,
             assert.format(assert.messages.type.default, 'c', CONSTANTS.NUMBER)
         );
-        const that = this;
-        const options = that.options;
-        const whitelist = (options.whitelist || '').trim();
-        const rx = new RegExp(format(RX_WHITELIST, whitelist), 'i');
-        const row = that._value[r];
+        const { whitelist } = this.options;
+        const rxWhitelist = new RegExp(
+            format(RX_WHITELIST, (whitelist || '').trim()),
+            'i'
+        );
+        const rowValues = this._value[r];
+        let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            if (isAnyArray(row) && rx.test(row[c])) {
-                return row[c];
+            if (isAnyArray(rowValues) && rxWhitelist.test(rowValues[c])) {
+                ret = rowValues[c];
             }
         } else if ($.type(value) === CONSTANTS.NULL) {
-            if (row[c] !== null) {
-                row[c] = null;
-                that.refresh();
-                that.trigger(CONSTANTS.CHANGE);
+            if (rowValues[c] !== null) {
+                rowValues[c] = null;
+                this.refresh();
+                this.trigger(CONSTANTS.CHANGE);
             }
         } else if ($.type(value) === CONSTANTS.STRING && value.length === 1) {
-            if (that.isLocked(r, c)) {
+            if (this.isLocked(r, c)) {
                 throw new Error('Cannot assign a new value to a locked cell');
-            } else if (row[c] !== value && rx.test(value)) {
-                row[c] = value.toUpperCase();
-                that.refresh();
-                that.trigger(CONSTANTS.CHANGE);
+            } else if (rowValues[c] !== value && rxWhitelist.test(value)) {
+                rowValues[c] = value.toUpperCase();
+                this.refresh();
+                this.trigger(CONSTANTS.CHANGE);
             }
             // discard any value that is not whitelisted
         } else {
@@ -224,6 +223,7 @@ const CharGrid = Widget.extend({
                 '`value` is expected to be a single char string'
             );
         }
+        return ret;
     },
 
     /**
@@ -242,21 +242,16 @@ const CharGrid = Widget.extend({
             c,
             assert.format(assert.messages.type.default, 'c', CONSTANTS.NUMBER)
         );
-        const that = this;
-        const options = that.options;
-        const colTotal = options.columns;
-        const rowTotal = options.rows;
-        const blank = options.blank;
-        const locked = options.locked;
+        const { blank, columns, locked, rows } = this.options;
         return (
             r >= 0 &&
-            r < rowTotal &&
+            r < rows &&
             c >= 0 &&
-            c < colTotal &&
+            c < columns &&
             isAnyArray(locked) &&
             isAnyArray(locked[r]) &&
             !!locked[r][c] &&
-            that.cellValue(r, c) !== blank
+            this.cellValue(r, c) !== blank
         );
     },
 
@@ -269,11 +264,11 @@ const CharGrid = Widget.extend({
         this.wrapper = element;
         // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
         element.addClass(WIDGET_CLASS).addClass(INTERACTIVE_CLASS);
-        this.surface = Surface.create(this.element);
+        this.surface = Surface.create(element);
         // Note: we need an input to trigger the virtual keyboard on mobile devices
         this.input = $(
             '<input type="text" style="position:absolute;left:-5000px;">'
-        ).prependTo(this.element);
+        ).prependTo(element);
         this.enable(options.enable);
         this.refresh();
     },
@@ -283,9 +278,7 @@ const CharGrid = Widget.extend({
      * @param enabled
      */
     enable(enabled) {
-        const that = this;
-        const element = that.element;
-        const input = that.input;
+        const { element, input } = this;
         element.off(NS);
         input.off(NS);
         if (enabled) {
@@ -293,13 +286,13 @@ const CharGrid = Widget.extend({
             // Note: We need mouseup to occur after the blur event herebelow when changing cells
             element.on(
                 `${CONSTANTS.MOUSEUP + NS} ${CONSTANTS.TOUCHEND}${NS}`,
-                that._onMouseUp.bind(that)
+                this._onMouseUp.bind(this)
             );
             input
-                .on(CONSTANTS.KEYDOWN + NS, that._onKeyDown.bind(that))
-                .on(CONSTANTS.KEYPRESS + NS, that._onKeyPress.bind(that))
-                .on(CONSTANTS.INPUT + NS, that._onInput.bind(that))
-                .on(CONSTANTS.BLUR + NS, that._onBlur.bind(that));
+                .on(CONSTANTS.KEYDOWN + NS, this._onKeyDown.bind(this))
+                .on(CONSTANTS.KEYPRESS + NS, this._onKeyPress.bind(this))
+                .on(CONSTANTS.INPUT + NS, this._onInput.bind(this))
+                .on(CONSTANTS.BLUR + NS, this._onBlur.bind(this));
         }
     },
 
@@ -308,42 +301,39 @@ const CharGrid = Widget.extend({
      * @private
      */
     _drawGrid() {
-        const that = this;
-        const element = that.element;
+        const { element } = this;
         const height = element.height();
         const width = element.width();
-        const options = that.options;
-        const rowTotal = options.rows;
-        const colTotal = options.columns;
+        const { columns, gridFill, gridStroke, rows } = this.options;
         const grid = new Group();
         const rectGeometry = new geometry.Rect([0, 0], [width, height]);
         grid.append(
             new Rect(rectGeometry, {
-                fill: { color: options.gridFill },
-                stroke: { color: options.gridStroke, width: STROKE_WIDTH }
+                fill: { color: gridFill },
+                stroke: { color: gridStroke, width: STROKE_WIDTH }
             })
         );
         // rows
-        for (let row = 1; row < rowTotal; row++) {
+        for (let row = 1; row < rows; row++) {
             grid.append(
                 new Path({
-                    stroke: { color: options.gridStroke, width: STROKE_WIDTH }
+                    stroke: { color: gridStroke, width: STROKE_WIDTH }
                 })
-                    .moveTo(0, (height * row) / rowTotal)
-                    .lineTo(width, (height * row) / rowTotal)
+                    .moveTo(0, (height * row) / rows)
+                    .lineTo(width, (height * row) / rows)
             );
         }
         // columns
-        for (let col = 1; col < colTotal; col++) {
+        for (let col = 1; col < columns; col++) {
             grid.append(
                 new Path({
-                    stroke: { color: options.gridStroke, width: STROKE_WIDTH }
+                    stroke: { color: gridStroke, width: STROKE_WIDTH }
                 })
-                    .moveTo((width * col) / colTotal, 0)
-                    .lineTo((width * col) / colTotal, height)
+                    .moveTo((width * col) / columns, 0)
+                    .lineTo((width * col) / columns, height)
             );
         }
-        that.surface.draw(grid);
+        this.surface.draw(grid);
     },
 
     /**
@@ -351,13 +341,11 @@ const CharGrid = Widget.extend({
      * @private
      */
     _drawSelectedCell() {
-        const that = this;
-        const options = that.options;
-        const r = that._selectedCell && that._selectedCell.row;
-        const c = that._selectedCell && that._selectedCell.col;
-        const rect = that._getCellRect(r, c, options.selectedFill);
+        const { selectedFill } = this.options;
+        const { col, row } = this._selectedCell || {};
+        const rect = this._getCellRect(row, col, selectedFill);
         if (rect) {
-            that.surface.draw(rect);
+            this.surface.draw(rect);
         }
     },
 
@@ -370,37 +358,35 @@ const CharGrid = Widget.extend({
      * @private
      */
     _getCellRect(r, c, fillColor) {
-        const that = this;
-        const element = that.element;
+        const { element } = this;
         const height = element.height();
         const width = element.width();
-        const options = that.options;
-        const rowTotal = options.rows;
-        const colTotal = options.columns;
+        const { columns, gridStroke, rows } = this.options;
+        let rect;
         if (
             $.type(r) === CONSTANTS.NUMBER &&
             r >= 0 &&
-            r < rowTotal &&
+            r < rows &&
             $.type(c) === CONSTANTS.NUMBER &&
             c >= 0 &&
-            c < colTotal
+            c < columns
         ) {
             const rectGeometry = new geometry.Rect(
                 [
-                    (c * width) / colTotal, // left or x
-                    (r * height) / rowTotal // top or y
+                    (c * width) / columns, // left or x
+                    (r * height) / rows // top or y
                 ],
                 [
-                    width / colTotal, // width
-                    height / rowTotal // height
+                    width / columns, // width
+                    height / rows // height
                 ]
             );
-            const rect = new Rect(rectGeometry, {
+            rect = new Rect(rectGeometry, {
                 fill: { color: fillColor },
-                stroke: { color: options.gridStroke, width: STROKE_WIDTH }
+                stroke: { color: gridStroke, width: STROKE_WIDTH }
             });
-            return rect;
         }
+        return rect;
     },
 
     /**
@@ -412,42 +398,40 @@ const CharGrid = Widget.extend({
      * @private
      */
     _getCharText(r, c, char) {
-        const that = this;
-        const element = that.element;
+        const { element } = this;
         const height = element.height();
         const width = element.width();
-        const options = that.options;
-        const colTotal = options.columns;
-        const rowTotal = options.rows;
+        const { columns, lockedColor, rows, valueColor } = this.options;
+        let text;
         if (
             $.type(c) === CONSTANTS.NUMBER &&
             c >= 0 &&
-            c < colTotal &&
+            c < columns &&
             $.type(r) === CONSTANTS.NUMBER &&
             r >= 0 &&
-            r < rowTotal &&
+            r < rows &&
             $.type(char) === CONSTANTS.STRING &&
             char.length === 1
         ) {
-            const fontSize = Math.floor((0.75 * height) / rowTotal);
+            const fontSize = Math.floor((0.75 * height) / rows);
             const params = {
                 font: `${fontSize}px "Open Sans", sans-serif`,
-                stroke: that.isLocked(r, c)
-                    ? { color: options.lockedColor, width: 1 }
-                    : { color: options.valueColor, width: 1 },
-                fill: that.isLocked(r, c)
-                    ? { color: options.lockedColor }
-                    : { color: options.valueColor }
+                stroke: this.isLocked(r, c)
+                    ? { color: lockedColor, width: 1 }
+                    : { color: valueColor, width: 1 },
+                fill: this.isLocked(r, c)
+                    ? { color: lockedColor }
+                    : { color: valueColor }
             };
-            const text = new Text(char, new geometry.Point(0, 0), params);
-            const size = text.bbox().size;
+            text = new Text(char, new geometry.Point(0, 0), params);
+            const { size } = text.bbox();
             const position = new geometry.Point(
-                ((c + 1 / 2) * width) / colTotal - size.width / 2,
-                ((r + 1 / 2) * height) / rowTotal - size.height / 2
+                ((c + 1 / 2) * width) / columns - size.width / 2,
+                ((r + 1 / 2) * height) / rows - size.height / 2
             );
             text.position(position);
-            return text;
         }
+        return text;
     },
 
     /**
@@ -456,10 +440,10 @@ const CharGrid = Widget.extend({
      */
     _drawCellValues() {
         const that = this;
-        const options = that.options;
+        const { options } = that;
         const rowTotal = options.rows;
         const colTotal = options.columns;
-        let locked = options.locked;
+        let { locked } = options;
         const chars = new Group();
         // columns
         for (let r = 0; r < rowTotal; r++) {
@@ -533,22 +517,19 @@ const CharGrid = Widget.extend({
             c,
             assert.format(assert.messages.type.default, 'c', CONSTANTS.NUMBER)
         );
-        const that = this;
-        const options = that.options;
-        const rowTotal = options.rows;
-        const colTotal = options.columns;
+        const { columns, rows } = this.options;
         if (
             r >= 0 &&
-            r < rowTotal &&
-            (c >= 0 && c < colTotal) &&
-            !that.isLocked(r, c)
+            r < rows &&
+            (c >= 0 && c < columns) &&
+            !this.isLocked(r, c)
         ) {
             const scroll = {
                 left: $(window).scrollLeft(),
                 top: $(window).scrollTop()
             };
-            that._selectedCell = { col: c, row: r };
-            that.input.focus();
+            this._selectedCell = { col: c, row: r };
+            this.input.focus();
             // that.input.select();
             // Note: that.input.focus() triggers a scroll, so we need to fix that
             // that.input.select() behaves like focus in Firefox and IE/Edge, so it also requires fixing scroll
@@ -557,13 +538,13 @@ const CharGrid = Widget.extend({
             $(window).scrollLeft(scroll.left);
             $(window).scrollTop(scroll.top);
         } else {
-            that._selectedCell = undefined;
-            if (that.input.is(':focus')) {
+            this._selectedCell = undefined;
+            if (this.input.is(':focus')) {
                 // This is called from _onBlur so we need to prevent a stack overflow
-                that.input.blur();
+                this.input.blur();
             }
         }
-        that.refresh();
+        this.refresh();
     },
 
     /**
@@ -574,10 +555,10 @@ const CharGrid = Widget.extend({
      */
     _onMouseUp(e) {
         const that = this;
-        const element = that.element;
+        const { element } = that;
         const height = element.height();
         const width = element.width();
-        const options = that.options;
+        const { options } = that;
         const rowTotal = options.rows;
         const colTotal = options.columns;
         const container = that.element.closest(options.container);
@@ -638,51 +619,48 @@ const CharGrid = Widget.extend({
             '`this.input` is expected to have focus'
         );
         // Note: on Android devices most keys would send keyCode 229, but backspace sends 8 as expected
-        const that = this;
-        const options = that.options;
-        const colTotal = options.columns;
-        const rowTotal = options.rows;
-        const c = that._selectedCell && that._selectedCell.col;
-        const r = that._selectedCell && that._selectedCell.row;
+        const { columns, rows } = this.options;
+        const c = this._selectedCell && this._selectedCell.col;
+        const r = this._selectedCell && this._selectedCell.row;
         if (
             $.type(r) === CONSTANTS.NUMBER &&
             r >= 0 &&
-            r < rowTotal &&
+            r < rows &&
             $.type(c) === CONSTANTS.NUMBER &&
             c >= 0 &&
-            c < colTotal
+            c < columns
         ) {
             let captured = false;
-            if (e.which === 37 && c > 0 && !that.isLocked(r, c - 1)) {
+            if (e.which === 37 && c > 0 && !this.isLocked(r, c - 1)) {
                 // Arrow left
-                that.select(r, c - 1);
+                this.select(r, c - 1);
                 captured = true;
-            } else if (e.which === 38 && r > 0 && !that.isLocked(r - 1, c)) {
+            } else if (e.which === 38 && r > 0 && !this.isLocked(r - 1, c)) {
                 // Arrow up
-                that.select(r - 1, c);
+                this.select(r - 1, c);
                 captured = true;
             } else if (
                 e.which === 39 &&
-                c < colTotal - 1 &&
-                !that.isLocked(r, c + 1)
+                c < columns - 1 &&
+                !this.isLocked(r, c + 1)
             ) {
                 // Arrow right
-                that.select(r, c + 1);
+                this.select(r, c + 1);
                 captured = true;
             } else if (
                 e.which === 40 &&
-                r < rowTotal - 1 &&
-                !that.isLocked(r + 1, c)
+                r < rows - 1 &&
+                !this.isLocked(r + 1, c)
             ) {
                 // Arrow down
-                that.select(r + 1, c);
+                this.select(r + 1, c);
                 captured = true;
             } else if (
                 (e.which === 8 || e.which === 32 || e.which === 46) &&
-                !that.isLocked(r, c)
+                !this.isLocked(r, c)
             ) {
                 // Backspace, Space or Delete
-                that.cellValue(r, c, null);
+                this.cellValue(r, c, null);
                 captured = true;
             }
             if (captured) {
@@ -712,25 +690,24 @@ const CharGrid = Widget.extend({
             this.input.is(':focus'),
             '`this.input` is expected to have focus'
         );
-        const that = this;
-        const options = that.options;
-        const colTotal = options.columns;
-        const rowTotal = options.rows;
-        const c = that._selectedCell && that._selectedCell.col;
-        const r = that._selectedCell && that._selectedCell.row;
+        const { columns, rows, whitelist } = this.options;
+        const c = this._selectedCell && this._selectedCell.col;
+        const r = this._selectedCell && this._selectedCell.row;
         if (
             $.type(c) === CONSTANTS.NUMBER &&
             c >= 0 &&
-            c < colTotal &&
+            c < columns &&
             $.type(r) === CONSTANTS.NUMBER &&
             r >= 0 &&
-            r < rowTotal
+            r < rows
         ) {
-            const whitelist = (options.whitelist || '').trim();
-            const rx = new RegExp(format(RX_WHITELIST, whitelist), 'i');
+            const rx = new RegExp(
+                format(RX_WHITELIST, (whitelist || '').trim()),
+                'i'
+            );
             const char = String.fromCharCode(e.which);
             if (rx.test(char)) {
-                that.cellValue(r, c, char);
+                this.cellValue(r, c, char);
             }
         }
         // No need to fill the input and KeyUp won't fire
@@ -769,15 +746,13 @@ const CharGrid = Widget.extend({
 
     /**
      * Make sure to unselect the selected cell
-     * @param e
      * @private
      */
-    _onBlur(e) {
+    _onBlur(/* e */) {
         // relatedTarget is used to handle behaviour that is specific to IE and Edge
         // In IE and edge, if relatedTarget is an SVG Element and if this SVG element is inside the widget element, the event should be discarded
         // See https://developer.mozilla.org/en/docs/Web/API/SVGSVGElement
         // if (!(e.relatedTarget instanceof window.SVGSVGElement) || this.element.has($(e.relatedTarget)).length === 0) {
-
         this.select(-1, -1);
         // }
     },
@@ -787,16 +762,15 @@ const CharGrid = Widget.extend({
      * @method destroy
      */
     destroy() {
-        const that = this;
-        const element = that.element;
+        const { element } = this;
         // unbind events
-        that.enable(false);
+        this.enable(false);
         // release references
-        that.surface = undefined;
-        that.input = undefined;
-        that._selectedCell = undefined;
+        this.surface = undefined;
+        this.input = undefined;
+        this._selectedCell = undefined;
         // destroy kendo
-        Widget.fn.destroy.call(that);
+        Widget.fn.destroy.call(this);
         destroy(element);
         // remove widget class
         element.removeClass(WIDGET_CLASS);
@@ -805,37 +779,23 @@ const CharGrid = Widget.extend({
 
 /**
  * Add a method for CharGridAdapter
- * @param rowTotal
- * @param colTotal
+ * @param rows
+ * @param columns
  * @param whitelist
  * @param layout
  * @param data
  * @private
  */
-CharGrid._getCharGridArray = function(
-    rowTotal,
-    colTotal,
-    whitelist,
-    layout,
-    data
-) {
+CharGrid._getCharGridArray = (rows, columns, whitelist, layout, data) => {
     assert.type(
         CONSTANTS.NUMBER,
-        rowTotal,
-        assert.format(
-            assert.messages.type.default,
-            'rowTotal',
-            CONSTANTS.NUMBER
-        )
+        rows,
+        assert.format(assert.messages.type.default, 'rows', CONSTANTS.NUMBER)
     );
     assert.type(
         CONSTANTS.NUMBER,
-        colTotal,
-        assert.format(
-            assert.messages.type.default,
-            'colTotal',
-            CONSTANTS.NUMBER
-        )
+        columns,
+        assert.format(assert.messages.type.default, 'columns', CONSTANTS.NUMBER)
     );
     assert.type(
         CONSTANTS.STRING,
@@ -848,9 +808,9 @@ CharGrid._getCharGridArray = function(
     );
     const ret = [];
     const rx = new RegExp(format(RX_WHITELIST, whitelist), 'i');
-    for (let r = 0; r < rowTotal; r++) {
+    for (let r = 0; r < rows; r++) {
         ret[r] = [];
-        for (let c = 0; c < colTotal; c++) {
+        for (let c = 0; c < columns; c++) {
             ret[r][c] = null;
             // First fill with data assuming values are whitelisted
             if (

@@ -30,15 +30,16 @@ const { describe, it, xit } = window;
 const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
+const TOOL = 'multiquiz';
 
 describe('tools.multiquiz', () => {
     before(done => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
         // load tool
-        tools.load('multiquiz').always(done);
+        tools.load(TOOL).always(done);
     });
 
     describe('MultiQuizTool', () => {
@@ -46,7 +47,7 @@ describe('tools.multiquiz', () => {
         let component;
 
         before(() => {
-            tool = tools('multiquiz');
+            tool = tools(TOOL);
             component = new PageComponent(getMultiQuiz());
         });
 
@@ -59,7 +60,7 @@ describe('tools.multiquiz', () => {
             );
             expect(tool).to.have.property('height', 150);
             expect(tool).to.have.property('help', __('tools.multiquiz.help'));
-            expect(tool).to.have.property('id', 'multiquiz');
+            expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.multiquiz.icon'));
             expect(tool)
                 .to.have.property('menu')

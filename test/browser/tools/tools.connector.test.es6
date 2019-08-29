@@ -11,8 +11,7 @@ import '../../../src/js/cultures/all.en.es6';
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.binder';
-import 'kendo.data';
+import 'kendo.core';
 import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import tools from '../../../src/js/tools/tools.es6';

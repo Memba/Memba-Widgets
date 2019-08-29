@@ -49,6 +49,27 @@ const urlGenerator = ext =>
     )()}${JSC.character('a', 'z')()}.${ext}`;
 
 /**
+ * getAudio
+ * @function getAudio
+ */
+export function getAudio() {
+    return {
+        attributes: {
+            autoplay: JSC.boolean()(),
+            mp3: urlGenerator('mp3'),
+            ogg: urlGenerator('ogg')
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        rotate: angleGenerator(),
+        tool: 'audio',
+        top: positionGenerator(),
+        width: positionGenerator()
+    };
+}
+
+/**
  * getDummy
  * @function getDummy
  */

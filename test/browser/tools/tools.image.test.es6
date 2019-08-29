@@ -28,15 +28,16 @@ const { describe, it, xit } = window;
 const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
+const TOOL = 'image';
 
 describe('tools.image', () => {
     before(done => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
         // Load tool
-        tools.load('image').always(done);
+        tools.load(TOOL).always(done);
     });
 
     describe('ImageTool', () => {
@@ -44,7 +45,7 @@ describe('tools.image', () => {
         let component;
 
         before(() => {
-            tool = tools('image');
+            tool = tools(TOOL);
             component = new PageComponent(getImage());
         });
 
@@ -57,7 +58,7 @@ describe('tools.image', () => {
             );
             expect(tool).to.have.property('height', 250);
             expect(tool).to.have.property('help', __('tools.image.help'));
-            expect(tool).to.have.property('id', 'image');
+            expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.image.icon'));
             expect(tool)
                 .to.have.property('menu')

@@ -16,7 +16,7 @@ import AssetAdapter from './adapters.asset.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
-import TOOLS from './util.constants';
+import TOOLS from './util.constants.es6';
 
 const { format, ns, roleSelector } = window.kendo;
 

@@ -17,7 +17,6 @@ import {
     parseLibraryItem,
     stringifyLibraryItem
 } from '../tools/util.libraries.es6';
-import CodeMirror from '../vendor/codemirror/lib/codemirror';
 
 const {
     bind,
@@ -30,7 +29,7 @@ const {
     widgetInstance
 } = window.kendo;
 const logger = new Logger('widgets.codeinput');
-const NS = '.kendoCodeInput';
+// const NS = '.kendoCodeInput';
 const WIDGET_CLASS = /* 'k-widget */ 'kj-codeinput';
 
 /**

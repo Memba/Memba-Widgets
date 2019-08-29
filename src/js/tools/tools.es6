@@ -204,6 +204,26 @@ function tools(id) {
         });
 
         /**
+         * Audio
+         */
+        _tools.audio = new StubTool({
+            description: __('tools.audio.description'),
+            help: __('tools.audio.help'),
+            icon: __('tools.audio.icon'),
+            name: __('tools.audio.name')
+        });
+
+        /**
+         * Video
+         */
+        _tools.video = new StubTool({
+            description: __('tools.video.description'),
+            help: __('tools.video.help'),
+            icon: __('tools.video.icon'),
+            name: __('tools.video.name')
+        });
+
+        /**
          * Dummy tool for tests
          */
         try {

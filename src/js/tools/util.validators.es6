@@ -14,7 +14,7 @@ import TOOLS from './util.constants.es6';
  * Turn a property name/value into an input which can be tested
  * in data.Model validation rules
  * @function makeInput
- * @param prop
+ * @param name
  * @param value
  */
 export function makeInput(name, value) {
@@ -47,7 +47,7 @@ export function makeInput(name, value) {
 export const constantValidator = {
     required: true,
     constant(input) {
-        return true;
+        return !!input;
     }
 };
 
@@ -66,7 +66,7 @@ export const questionValidator = {
  */
 export const scoreValidator = {
     score(input) {
-        return true;
+        return !!input;
     }
 };
 
@@ -77,7 +77,7 @@ export const scoreValidator = {
 export const solutionValidator = {
     // TODO depends on the solution
     solution(input) {
-        return true;
+        return !!input;
     }
 };
 
@@ -123,6 +123,6 @@ export const textValidator = {
  */
 export const validationValidator = {
     validation(input) {
-        return true;
+        return !!input;
     }
 };

@@ -30,15 +30,16 @@ const { before, describe, it } = window;
 const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
+const TOOL = 'dummy';
 
 describe('tools.dummy', () => {
     before(done => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
         // Load tool
-        tools.load('dummy').always(done);
+        tools.load(TOOL).always(done);
     });
 
     describe('DummyTool', () => {
@@ -46,7 +47,7 @@ describe('tools.dummy', () => {
         let component;
 
         before(() => {
-            tool = tools('dummy');
+            tool = tools(TOOL);
             component = new PageComponent(getDummy());
         });
 
@@ -59,7 +60,7 @@ describe('tools.dummy', () => {
             );
             expect(tool).to.have.property('height', 300);
             expect(tool).to.have.property('help', __('tools.dummy.help'));
-            expect(tool).to.have.property('id', 'dummy');
+            expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.dummy.icon'));
             expect(tool.menu).to.be.undefined;
             expect(tool).to.have.property('name', __('tools.dummy.name'));

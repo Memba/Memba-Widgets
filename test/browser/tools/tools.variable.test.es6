@@ -27,18 +27,26 @@ const { describe, it, xit } = window;
 const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
+const TOOL = 'variable';
 
 describe('tools.variable', () => {
-    before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+    before(done => {
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
+        // Load tool
+        tools.load(TOOL).always(done);
     });
 
     describe('VariableTool', () => {
-        const tool = tools('variable');
-        const component = new PageComponent(getVariable());
+        let tool;
+        let component;
+
+        before(() => {
+            tool = tools(TOOL);
+            component = new PageComponent(getVariable());
+        });
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);

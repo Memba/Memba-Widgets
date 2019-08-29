@@ -5,11 +5,12 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
+// import $ from 'jquery';
 import 'kendo.core';
-import assert from '../common/window.assert.es6';
+import __ from '../app/app.i18n.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
 import BasicListAdapter from './adapters.basiclist.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
@@ -21,9 +22,8 @@ import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
-import __ from '../app/app.i18n.es6';
 
-const { attr, format, htmlEncode, ns, roleSelector, template } = window.kendo;
+const { format, htmlEncode, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -143,7 +143,11 @@ const TextGapsTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidText'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidText'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         if (
@@ -156,7 +160,11 @@ const TextGapsTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidStyle'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         if (
@@ -169,7 +177,11 @@ const TextGapsTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidStyle'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         // TODO also check that split regex is safe

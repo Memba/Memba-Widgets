@@ -78,9 +78,9 @@ const MathInput = Widget.extend({
     value(value) {
         let ret;
         if ($.type(value) === UNDEFINED) {
-            ret = this._mathField.latex();
+            ret = this._mathField.$latex();
         } else if (this._value !== value) {
-            this._mathField.latex(value, {
+            this._mathField.$latex(value, {
                 suppressChangeNotifications: true
             });
         }
@@ -97,7 +97,7 @@ const MathInput = Widget.extend({
         return {
             onContentDidChange(mathField) {
                 that.trigger(CONSTANTS.CHANGE);
-                mathField.focus();
+                mathField.$focus();
             },
             virtualKeyboardMode: 'onfocus'
         };

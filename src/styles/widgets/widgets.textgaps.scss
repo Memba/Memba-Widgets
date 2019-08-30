@@ -1,13 +1,8 @@
-/**
- * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
- * Sources at https://github.com/Memba
- */
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
 
-.kj-textgaps {
-    .kj-textgaps-input {
-        border: none;
-        border-bottom: dashed 2px #ccc;
-        display: inline-block; // required for min-width
-        min-width: 3em;
-    }
-}
+// Dependencies
+
+// Component
+@import "widgets.textgaps/layout";
+@import "widgets.textgaps/theme";

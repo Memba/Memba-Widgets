@@ -1,10 +1,8 @@
-/**
- * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
- * Sources at https://github.com/Memba
- */
 .kj-textgaps .kj-textgaps-input {
   border: none;
   border-bottom: dashed 2px #ccc;
   display: inline-block;
   min-width: 3em;
 }
+
+/*# sourceMappingURL=widgets.textgaps.css.map */

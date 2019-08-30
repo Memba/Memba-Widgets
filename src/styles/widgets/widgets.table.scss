@@ -1,33 +1,8 @@
-/**
- * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
- * Sources at https://github.com/Memba
- */
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
 
-.kj-table {
-    position: relative;
-    overflow: auto;
-    .k-spreadsheet-cell {
-        position: absolute;
-        white-space: pre;
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-        overflow: hidden;
-        padding: 1px;
-        -webkit-background-clip: padding-box;
-        background-clip: padding-box;
-        .k-vertical-align-bottom {
-            position: relative;
-            top: 100%;
-            -webkit-transform: translateY(-100%);
-            -ms-transform: translateY(-100%);
-            transform: translateY(-100%);
-        }
-        .k-vertical-align-center {
-            position: relative;
-            top: 50%;
-            -webkit-transform: translateY(-50%);
-            -ms-transform: translateY(-50%);
-            transform: translateY(-50%);
-        }
-    }
-}
+// Dependencies
+
+// Component
+@import "widgets.table/layout";
+@import "widgets.table/theme";

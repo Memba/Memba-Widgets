@@ -1,7 +1,7 @@
-/**
- * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
- * Sources at https://github.com/Memba
- */
+/*
+<link href="../../../src/styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
+<link href="../../../src/styles/vendor/codemirror/addon/lint/lint.css" rel="stylesheet">
+*/
 .kj-codeeditor .k-header,
 .kj-codeeditor .k-footer {
   padding: 0.25em;
@@ -26,8 +26,8 @@
   padding-right: 0.5em;
 }
 .kj-codeeditor .k-header > div .k-dropdown,
-.kj-codeeditor .k-footer > div .k-dropdown,
 .kj-codeeditor .k-header > div .k-textbox,
+.kj-codeeditor .k-footer > div .k-dropdown,
 .kj-codeeditor .k-footer > div .k-textbox {
   width: 100%;
 }
@@ -54,6 +54,9 @@
 .kj-codeeditor .kj-codeeditor-footer > div .kj-codeeditor-message .k-notification-wrap span.k-icon {
   margin-right: 0.7em;
 }
+
 .CodeMirror-lint-tooltip {
   z-index: 10100;
 }
+
+/*# sourceMappingURL=widgets.codeeditor.css.map */

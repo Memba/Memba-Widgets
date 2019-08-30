@@ -2,9 +2,10 @@
  * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
-.kj-markeditor-toolbar .k-button-icon[data-tool="headings"] {
+.kj-markeditor-toolbar .k-button-icon[data-tool=headings] {
   width: auto;
 }
+
 .k-spreadsheet-window.kj-markeditor-window {
   padding-left: 0;
   padding-right: 0;
@@ -53,3 +54,5 @@
   margin-right: 0.25em;
   vertical-align: middle;
 }
+
+/*# sourceMappingURL=widgets.markeditor.css.map */

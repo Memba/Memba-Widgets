@@ -317,7 +317,7 @@ const BaseTool = StubTool.extend({
         );
         return BaseModel.define({
             fields: {
-                value: Object.assign({}, this.field),
+                value: { ...this.field },
                 result: {
                     type: CONSTANTS.BOOLEAN,
                     nullable: true

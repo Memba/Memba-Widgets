@@ -5,25 +5,30 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
+// import $ from 'jquery';
 import 'kendo.core';
-import assert from '../common/window.assert.es6';
+import __ from '../app/app.i18n.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
 import BasicListAdapter from './adapters.basiclist.es6';
+import ColorAdapter from './adapters.color.es6';
+import DisabledAdapter from './adapters.disabled.es6';
+import DropDownListAdapter from './adapters.dropdownlist.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
 import ReadOnlyAdapter from './adapters.readonly.es6';
+import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
 
-const { attr, format, htmlEncode, ns, roleSelector } = window.kendo;
+const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-const SELECTOR = `<div data-${ns}role="selector" data-${ns}id="#: properties.name #" data-${ns}shape="#: attributes.shape #" data-${ns}stroke="{ color: \'#: attributes.color #\', dashType: \'solid\', opacity: 1, width: \'#: attributes.strokeWidth #\' }" data-${ns}empty="#: attributes.empty #" data-${ns}hit-radius="#: attributes.hitRadius #" {0}></div>`;
+const TEMPLATE = `<div data-${ns}role="selector" data-${ns}id="#: properties.name #" data-${ns}shape="#: attributes.shape #" data-${ns}stroke="{ color: '#: attributes.color #', dashType: 'solid', opacity: 1, width: '#: attributes.strokeWidth #' }" data-${ns}empty="#: attributes.empty #" data-${ns}hit-radius="#: attributes.hitRadius #" {0}></div>`;
 /**
  * @class SelectorTool tool
  * @type {void|*}
@@ -40,12 +45,12 @@ const SelectorTool = BaseTool.extend({
             '<img src="https://cdn.kidoju.com/images/o_collection/svg/office/selector.svg" alt="selector">',
         // design: '<img src="#: icon$() #" alt="#: description$() #">',
         play: format(
-            SELECTOR,
+            TEMPLATE,
             `data-${ns}toolbar="\\#floating .kj-floating-content" data-${ns}bind="value: #: properties.name #.value, source: interactions"`
         ),
         review:
             format(
-                SELECTOR,
+                TEMPLATE,
                 `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
@@ -162,7 +167,11 @@ const SelectorTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidColor'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidColor'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         // TODO: We should have a generic validation for  enumerators
@@ -174,7 +183,11 @@ const SelectorTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidShape'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidShape'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         // TODO: Check selectors on top of static images and labels

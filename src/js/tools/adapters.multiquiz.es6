@@ -10,14 +10,14 @@
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.data';
+import assets from '../app/app.assets.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
+import '../widgets/widgets.multiquiz.es6';
 
 const {
-    attr,
     data: { DataSource, Model },
-    format,
     ns
 } = window.kendo;
 

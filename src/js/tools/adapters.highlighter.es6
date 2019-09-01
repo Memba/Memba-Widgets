@@ -13,7 +13,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
-const { attr, format } = window.kendo;
+// const { attr, format } = window.kendo;
 
 /**
  * HighLighterAdapter
@@ -28,7 +28,6 @@ const HighLighterAdapter = BaseAdapter.extend({
      * @param attributes
      */
     init(options, attributes) {
-        const that = this;
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
@@ -52,7 +51,7 @@ const HighLighterAdapter = BaseAdapter.extend({
                     )
                 )
                 .appendTo(container);
-            const highLighterWidget = highLighter.kendoHighLighter({
+            highLighter.kendoHighLighter({
                 text: settings.model.get('attributes.text'),
                 split: settings.model.get('attributes.split')
             });

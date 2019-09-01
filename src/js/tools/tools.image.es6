@@ -17,10 +17,10 @@ import DropDownListAdapter from './adapters.dropdownlist.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import { BaseTool } from './tools.base.es6';
-import ToolAssets from './util.assets.es6';
+// import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 
-const { format, ns, template } = window.kendo;
+const { format, ns } = window.kendo;
 
 /**
  * Template

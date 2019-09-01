@@ -5,13 +5,14 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
+// import $ from 'jquery';
 import 'kendo.core';
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
 import BasicListAdapter from './adapters.basiclist.es6';
 import BooleanAdapter from './adapters.boolean.es6';
+import DisabledAdapter from './adapters.disabled.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
 import ReadOnlyAdapter from './adapters.readonly.es6';
@@ -24,7 +25,7 @@ import { arrayLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
 import __ from '../app/app.i18n.es6';
 
-const { attr, format, htmlEncode, ns, roleSelector } = window.kendo;
+const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 const DROPZONE = `<div id="#: properties.name #" data-${ns}role="dropzone" data-${ns}center="#: attributes.center #"  data-${ns}empty="#: attributes.empty #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>`;
@@ -147,7 +148,11 @@ const DropZoneTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidStyle'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         return ret;

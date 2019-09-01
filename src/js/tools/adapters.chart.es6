@@ -3,14 +3,20 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO consider a generic OpenDialogAdapter with a [...] button
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
+import openSpreadsheet from '../dialogs/dialogs.spreadsheet.es6';
 import BaseAdapter from './adapters.base.es6';
+import { resizeSpreadsheetData } from './util.miscellaneous.es6';
 
-// TODO consider a generic OpenDialogAdapter with a [...] button
+const {
+    ui: { BaseDialog }
+} = window.kendo;
 
 /**
  * ChartAdapter
@@ -22,7 +28,6 @@ const ChartAdapter = BaseAdapter.extend({
      * Init
      * @constructor init
      * @param options
-     * @param attributes
      */
     init(options /* , attributes */) {
         const that = this;
@@ -47,31 +52,31 @@ const ChartAdapter = BaseAdapter.extend({
         const { model } = options;
         const columns = model.get('attributes.categories') + 1;
         const rows = model.get('attributes.values') + 1;
-        const data = util.resizeSpreadsheetData(
+        const data = resizeSpreadsheetData(
             model.get('attributes.data'),
             rows,
             columns
         );
         // TODO wrap in import('./dialogs/dialogs.spreadsheet.es6').then(function () {...});
         openSpreadsheet({
-                title: options.title || this.title,
-                data: Object.assign(data, {
-                    columns,
-                    rows,
-                    sheetsbar: false,
-                    toolbar: false
-                })
+            title: options.title || this.title,
+            data: Object.assign(data, {
+                columns,
+                rows,
+                sheetsbar: false,
+                toolbar: false
             })
+        })
             .then(result => {
                 if (
                     result.action ===
-                    kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
+                    BaseDialog.fn.options.messages.actions.ok.action
                 ) {
                     // TODO test result.data???
                     options.model.set(options.field, result.data);
                 }
             })
-        .catch($.noop); // TODO error management
+            .catch($.noop); // TODO error management
     }
 });
 

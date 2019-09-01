@@ -7,12 +7,15 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
-import ReadOnlyAdapter from './adapters.readonly.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
+import BooleanAdapter from './adapters.boolean.es6';
+import MathInputAdapter from './adapters.mathinput.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
+import ReadOnlyAdapter from './adapters.readonly.es6';
+import StyleAdapter from './adapters.style.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
@@ -20,10 +23,10 @@ import { mathLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
 import __ from '../app/app.i18n.es6';
 
-const { attr, format, ns, template } = window.kendo;
+const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-const MATHINPUT = `<div data-${ns}role="mathinput" data-${ns}toolbar="#: JSON.stringify(toolbar$()) #" style="#: attributes.style #" {0}>#: attributes.formula #</div>`;
+const TEMPLATE = `<div data-${ns}role="mathinput" data-${ns}toolbar="#: JSON.stringify(toolbar$()) #" style="#: attributes.style #" {0}>#: attributes.formula #</div>`;
 /**
  * @class MathInputTool tool
  * @type {void|*}
@@ -35,14 +38,14 @@ const MathInputTool = BaseTool.extend({
     weight: 1,
     // menu: [],
     templates: {
-        design: format(MATHINPUT, `data-${ns}enable="false"`),
+        design: format(TEMPLATE, `data-${ns}enable="false"`),
         play: format(
-            MATHINPUT,
+            TEMPLATE,
             `data-${ns}bind="value: #: properties.name #.value"`
         ),
         review:
             format(
-                MATHINPUT,
+                TEMPLATE,
                 `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
@@ -204,7 +207,11 @@ const MathInputTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidStyle'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         return ret;

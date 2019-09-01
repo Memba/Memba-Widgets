@@ -5,11 +5,11 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
+// import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
 // import assert from '../common/window.assert.es6';
-import CONSTANTS from '../common/window.constants.es6';
+// import CONSTANTS from '../common/window.constants.es6';
 // import { PageComponent } from '../data/data.pagecomponent.es6';
 import '../widgets/widgets.line.es6';
 import ColorAdapter from './adapters.color.es6';
@@ -18,7 +18,7 @@ import NumberAdapter from './adapters.dropdownlist.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 
-const { format, ns } = window.kendo;
+const { ns } = window.kendo;
 
 /**
  * Template
@@ -64,11 +64,11 @@ const LineTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
+        /*
         const {
             description,
             i18n: { messages }
         } = this; // tool description
-        /*
         if (
             !component.attributes ||
             !component.attributes.text ||

@@ -11,7 +11,7 @@ import 'kendo.data';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
 // TODO import '../widgets/widgets.chargrid.es6';
 import CharGridAdapter from './adapters.chargrid.es6';
 import ColorAdapter from './adapters.color.es6';
@@ -69,7 +69,10 @@ const CharGridTool = BaseTool.extend({
     },
     attributes: {
         columns: new NumberAdapter(
-            { title: __('tools.chargrid.attributes.columns.title'), defaultValue: 9 },
+            {
+                title: __('tools.chargrid.attributes.columns.title'),
+                defaultValue: 9
+            },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
@@ -78,7 +81,10 @@ const CharGridTool = BaseTool.extend({
             }
         ),
         rows: new NumberAdapter(
-            { title: __('tools.chargrid.attributes.rows.title'), defaultValue: 9 },
+            {
+                title: __('tools.chargrid.attributes.rows.title'),
+                defaultValue: 9
+            },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
@@ -122,7 +128,9 @@ const CharGridTool = BaseTool.extend({
         })
     },
     properties: {
-        name: new ReadOnlyAdapter({ title: __('tools.chargrid.properties.name.title') }),
+        name: new ReadOnlyAdapter({
+            title: __('tools.chargrid.properties.name.title')
+        }),
         question: new QuestionAdapter({
             title: __('tools.chargrid.properties.question.title')
         }),

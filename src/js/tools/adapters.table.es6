@@ -8,9 +8,13 @@
 import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
+import openSpreadsheet from '../dialogs/dialogs.spreadsheet.es6';
 import BaseAdapter from './adapters.base.es6';
+import { resizeSpreadsheetData } from './util.miscellaneous.es6';
 
-const { format } = window.kendo;
+const {
+    ui: { BaseDialog }
+} = window.kendo;
 
 /**
  * TableAdapter
@@ -22,9 +26,8 @@ const TableAdapter = BaseAdapter.extend({
      * Init
      * @constructor init
      * @param options
-     * @param attributes
      */
-    init(options /*, attributes */) {
+    init(options /* , attributes */) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
         that.type = undefined;
@@ -35,56 +38,51 @@ const TableAdapter = BaseAdapter.extend({
                 .addClass('k-button')
                 .css({ margin: 0, width: '100%' })
                 .appendTo(container)
-                .on(CONSTANTS.CLICK, that.showDialog.bind( that, settings));
+                .on(CONSTANTS.CLICK, that.showDialog.bind(that, settings));
         };
     },
     showDialog(options /* , e */) {
-        const model = options.model;
+        const { model } = options;
         const columns = model.get('attributes.columns');
         const rows = model.get('attributes.rows');
-        const data = util.resizeSpreadsheetData(
+        const data = resizeSpreadsheetData(
             model.get('attributes.data'),
             rows,
             columns
         );
         openSpreadsheet({
-                title: options.title || this.title,
-                data: Object.assign(
-                    {
-                        columns,
-                        rows,
-                        columnWidth: 150,
-                        rowHeight: 58,
-                        sheets: [],
-                        sheetsbar: false,
-                        toolbar: {
-                            // Note: merge and hide not included in v1
-                            home: [
-                                ['bold', 'italic', 'underline'],
-                                'backgroundColor',
-                                'textColor',
-                                'borders',
-                                'fontSize',
-                                'fontFamily',
-                                'alignment',
-                                'textWrap',
-                                [
-                                    'formatDecreaseDecimal',
-                                    'formatIncreateDecimal'
-                                ],
-                                'format'
-                            ],
-                            insert: false,
-                            data: false
-                        }
-                    },
-                    data
-                )
-            })
+            title: options.title || this.title,
+            data: {
+                columns,
+                rows,
+                columnWidth: 150,
+                rowHeight: 58,
+                sheets: [],
+                sheetsbar: false,
+                toolbar: {
+                    // Note: merge and hide not included in v1
+                    home: [
+                        ['bold', 'italic', 'underline'],
+                        'backgroundColor',
+                        'textColor',
+                        'borders',
+                        'fontSize',
+                        'fontFamily',
+                        'alignment',
+                        'textWrap',
+                        ['formatDecreaseDecimal', 'formatIncreateDecimal'],
+                        'format'
+                    ],
+                    insert: false,
+                    data: false
+                },
+                ...data
+            }
+        })
             .then(result => {
                 if (
                     result.action ===
-                    kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
+                    BaseDialog.fn.options.messages.actions.ok.action
                 ) {
                     options.model.set(options.field, result.data);
                 }

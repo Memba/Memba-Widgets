@@ -11,7 +11,7 @@ import assets from '../app/app.assets.es6';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
 import '../widgets/widgets.multiquiz.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
@@ -28,7 +28,7 @@ import TOOLS from './util.constants.es6';
 import { multiQuizLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
 
-const { format, htmlEncode, ns, roleSelector, template } = window.kendo;
+const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -215,7 +215,11 @@ const MultiQuizTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidStyle'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         if (
@@ -226,7 +230,11 @@ const MultiQuizTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidData'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidData'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         return ret;

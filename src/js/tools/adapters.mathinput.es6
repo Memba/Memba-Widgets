@@ -11,7 +11,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
-const { attr } = window.kendo;
+// const { attr } = window.kendo;
 
 /**
  * MathInputAdapter
@@ -47,7 +47,7 @@ const MathInputAdapter = BaseAdapter.extend({
                     )
                 )
                 .appendTo(container);
-            const mathInputWidget = input.kendoMathInput({
+            input.kendoMathInput({
                 toolbar: {
                     // container: '',
                     resizable: true,

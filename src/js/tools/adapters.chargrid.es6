@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import __ from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import openCharGrid from '../dialogs/dialogs.chargrid.es6';
 import BaseAdapter from './adapters.base.es6';
@@ -44,9 +45,8 @@ const CharGridAdapter = BaseAdapter.extend({
     /**
      * showDialog
      * @param options
-     * @param evt
      */
-    showDialog(options, evt) {
+    showDialog(options /* , evt */) {
         const { model } = options;
         // Build data (resize array especially after changing rows and columns)
         const columns = model.get('attributes.columns');
@@ -64,16 +64,18 @@ const CharGridAdapter = BaseAdapter.extend({
         // TODO wrap in import('./dialogs/dialogs.chargrid.es6').then(function () {...});
         openCharGrid({
             title: options.title || this.title,
+            /* eslint-disable prettier/prettier */
             message:
                 options.field === 'properties.solution'
                     ? format(
-                        this.messages.solution,
+                        __('dialogs.chargrid.solution'),
                         model.get('attributes.whitelist')
                     )
                     : format(
-                        this.messages.layout,
+                        __('dialogs.chargrid.layout'),
                         model.get('attributes.blank')
                     ),
+            /* eslint-enable prettier/prettier */
             charGrid: {
                 container: '.kj-dialog',
                 scaler: '.kj-dialog',
@@ -109,10 +111,6 @@ const CharGridAdapter = BaseAdapter.extend({
                 }
             })
             .catch($.noop); // TODO error management
-    },
-    messages: {
-        layout: i18n.chargridadapter.messages.layout,
-        solution: i18n.chargridadapter.messages.solution
     }
 });
 

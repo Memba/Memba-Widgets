@@ -5,12 +5,12 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
+// import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
 import '../widgets/widgets.highlighter.es6';
 import HighLighterAdapter from './adapters.highlighter.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -126,7 +126,11 @@ const HighLighterTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidText'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidText'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         if (
@@ -139,7 +143,11 @@ const HighLighterTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidStyle'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         if (
@@ -152,7 +160,11 @@ const HighLighterTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidStyle'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidStyle'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         // TODO also check that split regex is safe

@@ -45,9 +45,7 @@ const ValidationAdapter = BaseAdapter.extend({
                 .css({ display: 'flex', alignItems: 'center' })
                 .appendTo(container);
             $(
-                `<div data-${ns}role="codeinput" data-${ns}default="${
-                    model.properties.defaults.validation
-                }" />`
+                `<div data-${ns}role="codeinput" data-${ns}default="${model.properties.defaults.validation}" />`
             )
                 .attr(
                     $.extend(

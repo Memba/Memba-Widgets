@@ -8,81 +8,18 @@
 import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
 import ChartAdapter from './adapters.chart.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
 import NumberAdapter from './adapters.number.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import { BaseTool } from './tools.base.es6';
+import { defaultChartData } from './util.miscellaneous.es6';
 
-const { format, ns, roleSelector, template } = window.kendo;
-
-/**
- * Build default chart data
- * @param categories
- * @param values
- * @returns {{sheets: *[]}}
- */
-util.defaultChartData = function(categories, values) {
-    const YEAR = 1999;
-    const MAX_VALUE = 500;
-    const rowTotal = values + 1;
-    const columnTotal = categories + 1;
-    let rowIndex;
-    let columnIndex;
-    const data = { sheets: [{ name: 'Sheet1', rows: [] }] };
-    const { rows } = data.sheets[0];
-    // Build the categories row
-    let row = { index: 0, cells: [] };
-    for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
-        row.cells.push({ index: columnIndex, value: YEAR + columnIndex });
-    }
-    rows.push(row);
-    // Build the values rows
-    for (rowIndex = 1; rowIndex < rowTotal; rowIndex++) {
-        row = { index: rowIndex, cells: [] };
-        row.cells.push({ index: 0, value: `Series${rowIndex}` });
-        for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
-            row.cells.push({
-                index: columnIndex,
-                value: Math.floor(MAX_VALUE * Math.random())
-            });
-        }
-        rows.push(row);
-    }
-    return data;
-};
-
-/**
- * A utility function to resize spreadsheet data to a specified number of rows and columns
- * @param json
- * @param rowMax
- * @param columnMax
- */
-util.resizeSpreadsheetData = function(json, rowMax, columnMax) {
-    let { rows } = json.sheets[0];
-    const rowFilter = function(row) {
-        return row.index < rowMax;
-    };
-    const columnFilter = function(column) {
-        return column.index < columnMax;
-    };
-    rows = rows.filter(rowFilter);
-    for (
-        let rowIndex = 0, rowTotal = rows.length;
-        rowIndex < rowTotal;
-        rowIndex++
-    ) {
-        let { cells } = rows[rowIndex];
-        cells = cells.filter(columnFilter);
-        rows[rowIndex].cells = cells;
-    }
-    json.sheets[0].rows = rows;
-    return json;
-};
+const { ns, roleSelector } = window.kendo;
 
 /**
  * Template
@@ -162,7 +99,7 @@ const ChartTool = BaseTool.extend({
         ),
         data: new ChartAdapter({
             title: __('tools.chart.attributes.data.title'),
-            defaultValue: util.defaultChartData(4, 2)
+            defaultValue: defaultChartData(4, 2)
         }),
         style: new StyleAdapter({
             title: __('tools.chart.attributes.style.title')
@@ -260,12 +197,8 @@ const ChartTool = BaseTool.extend({
                 const columnTotal = component.attributes.get('categories') + 1;
                 const rowIndex = 0;
                 let columnIndex;
-                const rowFinder = function(row) {
-                    return row.index === rowIndex;
-                };
-                const columnFinder = function(column) {
-                    return column.index === columnIndex;
-                };
+                const rowFinder = row => row.index === rowIndex;
+                const columnFinder = column => column.index === columnIndex;
                 const json = component.attributes.get('data');
                 const row = json.sheets[0].rows.find(rowFinder);
                 for (
@@ -299,12 +232,8 @@ const ChartTool = BaseTool.extend({
                 const columnTotal = component.attributes.get('categories') + 1;
                 let rowIndex;
                 let columnIndex;
-                const rowFinder = function(row) {
-                    return row.index === rowIndex;
-                };
-                const columnFinder = function(column) {
-                    return column.index === columnIndex;
-                };
+                const rowFinder = row => row.index === rowIndex;
+                const columnFinder = column => column.index === columnIndex;
                 const json = component.attributes.get('data');
                 for (rowIndex = 1; rowIndex < rowTotal; rowIndex++) {
                     const serie = { name: '', data: [] };

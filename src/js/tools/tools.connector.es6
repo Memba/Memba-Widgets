@@ -22,7 +22,12 @@ import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
 
-const { attr, format, ns, roleSelector, ui: { Connector } } = window.kendo;
+const {
+    format,
+    ns,
+    roleSelector,
+    ui: { Connector }
+} = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -139,7 +144,11 @@ const ConnectorTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(__('tools.messages.invalidColor'), toolName, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidColor'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
         }
         if (

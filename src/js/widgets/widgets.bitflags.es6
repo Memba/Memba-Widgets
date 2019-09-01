@@ -203,7 +203,7 @@ const BitFlags = DataBoundWidget.extend({
             .wrap(`<${CONSTANTS.DIV}/>`)
             .parent()
             .addClass(WIDGET_CLASS);
-        const options = Object.assign({}, this.options);
+        const options = { ...this.options };
         delete options.name;
         // For whatever reason, this does set the initial value
         options.value = this._convertValueAsBitArray(options.value);

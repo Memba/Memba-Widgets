@@ -5,17 +5,17 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
+// import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
 import NumberAdapter from './adapters.number.es6';
 import TableAdapter from './adapters.table.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
-// import {} from './util.validators.es6';
+// TODO import {} from './util.validators.es6';
 
 const { format, ns, roleSelector } = window.kendo;
 

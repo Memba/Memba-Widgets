@@ -11,7 +11,7 @@ import assets from '../app/app.assets.es6';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
 import ImageListAdapter from './adapters.imagelist.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
@@ -127,21 +127,16 @@ const ImageSetTool = BaseTool.extend({
                         text: data[i].text,
                         image: ''
                     };
-                    for (const scheme in schemes) {
-                        if (
-                            Object.prototype.hasOwnProperty.call(
-                                schemes,
-                                scheme
-                            ) &&
-                            new RegExp(`^${scheme}://`).test(data[i].image)
-                        ) {
+                    Object.keys(schemes).some(scheme => {
+                        if (new RegExp(`^${scheme}://`).test(data[i].image)) {
                             item.image = data[i].image.replace(
                                 `${scheme}://`,
                                 schemes[scheme]
                             );
-                            break;
+                            return true;
                         }
-                    }
+                        return false;
+                    });
                     clone.push(item);
                 }
                 // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849

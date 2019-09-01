@@ -8,9 +8,9 @@
 import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
 import '../widgets/widgets.template.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
 import StyleAdapter from './adapters.style.es6';
@@ -24,7 +24,7 @@ import {
     textValidator
 } from './util.validators.es6';
 
-const { format, htmlEncode, ns, template } = window.kendo;
+const { format, htmlEncode, ns } = window.kendo;
 
 /**
  * Template

@@ -34492,6 +34492,18 @@ body > .k-list-item > .kj-buttons .k-button,
   opacity: 0.25;
 }
 
+.k-multiselect,
+.k-animation-container .k-list {
+  font-size: inherit;
+}
+.k-multiselect .k-multiselect-wrap .k-button,
+.k-multiselect .k-multiselect-wrap .k-icon.k-i-close,
+.k-multiselect .k-multiselect-wrap .k-icon.k-i-group-delete::before,
+.k-animation-container .k-list .k-multiselect-wrap .k-button,
+.k-animation-container .k-list .k-multiselect-wrap .k-icon.k-i-close,
+.k-animation-container .k-list .k-multiselect-wrap .k-icon.k-i-group-delete::before {
+  font-size: inherit;
+}
 .k-multiselect .kj-multiquiz-item.kj-multiquiz-multiselect > .k-image,
 .k-animation-container .k-list .kj-multiquiz-item.kj-multiquiz-multiselect > .k-image {
   background-size: cover;
@@ -34503,11 +34515,13 @@ body > .k-list-item > .kj-buttons .k-button,
   margin-right: 0.25em;
 }
 
-.kj-multiquiz.k-state-disabled, .kj-multiquiz .k-state-disabled {
+.kj-multiquiz.k-state-disabled,
+.kj-multiquiz .k-state-disabled {
   opacity: 1;
   color: inherit;
 }
-.kj-multiquiz.k-state-disabled .k-button, .kj-multiquiz .k-state-disabled .k-button {
+.kj-multiquiz.k-state-disabled .k-button,
+.kj-multiquiz .k-state-disabled .k-button {
   color: inherit;
 }
 .kj-multiquiz .kj-multiquiz-item {
@@ -34559,32 +34573,33 @@ body > .k-list-item > .kj-buttons .k-button,
   display: none;
 }
 .kj-multiquiz .kj-multiquiz-item.kj-multiquiz-checkbox .k-checkbox-label {
+  align-items: center;
+  display: flex;
   line-height: normal;
   padding-left: 1.2em;
-  vertical-align: initial;
 }
 .kj-multiquiz .kj-multiquiz-item.kj-multiquiz-checkbox .k-checkbox-label > .k-image {
   background-size: cover;
   background-position: center;
-  display: inline-block;
-  vertical-align: text-bottom;
-  width: 1.1em;
   height: 1.1em;
   margin-right: 0.25em;
+  width: 1.1em;
 }
-.kj-multiquiz .kj-multiquiz-item.kj-multiquiz-checkbox .k-checkbox-label:before {
+.kj-multiquiz .kj-multiquiz-item.kj-multiquiz-checkbox .k-checkbox-label::before {
   border-width: 0.05em;
+  content: "";
   font-size: inherit;
-  line-height: 0.9em;
-  top: 0.1em;
-  left: 0.1em;
-  width: 0.8em;
   height: 0.8em;
+  left: 0.1em;
+  top: 0.25em;
+  width: 0.8em;
 }
-.kj-multiquiz .kj-multiquiz-item.kj-multiquiz-checkbox .k-checkbox:checked + .k-checkbox-label:after {
-  width: 0.7em;
-  height: 0.7em;
-  top: 0.2em;
+.kj-multiquiz .kj-multiquiz-item.kj-multiquiz-checkbox .k-checkbox-label::after {
+  content: "";
+  font-size: inherit;
+  width: 0.6em;
+  height: 0.6em;
+  top: 0.35em;
   left: 0.2em;
 }
 
@@ -34636,7 +34651,8 @@ body > .k-list-item > .kj-buttons .k-button,
 }
 
 .k-material .kj-quiz .kj-quiz-button.k-state-selected,
-.k-material .kj-multiquiz.k-state-disabled .kj-quiz-button.k-state-selected, .k-materialblack .kj-quiz .kj-quiz-button.k-state-selected,
+.k-material .kj-multiquiz.k-state-disabled .kj-quiz-button.k-state-selected,
+.k-materialblack .kj-quiz .kj-quiz-button.k-state-selected,
 .k-materialblack .kj-multiquiz.k-state-disabled .kj-quiz-button.k-state-selected {
   color: #fff;
   background-color: #3f51b5;
@@ -34829,6 +34845,10 @@ body > .k-list-item > .kj-buttons .k-button,
   z-index: 2;
 }
 
+.k-dropdown,
+.k-animation-container .k-list {
+  font-size: inherit;
+}
 .k-dropdown .kj-quiz-item.kj-quiz-dropdown > .k-image,
 .k-animation-container .k-list .kj-quiz-item.kj-quiz-dropdown > .k-image {
   background-size: cover;
@@ -34840,11 +34860,13 @@ body > .k-list-item > .kj-buttons .k-button,
   margin-right: 0.25em;
 }
 
-.kj-quiz.k-state-disabled, .kj-quiz .k-state-disabled {
+.kj-quiz.k-state-disabled,
+.kj-quiz .k-state-disabled {
   opacity: 1;
   color: inherit;
 }
-.kj-quiz.k-state-disabled .k-button, .kj-quiz .k-state-disabled .k-button {
+.kj-quiz.k-state-disabled .k-button,
+.kj-quiz .k-state-disabled .k-button {
   color: inherit;
 }
 .kj-quiz .kj-quiz-item {
@@ -34896,32 +34918,33 @@ body > .k-list-item > .kj-buttons .k-button,
   display: none;
 }
 .kj-quiz .kj-quiz-item.kj-quiz-radio .k-radio-label {
+  align-items: center;
+  display: flex;
   line-height: normal;
   padding-left: 1.2em;
-  vertical-align: initial;
 }
 .kj-quiz .kj-quiz-item.kj-quiz-radio .k-radio-label > .k-image {
   background-size: cover;
   background-position: center;
-  display: inline-block;
-  vertical-align: text-bottom;
-  width: 1.1em;
   height: 1.1em;
   margin-right: 0.25em;
+  width: 1.1em;
 }
-.kj-quiz .kj-quiz-item.kj-quiz-radio .k-radio-label:before {
+.kj-quiz .kj-quiz-item.kj-quiz-radio .k-radio-label::before {
   border-width: 0.05em;
+  content: "";
   font-size: inherit;
-  line-height: 0.9em;
-  top: 0.1em;
-  left: 0.1em;
-  width: 0.8em;
   height: 0.8em;
+  left: 0.1em;
+  top: 0.25em;
+  width: 0.8em;
 }
-.kj-quiz .kj-quiz-item.kj-quiz-radio .k-radio:checked + .k-radio-label:after {
-  width: 0.7em;
-  height: 0.7em;
-  top: 0.2em;
+.kj-quiz .kj-quiz-item.kj-quiz-radio .k-radio-label::after {
+  content: "";
+  font-size: inherit;
+  width: 0.6em;
+  height: 0.6em;
+  top: 0.35em;
   left: 0.2em;
 }
 
@@ -34973,7 +34996,8 @@ body > .k-list-item > .kj-buttons .k-button,
 }
 
 .k-material .kj-quiz .kj-quiz-button.k-state-selected,
-.k-material .kj-quiz.k-state-disabled .kj-quiz-button.k-state-selected, .k-materialblack .kj-quiz .kj-quiz-button.k-state-selected,
+.k-material .kj-quiz.k-state-disabled .kj-quiz-button.k-state-selected,
+.k-materialblack .kj-quiz .kj-quiz-button.k-state-selected,
 .k-materialblack .kj-quiz.k-state-disabled .kj-quiz-button.k-state-selected {
   color: #fff;
   background-color: #3f51b5;

@@ -28,7 +28,7 @@ const {
     observable,
     ui: { MultiQuiz, MultiSelect }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'multiquiz';
 
@@ -65,8 +65,8 @@ const MULTIQUIZ_DATA = [
 
 describe('widgets.multiquiz', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -78,7 +78,7 @@ describe('widgets.multiquiz', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoMultiQuiz().data('kendoMultiQuiz');
             expect(widget).to.be.an.instanceof(MultiQuiz);
             expect(widget.options.mode).to.equal('button');
@@ -92,7 +92,7 @@ describe('widgets.multiquiz', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 dataSource: MULTIQUIZ_DATA,
                 mode: 'multiselect',
@@ -121,8 +121,8 @@ describe('widgets.multiquiz', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoMultiQuiz');
             expect(widget).to.be.an.instanceof(MultiQuiz);
             expect(widget.options.mode).to.equal('button');
@@ -146,8 +146,8 @@ describe('widgets.multiquiz', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoMultiQuiz');
             expect(widget).to.be.an.instanceof(MultiQuiz);
             expect(widget.options.mode).to.equal('checkbox');
@@ -194,7 +194,7 @@ describe('widgets.multiquiz', () => {
         };
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMultiQuiz(options1).data('kendoMultiQuiz');
         });
 
@@ -257,7 +257,7 @@ describe('widgets.multiquiz', () => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data: MULTIQUIZ_DATA,
                 current: null
@@ -344,7 +344,7 @@ describe('widgets.multiquiz', () => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data: MULTIQUIZ_DATA,
                 current: null
@@ -427,7 +427,7 @@ describe('widgets.multiquiz', () => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data: MULTIQUIZ_DATA,
                 current: null
@@ -514,7 +514,7 @@ describe('widgets.multiquiz', () => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data: MULTIQUIZ_DATA,
                 current: null
@@ -601,7 +601,7 @@ describe('widgets.multiquiz', () => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data: MULTIQUIZ_DATA,
                 current: null
@@ -683,7 +683,7 @@ describe('widgets.multiquiz', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMultiQuiz(options).data('kendoMultiQuiz');
             widget.bind('change', () => {
                 change();
@@ -705,7 +705,7 @@ describe('widgets.multiquiz', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

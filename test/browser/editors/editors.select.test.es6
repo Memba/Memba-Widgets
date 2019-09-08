@@ -18,14 +18,14 @@ import select from '../../../src/js/editors/editors.select.es6';
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
 const { bind, destroy, observable } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 
 describe('editors.select', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -39,13 +39,13 @@ describe('editors.select', () => {
         };
         select(FIXTURES, { attributes, field, source });
         bind(FIXTURES, viewModel);
-        const element = $(FIXTURES).find('select'); // .children('select');
+        const element = $(`#${FIXTURES}`).find('select'); // .children('select');
         expect(element).to.exist;
         expect(element).to.have.attr('data-bind', `value: ${field}`);
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

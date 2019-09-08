@@ -18,27 +18,27 @@ import span from '../../../src/js/editors/editors.span.es6';
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
 const { destroy } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 
 describe('editors.span', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
     it('Initialization', () => {
         const field = `${randomVal()}.value`;
         span(FIXTURES, { field });
-        const element = $(FIXTURES).children('span');
+        const element = $(`#${FIXTURES}`).children('span');
         expect(element).to.exist;
         expect(element).to.have.attr('data-bind', `text: ${field}`);
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

@@ -28,7 +28,7 @@ const {
     observable,
     ui: { SplitButton }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'splitbutton';
 
@@ -37,8 +37,8 @@ chai.use(sinonChai);
 
 describe('widgets.splitbutton', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -50,7 +50,7 @@ describe('widgets.splitbutton', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoSplitButton().data('kendoSplitButton');
             expect(widget).to.be.an.instanceof(SplitButton);
             // expect(element).to.have.class('k-widget');
@@ -59,7 +59,7 @@ describe('widgets.splitbutton', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 command: 'align',
                 icon: 'align-justify',
@@ -90,8 +90,8 @@ describe('widgets.splitbutton', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoSplitButton');
             expect(widget).to.be.an.instanceof(SplitButton);
             // expect(element).to.have.class('k-widget');
@@ -110,7 +110,7 @@ describe('widgets.splitbutton', () => {
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoSplitButton(options).data('kendoSplitButton');
         });
 
@@ -138,7 +138,7 @@ describe('widgets.splitbutton', () => {
         let destroy;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoSplitButton(options).data('kendoSplitButton');
             viewModel = observable({
                 // TODO
@@ -157,7 +157,7 @@ describe('widgets.splitbutton', () => {
         let event;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoSplitButton(options).data('kendoSplitButton');
             event = sinon.spy();
         });
@@ -166,7 +166,7 @@ describe('widgets.splitbutton', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

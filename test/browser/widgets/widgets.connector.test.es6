@@ -29,7 +29,7 @@ const {
     roleSelector,
     ui: { Connector }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'connnector';
 
@@ -46,8 +46,8 @@ const STAGE = `${FIXTURES} div${roleSelector('stage')}`;
 
 describe('widgets.connector', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -59,7 +59,7 @@ describe('widgets.connector', () => {
 
     describe('Initialization', () => {
         beforeEach(() => {
-            $(FIXTURES).append(ELEMENT_DIV);
+            $(`#${FIXTURES}`).append(ELEMENT_DIV);
         });
 
         it('from code', () => {
@@ -95,7 +95,7 @@ describe('widgets.connector', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .appendTo(ELEMENT);
-            init(FIXTURES);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoConnector');
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
@@ -116,7 +116,7 @@ describe('widgets.connector', () => {
                 .attr(attr('role'), ROLE)
                 .attr(attr)
                 .appendTo(ELEMENT);
-            init(FIXTURES);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoConnector');
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
@@ -136,7 +136,7 @@ describe('widgets.connector', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoConnector({
                     // TODO
@@ -168,7 +168,7 @@ describe('widgets.connector', () => {
                     // 'data-bind': 'source: library, value: code',
                     // 'data-default': NAME
                 })
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             bind(FIXTURES, viewModel);
             widget = element.data('kendoConnector');
             change = sinon.spy();
@@ -222,7 +222,7 @@ describe('widgets.connector', () => {
         afterEach(() => {
             // viewModel.unbind(CHANGE);
             viewModel.set('code', ''); // undefined would not work
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.empty();
         });
@@ -240,7 +240,7 @@ describe('widgets.connector', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoConnector({
                     // dataSource: LIBRARY,
@@ -266,7 +266,7 @@ describe('widgets.connector', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

@@ -29,7 +29,7 @@ const {
     observable,
     ui: { PlayBar }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'playbar';
 
@@ -154,8 +154,8 @@ for (let i = 0; i < 30; i++) {
 
 describe('widgets.playbar', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -167,7 +167,7 @@ describe('widgets.playbar', () => {
 
     describe('Initialization', () => {
         it('from code with all options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPlayBar({
                     input: true
@@ -198,7 +198,7 @@ describe('widgets.playbar', () => {
         });
 
         it('from code with minimal options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPlayBar({
                     numeric: false,
@@ -235,7 +235,7 @@ describe('widgets.playbar', () => {
         });
 
         it('from code with dataSource', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPlayBar({
                     dataSource: pageCollectionData1
@@ -268,7 +268,7 @@ describe('widgets.playbar', () => {
         });
 
         it('from code with large dataSource and options.buttonCount', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPlayBar({
                     dataSource: pageCollectionData2
@@ -307,7 +307,7 @@ describe('widgets.playbar', () => {
                 }),
                 current: undefined
             });
-            const element = $(PLAYBAR2).appendTo(FIXTURES);
+            const element = $(PLAYBAR2).appendTo(`#${FIXTURES}`);
             bind(FIXTURES, viewModel);
             const widget = element.data('kendoPlayBar');
             expect(widget).to.be.an.instanceof(PlayBar);
@@ -342,7 +342,7 @@ describe('widgets.playbar', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoPlayBar({
                     dataSource: pageCollectionData1
@@ -447,7 +447,7 @@ describe('widgets.playbar', () => {
          */
 
         beforeEach(() => {
-            element = $(PLAYBAR2).appendTo(FIXTURES);
+            element = $(PLAYBAR2).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 pages: new PageDataSource({
                     data: pageCollectionData1
@@ -551,7 +551,7 @@ describe('widgets.playbar', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
         });
 
         it('dataBinding & dataBound', () => {
@@ -605,7 +605,7 @@ describe('widgets.playbar', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

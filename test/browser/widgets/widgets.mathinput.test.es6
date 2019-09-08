@@ -28,7 +28,7 @@ const {
     observable,
     ui: { MathInput }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'mathinput';
 const TOOLBAR = '<div id="toolbar"></div>';
@@ -38,8 +38,8 @@ chai.use(sinonChai);
 
 describe('widgets.mathinput', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -52,7 +52,7 @@ describe('widgets.mathinput', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoMathInput().data('kendoMathInput');
             expect(widget).to.be.an.instanceof(MathInput);
             // expect(element).to.have.class('k-widget');
@@ -60,8 +60,8 @@ describe('widgets.mathinput', () => {
         });
 
         it('from code with options', () => {
-            const toolbar = $(TOOLBAR).appendTo(FIXTURES);
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const toolbar = $(TOOLBAR).appendTo(`#${FIXTURES}`);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {};
             const widget = element
                 .kendoMathInput(options)
@@ -74,8 +74,8 @@ describe('widgets.mathinput', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoMathInput');
             expect(widget).to.be.an.instanceof(MathInput);
             // expect(element).to.have.class('k-widget');
@@ -93,7 +93,7 @@ describe('widgets.mathinput', () => {
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMathInput(options).data('kendoMathInput');
         });
 
@@ -121,7 +121,7 @@ describe('widgets.mathinput', () => {
         let destroy;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMathInput(options).data('kendoMathInput');
             viewModel = observable({
                 // TODO
@@ -140,7 +140,7 @@ describe('widgets.mathinput', () => {
         let event;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMathInput(options).data('kendoMathInput');
             event = sinon.spy();
         });
@@ -149,7 +149,7 @@ describe('widgets.mathinput', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

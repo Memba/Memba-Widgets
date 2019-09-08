@@ -120,9 +120,10 @@ describe('window.style', () => {
                 expect(style.toString()).to.equal(
                     item.str.replace(/\scolor:[^;]+/, ' color: #c0c0c0')
                 );
-                expect(style.toJSON()).to.deep.equal(
-                    Object.assign({}, item.json, merge)
-                );
+                expect(style.toJSON()).to.deep.equal({
+                    ...item.json,
+                    ...merge
+                });
             }
             DATA.filter(data => !data.whitelist).forEach(test);
         });

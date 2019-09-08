@@ -28,7 +28,7 @@ const {
     observable,
     ui: { ComboBox, Grid, StyleEditor }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'styleeditor';
 
@@ -37,8 +37,8 @@ chai.use(sinonChai);
 
 describe('widgets.styleeditor', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -52,7 +52,7 @@ describe('widgets.styleeditor', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoStyleEditor().data('kendoStyleEditor');
             expect(widget).to.be.an.instanceof(StyleEditor);
             expect(widget.value()).to.equal('');
@@ -78,7 +78,7 @@ describe('widgets.styleeditor', () => {
                 value: 'color:#FF0000;border:1px solid rgb(255, 0, 0);',
                 height: 500
             };
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoStyleEditor(options)
                 .data('kendoStyleEditor');
@@ -104,8 +104,8 @@ describe('widgets.styleeditor', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoStyleEditor');
             expect(widget).to.be.an.instanceof(StyleEditor);
             expect(widget.value()).to.equal('');
@@ -134,8 +134,8 @@ describe('widgets.styleeditor', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoStyleEditor');
             expect(widget).to.be.an.instanceof(StyleEditor);
             expect(widget.value()).to.equal(attributes['data-value']);
@@ -165,7 +165,7 @@ describe('widgets.styleeditor', () => {
         };
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoStyleEditor(options).data('kendoStyleEditor');
         });
 
@@ -210,7 +210,7 @@ describe('widgets.styleeditor', () => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 style: 'color:#FF0000;border:1px solid rgb(255, 0, 0);'
             });
@@ -341,7 +341,7 @@ describe('widgets.styleeditor', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoStyleEditor(options).data('kendoStyleEditor');
         });
 
@@ -357,7 +357,7 @@ describe('widgets.styleeditor', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();

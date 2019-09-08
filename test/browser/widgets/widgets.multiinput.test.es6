@@ -28,7 +28,7 @@ const {
     observable,
     ui: { MultiInput }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}>`;
 const ROLE = 'multiinput';
 
@@ -37,8 +37,8 @@ chai.use(sinonChai);
 
 describe('widgets.multiinput', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -50,7 +50,7 @@ describe('widgets.multiinput', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoMultiInput().data('kendoMultiInput');
             expect(widget).to.be.an.instanceof(MultiInput);
             expect(widget)
@@ -69,7 +69,7 @@ describe('widgets.multiinput', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 match: '^[a-z]+$',
                 value: ['alpha', 'beta', 'gamma']
@@ -101,8 +101,8 @@ describe('widgets.multiinput', () => {
             const options = {};
             const element = $(ELEMENT).attr(attr('role'), ROLE)
                 .attr(options)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoMultiInput');
             expect(widget).to.be.an.instanceof(MultiInput);
             expect(widget)
@@ -128,8 +128,8 @@ describe('widgets.multiinput', () => {
             };
             const element = $(ELEMENT).attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoMultiInput');
             expect(widget).to.be.an.instanceof(MultiInput);
             expect(widget)
@@ -164,7 +164,7 @@ describe('widgets.multiinput', () => {
         };
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMultiInput(options).data('kendoMultiInput');
         });
 
@@ -236,7 +236,7 @@ describe('widgets.multiinput', () => {
         it('destroy', () => {
             expect(widget).to.be.an.instanceof(MultiInput);
             widget.destroy();
-            expect(element.parent()).to.match(FIXTURES);
+            expect(element.parent()).to.match(`#${FIXTURES}`);
             expect(element.data('kendoMultiInput')).to.be.undefined;
             expect(element).to.be.empty;
             expect(element).not.to.have.class('k-widget');
@@ -257,7 +257,7 @@ describe('widgets.multiinput', () => {
         beforeEach(() => {
             element = $(ELEMENT).attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             change = sinon.spy();
             viewModel = observable({
                 value: ['alpha', 'beta', 'gamma']
@@ -336,7 +336,7 @@ describe('widgets.multiinput', () => {
         let change;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMultiInput().data('kendoMultiInput');
             change = sinon.spy();
         });
@@ -354,7 +354,7 @@ describe('widgets.multiinput', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

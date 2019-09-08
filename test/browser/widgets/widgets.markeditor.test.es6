@@ -27,7 +27,7 @@ const {
     observable,
     ui: { MarkEditor }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'markeditor';
 
@@ -36,8 +36,8 @@ chai.use(sinonChai);
 
 describe('widgets.markeditor', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -49,7 +49,7 @@ describe('widgets.markeditor', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoMarkEditor().data('kendoMarkEditor');
             expect(widget).to.be.an.instanceof(MarkEditor);
             // expect(element).to.have.class('k-widget');
@@ -57,7 +57,7 @@ describe('widgets.markeditor', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {};
             const widget = element.kendoMarkEditor().data('kendoMarkEditor');
             expect(widget).to.be.an.instanceof(MarkEditor);
@@ -68,8 +68,8 @@ describe('widgets.markeditor', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoMarkEditor');
             expect(widget).to.be.an.instanceof(MarkEditor);
             // expect(element).to.have.class('k-widget');
@@ -85,7 +85,7 @@ describe('widgets.markeditor', () => {
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMarkEditor(options).data('kendoMarkEditor');
         });
 
@@ -111,7 +111,7 @@ describe('widgets.markeditor', () => {
         let destroy;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMarkEditor(options).data('kendoMarkEditor');
             viewModel = observable({
                 // TODO
@@ -130,7 +130,7 @@ describe('widgets.markeditor', () => {
         let event;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMarkEditor(options).data('kendoMarkEditor');
             event = sinon.spy();
         });
@@ -139,7 +139,7 @@ describe('widgets.markeditor', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

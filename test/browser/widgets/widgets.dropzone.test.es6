@@ -28,7 +28,7 @@ const {
     observable,
     ui: { DropZone }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'dropzone';
 
@@ -37,8 +37,8 @@ chai.use(sinonChai);
 
 describe('widgets.dropzone', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -50,7 +50,7 @@ describe('widgets.dropzone', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoDropZone().data('kendoDropZone');
             expect(widget).to.be.an.instanceof(DropZone);
             // expect(element).to.have.class('k-widget');
@@ -59,7 +59,7 @@ describe('widgets.dropzone', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {};
             const widget = element.kendoDropZone().data('kendoDropZone');
             expect(widget).to.be.an.instanceof(DropZone);
@@ -69,8 +69,8 @@ describe('widgets.dropzone', () => {
         });
 
         it('from markup', () => {
-            const element = $(ELEMENT).attr(attr('role'), ROLE).appendTo(FIXTURES);
-            init(FIXTURES);
+            const element = $(ELEMENT).attr(attr('role'), ROLE).appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoDropZone');
             expect(widget).to.be.an.instanceof(DropZone);
             // expect(element).to.have.class('k-widget');
@@ -88,7 +88,7 @@ describe('widgets.dropzone', () => {
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoDropZone(options).data('kendoDropZone');
         });
 
@@ -116,7 +116,7 @@ describe('widgets.dropzone', () => {
         let destroy;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoDropZone(options).data('kendoDropZone');
             viewModel = observable({
                 // TODO
@@ -135,7 +135,7 @@ describe('widgets.dropzone', () => {
         let event;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoDropZone(options).data('kendoDropZone');
             event = sinon.spy();
         });
@@ -144,7 +144,7 @@ describe('widgets.dropzone', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

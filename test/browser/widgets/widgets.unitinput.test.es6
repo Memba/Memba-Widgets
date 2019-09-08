@@ -32,7 +32,7 @@ const {
     observable,
     ui: { UnitInput }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}>`;
 const ROLE = 'unitinput';
 
@@ -41,8 +41,8 @@ chai.use(sinonChai);
 
 describe('widgets.unitinput', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -54,7 +54,7 @@ describe('widgets.unitinput', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoUnitInput().data('kendoUnitInput');
             expect(widget).to.be.an.instanceof(UnitInput);
             // expect(element).to.have.class('k-widget');
@@ -63,7 +63,7 @@ describe('widgets.unitinput', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 units: ['%', 'px'],
                 nonUnits: ['auto', 'inherit', 'initial']
@@ -80,8 +80,8 @@ describe('widgets.unitinput', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoUnitInput');
             expect(widget).to.be.an.instanceof(UnitInput);
             // expect(element).to.have.class('k-widget');
@@ -100,7 +100,7 @@ describe('widgets.unitinput', () => {
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoUnitInput(options).data('kendoUnitInput');
         });
 
@@ -128,7 +128,7 @@ describe('widgets.unitinput', () => {
         let destroy;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoUnitInput(options).data('kendoUnitInput');
             viewModel = observable({
                 // TODO
@@ -147,7 +147,7 @@ describe('widgets.unitinput', () => {
         let event;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoUnitInput(options).data('kendoUnitInput');
             event = sinon.spy();
         });
@@ -156,7 +156,7 @@ describe('widgets.unitinput', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

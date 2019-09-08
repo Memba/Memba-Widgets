@@ -30,7 +30,7 @@ const {
     observable,
     ui: { Stage }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'widget';
 
@@ -112,8 +112,8 @@ function findCenter(elem) {
 
 describe('widgets.widget', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -125,7 +125,7 @@ describe('widgets.widget', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoStage().data('kendoStage');
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
@@ -144,7 +144,7 @@ describe('widgets.widget', () => {
         });
 
         it('from code with dataSource in design mode', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoStage({
                     mode: Stage.fn.modes.design,
@@ -194,7 +194,7 @@ describe('widgets.widget', () => {
         });
 
         it('from code with dataSource in play mode', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoStage({
                     mode: Stage.fn.modes.play,
@@ -247,7 +247,7 @@ describe('widgets.widget', () => {
         });
 
         it('from code with dataSource in review mode', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoStage({
                     mode: Stage.fn.modes.review,
@@ -306,7 +306,7 @@ describe('widgets.widget', () => {
                 }),
                 current: undefined
             });
-            const element = $(STAGE2).appendTo(FIXTURES);
+            const element = $(STAGE2).appendTo(`#${FIXTURES}`);
             bind(FIXTURES, viewModel);
             const widget = element.data('kendoStage');
             expect(widget).to.be.an.instanceof(Stage);
@@ -356,7 +356,7 @@ describe('widgets.widget', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoStage({
                     dataSource: pageComponentCollectionArray,
@@ -557,7 +557,7 @@ describe('widgets.widget', () => {
          */
 
         beforeEach(() => {
-            element = $(STAGE2).appendTo(FIXTURES);
+            element = $(STAGE2).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 components: new PageComponentDataSource({
                     data: pageComponentCollectionArray
@@ -1135,7 +1135,7 @@ describe('widgets.widget', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
         });
 
         it('dataBinding & dataBound', () => {
@@ -1236,7 +1236,7 @@ describe('widgets.widget', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();

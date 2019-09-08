@@ -27,7 +27,7 @@ const {
     observable,
     ui: { ImageSet }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'imageset';
 
@@ -36,8 +36,8 @@ chai.use(sinonChai);
 
 describe('widgets.imageset', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -49,7 +49,7 @@ describe('widgets.imageset', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoImageSet().data('kendoImageSet');
             expect(widget).to.be.an.instanceof(ImageSet);
             // expect(element).to.have.class('k-widget');
@@ -57,7 +57,7 @@ describe('widgets.imageset', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 imageset: 'script1', // TODO Review
                 value: 'Todd'
@@ -73,8 +73,8 @@ describe('widgets.imageset', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoImageSet');
             expect(widget).to.be.an.instanceof(ImageSet);
             // expect(element).to.have.class('k-widget');
@@ -82,7 +82,7 @@ describe('widgets.imageset', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
@@ -95,7 +95,7 @@ describe('widgets.imageset', () => {
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoImageSet(options).data('kendoImageSet');
         });
 
@@ -114,7 +114,7 @@ describe('widgets.imageset', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
@@ -130,7 +130,7 @@ describe('widgets.imageset', () => {
         let destroy;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoImageSet(options).data('kendoImageSet');
             viewModel = observable({
                 // TODO
@@ -142,7 +142,7 @@ describe('widgets.imageset', () => {
         xit('TODO', () => {});
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
@@ -156,7 +156,7 @@ describe('widgets.imageset', () => {
         let event;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoImageSet(options).data('kendoImageSet');
             event = sinon.spy();
         });
@@ -164,7 +164,7 @@ describe('widgets.imageset', () => {
         xit('TODO', () => {});
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();

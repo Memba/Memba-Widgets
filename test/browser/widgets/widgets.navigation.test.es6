@@ -30,7 +30,7 @@ const {
     observable,
     ui: { Navigation }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'navigation';
 
@@ -150,8 +150,8 @@ const pageCollectionArray = [
 
 describe('widgets.navigation', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -164,7 +164,7 @@ describe('widgets.navigation', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoNavigation().data('kendoNavigation');
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
@@ -177,7 +177,7 @@ describe('widgets.navigation', () => {
         });
 
         it('from code with dataSource', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoNavigation({
                     dataSource: pageCollectionArray
@@ -204,7 +204,7 @@ describe('widgets.navigation', () => {
                 }),
                 current: undefined
             });
-            const element = $(NAVIGATION2).appendTo(FIXTURES);
+            const element = $(NAVIGATION2).appendTo(`#${FIXTURES}`);
             bind(FIXTURES, viewModel);
             const widget = element.data('kendoNavigation');
             expect(widget).to.be.an.instanceof(Navigation);
@@ -227,7 +227,7 @@ describe('widgets.navigation', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoNavigation({
                     dataSource: pageCollectionArray
@@ -336,7 +336,7 @@ describe('widgets.navigation', () => {
         */
 
         beforeEach(() => {
-            element = $(NAVIGATION2).appendTo(FIXTURES);
+            element = $(NAVIGATION2).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 pages: new PageDataSource({
                     data: pageCollectionArray
@@ -428,7 +428,7 @@ describe('widgets.navigation', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
         });
 
         it('dataBinding & dataBound', () => {
@@ -485,7 +485,7 @@ describe('widgets.navigation', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

@@ -28,7 +28,7 @@ const {
     observable,
     ui: { ButtonSet }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}>`;
 const ROLE = 'buttonset';
 
@@ -37,8 +37,8 @@ chai.use(sinonChai);
 
 describe('widgets.buttonset', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -50,7 +50,7 @@ describe('widgets.buttonset', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoButtonSet().data('kendoButtonSet');
             expect(widget).to.be.an.instanceof(ButtonSet);
             // expect(element).to.have.class('k-widget');
@@ -61,7 +61,7 @@ describe('widgets.buttonset', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 buttonset: 'script1',
                 value: 'Todd'
@@ -78,7 +78,7 @@ describe('widgets.buttonset', () => {
         });
 
         it('from code with options and dataSource', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 buttonset: 'script2',
                 value: 2,
@@ -111,8 +111,8 @@ describe('widgets.buttonset', () => {
         it('from markup', () => {
             const attributes = [];
             attributes[attr('role')] = ROLE;
-            const element = $(ELEMENT).appendTo(FIXTURES);
-            init(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoButtonSet');
             expect(widget).to.be.an.instanceof(ButtonSet);
             // expect(element).to.have.class('k-widget');
@@ -128,8 +128,8 @@ describe('widgets.buttonset', () => {
             // TODO more attributes
             const element = $(ELEMENT)
                 .attr(attributes)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoButtonSet');
             expect(widget).to.be.an.instanceof(ButtonSet);
             // expect(element).to.have.class('k-widget');
@@ -151,7 +151,7 @@ describe('widgets.buttonset', () => {
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoButtonSet(options).data('kendoButtonSet');
         });
 
@@ -183,7 +183,7 @@ describe('widgets.buttonset', () => {
         let destroy;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoButtonSet(options).data('kendoButtonSet');
             viewModel = observable({
                 // TODO
@@ -202,7 +202,7 @@ describe('widgets.buttonset', () => {
         let event;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoButtonSet(options).data('kendoButtonSet');
             event = sinon.spy();
         });
@@ -211,7 +211,7 @@ describe('widgets.buttonset', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

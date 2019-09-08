@@ -27,7 +27,7 @@ const {
     observable,
     ui: { Latex }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'latex';
 
@@ -36,8 +36,8 @@ chai.use(sinonChai);
 
 describe('widgets.latex', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -49,7 +49,7 @@ describe('widgets.latex', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoLatex()
                 .data('kendoLatex');
@@ -59,7 +59,7 @@ describe('widgets.latex', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {};
             const widget = element
                 .kendoLatex()
@@ -72,8 +72,8 @@ describe('widgets.latex', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoLatex');
             expect(widget).to.be.an.instanceof(Latex);
             // expect(element).to.have.class('k-widget');
@@ -85,7 +85,7 @@ describe('widgets.latex', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.empty();
         });
@@ -97,7 +97,7 @@ describe('widgets.latex', () => {
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoLatex(options)
                 .data('kendoLatex');
@@ -127,7 +127,7 @@ describe('widgets.latex', () => {
         let destroy;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoLatex(options)
                 .data('kendoLatex');
@@ -148,7 +148,7 @@ describe('widgets.latex', () => {
         let event;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoLatex(options)
                 .data('kendoLatex');
@@ -159,7 +159,7 @@ describe('widgets.latex', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

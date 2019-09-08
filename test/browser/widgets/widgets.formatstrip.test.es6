@@ -26,7 +26,7 @@ const {
     observable,
     ui: { FormatStrip }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'formatstrip';
 
@@ -35,8 +35,8 @@ chai.use(sinonChai);
 
 describe('widgets.formatstrip', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -61,7 +61,7 @@ describe('widgets.formatstrip', () => {
 
     describe('Initialization', () => {
         it('from code with all options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('div');
             const widget = element
                 .kendoFormatStrip({
@@ -80,7 +80,7 @@ describe('widgets.formatstrip', () => {
 
         xit('from code with minimal options', () => {
             const value = 2;
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
             const widget = element
                 .kendoFormatStrip({
@@ -114,7 +114,7 @@ describe('widgets.formatstrip', () => {
             });
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
             bind(FIXTURES, viewModel);
             const widget = element.data('kendoFormatStrip');
@@ -149,7 +149,7 @@ describe('widgets.formatstrip', () => {
         const value2 = 2;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoFormatStrip({
                     value: value1
@@ -215,7 +215,7 @@ describe('widgets.formatstrip', () => {
         beforeEach(() => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 current: undefined
             });
@@ -294,7 +294,7 @@ describe('widgets.formatstrip', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoFormatStrip().data('kendoFormatStrip');
         });
 
@@ -328,7 +328,7 @@ describe('widgets.formatstrip', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
         });
 
         it('change', () => {
@@ -357,7 +357,7 @@ describe('widgets.formatstrip', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

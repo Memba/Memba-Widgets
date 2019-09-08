@@ -28,7 +28,7 @@ const {
     observable,
     ui: { Template }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'template';
 
@@ -42,8 +42,8 @@ const SCRIPT2 =
 
 describe('widgets.template', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -55,7 +55,7 @@ describe('widgets.template', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoTemplate().data('kendoTemplate');
             expect(widget).to.be.an.instanceof(Template);
             // expect(element).to.have.class('k-widget');
@@ -66,8 +66,8 @@ describe('widgets.template', () => {
         });
 
         it('from code with options', () => {
-            $(SCRIPT1).appendTo(FIXTURES);
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            $(SCRIPT1).appendTo(`#${FIXTURES}`);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 template: 'script1',
                 value: 'Todd'
@@ -84,8 +84,8 @@ describe('widgets.template', () => {
         });
 
         it('from code with options and dataSource', () => {
-            $(SCRIPT2).appendTo(FIXTURES);
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            $(SCRIPT2).appendTo(`#${FIXTURES}`);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 template: 'script2',
                 value: 2,
@@ -118,8 +118,8 @@ describe('widgets.template', () => {
         it('from markup', () => {
             const attributes = {};
             attributes[attr('role')] = ROLE;
-            const element = $(ELEMENT).attr(attributes).appendTo(FIXTURES);
-            init(FIXTURES);
+            const element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const template = element.data('kendoTemplate');
             expect(template).to.be.an.instanceof(Template);
             // expect(element).to.have.class('k-widget');
@@ -130,15 +130,15 @@ describe('widgets.template', () => {
         });
 
         it('from markup with attributes', () => {
-            $(SCRIPT1).appendTo(FIXTURES);
+            $(SCRIPT1).appendTo(`#${FIXTURES}`);
             const attributes = {};
             attributes[attr('role')] = ROLE;
             attributes[attr('template')] = 'script1';
             attributes[attr('value')] = 'Todd';
             const element = $(ELEMENT)
                 .attr(attributes)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const template = element.data('kendoTemplate');
             expect(template).to.be.an.instanceof(Template);
             // expect(element).to.have.class('k-widget');
@@ -154,7 +154,7 @@ describe('widgets.template', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.empty();
         });
@@ -166,7 +166,7 @@ describe('widgets.template', () => {
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             template = element.kendoTemplate(options).data('kendoTemplate');
         });
 
@@ -186,7 +186,7 @@ describe('widgets.template', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.empty();
         });
@@ -201,7 +201,7 @@ describe('widgets.template', () => {
         let destroy;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             template = element.kendoTemplate(options).data('kendoTemplate');
             viewModel = observable({
                 // TODO
@@ -213,7 +213,7 @@ describe('widgets.template', () => {
         xit('TODO', () => {});
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.empty();
         });
@@ -226,7 +226,7 @@ describe('widgets.template', () => {
         let event;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             template = element.kendoTemplate(options).data('kendoTemplate');
             event = sinon.spy();
         });
@@ -234,7 +234,7 @@ describe('widgets.template', () => {
         xit('TODO', () => {});
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.empty();
         });

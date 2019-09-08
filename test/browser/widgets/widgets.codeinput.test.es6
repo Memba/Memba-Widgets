@@ -30,7 +30,7 @@ const {
     roleSelector,
     ui: { CodeInput, DropDownList }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'codeinput';
 
@@ -92,8 +92,8 @@ const SOLUTION = '0';
 
 describe('widgets.codeinput', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -105,7 +105,7 @@ describe('widgets.codeinput', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoCodeInput().data('kendoCodeInput');
             expect(widget).to.be.an.instanceof(CodeInput);
             expect(element).not.to.have.class('k-widget');
@@ -131,7 +131,7 @@ describe('widgets.codeinput', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const codeInput = element
                 .kendoCodeInput({
                     dataSource: LIBRARY,
@@ -169,8 +169,8 @@ describe('widgets.codeinput', () => {
             attributes[attr('role')] = ROLE;
             const element = $(ELEMENT)
                 .attr(attributes)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const codeInput = element.data('kendoCodeInput');
             expect(codeInput).to.be.an.instanceof(CodeInput);
             expect(element).not.to.have.class('k-widget');
@@ -206,8 +206,8 @@ describe('widgets.codeinput', () => {
                 'function validate(value, solution) {\\n\\treturn true;\\n}';
             const element = $(ELEMENT)
                 .attr(attributes)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const codeInput = element.data('kendoCodeInput');
             expect(codeInput).to.be.an.instanceof(CodeInput);
             expect(element).not.to.have.class('k-widget');
@@ -250,7 +250,7 @@ describe('widgets.codeinput', () => {
             'function validate(value,solution,all){\nreturn true;\n}';
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             codeInput = element
                 .kendoCodeInput({
                     dataSource: LIBRARY,
@@ -416,7 +416,7 @@ describe('widgets.codeinput', () => {
             attributes[attr('default')] = IB_COMMENT + NAME;
             element = $(ELEMENT)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             bind(FIXTURES, viewModel);
             codeInput = element.data('kendoCodeInput');
             change = sinon.spy();
@@ -470,7 +470,7 @@ describe('widgets.codeinput', () => {
         afterEach(() => {
             viewModel.unbind(CONSTANTS.CHANGE);
             viewModel.set('code', ''); // undefined would not work
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
@@ -489,7 +489,7 @@ describe('widgets.codeinput', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             codeInput = element
                 .kendoCodeInput({
                     dataSource: LIBRARY,
@@ -514,7 +514,7 @@ describe('widgets.codeinput', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.empty();
         });

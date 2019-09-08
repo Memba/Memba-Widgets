@@ -25,7 +25,7 @@ const { afterEach, describe, it } = window;
 const { destroy } = window.kendo;
 const { expect } = chai;
 
-// const FIXTURES = '#fixtures';
+// const FIXTURES = 'fixtures';
 const TYPES = [
     { name: 'error', title: 'Error' },
     { name: 'info', title: 'Information' },

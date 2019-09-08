@@ -22,8 +22,11 @@ module.exports = grunt => {
                 'src/js/sockets/*.es6',
                 'src/js/tools/*.es6',
                 // 'src/js/widgets/*.es6',
-                'src/js/workers/*.es6'
+                'src/js/workers/*.es6',
                 // 'test/**/*.es6'
+                'test/browser/_misc/*.es6',
+                'test/browser/app/*.es6',
+                'test/browser/common/*.es6'
             ],
             options: {
                 config: '.eslintrc'

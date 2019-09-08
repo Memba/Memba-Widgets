@@ -20,12 +20,12 @@ const { afterEach, describe, it } = window;
 const { expect } = chai;
 const { destroy } = window.kendo;
 
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 
 describe('widgets.basedialog', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 

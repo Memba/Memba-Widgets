@@ -29,7 +29,7 @@ const {
     observable,
     ui: { Social }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'social';
 
@@ -58,8 +58,8 @@ const TWITTER_ACCOUNT = 'example';
 
 describe('widgets.social', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -71,7 +71,7 @@ describe('widgets.social', () => {
 
     describe('Initialization', () => {
         it('from code with all options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('div');
             const widget = element
                 .kendoSocial({
@@ -112,7 +112,7 @@ describe('widgets.social', () => {
         });
 
         it('from code with minimal options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('div');
             const widget = element.kendoSocial({}).data('kendoSocial');
             expect(widget).to.be.an.instanceof(Social);
@@ -156,9 +156,9 @@ describe('widgets.social', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attr('size'), SIZE)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             expect(element).to.match('div');
-            init(FIXTURES);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoSocial');
             expect(widget).to.be.an.instanceof(Social);
             const wrapper = widget.wrapper;
@@ -190,7 +190,7 @@ describe('widgets.social', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoSocial().data('kendoSocial');
         });
 
@@ -247,7 +247,7 @@ describe('widgets.social', () => {
         }
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoSocial().data('kendoSocial');
         });
 
@@ -286,7 +286,7 @@ describe('widgets.social', () => {
     // });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         // unbind(fixtures);
         destroy(fixtures);
         // fixtures.find('*').off();

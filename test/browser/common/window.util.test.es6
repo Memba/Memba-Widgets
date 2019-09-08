@@ -20,11 +20,11 @@ import {
     randomHexString,
     randomId,
     randomVal,
-    round,
-    shuffle,
-    getSelection,
-    setSelection,
-    replaceSelection
+    round
+    // shuffle,
+    // getSelection,
+    // setSelection,
+    // replaceSelection
 } from '../../../src/js/common/window.util.es6';
 
 const { describe, it } = window;

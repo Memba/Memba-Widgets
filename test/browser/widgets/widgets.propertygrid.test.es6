@@ -29,7 +29,7 @@ const {
     observable,
     ui: { PropertyGrid }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'propertygrid';
 
@@ -78,8 +78,8 @@ function validateGridHtml(element, rowCount) {
 
 describe('widgets.propertygrid', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -91,7 +91,7 @@ describe('widgets.propertygrid', () => {
 
     describe('Basic Initialization', () => {
         it('from code without option', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid()
                 .data('kendoPropertyGrid');
@@ -100,7 +100,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('from code with bad options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid([])
                 .data('kendoPropertyGrid');
@@ -111,7 +111,7 @@ describe('widgets.propertygrid', () => {
 
     describe('String Initialization', () => {
         it('string object value', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 'Sample' }
@@ -140,7 +140,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('string object value with basic rows options (title only)', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 'Sample' },
@@ -170,7 +170,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('string object value with textarea editor', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 'Sample' },
@@ -205,7 +205,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('string object value with span editor and attributes', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 'Sample' },
@@ -242,7 +242,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('string object value with kendo widget (color picker)', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: '#ffffff' },
@@ -273,7 +273,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('string object value with custom widget', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 'W1N 1AC' },
@@ -320,7 +320,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('string object value with data model', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const Sample = Model.define({
                 id: 'sample',
                 fields: {
@@ -366,7 +366,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('string object value with template', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 'Sample' },
@@ -401,7 +401,7 @@ describe('widgets.propertygrid', () => {
         });
 
         xit('string object value with basic rows options (title only)', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: { subvalue: 'Sample' } },
@@ -435,7 +435,7 @@ describe('widgets.propertygrid', () => {
 
     describe('Number Initialization', () => {
         it('number object value', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 3 }
@@ -467,7 +467,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('number object value with basic rows options (title only)', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 5.41 },
@@ -499,7 +499,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('number object value with kendo editor (slider)', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 5.41 },
@@ -533,7 +533,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('number object value with custom widget', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 3 },
@@ -608,7 +608,7 @@ describe('widgets.propertygrid', () => {
 
     describe('Date Initialization', () => {
         it('date object value', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: new Date(1966, 2, 14) }
@@ -639,7 +639,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('date object value with basic rows options (title only)', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: new Date(1966, 2, 14) },
@@ -671,7 +671,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('date object value with kendo editor (datetimepicker)', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: new Date(1966, 2, 14) },
@@ -709,7 +709,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('date object value with custom widget', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: new Date(1966, 2, 14) },
@@ -750,7 +750,7 @@ describe('widgets.propertygrid', () => {
 
     describe('Boolean Initialization', () => {
         it('boolean object value', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: true }
@@ -781,7 +781,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('boolean object value with basic rows options (title and attributes)', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: true },
@@ -825,7 +825,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('boolean object value with custom widget', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: new Date(1966, 2, 14) },
@@ -869,7 +869,7 @@ describe('widgets.propertygrid', () => {
 
     describe('Composite Object Initialization', () => {
         it('from code with object value only', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: {
@@ -886,7 +886,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('from code with object value and rows options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: {
@@ -940,7 +940,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('from markup', () => {
-            const element = $(PROPERTYGRID2).appendTo(FIXTURES);
+            const element = $(PROPERTYGRID2).appendTo(`#${FIXTURES}`);
             const viewModel = observable({});
             bind(FIXTURES, viewModel);
             const widget = element.data('kendoPropertyGrid');
@@ -948,7 +948,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('from markup and rows', () => {
-            const element = $(PROPERTYGRID2).appendTo(FIXTURES);
+            const element = $(PROPERTYGRID2).appendTo(`#${FIXTURES}`);
             const viewModel = observable({});
             bind(FIXTURES, viewModel);
             const widget = element.data('kendoPropertyGrid');
@@ -958,7 +958,7 @@ describe('widgets.propertygrid', () => {
 
     describe('Validation', () => {
         it('required', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const Sample = Model.define({
                 id: 'id',
                 fields: {
@@ -986,7 +986,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('regex pattern', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const Sample = Model.define({
                 id: 'id',
                 fields: {
@@ -1018,7 +1018,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('min, max, step', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: -100 },
@@ -1048,7 +1048,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('url', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 'Sample' },
@@ -1065,7 +1065,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('email', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 'Sample' },
@@ -1082,7 +1082,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('custom validation rules', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: { sample: 'Sample' },
@@ -1116,7 +1116,7 @@ describe('widgets.propertygrid', () => {
 
     describe('Methods', () => {
         it('Get/set value', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid()
                 .data('kendoPropertyGrid');
@@ -1146,7 +1146,7 @@ describe('widgets.propertygrid', () => {
         });
 
         it('Get/set rows', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: {
@@ -1179,7 +1179,7 @@ describe('widgets.propertygrid', () => {
         // TODO: refresh
 
         it('Destroy', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoPropertyGrid({
                     value: {
@@ -1209,7 +1209,7 @@ describe('widgets.propertygrid', () => {
          */
 
         beforeEach(() => {
-            element = $(PROPERTYGRID2).appendTo(FIXTURES);
+            element = $(PROPERTYGRID2).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 current: null
             });
@@ -1311,7 +1311,7 @@ describe('widgets.propertygrid', () => {
     // });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         // destroy(fixtures); // TODO: RangeError: Maximum call stack size exceeded
         fixtures.find('*').off();
         fixtures.empty();

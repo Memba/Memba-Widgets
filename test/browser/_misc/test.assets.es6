@@ -3,7 +3,18 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import 'kendo.window';
+import assert from '../../../src/js/common/window.assert.es6';
+
 const { location } = window;
+const {
+    roleSelector,
+    ui: { Window }
+} = window.kendo;
 // const ROOT = `${location.protocol}//${location.host}`;
 const ROOT = window.__karma__
     ? 'base' // Base directory for Karma assets
@@ -226,7 +237,7 @@ const SIMPLE_PROJECT = {
             }
         },
         destroy(options) {
-            options.error(new Error(OOPS));
+            options.error(new Error('destroyed'));
         }
     }
 };
@@ -242,7 +253,7 @@ const COMPLEX_PROJECT = {
         maximize: true,
         openImageDialog() {
             assert.instanceof(
-                kendo.ui.Window,
+                Window,
                 this,
                 assert.format(
                     assert.messages.instanceof.default,
@@ -250,13 +261,16 @@ const COMPLEX_PROJECT = {
                     'kendo.ui.Window'
                 )
             );
+            // TODO use openDialog?
+            /*
             const vectorDrawingWidget = this.element
-                .find(kendo.roleSelector('vectordrawing'))
+                .find(roleSelector('vectordrawing'))
                 .data('kendoVectorDrawing');
+             */
         },
         openUrl(url) {
             assert.instanceof(
-                kendo.ui.Window,
+                Window,
                 this,
                 assert.format(
                     assert.messages.instanceof.default,
@@ -265,17 +279,17 @@ const COMPLEX_PROJECT = {
                 )
             );
             const vectorDrawingWidget = this.element
-                .find(kendo.roleSelector('vectordrawing'))
+                .find(roleSelector('vectordrawing'))
                 .data('kendoVectorDrawing');
-            url = $('<a/>')
+            const resolvedUrl = $('<a/>')
                 .attr('href', url)
                 .get(0).href; // Note: a simple way to resolve a relative url
-            return vectorDrawingWidget.open(url);
+            return vectorDrawingWidget.open(resolvedUrl);
             // TODO promise????? app.notification of errors ????
         },
         resize(e) {
             assert.instanceof(
-                kendo.ui.Window,
+                Window,
                 this,
                 assert.format(
                     assert.messages.instanceof.default,
@@ -284,7 +298,7 @@ const COMPLEX_PROJECT = {
                 )
             );
             const vectorDrawingWidget = this.element
-                .find(kendo.roleSelector('vectordrawing'))
+                .find(roleSelector('vectordrawing'))
                 .data('kendoVectorDrawing');
             const container = e.sender.element;
             vectorDrawingWidget.element
@@ -292,13 +306,14 @@ const COMPLEX_PROJECT = {
                 .outerHeight(container.height());
             vectorDrawingWidget.resize();
         },
-        saveAs(name, assetManager) {
+        saveAs(/* name, assetManager */) {
             // debugger;
         }
     },
     transport: {
-        create(options) {
+        create(options = {}) {
             // debugger;
+            $.noop(options);
         },
         destroy(options) {
             // options.error(new Error('Oops'));
@@ -322,7 +337,9 @@ const COMPLEX_PROJECT = {
             if (options.data && options.data.file instanceof window.File) {
                 // Make sure we are asynchronous to simulate a file upload...
                 setTimeout(() => {
+                    // eslint-disable-next-line no-param-reassign
                     options.data.file = null;
+                    // eslint-disable-next-line no-param-reassign
                     options.data.url = `${CDN}/images/o_collection/svg/office/add.svg`;
                     // VERY IMPORTANT: it won't work without total + data which are both expected
                     options.success({ total: 1, data: [options.data] });
@@ -331,9 +348,11 @@ const COMPLEX_PROJECT = {
         },
         import(options) {
             // debugger;
+            $.noop(options);
         },
         stream(options) {
             // debugger;
+            $.noop(options);
         }
     }
 };

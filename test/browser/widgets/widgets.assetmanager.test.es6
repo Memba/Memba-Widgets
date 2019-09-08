@@ -31,7 +31,7 @@ const {
     support,
     ui: { AssetManager, DropDownList, ListView, Pager, TabStrip }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'assetmanager';
 
@@ -42,8 +42,8 @@ const TTL = 500;
 
 describe('widgets.assetmanager', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -55,7 +55,7 @@ describe('widgets.assetmanager', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoAssetManager()
                 .data('kendoAssetManager');
@@ -96,7 +96,7 @@ describe('widgets.assetmanager', () => {
         });
 
         it('from code with options: simple collection', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 collections: [ASSETS.O_COLLECTION]
             };
@@ -149,7 +149,7 @@ describe('widgets.assetmanager', () => {
         });
 
         it('from code with options: sub-collections', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 collections: [ASSETS.O_COLLECTION, ASSETS.V_COLLECTION],
                 schemes: ASSETS.SCHEMES
@@ -203,8 +203,8 @@ describe('widgets.assetmanager', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoAssetManager');
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
@@ -224,7 +224,7 @@ describe('widgets.assetmanager', () => {
         };
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoAssetManager(options)
                 .data('kendoAssetManager');
@@ -350,7 +350,7 @@ describe('widgets.assetmanager', () => {
         };
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoAssetManager(options)
                 .data('kendoAssetManager');
@@ -670,7 +670,7 @@ describe('widgets.assetmanager', () => {
         };
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoAssetManager(options)
                 .data('kendoAssetManager');
@@ -710,7 +710,7 @@ describe('widgets.assetmanager', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         // unbind(fixtures);
         destroy(fixtures);
         // fixtures.find('*').off();

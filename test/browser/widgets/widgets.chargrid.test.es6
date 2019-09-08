@@ -27,7 +27,7 @@ const {
     observable,
     ui: { CharGrid }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'chargrid';
 
@@ -36,8 +36,8 @@ chai.use(sinonChai);
 
 describe('widgets.chargrid', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -49,7 +49,7 @@ describe('widgets.chargrid', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoCharGrid().data('kendoCharGrid');
             expect(widget).to.be.an.instanceof(CharGrid);
             // expect(element).to.have.class('k-widget');
@@ -57,7 +57,7 @@ describe('widgets.chargrid', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 // TODO
             };
@@ -70,8 +70,8 @@ describe('widgets.chargrid', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoCharGrid');
             expect(widget).to.be.an.instanceof(CharGrid);
             // expect(element).to.have.class('k-widget');
@@ -89,7 +89,7 @@ describe('widgets.chargrid', () => {
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoCharGrid(options).data('kendoCharGrid');
         });
 
@@ -123,7 +123,7 @@ describe('widgets.chargrid', () => {
         let destroy;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoCharGrid(options).data('kendoCharGrid');
             viewModel = observable({
                 // TODO
@@ -142,7 +142,7 @@ describe('widgets.chargrid', () => {
         let event;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoCharGrid(options).data('kendoCharGrid');
             event = sinon.spy();
         });
@@ -151,7 +151,7 @@ describe('widgets.chargrid', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

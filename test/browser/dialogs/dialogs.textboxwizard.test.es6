@@ -21,7 +21,7 @@ const { afterEach, describe, it } = window;
 const { destroy } = window.kendo;
 const { expect } = chai;
 
-// const FIXTURES = '#fixtures';
+// const FIXTURES = 'fixtures';
 const SELECTORS = {
     TITLE: '.k-dialog .k-dialog-titlebar .k-dialog-title',
     MESSAGE: '.k-dialog .k-notification .k-notification-wrap',

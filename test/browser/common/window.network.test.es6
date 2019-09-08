@@ -16,32 +16,34 @@ import Network from '../../../src/js/common/window.network.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
+const FIXTURES = 'fixtures';
 
 chai.use(sinonChai);
+
+const network = new Network({
+    ajax: {
+        url: 'https://www.kidoju.com/api/ping',
+        timeout: 5000
+    },
+    enabled: true,
+    global: false
+});
 
 /**
  * Note: When setting Google Chrome to offline, it is not possible to reload the page
  * So a button is convenient to test online status in development
  */
-const fixtures = $('#fixtures');
+const fixtures = $(`#${FIXTURES}`);
 if (fixtures.length) {
     $('<button>Network</button>')
         .appendTo(fixtures)
         .on('click', () => {
+            // eslint-disable-next-line no-alert
             network.check().then(status => window.alert(status));
         });
 }
 
 describe('window.network', () => {
-    const network = new Network({
-        ajax: {
-            url: 'https://www.kidoju.com/api/ping',
-            timeout: 5000
-        },
-        enabled: true,
-        global: false
-    });
-
     describe('using default options', () => {
         it('check', done => {
             network

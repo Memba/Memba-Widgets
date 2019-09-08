@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// eslint-disable-next-line import/no-extraneous-dependencies
+// eslint-disable-next-line import/no-extraneous-dependencies, max-classes-per-file
 import 'modernizr';
 
 function noop() {}

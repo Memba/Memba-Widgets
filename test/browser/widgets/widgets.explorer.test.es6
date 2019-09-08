@@ -29,7 +29,7 @@ const {
     observable,
     ui: { Explorer }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'explorer';
 
@@ -100,8 +100,8 @@ const pageComponentCollectionArray = [
 
 describe('widgets.explorer', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -113,7 +113,7 @@ describe('widgets.explorer', () => {
 
     describe('Initialization', () => {
         it('from code without datasource', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoExplorer().data('kendoExplorer');
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
@@ -129,7 +129,7 @@ describe('widgets.explorer', () => {
         });
 
         it('from code with datasource', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoExplorer({
                     dataSource: pageComponentCollectionArray,
@@ -158,7 +158,7 @@ describe('widgets.explorer', () => {
                 }),
                 current: undefined
             });
-            const element = $(EXPLORER3).appendTo(FIXTURES);
+            const element = $(EXPLORER3).appendTo(`#${FIXTURES}`);
             bind(FIXTURES, viewModel);
             const widget = element.data('kendoExplorer');
             expect(widget).to.be.an.instanceof(Explorer);
@@ -182,7 +182,7 @@ describe('widgets.explorer', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoExplorer({
                     dataSource: pageComponentCollectionArray,
@@ -308,7 +308,7 @@ describe('widgets.explorer', () => {
         */
 
         beforeEach(() => {
-            element = $(EXPLORER3).appendTo(FIXTURES);
+            element = $(EXPLORER3).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 components: new PageComponentDataSource({
                     data: pageComponentCollectionArray
@@ -423,7 +423,7 @@ describe('widgets.explorer', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
         });
 
         it('dataBinding & dataBound', () => {
@@ -483,7 +483,7 @@ describe('widgets.explorer', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();

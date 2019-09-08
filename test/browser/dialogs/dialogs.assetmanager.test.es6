@@ -22,7 +22,7 @@ const { afterEach, describe, it } = window;
 const { destroy, format } = window.kendo;
 const { expect } = chai;
 
-// const FIXTURES = '#fixtures';
+// const FIXTURES = 'fixtures';
 const SELECTORS = {
     TITLE: '.k-dialog .k-dialog-titlebar .k-dialog-title',
     PRIMARY_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button.k-primary',

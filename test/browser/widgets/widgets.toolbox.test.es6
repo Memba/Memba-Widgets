@@ -29,7 +29,7 @@ const {
     observable,
     ui: { ToolBox }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'toolbox';
 const ICON_PATH = '../../src/styles/images/';
@@ -40,8 +40,8 @@ chai.use(sinonChai);
 
 describe('widgets.toolbox', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -53,7 +53,7 @@ describe('widgets.toolbox', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoToolBox({ iconPath: ICON_PATH })
                 .data('kendoToolBox');
@@ -73,7 +73,7 @@ describe('widgets.toolbox', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoToolBox({ iconPath: ICON_PATH, size: 64 })
                 .data('kendoToolBox');
@@ -93,8 +93,8 @@ describe('widgets.toolbox', () => {
         });
 
         it('from markup', () => {
-            const element = $(TOOLBOX2).appendTo(FIXTURES);
-            init(FIXTURES);
+            const element = $(TOOLBOX2).appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoToolBox');
             expect(widget).to.be.an.instanceof(ToolBox);
             expect(element.hasClass('k-widget')).to.be.true;
@@ -117,7 +117,7 @@ describe('widgets.toolbox', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoToolBox({ iconPath: ICON_PATH })
                 .data('kendoToolBox');
@@ -167,7 +167,7 @@ describe('widgets.toolbox', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoToolBox({ iconPath: ICON_PATH })
                 .data('kendoToolBox');
@@ -208,7 +208,7 @@ describe('widgets.toolbox', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoToolBox({ iconPath: ICON_PATH })
                 .data('kendoToolBox');
@@ -244,7 +244,7 @@ describe('widgets.toolbox', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();

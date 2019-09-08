@@ -6,7 +6,7 @@
 /* eslint-disable no-unused-expressions */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-unresolved, max-classes-per-file
 import $ from 'jquery';
 import chai from 'chai';
 // import JSC from 'jscheck';

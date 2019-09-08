@@ -27,7 +27,7 @@ const { before, describe, it } = window;
 const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 
 // --------------
 // urls
@@ -62,8 +62,8 @@ const INVALID_DATAURIS = [
 
 describe('window.image', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -206,10 +206,10 @@ describe('window.image', () => {
 
     describe('JPEG Encoding', () => {
         // This does not work in Karma
-        // const fixtured = $(FIXTURES);
+        // const fixtured = $(`#${FIXTURES}`);
 
         it('We expect to encode canvas drawings as JPEG', () => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             const canvas = $(
                 '<canvas id="c" height="200px" width="200px"></canvas>'
             ).appendTo(fixtures);
@@ -232,7 +232,7 @@ describe('window.image', () => {
 
     describe('PNG Encoding', () => {
         it('We expect to encode canvas drawings as PNG', () => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             const canvas = $(
                 '<canvas id="c" height="200px" width="200px"></canvas>'
             ).appendTo(fixtures);
@@ -361,6 +361,6 @@ describe('window.image', () => {
     });
 
     afterEach(() => {
-        $(FIXTURES).empty();
+        $(`#${FIXTURES}`).empty();
     });
 });

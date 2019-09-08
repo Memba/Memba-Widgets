@@ -41,15 +41,20 @@ function messageLog(level, message, data) {
 }
 
 function errorLog(level, message, data, error) {
+    /* eslint-disable prettier/prettier */
     const stack =
         $.type(error.stack) === CONSTANTS.STRING // for PhantomJS
-            ? `stack${EQ}${error.stack.split(LINEFEED).join(LINESEP).replace(RX_SPACES, SPACE)}${SEP}`
+            ? `stack${EQ}${error.stack
+                .split(LINEFEED)
+                .join(LINESEP)
+                .replace(RX_SPACES, SPACE)}${SEP}`
             : '';
     return `[${level.toUpperCase()}${
         level.length === 4 ? ' ' : ''
     }]${FIRST}message${EQ}${message}${SEP}module${EQ}${MODULE}${SEP}${stack}data${EQ}${JSON.stringify(
         data
     )}`;
+    /* eslint-enable prettier/prettier */
 }
 
 describe('window.logger', () => {

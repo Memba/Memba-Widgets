@@ -26,7 +26,7 @@ const {
     observable,
     ui: { License }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}>`;
 const ROLE = 'license';
 
@@ -35,8 +35,8 @@ chai.use(sinonChai);
 
 describe('widgets.license', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -49,7 +49,7 @@ describe('widgets.license', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const value = 2;
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
             const widget = element
             .kendoRating({
@@ -80,7 +80,7 @@ describe('widgets.license', () => {
             const min = 0;
             const max = 10;
             const step = 2;
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
             const widget = element
                 .kendoRating({
@@ -114,7 +114,7 @@ describe('widgets.license', () => {
                 .attr(attr('role'), ROLE)
                 .attr(attr('bind'), 'value: rating')
                 .attr(attr('max'), 10)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
             bind(FIXTURES, viewModel);
             const widget = element.data('kendoRating');
@@ -151,7 +151,7 @@ describe('widgets.license', () => {
         const value2 = 2;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoRating({
                     value: value1
@@ -220,7 +220,7 @@ describe('widgets.license', () => {
                 .attr(attr('role'), ROLE)
                 .attr(attr('bind'), 'value: rating')
                 .attr(attr('max'), 10)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 rating: undefined
             });
@@ -299,7 +299,7 @@ describe('widgets.license', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoRating().data('kendoRating');
         });
 
@@ -335,7 +335,7 @@ describe('widgets.license', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
         });
 
         it('change', () => {
@@ -363,7 +363,7 @@ describe('widgets.license', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

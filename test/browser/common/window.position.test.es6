@@ -5,20 +5,53 @@
 
 /* eslint-disable no-unused-expressions */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'jquery.simulate';
 import chai from 'chai';
-import JSC from 'jscheck';
+import chaiJquery from 'chai-jquery';
+// import JSC from 'jscheck';
+import CONSTANTS from '../../../src/js/common/window.constants';
 import {
-    getElementCenter,
-    getMousePosition,
-    getTransformRotation,
-    getTransformScale
+    getElementCenter
+    // getMousePosition,
+    // getTransformRotation,
+    // getTransformScale
 } from '../../../src/js/common/window.position.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
+chai.use((c, u) => chaiJquery(c, u, $));
+
+const FIXTURES = 'fixtures';
 
 describe('window.position', () => {
-    describe('', () => {
+    before(() => {
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        }
+    });
+
+    describe('getElementCenter', () => {
+        it('TODO', () => {
+            expect(true).to.be.false;
+        });
+    });
+
+    describe('getMousePosition', () => {
+        xit('TODO', () => {
+            expect(getElementCenter).to.be.a('function');
+        });
+    });
+
+    describe('getTransformRotation', () => {
+        xit('TODO', () => {
+            expect(true).to.be.false;
+        });
+    });
+
+    describe('getTransformScale', () => {
         xit('TODO', () => {
             expect(true).to.be.false;
         });

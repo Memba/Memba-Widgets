@@ -28,7 +28,7 @@ const {
     observable,
     ui: { MediaPlayer, Slider }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'mediaplayer';
 
@@ -51,8 +51,8 @@ if (window.PHANTOMJS) {
 
 describe('widgets.mediaplayer', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -67,7 +67,7 @@ describe('widgets.mediaplayer', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoMediaPlayer().data('kendoMediaPlayer');
             expect(widget).to.be.an.instanceof(MediaPlayer);
             expect(element).not.to.have.class('k-widget');
@@ -90,7 +90,7 @@ describe('widgets.mediaplayer', () => {
         });
 
         it('from code with options: audio', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 mode: 'audio',
                 files: AUDIO_FILES
@@ -125,7 +125,7 @@ describe('widgets.mediaplayer', () => {
         });
 
         it('from code with options: video', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 mode: 'video',
                 files: VIDEO_FILES
@@ -162,8 +162,8 @@ describe('widgets.mediaplayer', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoMediaPlayer');
             expect(widget).to.be.an.instanceof(MediaPlayer);
             expect(element).not.to.have.class('k-widget');
@@ -192,8 +192,8 @@ describe('widgets.mediaplayer', () => {
                     'data-mode': 'audio',
                     'data-files': JSON.stringify(AUDIO_FILES)
                 })
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoMediaPlayer');
             expect(widget).to.be.an.instanceof(MediaPlayer);
             expect(element).not.to.have.class('k-widget');
@@ -228,8 +228,8 @@ describe('widgets.mediaplayer', () => {
                     'data-mode': 'video',
                     'data-files': JSON.stringify(VIDEO_FILES)
                 })
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoMediaPlayer');
             expect(widget).to.be.an.instanceof(MediaPlayer);
             expect(element).not.to.have.class('k-widget');
@@ -258,7 +258,7 @@ describe('widgets.mediaplayer', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
@@ -274,7 +274,7 @@ describe('widgets.mediaplayer', () => {
         };
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
         });
 
@@ -424,7 +424,7 @@ describe('widgets.mediaplayer', () => {
         it('destroy', () => {
             expect(widget).to.be.an.instanceof(MediaPlayer);
             widget.destroy();
-            expect(element.parent()).to.match(FIXTURES);
+            expect(element.parent()).to.match(`#${FIXTURES}`);
             expect(element.data('kendoMediaPlayer')).to.be.undefined;
             expect(element).to.be.empty;
             expect(element).not.to.have.class('k-widget');
@@ -432,7 +432,7 @@ describe('widgets.mediaplayer', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
@@ -449,7 +449,7 @@ describe('widgets.mediaplayer', () => {
         };
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
             // viewModel = observable({ url: undefined });
         });
@@ -565,7 +565,7 @@ describe('widgets.mediaplayer', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
@@ -578,7 +578,7 @@ describe('widgets.mediaplayer', () => {
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
             // change = sinon.spy();
         });
@@ -588,7 +588,7 @@ describe('widgets.mediaplayer', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();

@@ -28,7 +28,7 @@ const {
     observable,
     ui: { DropDownList, Quiz }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'quiz';
 
@@ -65,8 +65,8 @@ const QUIZ_DATA = [
 
 describe('widgets.quiz', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -81,7 +81,7 @@ describe('widgets.quiz', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoQuiz().data('kendoQuiz');
             expect(widget).to.be.an.instanceof(Quiz);
             expect(widget.options.mode).to.equal('button');
@@ -95,7 +95,7 @@ describe('widgets.quiz', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 dataSource: QUIZ_DATA,
                 mode: 'dropdown',
@@ -122,8 +122,8 @@ describe('widgets.quiz', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoQuiz');
             expect(widget).to.be.an.instanceof(Quiz);
             expect(widget.options.mode).to.equal('button');
@@ -147,8 +147,8 @@ describe('widgets.quiz', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoQuiz');
             expect(widget).to.be.an.instanceof(Quiz);
             expect(widget.options.mode).to.equal('radio');
@@ -195,7 +195,7 @@ describe('widgets.quiz', () => {
         };
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoQuiz(options1).data('kendoQuiz');
         });
 
@@ -258,7 +258,7 @@ describe('widgets.quiz', () => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data: QUIZ_DATA,
                 current: null
@@ -343,7 +343,7 @@ describe('widgets.quiz', () => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data: QUIZ_DATA,
                 current: null
@@ -426,7 +426,7 @@ describe('widgets.quiz', () => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data: QUIZ_DATA,
                 current: null
@@ -511,7 +511,7 @@ describe('widgets.quiz', () => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data: QUIZ_DATA,
                 current: null
@@ -596,7 +596,7 @@ describe('widgets.quiz', () => {
             element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attributes)
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data: QUIZ_DATA,
                 current: null
@@ -676,7 +676,7 @@ describe('widgets.quiz', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element.kendoQuiz(options).data('kendoQuiz');
             widget.bind('change', () => {
                 change();
@@ -698,7 +698,7 @@ describe('widgets.quiz', () => {
     });
 
     afterEach(() => {
-        const fixtures = $(FIXTURES);
+        const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
         fixtures.empty();
     });

@@ -30,7 +30,7 @@ const {
     roleSelector,
     ui: { CodeEditor, DropDownList }
 } = window.kendo;
-const FIXTURES = '#fixtures';
+const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'codeeditor';
 
@@ -98,8 +98,8 @@ const SOLUTION = '0';
 
 describe('widgets.codeeditor', () => {
     before(() => {
-        if (window.__karma__ && $(FIXTURES).length === 0) {
-            $(CONSTANTS.BODY).append('<div id="fixtures"></div>');
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -112,7 +112,7 @@ describe('widgets.codeeditor', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoCodeEditor().data('kendoCodeEditor');
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
@@ -153,7 +153,7 @@ describe('widgets.codeeditor', () => {
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(FIXTURES);
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoCodeEditor({
                     dataSource: LIBRARY,
@@ -204,8 +204,8 @@ describe('widgets.codeeditor', () => {
         it('from markup', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoCodeEditor');
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
@@ -256,8 +256,8 @@ describe('widgets.codeeditor', () => {
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
                 .attr(attr)
-                .appendTo(FIXTURES);
-            init(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoCodeEditor');
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
@@ -302,7 +302,7 @@ describe('widgets.codeeditor', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
@@ -322,7 +322,7 @@ describe('widgets.codeeditor', () => {
             'function validate(value,solution,all){\nreturn true;\n}';
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoCodeEditor({
                     dataSource: LIBRARY,
@@ -468,7 +468,7 @@ describe('widgets.codeeditor', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
@@ -493,7 +493,7 @@ describe('widgets.codeeditor', () => {
                     'data-bind': 'source: library, value: code',
                     'data-default': LIB_COMMENT + NAME
                 })
-                .appendTo(FIXTURES);
+                .appendTo(`#${FIXTURES}`);
             bind(FIXTURES, viewModel);
             widget = element.data('kendoCodeEditor');
             change = sinon.spy();
@@ -588,7 +588,7 @@ describe('widgets.codeeditor', () => {
         afterEach(() => {
             viewModel.unbind(CHANGE);
             viewModel.set('code', ''); // undefined would not work
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();
@@ -607,7 +607,7 @@ describe('widgets.codeeditor', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT).appendTo(FIXTURES);
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoCodeEditor({
                     dataSource: LIBRARY,
@@ -632,7 +632,7 @@ describe('widgets.codeeditor', () => {
         });
 
         afterEach(() => {
-            const fixtures = $(FIXTURES);
+            const fixtures = $(`#${FIXTURES}`);
             destroy(fixtures);
             fixtures.empty();
         });

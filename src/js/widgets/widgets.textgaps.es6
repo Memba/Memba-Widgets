@@ -10,7 +10,12 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import { compareBasicArrays, getSelection, isAnyArray, setSelection } from '../common/window.util.es6';
+import {
+    compareBasicArrays,
+    getSelection,
+    isAnyArray,
+    setSelection
+} from '../common/window.util.es6';
 
 const {
     destroy,
@@ -70,17 +75,16 @@ const TextGaps = Widget.extend({
      */
     value(value) {
         // TODO assert value
-        const that = this;
         if ($.type(value) === CONSTANTS.NULL) {
             value = [];
         }
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            return that._value;
+            return this._value;
         }
         if (isAnyArray(value)) {
-            if (!compareBasicArrays(that._value, value)) {
-                that._value = value;
-                that.refresh();
+            if (!compareBasicArrays(this._value, value)) {
+                this._value = value;
+                this.refresh();
             }
         } else {
             throw new TypeError(
@@ -121,7 +125,11 @@ const TextGaps = Widget.extend({
         if (enabled) {
             this.element
                 .on(PASTE + NS, INPUT_SELECTOR, this._onPaste.bind(this))
-                .on(CONSTANTS.INPUT + NS, INPUT_SELECTOR, this._onInput.bind(this));
+                .on(
+                    CONSTANTS.INPUT + NS,
+                    INPUT_SELECTOR,
+                    this._onInput.bind(this)
+                );
         }
     },
 

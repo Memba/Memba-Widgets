@@ -20,7 +20,7 @@ const {
 } = window.kendo;
 const logger = new Logger('widgets.imageset');
 const NS = '.kendoImageSet';
-const WIDGET_CLASS = 'kj-imageset kj-interactive';
+const WIDGET_CLASS = 'kj-imageset'; // 'k-widget kj-imageset';
 
 /**
  * ImageSet
@@ -135,7 +135,7 @@ const ImageSet = DataBoundWidget.extend({
                     .attr({
                         role: 'button'
                     })
-                    .addClass(WIDGET_CLASS)
+                    .addClass(`${WIDGET_CLASS} ${CONSTANTS.INTERACTIVE_CLASS}`)
             )
             .parent();
         this.element.hide();

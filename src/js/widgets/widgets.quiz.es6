@@ -32,8 +32,6 @@ const logger = new Logger('widgets.quiz');
 
 const NS = '.kendoQuiz';
 const WIDGET_CLASS = 'kj-quiz'; // 'k-widget kj-quiz',
-
-const INTERACTIVE_CLASS = 'kj-interactive';
 const DROPDOWN_TMPL =
     '<span class="kj-quiz-item kj-quiz-dropdown"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></span>';
 const BUTTON_TMPL = `<button class="k-button kj-quiz-item kj-quiz-button" data-${ns}uid="#: data.uid #" data-${ns}value="#: data.{0} #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></button>`;
@@ -210,8 +208,8 @@ const Quiz = DataBoundWidget.extend({
     _render() {
         const { element, options } = this;
         this.wrapper = element;
-        // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
-        element.addClass(`${WIDGET_CLASS} ${INTERACTIVE_CLASS}`);
+        // CONSTANTS.INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
+        element.addClass(`${WIDGET_CLASS} ${CONSTANTS.INTERACTIVE_CLASS}`);
         if (options.mode === MODES.DROPDOWN) {
             this._layoutDropDown();
         }

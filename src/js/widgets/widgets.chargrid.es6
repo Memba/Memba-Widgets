@@ -32,8 +32,6 @@ const logger = new Logger('widgets.chargrid');
 
 const NS = '.kendoCharGrid';
 const WIDGET_CLASS = /* 'k-widget */ 'kj-chargrid';
-
-const INTERACTIVE_CLASS = 'kj-interactive';
 // var BASE_CODE = 65; // for A (a = 97)
 const RX_WHITELIST = '^[{0}]$';
 const STROKE_WIDTH = 2;
@@ -262,8 +260,8 @@ const CharGrid = Widget.extend({
     _render() {
         const { element, options } = this;
         this.wrapper = element;
-        // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
-        element.addClass(WIDGET_CLASS).addClass(INTERACTIVE_CLASS);
+        // CONSTANTS.INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
+        element.addClass(WIDGET_CLASS).addClass(CONSTANTS.INTERACTIVE_CLASS);
         this.surface = Surface.create(element);
         // Note: we need an input to trigger the virtual keyboard on mobile devices
         this.input = $(

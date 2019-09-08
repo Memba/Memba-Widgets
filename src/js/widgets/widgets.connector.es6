@@ -3,7 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Replace with applyEventMap (see scratchPad)
 // TODO Consider implementing a drawing surface widget for Connector - https://github.com/kidoju/Kidoju-Widgets/issues/150
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
@@ -23,6 +22,7 @@ import {
 import { randomColor } from '../common/window.util.es6';
 
 const {
+    applyEventMap,
     attr,
     data: { DataSource, Model },
     destroy,
@@ -30,6 +30,7 @@ const {
     drawing: { Path, Surface },
     format,
     geometry,
+    ns,
     ui: { DataBoundWidget, plugin },
     unbind
 } = window.kendo;
@@ -37,11 +38,7 @@ const logger = new Logger('widgets.connector');
 const WIDGET = 'kendoConnector';
 const NS = CONSTANTS.DOT + WIDGET;
 const WIDGET_CLASS = /* 'k-widget */ 'kj-connector';
-const MOUSEDOWN = `mousedown${NS} ` + `touchstart${NS}`;
-const MOUSEMOVE = `mousemove${NS} ` + `touchmove${NS}`;
-const MOUSEUP = `mouseup${NS} ` + `touchend${NS}`;
 const SURFACE_CLASS = `${WIDGET_CLASS}-surface`;
-const INTERACTIVE_CLASS = 'kj-interactive';
 const PATH_WIDTH = 10;
 const PATH_LINECAP = 'round';
 const SURFACE = 'surface';
@@ -52,15 +49,14 @@ const DATA_TYPE = 'connection';
  * Connector
  * @class Connector Widget (kendoConnector)
  */
-var Connector = DataBoundWidget.extend({
+const Connector = DataBoundWidget.extend({
     /**
      * Init
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         const that = this;
-        options = options || {};
         DataBoundWidget.fn.init.call(that, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         that._enabled = that.element.prop('disabled')
@@ -72,7 +68,7 @@ var Connector = DataBoundWidget.extend({
         that._drawConnector();
         that._addMouseHandlers();
         that.value(that.options.value);
-        kendo.notify(that);
+        // kendo.notify(that);
     },
 
     /**
@@ -87,7 +83,7 @@ var Connector = DataBoundWidget.extend({
         autoBind: true,
         dataSource: [],
         scaler: 'div.kj-stage',
-        container: `div.kj-stage>div[data-${kendo.ns}role="stage"]`, // TODO: container might not be necessary but we need a Surface Widget??? https://github.com/kidoju/Kidoju-Widgets/issues/166
+        container: `div.kj-stage>div[data-${ns}role="stage"]`, // TODO: container might not be necessary but we need a Surface Widget??? https://github.com/kidoju/Kidoju-Widgets/issues/166
         color: '#FF0000',
         // in design mode: createSurface = false, enable = false
         // in play mode: createSurface = true, enabled = true
@@ -107,19 +103,22 @@ var Connector = DataBoundWidget.extend({
      * @param value
      */
     value(value) {
-        const that = this;
-        if (
-            $.type(value) === CONSTANTS.STRING ||
-            $.type(value) === CONSTANTS.NULL
-        ) {
-            that._value = value;
-        } else if ($.type(value) === CONSTANTS.UNDEFINED) {
-            return that._value;
+        assert.nullableTypeOrUndef(
+            CONSTANTS.STRING,
+            value,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                'value',
+                CONSTANTS.STRING
+            )
+        );
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._value;
         } else {
-            throw new TypeError(
-                '`value` is expected to be a nullable string if not undefined'
-            );
+            this._value = value || CONSTANTS.EMPTY;
         }
+        return ret;
     },
 
     /**
@@ -130,10 +129,10 @@ var Connector = DataBoundWidget.extend({
         const that = this;
         that.wrapper = that.element;
         // touch-action: 'none' is for Internet Explorer - https://github.com/jquery/jquery/issues/2987
-        // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
+        // CONSTANTS.INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
         that.element
             .addClass(WIDGET_CLASS)
-            .addClass(INTERACTIVE_CLASS)
+            .addClass(CONSTANTS.INTERACTIVE_CLASS)
             .css({ touchAction: 'none' });
         that.surface = drawing.Surface.create(that.element);
     },
@@ -144,7 +143,7 @@ var Connector = DataBoundWidget.extend({
      */
     _ensureSurface() {
         const that = this;
-        const options = that.options;
+        const { options } = that;
         const container = that.element.closest(options.container);
         assert.hasLength(
             container,
@@ -158,7 +157,7 @@ var Connector = DataBoundWidget.extend({
                 // assert.ok(this.element.hasClass(WIDGET_CLASS), 'this._layout should be called before this._ensureSurface');
                 const firstElementWithDraggable = container
                     .children()
-                    .has(CONSTANTS.DOT + INTERACTIVE_CLASS)
+                    .has(CONSTANTS.DOT + CONSTANTS.INTERACTIVE_CLASS)
                     .first();
                 assert.hasLength(
                     firstElementWithDraggable,
@@ -194,10 +193,8 @@ var Connector = DataBoundWidget.extend({
                 'kendo.drawing.Surface'
             )
         );
-        const that = this; // this is the connector widget
-        const options = that.options;
-        const color = options.color;
-        const element = that.element;
+        const { element, options } = this;
+        const { color } = options;
         const x = element.width() / 2; // parseInt(options.width, 10) / 2;
         const y = element.height() / 2; // parseInt(options.height, 10) / 2;
         const radius = Math.max(0, Math.min(x, y) - 10); // Add some space around radius to make it easier to grab on mobile devices
@@ -213,8 +210,8 @@ var Connector = DataBoundWidget.extend({
             .stroke(color, 0.1 * radius)
             .fill(color);
         group.append(innerCircle);
-        that.surface.clear();
-        that.surface.draw(group);
+        this.surface.clear();
+        this.surface.draw(group);
     },
 
     /**
@@ -231,54 +228,64 @@ var Connector = DataBoundWidget.extend({
         let target;
         $(document)
             .off(NS)
-            .on(MOUSEDOWN, CONSTANTS.DOT + WIDGET_CLASS, e => {
-                e.preventDefault(); // prevents from selecting the div
-                element = $(e.currentTarget);
-                const elementWidget = element.data(WIDGET);
-                if (
-                    elementWidget instanceof Connector &&
-                    elementWidget._enabled
-                ) {
-                    elementWidget._dropConnection();
-                    const scaler = element.closest(
-                        elementWidget.options.scaler
-                    );
-                    const scale = scaler.length ? getTransformScale(scaler) : 1;
-                    const container = element.closest(
-                        elementWidget.options.container
-                    );
-                    assert.hasLength(
-                        container,
-                        assert.format(
-                            assert.messages.hasLength.default,
+            .on(
+                applyEventMap(CONSTANTS.MAPDOWN, NS.substr(1)),
+                CONSTANTS.DOT + WIDGET_CLASS,
+                e => {
+                    e.preventDefault(); // prevents from selecting the div
+                    element = $(e.currentTarget);
+                    const elementWidget = element.data(WIDGET);
+                    if (
+                        elementWidget instanceof Connector &&
+                        elementWidget._enabled
+                    ) {
+                        elementWidget._dropConnection();
+                        const scaler = element.closest(
+                            elementWidget.options.scaler
+                        );
+                        const scale = scaler.length
+                            ? getTransformScale(scaler)
+                            : 1;
+                        const container = element.closest(
                             elementWidget.options.container
-                        )
-                    );
-                    const mouse = getMousePosition(e, container);
-                    const center = getElementCenter(element, container, scale);
-                    const surface = container.data(SURFACE);
-                    assert.instanceof(
-                        Surface,
-                        surface,
-                        assert.format(
-                            assert.messages.instanceof.default,
-                            'surface',
-                            'kendo.drawing.Surface'
-                        )
-                    );
-                    path = new drawing.Path({
-                        stroke: {
-                            color: elementWidget.options.color,
-                            lineCap: PATH_LINECAP,
-                            width: PATH_WIDTH
-                        }
-                    });
-                    path.moveTo(center.left, center.top);
-                    path.lineTo(mouse.x / scale, mouse.y / scale);
-                    surface.draw(path);
+                        );
+                        assert.hasLength(
+                            container,
+                            assert.format(
+                                assert.messages.hasLength.default,
+                                elementWidget.options.container
+                            )
+                        );
+                        const mouse = getMousePosition(e, container);
+                        const center = getElementCenter(
+                            element,
+                            container,
+                            scale
+                        );
+                        const surface = container.data(SURFACE);
+                        assert.instanceof(
+                            Surface,
+                            surface,
+                            assert.format(
+                                assert.messages.instanceof.default,
+                                'surface',
+                                'kendo.drawing.Surface'
+                            )
+                        );
+                        path = new drawing.Path({
+                            stroke: {
+                                color: elementWidget.options.color,
+                                lineCap: PATH_LINECAP,
+                                width: PATH_WIDTH
+                            }
+                        });
+                        path.moveTo(center.left, center.top);
+                        path.lineTo(mouse.x / scale, mouse.y / scale);
+                        surface.draw(path);
+                    }
                 }
-            })
-            .on(MOUSEMOVE, e => {
+            )
+            .on(applyEventMap(CONSTANTS.MAPMOVE, NS.substr(1)), e => {
                 if (element instanceof $ && path instanceof Path) {
                     const elementWidget = element.data(WIDGET);
                     assert.instanceof(
@@ -310,86 +317,96 @@ var Connector = DataBoundWidget.extend({
                         .move(mouse.x / scale, mouse.y / scale);
                 }
             })
-            .on(MOUSEUP, CONSTANTS.DOT + WIDGET_CLASS, e => {
-                if (element instanceof $ && path instanceof Path) {
-                    const targetElement =
-                        e.originalEvent && e.originalEvent.changedTouches
-                            ? document.elementFromPoint(
-                                  e.originalEvent.changedTouches[0].clientX,
-                                  e.originalEvent.changedTouches[0].clientY
-                              )
-                            : e.currentTarget;
-                    target = $(targetElement).closest(
-                        CONSTANTS.DOT + WIDGET_CLASS
-                    );
-                    const targetWidget = target.data(WIDGET);
-                    // with touchend, target === element
-                    // BUG REPORT  here: https://github.com/jquery/jquery/issues/2987
+            .on(
+                applyEventMap(
+                    `${CONSTANTS.MAPUP} ${CONSTANTS.MAPCANCEL}`,
+                    NS.substr(1)
+                ),
+                CONSTANTS.DOT + WIDGET_CLASS,
+                e => {
+                    if (element instanceof $ && path instanceof Path) {
+                        const targetElement =
+                            e.originalEvent && e.originalEvent.changedTouches
+                                ? document.elementFromPoint(
+                                    e.originalEvent.changedTouches[0].clientX,
+                                    e.originalEvent.changedTouches[0].clientY
+                                )
+                                : e.currentTarget;
+                        target = $(targetElement).closest(
+                            CONSTANTS.DOT + WIDGET_CLASS
+                        );
+                        const targetWidget = target.data(WIDGET);
+                        // with touchend, target === element
+                        // BUG REPORT  here: https://github.com/jquery/jquery/issues/2987
+                        if (
+                            element.attr(attr(CONSTANTS.ID)) !==
+                                target.attr(attr(CONSTANTS.ID)) &&
+                            targetWidget instanceof Connector &&
+                            targetWidget._enabled
+                        ) {
+                            const elementWidget = element.data(WIDGET);
+                            assert.instanceof(
+                                Connector,
+                                elementWidget,
+                                assert.format(
+                                    assert.messages.instanceof.default,
+                                    'elementWidget',
+                                    'kendo.ui.Connector'
+                                )
+                            );
+                            const container = element.closest(
+                                elementWidget.options.container
+                            );
+                            assert.hasLength(
+                                container,
+                                assert.format(
+                                    assert.messages.hasLength.default,
+                                    elementWidget.options.container
+                                )
+                            );
+                            const targetContainer = target.closest(
+                                targetWidget.options.container
+                            );
+                            assert.hasLength(
+                                targetContainer,
+                                assert.format(
+                                    assert.messages.hasLength.default,
+                                    targetWidget.options.container
+                                )
+                            );
+                            if (container[0] === targetContainer[0]) {
+                                elementWidget._addConnection(target);
+                            } else {
+                                // We cannot erase so we need to redraw all
+                                elementWidget.refresh();
+                            }
+                        } else {
+                            target = undefined;
+                        }
+                    }
+                    // Note: The MOUSEUP events bubble and the following handler is always executed after this one
+                }
+            )
+            .on(
+                applyEventMap(`${CONSTANTS.MAPUP} ${CONSTANTS.MAPCANCEL}`),
+                (/* e */) => {
+                    if (path instanceof Path) {
+                        path.close();
+                    }
                     if (
-                        element.attr(attr(CONSTANTS.ID)) !==
-                            target.attr(attr(CONSTANTS.ID)) &&
-                        targetWidget instanceof Connector &&
-                        targetWidget._enabled
+                        element instanceof $ &&
+                        $.type(target) === CONSTANTS.UNDEFINED
                     ) {
                         const elementWidget = element.data(WIDGET);
-                        assert.instanceof(
-                            Connector,
-                            elementWidget,
-                            assert.format(
-                                assert.messages.instanceof.default,
-                                'elementWidget',
-                                'kendo.ui.Connector'
-                            )
-                        );
-                        const container = element.closest(
-                            elementWidget.options.container
-                        );
-                        assert.hasLength(
-                            container,
-                            assert.format(
-                                assert.messages.hasLength.default,
-                                elementWidget.options.container
-                            )
-                        );
-                        const targetContainer = target.closest(
-                            targetWidget.options.container
-                        );
-                        assert.hasLength(
-                            targetContainer,
-                            assert.format(
-                                assert.messages.hasLength.default,
-                                targetWidget.options.container
-                            )
-                        );
-                        if (container[0] === targetContainer[0]) {
-                            elementWidget._addConnection(target);
-                        } else {
-                            // We cannot erase so we need to redraw all
+                        if (elementWidget instanceof Connector) {
                             elementWidget.refresh();
                         }
-                    } else {
-                        target = undefined;
                     }
+                    path = undefined;
+                    element = undefined;
+                    target = undefined;
                 }
-                // Note: The MOUSEUP events bubble and the following handler is always executed after this one
-            })
-            .on(MOUSEUP, e => {
-                if (path instanceof Path) {
-                    path.close();
-                }
-                if (
-                    element instanceof $ &&
-                    $.type(target) === CONSTANTS.UNDEFINED
-                ) {
-                    const elementWidget = element.data(WIDGET);
-                    if (elementWidget instanceof Connector) {
-                        elementWidget.refresh();
-                    }
-                }
-                path = undefined;
-                element = undefined;
-                target = undefined;
-            });
+            );
     },
 
     /**
@@ -397,7 +414,7 @@ var Connector = DataBoundWidget.extend({
      * @private
      */
     _dataSource() {
-        // TODO review fro null
+        // TODO review from null
 
         // bind to the change event to refresh the widget
         if (
@@ -445,24 +462,26 @@ var Connector = DataBoundWidget.extend({
     /**
      * Add connection
      * Note: use this.value(string)
-     * @param target
+     * @param $target
      */
-    _addConnection(target) {
-        target = $(target);
-        const that = this;
+    _addConnection($target) {
+        assert.instanceof(
+            $,
+            $target,
+            assert.format(assert.messages.type.default, '$target', 'jQuery')
+        );
         let ret = false;
-        const options = that.options;
-        const element = that.element;
+        const { dataSource, element, options } = this;
         const id = element.attr(attr(CONSTANTS.ID));
-        const container = that.element.closest(options.container);
+        const container = element.closest(options.container);
         assert.hasLength(
             container,
             assert.format(assert.messages.hasLength.default, options.container)
         );
-        const targetId = target.attr(attr(CONSTANTS.ID));
-        const targetWidget = target.data(WIDGET);
+        const targetId = $target.attr(attr(CONSTANTS.ID));
+        const targetWidget = $target.data(WIDGET);
         if (id !== targetId && targetWidget instanceof Connector) {
-            const targetContainer = target.closest(
+            const targetContainer = $target.closest(
                 targetWidget.options.container
             );
             assert.hasLength(
@@ -475,7 +494,7 @@ var Connector = DataBoundWidget.extend({
             if (container[0] === targetContainer[0]) {
                 assert.instanceof(
                     DataSource,
-                    that.dataSource,
+                    dataSource,
                     assert.format(
                         assert.messages.instanceof.default,
                         'this.dataSource',
@@ -484,9 +503,9 @@ var Connector = DataBoundWidget.extend({
                 );
                 const originId = id < targetId ? id : targetId;
                 const destinationId = id < targetId ? targetId : id;
-                const originWidget = id < targetId ? that : targetWidget;
-                const destinationWidget = id < targetId ? targetWidget : that;
-                const connections = that.dataSource.view();
+                const originWidget = id < targetId ? this : targetWidget;
+                const destinationWidget = id < targetId ? targetWidget : this;
+                const connections = dataSource.view();
                 const originConnection = connections.find(
                     connection =>
                         connection.type === DATA_TYPE && // The dataSource is already filtered, so this might be redundant
@@ -506,14 +525,14 @@ var Connector = DataBoundWidget.extend({
                     originConnection !== destinationConnection
                 ) {
                     if (originConnection) {
-                        that.dataSource.remove(originConnection);
+                        dataSource.remove(originConnection);
                         originWidget._dropConnection();
                     }
                     if (destinationConnection) {
-                        that.dataSource.remove(destinationConnection);
+                        dataSource.remove(destinationConnection);
                         destinationWidget._dropConnection();
                     }
-                    that.dataSource.add({
+                    dataSource.add({
                         type: DATA_TYPE,
                         id: originId,
                         data: {
@@ -560,8 +579,8 @@ var Connector = DataBoundWidget.extend({
      */
     _dropConnection() {
         const that = this;
-        const options = that.options;
-        const element = that.element;
+        const { options } = that;
+        const { element } = that;
         const id = element.attr(attr(CONSTANTS.ID));
         const container = that.element.closest(options.container);
         assert.hasLength(
@@ -606,7 +625,7 @@ var Connector = DataBoundWidget.extend({
      */
     refresh() {
         const that = this;
-        const options = that.options;
+        const { options } = that;
         const container = that.element.closest(options.container);
         assert.instanceof(
             $,
@@ -696,7 +715,7 @@ var Connector = DataBoundWidget.extend({
      */
     destroy() {
         const that = this;
-        const element = that.element;
+        const { element } = that;
         const container = element.closest(that.options.container);
         const surface = container.data(SURFACE);
         DataBoundWidget.fn.destroy.call(that);

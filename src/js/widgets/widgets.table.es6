@@ -121,12 +121,8 @@ const Table = Widget.extend({
         let width;
         let rowIndex;
         let columnIndex;
-        const rowFinder = function(item) {
-            return item.index === rowIndex;
-        };
-        const columnFinder = function(item) {
-            return item.index === columnIndex;
-        };
+        const rowFinder = row => row.index === rowIndex;
+        const columnFinder = column => column.index === columnIndex;
         for (rowIndex = 0; rowIndex < rowTotal; rowIndex++) {
             ret.push([]);
             const row = ret[rowIndex];
@@ -158,24 +154,16 @@ const Table = Widget.extend({
                         css: {
                             backgroundColor: cellDefinition.background,
                             borderBottom: cellDefinition.borderBottom
-                                ? `solid ${
-                                    cellDefinition.borderBottom.size
-                                }px ${cellDefinition.borderBottom.color}`
+                                ? `solid ${cellDefinition.borderBottom.size}px ${cellDefinition.borderBottom.color}`
                                 : undefined,
                             borderLeft: cellDefinition.borderLeft
-                                ? `solid ${cellDefinition.borderLeft.size}px ${
-                                    cellDefinition.borderLeft.color
-                                }`
+                                ? `solid ${cellDefinition.borderLeft.size}px ${cellDefinition.borderLeft.color}`
                                 : undefined,
                             borderRight: cellDefinition.borderRight
-                                ? `solid ${cellDefinition.borderRight.size}px ${
-                                    cellDefinition.borderRight.color
-                                }`
+                                ? `solid ${cellDefinition.borderRight.size}px ${cellDefinition.borderRight.color}`
                                 : undefined,
                             borderTop: cellDefinition.borderTop
-                                ? `solid ${cellDefinition.borderTop.size}px ${
-                                    cellDefinition.borderTop.color
-                                }`
+                                ? `solid ${cellDefinition.borderTop.size}px ${cellDefinition.borderTop.color}`
                                 : undefined,
                             color: cellDefinition.color,
                             fontFamily: cellDefinition.fontFamily || 'Arial',
@@ -225,7 +213,7 @@ const Table = Widget.extend({
      * @method refresh
      */
     refresh() {
-        const element = this.element;
+        const { element } = this;
         const rowTotal = this.options.rows;
         const columnTotal = this.options.columns;
         element.empty();

@@ -30,11 +30,10 @@ const NS = '.kendoMediaPlayer';
 const WIDGET_CLASS = 'k-widget kj-mediaplayer';
 
 const ARRAY = 'array';
-const INTERACTIVE_CLASS = 'kj-interactive';
 const TOOLBAR_CLASS = 'k-widget k-toolbar kj-mediaplayer-toolbar';
 const BUTTON_CLASS = 'k-button kj-mediaplayer-button';
 const COMMAND = 'command';
-const BUTTON_SELECTOR = `a.kj-mediaplayer-button[${kendo.attr(COMMAND)}="{0}"]`;
+const BUTTON_SELECTOR = `a.kj-mediaplayer-button[${attr(COMMAND)}="{0}"]`;
 const SEEKER_CLASS = 'kj-mediaplayer-seeker';
 const SEEKER_SELECTOR = `div.${SEEKER_CLASS}`;
 const TIME_CLASS = 'kj-mediaplayer-time';
@@ -161,9 +160,9 @@ function toHMS(seconds) {
     s %= 60;
     m %= 60;
     if (h === 0) {
-        return kendo.format('{0:00}:{1:00}', m, s);
+        return format('{0:00}:{1:00}', m, s);
     }
-    return kendo.format('{0:00}:{1:00}:{2:00}', h, m, s);
+    return format('{0:00}:{1:00}:{2:00}', h, m, s);
 }
 
 /** *******************************************************************************
@@ -221,10 +220,10 @@ const MediaPlayer = Widget.extend({
     _layout() {
         const that = this;
         that.wrapper = that.element;
-        // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
+        // CONSTANTS.INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
         that.element
             .addClass(WIDGET_CLASS)
-            .addClass(INTERACTIVE_CLASS)
+            .addClass(CONSTANTS.INTERACTIVE_CLASS)
             .css({ position: 'relative' });
         that._media();
         that._toolbar();

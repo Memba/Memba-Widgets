@@ -113,19 +113,26 @@ const MarkEditor = Widget.extend({
      * @return {*}
      */
     value(value) {
-        const that = this;
+        assert.nullableTypeOrUndef(
+            CONSTANTS.STRING,
+            value,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                'value',
+                CONSTANTS.STRING
+            )
+        );
+        let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            return that.codeMirror.getValue();
-        }
-        if ($.type(value) === CONSTANTS.NULL) {
-            this.value('');
-        } else if ($.type(value) === CONSTANTS.STRING) {
-            if (that.codeMirror.getValue() !== value) {
-                that.codeMirror.setValue(value);
-            }
+            ret = this.codeMirror.getValue();
         } else {
-            throw new TypeError('`value` should be a string');
+            // Replace NULL with ''
+            const val = value || CONSTANTS.EMPTY;
+            if (this.codeMirror.getValue() !== val) {
+                this.codeMirror.setValue(val);
+            }
         }
+        return ret;
     },
 
     /**
@@ -276,7 +283,7 @@ const MarkEditor = Widget.extend({
         if (
             !this.trigger('command', { command: e.command, params: e.params })
         ) {
-            const options = this.options;
+            const { options } = this;
             // Note: as long as it is not too complex, we can use a dispatcher as below
             // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
             switch (e.command) {
@@ -371,7 +378,7 @@ const MarkEditor = Widget.extend({
         let trimmed;
         let leadingSpaces;
         let trailingSpaces;
-        for (let i = 0, length = selections.length; i < length; i++) {
+        for (let i = 0, { length } = selections; i < length; i++) {
             if (trim && selections[i].length) {
                 // Some selections cannot contain spaces on their edges ** dummy** is not valid (but ```  code ``` is valid)
                 // So we need to trim spaces from selections that require it, especially before making them it bold or italic
@@ -418,7 +425,7 @@ const MarkEditor = Widget.extend({
             str = `${regex}`;
             regex = undefined;
         }
-        for (let i = 0, length = selections.length; i < length; i++) {
+        for (let i = 0, { length } = selections; i < length; i++) {
             if (
                 (typeof regex === CONSTANTS.STRING ||
                     regex instanceof RegExp) &&
@@ -449,7 +456,7 @@ const MarkEditor = Widget.extend({
         const delimiters = cm.listSelections();
         let bol; // Beginning of line
         let eol; // End of line
-        for (let i = 0, length = selections.length; i < length; i++) {
+        for (let i = 0, { length } = selections; i < length; i++) {
             bol =
                 cm.posFromIndex(cm.indexFromPos(delimiters[i].anchor) - 1)
                     .line === delimiters[i].anchor.line &&
@@ -488,7 +495,7 @@ const MarkEditor = Widget.extend({
      */
     destroy() {
         const that = this;
-        const wrapper = that.wrapper;
+        const { wrapper } = that;
         // Unbind events
         unbind(wrapper);
         // Clear references

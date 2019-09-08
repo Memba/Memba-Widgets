@@ -52,7 +52,6 @@ const MOUSEUP = `mouseup${NS} ` + `touchend${NS}`;
 const TOGGLE = 'toggle';
 const CONSTANT = 'constant';
 const SURFACE_CLASS = `${WIDGET_CLASS}-surface`;
-const INTERACTIVE_CLASS = 'kj-interactive';
 const ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
 const ROLE_SELECTOR = 'selector';
 const DATA_TYPE = 'selection';
@@ -264,7 +263,7 @@ const SelectorEvents = Class.extend({
         );
         const target = $(e.target);
         // Do not interfere with interactive elements
-        if (target.closest(CONSTANTS.DOT + INTERACTIVE_CLASS).length) {
+        if (target.closest(CONSTANTS.DOT + CONSTANTS.INTERACTIVE_CLASS).length) {
             return;
         }
         const selectorSurface = this._getSelectorSurface(target);
@@ -1599,7 +1598,7 @@ var Selector = DataBoundWidget.extend({
             // Find interactive elements
             const firstInteractiveElement = container
                 .children()
-                .has(CONSTANTS.DOT + INTERACTIVE_CLASS)
+                .has(CONSTANTS.DOT + CONSTANTS.INTERACTIVE_CLASS)
                 .first();
             surfaceElement = $(`<${CONSTANTS.DIV}/>`)
                 .addClass(SURFACE_CLASS)

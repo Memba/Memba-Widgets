@@ -26,7 +26,7 @@ import '../dialogs/widgets.basedialog.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import { isAnyArray } from '../common/window.util.es6';
+// import { isAnyArray } from '../common/window.util.es6';
 import { AssetDataSource } from '../data/data.asset.es6';
 
 const { FileList } = window;
@@ -36,6 +36,7 @@ const {
     data: { DataSource, ObservableObject, Model },
     destroy,
     format,
+    observable,
     roleSelector,
     template,
     ui: {
@@ -52,13 +53,7 @@ const {
     unbind
 } = window.kendo;
 const logger = new Logger('widgets.assetmanager');
-
-const ERROR = 'error';
 const NS = '.kendoAssetManager';
-const DRAGENTER = 'dragenter';
-const DRAGOVER = 'dragover';
-const DROP = 'drop';
-const PROGRESS = 'progress';
 const WIDGET_CLASS = 'k-widget kj-assetmanager';
 const WINDOW_SELECTOR = '.kj-assetmanager-window';
 const TOOLBAR_TMPL =
@@ -122,7 +117,7 @@ function bindDragEventWrappers(element, onDragEnter, onDragLeave) {
     let hideInterval;
     let lastDrag;
     element
-        .on(DRAGENTER + NS, e => {
+        .on(CONSTANTS.DRAGENTER + NS, e => {
             onDragEnter(e);
             lastDrag = new Date();
             if (!hideInterval) {
@@ -136,7 +131,7 @@ function bindDragEventWrappers(element, onDragEnter, onDragLeave) {
                 }, 100);
             }
         })
-        .on(DRAGOVER + NS, () => {
+        .on(CONSTANTS.DRAGOVER + NS, () => {
             lastDrag = new Date();
         });
 }
@@ -146,6 +141,7 @@ function bindDragEventWrappers(element, onDragEnter, onDragLeave) {
  * @param fileList
  * @returns {number}
  */
+/*
 function totalSize(fileList) {
     let ret = 0;
     if (fileList instanceof FileList || isAnyArray(fileList)) {
@@ -155,6 +151,7 @@ function totalSize(fileList) {
     }
     return ret;
 }
+ */
 
 /** *******************************************************************************
  * Widget
@@ -228,7 +225,7 @@ const AssetManager = Widget.extend({
     events: [
         CONSTANTS.CHANGE,
         CONSTANTS.CLICK, // TODO beforeOpen
-        ERROR
+        CONSTANTS.ERROR
     ],
 
     /**
@@ -236,12 +233,13 @@ const AssetManager = Widget.extend({
      * @returns {*}
      */
     value() {
+        let ret;
         // TODO: value cannot change when selecting on Google tab, because they need to be imported first
-        const that = this;
-        const selected = that._selectedItem();
+        const selected = this._selectedItem();
         if (selected instanceof ObservableObject) {
-            return selected.url;
+            ret = selected.url;
         }
+        return ret;
     },
 
     /**
@@ -249,9 +247,11 @@ const AssetManager = Widget.extend({
      * @returns {*}
      */
     progress(progress) {
+        let ret;
         if (this.progressBar instanceof ProgressBar) {
-            return this.progressBar.value(progress);
+            ret = this.progressBar.value(progress);
         }
+        return ret;
     },
 
     /**
@@ -259,12 +259,13 @@ const AssetManager = Widget.extend({
      * @param index
      */
     select(index) {
+        let idx;
         if ($.type(index) === CONSTANTS.NUMBER) {
-            index = this.listView.items().get(index);
+            idx = this.listView.items().get(index);
         } else if ($.type(index) === CONSTANTS.STRING) {
-            index = $(index);
+            idx = $(index);
         }
-        return this.listView.select(index);
+        return this.listView.select(idx);
     },
 
     /**
@@ -298,7 +299,7 @@ const AssetManager = Widget.extend({
                         that._extendDataSourceOptions(collection)
                     );
                     if ($.isFunction(that._errorHandler)) {
-                        dataSource.bind(ERROR, that._errorHandler);
+                        dataSource.bind(CONSTANTS.ERROR, that._errorHandler);
                     }
                     ret.push({
                         dataSource,
@@ -883,7 +884,7 @@ const AssetManager = Widget.extend({
      * @private
      */
     _createDataItem(file) {
-        //debugger;
+        // debugger;
         assert.type(
             CONSTANTS.OBJECT,
             file,
@@ -1010,19 +1011,20 @@ const AssetManager = Widget.extend({
                 'this.collection.dataSource'
             )
         );
-        let index;
         if (model._override) {
             return model;
         }
         const { dataSource } = this.listView;
         const view = dataSource.view(); // TODO or data() ????
+        let index = view.length - 1;
         for (let i = 0, { length } = view; i < length; i++) {
             if (view[i].get('type') === 'f') {
                 index = i;
                 break;
             }
         }
-        return dataSource.insert(++index, model);
+        index += 1;
+        return dataSource.insert(index, model);
     },
 
     /**
@@ -1420,7 +1422,7 @@ const AssetManager = Widget.extend({
      * @private
      */
     _onSearchClearClick() {
-        const searchInput = this.searchInput;
+        const { searchInput } = this;
         assert.instanceof(
             $,
             searchInput,
@@ -1464,7 +1466,7 @@ const AssetManager = Widget.extend({
                 dataBound: this._onListViewDataBound.bind(this),
                 dataSource,
                 selectable: true,
-                template: kendo.template(this.options.itemTemplate)
+                template: template(this.options.itemTemplate)
             })
             .data('kendoListView');
         assert.instanceof(
@@ -1546,7 +1548,7 @@ const AssetManager = Widget.extend({
         ) {
             let size = 0;
             const data = this.listView.dataSource.data();
-            for (let i = 0, length = data.length; i < length; i++) {
+            for (let i = 0, { length } = data; i < length; i++) {
                 size += data[i].size;
             }
             this.progressBar.value(size / 100000); // TODO Total Size + use sizeFormatter to display text
@@ -1598,15 +1600,17 @@ const AssetManager = Widget.extend({
      * @private
      */
     _selectedItem() {
-        const listView = this.listView; // this.listView might not have yet been assigned
+        const { listView } = this; // this.listView might not have yet been assigned
+        let ret;
         if (listView instanceof ListView) {
             const selected = listView.select();
             if (selected instanceof $ && selected.length) {
-                return this.listView.dataSource.getByUid(
+                ret = this.listView.dataSource.getByUid(
                     selected.attr(attr(CONSTANTS.UID))
                 );
             }
         }
+        return ret;
     },
 
     /**
@@ -1660,7 +1664,7 @@ const AssetManager = Widget.extend({
      */
     _getWindowViewModel(url) {
         const that = this;
-        return kendo.observable({
+        return observable({
             url: url || '',
             onCommand(e) {
                 // The editor has a save button which emits an event which we hook here
@@ -1718,6 +1722,7 @@ const AssetManager = Widget.extend({
      */
     _xhrErrorHandler(xhr, status, error) {
         // TODO Raise an error event - see _dataError
+        $.noop(xhr, status, error);
     },
 
     /**
@@ -1727,7 +1732,7 @@ const AssetManager = Widget.extend({
      */
     _dataError(e) {
         const that = this;
-        if (!that.trigger(ERROR, e)) {
+        if (!that.trigger(CONSTANTS.ERROR, e)) {
             /*
                     // The following is code from kendo.ui.filebrowser
                     var status = e.xhr.status;
@@ -1754,14 +1759,14 @@ const AssetManager = Widget.extend({
         const that = this;
         if (supportsFileDrop()) {
             that.dropZone = $('.k-dropzone', that.wrapper)
-                .on(DRAGENTER + NS, e => {
+                .on(CONSTANTS.DRAGENTER + NS, e => {
                     e.stopPropagation();
                     e.preventDefault();
                 })
-                .on(DRAGOVER + NS, e => {
+                .on(CONSTANTS.DRAGOVER + NS, e => {
                     e.preventDefault();
                 })
-                .on(DROP + NS, that._onDrop.bind(that));
+                .on(CONSTANTS.DROP + NS, that._onDrop.bind(that));
             // The following add/remove classes used by kendo.upload.js that we match for a consistent UI
             bindDragEventWrappers(
                 that.dropZone,
@@ -1818,7 +1823,7 @@ const AssetManager = Widget.extend({
      */
     destroy() {
         const that = this;
-        const wrapper = that.wrapper;
+        const { wrapper } = that;
         // Unbind events
         $(document).off(NS); // Assuming there is only one assetmanager on the page
         if (that.toolbar instanceof $) {
@@ -1842,7 +1847,7 @@ const AssetManager = Widget.extend({
             that.dataSource instanceof DataSource &&
             $.isFunction(that._errorHandler)
         ) {
-            that.dataSource.unbind(ERROR, that._errorHandler);
+            that.dataSource.unbind(CONSTANTS.ERROR, that._errorHandler);
         }
         that.dataSource = undefined;
         that._errorHandler = undefined;

@@ -22,6 +22,7 @@ import tools from '../../../src/js/tools/tools.es6';
 import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 
+// Component data
 import { getAudio } from '../_misc/test.components.es6';
 
 const { before, describe, it } = window;

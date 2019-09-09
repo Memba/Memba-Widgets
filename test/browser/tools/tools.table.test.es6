@@ -14,16 +14,34 @@ import $ from 'jquery';
 import 'kendo.core';
 import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { PageComponent } from '../../../src/js/data/data.pagecomponent';
 import tools from '../../../src/js/tools/tools.es6';
 import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 
+// Component data
+import { getTable } from '../_misc/test.components';
+
 const { describe, it, kendo, xit } = window;
 const { expect } = chai;
 
-describe('tools.chargrid', () => {
-    describe('CharGridTool', () => {
-        const tool = tools('chargrid');
+describe('tools.table', () => {
+    before(done => {
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        }
+        // load tool
+        tools.load(TOOL).always(done);
+    });
+
+    describe('TabkeTool', () => {
+        let tool;
+        let component;
+
+        before(() => {
+            tool = tools(TOOL);
+            component = new PageComponent(getTable());
+        });
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);

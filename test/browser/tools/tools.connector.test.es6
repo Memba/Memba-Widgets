@@ -13,17 +13,40 @@ import '../../../src/js/cultures/all.en.es6';
 import $ from 'jquery';
 import 'kendo.core';
 import chai from 'chai';
+import chaiJquery from 'chai-jquery';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { PageComponent } from '../../../src/js/data/data.pagecomponent';
 import tools from '../../../src/js/tools/tools.es6';
 import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 
-const { describe, it, kendo, xit } = window;
+// Component data
+import { getConnector } from '../_misc/test.components';
+
+const { describe, it, xit } = window;
 const { expect } = chai;
 
+chai.use((c, u) => chaiJquery(c, u, $));
+const FIXTURES = 'fixtures';
+const TOOL = 'connector';
+
 describe('tools.connector', () => {
+    before(done => {
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        }
+        // Load tool
+        tools.load(TOOL).always(done);
+    });
+
     describe('ConnectorTool', () => {
-        const tool = tools('connector');
+        let tool;
+        let component;
+
+        before(() => {
+            tool = tools[TOOL];
+            component = new PageComponent(getConnector());
+        });
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);
@@ -51,52 +74,48 @@ describe('tools.connector', () => {
         it('onResize', () => {
             expect(tool.onResize).to.be.undefined;
         });
+
+        it('Validate properties', function () {
+            var tool = tools('connector');
+            expect(tool.id).to.equal('connector');
+            expect(tool.icon).to.equal('target');
+            expect(tool.cursor).to.equal('crosshair');
+            expect(tool.height).to.equal(70);
+            expect(tool.width).to.equal(70);
+            expect(tool.getHtmlContent).to.respond;
+            expect(tool.onMove).to.be.undefined;
+            expect(tool.onResize).to.respond;
+            expect(tool.onRotate).to.be.undefined;
+        });
+
+        it('Check getHtmlContent', function () {
+            function fn1() {
+                return tool.getHtmlContent({});
+            }
+            function fn2() {
+                return tool.getHtmlContent(component);
+            }
+            var tool = tools('connector');
+            var component = new PageComponent({ tool: 'connector' });
+            var html;
+
+            // If we do not submit a page component
+            expect(fn1).to.throw();
+
+            // If we do not submit a mode
+            expect(fn2).to.throw();
+
+            // If we submit a valid page component in design mode
+            html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.DESIGN);
+            expect(html).to.match(/^<div data-role="connector"/);
+
+            // If we submit a valid page component in play mode
+            html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.PLAY);
+            expect(html).to.match(/^<div data-role="connector"/);
+
+            // If we submit a valid page component in review mode
+            html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.REVIEW);
+            expect(html).to.match(/^<div data-role="connector"/);
+        });
     });
-});
-
-describe('Connector', () => {
-
-    it('Validate properties', function () {
-        var tool = tools('connector');
-        expect(tool.id).to.equal('connector');
-        expect(tool.icon).to.equal('target');
-        expect(tool.cursor).to.equal('crosshair');
-        expect(tool.height).to.equal(70);
-        expect(tool.width).to.equal(70);
-        expect(tool.getHtmlContent).to.respond;
-        expect(tool.onMove).to.be.undefined;
-        expect(tool.onResize).to.respond;
-        expect(tool.onRotate).to.be.undefined;
-    });
-
-    it('Check getHtmlContent', function () {
-        function fn1() {
-            return tool.getHtmlContent({});
-        }
-        function fn2() {
-            return tool.getHtmlContent(component);
-        }
-        var tool = tools('connector');
-        var component = new PageComponent({ tool: 'connector' });
-        var html;
-
-        // If we do not submit a page component
-        expect(fn1).to.throw();
-
-        // If we do not submit a mode
-        expect(fn2).to.throw();
-
-        // If we submit a valid page component in design mode
-        html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.DESIGN);
-        expect(html).to.match(/^<div data-role="connector"/);
-
-        // If we submit a valid page component in play mode
-        html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.PLAY);
-        expect(html).to.match(/^<div data-role="connector"/);
-
-        // If we submit a valid page component in review mode
-        html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.REVIEW);
-        expect(html).to.match(/^<div data-role="connector"/);
-    });
-
 });

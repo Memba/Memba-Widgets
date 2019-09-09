@@ -32,9 +32,9 @@ const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
 const FIXTURES = 'fixtures';
-const TOOL = 'textgaps';
+const TOOL = 'textarea';
 
-describe('tools.textgaps', () => {
+describe('tools.textarea', () => {
     before(done => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
@@ -43,7 +43,7 @@ describe('tools.textgaps', () => {
         tools.load(TOOL).always(done);
     });
 
-    describe('TextGapsTool', () => {
+    describe('TextAreaTool', () => {
         let tool;
         let component;
 
@@ -64,8 +64,8 @@ describe('tools.textgaps', () => {
             expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.textgaps.icon'));
             expect(tool)
-            .to.have.property('menu')
-            .that.eql(['properties.question', 'properties.solution']);
+                .to.have.property('menu')
+                .that.eql(['properties.question', 'properties.solution']);
             expect(tool).to.have.property('name', __('tools.textgaps.name'));
             expect(tool).to.have.property('weight', 1);
             expect(tool).to.have.property('width', 300);
@@ -86,8 +86,8 @@ describe('tools.textgaps', () => {
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
-            .to.be.an('array')
-            .with.lengthOf(7);
+                .to.be.an('array')
+                .with.lengthOf(7);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
@@ -117,8 +117,8 @@ describe('tools.textgaps', () => {
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
             expect(rows)
-            .to.be.an('array')
-            .with.lengthOf(7);
+                .to.be.an('array')
+                .with.lengthOf(7);
             expect(rows[0]).to.have.property('field', 'properties.name');
             expect(rows[1]).to.have.property('field', 'properties.question');
             expect(rows[2]).to.have.property('field', 'properties.solution');
@@ -131,17 +131,17 @@ describe('tools.textgaps', () => {
         it('getAssets', () => {
             const assets = tool.getAssets(component);
             expect(assets)
-            .to.have.property('audio')
-            .that.is.an('array')
-            .with.lengthOf(0);
+                .to.have.property('audio')
+                .that.is.an('array')
+                .with.lengthOf(0);
             expect(assets)
-            .to.have.property('image')
-            .that.is.an('array')
-            .with.lengthOf(0);
+                .to.have.property('image')
+                .that.is.an('array')
+                .with.lengthOf(0);
             expect(assets)
-            .to.have.property('video')
-            .that.is.an('array')
-            .with.lengthOf(0);
+                .to.have.property('video')
+                .that.is.an('array')
+                .with.lengthOf(0);
         });
 
         it('getDescription', () => {

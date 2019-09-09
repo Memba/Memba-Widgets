@@ -15,22 +15,23 @@ import 'kendo.core';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import { PageComponent } from '../../../src/js/data/data.pagecomponent';
 import tools from '../../../src/js/tools/tools.es6';
 import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 // Component data
-import { getCharGrid } from '../_misc/test.components';
+import { getLatex } from '../_misc/test.components.es6';
+import {PageComponent} from '../../../src/js/data/data.pagecomponent';
+import {getLabel} from '../_misc/test.components';
 
 const { describe, it, xit } = window;
 const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
 const FIXTURES = 'fixtures';
-const TOOL = 'chargrid';
+const TOOL = 'latex';
 
-describe('tools.chargrid', () => {
+describe('tools.latex', () => {
     before(done => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
@@ -39,13 +40,13 @@ describe('tools.chargrid', () => {
         tools.load(TOOL).always(done);
     });
 
-    describe('CharGridTool', () => {
+    describe('LatexTool', () => {
         let tool;
         let component;
 
         before(() => {
-            tool = tools[TOOL];
-            component = new PageComponent(getCharGrid());
+            tool = tools(TOOL);
+            component = new PageComponent(getLatex());
         });
 
         it('It should have descriptors', () => {
@@ -76,12 +77,12 @@ describe('tools.chargrid', () => {
         });
 
         it('Validate properties', function () {
-            var tool = tools('chargrid');
-            expect(tool.id).to.equal('chargrid');
-            expect(tool.icon).to.equal('dot_matrix');
+            var tool = tools('mathexpression');
+            expect(tool.id).to.equal('mathexpression');
+            expect(tool.icon).to.equal('formula');
             expect(tool.cursor).to.equal('crosshair');
-            expect(tool.height).to.equal(400);
-            expect(tool.width).to.equal(400);
+            expect(tool.height).to.equal(180);
+            expect(tool.width).to.equal(370);
             expect(tool.getHtmlContent).to.respond;
             expect(tool.onMove).to.be.undefined;
             expect(tool.onResize).to.respond;
@@ -95,8 +96,8 @@ describe('tools.chargrid', () => {
             function fn2() {
                 return tool.getHtmlContent(component);
             }
-            var tool = tools('chargrid');
-            var component = new PageComponent({ tool: 'chargrid' });
+            var tool = tools('mathexpression');
+            var component = new PageComponent({ tool: 'mathexpression' });
             var html;
 
             // If we do not submit a page component
@@ -107,15 +108,15 @@ describe('tools.chargrid', () => {
 
             // If we submit a valid page component in design mode
             html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.DESIGN);
-            expect(html).to.match(/^<div data-role="chargrid"/);
+            expect(html).to.match(/^<div data-role="mathexpression"/);
 
             // If we submit a valid page component in play mode
             html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.PLAY);
-            expect(html).to.match(/^<div data-role="chargrid"/);
+            expect(html).to.match(/^<div data-role="mathexpression"/);
 
             // If we submit a valid page component in review mode
             html = tool.getHtmlContent(component, TOOLS.STAGE_MODES.REVIEW);
-            expect(html).to.match(/^<div data-role="chargrid"/);
+            expect(html).to.match(/^<div data-role="mathexpression"/);
         });
     });
 });

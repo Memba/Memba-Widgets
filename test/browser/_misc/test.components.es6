@@ -70,6 +70,46 @@ function getAudio() {
 }
 
 /**
+ * getCharGrid
+ * @function getCharGrid
+ */
+function getCharGrid() {
+    return {
+        // TODO
+    };
+}
+
+/**
+ * getChart
+ * @function getChart
+ */
+function getChart() {
+    return {
+        // TODO
+    };
+}
+
+/**
+ * getConnector
+ * @function getConnector
+ */
+function getConnector() {
+    return {
+        // TODO
+    };
+}
+
+/**
+ * getDropZone
+ * @function getDropZone
+ */
+function getDropZone() {
+    return {
+        // TODO
+    };
+}
+
+/**
  * getDummy
  * @function getDummy
  */
@@ -131,6 +171,16 @@ function getLabel() {
         tool: 'label',
         top: positionGenerator(),
         width: positionGenerator()
+    };
+}
+
+/**
+ * getLatex
+ * @function getLatex
+ */
+function getLatex() {
+    return {
+        // TODO
     };
 }
 
@@ -203,6 +253,26 @@ function getQuiz() {
 }
 
 /**
+ * getSelector
+ * @function getSelector
+ */
+function getSelector() {
+    return {
+        // TODO
+    };
+}
+
+/**
+ * getTable
+ * @function getTable
+ */
+function getTable() {
+    return {
+        // TODO
+    };
+}
+
+/**
  * getTextArea
  * @function getTextArea
  */
@@ -224,7 +294,7 @@ function getTextArea() {
             validation: '// equal'
         },
         rotate: angleGenerator(),
-        tool: 'textbox',
+        tool: 'textarea',
         top: positionGenerator(),
         width: positionGenerator()
     };
@@ -289,6 +359,20 @@ function getVariable() {
     };
 }
 
+/**
+ * getVideo
+ * @function getVideo
+ */
+function getVideo() {
+    return {
+        // TODO
+    };
+}
+
+/**
+ * componentGenerator
+ * @type {{image: *, textbox: *, label: *}}
+ */
 const componentGenerator = {
     // dummy: getDummy,
     image: getImage,
@@ -367,15 +451,23 @@ function getStream() {
 export {
     // -- Tools
     getAudio,
+    getCharGrid,
+    getChart,
+    getConnector,
+    getDropZone,
     getDummy,
     getImage,
     getLabel,
+    getLatex,
     getMultiQuiz,
     getQuiz,
+    getSelector,
+    getTable,
     getTextArea,
     getTextBox,
     getTextGaps,
     getVariable,
+    getVideo,
     // -- Generic
     getComponentArray,
     getPage,

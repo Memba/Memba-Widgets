@@ -13,17 +13,40 @@ import '../../../src/js/cultures/all.en.es6';
 import $ from 'jquery';
 import 'kendo.core';
 import chai from 'chai';
+import chaiJquery from 'chai-jquery';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { PageComponent } from '../../../src/js/data/data.pagecomponent';
 import tools from '../../../src/js/tools/tools.es6';
 import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 
+
+import { getImageSet } from '../_misc/test.components';
+
 const { describe, it, kendo, xit } = window;
 const { expect } = chai;
 
-describe('tools.chargrid', () => {
-    describe('CharGridTool', () => {
-        const tool = tools('chargrid');
+chai.use((c, u) => chaiJquery(c, u, $));
+const FIXTURES = 'fixtures';
+const TOOL = 'imageset';
+
+describe('tools.imageset', () => {
+    before(done => {
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        }
+        // Load tool
+        tools.load(TOOL).always(done);
+    });
+
+    describe('ImageSetTool', () => {
+        let tool;
+        let component;
+
+        before(() => {
+            tool = tools[TOOL];
+            component = new PageComponent(getImageSet());
+        });
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);

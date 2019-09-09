@@ -218,8 +218,9 @@ describe('tools.textbox', () => {
 
             // Test all stage TOOLS.STAGE_MODES
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
-                const html = tool.getHtmlContent(component, mode);
-                expect(html).to.match(/^<input/);
+                const content = tool.getHtmlContent(component, mode);
+                expect(content).to.be.an.instanceOf($);
+                expect(content).to.match('input');
             });
         });
 

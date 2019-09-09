@@ -52,7 +52,7 @@ const urlGenerator = ext =>
  * getAudio
  * @function getAudio
  */
-export function getAudio() {
+function getAudio() {
     return {
         attributes: {
             autoplay: JSC.boolean()(),
@@ -73,7 +73,7 @@ export function getAudio() {
  * getDummy
  * @function getDummy
  */
-export function getDummy() {
+function getDummy() {
     return {
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -89,7 +89,7 @@ export function getDummy() {
  * getImage
  * @function getImage
  */
-export function getImage() {
+function getImage() {
     return {
         attributes: {
             alt: textGenerator(),
@@ -114,7 +114,7 @@ export function getImage() {
  * getLabel
  * @function getLabel
  */
-export function getLabel() {
+function getLabel() {
     return {
         attributes: {
             style: styleGenerator(),
@@ -138,7 +138,7 @@ export function getLabel() {
  * getMultiQuiz
  * @function getMultiQuiz
  */
-export function getMultiQuiz() {
+function getMultiQuiz() {
     const data = imageList();
     return {
         attributes: {
@@ -172,7 +172,7 @@ export function getMultiQuiz() {
  * getQuiz
  * @function getQuiz
  */
-export function getQuiz() {
+function getQuiz() {
     const data = imageList();
     return {
         attributes: {
@@ -203,10 +203,38 @@ export function getQuiz() {
 }
 
 /**
+ * getTextArea
+ * @function getTextArea
+ */
+function getTextArea() {
+    return {
+        attributes: {
+            style: styleGenerator()
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: textGenerator(),
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'textbox',
+        top: positionGenerator(),
+        width: positionGenerator()
+    };
+}
+
+/**
  * getTextBox
  * @function getTextBox
  */
-export function getTextBox() {
+function getTextBox() {
     return {
         attributes: {
             mask: '', // Not bothering
@@ -232,10 +260,20 @@ export function getTextBox() {
 }
 
 /**
+ * getTextGaps
+ * @function getTextBox
+ */
+function getTextGaps() {
+    return {
+        // TODO
+    };
+}
+
+/**
  * getVariable
  * @function getVariable
  */
-export function getVariable() {
+function getVariable() {
     return {
         attributes: {
             variable: JSC.string(JSC.integer(1, 10), JSC.character('a', 'z'))(),
@@ -263,7 +301,7 @@ const componentGenerator = {
  * getComponentArray
  * @function getComponentArray
  */
-export function getComponentArray() {
+function getComponentArray() {
     let ret = [];
     const generators = [];
     Object.keys(componentGenerator).forEach(key => {
@@ -293,7 +331,7 @@ export function getComponentArray() {
  * getPage
  * @function getPage
  */
-export function getPage() {
+function getPage() {
     return {
         components: getComponentArray(),
         explanations: textGenerator(),
@@ -308,7 +346,7 @@ export function getPage() {
  * getPageArray
  * @function getPageArray
  */
-export function getPageArray() {
+function getPageArray() {
     return JSC.array(JSC.number(3, 5), getPage)();
 }
 
@@ -317,8 +355,30 @@ export function getPageArray() {
  * @function getStream
  * @returns {{}}
  */
-export function getStream() {
+function getStream() {
     return {
         pages: getPageArray()
     };
 }
+
+/**
+ * Exports
+ */
+export {
+    // -- Tools
+    getAudio,
+    getDummy,
+    getImage,
+    getLabel,
+    getMultiQuiz,
+    getQuiz,
+    getTextArea,
+    getTextBox,
+    getTextGaps,
+    getVariable,
+    // -- Generic
+    getComponentArray,
+    getPage,
+    getPageArray,
+    getStream
+};

@@ -12,9 +12,8 @@ import 'kendo.core';
 import chai from 'chai';
 import JSC from 'jscheck';
 import { tryCatch } from '../_misc/test.util.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 import {
-    LIB_COMMENT,
-    LIB_PARAMS,
     isCustomFormula,
     isLibraryFormula,
     stringifyLibraryItem,
@@ -47,12 +46,12 @@ const library = [
     }
 ];
 const formulas = {
-    empty: LIB_COMMENT,
-    spaces: `${LIB_COMMENT}      `,
-    equal: `${LIB_COMMENT}equal`,
-    withoutParams: `${LIB_COMMENT}${key}`,
-    withParams: `${LIB_COMMENT}${key}${format(
-        LIB_PARAMS,
+    empty: TOOLS.LIB_COMMENT,
+    spaces: `${TOOLS.LIB_COMMENT}      `,
+    equal: `${TOOLS.LIB_COMMENT}equal`,
+    withoutParams: `${TOOLS.LIB_COMMENT}${key}`,
+    withParams: `${TOOLS.LIB_COMMENT}${key}${format(
+        TOOLS.LIB_PARAMS,
         JSON.stringify(params)
     )}`,
     anyFunction: 'function (a) {\n\treturn a;\n}',

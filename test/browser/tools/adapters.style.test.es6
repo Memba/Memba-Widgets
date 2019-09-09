@@ -22,7 +22,9 @@ describe('adapters.style', () => {
             expect(adapter).to.have.property('attributes').that.is.undefined;
             expect(adapter).to.have.property('defaultValue', '');
             expect(adapter).to.have.property('editable').that.is.undefined;
-            expect(adapter).to.have.property('editor', 'input');
+            expect(adapter)
+                .to.have.property('editor')
+                .that.is.a('function');
             expect(adapter).to.have.property('field').that.is.undefined;
             expect(adapter).to.have.property('format').that.is.undefined;
             expect(adapter).to.have.property('from').that.is.undefined;
@@ -46,10 +48,17 @@ describe('adapters.style', () => {
         it('getRow', () => {
             const field = randomVal();
             const row = adapter.getRow(field);
+            /*
             expect(row).to.deep.equal({
+                editor: 'input',
                 field,
-                editor: 'input'
             });
+             */
+            expect(Object.keys(row)).to.have.lengthOf(2);
+            expect(row).to.have.property('field', field);
+            expect(row)
+                .to.have.property('editor')
+                .that.is.a('function');
         });
     });
 });

@@ -18,7 +18,7 @@ describe('adapters.validation', () => {
         const adapter = new ValidationAdapter();
 
         it('It should have descriptors', () => {
-            expect(Object.keys(adapter)).to.have.lengthOf(14);
+            expect(Object.keys(adapter)).to.have.lengthOf(15);
             expect(adapter).to.have.property('attributes').that.is.undefined;
             expect(adapter).to.have.property('defaultValue').that.is.undefined;
             expect(adapter).to.have.property('editable').that.is.undefined;
@@ -29,6 +29,7 @@ describe('adapters.validation', () => {
             expect(adapter).to.have.property('format').that.is.undefined;
             expect(adapter).to.have.property('from').that.is.undefined;
             expect(adapter).to.have.property('help').that.is.undefined;
+            expect(adapter).to.have.property('library').that.is.undefined; // <----------- No.15
             expect(adapter).to.have.property('nullable').that.is.undefined;
             expect(adapter).to.have.property('parse').that.is.undefined;
             expect(adapter).to.have.property('template').that.is.undefined;

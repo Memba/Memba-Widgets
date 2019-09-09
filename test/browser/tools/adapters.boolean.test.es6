@@ -49,8 +49,8 @@ describe('adapters.boolean', () => {
             const field = randomVal();
             const row = adapter.getRow(field);
             expect(row).to.deep.equal({
-                field,
                 editor: 'input',
+                field,
                 attributes: { 'data-role': 'switch' }
             });
         });

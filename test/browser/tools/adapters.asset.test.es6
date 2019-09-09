@@ -50,8 +50,8 @@ describe('adapters.asset', () => {
             const row = adapter.getRow(field);
             /*
             expect(row).to.deep.equal({
-                field,
-                editor: 'input'
+                editor: 'input',
+                field
             });
              */
             expect(Object.keys(row)).to.have.lengthOf(2);

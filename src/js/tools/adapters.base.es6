@@ -152,7 +152,7 @@ const BaseAdapter = Class.extend({
      * Note especially for context menus
      * @param options
      */
-    showDialog(options = {} /* , e */) {
+    showDialog(options = {} /* , evt */) {
         assert.isPlainObject(
             options,
             assert.format(assert.messages.isPlainObject.default, 'options')

@@ -14,10 +14,10 @@ import chaiJquery from 'chai-jquery';
 // import JSC from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants';
 import {
-    getElementCenter
-    // getMousePosition,
-    // getTransformRotation,
-    // getTransformScale
+    getElementCenter,
+    getMousePosition,
+    getTransformRotation,
+    getTransformScale
 } from '../../../src/js/common/window.position.es6';
 
 const { describe, it } = window;
@@ -35,25 +35,25 @@ describe('window.position', () => {
 
     describe('getElementCenter', () => {
         it('TODO', () => {
-            expect(true).to.be.false;
+            expect(getElementCenter).to.be.a('function');
         });
     });
 
     describe('getMousePosition', () => {
-        xit('TODO', () => {
-            expect(getElementCenter).to.be.a('function');
+        it('TODO', () => {
+            expect(getMousePosition).to.be.a('function');
         });
     });
 
     describe('getTransformRotation', () => {
         xit('TODO', () => {
-            expect(true).to.be.false;
+            expect(getTransformRotation).to.be.a('function');
         });
     });
 
     describe('getTransformScale', () => {
         xit('TODO', () => {
-            expect(true).to.be.false;
+            expect(getTransformScale).to.be.a('function');
         });
     });
 });

@@ -21,12 +21,16 @@ describe('adapters.dropdownlist', () => {
             expect(Object.keys(adapter)).to.have.lengthOf(14);
             expect(adapter)
                 .to.have.property('attributes')
-                .that.deep.equals({ 'data-role': 'datepicker' });
-            expect(adapter)
-                .to.have.property('defaultValue')
-                .that.is.a('function');
+                .that.deep.equals({
+                    'data-role': 'dropdownlist',
+                    'data-source': '[]',
+                    'data-text-field': 'text',
+                    'data-value-field': 'value',
+                    'data-value-primitive': true
+                });
+            expect(adapter).to.have.property('defaultValue', '');
             expect(adapter).to.have.property('editable').that.is.undefined;
-            expect(adapter).to.have.property('editor', 'input');
+            expect(adapter).to.have.property('editor', 'select');
             expect(adapter).to.have.property('field').that.is.undefined;
             expect(adapter).to.have.property('format').that.is.undefined;
             expect(adapter).to.have.property('from').that.is.undefined;
@@ -35,26 +39,31 @@ describe('adapters.dropdownlist', () => {
             expect(adapter).to.have.property('parse').that.is.undefined;
             expect(adapter).to.have.property('template').that.is.undefined;
             expect(adapter).to.have.property('title').that.is.undefined;
-            expect(adapter).to.have.property('type', CONSTANTS.DATE);
+            expect(adapter).to.have.property('type', CONSTANTS.STRING);
             expect(adapter).to.have.property('validation').that.is.undefined;
         });
 
         it('getField', () => {
             const field = adapter.getField();
-            expect(field)
-                .to.have.property('defaultValue')
-                .that.is.a('function');
-            expect(field.defaultValue()).to.be.a('date');
-            expect(field).to.have.property('type', CONSTANTS.DATE);
+            expect(field).to.deep.equal({
+                defaultValue: '',
+                type: CONSTANTS.STRING
+            });
         });
 
         it('getRow', () => {
             const field = randomVal();
             const row = adapter.getRow(field);
             expect(row).to.deep.equal({
-                field,
-                editor: 'input',
-                attributes: { 'data-role': 'datepicker' }
+                attributes: {
+                    'data-role': 'dropdownlist',
+                    'data-source': '[]',
+                    'data-text-field': 'text',
+                    'data-value-field': 'value',
+                    'data-value-primitive': true
+                },
+                editor: 'select',
+                field
             });
         });
     });

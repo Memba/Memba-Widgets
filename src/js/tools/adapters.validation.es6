@@ -32,7 +32,7 @@ const ValidationAdapter = BaseAdapter.extend({
     init(options, attributes) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
-        that.library = options.library; // For showDialog
+        that.library = (options || {}).library; // For showDialog
         that.type = CONSTANTS.STRING;
         // this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         that.editor = (container, settings) => {
@@ -78,7 +78,7 @@ const ValidationAdapter = BaseAdapter.extend({
      * Show dialog
      * @param options
      */
-    showDialog(options /* , e */) {
+    showDialog(options = {} /* , evt */) {
         const that = this;
         openCodeEditor({
             title: options.title || this.title,

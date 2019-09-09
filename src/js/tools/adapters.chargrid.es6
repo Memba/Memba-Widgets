@@ -46,7 +46,7 @@ const CharGridAdapter = BaseAdapter.extend({
      * showDialog
      * @param options
      */
-    showDialog(options /* , evt */) {
+    showDialog(options = {} /* , evt */) {
         const { model } = options;
         // Build data (resize array especially after changing rows and columns)
         const columns = model.get('attributes.columns');

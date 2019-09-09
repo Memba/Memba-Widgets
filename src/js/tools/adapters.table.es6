@@ -41,7 +41,12 @@ const TableAdapter = BaseAdapter.extend({
                 .on(CONSTANTS.CLICK, that.showDialog.bind(that, settings));
         };
     },
-    showDialog(options /* , e */) {
+
+    /**
+     * ShowDialog
+     * @param options
+     */
+    showDialog(options = {} /* , evt */) {
         const { model } = options;
         const columns = model.get('attributes.columns');
         const rows = model.get('attributes.rows');

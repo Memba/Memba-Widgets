@@ -19,7 +19,13 @@ describe('adapters.readonly', () => {
 
         it('It should have descriptors', () => {
             expect(Object.keys(adapter)).to.have.lengthOf(14);
-            expect(adapter).to.have.property('attributes').that.is.undefined;
+            expect(adapter)
+                .to.have.property('attributes')
+                .that.deep.equals({
+                    class: 'k-textbox k-state-disabled',
+                    disabled: true,
+                    type: 'text'
+                });
             expect(adapter).to.have.property('defaultValue', '');
             expect(adapter).to.have.property('editable').that.is.undefined;
             expect(adapter).to.have.property('editor', 'input');
@@ -47,8 +53,13 @@ describe('adapters.readonly', () => {
             const field = randomVal();
             const row = adapter.getRow(field);
             expect(row).to.deep.equal({
-                field,
-                editor: 'input'
+                attributes: {
+                    class: 'k-textbox k-state-disabled',
+                    disabled: true,
+                    type: 'text'
+                },
+                editor: 'input',
+                field
             });
         });
     });

@@ -19,7 +19,9 @@ describe('adapters.textarea', () => {
 
         it('It should have descriptors', () => {
             expect(Object.keys(adapter)).to.have.lengthOf(14);
-            expect(adapter).to.have.property('attributes').that.is.undefined;
+            expect(adapter)
+                .to.have.property('attributes')
+                .that.deep.equals({ class: 'k-textbox' });
             expect(adapter).to.have.property('defaultValue', '');
             expect(adapter).to.have.property('editable').that.is.undefined;
             expect(adapter).to.have.property('editor', 'textarea');
@@ -47,8 +49,9 @@ describe('adapters.textarea', () => {
             const field = randomVal();
             const row = adapter.getRow(field);
             expect(row).to.deep.equal({
-                field,
-                editor: 'textarea'
+                attributes: { class: 'k-textbox' },
+                editor: 'textarea',
+                field
             });
         });
     });

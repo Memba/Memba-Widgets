@@ -48,7 +48,7 @@ const ChartAdapter = BaseAdapter.extend({
      * showDialog
      * @param options
      */
-    showDialog(options /* , e */) {
+    showDialog(options = {} /* , evt */) {
         const { model } = options;
         const columns = model.get('attributes.categories') + 1;
         const rows = model.get('attributes.values') + 1;

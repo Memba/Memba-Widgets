@@ -78,7 +78,7 @@ const AssetAdapter = BaseAdapter.extend({
      * @method showDialog
      * @param options
      */
-    showDialog(options /* , e */) {
+    showDialog(options = {} /* , evt */) {
         assert.instanceof(
             PageComponent,
             options.model,

@@ -50,8 +50,8 @@ describe('adapters.color', () => {
             const row = adapter.getRow(field);
             expect(row).to.deep.equal({
                 attributes: { 'data-role': 'colorpicker' },
-                field,
-                editor: 'input'
+                editor: 'input',
+                field
             });
         });
     });

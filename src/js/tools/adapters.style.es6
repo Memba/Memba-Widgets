@@ -74,7 +74,7 @@ const StyleAdapter = BaseAdapter.extend({
      * Show dialog
      * @param options
      */
-    showDialog(options = {} /* , e */) {
+    showDialog(options = {} /* , evt */) {
         assert.isPlainObject(
             options,
             assert.format(assert.messages.isPlainObject.default, 'options')

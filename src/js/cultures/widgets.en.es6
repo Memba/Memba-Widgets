@@ -703,7 +703,7 @@ if (window.kendo && window.kendo.ui) {
         options.messages = $.extend(true, options.messages, {
             play: 'Play/Pause',
             mute: 'Mute/Unmute',
-            full: 'Full Screen',
+            fullScreen: 'Full Screen',
             notSupported: 'Media not supported'
         });
     }

@@ -700,7 +700,7 @@ if (window.kendo && window.kendo.ui) {
         options.messages = $.extend(true, options.messages, {
             play: 'Jouer/Pauser',
             mute: 'Avec/Sans son',
-            full: 'Plein écran',
+            fullScreen: 'Plein écran',
             notSupported: 'Fichier non supporté'
         });
     }

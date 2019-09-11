@@ -185,6 +185,26 @@ function getLatex() {
 }
 
 /**
+ * getLine
+ * @function getLine
+ */
+function getLine() {
+    return {
+        attributes: {
+            color: '#ff0000'
+            // TODO more?
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        rotate: angleGenerator(),
+        tool: 'line',
+        top: positionGenerator(),
+        width: positionGenerator()
+    };
+}
+
+/**
  * getMultiQuiz
  * @function getMultiQuiz
  */
@@ -365,7 +385,20 @@ function getVariable() {
  */
 function getVideo() {
     return {
-        // TODO
+        attributes: {
+            autoplay: JSC.boolean()(),
+            toolbarHeight: JSC.integer(10, 50)(),
+            mp4: urlGenerator('mp4'),
+            ogv: urlGenerator('ogv'),
+            wbem: urlGenerator('wbem')
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        rotate: angleGenerator(),
+        tool: 'video',
+        top: positionGenerator(),
+        width: positionGenerator()
     };
 }
 
@@ -459,6 +492,7 @@ export {
     getImage,
     getLabel,
     getLatex,
+    getLine,
     getMultiQuiz,
     getQuiz,
     getSelector,

@@ -40,7 +40,7 @@ const LineTool = BaseTool.extend({
     id: 'line',
     height: 60,
     width: 300,
-    // menu: [],
+    menu: ['attributes.lineColor'],
     templates: {
         default: TEMPLATE
     },

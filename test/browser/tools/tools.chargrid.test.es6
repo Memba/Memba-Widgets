@@ -44,7 +44,7 @@ describe('tools.chargrid', () => {
         let component;
 
         before(() => {
-            tool = tools[TOOL];
+            tool = tools(TOOL);
             component = new PageComponent(getCharGrid());
         });
 
@@ -75,8 +75,7 @@ describe('tools.chargrid', () => {
             expect(tool.onResize).to.be.undefined;
         });
 
-        it('Validate properties', function () {
-            var tool = tools('chargrid');
+        it('Validate properties', () => {
             expect(tool.id).to.equal('chargrid');
             expect(tool.icon).to.equal('dot_matrix');
             expect(tool.cursor).to.equal('crosshair');
@@ -88,7 +87,7 @@ describe('tools.chargrid', () => {
             expect(tool.onRotate).to.be.undefined;
         });
 
-        it('Check getHtmlContent', function () {
+        it('Check getHtmlContent', () => {
             function fn1() {
                 return tool.getHtmlContent({});
             }

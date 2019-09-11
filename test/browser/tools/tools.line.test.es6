@@ -11,7 +11,6 @@ import '../../../src/js/cultures/all.en.es6';
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.core';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import __ from '../../../src/js/app/app.i18n.es6';
@@ -23,30 +22,31 @@ import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 // Component data
-import { getAudio } from '../_misc/test.components.es6';
+import { getLine } from '../_misc/test.components.es6';
 
-const { before, describe, it } = window;
+const { describe, it } = window;
 const { expect } = chai;
 
 chai.use((c, u) => chaiJquery(c, u, $));
 const FIXTURES = 'fixtures';
-const TOOL = 'audio';
+const TOOL = 'line';
 
-describe('tools.audio', () => {
+describe('tools.line', () => {
     before(done => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
+        // Load tool
         tools.load(TOOL).always(done);
     });
 
-    describe('AudioTool', () => {
+    describe('LineTool', () => {
         let tool;
         let component;
 
         before(() => {
             tool = tools(TOOL);
-            component = new PageComponent(getAudio());
+            component = new PageComponent(getLine());
         });
 
         it('It should have descriptors', () => {
@@ -54,18 +54,18 @@ describe('tools.audio', () => {
             expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
             expect(tool).to.have.property(
                 'description',
-                __('tools.audio.description')
+                __('tools.line.description')
             );
-            expect(tool).to.have.property('height', 100);
-            expect(tool).to.have.property('help', __('tools.audio.help'));
+            expect(tool).to.have.property('height', 60);
+            expect(tool).to.have.property('help', __('tools.line.help'));
             expect(tool).to.have.property('id', TOOL);
-            expect(tool).to.have.property('icon', __('tools.audio.icon'));
+            expect(tool).to.have.property('icon', __('tools.line.icon'));
             expect(tool)
                 .to.have.property('menu')
-                .that.eql(['attributes.mp3']);
-            expect(tool).to.have.property('name', __('tools.audio.name'));
+                .that.eql(['attributes.lineColor']);
+            expect(tool).to.have.property('name', __('tools.line.name'));
             expect(tool).to.have.property('weight', 0);
-            expect(tool).to.have.property('width', 400);
+            expect(tool).to.have.property('width', 300);
         });
 
         it('getAttributeModel', () => {
@@ -76,24 +76,22 @@ describe('tools.audio', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('autoplay');
-            expect(Model.fields).to.have.property('mp3');
-            expect(Model.fields).to.have.property('ogg');
+            expect(Model.fields).to.have.property('lineColor');
+            expect(Model.fields).to.have.property('lineWidth');
         });
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an('array')
-                .with.lengthOf(8);
+                .with.lengthOf(7);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.autoplay');
-            expect(rows[6]).to.have.property('field', 'attributes.mp3');
-            expect(rows[7]).to.have.property('field', 'attributes.ogg');
+            expect(rows[5]).to.have.property('field', 'attributes.lineColor');
+            expect(rows[6]).to.have.property('field', 'attributes.lineWidth');
         });
 
         it('getPropertyModel', () => {
@@ -119,7 +117,7 @@ describe('tools.audio', () => {
             expect(assets)
                 .to.have.property('audio')
                 .that.is.an('array')
-                .with.lengthOf(2);
+                .with.lengthOf(0);
             expect(assets)
                 .to.have.property('image')
                 .that.is.an('array')
@@ -138,7 +136,7 @@ describe('tools.audio', () => {
 
         it('getHelp', () => {
             expect(Object.prototype.hasOwnProperty.call(tool, 'getHelp')).to.be
-                .be.false;
+                .false;
             expect(tool).to.respondTo('getHelp');
         });
 
@@ -147,46 +145,6 @@ describe('tools.audio', () => {
                 Object.prototype.hasOwnProperty.call(tool, 'getTestModelField')
             ).to.be.false;
             expect(tool).to.respondTo('getTestModelField');
-            /*
-                // Note: we would normally use stream.getTestModel
-                const textBox = getTextBox();
-                const page = new Page({
-                    components: [textBox]
-                });
-                page.components.read();
-                const c = page.components.at(0);
-                const solution = c.get('properties.solution');
-                const Field = tool.getTestModelField(c);
-                const field = new Field();
-                field.set('value', solution);
-                // Check page, component and tool
-                expect(field.page()).to.equal(page);
-                expect(field.component()).to.equal(c);
-                expect(field.tool()).to.equal(tool);
-                // Check solution$ and value$
-                expect(field.solution$()).to.equal(htmlEncode(solution));
-                expect(field.value$()).to.equal(htmlEncode(solution));
-                // Check data and validation
-                // Note: there is no parent TestModel for all to return other page field values
-                expect(field.data()).to.deep.equal({
-                    value: field.get('value'),
-                    solution,
-                    all: {}
-                });
-                const validation = field.validation();
-                expect(validation).to.have.string(
-                    'function validate(value, solution'
-                );
-                // Grade
-                field
-                    .grade()
-                    .then(
-                        tryCatch(done)(() => {
-                            expect(field.get('result')).to.be.true;
-                        })
-                    )
-                    .catch(done);
-                */
         });
 
         it('getHtmlContent', () => {
@@ -207,8 +165,6 @@ describe('tools.audio', () => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
                 expect(content).to.match('div');
-                expect(content).to.have.attr('data-role', 'mediaplayer');
-                expect(content).to.have.attr('data-mode', 'audio');
             });
         });
 

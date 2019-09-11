@@ -44,7 +44,7 @@ describe('tools.dropzone', () => {
         let component;
 
         before(() => {
-            tool = tools[TOOL];
+            tool = tools(TOOL);
             component = new PageComponent(getDropZone());
         });
 

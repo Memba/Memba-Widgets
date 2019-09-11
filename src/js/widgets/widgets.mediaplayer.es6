@@ -3,10 +3,16 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Check http://blog.falafel.com/new-kendo-ui-media-player-widget-mvvm/ and consider improvements
+// TODO Add seeker to top of toolbar
+// TODO Add volume in popup
+// TODO Add YouTube iframe
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.fx';
 import 'kendo.slider';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -14,85 +20,52 @@ import Logger from '../common/window.logger.es6';
 
 const {
     attr,
-    data: { ObservableArray },
     destroy,
     format,
+    fx,
     ns,
-    roleSelector,
-    support,
-    template,
-    ui: { plugin, Slider, Widget },
-    unbind
+    ui: { plugin, Slider, Widget }
 } = window.kendo;
-const logger = new Logger('widgets.navigation');
 
+const logger = new Logger('widgets.mediaplayer');
 const NS = '.kendoMediaPlayer';
 const WIDGET_CLASS = 'k-widget kj-mediaplayer';
-
-const ARRAY = 'array';
 const TOOLBAR_CLASS = 'k-widget k-toolbar kj-mediaplayer-toolbar';
-const BUTTON_CLASS = 'k-button kj-mediaplayer-button';
-const COMMAND = 'command';
-const BUTTON_SELECTOR = `a.kj-mediaplayer-button[${attr(COMMAND)}="{0}"]`;
+const BUTTON_TMPL = `<a href="#" class="k-button k-button-icon" data-${ns}${CONSTANTS.ACTION}="{0}" tabindex="0" title="{1}"><span class="k-icon {2}"></span></a>`;
+const BUTTON_SELECTOR = `a.k-button[${attr(CONSTANTS.ACTION)}="{0}"]`;
+const ICON_SELECTOR = 'span.k-icon';
 const SEEKER_CLASS = 'kj-mediaplayer-seeker';
 const SEEKER_SELECTOR = `div.${SEEKER_CLASS}`;
 const TIME_CLASS = 'kj-mediaplayer-time';
 const TIME_SELECTOR = `span.${TIME_CLASS}`;
 const VOLUME_CLASS = 'kj-mediaplayer-volume';
 const VOLUME_SELECTOR = `div.${VOLUME_CLASS}`;
-const DISABLE = 'k-state-disabled';
-const CLICK = 'click';
-const LOADEDMETADATA = 'loadedmetadata';
-const PLAY = 'play';
-const TIMEUPDATE = 'timeupdate';
-const VOLUMECHANGE = 'volumechange';
-const PAUSE = 'pause';
-const ENDED = 'ended';
-const ENTEREVENTS = `mouseenter${NS} touchstart${NS}`;
-const LEAVEEVENTS = `mouseleave${NS} focusout${NS}`;
-const EVENTDURATION = 300;
+const MEDIA_EVENTS = {
+    LOADEDMETADATA: 'loadedmetadata',
+    PLAY: 'play',
+    TIMEUPDATE: 'timeupdate',
+    VOLUMECHANGE: 'volumechange',
+    PAUSE: 'pause',
+    ENDED: 'ended'
+};
+const ACTIONS = {
+    PLAY: 'play',
+    VOLUME: 'volume',
+    FULL_SCREEN: 'full' // full screen
+};
 const MODES = {
     AUDIO: 'audio',
     VIDEO: 'video'
 };
-const COMMANDS = {
-    PLAY: 'play',
-    MUTE: 'mute',
-    FULL: 'full' // full screen
+const ICONS = {
+    // @see https://docs.telerik.com/kendo-ui/styles-and-layout/icons-web
+    FULL_SCREEN: 'k-i-full-screen',
+    MUTE: 'k-i-volume-off',
+    PAUSE: 'k-i-pause',
+    PLAY: 'k-i-play',
+    VOLUME_DOWN: 'k-i-volume-down',
+    VOLUME_UP: 'k-i-volume-up'
 };
-const SVG = {
-    FULL:
-        '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24px" height="24px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">' +
-        '<path id="curve3" fill="#000000" d="M6530 5627c460,457 923,911 1381,1369l0 -971c0,-66 38,-123 99,-148 61,-25 128,-12 174,35l589 598c123,125 187,276 187,452l0 1678c0,176 -144,320 -320,320l-1678 0c-176,0 -329,-62 -452,-187l-588 -598c-47,-47 -60,-114 -35,-175 25,-61 82,-98 148,-99l971 0c-457,-457 -917,-913 -1376,-1368l900 -906z"/>' +
-        '<path id="curve2" fill="#000000" d="M4613 6530c-457,460 -911,923 -1369,1381l971 0c66,0 123,38 148,99 25,61 12,128 -35,174l-598 589c-125,123 -276,187 -452,187l-1678 0c-176,0 -320,-144 -320,-320l0 -1678c0,-176 62,-329 187,-452l598 -588c47,-47 114,-60 175,-35 61,25 98,82 99,148l0 971c457,-457 913,-917 1368,-1376l906 900z"/>' +
-        '<path id="curve1" fill="#000000" d="M5627 3710c457,-460 911,-923 1369,-1381l-971 0c-66,0 -123,-38 -148,-99 -25,-61 -12,-128 35,-174l598 -589c125,-123 276,-187 452,-187l1678 0c176,0 320,144 320,320l0 1678c0,176 -62,329 -187,452l-598 588c-47,47 -114,60 -175,35 -61,-25 -98,-82 -99,-148l0 -971c-457,457 -913,917 -1368,1376l-906 -900z"/>' +
-        '<path id="curve0" fill="#000000" d="M3710 4613c-460,-457 -923,-911 -1381,-1369l0 971c0,66 -38,123 -99,148 -61,25 -128,12 -174,-35l-589 -598c-123,-125 -187,-276 -187,-452l0 -1678c0,-176 144,-320 320,-320l1678 0c176,0 329,62 452,187l588 598c47,47 60,114 35,175 -25,61 -82,98 -148,99l-971 0c457,457 917,913 1376,1368l-900 906z"/>' +
-        '</svg>',
-    MUTE:
-        '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24px" height="24px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">' +
-        '<path id="curve3" fill="#000000" d="M6080 7660c1263,-157 2240,-1235 2240,-2540 0,-1305 -977,-2383 -2240,-2540l0 647c908,152 1600,942 1600,1893 0,951 -692,1741 -1600,1893l0 647z"/>' +
-        '<path id="curve2" fill="#000000" d="M6080 6360c552,-142 960,-644 960,-1240 0,-596 -408,-1098 -960,-1240l0 686c191,110 320,317 320,554 0,237 -129,444 -320,554l0 686z"/>' +
-        '<path id="curve1" fill="#000000" d="M960 3520l320 0 0 -320 1280 0 0 3840 -1280 0 0 -320 -320 0c-220,0 -320,-144 -320,-320l0 -2560c0,-176 100,-320 320,-320z"/>' +
-        '<path id="curve0" fill="#000000" d="M5440 640l0 0c176,0 320,144 320,320l0 8320c0,176 -144,320 -320,320l0 0c-176,0 -320,-144 -320,-320l-2240 -2240 0 -3840 2240 -2240c0,-176 144,-320 320,-320z"/>' +
-        '</svg>',
-    PAUSE:
-        '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24px" height="24px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">' +
-        '<path id="curve1" fill="#000000" d="M6400 1280l1280 0c353,0 640,288 640,640l0 6400c0,352 -288,640 -640,640l-1280 0c-352,0 -640,-288 -640,-640l0 -6400c0,-353 287,-640 640,-640z"/>' +
-        '<path id="curve0" fill="#000000" d="M2560 1280l1280 0c353,0 640,288 640,640l0 6400c0,352 -288,640 -640,640l-1280 0c-352,0 -640,-287 -640,-640l0 -6400c0,-353 287,-640 640,-640z"/>' +
-        '</svg>',
-    PLAY:
-        '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24px" height="24px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">' +
-        '<path id="curve0" fill="#000000" d="M2878 1364l5757 3209c207,115 325,314 325,547 0,233 -118,432 -325,547l-5757 3209c-204,113 -436,112 -639,-4 -203,-116 -319,-313 -319,-544l0 -6416c0,-231 116,-428 319,-544 203,-116 435,-117 639,-4z"/>' +
-        '</svg>',
-    SOUND:
-        '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24px" height="24px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">' +
-        '<path id="curve2" fill="#000000" d="M960 3520l320 0 0 -320 1280 0 0 3840 -1280 0 0 -320 -320 0c-220,0 -320,-144 -320,-320l0 -2560c0,-176 100,-320 320,-320z"/>' +
-        '<path id="curve1" fill="#000000" d="M5440 640c176,0 320,144 320,320l0 8320c0,176 -144,320 -320,320 -176,0 -320,-144 -320,-320l-2240 -2240 0 -3840 2240 -2240c0,-176 144,-320 320,-320z"/>' +
-        '<path id="curve0" fill="#000000" d="M8921 7266l-921 -921 -921 921c-125,125 -328,125 -453,0l-452 -452c-125,-125 -125,-328 0,-453l921 -921 -921 -921c-125,-125 -125,-328 0,-453l452 -452c125,-125 328,-125 453,0l921 921 921 -921c125,-125 328,-125 453,0l452 452c125,125 125,328 0,453l-921 921 921 921c125,125 125,328 0,453l-452 452c-125,125 -328,125 -453,0z"/>' +
-        '</svg>'
-};
-const SVG_MARGIN = '2px 0 0 -2px';
-const PX = 'px';
 
 /**
  * Docs about media playing
@@ -173,61 +146,62 @@ function toHMS(seconds) {
  * MediaPlayer widget
  */
 const MediaPlayer = Widget.extend({
-    // TODO: Check http://blog.falafel.com/new-kendo-ui-media-player-widget-mvvm/ and consider improvements
-
     /**
      * Constructor
      * @param element
      * @param options
      */
     init(element, options) {
-        const that = this;
-        Widget.fn.init.call(that, element, options);
+        Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
-        that._layout();
-    },
-
-    options: {
-        name: 'MediaPlayer',
-        mode: MODES.AUDIO,
-        autoPlay: false, // loop?
-        files: [],
-        enable: true,
-        toolbarHeight: 48,
-        messages: {
-            play: 'Play/Pause',
-            mute: 'Mute/Unmute',
-            full: 'Full Screen',
-            notSupported: 'Media not supported'
-        }
-    },
-
-    /*
-            events: [
-            ],
-            */
-
-    modes: {
-        audio: MODES.AUDIO,
-        video: MODES.VIDEO
-        // TODO: youtube, vimeo, dailymotion and others modes.
+        this._render();
     },
 
     /**
-     * Layout the widget
+     * Options
+     */
+    options: {
+        name: 'MediaPlayer',
+        autoPlay: false, // loop
+        enabled: true,
+        files: [],
+        messages: {
+            play: 'Play/Pause',
+            mute: 'Mute/Unmute',
+            fullScreen: 'Full Screen',
+            notSupported: 'Media not supported'
+        },
+        mode: MODES.AUDIO,
+        toolbarHeight: 48 // For video only
+    },
+
+    /*
+    events: [],
+    */
+
+    /**
+     * Modes
+     */
+    modes: {
+        audio: MODES.AUDIO,
+        video: MODES.VIDEO
+    },
+
+    /**
+     * Render the widget
      * @private
      */
-    _layout() {
-        const that = this;
-        that.wrapper = that.element;
-        // CONSTANTS.INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
-        that.element
+    _render() {
+        const { element, options } = this;
+        // CONSTANTS.INTERACTIVE_CLASS (which might be shared with other widgets)
+        // is used to position any drawing surface underneath interactive widgets
+        this.wrapper = element
             .addClass(WIDGET_CLASS)
             .addClass(CONSTANTS.INTERACTIVE_CLASS)
-            .css({ position: 'relative' });
-        that._media();
-        that._toolbar();
-        that.enable(that.options.enable);
+            .css({ position: 'relative' }); // For an absolute positioned toolbar
+        this._media();
+        this._toolbar();
+        this.enable(options.enabled);
     },
 
     /**
@@ -235,50 +209,49 @@ const MediaPlayer = Widget.extend({
      * @private
      */
     _media() {
-        const that = this;
+        const { element, options } = this;
         // Create audio or video tag
-        if (that.options.mode === MODES.AUDIO) {
-            that.media = $('<audio></audio>');
+        if (options.mode === MODES.AUDIO) {
+            this.media = $('<audio/>');
         } else {
-            that.media = $('<video></video>');
+            this.media = $('<video/>');
         }
-        that.media
+        this.media
             .attr('preload', 'auto')
-            .prop('autoplay', that.options.autoPlay)
+            .prop('autoplay', options.autoPlay)
             .css({ width: '100%' });
         // .css({ height: '100%', width: '100%' });
         // Add source files
         const files =
-            $.type(that.options.files) === CONSTANTS.STRING
-                ? [that.options.files]
-                : that.options.files;
-        assert.type(
-            ARRAY,
+            $.type(options.files) === CONSTANTS.STRING
+                ? [options.files]
+                : options.files;
+        assert.isArray(
             files,
-            assert.format(assert.messages.type.default, 'options.files', ARRAY)
+            assert.format(assert.messages.isArray.default, 'options.files')
         );
-        $.each(files, (index, url) => {
+        files.forEach(url => {
             if ($.type(url) === CONSTANTS.STRING && url.length) {
-                $('<source>')
+                $('<source/>')
                     .attr({ src: url, type: typeFormatter(url) })
-                    .appendTo(that.media);
+                    .appendTo(this.media);
             }
         });
 
         // Initialize media element
         // Note: These event handlers are required because the toolbar needs to be updated
         // when commands are executed in full screen mode, e.g. a PAUSE in full screen should update the toolbar icon
-        that.media
-            .append(that.options.messages.notSupported)
-            .on(LOADEDMETADATA, that._onLoadedMetadata.bind(that))
-            .on(PLAY, that._onPlaybind(that))
-            .on(TIMEUPDATE, that._onTimeUpdatebind(that))
-            .on(PAUSE, that._onPausebind(that))
-            .on(ENDED, that._onEnded.bind(that))
-            .on(VOLUMECHANGE, that._onVolumeChangebind(that));
+        this.media
+            .append(options.messages.notSupported)
+            .on(MEDIA_EVENTS.LOADEDMETADATA, this._onLoadedMetadata.bind(this))
+            .on(MEDIA_EVENTS.PLAY, this._onPlay.bind(this))
+            .on(MEDIA_EVENTS.TIMEUPDATE, this._onTimeUpdate.bind(this))
+            .on(MEDIA_EVENTS.PAUSE, this._onPause.bind(this))
+            .on(MEDIA_EVENTS.ENDED, this._onEnded.bind(this))
+            .on(MEDIA_EVENTS.VOLUMECHANGE, this._onVolumeChange.bind(this));
 
         // Append media element to widget
-        that.element.append(that.media);
+        element.append(this.media);
     },
 
     /**
@@ -327,6 +300,15 @@ const MediaPlayer = Widget.extend({
      * @private
      */
     _onPlay(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
         const mediaElement = this.media.get(0);
         assert.instanceof(
             window.HTMLMediaElement,
@@ -338,17 +320,11 @@ const MediaPlayer = Widget.extend({
             )
         );
         if (this.toolbar instanceof $) {
-            const oldSVG = this.toolbar
-                .find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY))
-                .children('svg');
-            // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attribute
-            const newSVG = $(SVG.PAUSE)
-                .attr({
-                    height: oldSVG.attr('height'),
-                    width: oldSVG.attr('width')
-                })
-                .css({ margin: SVG_MARGIN });
-            oldSVG.replaceWith(newSVG);
+            this.toolbar
+                .find(format(BUTTON_SELECTOR, ACTIONS.PLAY))
+                .children(ICON_SELECTOR)
+                .removeClass(ICONS.PLAY)
+                .addClass(ICONS.PAUSE);
         }
     },
 
@@ -391,6 +367,15 @@ const MediaPlayer = Widget.extend({
      * @private
      */
     _onPause(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
         const mediaElement = this.media.get(0);
         assert.instanceof(
             window.HTMLMediaElement,
@@ -402,17 +387,11 @@ const MediaPlayer = Widget.extend({
             )
         );
         if (this.toolbar instanceof $) {
-            const oldSVG = this.toolbar
-                .find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY))
-                .children('svg');
-            // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attribute
-            const newSVG = $(SVG.PLAY)
-                .attr({
-                    height: oldSVG.attr('height'),
-                    width: oldSVG.attr('width')
-                })
-                .css({ margin: SVG_MARGIN });
-            oldSVG.replaceWith(newSVG);
+            this.toolbar
+                .find(format(BUTTON_SELECTOR, ACTIONS.PLAY))
+                .children(ICON_SELECTOR)
+                .removeClass(ICONS.PAUSE)
+                .addClass(ICONS.PLAY);
         }
     },
 
@@ -444,17 +423,11 @@ const MediaPlayer = Widget.extend({
             );
             mediaElement.currentTime = 0;
             this.seekerSlider.value(mediaElement.currentTime);
-            const oldSVG = this.toolbar
-                .find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY))
-                .children('svg');
-            // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attribute
-            const newSVG = $(SVG.PLAY)
-                .attr({
-                    height: oldSVG.attr('height'),
-                    width: oldSVG.attr('width')
-                })
-                .css({ margin: SVG_MARGIN });
-            oldSVG.replaceWith(newSVG);
+            this.toolbar
+                .find(format(BUTTON_SELECTOR, ACTIONS.PLAY))
+                .children(ICON_SELECTOR)
+                .removeClass(ICONS.PAUSE)
+                .addClass(ICONS.PLAY);
         }
     },
 
@@ -464,6 +437,15 @@ const MediaPlayer = Widget.extend({
      * @private
      */
     _onVolumeChange(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
         const mediaElement = this.media.get(0);
         assert.instanceof(
             window.HTMLMediaElement,
@@ -475,43 +457,31 @@ const MediaPlayer = Widget.extend({
             )
         );
         if (this.toolbar instanceof $ && this.volumeSlider instanceof Slider) {
-            const oldSVG = this.toolbar
-                .find(kendo.format(BUTTON_SELECTOR, COMMANDS.MUTE))
-                .children('svg');
-            let newSVG;
             if (mediaElement.muted) {
                 this.volumeSlider.value(0);
-                // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attribute
-                newSVG = $(SVG.SOUND)
-                    .attr({
-                        height: oldSVG.attr('height'),
-                        width: oldSVG.attr('width')
-                    })
-                    .css({ margin: SVG_MARGIN });
+                this.toolbar
+                    .find(format(BUTTON_SELECTOR, ACTIONS.VOLUME))
+                    .children(ICON_SELECTOR)
+                    .removeClass(ICONS.MUTE)
+                    .addClass(ICONS.VOLUME_UP);
             } else {
                 this.volumeSlider.value(mediaElement.volume);
-                // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attributebute
-                newSVG = $(SVG.MUTE)
-                    .attr({
-                        height: oldSVG.attr('height'),
-                        width: oldSVG.attr('width')
-                    })
-                    .css({ margin: SVG_MARGIN });
+                this.toolbar
+                    .find(format(BUTTON_SELECTOR, ACTIONS.VOLUME))
+                    .children(ICON_SELECTOR)
+                    .removeClass(ICONS.VOLUME_UP)
+                    .addClass(ICONS.MUTE);
             }
-            oldSVG.replaceWith(newSVG);
         }
     },
-
-    /* Script URL */
-    /* jshint -W107 */
 
     /**
      * Add toolbar (play/pause, seeker, time, mute/unmute, volume, full screen)
      * @private
      */
     _toolbar() {
-        const that = this;
-        that.toolbar = $(`<${CONSTANTS.DIV}/>`)
+        const { element, options } = this;
+        this.toolbar = $(`<${CONSTANTS.DIV}/>`)
             .addClass(TOOLBAR_CLASS)
             .css({
                 position: 'absolute',
@@ -524,67 +494,46 @@ const MediaPlayer = Widget.extend({
                 // We cannot use display:none which yields incorrect measurements
                 visibility: 'hidden'
             })
-            .appendTo(that.element);
+            .appendTo(element);
 
         // Play button
-        $('<a/>')
-            .attr({
-                href: 'javascript:void(0);',
-                title: that.options.messages.play
-            })
-            .attr(kendo.attr(COMMAND), COMMANDS.PLAY)
-            .addClass(BUTTON_CLASS)
-            .css({ overflow: 'hidden', display: 'inline-block' })
-            .append(SVG.PLAY)
-            .appendTo(that.toolbar);
+        $(
+            format(BUTTON_TMPL, ACTIONS.PLAY, options.messages.play, ICONS.PLAY)
+        ).appendTo(this.toolbar);
 
         // Seeker slider
-        const seekerDiv = $(`<${CONSTANTS.DIV}/>`)
-            .addClass(SEEKER_CLASS)
-            .css({ display: 'inline-block' })
-            .appendTo(that.toolbar);
-        that._setSeekerSlider(1);
+        this._setSeekerSlider(1);
 
         // Remaining time span
         $(`<${CONSTANTS.SPAN}/>`)
             .addClass(TIME_CLASS)
-            .appendTo(that.toolbar);
+            .appendTo(this.toolbar);
 
         // Mute/Unmute button
-        $('<a/>')
-            .attr({
-                href: 'javascript:void(0);',
-                title: that.options.messages.mute
-            })
-            .attr(kendo.attr(COMMAND), COMMANDS.MUTE)
-            .addClass(BUTTON_CLASS)
-            .css({ overflow: 'hidden', display: 'inline-block' })
-            .append(SVG.MUTE)
-            .appendTo(that.toolbar);
+        $(
+            format(
+                BUTTON_TMPL,
+                ACTIONS.VOLUME,
+                options.messages.mute,
+                ICONS.MUTE
+            )
+        ).appendTo(this.toolbar);
 
         // Volume slider
-        const volumeDiv = $(`<${CONSTANTS.DIV}/>`)
-            .addClass(VOLUME_CLASS)
-            .css({ display: 'inline-block' })
-            .appendTo(that.toolbar);
-        that._setVolumeSlider();
+        this._setVolumeSlider();
 
-        // Full screen button (video only)
-        if (that.options.mode === MODES.VIDEO) {
-            $('<a/>')
-                .attr({
-                    href: 'javascript:void(0);',
-                    title: that.options.messages.full
-                })
-                .attr(kendo.attr(COMMAND), COMMANDS.FULL)
-                .css({ overflow: 'hidden', display: 'inline-block' })
-                .addClass(BUTTON_CLASS)
-                .append(SVG.FULL)
-                .appendTo(that.toolbar);
+        // Full screen button (for video only)
+        if (options.mode === MODES.VIDEO) {
+            $(
+                format(
+                    BUTTON_TMPL,
+                    ACTIONS.FULL_SCREEN,
+                    options.messages.fullScreen,
+                    ICONS.FULL_SCREEN
+                )
+            ).appendTo(this.toolbar);
         }
     },
-
-    /* jshint +W107 */
 
     /**
      * Set the sleeker slider with new max
@@ -593,15 +542,20 @@ const MediaPlayer = Widget.extend({
      * @private
      */
     _setSeekerSlider(max) {
-        const that = this;
-        const seekerDiv = that.element.find(SEEKER_SELECTOR);
-        const seekerSlider = seekerDiv.find('input').data('kendoSlider');
-        if (seekerSlider instanceof Slider) {
-            seekerSlider.destroy();
-            seekerDiv.empty();
+        const { toolbar } = this;
+        let $div = toolbar.find(SEEKER_SELECTOR);
+        if ($div && $div.length === 0) {
+            $div = $(`<${CONSTANTS.DIV}/>`)
+                .addClass(SEEKER_CLASS)
+                .appendTo(toolbar);
         }
-        that.seekerSlider = $(`<${CONSTANTS.INPUT}>`)
-            .appendTo(seekerDiv)
+        const slider = $div.find('input').data('kendoSlider');
+        if (slider instanceof Slider) {
+            slider.destroy();
+            $div.empty();
+        }
+        this.seekerSlider = $(`<${CONSTANTS.INPUT}>`)
+            .appendTo($div)
             .kendoSlider({
                 max,
                 min: 0,
@@ -609,8 +563,10 @@ const MediaPlayer = Widget.extend({
                 largeStep: 1,
                 showButtons: false,
                 tickPlacement: 'none',
-                tooltip: { format: '{0} s.' },
-                change: that._onSeekerSliderChange.bind(that)
+                tooltip: {
+                    template: data => toHMS(data.value)
+                },
+                change: this._onSeekerSliderChange.bind(this)
             })
             .data('kendoSlider');
     },
@@ -621,15 +577,20 @@ const MediaPlayer = Widget.extend({
      * @private
      */
     _setVolumeSlider() {
-        const that = this;
-        const volumeDiv = that.element.find(VOLUME_SELECTOR);
-        const volumeSlider = volumeDiv.find('input').data('kendoSlider');
-        if (volumeSlider instanceof Slider) {
-            volumeSlider.destroy();
-            volumeDiv.empty();
+        const { toolbar } = this;
+        let $div = toolbar.find(VOLUME_SELECTOR);
+        if ($div && $div.length === 0) {
+            $div = $(`<${CONSTANTS.DIV}/>`)
+                .addClass(VOLUME_CLASS)
+                .appendTo(toolbar);
         }
-        that.volumeSlider = $(`<${CONSTANTS.INPUT}>`)
-            .appendTo(volumeDiv)
+        const slider = $div.find('input').data('kendoSlider');
+        if (slider instanceof Slider) {
+            slider.destroy();
+            $div.empty();
+        }
+        this.volumeSlider = $(`<${CONSTANTS.INPUT}>`)
+            .appendTo($div)
             .kendoSlider({
                 max: 1, // max volume is always 1
                 min: 0,
@@ -638,7 +599,7 @@ const MediaPlayer = Widget.extend({
                 showButtons: false,
                 tickPlacement: 'none',
                 tooltip: { format: '{0:p0}' },
-                change: that._onVolumeSliderChange.bind(that)
+                change: this._onVolumeSliderChange.bind(this)
             })
             .data('kendoSlider');
     },
@@ -649,15 +610,25 @@ const MediaPlayer = Widget.extend({
      * @private
      */
     _onButtonClick(e) {
-        const command = $(e.currentTarget).attr(kendo.attr(COMMAND));
-        switch (command) {
-            case COMMANDS.PLAY:
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        const action = $(e.currentTarget).attr(attr(CONSTANTS.ACTION));
+        switch (action) {
+            case ACTIONS.PLAY:
+            default:
                 this.togglePlayPause();
                 break;
-            case COMMANDS.MUTE:
+            case ACTIONS.VOLUME:
                 this.toggleMute();
                 break;
-            case COMMANDS.FULL:
+            case ACTIONS.FULL_SCREEN:
                 this.toggleFullScreen();
                 break;
         }
@@ -701,9 +672,6 @@ const MediaPlayer = Widget.extend({
         );
         mediaElement.muted = !mediaElement.muted;
     },
-
-    /* This function's cyclomatic complexity is too high */
-    /* jshint -W074 */
 
     /**
      * set full screen mode
@@ -761,14 +729,20 @@ const MediaPlayer = Widget.extend({
         }
     },
 
-    /* jshint +W074 */
-
     /**
      * Event handler for changing the value of the volume slider
      * @param e
      * @private
      */
     _onVolumeSliderChange(e) {
+        assert.isNonEmptyPlainObject(
+            e,
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
         this.volume(e.value);
     },
 
@@ -778,6 +752,16 @@ const MediaPlayer = Widget.extend({
      * @returns {*|number}
      */
     volume(value) {
+        assert.typeOrUndef(
+            CONSTANTS.NUMBER,
+            value,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'value',
+                CONSTANTS.NUMBER
+            )
+        );
+        let ret;
         const mediaElement = this.media.get(0);
         assert.instanceof(
             window.HTMLMediaElement,
@@ -789,23 +773,15 @@ const MediaPlayer = Widget.extend({
             )
         );
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            return mediaElement.volume;
-        }
-        assert.type(
-            CONSTANTS.NUMBER,
-            value,
-            assert.format(
-                assert.messages.type.default,
-                'value',
-                CONSTANTS.NUMBER
-            )
-        );
-        if (value < 0) {
-            value = 0;
+            ret = mediaElement.volume;
+        } else if (value < 0) {
+            mediaElement.volume = 0;
         } else if (value > 1) {
-            value = 1;
+            mediaElement.volume = 1;
+        } else {
+            mediaElement.volume = value;
         }
-        mediaElement.volume = value;
+        return ret;
     },
 
     /**
@@ -824,6 +800,16 @@ const MediaPlayer = Widget.extend({
      * @param value
      */
     seek(value) {
+        assert.typeOrUndef(
+            CONSTANTS.NUMBER,
+            value,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                'value',
+                CONSTANTS.NUMBER
+            )
+        );
+        let ret;
         const mediaElement = this.media.get(0);
         assert.instanceof(
             window.HTMLMediaElement,
@@ -835,35 +821,26 @@ const MediaPlayer = Widget.extend({
             )
         );
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            return mediaElement.currentTime;
-        }
-        assert.type(
-            CONSTANTS.NUMBER,
-            value,
-            assert.format(
-                assert.messages.type.default,
-                'value',
-                CONSTANTS.NUMBER
-            )
-        );
-        if (value < 0) {
-            value = 0;
-        } else if (value > mediaElement.duration) {
-            value = mediaElement.duration;
-        }
-        const paused = mediaElement.paused;
-        mediaElement.pause();
-        if (
-            value >= mediaElement.seekable.start(0) &&
-            value <= mediaElement.seekable.end(0)
-        ) {
-            mediaElement.currentTime = value;
+            ret = mediaElement.currentTime;
         } else {
-            mediaElement.currentTime = 0;
+            const currentTime = Math.min(
+                Math.max(value, 0),
+                mediaElement.duration
+            );
+            mediaElement.pause();
+            if (
+                currentTime >= mediaElement.seekable.start(0) &&
+                currentTime <= mediaElement.seekable.end(0)
+            ) {
+                mediaElement.currentTime = currentTime;
+            } else {
+                mediaElement.currentTime = 0;
+            }
+            if (!mediaElement.paused) {
+                mediaElement.play();
+            }
         }
-        if (!paused) {
-            mediaElement.play();
-        }
+        return ret;
     },
 
     /**
@@ -871,24 +848,29 @@ const MediaPlayer = Widget.extend({
      * @see especially http://docs.telerik.com/kendo-ui/api/javascript/ui/slider#methods-resize
      */
     resize() {
-        const that = this;
+        const {
+            element,
+            media,
+            options,
+            seekerSlider,
+            toolbar,
+            volumeSlider
+        } = this;
         if (
-            that.media instanceof $ &&
-            that.toolbar instanceof $ &&
-            that.seekerSlider instanceof Slider &&
-            that.volumeSlider instanceof Slider
+            media instanceof $ &&
+            toolbar instanceof $ &&
+            seekerSlider instanceof Slider &&
+            volumeSlider instanceof Slider
         ) {
             // Note: height and width calculations do not work if display: none
-            that.toolbar.css({ visibility: 'hidden' }).show();
-            const buttons = that.toolbar.find('a.k-button').show();
-            const seekerDiv = that.toolbar.find(SEEKER_SELECTOR).show();
-            const timeDiv = that.toolbar.find(TIME_SELECTOR).show();
-            const volumeDiv = that.toolbar.find(VOLUME_SELECTOR).show();
-            const isVideo = that.options.mode === MODES.VIDEO;
-            const height = isVideo
-                ? that.options.toolbarHeight
-                : that.element.height();
-            const width = that.element.width();
+            toolbar.css({ visibility: 'hidden' }).show();
+            const buttons = toolbar.find('a.k-button').show();
+            const seekerDiv = toolbar.find(SEEKER_SELECTOR).show();
+            const timeDiv = toolbar.find(TIME_SELECTOR).show();
+            const volumeDiv = toolbar.find(VOLUME_SELECTOR).show();
+            const isVideo = options.mode === MODES.VIDEO;
+            const height = isVideo ? options.toolbarHeight : element.height();
+            const width = element.width();
             const ratio = height / 100;
             const fontRatio = 0.8;
             const margin = 4 * ratio;
@@ -896,160 +878,161 @@ const MediaPlayer = Widget.extend({
             const minSeekerSize = 1.5 * radius;
             // Resize element
             if (isVideo) {
-                that.element.height(that.media.height());
+                element.height(media.height());
             }
             // Resize toolbar
-            that.toolbar.height(height);
+            toolbar.height(height);
             // Resize buttons
             buttons.css({
-                height: radius + PX,
-                width: radius + PX,
-                margin: margin + PX
+                fontSize: 0.7 * fontRatio * radius,
+                height: radius,
+                width: radius,
+                margin
             });
-            buttons
-                .children('svg')
-                .attr({
-                    height: Math.max(radius - 10, 0) + PX,
-                    width: Math.max(radius - 10, 0) + PX
-                })
-                .css({ margin: SVG_MARGIN });
+            buttons.children('svg').attr({
+                height: Math.max(radius - 10, 0),
+                width: Math.max(radius - 10, 0)
+            });
             const buttonSize = radius + 2 * margin;
             // Resize timer
             timeDiv.css({
-                fontSize: fontRatio * radius + PX,
-                margin: `0 ${margin}${PX}`,
+                fontSize: fontRatio * radius,
+                margin: `0 ${margin}`,
                 lineHeight: '1em'
             });
             // timeDiv.width(timeDiv.width()); // we do not want the width to change when the number of digits drops
             const timeSize = timeDiv.width() + 2 * margin;
             // Resize volume slider
-            volumeDiv.css({ margin: 3 * margin + PX });
-            that.volumeSlider.wrapper.width(radius);
-            that.volumeSlider.resize();
+            volumeDiv.css({ margin: 3 * margin });
+            volumeSlider.wrapper.width(radius);
+            volumeSlider.resize();
             const volumeSize = volumeDiv.width() + 6 * margin;
             // Resize seeker slider
             const seekerSize =
-                that.toolbar.width() -
+                toolbar.width() -
                 (buttons.length * buttonSize + timeSize + volumeSize);
-            seekerDiv.css({ margin: 3 * margin + PX });
-            that.seekerSlider.wrapper.width(
+            seekerDiv.css({ margin: 3 * margin });
+            seekerSlider.wrapper.width(
                 Math.max(seekerSize - 6 * margin - 24 * ratio, 0)
             ); // 24 * ratio is empirical
-            that.seekerSlider.resize();
+            seekerSlider.resize();
             // Update slider dimensions
             if (ratio > 0.5) {
-                const tracks = that.toolbar.find('.k-slider-track');
+                const tracks = toolbar.find('.k-slider-track');
                 const hT = 8; // parseInt(tracks.css('height'), 10);
                 const mT = -4; // parseInt(tracks.css('margin-top'), 10);
                 tracks.css({
-                    height: 2 * ratio * hT + PX,
-                    marginTop: 2 * ratio * mT + PX
+                    height: 2 * ratio * hT,
+                    marginTop: 2 * ratio * mT
                 });
-                const selections = that.toolbar.find('.k-slider-selection');
+                const selections = toolbar.find('.k-slider-selection');
                 selections.css({
-                    height: 2 * ratio * hT + PX,
-                    marginTop: 2 * ratio * mT + PX
+                    height: 2 * ratio * hT,
+                    marginTop: 2 * ratio * mT
                 });
-                const handles = that.toolbar.find('.k-draghandle');
+                const handles = toolbar.find('.k-draghandle');
                 // var tH = -4; // parseInt(handles.css('top'), 10);
                 // var hH = 14; // parseInt(handles.css('height'), 10);
                 // var wH = 13; // parseInt(handles.css('width'), 10);
                 // var rH = 7;  // parseInt(handles.css('borderRadius'), 10);
                 handles.css({
-                    top: 2 * ratio * mT + PX,
-                    height: 4 * ratio * hT + PX,
-                    width: 4 * ratio * hT + PX,
-                    borderRadius: 2 * ratio * hT + PX
+                    // top: 2 * ratio * mT,
+                    height: 4 * ratio * hT,
+                    width: 4 * ratio * hT,
+                    borderRadius: 2 * ratio * hT
                 });
                 // Reset the position of the seeker handle
-                handles.first().css({ left: -2 * ratio * hT + PX });
+                handles.first().css({ left: -2 * ratio * hT });
             }
             // Display/hide elements
             // Play button is always visible
             buttons
-                .find(kendo.format(BUTTON_SELECTOR, COMMANDS.MUTE))
+                .find(format(BUTTON_SELECTOR, ACTIONS.VOLUME))
                 .toggle(width >= buttons.length * buttonSize);
             buttons
-                .find(kendo.format(BUTTON_SELECTOR, COMMANDS.FULL))
+                .find(format(BUTTON_SELECTOR, ACTIONS.FULL_SCREEN))
                 .toggle(width >= (buttons.length - 1) * buttonSize);
             timeDiv.toggle(width >= buttons.length * buttonSize + timeSize);
             volumeDiv.toggle(
                 width >= buttons.length * buttonSize + timeSize + volumeSize
             );
             seekerDiv.toggle(seekerDiv.width() >= minSeekerSize);
-            that.toolbar
-                .toggle(!isVideo || !that._enable)
+            toolbar
+                .toggle(!isVideo || !this._enabled)
                 .css({ visibility: 'visible' });
         }
     },
 
     /**
-     * Enabled/disables the widget
+     * Enables/disables the widget
      * @param enable
      */
     enable(enable) {
-        const that = this;
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        const { element, options, seekerSlider, toolbar, volumeSlider } = this;
         if (
-            that.toolbar instanceof $ &&
-            that.seekerSlider instanceof Slider &&
-            that.volumeSlider instanceof Slider
+            toolbar instanceof $ &&
+            seekerSlider instanceof Slider &&
+            volumeSlider instanceof Slider
         ) {
-            if (typeof enable === CONSTANTS.UNDEFINED) {
-                enable = true;
-            }
-            that.element.off(NS);
-            that.toolbar.off(NS);
-            if (enable) {
-                if (that.options.mode === MODES.VIDEO) {
-                    that.element
-                        .on(ENTEREVENTS, () => {
-                            that.toolbar.show(EVENTDURATION);
-                        })
-                        .on(LEAVEEVENTS, () => {
-                            that.toolbar.hide(EVENTDURATION);
-                        });
+            element.off(NS);
+            toolbar.off(NS);
+            if (enabled) {
+                element.on(`${CONSTANTS.RESIZE}${NS}`, this.resize.bind(this));
+                if (options.mode === MODES.VIDEO) {
+                    element
+                        .on(
+                            `${CONSTANTS.MOUSEENTER}${NS} ${CONSTANTS.TOUCHSTART}${NS}`,
+                            () => {
+                                // toolbar.show(TDURATION);
+                                fx(toolbar)
+                                    .expand('vertical')
+                                    .stop()
+                                    .play();
+                            }
+                        )
+                        .on(
+                            `${CONSTANTS.MOUSELEAVE}${NS} ${CONSTANTS.FOCUSOUT}${NS}`,
+                            () => {
+                                // toolbar.hide(DURATION);
+                                fx(toolbar)
+                                    .expand('vertical')
+                                    .stop()
+                                    .reverse();
+                            }
+                        );
                 }
-                that.toolbar
-                    .removeClass(DISABLE)
+                toolbar
+                    .removeClass(CONSTANTS.DISABLED_CLASS)
                     .on(
-                        CLICK + NS,
+                        `${CONSTANTS.CLICK}${NS}`,
                         'a.k-button',
-                        that._onButtonClick.bind(that)
+                        this._onButtonClick.bind(this)
                     );
             } else {
-                that.toolbar.addClass(DISABLE).show();
+                toolbar.addClass(CONSTANTS.DISABLED_CLASS).show();
             }
-            that.seekerSlider.enable(enable);
-            that.volumeSlider.enable(enable);
-            that._enable = enable;
+            seekerSlider.enable(enabled);
+            volumeSlider.enable(enabled);
+            this._enabled = enabled;
         }
-    },
-
-    /**
-     * Clear widget and restore DOM
-     * @private
-     */
-    _clear() {
-        const that = this;
-        // unbind kendo
-        kendo.unbind(that.element);
-        // unbind all other events
-        that.element.find('*').off();
-        that.element.off();
-        // remove descendants
-        that.element.empty();
-        // remove element classes
-        that.element.removeClass(WIDGET_CLASS);
     },
 
     /**
      * Destroy widget
      */
     destroy() {
-        const that = this;
-        Widget.fn.destroy.call(that);
-        that._clear();
-        kendo.destroy(that.element);
+        const { element } = this;
+        Widget.fn.destroy.call(this);
+        // unbind all other events
+        element.find('*').off();
+        element.off();
+        // remove descendants
+        element.empty();
+        // remove element classes
+        element.removeClass(WIDGET_CLASS);
+        destroy(element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });

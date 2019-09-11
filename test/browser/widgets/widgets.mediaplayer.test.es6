@@ -21,11 +21,9 @@ const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
 const {
     attr,
-    bind,
-    data: { DataSource },
     destroy,
     init,
-    observable,
+    support,
     ui: { MediaPlayer, Slider }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -35,7 +33,6 @@ const ROLE = 'mediaplayer';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const CLICK = 'click';
 const AUDIO_FILES = ['../data/audio/audio.ogg', '../data/audio/audio.mp3'];
 const VIDEO_FILES = ['../data/video/video.mp4', '../data/video/video.webm'];
 const TTL = 250;
@@ -382,7 +379,7 @@ describe('widgets.mediaplayer', () => {
                 .that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLAudioElement);
-            if (kendo.support.browser.chrome) {
+            if (support.browser.chrome) {
                 // This does not work in Chrome
                 return done();
             }
@@ -479,8 +476,8 @@ describe('widgets.mediaplayer', () => {
                     window.HTMLVideoElement
                 );
                 expect(mediaElement.readyState).to.be.gte(3);
-                playButton.simulate(CLICK);
-                playButton.simulate(CLICK);
+                playButton.simulate(CONSTANTS.CLICK);
+                playButton.simulate(CONSTANTS.CLICK);
                 // Wait for events
                 setTimeout(() => {
                     expect(play).to.have.been.calledOnce;
@@ -511,8 +508,8 @@ describe('widgets.mediaplayer', () => {
                     window.HTMLVideoElement
                 );
                 expect(mediaElement.readyState).to.be.gte(3);
-                muteButton.simulate(CLICK);
-                muteButton.simulate(CLICK);
+                muteButton.simulate(CONSTANTS.CLICK);
+                muteButton.simulate(CONSTANTS.CLICK);
                 // Wait for events
                 setTimeout(() => {
                     expect(volume).to.have.been.calledTwice;
@@ -546,8 +543,8 @@ describe('widgets.mediaplayer', () => {
                     window.HTMLVideoElement
                 );
                 expect(mediaElement.readyState).to.be.gte(3);
-                fullScreenButton.simulate(CLICK);
-                fullScreenButton.simulate(CLICK);
+                fullScreenButton.simulate(CONSTANTS.CLICK);
+                fullScreenButton.simulate(CONSTANTS.CLICK);
                 // Wait for events
                 setTimeout(() => {
                     expect(fullScreen).to.have.been.calledTwice;

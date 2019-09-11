@@ -15,10 +15,12 @@ const TOOLS = {
 
     POINTER: 'pointer',
 
+    RX_AUDIO: /^(cdn|data):\/\/[\s\S]+.mp3$/i,
     RX_COLOR: /#[0-9a-f]{3}([0-9a-f]{3})?/i,
     RX_CONSTANT: /\S+/i,
     RX_DATA: /\S+/i,
     RX_FONT_SIZE: /font(-size)?:[^;]*[0-9]+px/,
+    RX_HTTP_S: /^https?:\/\//,
     RX_IMAGE: /^(cdn|data):\/\/[\s\S]+.(gif|jpe?g|png|svg)$/i,
     RX_MUSTACHE_VAR: /{{(\s*[^}]+\s*)}}/g,
     RX_NAME: /val_[0-9a-f]{6}/,
@@ -34,6 +36,7 @@ const TOOLS = {
     // RX_VALIDATION_CUSTOM: /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/,
     RX_VALIDATION_CUSTOM: /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/,
     RX_VARIABLE: /\w+/,
+    RX_VIDEO: /^(cdn|data):\/\/[\s\S]+.mp4$/i,
 
     STAGE_MODES: {
         DESIGN: 'design',

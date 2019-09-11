@@ -11,6 +11,8 @@ import assets from '../app/app.assets.es6';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.mediaplayer.es6';
 import AssetAdapter from './adapters.asset.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -31,7 +33,7 @@ const VideoTool = BaseTool.extend({
     childSelector: `${CONSTANTS.DIV}${roleSelector('mediaplayer')}`,
     height: 300,
     width: 600,
-    // menu: [],
+    menu: ['attributes.mp4'],
     templates: {
         default: TEMPLATE
     },
@@ -53,6 +55,33 @@ const VideoTool = BaseTool.extend({
         wbem: new AssetAdapter({
             title: __('tools.video.attributes.wbem.title')
         })
+    },
+
+    /**
+     * getAssets
+     * @method getAssets
+     * @param component
+     * @returns {{audio: Array, image: Array, video: Array}}
+     */
+    getAssets(component) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        return {
+            audio: [],
+            image: [],
+            video: [
+                component.get('attributes.mp4'),
+                component.get('attributes.ogv'),
+                component.get('attributes.wbem')
+            ].filter(item => $.type(item) === CONSTANTS.STRING)
+        };
     },
 
     /**

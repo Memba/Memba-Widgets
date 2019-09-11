@@ -39,7 +39,12 @@ const O_COLLECTION = {
  */
 const assets = {
     // Assets for the audio tool
-    audio: new ToolAssets(),
+    audio: new ToolAssets({
+        schemes: {
+            // cdn: `${base}/src/styles/`,
+            data: `${base}/test/data/audio/`
+        }
+    }),
     // Assets for the image tool
     image: new ToolAssets({
         collections: [O_COLLECTION],
@@ -49,7 +54,12 @@ const assets = {
         }
     }),
     // Assets for the video tool
-    video: new ToolAssets()
+    video: new ToolAssets({
+        schemes: {
+            // cdn: `${base}/src/styles/`,
+            data: `${base}/test/data/video/`
+        }
+    })
 };
 
 /**

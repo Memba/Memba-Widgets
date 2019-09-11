@@ -34,7 +34,7 @@ const LatexTool = BaseTool.extend({
     id: 'latex',
     height: 180,
     width: 370,
-    // menu: [],
+    menu: ['attributes.formula'],
     templates: {
         default: TEMPLATE
     },

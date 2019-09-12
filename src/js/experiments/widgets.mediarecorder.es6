@@ -3,17 +3,21 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO H264 COdec as in https://github.com/muaz-khan/RecordRTC/issues/97
+// https://www.webrtc-experiment.com/RecordRTC/simple-demos/isTypeSupported.html
+// TODO: https://github.com/Kagami/ffmpeg.js/
+// https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-
 import 'kendo.binder';
 import 'kendo.drawing';
 import 'kendo.dialog';
-import '../common/window.logger.es6'; // TODO
 // import 'kendo.userevents'; // Required for getTouches
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 import {
     createAudioMeter,
     enumerateDevices,
@@ -25,22 +29,21 @@ const { plugin, Widget } = window.kendo.ui;
 const NS = '.kendoMediaRecorder';
 const WIDGET_CLASS = 'k-widget kj-mediarecorder';
 
-var logger = new window.Logger('kidoju.widgets.mediarecorder');
+const logger = new Logger('widgets.mediarecorder');
 
-var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
-var MediaStream = window.MediaStream || window.webkitMediaStream;
-var WindowMediaRecorder = window.MediaRecorder; // OUr Widget is already MediaRecorder
-var DISABLED_CLASS = 'k-state-disabled';
-var ACTIVE_CLASS = 'k-state-active';
+const URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+const MediaStream = window.MediaStream || window.webkitMediaStream;
+const WindowMediaRecorder = window.MediaRecorder; // OUr Widget is already MediaRecorder
+const DISABLED_CLASS = 'k-state-disabled';
+const ACTIVE_CLASS = 'k-state-active';
 
-var ATTR_SELECTOR = '[{0}="{1}"]';
-var TOOGLE_TMPL = '<a class="k-toggle-button k-button" data-' + kendo.ns + 'command="{0}" title="{1}" tabindex="0"><span class="k-icon k-i-{2}"></span></a>';
-var BUTTON_TMPL = '<a class="k-button" data-' + kendo.ns + 'command="{0}" title="{1}" tabindex="0"><span class="k-icon k-i-{2}"></span></a>';
+const ATTR_SELECTOR = '[{0}="{1}"]';
+const TOOGLE_TMPL = `<a class="k-toggle-button k-button" data-${kendo.ns}command="{0}" title="{1}" tabindex="0"><span class="k-icon k-i-{2}"></span></a>`;
+const BUTTON_TMPL = `<a class="k-button" data-${kendo.ns}command="{0}" title="{1}" tabindex="0"><span class="k-icon k-i-{2}"></span></a>`;
 
-
-/*********************************************************************************
+/** *******************************************************************************
  * Widget
- *********************************************************************************/
+ ******************************************************************************** */
 
 /**
  * MediaRecorder (kendoMediaRecorder)
@@ -97,7 +100,8 @@ const MediaRecorder = Widget.extend({
             record: 'Record',
             speaker: 'Speaker',
             stop: 'Stop',
-            unsupported: 'Media recording is only available on Chrome and Firefox'
+            unsupported:
+                'Media recording is only available on Chrome and Firefox'
         }
     },
 
@@ -108,7 +112,8 @@ const MediaRecorder = Widget.extend({
      */
     _isSupported() {
         // getUserMedia() must be run from a secure origin: HTTPS or localhost.
-        var isSecureOrigin = location.protocol === 'https:' || location.hostname === 'localhost';
+        const isSecureOrigin =
+            location.protocol === 'https:' || location.hostname === 'localhost';
         return isSecureOrigin && !!WindowMediaRecorder;
     },
 
@@ -118,8 +123,8 @@ const MediaRecorder = Widget.extend({
      * @private
      */
     _render() {
-        var element = this.element;
-        var options = this.options;
+        const { element } = this;
+        const { options } = this;
         this.wrapper = element;
         element.addClass(WIDGET_CLASS);
         if (!this._isSupported()) {
@@ -207,24 +212,30 @@ const MediaRecorder = Widget.extend({
      * @private
      */
     _drawVolumeMeter(meter) {
-        const METER = { // TODO use options
+        const METER = {
+            // TODO use options
             HEIGHT: 24,
             WIDTH: 100
         };
         if (!this._meter) {
-            var div = $('<div class="kj-mediarecorder-meter"></div>')
+            const div = $('<div class="kj-mediarecorder-meter"></div>')
                 .width(METER.WIDTH)
                 .height(METER.HEIGHT)
                 .appendTo(this.toolbar);
-            var surface = drawing.Surface.create(div);
-            var rect = new geometry.Rect([0, 0], [METER.WIDTH, METER.HEIGHT]);
-            var frame = new drawing.Rect(rect).stroke('#c8c8c8', 1);
+            const surface = drawing.Surface.create(div);
+            const rect = new geometry.Rect([0, 0], [METER.WIDTH, METER.HEIGHT]);
+            const frame = new drawing.Rect(rect).stroke('#c8c8c8', 1);
             surface.draw(frame);
             this._meter = new drawing.Rect(rect).stroke('#c8c8c8', 1);
             surface.draw(this._meter);
         }
         this._meter.fill(meter.checkClipping() ? 'red' : 'green', 1);
-        this._meter.geometry(new geometry.Rect([0, 0], [METER.WIDTH * meter.volume * 2, METER.HEIGHT]));
+        this._meter.geometry(
+            new geometry.Rect(
+                [0, 0],
+                [METER.WIDTH * meter.volume * 2, METER.HEIGHT]
+            )
+        );
         window.requestAnimationFrame(() => {
             this._drawVolumeMeter(meter);
         });
@@ -235,53 +246,78 @@ const MediaRecorder = Widget.extend({
      * @private
      */
     _initToolbar() {
-        var messages = this.options.messages;
+        const { messages } = this.options;
 
         // Build the toolbar
-        this.toolbar = $('<div class="k-toolbar k-widget kj-mediarecorder-toolbar"></div>')
+        this.toolbar = $(
+            '<div class="k-toolbar k-widget kj-mediarecorder-toolbar"></div>'
+        )
             .append(format(BUTTON_TMPL, 'save', messages.save, 'save'))
             .append(format(BUTTON_TMPL, 'record', messages.record, 'circle'))
-            .append(format(TOOGLE_TMPL, 'pauseResume', messages.pauseResume, 'pause'))
+            .append(
+                format(
+                    TOOGLE_TMPL,
+                    'pauseResume',
+                    messages.pauseResume,
+                    'pause'
+                )
+            )
             .append(format(BUTTON_TMPL, 'stop', messages.stop, 'stop')) // TODO Add mute/unmute toggle button
             .appendTo(this.element)
-            .on(CONSTANTS.CLICK + NS, 'a.k-button', this._onButtonClick.bind(this));
+            .on(
+                CONSTANTS.CLICK + NS,
+                'a.k-button',
+                this._onButtonClick.bind(this)
+            );
 
         if (this.options.devices) {
-
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
             // Display recording devices - see https://webrtc.github.io/samples/src/content/devices/input-output/
-            enumerateDevices().then(function (devices) {
-                var cameras = [];
-                var microphones = [];
-                var speakers = [];
-                for (var i = 0, length = devices.length; i < length; i++) {
-                    var device = devices[i];
-                    switch (device.kind) {
-                        case 'audioinput':
-                            microphones.push({
-                                id: device.deviceId,
-                                name: device.label || messages.microphone + ' ' + (microphones.length + 1)
-                            });
-                            break;
-                        case 'audiooutput':
-                            speakers.push({
-                                id: device.deviceId,
-                                name: device.label || messages.speaker + ' ' + (speakers.length + 1)
-                            });
-                            break;
-                        case 'videoinput':
-                            cameras.push({
-                                id: device.deviceId,
-                                name: device.label || messages.camera + ' ' + (cameras.length + 1)
-                            });
-                            break;
+            enumerateDevices()
+                .then(function(devices) {
+                    const cameras = [];
+                    const microphones = [];
+                    const speakers = [];
+                    for (let i = 0, { length } = devices; i < length; i++) {
+                        const device = devices[i];
+                        switch (device.kind) {
+                            case 'audioinput':
+                                microphones.push({
+                                    id: device.deviceId,
+                                    name:
+                                        device.label ||
+                                        `${
+                                            messages.microphone
+                                        } ${microphones.length + 1}`
+                                });
+                                break;
+                            case 'audiooutput':
+                                speakers.push({
+                                    id: device.deviceId,
+                                    name:
+                                        device.label ||
+                                        `${messages.speaker} ${speakers.length +
+                                            1}`
+                                });
+                                break;
+                            case 'videoinput':
+                                cameras.push({
+                                    id: device.deviceId,
+                                    name:
+                                        device.label ||
+                                        `${messages.camera} ${cameras.length +
+                                            1}`
+                                });
+                                break;
+                            default:
+                        }
                     }
-                }
-                // TODO feed toolbar Dropdownlists
-                // Implement change event to setSinkId as in https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js#L58
-            }).catch(this._onError);
+                    // TODO feed toolbar Dropdownlists
+                    // Implement change event to setSinkId as in https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js#L58
+                })
+                .catch(this._onError);
 
             /* jshint +W074 */
         }
@@ -293,7 +329,7 @@ const MediaRecorder = Widget.extend({
      * @private
      */
     _onButtonClick(e) {
-        var command = $(e.currentTarget).attr(attr('command'));
+        const command = $(e.currentTarget).attr(attr('command'));
         this[command]();
     },
 
@@ -303,19 +339,27 @@ const MediaRecorder = Widget.extend({
      */
     _updateToolbar() {
         // see https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder/state
-        var recorder = this._recorder;
-        var state = recorder instanceof WindowMediaRecorder ? recorder.state : 'inactive';
-        var isInactive = state === 'inactive';
-        var isRecording = state === 'recording';
-        var isPaused =  state === 'paused';
-        var hasChunks = $.isArray(this._chunks) && this._chunks.length;
-        this.toolbar.children(format(ATTR_SELECTOR, attr('command'), 'save'))
+        const recorder = this._recorder;
+        const state =
+            recorder instanceof WindowMediaRecorder
+                ? recorder.state
+                : 'inactive';
+        const isInactive = state === 'inactive';
+        const isRecording = state === 'recording';
+        const isPaused = state === 'paused';
+        const hasChunks = $.isArray(this._chunks) && this._chunks.length;
+        this.toolbar
+            .children(format(ATTR_SELECTOR, attr('command'), 'save'))
             .toggleClass(DISABLED_CLASS, !isInactive || !hasChunks);
-        this.toolbar.children(format(ATTR_SELECTOR, attr('command'), 'record'))
+        this.toolbar
+            .children(format(ATTR_SELECTOR, attr('command'), 'record'))
             .toggleClass(DISABLED_CLASS, !isInactive);
-        this.toolbar.children(format(ATTR_SELECTOR, attr('command'), 'pauseResume'))
-            .toggleClass(DISABLED_CLASS, isInactive).toggleClass(ACTIVE_CLASS, isPaused);
-        this.toolbar.children(format(ATTR_SELECTOR, attr('command'), 'stop'))
+        this.toolbar
+            .children(format(ATTR_SELECTOR, attr('command'), 'pauseResume'))
+            .toggleClass(DISABLED_CLASS, isInactive)
+            .toggleClass(ACTIVE_CLASS, isPaused);
+        this.toolbar
+            .children(format(ATTR_SELECTOR, attr('command'), 'stop'))
             .toggleClass(DISABLED_CLASS, isInactive);
     },
 
@@ -333,26 +377,50 @@ const MediaRecorder = Widget.extend({
      */
     mimeType(withCodecs) {
         const MIME_TYPE = '{0};codecs={1}';
-        var options = this.options;
+        const { options } = this;
         // We need to be explicit about mime types an codecs
-        if (!options.mimeType || !options.codecs || !WindowMediaRecorder.isTypeSupported(format(MIME_TYPE, options.mimeType, options.codecs))) {
-            if (options.video && WindowMediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {  // true on chrome, false on firefox
+        if (
+            !options.mimeType ||
+            !options.codecs ||
+            !WindowMediaRecorder.isTypeSupported(
+                format(MIME_TYPE, options.mimeType, options.codecs)
+            )
+        ) {
+            if (
+                options.video &&
+                WindowMediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+            ) {
+                // true on chrome, false on firefox
                 options.mimeType = 'video/webm';
                 options.codecs = 'vp9';
-            } else if (options.video && WindowMediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {  // true on chrome, false on firefox
+            } else if (
+                options.video &&
+                WindowMediaRecorder.isTypeSupported('video/webm;codecs=vp8')
+            ) {
+                // true on chrome, false on firefox
                 options.mimeType = 'video/webm';
                 options.codecs = 'vp8';
-            } else if (options.audio && WindowMediaRecorder.isTypeSupported('audio/webm;codecs=opus')) { // true on chrome, false on firefox
+            } else if (
+                options.audio &&
+                WindowMediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+            ) {
+                // true on chrome, false on firefox
                 options.mimeType = 'audio/webm';
                 options.codecs = 'opus';
-            } else if (options.audio && WindowMediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) { // false on chrome, true on firefox
+            } else if (
+                options.audio &&
+                WindowMediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
+            ) {
+                // false on chrome, true on firefox
                 options.mimeType = 'audio/ogg';
                 options.codecs = 'opus';
             } else {
                 throw new Error('Set widget options for audio or video');
             }
         }
-        return !!withCodecs ? format(MIME_TYPE, options.mimeType, options.codecs) : options.mimeType;
+        return withCodecs
+            ? format(MIME_TYPE, options.mimeType, options.codecs)
+            : options.mimeType;
     },
 
     /* jshint +W074 */
@@ -363,10 +431,10 @@ const MediaRecorder = Widget.extend({
      * @see http://docs.telerik.com/kendo-ui/api/javascript/kendo#methods-saveAs
      */
     save() {
-        var blob = new Blob(this.value(), { type : this.mimeType() });
+        const blob = new Blob(this.value(), { type: this.mimeType() });
         saveAs({
             dataURI: blob,
-            fileName: 'test.' + this.mimeType().replace(/^\w+\//, ''),
+            fileName: `test.${this.mimeType().replace(/^\w+\//, '')}`,
             proxyURL: this.options.proxy
         });
     },
@@ -375,20 +443,23 @@ const MediaRecorder = Widget.extend({
      * Start recording
      */
     record() {
-        var that = this;
-        var options = that.options;
+        const that = this;
+        const { options } = that;
         that._chunks = [];
         getUserMedia({ audio: options.audio, video: options.video })
-            .then(function (stream) {
+            .then(function(stream) {
                 that._preview(stream);
                 that._initVolumeMeter(stream);
-                var config = {
+                const config = {
                     // audioBitsPerSecond : options.audioBitsPerSecond,
                     // videoBitsPerSecond : options.videoBitsPerSecond,
-                    mimeType : that.mimeType(true)
+                    mimeType: that.mimeType(true)
                 };
                 // Create a media recorder - https://developers.google.com/web/updates/2016/01/mediarecorder
-                var recorder = that._recorder = new WindowMediaRecorder(stream, config);
+                const recorder = (that._recorder = new WindowMediaRecorder(
+                    stream,
+                    config
+                ));
                 recorder.onerror = that._onError.bind(that);
                 recorder.onstart = that._onStart.bind(that);
                 recorder.ondataavailable = that._onDataAvailable.bind(that);
@@ -404,7 +475,7 @@ const MediaRecorder = Widget.extend({
      * Pause/resume recording
      */
     pauseResume() {
-        var recorder = this._recorder;
+        const recorder = this._recorder;
         if (recorder instanceof WindowMediaRecorder) {
             if (recorder.state === 'recording') {
                 this._recorder.pause();
@@ -418,11 +489,17 @@ const MediaRecorder = Widget.extend({
      * Stop recording
      */
     stop() {
-        var recorder = this._recorder;
-        if (recorder instanceof WindowMediaRecorder && recorder.state !== 'inactive') {
+        const recorder = this._recorder;
+        if (
+            recorder instanceof WindowMediaRecorder &&
+            recorder.state !== 'inactive'
+        ) {
             recorder.stop();
-            recorder.stream.getTracks() // get all tracks from the MediaStream
-                .forEach(function (track) { track.stop(); }); // stop each of them
+            recorder.stream
+                .getTracks() // get all tracks from the MediaStream
+                .forEach(function(track) {
+                    track.stop();
+                }); // stop each of them
         }
     },
 
@@ -431,11 +508,12 @@ const MediaRecorder = Widget.extend({
      * @param muted
      */
     mute(muted) {
-        var recorder = this._recorder;
+        const recorder = this._recorder;
         if (recorder instanceof WindowMediaRecorder) {
             muted = $.type(muted) === CONSTANTS.UNDEFINED ? true : !!muted;
-            recorder.stream.getAudioTracks().
-                forEach(function (track) { track.enabled = !muted; });
+            recorder.stream.getAudioTracks().forEach(function(track) {
+                track.enabled = !muted;
+            });
         } else {
             // TODO: Not yet implemented in the toolbar because we need to be able to set it both before (recorder is not yet available) and during recording
             $.noop();
@@ -450,7 +528,8 @@ const MediaRecorder = Widget.extend({
     _onError(err) {
         logger.error({ method: '_onError', error: err });
         if (!this.trigger(CONSTANTS.ERROR, { originalError: err })) {
-            if (err.name === 'TrackStartError') { // instanceof window.NavigatorUserMediaError) {
+            if (err.name === 'TrackStartError') {
+                // instanceof window.NavigatorUserMediaError) {
                 // TODO: Warn user that most probably another program has got hold of the webcam + microphone recording devices
                 $.noop();
             }
@@ -515,7 +594,7 @@ const MediaRecorder = Widget.extend({
      * @private
      */
     _preview(content) {
-        var preview = this.preview.get(0);
+        const preview = this.preview.get(0);
         if (preview.src) {
             // setTimeout() here is needed for Firefox.
             // https://developers.google.com/web/updates/2016/01/mediarecorder
@@ -530,9 +609,9 @@ const MediaRecorder = Widget.extend({
             // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/srcObject
             preview.srcObject = content;
         } else {
-            var blob = content; // content might still be a MediaStream if srcObject is not supported
+            let blob = content; // content might still be a MediaStream if srcObject is not supported
             if ($.isArray(content)) {
-                blob = new Blob(content, { type : this.mimeType() });
+                blob = new Blob(content, { type: this.mimeType() });
                 preview.controls = true;
             }
             // Avoid using this in new browsers, as it is going away.
@@ -565,8 +644,8 @@ const MediaRecorder = Widget.extend({
      * @method destroy
      */
     destroy() {
-        var that = this;
-        var element = that.element;
+        const that = this;
+        const { element } = that;
         // Unbind events
         that.enable(false);
 

@@ -215,7 +215,7 @@ describe('tools.video', () => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
                 expect(content).to.match('div');
-                expect(content).to.have.attr('data-role', 'mediaplayer');
+                expect(content).to.have.attr('data-role', 'audiovideo');
                 expect(content).to.have.attr('data-mode', 'video');
             });
         });

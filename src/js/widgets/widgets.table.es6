@@ -17,8 +17,6 @@ const {
 } = window.kendo;
 const logger = new Logger('widgets.table');
 const WIDGET_CLASS = 'kj-table'; // 'k-widget kj-table';
-
-// var CHANGE = 'change';
 const DEFAULTS = {
     COLUMN_WIDTH: 150,
     ROW_HEIGHT: 58,
@@ -213,31 +211,34 @@ const Table = Widget.extend({
      * @method refresh
      */
     refresh() {
-        const { element } = this;
-        const rowTotal = this.options.rows;
-        const columnTotal = this.options.columns;
+        const {
+            element,
+            options: { columns, rows }
+        } = this;
         element.empty();
-        for (let i = 0; i < rowTotal; i++) {
-            for (let j = 0; j < columnTotal; j++) {
-                const cell = this._value[i][j];
-                const cellElement = $(`<${CONSTANTS.DIV}/>`)
-                    .addClass('k-spreadsheet-cell')
-                    .css(cell.css);
-                let cellContent = `<DIV class="${cell.class}">`;
-                if ($.type(cell.value) === CONSTANTS.UNDEFINED) {
-                    cellContent += '&nbsp';
-                } else if (!Number.isNaN(parseFloat(cell.value))) {
-                    cellContent += `<span>${toString(
-                        cell.value,
-                        cell.format
-                    )}</span>`;
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                const data = this._value[i][j];
+                const $cell = $(`<${CONSTANTS.DIV}/>`)
+                    .addClass('k-spreadsheet-data')
+                    .css(data.css);
+                let htmlContent = `<${CONSTANTS.DIV} class="${data.class ||
+                    ''}">`;
+                if ($.type(data.value) === CONSTANTS.UNDEFINED) {
+                    htmlContent += '&nbsp';
+                } else if (!Number.isNaN(parseFloat(data.value))) {
+                    htmlContent += `<${CONSTANTS.SPAN}>${toString(
+                        data.value,
+                        data.format
+                    )}</${CONSTANTS.SPAN}>`;
                 } else {
-                    cellContent += cell.value;
+                    htmlContent += data.value;
                 }
-                cellContent += '</DIV>';
-                cellElement.html(cellContent).appendTo(element);
+                htmlContent += `</${CONSTANTS.DIV}>`;
+                $cell.html(htmlContent).appendTo(element);
             }
         }
+        logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
 
     /**
@@ -246,6 +247,7 @@ const Table = Widget.extend({
      */
     destroy() {
         Widget.fn.destroy.call(this);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
     }
 });

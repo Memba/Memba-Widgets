@@ -211,7 +211,7 @@
             ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
-                    markdown: '## Markdown\nSome **Markdown**.\n## Math\n$$\\sum_{n=1}^{\\infty}2^{-n}=1$$',
+                    help: '## Markdown\nSome **Markdown**.',
                     visible: true,
                     enabled: true
                 });
@@ -227,10 +227,9 @@
 <section>
     <h2>Bound to observable</h2>
     <div>
-        <textarea id="textinput2" data-bind="value: markdown" data-value-update="keyup" rows="10" style="width:100%"></textarea>
+        <textarea data-bind="value: help" data-value-update="keyup" rows="10" style="width: 100%;"></textarea>
         <div>
-            <div id="metadata2"></div>
-            <div id="markdown2" data-role="markdown" data-bind="value: markdown, visible: visible, enabled: enabled"></div>
+            <div data-role="helper" data-bind="value: help, visible: visible, enabled: enabled"></div>
         </div>
     </div>
     <div>

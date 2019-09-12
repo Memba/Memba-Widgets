@@ -13,77 +13,29 @@ import 'kendo.dropdownlist';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import MarkdownIt from '../vendor/markdown-it/markdown-it';
-import katex from '../vendor/markdown-it/markdown-it-katex.es6'; // This is a katex loader (not katex)
-import emoji from '../vendor/markdown-it/markdown-it-emoji';
-import hljs from '../vendor/highlight/highlight.pack';
-import twemoji from '../vendor/markdown-it/twemoji.amd';
+import HelperIt from '../vendor/markdown-it/markdown-it';
+// import katex from '../vendor/markdown-it/markdown-it-katex.es6'; // This is a katex loader (not katex)
+
+// TODO markdown-it-mediaplayer
+// TODO markdown-it-command
 
 const {
     destroy,
     ui: { plugin, Widget }
 } = window.kendo;
 
-const logger = new Logger('widgets.markdown');
+const logger = new Logger('widgets.help');
 const WIDGET_CLASS = 'kj-markdown'; // 'k-widget kj-markdown';
-const RX_YML = /^---\n([\s\S]*)\n---/;
-const RX_KEYVAL = /([^:\n]+):([^\n]+)/g;
-const KEY_BLACKLIST = /[-\s]/g;
-const SCRIPT_SELECTOR = 'script[type="text/plain"]';
-const SCRIPT_TAG = '<script type="text/plain"></script>';
-const WRAP_TAG = '<wrap/>';
-
-/**
- * Return the yml metadata in value
- * @param content
- */
-function head(content) {
-    assert.type(
-        CONSTANTS.STRING,
-        content,
-        assert.format(assert.messages.type.default, 'content', CONSTANTS.STRING)
-    );
-    const yml = {};
-    const ymlMatches = content.match(RX_YML);
-    if ($.isArray(ymlMatches) && ymlMatches.length > 1) {
-        const keyvalMatches = ymlMatches[1].match(RX_KEYVAL);
-        if ($.isArray(keyvalMatches) && keyvalMatches.length) {
-            for (let i = 0; i < keyvalMatches.length; i++) {
-                const keyval = keyvalMatches[i];
-                const pos = keyval.indexOf(':');
-                const key = keyval
-                    .substr(0, pos)
-                    .trim()
-                    .replace(KEY_BLACKLIST, '_');
-                yml[key] = keyval.substr(pos + 1).trim();
-            }
-        }
-    }
-    return yml;
-}
-
-/**
- * Returns the markdown content in value
- * @param content
- */
-function body(content) {
-    assert.type(
-        CONSTANTS.STRING,
-        content,
-        assert.format(assert.messages.type.default, 'content', CONSTANTS.STRING)
-    );
-    return content.replace(RX_YML, CONSTANTS.EMPTY).trim();
-}
 
 /** *******************************************************************************
  * Widget
  ******************************************************************************** */
 
 /**
- * Markdown
- * @class Markdown Widget (kendoMarkdown)
+ * Helper
+ * @class Helper Widget (kendoHelper)
  */
-const Markdown = Widget.extend({
+const Helper = Widget.extend({
     /**
      * Init
      * @param element
@@ -92,7 +44,7 @@ const Markdown = Widget.extend({
     init(element, options) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
-        this._initMarkdownIt();
+        this._initHelperIt();
         this._render();
     },
 
@@ -101,10 +53,8 @@ const Markdown = Widget.extend({
      * @property options
      */
     options: {
-        name: 'Markdown',
-        url: null,
-        value: null,
-        schemes: {}
+        name: 'Helper',
+        value: null
     },
 
     /**
@@ -135,61 +85,17 @@ const Markdown = Widget.extend({
      * Initialize markdown-it
      * @private
      */
-    _initMarkdownIt() {
-        // Initialize MarkdownIt
-        this.md = new MarkdownIt({
+    _initHelperIt() {
+        // Initialize HelperIt
+        this.md = new HelperIt({
             html: false,
             linkify: true,
-            typographer: true,
-            // See https://github.com/markdown-it/markdown-it#syntax-highlighting
-            highlight(code, lang) {
-                try {
-                    return hljs.highlight(lang, code).value;
-                } catch (err) {
-                    return hljs.highlightAuto(code).value;
-                }
-            }
+            typographer: true
         });
 
         // Initialize renderers
-        this._initHljs();
         this._initLinkOpener();
         this._initImageRule();
-        this._initKatex();
-        this._initEmojis();
-    },
-
-    /**
-     * Init Highligh.js
-     * Adds hljs class to the pre tag
-     * @see https://github.com/markdown-it/markdown-it/blob/88c6e0f8e6fd567c70ffabbc1e9ce7b980d2e3a9/support/demo_template/index.js#L94
-     * @private
-     */
-    _initHljs() {
-        const { md } = this;
-        md.renderer.rules.fence = function(tokens, idx, options, env, self) {
-            const { escapeHtml, unescapeAll } = md.utils;
-            const token = tokens[idx];
-            const info = token.info
-                ? unescapeAll(token.info).trim()
-                : CONSTANTS.EMPTY;
-            let langName = CONSTANTS.EMPTY;
-            let highlighted;
-            if (info) {
-                [langName] = info.split(/\s+/g);
-                token.attrPush(['class', options.langPrefix + langName]);
-            }
-            if (options.highlight) {
-                highlighted =
-                    options.highlight(token.content, langName) ||
-                    escapeHtml(token.content);
-            } else {
-                highlighted = escapeHtml(token.content);
-            }
-            return `<pre class="hljs"><code${self.renderAttrs(
-                token
-            )}>${highlighted}</code></pre>\n`;
-        };
     },
 
     /**
@@ -298,31 +204,6 @@ const Markdown = Widget.extend({
     },
 
     /**
-     * Init Katex
-     * @private
-     */
-    _initKatex() {
-        if (katex) {
-            this.md.use(katex);
-        }
-    },
-
-    /**
-     * Init Emojis
-     * @private
-     */
-    _initEmojis() {
-        if (emoji) {
-            this.md.use(emoji);
-        }
-        // use much nicer twemojis
-        if (twemoji) {
-            this.md.renderer.rules.emoji = (token, idx) =>
-                twemoji.parse(token[idx].content);
-        }
-    },
-
-    /**
      * Builds the widget layout
      * @private
      */
@@ -330,63 +211,7 @@ const Markdown = Widget.extend({
         const { element, options } = this;
         this.wrapper = element;
         element.addClass(WIDGET_CLASS);
-        if ($.type(options.url) === CONSTANTS.STRING) {
-            this.url(options.url);
-        } else if ($.type(options.value) === CONSTANTS.STRING) {
-            this.value(options.value);
-        } else {
-            this.inline();
-        }
-    },
-
-    /**
-     * Reads the markdown text in an inline script
-     * @method _inline
-     * @private
-     */
-    inline() {
-        const { element } = this;
-        const inline = element.find(SCRIPT_SELECTOR);
-        if (inline.length) {
-            this.value(inline.text());
-        }
-    },
-
-    /**
-     * Reads the markdown text from a url
-     * @param url
-     */
-    url(url) {
-        if ($.type(url) === CONSTANTS.NULL) {
-            // TODO
-        } else if ($.type(url) === CONSTANTS.STRING) {
-            $.get(url)
-                .then(data => {
-                    this.value(data);
-                })
-                .catch(() => {
-                    this.value(null);
-                });
-        } else {
-            throw new TypeError('`url` is expected to be a string');
-        }
-    },
-
-    /**
-     * Returns yml metadata
-     */
-    metadata() {
-        return head((this.value() || CONSTANTS.EMPTY).trim());
-    },
-
-    /**
-     * Html displayed
-     * @method html
-     * @returns {*}
-     */
-    html() {
-        const markdown = body((this.value() || CONSTANTS.EMPTY).trim());
-        return this.md.render(markdown);
+        this.value(options.value);
     },
 
     /**
@@ -394,16 +219,8 @@ const Markdown = Widget.extend({
      */
     refresh() {
         const { element } = this;
-        const inline = element.find(SCRIPT_SELECTOR);
-        let script = CONSTANTS.EMPTY;
-        if (inline.length) {
-            script = $(SCRIPT_TAG)
-                .text(inline.text())
-                .wrapAll(WRAP_TAG)
-                .parent()
-                .html();
-        }
-        element.html(script + this.html());
+        element.html(this.md.render(this.value() || CONSTANTS.EMPTY));
+        logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
 
     /**
@@ -415,6 +232,7 @@ const Markdown = Widget.extend({
         this.md = undefined;
         // Destroy widget
         Widget.fn.destroy.call(this);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
     }
 });
@@ -422,4 +240,4 @@ const Markdown = Widget.extend({
 /**
  * Registration
  */
-plugin(Markdown);
+plugin(Helper);

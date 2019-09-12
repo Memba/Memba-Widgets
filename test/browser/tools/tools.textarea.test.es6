@@ -54,21 +54,21 @@ describe('tools.textarea', () => {
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);
-            expect(tool).to.have.property('cursor', CONSTANTS.DEFAULT_CURSOR);
+            expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
             expect(tool).to.have.property(
                 'description',
-                __('tools.textgaps.description')
+                __('tools.textarea.description')
             );
-            expect(tool).to.have.property('height', 80);
-            expect(tool).to.have.property('help', __('tools.textgaps.help'));
+            expect(tool).to.have.property('height', 300);
+            expect(tool).to.have.property('help', __('tools.textarea.help'));
             expect(tool).to.have.property('id', TOOL);
-            expect(tool).to.have.property('icon', __('tools.textgaps.icon'));
+            expect(tool).to.have.property('icon', __('tools.textarea.icon'));
             expect(tool)
                 .to.have.property('menu')
                 .that.eql(['properties.question', 'properties.solution']);
-            expect(tool).to.have.property('name', __('tools.textgaps.name'));
-            expect(tool).to.have.property('weight', 1);
-            expect(tool).to.have.property('width', 300);
+            expect(tool).to.have.property('name', __('tools.textarea.name'));
+            expect(tool).to.have.property('weight', 2);
+            expect(tool).to.have.property('width', 500);
         });
 
         it('getAttributeModel', () => {
@@ -79,7 +79,6 @@ describe('tools.textarea', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('mask');
             expect(Model.fields).to.have.property('style');
         });
 
@@ -87,14 +86,13 @@ describe('tools.textarea', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an('array')
-                .with.lengthOf(7);
+                .with.lengthOf(6);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.mask');
-            expect(rows[6]).to.have.property('field', 'attributes.style');
+            expect(rows[5]).to.have.property('field', 'attributes.style');
         });
 
         it('getPropertyModel', () => {
@@ -218,8 +216,9 @@ describe('tools.textarea', () => {
 
             // Test all stage TOOLS.STAGE_MODES
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
-                const html = tool.getHtmlContent(component, mode);
-                expect(html).to.match(/^<input/);
+                const content = tool.getHtmlContent(component, mode);
+                expect(content).to.be.an.instanceOf($);
+                expect(content).to.match('textarea');
             });
         });
 

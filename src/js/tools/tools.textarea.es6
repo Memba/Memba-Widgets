@@ -42,7 +42,7 @@ const TextAreaTool = BaseTool.extend({
     height: 300,
     width: 500,
     weight: 2,
-    // menu: [],
+    menu: ['properties.question', 'properties.solution'],
     templates: {
         design: format(TEMPLATE, ''),
         play: format(TEMPLATE, BINDING),

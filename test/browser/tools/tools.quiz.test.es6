@@ -180,8 +180,6 @@ describe('tools.quiz', () => {
         });
 
         it('getHtmlContent', () => {
-            let content;
-
             // If we do not submit a page component
             function fn1() {
                 return tool.getHtmlContent({});
@@ -194,23 +192,13 @@ describe('tools.quiz', () => {
             }
             expect(fn2).to.throw();
 
-            // If we submit a valid page component in design mode
-            content = tool.getHtmlContent(component, TOOLS.STAGE_MODES.DESIGN);
-            expect(content).to.be.an.instanceOf($);
-            expect(content).to.match('div');
-            expect(content).to.have.attr('data-role', 'quiz');
-
-            // If we submit a valid page component in play mode
-            content = tool.getHtmlContent(component, TOOLS.STAGE_MODES.PLAY);
-            expect(content).to.be.an.instanceOf($);
-            expect(content).to.match('div');
-            expect(content).to.have.attr('data-role', 'quiz');
-
-            // If we submit a valid page component in review mode
-            content = tool.getHtmlContent(component, TOOLS.STAGE_MODES.REVIEW);
-            expect(content).to.be.an.instanceOf($);
-            expect(content).to.match('div');
-            expect(content).to.have.attr('data-role', 'quiz');
+            // Test all stage TOOLS.STAGE_MODES
+            Object.values(TOOLS.STAGE_MODES).forEach(mode => {
+                const content = tool.getHtmlContent(component, mode);
+                expect(content).to.be.an.instanceOf($);
+                expect(content).to.match('div');
+                expect(content).to.have.attr('data-role', 'quiz');
+            });
         });
 
         it('getHtmlCheckMarks', () => {

@@ -8,23 +8,21 @@
 import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { randomVal } from '../../../src/js/common/window.util.es6';
-import BooleanAdapter from '../../../src/js/tools/adapters.boolean.es6';
+import DisabledAdapter from '../../../src/js/tools/adapters.disabled.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
 
-describe('adapters.boolean', () => {
-    describe('BooleanAdapter', () => {
-        const adapter = new BooleanAdapter();
+describe('adapters.disabled', () => {
+    describe('DisabledAdapter', () => {
+        const adapter = new DisabledAdapter();
 
         it('It should have descriptors', () => {
             expect(Object.keys(adapter)).to.have.lengthOf(14);
-            expect(adapter)
-                .to.have.property('attributes')
-                .that.deep.equals({ 'data-role': 'switch' });
+            expect(adapter).to.have.property('attributes').that.is.undefined;
             expect(adapter).to.have.property('defaultValue', false);
             expect(adapter).to.have.property('editable').that.is.undefined;
-            expect(adapter).to.have.property('editor', 'input');
+            expect(adapter).to.have.property('editor').that.is.a('function');
             expect(adapter).to.have.property('field').that.is.undefined;
             expect(adapter).to.have.property('format').that.is.undefined;
             expect(adapter).to.have.property('from').that.is.undefined;
@@ -48,11 +46,18 @@ describe('adapters.boolean', () => {
         it('getRow', () => {
             const field = randomVal();
             const row = adapter.getRow(field);
+            /*
             expect(row).to.deep.equal({
                 editor: 'input',
                 field,
                 attributes: { 'data-role': 'switch' }
             });
+             */
+            expect(Object.keys(row)).to.have.lengthOf(2);
+            expect(row).to.have.property('field', field);
+            expect(row)
+                .to.have.property('editor')
+                .that.is.a('function');
         });
     });
 });

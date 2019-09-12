@@ -26,8 +26,6 @@ const {
 const logger = new Logger('widgets.textgaps');
 const NS = '.kendoTextGaps';
 const WIDGET_CLASS = 'kj-textgaps'; // 'k-widget kj-textgaps';
-
-const PASTE = 'paste';
 const INPUT_SELECTOR = '.kj-textgaps-input';
 const INPUT_TEMPLATE = '<div class="{0}" style="{1}"></div>'; // we need a div to set a min-width
 
@@ -74,16 +72,12 @@ const TextGaps = Widget.extend({
      * @param value
      */
     value(value) {
-        // TODO assert value
-        if ($.type(value) === CONSTANTS.NULL) {
-            value = [];
-        }
+        let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            return this._value;
-        }
-        if (isAnyArray(value)) {
-            if (!compareBasicArrays(this._value, value)) {
-                this._value = value;
+            ret = this._value;
+        } else if ($.type(value) === CONSTANTS.NULL || isAnyArray(value)) {
+            if (!compareBasicArrays(this._value, value || [])) {
+                this._value = value || [];
                 this.refresh();
             }
         } else {
@@ -91,6 +85,7 @@ const TextGaps = Widget.extend({
                 '`value` is expected to be an array if not null or undefined'
             );
         }
+        return ret;
     },
 
     /**
@@ -124,9 +119,13 @@ const TextGaps = Widget.extend({
         this.element.off(NS);
         if (enabled) {
             this.element
-                .on(PASTE + NS, INPUT_SELECTOR, this._onPaste.bind(this))
                 .on(
-                    CONSTANTS.INPUT + NS,
+                    `${CONSTANTS.PASTE}${NS}`,
+                    INPUT_SELECTOR,
+                    this._onPaste.bind(this)
+                )
+                .on(
+                    `${CONSTANTS.INPUT}${NS}`,
                     INPUT_SELECTOR,
                     this._onInput.bind(this)
                 );
@@ -232,6 +231,7 @@ const TextGaps = Widget.extend({
     destroy() {
         this.enable(false);
         Widget.fn.destroy.call(this);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
     }
 });

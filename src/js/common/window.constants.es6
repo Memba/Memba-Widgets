@@ -44,6 +44,7 @@ const CONSTANTS = {
     MOUSEOUT: 'mouseout',
     MOUSEOVER: 'mouseover',
     MOUSEUP: 'mouseup',
+    PASTE: 'paste',
     POINTERDOWN: 'pointerdown',
     POINTERENTER: 'pointerenter',
     POINTERLEAVE: 'pointerleave',

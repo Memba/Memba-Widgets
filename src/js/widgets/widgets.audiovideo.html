@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>widgets.mediaplayer</title>
+    <title>widgets.audiovideo</title>
     <script>
         window.DEBUG = true;
     </script>
@@ -82,7 +82,7 @@
                     'kendo.list': 'src/js/vendor/kendo/kendo.list.js',
                     'kendo.listview': 'src/js/vendor/kendo/kendo.listview.js',
                     'kendo.maskedtextbox': 'src/js/vendor/kendo/kendo.maskedtextbox.js',
-                    'kendo.mediaplayer': 'src/js/vendor/kendo/kendo.mediaplayer.js',
+                    'kendo.audiovideo': 'src/js/vendor/kendo/kendo.audiovideo.js',
                     'kendo.menu': 'src/js/vendor/kendo/kendo.menu.js',
                     'kendo.mobile.actionsheet': 'src/js/vendor/kendo/kendo.mobile.actionsheet.js',
                     'kendo.mobile.application': 'src/js/vendor/kendo/kendo.mobile.application.js',
@@ -207,7 +207,7 @@
             });
             Promise.all([
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('./widgets.mediaplayer.es6')
+                SystemJS.import('./widgets.audiovideo.es6')
             ]).then(function () {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
@@ -216,8 +216,8 @@
                 });
                 $(function () {
                     $(window).on('resize', function(e) {
-                        var mediaPlayer = $('#video').data('kendoMediaPlayer');
-                        if (mediaPlayer instanceof kendo.ui.MediaPlayer) {
+                        var mediaPlayer = $('#video').data('kendoAudioVideo');
+                        if (mediaPlayer instanceof kendo.ui.AudioVideo) {
                             mediaPlayer.resize();
                         }
                     });
@@ -228,7 +228,7 @@
     </script>
 </head>
 <body>
-<h1>widgets.mediaplayer</h1>
+<h1>widgets.audiovideo</h1>
 <!--h2> Check audio support</h2-->
 <!-- Note: prefer media files delivered from AWS S3 for Chrome and Safari otherwise the page might not load  -->
 <!--audio controls style="width: 100%;">
@@ -236,14 +236,14 @@
     <source src="https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.ogg" type="audio/ogg">
     Media not supported
 </audio-->
-<h2>Audio MediaPlayer</h2>
-<div id="audio1" data-role="mediaplayer" data-mode="audio" style="height: 50px; width: 320px;" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.ogg', 'https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.mp3']"></div>
+<h2>Audio</h2>
+<div id="audio1" data-role="audiovideo" data-mode="audio" style="height: 50px; width: 320px;" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.ogg', 'https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.mp3']"></div>
 <div style="height: 12px;"></div>
-<div id="audio2" data-role="mediaplayer" data-mode="audio" style="height: 100px; width: 650px;" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.ogg', 'https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.mp3']"></div>
+<div id="audio2" data-role="audiovideo" data-mode="audio" style="height: 100px; width: 650px;" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.ogg', 'https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.mp3']"></div>
 <div style="height: 12px;"></div>
-<div id="audio3" data-role="mediaplayer" data-mode="audio" style="height: 200px; width: 800px;" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.ogg', 'https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.mp3']"></div>
-<h2>Video MediaPlayer</h2>
-<div id="video" data-role="mediaplayer" data-mode="video" style="width: 50%;" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/video.mp4']" data-bind="visible: visible, enabled: enabled"></div>
+<div id="audio3" data-role="audiovideo" data-mode="audio" style="height: 200px; width: 800px;" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.ogg', 'https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.mp3']"></div>
+<h2>Video</h2>
+<div id="video" data-role="audiovideo" data-mode="video" style="width: 50%;" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/video.mp4']" data-bind="visible: visible, enabled: enabled"></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled

@@ -12,7 +12,7 @@ import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
-import '../widgets/widgets.mediaplayer.es6';
+import '../widgets/widgets.audiovideo.es6';
 import AssetAdapter from './adapters.asset.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import { BaseTool } from './tools.base.es6';
@@ -25,14 +25,14 @@ const { format, ns, roleSelector } = window.kendo;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="mediaplayer" data-${ns}mode="audio" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #"></div>`;
+const TEMPLATE = `<div data-${ns}role="audiovideo" data-${ns}mode="audio" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #"></div>`;
 
 /**
  * @class AudioTool
  */
 const AudioTool = BaseTool.extend({
     id: 'audio',
-    childSelector: `div${roleSelector('mediaplayer')}`,
+    childSelector: `div${roleSelector('audiovideo')}`,
     height: 100,
     width: 400,
     menu: ['attributes.mp3'],

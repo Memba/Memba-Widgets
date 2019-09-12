@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.mediaplayer.es6';
+import '../../../src/js/widgets/widgets.audiovideo.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -24,11 +24,11 @@ const {
     destroy,
     init,
     support,
-    ui: { MediaPlayer, Slider }
+    ui: { AudioVideo, Slider }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
-const ROLE = 'mediaplayer';
+const ROLE = 'audiovideo';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -41,12 +41,14 @@ const TTL = 250;
  * HTMLMediaElement is not supported in PhantomJS
  * @see https://github.com/ariya/phantomjs/issues/10839
  */
+/*
 if (window.PHANTOMJS) {
     // TODO user Modernizr
     return;
 }
+*/
 
-describe('widgets.mediaplayer', () => {
+describe('widgets.audiovideo', () => {
     before(() => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
@@ -58,17 +60,17 @@ describe('widgets.mediaplayer', () => {
             expect($).not.to.be.undefined;
             expect(kendo).not.to.be.undefined;
             expect(kendo.version).to.be.a('string');
-            expect($.fn.kendoMediaPlayer).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn.kendoAudioVideo).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoMediaPlayer().data('kendoMediaPlayer');
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            const widget = element.kendoAudioVideo().data('kendoAudioVideo');
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-mediaplayer');
+            expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -93,11 +95,11 @@ describe('widgets.mediaplayer', () => {
                 files: AUDIO_FILES
             };
             const widget = element
-                .kendoMediaPlayer(options)
-                .data('kendoMediaPlayer');
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+                .kendoAudioVideo(options)
+                .data('kendoAudioVideo');
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-mediaplayer');
+            expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -128,11 +130,11 @@ describe('widgets.mediaplayer', () => {
                 files: VIDEO_FILES
             };
             const widget = element
-                .kendoMediaPlayer(options)
-                .data('kendoMediaPlayer');
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+                .kendoAudioVideo(options)
+                .data('kendoAudioVideo');
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-mediaplayer');
+            expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -161,10 +163,10 @@ describe('widgets.mediaplayer', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoMediaPlayer');
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            const widget = element.data('kendoAudioVideo');
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-mediaplayer');
+            expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -191,10 +193,10 @@ describe('widgets.mediaplayer', () => {
                 })
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoMediaPlayer');
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            const widget = element.data('kendoAudioVideo');
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-mediaplayer');
+            expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -227,10 +229,10 @@ describe('widgets.mediaplayer', () => {
                 })
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoMediaPlayer');
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            const widget = element.data('kendoAudioVideo');
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-mediaplayer');
+            expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -272,11 +274,11 @@ describe('widgets.mediaplayer', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
+            widget = element.kendoAudioVideo(options).data('kendoAudioVideo');
         });
 
         it('togglePlayPause', done => {
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -295,7 +297,7 @@ describe('widgets.mediaplayer', () => {
         });
 
         it('toggleMute', done => {
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -315,7 +317,7 @@ describe('widgets.mediaplayer', () => {
 
         // Failed to execute 'requestFullScreen' on 'Element': API can only be initiated by a user gesture.
         xit('toggleFullScreen', done => {
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -355,7 +357,7 @@ describe('widgets.mediaplayer', () => {
         });
 
         it('volume', done => {
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -373,7 +375,7 @@ describe('widgets.mediaplayer', () => {
         });
 
         it('seek', done => {
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -404,7 +406,7 @@ describe('widgets.mediaplayer', () => {
         });
 
         it('enable', () => {
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget.toolbar).to.be.an.instanceof($);
             expect(widget.seekerSlider).to.be.an.instanceof(Slider);
             expect(widget.volumeSlider).to.be.an.instanceof(Slider);
@@ -419,13 +421,13 @@ describe('widgets.mediaplayer', () => {
         });
 
         it('destroy', () => {
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget).to.be.an.instanceof(AudioVideo);
             widget.destroy();
             expect(element.parent()).to.match(`#${FIXTURES}`);
-            expect(element.data('kendoMediaPlayer')).to.be.undefined;
+            expect(element.data('kendoAudioVideo')).to.be.undefined;
             expect(element).to.be.empty;
             expect(element).not.to.have.class('k-widget');
-            expect(element).not.to.have.class('kj-mediaplayer');
+            expect(element).not.to.have.class('kj-audiovideo');
         });
 
         afterEach(() => {
@@ -447,12 +449,12 @@ describe('widgets.mediaplayer', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
+            widget = element.kendoAudioVideo(options).data('kendoAudioVideo');
             // viewModel = observable({ url: undefined });
         });
 
         it('togglePlayPause', done => {
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget.media).to.be.an.instanceof($);
             expect(widget.toolbar).to.be.an.instanceof($);
             const playButton = widget.toolbar.find(
@@ -488,7 +490,7 @@ describe('widgets.mediaplayer', () => {
         });
 
         it('toggleMute', done => {
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget.media).to.be.an.instanceof($);
             expect(widget.toolbar).to.be.an.instanceof($);
             const muteButton = widget.toolbar.find(
@@ -520,7 +522,7 @@ describe('widgets.mediaplayer', () => {
 
         // Failed to execute 'requestFullScreen' on 'Element': API can only be initiated by a user gesture.
         xit('toggleFullScreen', done => {
-            expect(widget).to.be.an.instanceof(MediaPlayer);
+            expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget.media).to.be.an.instanceof($);
             expect(widget.toolbar).to.be.an.instanceof($);
             const fullScreenButton = widget.toolbar.find(
@@ -576,7 +578,7 @@ describe('widgets.mediaplayer', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoMediaPlayer(options).data('kendoMediaPlayer');
+            widget = element.kendoAudioVideo(options).data('kendoAudioVideo');
             // change = sinon.spy();
         });
 

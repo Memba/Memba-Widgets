@@ -12,7 +12,7 @@ import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
-import '../widgets/widgets.mediaplayer.es6';
+import '../widgets/widgets.audiovideo.es6';
 import AssetAdapter from './adapters.asset.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -21,7 +21,7 @@ import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 
 const { format, ns, roleSelector } = window.kendo;
-const TEMPLATE = `<div data-${ns}role="mediaplayer" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`;
+const TEMPLATE = `<div data-${ns}role="audiovideo" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`;
 
 /**
  * VideoTool
@@ -30,7 +30,7 @@ const TEMPLATE = `<div data-${ns}role="mediaplayer" data-${ns}mode="video" data-
  */
 const VideoTool = BaseTool.extend({
     id: 'video',
-    childSelector: `${CONSTANTS.DIV}${roleSelector('mediaplayer')}`,
+    childSelector: `${CONSTANTS.DIV}${roleSelector('audiovideo')}`,
     height: 300,
     width: 600,
     menu: ['attributes.mp4'],

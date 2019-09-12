@@ -21,6 +21,7 @@
 
 // Our widgets styles
 @import "../widgets/widgets.assetmanager.scss";
+@import "../widgets/widgets.audiovideo.scss";
 @import "../widgets/widgets.basiclist.scss"; // --> widgets.array
 @import "../widgets/widgets.bitflags.scss";
 @import "../widgets/widgets.codeeditor.scss";
@@ -34,7 +35,6 @@
 @import "../widgets/widgets.markdown.scss";
 @import "../widgets/widgets.markeditor.scss";
 @import "../widgets/widgets.mathinput.scss";
-@import "../widgets/widgets.mediaplayer.scss";
 @import "../widgets/widgets.multiinput.scss";
 @import "../widgets/widgets.multiquiz.scss";
 @import "../widgets/widgets.navigation.scss";

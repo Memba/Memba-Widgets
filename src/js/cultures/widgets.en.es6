@@ -13,6 +13,7 @@ if (window.kendo && window.kendo.ui) {
         ex: { markeditor, mathinput /* , vectordrawing */ },
         ui: {
             AssetManager,
+            AudioVideo,
             BaseDialog,
             BasicList,
             // ButtonSet
@@ -31,7 +32,6 @@ if (window.kendo && window.kendo.ui) {
             MarkEditor,
             // MathExpression
             // MathInput,
-            MediaPlayer,
             MultiInput,
             MultiQuiz,
             Navigation,
@@ -70,6 +70,17 @@ if (window.kendo && window.kendo.ui) {
                 defaultName: 'Uploading...',
                 defaultImage: '' // TODO
             }
+        });
+    }
+
+    /* widgets.audiovideo */
+    if (AudioVideo) {
+        const { options } = AudioVideo.prototype;
+        options.messages = $.extend(true, options.messages, {
+            play: 'Play/Pause',
+            mute: 'Mute/Unmute',
+            fullScreen: 'Full Screen',
+            notSupported: 'Media not supported'
         });
     }
 
@@ -695,17 +706,6 @@ if (window.kendo && window.kendo.ui) {
                 */
             }
         );
-    }
-
-    /* widgets.mediaplayer */
-    if (MediaPlayer) {
-        const { options } = MediaPlayer.prototype;
-        options.messages = $.extend(true, options.messages, {
-            play: 'Play/Pause',
-            mute: 'Mute/Unmute',
-            fullScreen: 'Full Screen',
-            notSupported: 'Media not supported'
-        });
     }
 
     /* widgets.multiinput */

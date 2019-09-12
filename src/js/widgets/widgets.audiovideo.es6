@@ -27,18 +27,18 @@ const {
     ui: { plugin, Slider, Widget }
 } = window.kendo;
 
-const logger = new Logger('widgets.mediaplayer');
-const NS = '.kendoMediaPlayer';
-const WIDGET_CLASS = 'k-widget kj-mediaplayer';
-const TOOLBAR_CLASS = 'k-widget k-toolbar kj-mediaplayer-toolbar';
+const logger = new Logger('widgets.audiovideo');
+const NS = '.kendoAudioVideo';
+const WIDGET_CLASS = 'k-widget kj-audiovideo';
+const TOOLBAR_CLASS = 'k-widget k-toolbar kj-audiovideo-toolbar';
 const BUTTON_TMPL = `<a href="#" class="k-button k-button-icon" data-${ns}${CONSTANTS.ACTION}="{0}" tabindex="0" title="{1}"><span class="k-icon {2}"></span></a>`;
 const BUTTON_SELECTOR = `a.k-button[${attr(CONSTANTS.ACTION)}="{0}"]`;
 const ICON_SELECTOR = 'span.k-icon';
-const SEEKER_CLASS = 'kj-mediaplayer-seeker';
+const SEEKER_CLASS = 'kj-audiovideo-seeker';
 const SEEKER_SELECTOR = `div.${SEEKER_CLASS}`;
-const TIME_CLASS = 'kj-mediaplayer-time';
+const TIME_CLASS = 'kj-audiovideo-time';
 const TIME_SELECTOR = `span.${TIME_CLASS}`;
-const VOLUME_CLASS = 'kj-mediaplayer-volume';
+const VOLUME_CLASS = 'kj-audiovideo-volume';
 const VOLUME_SELECTOR = `div.${VOLUME_CLASS}`;
 const MEDIA_EVENTS = {
     LOADEDMETADATA: 'loadedmetadata',
@@ -143,9 +143,9 @@ function toHMS(seconds) {
  ******************************************************************************** */
 
 /**
- * MediaPlayer widget
+ * AudioVideo widget
  */
-const MediaPlayer = Widget.extend({
+const AudioVideo = Widget.extend({
     /**
      * Constructor
      * @param element
@@ -161,7 +161,7 @@ const MediaPlayer = Widget.extend({
      * Options
      */
     options: {
-        name: 'MediaPlayer',
+        name: 'AudioVideo',
         autoPlay: false, // loop
         enabled: true,
         files: [],
@@ -1040,4 +1040,4 @@ const MediaPlayer = Widget.extend({
 /**
  * Registration
  */
-plugin(MediaPlayer);
+plugin(AudioVideo);

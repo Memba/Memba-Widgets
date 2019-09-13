@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-// TODO import __ from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import '../widgets/widgets.chargrid.es6';
 import './widgets.basedialog.es6';
@@ -35,9 +35,7 @@ function openCharGrid(options = {}) {
     // Create the dialog
     const dialog = $dialog
         .kendoBaseDialog({
-            title:
-                options.title ||
-                BaseDialog.fn.options.messages[options.type || 'info'],
+            title: __('dialogs.chargrid.title'),
             content: `<div style="display:flex;flex-direction:row"><div data-${ns}role="chargrid" data-${ns}bind="value:value" style="flex-shrink:0"></div><div class="kj-chargrid-message" style="margin-left:1em;">${options.message}</div></div>`,
             data: {
                 value: []

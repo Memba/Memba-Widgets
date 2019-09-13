@@ -7,9 +7,10 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import './widgets.basedialog.es6';
+import __ from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import '../widgets/widgets.styleeditor.es6';
+import './widgets.basedialog.es6';
 
 const {
     ns,
@@ -32,7 +33,7 @@ function openStyleEditor(options = {}) {
     // Create the dialog
     const dialog = $dialog
         .kendoBaseDialog({
-            title: BaseDialog.fn.options.messages[options.type || 'info'],
+            title: __('dialogs.styleeditor.title'),
             content: `<div data-${ns}role="styleeditor" data-${ns}bind="value:value" data-${ns}height="400"></div>`,
             data: {
                 value: ''

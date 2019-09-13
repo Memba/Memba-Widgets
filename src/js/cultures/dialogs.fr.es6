@@ -6,49 +6,62 @@
 const res = {
     /* basedialog */
     /*
-        basedialog: {
-            actions: {
-                ok: {
-                    text:
-                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
-                },
-                cancel: {
-                    text:
-                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Annuler'
-                }
+    basedialog: {
+        actions: {
+            ok: {
+                text:
+                    '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
+            },
+            cancel: {
+                text:
+                    '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Annuler'
             }
-        },
-         */
+        }
+    },
+     */
 
     /* dialogs.assetmanager */
-    assetmanager: {},
+    assetmanager: {
+        title: 'Fichiers'
+    },
 
     /* dialogs.chargrid */
     chargrid: {
         layout:
             '<h3>Concevez la grille</h3><p>Chaque caractère saisi dans la grille est verrouillé et ne peut être modifié en mode d’exécution.</p><p>Utilisez le caractère `{0}` pour désigner les cellules vides.</p>',
         solution:
-            '<h3>Saisissez la solution</h3><p>Utilisez les caractères autorisés de la liste blanche, i.e. `{0}`.</p>'
+            '<h3>Saisissez la solution</h3><p>Utilisez les caractères autorisés de la liste blanche, i.e. `{0}`.</p>',
+        title: 'Grille de Caractères'
     },
 
     /* dialogs.codeeditor */
-    codeeditor: {},
+    codeeditor: {
+        title: 'Éditeur de Code'
+    },
 
     /* dialogs.finder */
     finder: {
         language: 'Langue',
         me: 'Mes projets',
         published: 'Publié le {0:dd-MMM-yyyy} par {1}',
-        search: 'Recherche'
+        search: 'Recherche',
+        title: 'Recherche'
+    },
+
+    /* dialogs.mediaplayer */
+    mediaplayer: {
+        title: 'Vidéo'
     },
 
     /* dialogs.newsummary */
-    newsummary: {},
+    newsummary: {
+        title: 'Nouveau Quiz'
+    },
 
     /* dialogs.publish */
     publish: {
-        message: 'message', // TODO
-        title: 'title' // TODO
+        message: 'Veuillez sélectionner une licence pour publier',
+        title: 'Publier'
     },
 
     /* dialogs.quizwizard */
@@ -60,6 +73,7 @@ const res = {
         question: 'Question',
         solution: 'Solution',
         text: 'Option 1',
+        title: 'Nouveau Quiz',
         validation: {
             grid:
                 'Au moins une option et une solution cochée sont requises. Les options ne peuvent pas non plus être laissées vides.',
@@ -68,13 +82,19 @@ const res = {
     },
 
     /* dialogs.signin */
-    signin: {},
+    signin: {
+        title: 'Identification'
+    },
 
     /* dialogs.speeadsheet */
-    spreadsheet: {},
+    spreadsheet: {
+        title: 'Spreadsheet'
+    },
 
     /* dialogs.styleeditor */
-    styleeditor: {},
+    styleeditor: {
+        title: 'Éditeur de Styles'
+    },
 
     /* dialogs.textboxwizard */
     textboxwizard: {
@@ -82,7 +102,7 @@ const res = {
             'Veuillez saisir une question et des solutions (une par ligne) à comparer aux réponses',
         question: 'Question',
         solution: 'Solution',
-        title: 'Nouvelle question ouverte',
+        title: 'Nouvelle Question Simple',
         validation: {
             question: 'Une question est requise.',
             solution: 'Une solution est requise.'

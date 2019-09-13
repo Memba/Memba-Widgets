@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>dialogs.publish</title>
+    <title>dialogs.property</title>
     <script>
         window.DEBUG = true;
     </script>
@@ -205,14 +205,12 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('./dialogs.publish.es6').then(function (module) {
-                var openPublish = module.default;
+            SystemJS.import('./dialogs.property.es6').then(function (module) {
+                var openPropertyDialog = module.default;
                 var kendo = window.kendo;
                 $(function () {
                     $('#button1').click(function (e) {
-                        openPublish({
-                            title: 'New Open Question'
-                        }).then(function(result) {
+                        openPropertyDialog().then(function(result) {
                             $("#console1").append(
                                 kendo.format(
                                     '<div>action `{0}` with data `{1}` at {2}</div>',
@@ -238,9 +236,9 @@
 
 <body>
 
-<h1>dialogs.publish</h1>
+<h1>dialogs.property</h1>
 
-<h2>openPublish</h2>
+<h2>openPropertyDialog</h2>
 <button id="button1" class="k-button">Show Me!</button>
 <div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
 

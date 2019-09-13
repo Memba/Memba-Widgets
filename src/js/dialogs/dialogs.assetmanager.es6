@@ -7,11 +7,11 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import './widgets.basedialog.es6';
-import CONSTANTS from '../common/window.constants.es6';
+import __ from '../app/app.i18n.es6';
 // import assert from '../common/window.assert.es6';
-// import '../widgets/widgets.vectordrawing.es6';
+import CONSTANTS from '../common/window.constants.es6';
 import '../widgets/widgets.assetmanager.es6';
+import './widgets.basedialog.es6';
 
 const {
     bind,
@@ -20,8 +20,6 @@ const {
     roleSelector,
     ui: { BaseDialog }
 } = window.kendo;
-
-// const { ToolAssets } = window.kidoju;
 
 /**
  * A shortcut function to display a dialog with a kendo.ui.AssetManager
@@ -50,7 +48,7 @@ function openAssetManager(options = {}) {
     // Create the dialog
     const dialog = $dialog
         .kendoBaseDialog({
-            title: BaseDialog.fn.options.messages[options.type || 'info'],
+            title: __('dialogs.assetmanager.title'),
             content: `<div data-${ns}role="assetmanager" data-${ns}bind="value:value"></div>`,
             data: { value: '' },
             actions: [

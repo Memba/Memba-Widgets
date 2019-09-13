@@ -9,8 +9,9 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import './widgets.basedialog.es6';
+import __ from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import './widgets.basedialog.es6';
 
 const {
     htmlEncode,
@@ -42,8 +43,7 @@ function openCodeEditor(options = {}) {
             // Create the dialog
             const dialog = $dialog
                 .kendoBaseDialog({
-                    title:
-                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    title: __('dialogs.codeeditor.title'),
                     content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" data-${ns}default="${htmlEncode(
                         options.default
                     )}" data-${ns}solution="${htmlEncode(

@@ -35,7 +35,7 @@ const AudioTool = BaseTool.extend({
     childSelector: `div${roleSelector('audiovideo')}`,
     height: 100,
     width: 400,
-    menu: ['attributes.mp3'],
+    menu: ['attributes.mp3'], // TODO <------------ does not work
     templates: {
         default: TEMPLATE
     },

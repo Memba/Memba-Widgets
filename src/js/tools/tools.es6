@@ -184,6 +184,16 @@ function tools(id) {
         });
 
         /**
+         * TextBox
+         */
+        _tools.textgaps = new StubTool({
+            description: __('tools.textgaps.description'),
+            help: __('tools.textgaps.help'),
+            icon: __('tools.textgaps.icon'),
+            name: __('tools.textgaps.name')
+        });
+
+        /**
          * Quiz
          */
         _tools.quiz = new StubTool({

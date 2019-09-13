@@ -6,49 +6,62 @@
 const res = {
     /* basedialog */
     /*
-        basedialog: {
-            actions: {
-                ok: {
-                    text:
-                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
-                },
-                cancel: {
-                    text:
-                        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Annuler'
-                }
+    basedialog: {
+        actions: {
+            ok: {
+                text:
+                    '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
+            },
+            cancel: {
+                text:
+                    '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Annuler'
             }
-        },
-        */
+        }
+    },
+    */
 
     /* dialogs.assetmanager */
-    assetmanager: {},
+    assetmanager: {
+        title: 'Assets'
+    },
 
     /* dialogs.chargrid */
     chargrid: {
         layout:
             '<h3>Design the grid layout</h3><p>Any character you enter in the grid is locked and cannot be changed in play mode.</p><p>Use `{0}` to blank out empty cells.</p>',
         solution:
-            '<h3>Enter the solution</h3><p>Use any whitelisted character, i.e. `{0}`.</p>'
+            '<h3>Enter the solution</h3><p>Use any whitelisted character, i.e. `{0}`.</p>',
+        title: 'Character Grid'
     },
 
     /* dialogs.codeeditor */
-    codeeditor: {},
+    codeeditor: {
+        title: 'Code Editor'
+    },
 
     /* dialogs.finder */
     finder: {
         language: 'Language',
         me: 'My projects',
         published: 'Published on {0:dd-MMM-yyyy} by {1}',
-        search: 'Search'
+        search: 'Search',
+        title: 'Search'
+    },
+
+    /* dialogs.mediaplayer */
+    mediaplayer: {
+        title: 'Video'
     },
 
     /* dialogs.newsummary */
-    newsummary: {},
+    newsummary: {
+        title: 'New Quiz'
+    },
 
     /* dialogs.publish */
     publish: {
-        message: 'message', // TODO
-        title: 'title' // TODO
+        message: 'PLease select a license to publish',
+        title: 'Publish'
     },
 
     /* dialogs.quizwizard */
@@ -60,6 +73,7 @@ const res = {
         question: 'Question',
         solution: 'Solution',
         text: 'Option 1',
+        title: 'New quiz',
         validation: {
             grid:
                 'At least one option and one checked solution are required. Also options cannot be left empty.',
@@ -68,21 +82,27 @@ const res = {
     },
 
     /* dialogs.signin */
-    signin: {},
+    signin: {
+        title: 'Sign-in'
+    },
 
     /* dialogs.speeadsheet */
-    spreadsheet: {},
+    spreadsheet: {
+        title: 'Spreadsheet'
+    },
 
     /* dialogs.styleeditor */
-    styleeditor: {},
+    styleeditor: {
+        title: 'Style Editor'
+    },
 
     /* dialogs.textboxwizard */
     textboxwizard: {
         message:
             'Please enter a question and solutions (one per line) to compare answers with.',
-        title: 'New open question',
         question: 'Question',
         solution: 'Solution',
+        title: 'New Simple Question',
         validation: {
             question: 'A question is required.',
             solution: 'A solution is required.'

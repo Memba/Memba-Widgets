@@ -8,8 +8,9 @@
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.spreadsheet';
-import './widgets.basedialog.es6';
+import __ from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import './widgets.basedialog.es6';
 
 const {
     ns,
@@ -36,8 +37,7 @@ function openSpreadsheet(options = {}) {
             // Create the dialog
             const dialog = $dialog
                 .kendoBaseDialog({
-                    title:
-                        BaseDialog.fn.options.messages[options.type || 'info'],
+                    title: __('dialogs.spreadsheet.title'),
                     content: `<div data-${ns}role="spreadsheet" style="width:100%; border:0;"></div>`,
                     // data: {}
                     actions: [

@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>dialogs.video</title>
+    <title>dialogs.mediaplayer</title>
     <script>
         window.DEBUG = true;
     </script>
@@ -206,26 +206,22 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            // We need to load kendo.grid here because SystemJS does not load it as a bundle
-            // from the import reference in dialogs.video.es6
-            // See https://github.com/systemjs/systemjs/issues/1818
-            SystemJS.import('kendo.grid')
-            .then(function () {
-                return SystemJS.import('./dialogs.video.es6')
-            })
-            .then(function (module) {
+            SystemJS.import('./dialogs.mediaplayer.es6').then(function (module) {
                 var kendo = window.kendo;
-                var openStyleEditor = module.default;
+                var OpenMediaPlayer = module.default;
                 $(function () {
                     $('#button1').click(function (e) {
-                        openStyleEditor({
-                            title: 'My Style'
+                        OpenMediaPlayer({
+                            title: 'ProgressNEXT 2018 Highlights',
+                            source: 'https://www.youtube.com/watch?v=Gp7tcOcSKAU'
                         }).then(function(result) {
                             $("#console1").append(
                                 kendo.format(
-                                    '<div>action `{0}` with data `{1}` at {2}</div>',
+                                    // '<div>action `{0}` with data `{1}` at {2}</div>',
+                                    '<div>action `{0}` at {1}</div>',
                                     result.action,
-                                    JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
+                                    // JSON.stringify(result.data).substr(0, 40),
+                                    new Date().toLocaleTimeString()
                                 )
                             );
                         });
@@ -245,12 +241,9 @@
 </head>
 
 <body>
-
-<h1>dialogs.video</h1>
-
-<h2>openStyleEditor</h2>
+<h1>dialogs.mediaplayer</h1>
+<h2>OpenMediaPlayer</h2>
 <button id="button1" class="k-button">Show Me!</button>
-<div id="console1" class="highlight-section k-block" style="margin-top:20px;"></div>
-
+<div id="console1" class="highlight-section k-block" style="margin-top: 20px;"></div>
 </body>
 </html>

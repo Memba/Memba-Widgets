@@ -3,7 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO: replace `imageUrl` by `icon` + add CDN path to options + build path when using icons
 // TODO unbind in destroy
 // TODO Add save action
 
@@ -12,6 +11,7 @@
 import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.dialog';
+import { iconUri } from '../app/app.uris.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
@@ -83,7 +83,7 @@ const BaseDialog = Dialog.extend({
     options: {
         name: 'BaseDialog',
         buttonLayout: 'normal',
-        data: null, // <-- The data to feed to our viewModel
+        data: {}, // <-- The data to feed to our viewModel, required for MVVM declarative binding to work
         minWidth: '320px', // iPhone 5 width in portrait mode
         modal: true,
         messages: {
@@ -96,41 +96,35 @@ const BaseDialog = Dialog.extend({
             actions: {
                 cancel: {
                     action: ACTION.cancel,
-                    imageUrl:
-                        'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
+                    imageUrl: iconUri('close'),
                     text: 'Cancel'
                 },
                 close: {
                     action: ACTION.close,
-                    imageUrl:
-                        'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
+                    imageUrl: iconUri('close'),
                     primary: true,
                     text: 'Close'
                 },
                 create: {
                     action: ACTION.create,
-                    imageUrl:
-                        'https://cdn.kidoju.com/images/o_collection/svg/office/plus.svg',
+                    imageUrl: iconUri('plus'),
                     primary: true,
                     text: 'Create'
                 },
                 no: {
                     action: ACTION.no,
-                    imageUrl:
-                        'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
+                    imageUrl: iconUri('close'),
                     text: 'No'
                 },
                 ok: {
                     action: ACTION.ok,
-                    imageUrl:
-                        'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
+                    imageUrl: iconUri('ok'),
                     primary: true,
                     text: 'OK'
                 },
                 yes: {
                     action: ACTION.yes,
-                    imageUrl:
-                        'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
+                    imageUrl: iconUri('ok'),
                     primary: true,
                     text: 'Yes'
                 }

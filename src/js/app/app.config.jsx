@@ -36,7 +36,8 @@ config.locales = ['en', 'fr'];
  */
 config.uris = {
     cdn: {
-        icons: `${base}/src/styles/images/o_collection/svg/office/{0}.svg`
+        // icons: `${base}/src/styles/images/o_collection/svg/office/{0}.svg`
+        icons: `https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg`
     },
     webapp: {
         workerlib: [

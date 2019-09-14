@@ -144,7 +144,9 @@ const MultiQuizTool = BaseTool.extend({
         );
         return {
             audio: [],
-            image: component.get('attributes.data').map(item => assets.image.scheme2http(item.url)),
+            image: component
+                .get('attributes.data')
+                .map(item => assets.image.scheme2http(item.url)),
             video: []
         };
     },

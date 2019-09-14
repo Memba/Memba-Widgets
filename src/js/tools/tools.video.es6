@@ -120,9 +120,6 @@ const VideoTool = BaseTool.extend({
                 if (TOOLS.RX_HTTP_S.test(wbem)) {
                     files.push(wbem);
                 }
-
-                // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
-                // return ` ${JSON.stringify(files)}`;
                 return JSON.stringify(files);
             }
         });

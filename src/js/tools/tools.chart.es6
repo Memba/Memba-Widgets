@@ -266,9 +266,7 @@ const ChartTool = BaseTool.extend({
                      { name: 'Series 2', data: [200, 450, 300, 125] }
                  ];
                  */
-
-                // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
-                return ` ${JSON.stringify(series)}`;
+                return JSON.stringify(series);
             },
             // The seriesDefaults$ function returns an object for chart's data-series-defaults attribute binding
             seriesDefaults$() {

@@ -164,6 +164,16 @@ function tools(id) {
         });
 
         /**
+         * ImageSet
+         */
+        _tools.imageset = new StubTool({
+            description: __('tools.imageset.description'),
+            help: __('tools.imageset.help'),
+            icon: __('tools.imageset.icon'),
+            name: __('tools.imageset.name')
+        });
+
+        /**
          * TextArea
          */
         _tools.textarea = new StubTool({

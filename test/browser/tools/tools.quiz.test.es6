@@ -153,7 +153,10 @@ describe('tools.quiz', () => {
             expect(assets)
                 .to.have.property('image')
                 .that.is.an('array')
-                .with.lengthOf(0);
+                .with.lengthOf(4);
+            expect(assets.image[0]).to.equal(
+                component.get('attributes.data').at(0).url
+            );
             expect(assets)
                 .to.have.property('video')
                 .that.is.an('array')

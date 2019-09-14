@@ -55,6 +55,7 @@ const ImageSet = DataBoundWidget.extend({
         dataSource: [],
         enabled: true,
         height: 100,
+        style: '',
         value: null,
         width: 100
     },
@@ -122,8 +123,10 @@ const ImageSet = DataBoundWidget.extend({
         this.wrapper = this.element
             .wrap(
                 $(`<${CONSTANTS.DIV}/>`)
-                    .height(options.height)
-                    .width(options.width)
+                    .attr({
+                        role: 'button',
+                        style: options.style
+                    })
                     .css({
                         cursor: 'pointer',
                         backgroundPosition: 'center',
@@ -132,9 +135,8 @@ const ImageSet = DataBoundWidget.extend({
                         display: 'inline-block',
                         outline: 0
                     })
-                    .attr({
-                        role: 'button'
-                    })
+                    .height(options.height)
+                    .width(options.width)
                     .addClass(`${WIDGET_CLASS} ${CONSTANTS.INTERACTIVE_CLASS}`)
             )
             .parent();

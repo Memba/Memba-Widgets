@@ -288,7 +288,7 @@ const res = {
                 defaultValue: [
                     {
                         text: 'Jeu d’images',
-                        image: 'cdn://images/o_collection/svg/office/photos.svg'
+                        url: 'cdn://images/o_collection/svg/office/photos.svg'
                     }
                 ],
                 title: 'Images'
@@ -411,12 +411,12 @@ const res = {
                 defaultValue: [
                     {
                         text: 'Option 1',
-                        image:
+                        url:
                             'cdn://images/o_collection/svg/office/hand_count_one.svg'
                     },
                     {
                         text: 'Option 2',
-                        image:
+                        url:
                             'cdn://images/o_collection/svg/office/hand_point_up.svg'
                     }
                 ],
@@ -508,11 +508,11 @@ const res = {
                 defaultValue: [
                     {
                         text: 'Vrai',
-                        image: 'cdn://images/o_collection/svg/office/ok.svg'
+                        url: 'cdn://images/o_collection/svg/office/ok.svg'
                     },
                     {
                         text: 'Faux',
-                        image: 'cdn://images/o_collection/svg/office/error.svg'
+                        url: 'cdn://images/o_collection/svg/office/error.svg'
                     }
                 ],
                 help: 'Entrez les réponses possibles',

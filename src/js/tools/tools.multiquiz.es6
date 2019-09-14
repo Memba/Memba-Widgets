@@ -11,7 +11,7 @@ import assets from '../app/app.assets.es6';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-// import { PageComponent } from '../data/data.pagecomponent.es6';
+import { PageComponent } from '../data/data.pagecomponent.es6';
 import '../widgets/widgets.multiquiz.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
@@ -128,6 +128,28 @@ const MultiQuizTool = BaseTool.extend({
     },
 
     /**
+     * getAssets
+     * @param component
+     * @returns {{image: [], audio: [], video: []}}
+     */
+    getAssets(component) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        return {
+            audio: [],
+            image: component.get('attributes.data').map(item => assets.image.scheme2http(item.url)),
+            video: []
+        };
+    },
+
+    /**
      * Get Html or jQuery content
      * @method getHtmlContent
      * @param component
@@ -147,14 +169,13 @@ const MultiQuizTool = BaseTool.extend({
         $.extend(component, {
             // The data$ function resolves urls with schemes like cdn://sample.jpg
             data$() {
-                const data = component.attributes.get('data').map(item => {
+                const data = component.get('attributes.data').map(item => {
                     return {
                         text: item.text,
                         url: assets.image.scheme2http(item.url)
                     };
                 });
-                // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
-                return ` ${JSON.stringify(data)}`;
+                return JSON.stringify(data);
             }
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);

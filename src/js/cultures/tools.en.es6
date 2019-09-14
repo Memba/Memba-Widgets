@@ -282,7 +282,7 @@ const res = {
                 defaultValue: [
                     {
                         text: 'Image set',
-                        image: 'cdn://images/o_collection/svg/office/photos.svg'
+                        url: 'cdn://images/o_collection/svg/office/photos.svg'
                     }
                 ],
                 title: 'Images'
@@ -404,12 +404,12 @@ const res = {
                 defaultValue: [
                     {
                         text: 'Option 1',
-                        image:
+                        url:
                             'cdn://images/o_collection/svg/office/hand_count_one.svg'
                     },
                     {
                         text: 'Option 2',
-                        image:
+                        url:
                             'cdn://images/o_collection/svg/office/hand_point_up.svg'
                     }
                 ],
@@ -497,11 +497,11 @@ const res = {
                 defaultValue: [
                     {
                         text: 'True',
-                        image: 'cdn://images/o_collection/svg/office/ok.svg'
+                        url: 'cdn://images/o_collection/svg/office/ok.svg'
                     },
                     {
                         text: 'False',
-                        image: 'cdn://images/o_collection/svg/office/error.svg'
+                        url: 'cdn://images/o_collection/svg/office/error.svg'
                     }
                 ],
                 help: 'Enter the answers to choose from',

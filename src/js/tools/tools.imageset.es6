@@ -11,7 +11,8 @@ import assets from '../app/app.assets.es6';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-// import { PageComponent } from '../data/data.pagecomponent.es6';
+import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.imageset.es6';
 import ImageListAdapter from './adapters.imagelist.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
@@ -25,14 +26,14 @@ import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
 
-const { format, ns, roleSelector } = window.kendo;
+const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
  * ImageSet Template
  * @type {string}
  */
-const IMAGESET = `<div data-${ns}role="imageset" data-${ns}images="#: data$() #" style="#: attributes.style #" {0}></div>`;
+const IMAGESET = `<input data-${ns}role="imageset" data-${ns}source="#: data$() #" data-${ns}style="#: attributes.style #" {0}></input>`;
 
 /**
  * @class ImageSetTool tool
@@ -40,11 +41,12 @@ const IMAGESET = `<div data-${ns}role="imageset" data-${ns}images="#: data$() #"
  */
 const ImageSetTool = BaseTool.extend({
     id: 'imageset',
-    childSelector: `${CONSTANTS.DIV}${roleSelector('imageset')}`,
+    // childSelector: `${CONSTANTS.DIV}${roleSelector('imageset')}`,
+    childSelector: `${CONSTANTS.DIV}.kj-imageset`,
     height: 250,
     width: 250,
     weight: 1,
-    // menu: [],
+    menu: ['attributes.data'],
     templates: {
         design: format(IMAGESET, `data-${ns}enabled="false"`),
         play: format(
@@ -100,6 +102,28 @@ const ImageSetTool = BaseTool.extend({
     },
 
     /**
+     * getAssets
+     * @param component
+     * @returns {{image: [], audio: [], video: []}}
+     */
+    getAssets(component) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        return {
+            audio: [],
+            image: component.get('attributes.data').map(item => assets.image.scheme2http(item.url)),
+            video: []
+        };
+    },
+
+    /**
      * Get Html or jQuery content
      * @method getHtmlContent
      * @param component
@@ -119,28 +143,13 @@ const ImageSetTool = BaseTool.extend({
         // The data$ function resolves urls with schemes like cdn://sample.jpg
         $.extend(component, {
             data$() {
-                const data = component.attributes.get('data');
-                const clone = [];
-                const { schemes } = assets.image;
-                for (let i = 0, { length } = data; i < length; i++) {
-                    const item = {
-                        text: data[i].text,
-                        image: ''
+                const data = component.get('attributes.data').map(item => {
+                    return {
+                        text: item.text,
+                        url: assets.image.scheme2http(item.url)
                     };
-                    Object.keys(schemes).some(scheme => {
-                        if (new RegExp(`^${scheme}://`).test(data[i].image)) {
-                            item.image = data[i].image.replace(
-                                `${scheme}://`,
-                                schemes[scheme]
-                            );
-                            return true;
-                        }
-                        return false;
-                    });
-                    clone.push(item);
-                }
-                // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
-                return ` ${JSON.stringify(clone)}`;
+                });
+                return JSON.stringify(data);
             }
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);

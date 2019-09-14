@@ -11,13 +11,6 @@ import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 
 // Note: floating numbers generate errors due to changes in the last digit
 const angleGenerator = JSC.integer(0, 359);
-const imageList = () => [
-    // TODO: improve
-    { text: JSC.string()(), url: '' },
-    { text: JSC.string()(), url: '' },
-    { text: JSC.string()(), url: '' },
-    { text: JSC.string()(), url: '' }
-];
 const positionGenerator = JSC.integer(0, 500);
 const quizMode = JSC.one_of(['button', 'dropdown', 'image', 'link', 'radio']);
 const styleGenerator = () =>
@@ -47,6 +40,12 @@ const urlGenerator = ext =>
         JSC.integer(1, 100),
         JSC.one_of('abcdefghijklmnopqrstuvwxyz0123456789-/')
     )()}${JSC.character('a', 'z')()}.${ext}`;
+const imageList = () => [
+    { text: JSC.string()(), url: urlGenerator('png') },
+    { text: JSC.string()(), url: urlGenerator('png') },
+    { text: JSC.string()(), url: urlGenerator('png') },
+    { text: JSC.string()(), url: urlGenerator('png') }
+];
 
 /**
  * getAudio
@@ -145,6 +144,36 @@ function getImage() {
         },
         rotate: angleGenerator(),
         tool: 'image',
+        top: positionGenerator(),
+        width: positionGenerator()
+    };
+}
+
+/**
+ * getImageSet
+ * @function getImage
+ */
+function getImageSet() {
+    const data = imageList();
+    return {
+        attributes: {
+            data,
+            style: styleGenerator()
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: data[0],
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'imageset',
         top: positionGenerator(),
         width: positionGenerator()
     };
@@ -261,7 +290,7 @@ function getQuiz() {
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
-            solution: data[0],
+            solution: data[0], // TODO: .text?
             success: JSC.integer(0, 3)(),
             validation: '// equal'
         },
@@ -490,6 +519,7 @@ export {
     getDropZone,
     getDummy,
     getImage,
+    getImageSet,
     getLabel,
     getLatex,
     getLine,

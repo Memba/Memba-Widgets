@@ -3,7 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
-$include exports( "widgets.countdown/layout" ) {
+@include exports( "widgets.countdown/layout" ) {
+
     $white: #fff;
     $info1: #7ff;
     $info2: #0ff;

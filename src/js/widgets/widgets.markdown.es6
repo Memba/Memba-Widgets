@@ -404,6 +404,7 @@ const Markdown = Widget.extend({
                 .html();
         }
         element.html(script + this.html());
+        logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
 
     /**
@@ -415,6 +416,7 @@ const Markdown = Widget.extend({
         this.md = undefined;
         // Destroy widget
         Widget.fn.destroy.call(this);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
     }
 });

@@ -24,7 +24,7 @@ import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
 import { scoreValidator } from './util.validators.es6';
 
-const { format, htmlEncode, ns } = window.kendo;
+const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -40,10 +40,11 @@ const TEMPLATE = `<div data-${ns}role="textgaps" data-${ns}text="#: attributes.t
  */
 const TextGapsTool = BaseTool.extend({
     id: 'textgaps',
+    childSelector: `${CONSTANTS.DIV}${roleSelector('textgaps')}`,
     height: 150,
     width: 420,
     weight: 1,
-    // menu: [],
+    menu: ['properties.question', 'properties.solution'],
     templates: {
         design: format(TEMPLATE, `data-${ns}enable="false"`),
         play: format(

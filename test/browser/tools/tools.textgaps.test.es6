@@ -40,7 +40,7 @@ describe('tools.textgaps', () => {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
         // Load tool
-        tools.load('textgaps').always(done);
+        tools.load(TOOL).always(done);
     });
 
     describe('TextGapsTool', () => {
@@ -54,12 +54,12 @@ describe('tools.textgaps', () => {
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);
-            expect(tool).to.have.property('cursor', CONSTANTS.DEFAULT_CURSOR);
+            expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
             expect(tool).to.have.property(
                 'description',
                 __('tools.textgaps.description')
             );
-            expect(tool).to.have.property('height', 80);
+            expect(tool).to.have.property('height', 150);
             expect(tool).to.have.property('help', __('tools.textgaps.help'));
             expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.textgaps.icon'));
@@ -68,7 +68,7 @@ describe('tools.textgaps', () => {
                 .that.eql(['properties.question', 'properties.solution']);
             expect(tool).to.have.property('name', __('tools.textgaps.name'));
             expect(tool).to.have.property('weight', 1);
-            expect(tool).to.have.property('width', 300);
+            expect(tool).to.have.property('width', 420);
         });
 
         it('getAttributeModel', () => {
@@ -79,22 +79,24 @@ describe('tools.textgaps', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('mask');
+            expect(Model.fields).to.have.property('inputStyle');
             expect(Model.fields).to.have.property('style');
+            expect(Model.fields).to.have.property('text');
         });
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an('array')
-                .with.lengthOf(7);
+                .with.lengthOf(8);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.mask');
+            expect(rows[5]).to.have.property('field', 'attributes.inputStyle');
             expect(rows[6]).to.have.property('field', 'attributes.style');
+            expect(rows[7]).to.have.property('field', 'attributes.text');
         });
         it('getPropertyModel', () => {
             const Model = tool.getPropertyModel(component);
@@ -217,8 +219,10 @@ describe('tools.textgaps', () => {
 
             // Test all stage TOOLS.STAGE_MODES
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
-                const html = tool.getHtmlContent(component, mode);
-                expect(html).to.match(/^<input/);
+                const content = tool.getHtmlContent(component, mode);
+                expect(content).to.be.an.instanceof($);
+                expect(content).to.match('div');
+                expect(content).to.have.attr('data-role', 'textgaps');
             });
         });
 

@@ -168,7 +168,7 @@ function getImageSet() {
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
-            solution: data[0],
+            solution: data[0].text,
             success: JSC.integer(0, 3)(),
             validation: '// equal'
         },
@@ -256,7 +256,10 @@ function getMultiQuiz() {
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
-            solution: data.filter(JSC.boolean()).join('\n'), // TODO: review
+            solution: data
+                .map(item => item.text)
+                .filter(JSC.boolean())
+                .join('\n'), // Review
             success: JSC.integer(0, 3)(),
             validation: '// equal'
         },
@@ -290,7 +293,7 @@ function getQuiz() {
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
-            solution: data[0], // TODO: .text?
+            solution: data[0].text,
             success: JSC.integer(0, 3)(),
             validation: '// equal'
         },
@@ -384,7 +387,27 @@ function getTextBox() {
  */
 function getTextGaps() {
     return {
-        // TODO
+        attributes: {
+            inputStyle: styleGenerator(),
+            style: styleGenerator(),
+            text: 'The quick [] fox is jumping over the [] dog'
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: textGenerator(),
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'textgaps',
+        top: positionGenerator(),
+        width: positionGenerator()
     };
 }
 

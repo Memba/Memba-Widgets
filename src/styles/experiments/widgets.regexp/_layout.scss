@@ -1,0 +1,13 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+@include exports( "widgets.regexp/layout" ) {
+    .kj-regexp {
+        border: solid 1px grey;
+        display: inline-block;
+        height: 1.5em;
+        min-width: 200px;
+    }
+}

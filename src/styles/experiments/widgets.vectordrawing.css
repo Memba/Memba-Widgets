@@ -1,33 +1,39 @@
+@charset "UTF-8";
 /**
  * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
-.kj-vectordrawing-toolbar .k-button-icon[data-tool="shape"],
-.kj-vectordrawing-toolbar .k-button-icon[data-tool="fillColor"],
-.kj-vectordrawing-toolbar .k-button-icon[data-tool="opacity"],
-.kj-vectordrawing-toolbar .k-button-icon[data-tool="strokeColor"],
-.kj-vectordrawing-toolbar .k-button-icon[data-tool="strokeWidth"],
-.kj-vectordrawing-toolbar .k-button-icon[data-tool="strokeDashType"],
-.kj-vectordrawing-toolbar .k-button-icon[data-tool="startCapType"],
-.kj-vectordrawing-toolbar .k-button-icon[data-tool="endCapType"],
-.kj-vectordrawing-toolbar .k-button-icon[data-tool="arrange"],
-.kj-vectordrawing-toolbar .k-button-icon[data-tool="background"],
-.kj-vectordrawing-toolbar .k-button-icon[data-tool="guides"] {
+.kj-vectordrawing-toolbar .k-button-icon[data-tool=shape],
+.kj-vectordrawing-toolbar .k-button-icon[data-tool=fillColor],
+.kj-vectordrawing-toolbar .k-button-icon[data-tool=opacity],
+.kj-vectordrawing-toolbar .k-button-icon[data-tool=strokeColor],
+.kj-vectordrawing-toolbar .k-button-icon[data-tool=strokeWidth],
+.kj-vectordrawing-toolbar .k-button-icon[data-tool=strokeDashType],
+.kj-vectordrawing-toolbar .k-button-icon[data-tool=startCapType],
+.kj-vectordrawing-toolbar .k-button-icon[data-tool=endCapType],
+.kj-vectordrawing-toolbar .k-button-icon[data-tool=arrange],
+.kj-vectordrawing-toolbar .k-button-icon[data-tool=background],
+.kj-vectordrawing-toolbar .k-button-icon[data-tool=guides] {
   width: auto;
 }
-.kj-vectordrawing-toolbar .k-icon.k-i-select,
-.kj-vectordrawing-toolbar .k-icon.k-i-stroke-width,
-.kj-vectordrawing-toolbar .k-icon.k-i-stroke-dashes {
+.kj-vectordrawing-toolbar .k-icon.k-i-select, .kj-vectordrawing-toolbar .k-icon.k-i-stroke-width, .kj-vectordrawing-toolbar .k-icon.k-i-stroke-dashes {
   /* stylelint-disable font-family-no-missing-generic-family-keyword */
   font: 16px/1 kidoju !important;
   /* stylelint-enable */
 }
 .kj-vectordrawing-toolbar .k-i-select::before {
-  content: "\e800";
+  content: "";
 }
 .kj-vectordrawing-toolbar .k-i-stroke-width::before {
-  content: "\e801";
+  content: "";
 }
 .kj-vectordrawing-toolbar .k-i-stroke-dashes::before {
-  content: "\e802";
+  content: "";
 }
+
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/*# sourceMappingURL=widgets.vectordrawing.css.map */

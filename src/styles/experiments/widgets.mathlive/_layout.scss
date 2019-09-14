@@ -1,0 +1,16 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+@include exports( "widgets.mathlive/layout" ) {
+    .kj-mathinput {
+        .ML__fieldcontainer__field {
+            // line-height: initial;
+
+            .ML__mathlive {
+                // line-height: initial;
+            }
+        }
+    }
+}

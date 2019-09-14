@@ -3,9 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-.kj-regexp {
-    border: solid 1px grey;
-    display: inline-block;
-    height: 1.5em;
-    min-width: 200px;
+@include exports( "widgets.countdown/theme" ) {
+
 }

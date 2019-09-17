@@ -134,12 +134,14 @@ function onResize() {
         stageWidget.scale(scale);
         $('.centered')
             .width(scale * stage.outerWidth())
-            .height(scale * stage.outerHeight())
+            .height(scale * stage.outerHeight());
+        /*
             .css('position', 'absolute')
             .css('top', '50%')
             .css('left', '50%')
             .css('margin-left', `-${(scale * stage.outerWidth()) / 2}px`)
             .css('margin-top', `-${(scale * stage.outerHeight()) / 2}px`);
+         */
     }
 }
 

@@ -29,6 +29,11 @@
             height: 100%;
         }
 
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
         header {
             height: 48px;
             background-color: #011;
@@ -39,9 +44,7 @@
         }
 
         footer {
-            position: absolute;
             height: 35px;
-            bottom: 0;
         }
 
         footer > div {
@@ -52,14 +55,48 @@
             overflow: initial;
         }
 
+        main {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main > .k-toolbar {
+            border-bottom: 0;
+        }
+
         main > [data-role="splitter"] {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: auto;
-            top: 88px;
-            bottom: 35px;
-            border-width: 0 0 1px;
+            flex: 1 1 auto;
+            height: 100%;
+        }
+
+        .kj-navigation {
+            border: 0;
+        }
+
+        #center-pane {
+            display: flex;
+            flex-direction: column;
+            touch-action: none;
+        }
+
+        .wrapper {
+            align-items: center;
+            display: flex;
+            flex: 1 1;
+            justify-content: center;
+        }
+
+        .centered > .kj-stage {
+            transform-origin: 0 0;
+        }
+
+        #console-panelbar {
+            border-bottom: 0;
+        }
+
+        #right-pane .k-panelbar {
+            border-top: 0;
         }
     </style>
     <!-- SystemJS loader -->
@@ -275,12 +312,14 @@
             <div id="left-pane">
                 <div data-role="navigation" data-bind="source: stream.pages, value: selectedPage"></div>
             </div>
-            <div id="center-pane" style="touch-action: none;">
+            <div id="center-pane">
                 <div data-role="formatstrip" data-bind="value: selectedComponent"></div>
-                <div class="centered">
-                    <div data-role="stage" data-bind="source: selectedPage.components, value: selectedComponent" data-mode="design"></div>
+                <div class="wrapper">
+                    <div class="centered">
+                        <div data-role="stage" data-bind="source: selectedPage.components, value: selectedComponent" data-mode="design"></div>
+                    </div>
                 </div>
-                <div id="console-wrapper" style="position: absolute; bottom: 0; width: 100%;">
+                <div id="console-wrapper" style="width: 100%;">
                     <ul id="console-panelbar" data-role="panelbar">
                         <li><span class="k-link">Console</span>
                             <div style="padding: 10px; overflow-y: auto; max-height: 200px;">

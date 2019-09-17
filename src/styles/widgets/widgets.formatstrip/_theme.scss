@@ -1,3 +1,16 @@
 @include exports( "widgets.formatstrip/theme" ) {
+    .kj-formatstrip {
+        .k-tabstrip {
+            .k-tabstrip-items {
+                .k-item {
+                    border-color: transparent !important;
 
+                    &.k-state-active {
+                        border-color: transparent !important;
+                        border-bottom-color: $accent !important;
+                    }
+                }
+            }
+        }
+    }
 }

@@ -197,7 +197,7 @@ const Stage = DataBoundWidget.extend({
         enabled: true,
         snapAngle: 0,
         snapGrid: 0,
-        transformOrigin: 'center center',
+        // transformOrigin: 'center center',
         style: '',
         messages: {
             contextMenu: {

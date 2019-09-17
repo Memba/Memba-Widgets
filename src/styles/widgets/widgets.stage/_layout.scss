@@ -6,7 +6,7 @@
         font-size: 40px;
         font-weight: normal;
         text-align: initial; // For playbar tooltips
-        transform-origin: center center;
+        transform-origin: 0 0; // center center;
 
         .kj-element {
             input.k-textbox {

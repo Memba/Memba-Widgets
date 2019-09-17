@@ -1,10 +1,15 @@
 @include exports( "widgets.basedialog/layout" ) {
     .k-dialog {
-        .k-notification-wrap {
-            white-space: initial;
+        .k-notification {
+            margin-bottom: 1em;
 
-            span.k-icon {
-                margin-right: $icon-spacing;
+            .k-notification-wrap {
+                align-items: flex-end;
+                white-space: initial;
+
+                span.k-icon {
+                    margin-right: $icon-spacing;
+                }
             }
         }
 

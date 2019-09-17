@@ -36079,10 +36079,14 @@ body > .k-list-item > .kj-buttons .k-button,
   }
   */
 }
-.k-dialog .k-notification-wrap {
+.k-dialog .k-notification {
+  margin-bottom: 1em;
+}
+.k-dialog .k-notification .k-notification-wrap {
+  align-items: flex-end;
   white-space: initial;
 }
-.k-dialog .k-notification-wrap span.k-icon {
+.k-dialog .k-notification .k-notification-wrap span.k-icon {
   margin-right: 0.5rem;
 }
 .k-dialog .k-input,

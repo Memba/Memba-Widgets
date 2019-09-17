@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>widgets.keypad</title>
+    <title>widgets.keyboard</title>
     <script>
         window.DEBUG = true;
     </script>
@@ -10,8 +10,8 @@
     <link href="../../styles/fonts/kidoju.css" rel="stylesheet">
     <!-- Kidoju theme -->
     <link href="../../styles/themes/app.theme.nordic.css" rel="stylesheet">
-    <!-- widgets.keypad stylesheet -->
-    <link href="../../styles/experiments/widgets.keypad.css" rel="stylesheet">
+    <!-- widgets.keyboard stylesheet -->
+    <link href="../../styles/experiments/widgets.keyboard.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
@@ -209,61 +209,125 @@
             });
             Promise.all([
                 // SystemJS.import('kendo.binder'),
-                SystemJS.import('./widgets.keypad.es6')
+                SystemJS.import('./widgets.keyboard.es6')
             ]).then(function () {
                 var kendo = window.kendo;
                 $(function() {
-                    $('#keypad').kendoKeyPad({
+                    $('#keyboard').kendoKeyboard({
+                        layout: 'widgets.keyboard.json',
+                        /*
                         layout: [
-                            // keyboards
-                            // TODO Caps Lock?????
-                            // TODO Fonts, Images
-                            // TODO Key width (same height)
                             {
                                 name: 'Alphabetic',
                                 pads: [
                                     // First pad
-                                    [
-                                        // First row
-                                        [
+                                    {
+                                        rows: [
+                                            // QWERTYUIOP[]
                                             {
-                                                key: 'a',
-                                                cmd: 'a'
+                                                keys: [
+                                                    {
+                                                        text: 'a',
+                                                        action: 'a',
+                                                        style: 'color: #f00;'
+                                                    },
+                                                    {
+                                                        text: 'b',
+                                                        action: 'b'
+                                                    },
+                                                    {
+                                                        text: 'c',
+                                                        action: 'c'
+                                                    }
+                                                ],
+                                                styles: ''
                                             },
+                                            // Second row
                                             {
-                                                key: 'b',
-                                                cmd: 'b'
-                                            },
-                                            {
-                                                key: 'c',
-                                                cmd: 'c'
+                                                keys: [
+                                                    {
+                                                        text: 'A',
+                                                        action: 'A'
+                                                    },
+                                                    {
+                                                        text: 'B',
+                                                        action: 'B'
+                                                    },
+                                                    {
+                                                        text: 'C',
+                                                        action: 'C'
+                                                    }
+                                                ],
+                                                style: ''
                                             }
                                         ],
-                                        // Second row
-                                        [
-                                            {
-                                                key: 'A',
-                                                cmd: 'A'
-                                            },
-                                            {
-                                                key: 'B',
-                                                cmd: 'B'
-                                            },
-                                            {
-                                                key: 'C',
-                                                cmd: 'C'
-                                            }
-                                        ]
-                                    ]
+                                        style: ''
+                                    },
                                     // Second pad
-                                    // []
+                                    {
+                                        rows: [
+                                            // 789
+                                            {
+                                                keys: [
+                                                    {
+                                                        text: '7',
+                                                        action: '7'
+                                                    },
+                                                    {
+                                                        text: '8',
+                                                        action: '8'
+                                                    },
+                                                    {
+                                                        text: '9',
+                                                        action: '9'
+                                                    }
+                                                ]
+                                            },
+                                            // 456
+                                            {
+                                                keys: [
+                                                    {
+                                                        text: '4',
+                                                        action: '4'
+                                                    },
+                                                    {
+                                                        text: '5',
+                                                        action: '5'
+                                                    },
+                                                    {
+                                                        text: '6',
+                                                        action: '6'
+                                                    }
+                                                ]
+                                            },
+                                            // 123
+                                            {
+                                                keys: [
+                                                    {
+                                                        text: '1',
+                                                        action: '1'
+                                                    },
+                                                    {
+                                                        text: '2',
+                                                        action: '2'
+                                                    },
+                                                    {
+                                                        text: '3',
+                                                        action: '3'
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        style: ''
+                                    }
                                 ]
                             }
                         ],
+                         */
                         click(e) {
-                            const { activeTarget, command } = e;
+                            const { activeTarget, action } = e;
                             if (activeTarget instanceof $ && $.isFunction(activeTarget.val)) {
-                                activeTarget.val(activeTarget.val() + command);
+                                activeTarget.val(activeTarget.val() + action);
                             }
                         }
                     });
@@ -273,7 +337,7 @@
     </script>
 </head>
 <body>
-<h1>widgets.keypad</h1>
+<h1>widgets.keyboard</h1>
 <div class="kj-stage" style="position: relative; height: 600px; width: 800px; border: solid 1px black; transform: scale(0.75);">
     <div data-role="stage" style="height: 600px; width: 800px;">
         <div class="kj-element" style="position: absolute; top: 50px; left: 100px; height: 35px; width: 150px;">
@@ -284,6 +348,6 @@
         </div>
     </div>
 </div>
-<div id="keypad"></div>
+<div id="keyboard"></div>
 </body>
 </html>

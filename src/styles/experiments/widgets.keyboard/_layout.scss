@@ -4,7 +4,8 @@
  */
 
 @include exports( "widgets.keyboard/layout" ) {
-    .kj-keypad {
+    .kj-keyboard {
+        /*
         position: absolute;
         z-index: 999999;
         bottom: 0;
@@ -13,27 +14,38 @@
         border-left: none;
         border-right: none;
         border-bottom: none;
+        */
 
-        .kj-keypad-board {
+        .k-tabstrip-items {
+            .k-item {
+                border-bottom-width: 5px;
+            }
+        }
+
+        .kj-keyboard-tab {
+            display: flex;
+            justify-content: space-around;
             width: 100%;
 
-            .kj-keypad-pad {
-                .kj-keypad-row {
+            .kj-keyboard-pad {
+                align-items: flex-start;
+                display: flex;
+                // flex: 1 0 auto;
+                flex-direction: column;
+                // justify-content: space-between;
+
+
+                .kj-keyboard-row {
+                    align-items: flex-start;
                     display: flex;
                     text-align: center;
 
-                    .kj-keypad-button {
-                        background: #111;
-                        border-radius: 5px;
-                        color: #fff;
+                    .kj-keyboard-button {
                         cursor: default;
                         margin: 0.15vw;
-                        padding: 0.5vw;
-                        width: 100%;
                     }
 
-                    .kj-keypad-button:hover {
-                        background: #333;
+                    .kj-keyboard-button:hover {
                         cursor: pointer;
                     }
                 }

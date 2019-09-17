@@ -6,25 +6,17 @@
 // TODO See https://github.com/Khan/math-input
 // TODO See also https://mathlive.io
 
-/*
- * FEATURE: layers
- * The shift key switches from lower case de upper case using layers
- */
-
-/*
- * FEATURE: popups
- * a key can trigger a popup with accentuated characters
- */
-
-/*
- * FEATURE: sound and vibration
- */
+// TODO Add key popup on hold (like iPhone and mathlive)
+// TODO: Add maj (caps lock) + alt + shift versions of keys (use layers?)
+// TODO Add fonts/styles and images (html text)
+// TODO Add sound and vibration
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.fx';
+import 'kendo.tabstrip';
 import 'kendo.userevents';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -36,21 +28,20 @@ const {
     attr,
     destroy,
     fx,
-    ns,
-    ui: { plugin, Widget }
+    ui: { plugin, TabStrip, Widget }
 } = window.kendo;
 
-const logger = new Logger('widgets.keypad');
-const NS = '.kendoKeyPad';
-const WIDGET_CLASS = 'k-widget kj-keypad';
+const logger = new Logger('widgets.keyboard');
+const NS = '.kendoKeyboard';
+const WIDGET_CLASS = /* 'k-widget */ 'kj-keyboard';
 const TTL = 350; // Above double-click threshold of 300ms
 
 /**
- * KeyPad
- * @class KeyPad
+ * Keyboard
+ * @class Keyboard
  * @extends Widget
  */
-const KeyPad = Widget.extend({
+const Keyboard = Widget.extend({
     /**
      * Init
      * @constructor init
@@ -95,14 +86,14 @@ const KeyPad = Widget.extend({
      * @property options
      */
     options: {
-        name: 'KeyPad',
+        name: 'Keyboard',
         enabled: true,
         filter: 'input, textarea',
         showOn: 'focus',
         hideOn: 'blur',
         layout: [],
         vibrate: true,
-        sound: 'https://mathlive.io/deploy/sounds/KeypressStandard.wav'
+        sound: 'widgets.keyboard.wav'
     },
 
     /**
@@ -129,7 +120,7 @@ const KeyPad = Widget.extend({
         const { element } = this;
         assert.ok(
             element.is(CONSTANTS.DIV),
-            'Please use a div tag to instantiate a KeyPad widget.'
+            'Please use a div tag to instantiate a Keyboard widget.'
         );
         this.wrapper = element;
         element.addClass(WIDGET_CLASS);
@@ -141,39 +132,84 @@ const KeyPad = Widget.extend({
      * Refresh
      */
     refresh() {
-        const {
-            element,
-            options: { layout }
-        } = this;
-        element.empty();
-        let html = '';
-        if (Array.isArray(layout)) {
-            layout.forEach(keyboard => {
-                if (Array.isArray(keyboard.pads) && keyboard.pads.length) {
-                    html += '<div class="kj-keypad-board">';
-                    keyboard.pads.forEach(pad => {
-                        if (Array.isArray(pad)) {
-                            html += '<div class="kj-keypad-pad">';
-                            pad.forEach(row => {
-                                if (Array.isArray(row)) {
-                                    html += '<div class="kj-keypad-row">';
-                                    row.forEach(button => {
-                                        html += `<a class="kj-keypad-button" data-${ns}command="${
-                                            button.cmd
-                                        }">${button.key}</a>`;
+        const that = this;
+        const { element, options } = that;
+        const dfd = Array.isArray(options.layout)
+            ? // eslint-disable-next-line prettier/prettier
+            $.Deferred().resolve(options.layout).promise()
+            : $.getJSON(options.layout);
+        return dfd
+            .then(layout => {
+                // Cache layout so that we won't have to fetch it for next refresh
+                options.layout = layout;
+                // Destroy tabstrip
+                if (that.tabStrip instanceof TabStrip) {
+                    that.tabStrip.destroy();
+                }
+                element.empty();
+                if (Array.isArray(layout)) {
+                    const $tabstrip = $(`<${CONSTANTS.DIV}/>`)
+                        .addClass('kj-keyboard-tabstrip')
+                        .appendTo(element);
+                    const $ul = $(`<${CONSTANTS.UL}/>`).appendTo($tabstrip);
+                    layout.forEach((tab, idx) => {
+                        $(`<${CONSTANTS.LI}/>`)
+                            .text(tab.name)
+                            .appendTo($ul);
+                        const $tab = $(`<${CONSTANTS.DIV}/>`)
+                            .addClass('kj-keyboard-tab')
+                            .appendTo(element);
+                        if (Array.isArray(tab.pads) && tab.pads.length) {
+                            tab.pads.forEach(pad => {
+                                const $pad = $(`<${CONSTANTS.DIV}/>`)
+                                    .addClass('kj-keyboard-pad')
+                                    .attr('style', pad.style)
+                                    .css('display', idx ? 'none' : 'flex')
+                                    .appendTo($tab);
+                                if (
+                                    Array.isArray(pad.rows) &&
+                                    pad.rows.length
+                                ) {
+                                    pad.rows.forEach(row => {
+                                        const $row = $(`<${CONSTANTS.DIV}/>`)
+                                            .addClass('kj-keyboard-row')
+                                            .attr('style', row.style)
+                                            .appendTo($pad);
+                                        if (
+                                            Array.isArray(row.keys) &&
+                                            row.keys.length
+                                        ) {
+                                            row.keys.forEach(key => {
+                                                $(`<${CONSTANTS.A}/>`)
+                                                    .addClass(
+                                                        'k-button kj-keyboard-button'
+                                                    )
+                                                    .attr(
+                                                        attr(CONSTANTS.ACTION),
+                                                        key.action
+                                                    )
+                                                    .attr('style', key.style)
+                                                    .text(key.text)
+                                                    .appendTo($row);
+                                            });
+                                        }
                                     });
-                                    html += '</div>';
                                 }
                             });
-                            html += '</div>';
                         }
                     });
-                    html += '</div>';
+                    that.tabStrip = $tabstrip
+                        .kendoTabStrip()
+                        .data('kendoTabStrip');
                 }
+                logger.debug({
+                    method: 'refresh',
+                    message: 'widget refreshed'
+                });
+            })
+            .catch((xhr, status, errorThrown) => {
+                // TODO Display error in keuboard
             });
-        }
-        element.append(html);
-        logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
 
     /**
@@ -198,16 +234,16 @@ const KeyPad = Widget.extend({
                 .on(
                     applyEventMap(hideOn, NS.substr(1)),
                     filter,
-                    this._onKeyPadToggle.bind(this, false)
+                    this._onKeyboardToggle.bind(this, false)
                 )
                 .on(
                     applyEventMap(showOn, NS.substr(1)),
                     filter,
-                    this._onKeyPadToggle.bind(this, true)
+                    this._onKeyboardToggle.bind(this, true)
                 );
             element.on(
                 `${CONSTANTS.CLICK}${NS}`,
-                '.kj-keypad-button',
+                '.kj-keyboard-button',
                 this._onClick.bind(this)
             );
         }
@@ -219,7 +255,7 @@ const KeyPad = Widget.extend({
      * @param e
      * @private
      */
-    _onKeyPadToggle(enabled, e) {
+    _onKeyboardToggle(enabled, e) {
         assert.type(
             CONSTANTS.BOOLEAN,
             enabled,
@@ -239,7 +275,7 @@ const KeyPad = Widget.extend({
         this._activeTarget = $(e.currentTarget);
         const { element, _activeTarget } = this;
         /*
-        console.log('_onKeyPadToggle', {
+        console.log('_onKeyboardToggle', {
             change,
             enabled,
             clickInProgress: (this._clickInProgress || []).length,
@@ -250,7 +286,7 @@ const KeyPad = Widget.extend({
         if (enabled) {
             if (change || element.height() === 0) {
                 setTimeout(() => {
-                    // SHOW the keypad!
+                    // SHOW the keyboard!
                     fx(element)
                         .expand('vertical')
                         .stop()
@@ -264,7 +300,7 @@ const KeyPad = Widget.extend({
             !Array.isArray(this._clickInProgress) ||
             this._clickInProgress.length === 0
         ) {
-            // Hide the keypad, unless we are still focusing on the same element
+            // Hide the keyboard, unless we are still focusing on the same element
             // after refocusing in click event handler
             setTimeout(() => {
                 if (
@@ -272,7 +308,7 @@ const KeyPad = Widget.extend({
                         this._clickInProgress.length === 0) &&
                     !$(document.activeElement).is(_activeTarget)
                 ) {
-                    // HIDE the keypad!
+                    // HIDE the keyboard!
                     fx(element)
                         .expand('vertical')
                         .stop()
@@ -286,7 +322,7 @@ const KeyPad = Widget.extend({
     },
 
     /**
-     * Event handler triggered when clicking a button from the keypad
+     * Event handler triggered when clicking a button from the keyboard
      * @param e
      * @private
      */
@@ -296,7 +332,7 @@ const KeyPad = Widget.extend({
             e,
             assert.format(assert.messages.instanceof.default, 'e', '$.Event')
         );
-        // Record click in progress for _onKeyPadToggle
+        // Record click in progress for _onKeyboardToggle
         this._clickInProgress.push(e);
         setTimeout(() => {
             const index = this._clickInProgress.indexOf(e);
@@ -314,12 +350,12 @@ const KeyPad = Widget.extend({
         ) {
             navigator.vibrate(TTL);
         }
-        // Execute command (send click event with command)
-        const command = $(e.currentTarget).attr(attr('command'));
+        // Execute action (send click event with action)
+        const action = $(e.currentTarget).attr(attr('action'));
         this.trigger(CONSTANTS.CLICK, {
-            // Note: activeTarget is the element that receives the commands
+            // Note: activeTarget is the element that receives the actions
             activeTarget: this._activeTarget,
-            command
+            action
         });
         // Focus back to the active target
         if (this._activeTarget && $.isFunction(this._activeTarget.focus)) {
@@ -337,9 +373,9 @@ const KeyPad = Widget.extend({
             e,
             assert.format(assert.messages.isPlainObject.default, 'e')
         );
-        const { activeTarget, command } = e;
+        const { activeTarget, action } = e;
         if (activeTarget instanceof $ && $.isFunction(activeTarget.val)) {
-            activeTarget.val(activeTarget.val() + command);
+            activeTarget.val(activeTarget.val() + action);
         }
     },
 
@@ -358,4 +394,4 @@ const KeyPad = Widget.extend({
 /**
  * Registration
  */
-plugin(KeyPad);
+plugin(Keyboard);

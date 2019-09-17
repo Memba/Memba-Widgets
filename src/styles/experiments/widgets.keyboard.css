@@ -2,7 +2,8 @@
  * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
-.kj-keypad {
+.kj-keyboard {
+  /*
   position: absolute;
   z-index: 999999;
   bottom: 0;
@@ -11,25 +12,31 @@
   border-left: none;
   border-right: none;
   border-bottom: none;
+  */
 }
-.kj-keypad .kj-keypad-board {
+.kj-keyboard .k-tabstrip-items .k-item {
+  border-bottom-width: 5px;
+}
+.kj-keyboard .kj-keyboard-tab {
+  display: flex;
+  justify-content: space-around;
   width: 100%;
 }
-.kj-keypad .kj-keypad-board .kj-keypad-pad .kj-keypad-row {
+.kj-keyboard .kj-keyboard-tab .kj-keyboard-pad {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+}
+.kj-keyboard .kj-keyboard-tab .kj-keyboard-pad .kj-keyboard-row {
+  align-items: flex-start;
   display: flex;
   text-align: center;
 }
-.kj-keypad .kj-keypad-board .kj-keypad-pad .kj-keypad-row .kj-keypad-button {
-  background: #111;
-  border-radius: 5px;
-  color: #fff;
+.kj-keyboard .kj-keyboard-tab .kj-keyboard-pad .kj-keyboard-row .kj-keyboard-button {
   cursor: default;
   margin: 0.15vw;
-  padding: 0.5vw;
-  width: 100%;
 }
-.kj-keypad .kj-keypad-board .kj-keypad-pad .kj-keypad-row .kj-keypad-button:hover {
-  background: #333;
+.kj-keyboard .kj-keyboard-tab .kj-keyboard-pad .kj-keyboard-row .kj-keyboard-button:hover {
   cursor: pointer;
 }
 
@@ -37,5 +44,12 @@
  * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
+.kj-keyboard .k-tabstrip-items .k-item {
+  border-color: transparent !important;
+}
+.kj-keyboard .k-tabstrip-items .k-item.k-state-active {
+  border-color: transparent !important;
+  border-bottom-color: #007bff !important;
+}
 
 /*# sourceMappingURL=widgets.keyboard.css.map */

@@ -1,0 +1,198 @@
+[
+    {
+        "name": "Alphabetic",
+        "pads": [
+            {
+                "rows": [
+                    {
+                        "keys": [
+                            {
+                                "text": "a",
+                                "action": "a",
+                                "style": "color: #f00;"
+                            },
+                            {
+                                "text": "b",
+                                "action": "b"
+                            },
+                            {
+                                "text": "c",
+                                "action": "c"
+                            }
+                        ],
+                        "style": ""
+                    },
+                    {
+                        "keys": [
+                            {
+                                "text": "A",
+                                "action": "A"
+                            },
+                            {
+                                "text": "B",
+                                "action": "B"
+                            },
+                            {
+                                "text": "C",
+                                "action": "C"
+                            }
+                        ],
+                        "style": ""
+                    }
+                ],
+                "style": ""
+            },
+            {
+                "rows": [
+                    {
+                        "keys": [
+                            {
+                                "text": "7",
+                                "action": "7"
+                            },
+                            {
+                                "text": "8",
+                                "action": "8"
+                            },
+                            {
+                                "text": "9",
+                                "action": "9"
+                            }
+                        ]
+                    },
+                    {
+                        "keys": [
+                            {
+                                "text": "4",
+                                "action": "4"
+                            },
+                            {
+                                "text": "5",
+                                "action": "5"
+                            },
+                            {
+                                "text": "6",
+                                "action": "6"
+                            }
+                        ]
+                    },
+                    {
+                        "keys": [
+                            {
+                                "text": "1",
+                                "action": "1"
+                            },
+                            {
+                                "text": "2",
+                                "action": "2"
+                            },
+                            {
+                                "text": "3",
+                                "action": "3"
+                            }
+                        ]
+                    }
+                ],
+                "style": ""
+            }
+        ]
+    },
+    {
+        "name": "Greek",
+        "pads": [
+            {
+                "rows": [
+                    {
+                        "keys": [
+                            {
+                                "text": "a",
+                                "action": "a",
+                                "style": "color: #f00;"
+                            },
+                            {
+                                "text": "b",
+                                "action": "b"
+                            },
+                            {
+                                "text": "c",
+                                "action": "c"
+                            }
+                        ],
+                        "style": ""
+                    },
+                    {
+                        "keys": [
+                            {
+                                "text": "A",
+                                "action": "A"
+                            },
+                            {
+                                "text": "B",
+                                "action": "B"
+                            },
+                            {
+                                "text": "C",
+                                "action": "C"
+                            }
+                        ],
+                        "style": ""
+                    }
+                ],
+                "style": ""
+            },
+            {
+                "rows": [
+                    {
+                        "keys": [
+                            {
+                                "text": "7",
+                                "action": "7"
+                            },
+                            {
+                                "text": "8",
+                                "action": "8"
+                            },
+                            {
+                                "text": "9",
+                                "action": "9"
+                            }
+                        ]
+                    },
+                    {
+                        "keys": [
+                            {
+                                "text": "4",
+                                "action": "4"
+                            },
+                            {
+                                "text": "5",
+                                "action": "5"
+                            },
+                            {
+                                "text": "6",
+                                "action": "6"
+                            }
+                        ]
+                    },
+                    {
+                        "keys": [
+                            {
+                                "text": "1",
+                                "action": "1"
+                            },
+                            {
+                                "text": "2",
+                                "action": "2"
+                            },
+                            {
+                                "text": "3",
+                                "action": "3"
+                            }
+                        ]
+                    }
+                ],
+                "style": ""
+            }
+        ]
+    }
+]

@@ -4,5 +4,16 @@
  */
 
 @include exports( "widgets.keyboard/theme" ) {
+    .kj-keyboard {
+        .k-tabstrip-items {
+            .k-item {
+                border-color: transparent !important;
 
+                &.k-state-active {
+                    border-color: transparent !important;
+                    border-bottom-color: $accent !important;
+                }
+            }
+        }
+    }
 }

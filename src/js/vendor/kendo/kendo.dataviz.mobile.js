@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2019.2.619'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2019.3.917'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1408,7 +1408,7 @@
                 } else {
                     propInit = null;
                 }
-                if (propInit && propInit !== Array && propInit !== ObservableArray && propInit !== LazyObservableArray && propInit !== DataSource && propInit !== HierarchicalDataSource && propInit !== RegExp) {
+                if (propInit && propInit !== Array && propInit !== ObservableArray && propInit !== LazyObservableArray && propInit !== DataSource && propInit !== HierarchicalDataSource && propInit !== RegExp && (!kendo.isFunction(window.ArrayBuffer) || propInit !== ArrayBuffer)) {
                     if (propValue instanceof Date) {
                         destination[property] = new Date(propValue.getTime());
                     } else if (isFunction(propValue.clone)) {
@@ -1946,6 +1946,17 @@
         function htmlEncode(value) {
             return ('' + value).replace(ampRegExp, '&amp;').replace(ltRegExp, '&lt;').replace(gtRegExp, '&gt;').replace(quoteRegExp, '&quot;').replace(aposRegExp, '&#39;');
         }
+        function unescape(value) {
+            var template;
+            try {
+                template = window.decodeURIComponent(value);
+            } catch (error) {
+                template = value.replace(/%u([\dA-F]{4})|%([\dA-F]{2})/gi, function (_, m1, m2) {
+                    return String.fromCharCode(parseInt('0x' + (m1 || m2), 16));
+                });
+            }
+            return template;
+        }
         var eventTarget = function (e) {
             return e.target;
         };
@@ -2087,6 +2098,7 @@
             stringify: proxy(JSON.stringify, JSON),
             eventTarget: eventTarget,
             htmlEncode: htmlEncode,
+            unescape: unescape,
             isLocalUrl: function (url) {
                 return url && !localUrlRe.test(url);
             },
@@ -2205,6 +2217,9 @@
                     e = that.events[idx];
                     if (that.options[e] && options[e]) {
                         that.unbind(e, that.options[e]);
+                        if (that._events && that._events[e]) {
+                            delete that._events[e];
+                        }
                     }
                 }
                 that.bind(that.events, options);
@@ -2589,7 +2604,7 @@
             e.preventDefault();
         };
         kendo.widgetInstance = function (element, suites) {
-            var role = element.data(kendo.ns + 'role'), widgets = [], i, length;
+            var role = element.data(kendo.ns + 'role'), widgets = [], i, length, elementData = element.data('kendoView');
             if (role) {
                 if (role === 'content') {
                     role = 'scroller';
@@ -2600,8 +2615,8 @@
                         return editorToolbar;
                     }
                 }
-                if (role === 'view') {
-                    return element.data('kendoView');
+                if (role === 'view' && elementData) {
+                    return elementData;
                 }
                 if (suites) {
                     if (suites[0]) {
@@ -3140,7 +3155,7 @@
                 }
             }
             function setHours(date, time) {
-                date = new Date(kendo.date.getDate(date).getTime() + kendo.date.getMilliseconds(time));
+                date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds());
                 adjustDST(date, time.getHours());
                 return date;
             }
@@ -6542,7 +6557,7 @@
                 return function (a, b, ignore, accentFoldingFiltering) {
                     b += '';
                     if (ignore) {
-                        a = '(' + a + ' || \'\').toString()' + (accentFoldingFiltering ? '.toLocaleLowerCase(\'' + accentFoldingFiltering + '\')' : '.toLowerCase()');
+                        a = '(' + a + ' + \'\').toString()' + (accentFoldingFiltering ? '.toLocaleLowerCase(\'' + accentFoldingFiltering + '\')' : '.toLowerCase()');
                         b = accentFoldingFiltering ? b.toLocaleLowerCase(accentFoldingFiltering) : b.toLowerCase();
                     }
                     return impl(a, quote(b), ignore);
@@ -11594,7 +11609,7 @@
                 options = options || {};
                 that.id = kendo.guid();
                 Observable.fn.init.call(that);
-                that._initOptions(options);
+                this.options = $.extend({}, this.options, options);
                 that.content = content;
                 if (that.options.renderOnInit) {
                     Widget.fn.init.call(that, that._createElement(), options);
@@ -11655,7 +11670,7 @@
                 if (element) {
                     element.css('display', '');
                 }
-                this.trigger(SHOW, { view: this });
+                this.trigger(SHOW_START, { view: this });
             },
             showEnd: function () {
             },
@@ -12321,7 +12336,8 @@
             },
             move: function (touchInfo) {
                 var that = this;
-                if (that._finished) {
+                var preventMove = touchInfo.type !== 'api' && that.userEvents._shouldNotMove;
+                if (that._finished || preventMove) {
                     return;
                 }
                 that.x.move(touchInfo.location);
@@ -13801,6 +13817,9 @@
                 }
             },
             _wheelScroll: function (e) {
+                if (e.ctrlKey) {
+                    return;
+                }
                 if (!this._wheel) {
                     this._wheel = true;
                     this._wheelY = 0;
@@ -67561,7 +67580,7 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, abs = Math.abs, ARIASELECTED = 'aria-selected', SELECTED = 'k-state-selected', ACTIVE = 'k-state-selecting', SELECTABLE = 'k-selectable', CHANGE = 'change', NS = '.kendoSelectable', UNSELECT = 'unselect', UNSELECTING = 'k-state-unselecting', INPUTSELECTOR = 'input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up,label.k-checkbox-label.k-no-text,.k-icon.k-i-collapse,.k-icon.k-i-expand', msie = kendo.support.browser.msie, supportEventDelegation = false;
+        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, abs = Math.abs, ARIASELECTED = 'aria-selected', SELECTED = 'k-state-selected', ACTIVE = 'k-state-selecting', SELECTABLE = 'k-selectable', CHANGE = 'change', NS = '.kendoSelectable', UNSELECT = 'unselect', UNSELECTING = 'k-state-unselecting', INPUTSELECTOR = 'input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up,label.k-checkbox-label.k-no-text,.k-icon.k-i-collapse,.k-icon.k-i-expand,span.k-numeric-wrap', msie = kendo.support.browser.msie, supportEventDelegation = false;
         (function ($) {
             (function () {
                 $('<div class="parent"><span /></div>').on('click', '>*', function () {
@@ -67865,7 +67884,7 @@
                 Widget.fn.init.call(that, element, options);
                 element = that.wrapper = that.element;
                 options = that.options;
-                options.url = window.unescape(options.url);
+                options.url = kendo.unescape(options.url);
                 that.options.disableDates = getDisabledExpr(that.options.disableDates);
                 that._templates();
                 that._selectable();
@@ -69543,7 +69562,11 @@
                     selection = caret(this.element[0]);
                     var symbol = this._format[selection[0]];
                     if (knownSymbols.indexOf(symbol) >= 0) {
-                        this._dateTime.modifyPart(symbol, key == 38 ? 1 : -1);
+                        var interval = 1;
+                        if (symbol == 'm') {
+                            interval = this.options.interval || 1;
+                        }
+                        this._dateTime.modifyPart(symbol, key == 38 ? interval * 1 : interval * -1);
                         this._updateElementValue();
                         this._selectSegment(symbol);
                         this.element.trigger(CHANGE);
@@ -73265,8 +73288,18 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, outerHeight = kendo._outerHeight, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', GROUPHEADER = '.k-group-header', ITEMSELECTOR = '.k-item', LABELIDPART = '_label', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, HIDDENCLASS = 'k-hidden', WIDTH = 'width', isIE = browser.msie, isIE8 = isIE && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
-                'ComboBox': 'DropDownList',
-                'DropDownList': 'ComboBox'
+                'ComboBox': [
+                    'DropDownList',
+                    'MultiColumnComboBox'
+                ],
+                'DropDownList': [
+                    'ComboBox',
+                    'MultiColumnComboBox'
+                ],
+                'MultiColumnComboBox': [
+                    'ComboBox',
+                    'DropDownList'
+                ]
             };
         var List = kendo.ui.DataBoundWidget.extend({
             init: function (element, options) {
@@ -73306,7 +73339,11 @@
                 valuePrimitive: false,
                 footerTemplate: '',
                 headerTemplate: '',
-                noDataTemplate: 'No data found.'
+                noDataTemplate: true,
+                messages: {
+                    'noData': 'No data found.',
+                    'clear': 'clear'
+                }
             },
             setOptions: function (options) {
                 Widget.fn.setOptions.call(this, options);
@@ -73360,7 +73397,7 @@
                 this._angularElement(columnsHeader, 'cleanup');
                 kendo.destroy(columnsHeader);
                 columnsHeader.remove();
-                var header = '<div class=\'k-grid-header\'><div class=\'k-grid-header-wrap\'><table>';
+                var header = '<div class=\'k-grid-header\'><div class=\'k-grid-header-wrap\'><table role=\'presentation\'>';
                 var colGroup = '<colgroup>';
                 var row = '<tr>';
                 for (var idx = 0; idx < this.options.columns.length; idx++) {
@@ -73394,7 +73431,7 @@
             _noData: function () {
                 var list = this;
                 var noData = $(list.noData);
-                var template = list.options.noDataTemplate;
+                var template = list.options.noDataTemplate === true ? list.options.messages.noData : list.options.noDataTemplate;
                 list.angular('cleanup', function () {
                     return { elements: noData };
                 });
@@ -73676,7 +73713,7 @@
             },
             _clearButton: function () {
                 var list = this;
-                var clearTitle = list.options.messages && list.options.messages.clear ? list.options.messages.clear : 'clear';
+                var clearTitle = list.options.messages.clear;
                 if (!list._clear) {
                     list._clear = $('<span unselectable="on" class="k-icon k-clear-value k-i-close" title="' + clearTitle + '"></span>').attr({
                         'role': 'button',
@@ -74060,6 +74097,9 @@
         function unifyType(value, type) {
             if (value !== undefined && value !== '' && value !== null) {
                 if (type === 'boolean') {
+                    if (typeof value !== 'boolean') {
+                        value = value.toLowerCase() === 'true';
+                    }
                     value = Boolean(value);
                 } else if (type === 'number') {
                     value = Number(value);
@@ -74425,7 +74465,12 @@
                 var parentElement = $('#' + this.options.cascadeFrom);
                 var parent = parentElement.data('kendo' + name);
                 if (!parent) {
-                    parent = parentElement.data('kendo' + alternativeNames[name]);
+                    for (var i = 0; i < alternativeNames[name].length; i += 1) {
+                        parent = parentElement.data('kendo' + alternativeNames[name][i]);
+                        if (!!parent) {
+                            break;
+                        }
+                    }
                 }
                 return parent;
             },
@@ -81519,7 +81564,7 @@
             _renderTemplate: function () {
                 var template = this.options.template;
                 if (typeof template === 'string') {
-                    template = window.unescape(template);
+                    template = kendo.unescape(template);
                 }
                 template = kendo.template(template)(this.model);
                 return template;

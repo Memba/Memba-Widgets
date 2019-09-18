@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -341,7 +341,11 @@
                     selection = caret(this.element[0]);
                     var symbol = this._format[selection[0]];
                     if (knownSymbols.indexOf(symbol) >= 0) {
-                        this._dateTime.modifyPart(symbol, key == 38 ? 1 : -1);
+                        var interval = 1;
+                        if (symbol == 'm') {
+                            interval = this.options.interval || 1;
+                        }
+                        this._dateTime.modifyPart(symbol, key == 38 ? interval * 1 : interval * -1);
                         this._updateElementValue();
                         this._selectSegment(symbol);
                         this.element.trigger(CHANGE);

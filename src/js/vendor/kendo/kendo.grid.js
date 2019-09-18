@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -191,7 +191,10 @@
         'kendo.excel',
         'kendo.pane',
         'kendo.progressbar',
-        'kendo.pdf'
+        'kendo.pdf',
+        'kendo.dialog',
+        'kendo.pane',
+        'kendo.switch'
     ], f);
 }(function () {
     var __meta__ = {
@@ -267,8 +270,9 @@
                 name: 'Grid adaptive rendering',
                 description: 'Support for adaptive rendering',
                 depends: [
-                    'mobile.actionsheet',
-                    'mobile.pane'
+                    'dialog',
+                    'pane',
+                    'switch'
                 ]
             },
             {
@@ -713,21 +717,27 @@
                 }
             }
         }
-        function normalizeColumns(columns, encoded, hide) {
+        function normalizeColumns(columns, encoded, hide, parentIds) {
             return map(columns, function (column) {
                 column = typeof column === STRING ? { field: column } : column;
                 var hidden;
+                column.parentIds = parentIds;
                 if (!isVisible(column) || hide) {
                     column.attributes = addHiddenStyle(column.attributes);
                     column.footerAttributes = addHiddenStyle(column.footerAttributes);
                     column.headerAttributes = addHiddenStyle(column.headerAttributes);
                     hidden = true;
                 }
-                if (column.columns) {
-                    column.columns = normalizeColumns(column.columns, encoded, hidden);
-                }
                 var uid = kendo.guid();
-                column.headerAttributes = extend({ id: uid }, column.headerAttributes);
+                column.headerAttributes = extend({ headers: parentIds }, column.headerAttributes);
+                if (!column.headerAttributes.id) {
+                    column.headerAttributes = extend({ id: uid }, column.headerAttributes);
+                } else {
+                    uid = column.headerAttributes.id;
+                }
+                if (column.columns) {
+                    column.columns = normalizeColumns(column.columns, encoded, hidden, parentIds ? parentIds + ' ' + uid : uid);
+                }
                 return extend({
                     encoded: encoded,
                     hidden: hidden
@@ -1120,6 +1130,15 @@
             }
             return result;
         }
+        function childColumns(columns) {
+            var result = [];
+            for (var idx = 0; idx < columns.length; idx++) {
+                if (columns[idx].columns) {
+                    result = result.concat(columns[idx].columns);
+                }
+            }
+            return result;
+        }
         function leafColumns(columns) {
             var result = [];
             for (var idx = 0; idx < columns.length; idx++) {
@@ -1128,6 +1147,18 @@
                     continue;
                 }
                 result = result.concat(leafColumns(columns[idx].columns));
+            }
+            return result;
+        }
+        function getColumnsFields(columns) {
+            var result = [];
+            columns = leafColumns(columns);
+            for (var idx = 0; idx < columns.length; idx++) {
+                if (typeof columns[idx] === 'string') {
+                    result.push(columns[idx]);
+                } else if (columns[idx].field) {
+                    result.push(columns[idx].field);
+                }
             }
             return result;
         }
@@ -1539,6 +1570,7 @@
                 groupable: false,
                 rowTemplate: '',
                 altRowTemplate: '',
+                search: false,
                 noRecords: false,
                 dataSource: {},
                 height: null,
@@ -1565,6 +1597,7 @@
                         excel: defaultCommands.excel.text,
                         pdf: defaultCommands.pdf.text
                     },
+                    search: 'Search...',
                     noRecords: NORECORDS,
                     expandCollapseColumnHeader: '',
                     groupHeader: 'Press ctrl + space to group',
@@ -1809,7 +1842,7 @@
                     resizeHandle = that.resizeHandle = $('<div class="k-resize-handle"><div class="k-resize-handle-inner"></div></div>');
                     container.append(resizeHandle);
                 }
-                left = th.offset().left - parseFloat(th.css('marginLeft')) - (container.offset().left + parseFloat(container.css('borderLeftWidth')));
+                left = th.offset().left + container.scrollLeft() - parseFloat(th.css('marginLeft')) - (container.offset().left + parseFloat(container.css('borderLeftWidth')));
                 if (!isRtl) {
                     left += th[0].offsetWidth;
                 } else {
@@ -2617,6 +2650,7 @@
                     var tr = cell.parent().addClass('k-grid-edit-row');
                     if (that.lockedContent) {
                         adjustRowHeight(tr[0], that._relatedRow(tr).addClass('k-grid-edit-row')[0]);
+                        that._syncLockedScroll();
                     }
                     that.trigger(EDIT, {
                         container: cell,
@@ -2628,6 +2662,12 @@
                 var table = this.table, content = table.parent();
                 var scrollbar = table[0].offsetWidth > content[0].clientWidth ? kendo.support.scrollbar() : 0;
                 this.lockedContent.height(content[0].offsetHeight - scrollbar);
+            },
+            _syncLockedScroll: function () {
+                this.lockedContent[0].scrollTop = this.content[0].scrollTop;
+                if (this.virtualScrollable) {
+                    this.lockedContent[0].scrollTop = this.wrapper.find('.k-virtual-scrollable-wrap')[0].scrollTop;
+                }
             },
             _syncLockedContentHeight: function () {
                 if (this.lockedTable) {
@@ -2903,7 +2943,7 @@
                 options = options || {};
                 if (template) {
                     if (typeof template === STRING) {
-                        template = window.unescape(template);
+                        template = kendo.unescape(template);
                     }
                     html += kendo.template(template, settings)(model);
                     for (idx = 0, length = columns.length; idx < length; idx++) {
@@ -3473,13 +3513,54 @@
                         e.preventDefault();
                         that.saveAsPDF();
                     });
+                    container.on(INPUT + NS, '.k-grid-search input', function (e) {
+                        var input = e.currentTarget;
+                        clearTimeout(that._searchTimeOut);
+                        that._searchTimeOut = setTimeout(function () {
+                            that._searchTimeOut = null;
+                            var options = that.options;
+                            var searchFields = options.search ? options.search.fields : null;
+                            var expression = {
+                                filters: [],
+                                logic: 'or'
+                            };
+                            var value = input.value;
+                            if (!searchFields) {
+                                searchFields = getColumnsFields(options.columns);
+                            }
+                            if (that.dataSource.options.endless) {
+                                that.dataSource.options.endless = null;
+                                that._endlessPageSize = that.dataSource.options.pageSize;
+                            }
+                            if (value) {
+                                for (var i = 0; i < searchFields.length; i++) {
+                                    expression.filters.push({
+                                        field: searchFields[i],
+                                        operator: 'contains',
+                                        value: value
+                                    });
+                                }
+                            } else {
+                                expression = {};
+                            }
+                            that.dataSource.filter(expression);
+                        }, 300);
+                    });
                 }
             },
             _toolbarTmpl: function (commands) {
-                var that = this, idx, length, html = '';
+                var that = this, idx, length, html = '', command;
                 if (isArray(commands)) {
                     for (idx = 0, length = commands.length; idx < length; idx++) {
-                        html += that._createButton(commands[idx]);
+                        command = typeof commands[idx] === 'string' ? commands[idx].toLowerCase() : (commands[idx].name || '').toLowerCase();
+                        if (command === 'search') {
+                            html += '<span class=\'k-textbox k-grid-search k-display-flex\'>';
+                            html += '<input autocomplete=\'off\' placeholder=\'' + that.options.messages.search + '\' title=\'' + that.options.messages.search + '\' class=\'k-input\' />';
+                            html += '<span class=\'k-input-icon\'><span class=\'k-icon k-i-search\'></span></span>';
+                            html += '</span>';
+                        } else {
+                            html += that._createButton(commands[idx]);
+                        }
                     }
                 }
                 return html;
@@ -4925,7 +5006,7 @@
                         e.preventDefault();
                         return false;
                     });
-                    this.view.bind('show', function () {
+                    this.view.bind('showStart', function () {
                         if (that._isLocked()) {
                             that._updateTablesWidth();
                             that._applyLockedContainersWidth();
@@ -5787,7 +5868,7 @@
                 }
             },
             _columns: function (columns) {
-                var that = this, table = that.table, encoded, cols = table.find('col'), lockedCols, headers = that.element.find('thead:first th[data-index]'), columnLeafs, dataSource = that.options.dataSource;
+                var that = this, table = that.table, encoded, cols = table.find('col'), lockedCols, headerRows = that.element.find('thead tr'), dataSource = that.options.dataSource;
                 columns = columns.length ? columns : map(table.find('th'), function (th, idx) {
                     th = $(th);
                     var sortable = th.attr(kendo.attr('sortable')), filterable = th.attr(kendo.attr('filterable')), type = th.attr(kendo.attr('type')), groupable = th.attr(kendo.attr('groupable')), field = th.attr(kendo.attr('field')), title = th.attr(kendo.attr('title')), menu = th.attr(kendo.attr('menu'));
@@ -5817,18 +5898,10 @@
                     normalizeHeaderCells(that.element.find('tr:has(th):first'), initialColumns);
                     columns = lockedCols.concat(columns);
                 }
-                that.columns = normalizeColumns(columns, encoded);
-                if (headers.length && that.columns.length) {
-                    columnLeafs = leafColumns(that.columns);
-                    map(headers, function (th) {
-                        th = $(th);
-                        var id = th.attr('id');
-                        var idx = kendo.parseInt(th.attr('data-index'));
-                        if (id) {
-                            columnLeafs[idx].headerAttributes = extend(columnLeafs[idx].headerAttributes, { id: id });
-                        }
-                    });
+                if (headerRows.length && columns.length) {
+                    that._updateColumnIDs(columns, headerRows.first());
                 }
+                that.columns = normalizeColumns(columns, encoded);
                 if ($.grep(leafColumns(that.columns), function (col) {
                         return col.selectable;
                     }).length) {
@@ -5837,6 +5910,20 @@
                     that.wrapper.on(CLICK + NS, 'tbody > tr ' + CHECKBOXINPUT, proxy(that._checkboxClick, that));
                     that.wrapper.on(CLICK + NS, 'thead > tr ' + CHECKBOXINPUT, proxy(that._headerCheckboxClick, that));
                 }
+            },
+            _updateColumnIDs: function (columns, tr) {
+                if (!columns.length) {
+                    return;
+                }
+                var ths = tr.find('th');
+                var id;
+                for (var i = 0; i < columns.length; i++) {
+                    id = ths.eq(i).attr('id');
+                    if (id) {
+                        columns[i].headerAttributes = extend(columns[i].headerAttributes, { id: id });
+                    }
+                }
+                this._updateColumnIDs(childColumns(columns), tr.next());
             },
             _headerCheckboxClick: function (e) {
                 var that = this, checkBox = $(e.target), checked = checkBox.prop('checked'), parentGrid = checkBox.closest('.k-grid.k-widget').getKendoGrid();
@@ -6489,6 +6576,7 @@
                             cell[0].style.display = 'none';
                         }
                     }
+                    that._updateHeadersAttr(childColumns(columns));
                 }
                 if (hasFilterRow) {
                     var filterRow = $('<tr/>');
@@ -6670,6 +6758,19 @@
                     }
                 }
             },
+            _updateHeadersAttr: function (columns) {
+                if (!columns.length) {
+                    return;
+                }
+                var that = this;
+                for (var i = 0; i < columns.length; i++) {
+                    if (columns[i].headerAttributes) {
+                        var th = that.element.find('[id=\'' + columns[i].headerAttributes.id + '\']');
+                        th.attr('headers', columns[i].headerAttributes.headers);
+                    }
+                }
+                that._updateHeadersAttr(childColumns(columns));
+            },
             _updateCols: function (table) {
                 table = table || this.thead.parent().add(this.table);
                 this._appendCols(table, this._isLocked());
@@ -6742,7 +6843,7 @@
             _groupRowHtml: function (group, colspan, level, groupHeaderBuilder, templates, skipColspan, skipLastGroup) {
                 var that = this, html = '', idx, length, field = group.field, column = grep(leafColumns(that.columns), function (column) {
                         return column.field == field;
-                    })[0] || {}, template = column.groupHeaderTemplate ? column.groupHeaderTemplate : visibleColumns(that.columns)[0].groupHeaderColumnTemplate, text = (column.title || field) + ': ' + formatGroupValue(group.value, column.format, column.values, column.encoded), groupItems = group.items, groups = that._groups(), groupFooterTemplate = templates.groupFooterTemplate, groupHeaderColumnTemplate = templates.groupHeaderColumnTemplate, groupData;
+                    })[0] || {}, firstColumn = visibleColumns(that.columns)[0], firstVisibleColumnGroupHeaderTemplate = firstColumn ? firstColumn.groupHeaderColumnTemplate : null, template = column.groupHeaderTemplate ? column.groupHeaderTemplate : firstVisibleColumnGroupHeaderTemplate, text = (column.title || field) + ': ' + formatGroupValue(group.value, column.format, column.values, column.encoded), groupItems = group.items, groups = that._groups(), groupFooterTemplate = templates.groupFooterTemplate, groupHeaderColumnTemplate = templates.groupHeaderColumnTemplate, groupData;
                 if (templates.groupFooterTemplate || templates.groupHeaderColumnTemplate || column.groupHeaderTemplate) {
                     groupData = that._groupData(group, false, !column.groupHeaderTemplate && visibleColumns(that.columns)[0].groupHeaderColumnTemplate ? visibleColumns(that.columns)[0] : false);
                 }
@@ -7000,6 +7101,7 @@
                             this.style.width = width + 'px';
                         });
                         that._footerWidth = width;
+                        that._setContentWidth();
                     }
                     if (browser.msie && browser.version == 8) {
                         tables.css('display', 'inline-table');
@@ -7138,6 +7240,7 @@
                                 this.style.width = width + 'px';
                             });
                             that._footerWidth = width;
+                            that._setContentWidth();
                         }
                     }
                 }
@@ -7185,10 +7288,7 @@
                     this._setContentHeight();
                 }
                 if (this.lockedTable) {
-                    this.lockedContent[0].scrollTop = this.content[0].scrollTop;
-                    if (this.virtualScrollable) {
-                        this.lockedContent[0].scrollTop = this.wrapper.find('.k-virtual-scrollable-wrap')[0].scrollTop;
-                    }
+                    this._syncLockedScroll();
                 }
                 if (this.virtualScrollable && (force || this._rowHeight)) {
                     if (force) {
@@ -7587,7 +7687,7 @@
                     overflow: 'visible'
                 });
                 clone.find('.k-grid-pager, .k-grid-toolbar, .k-grouping-header').remove();
-                clone.find('.k-grid-header, .k-grid-footer').css({ paddingRight: 0 });
+                clone.find('.k-grid-header, .k-grid-footer, .k-auto-scrollable').css({ paddingRight: 0 });
                 this._initPDFProgress(progress);
                 var body = clone.find('table[role$="grid"] > tbody').empty();
                 var startingPage = dataSource.page();

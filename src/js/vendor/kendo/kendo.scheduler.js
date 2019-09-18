@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1153,7 +1153,7 @@
                 var html = '';
                 if (template) {
                     if (typeof template === STRING) {
-                        template = window.unescape(template);
+                        template = kendo.unescape(template);
                     }
                     html += kendo.template(template, settings)(model);
                 } else if (isMobile) {
@@ -2218,7 +2218,9 @@
                 if (key === keys.TAB) {
                     if (view.moveToEvent(selection, e.shiftKey)) {
                         that._select();
-                        that.element.focus();
+                        if (document.activeElement.getAttribute('id') !== that.element.attr('id')) {
+                            that.element.focus();
+                        }
                         e.preventDefault();
                     }
                 } else if (key === keys.ENTER || key === keys.SPACEBAR) {
@@ -3488,8 +3490,8 @@
                         view = new type(this.wrapper, trimOptions(extend(true, {}, this.options, isSettings ? view : {}, {
                             resources: this.resources,
                             date: this.date(),
-                            startTime: kendo.parseDate(this.options.startTime),
-                            endTime: kendo.parseDate(this.options.endTime),
+                            startTime: kendo.parseDate(view.startTime) || kendo.parseDate(this.options.startTime),
+                            endTime: kendo.parseDate(view.endTime) || kendo.parseDate(this.options.endTime),
                             showWorkHours: this._workDayMode
                         })));
                     } else {

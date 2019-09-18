@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -61,7 +61,7 @@
             if (!tableRows.length) {
                 return '';
             }
-            return '<table ' + cellspacing() + ' class="' + $.trim('k-scheduler-table ' + (className || '')) + '">' + '<tr>' + tableRows.join('</tr><tr>') + '</tr>' + '</table>';
+            return '<table role="presentation"' + cellspacing() + ' class="' + $.trim('k-scheduler-table ' + (className || '')) + '">' + '<tr>' + tableRows.join('</tr><tr>') + '</tr>' + '</table>';
         }
         function allDayTable(tableRows, className) {
             if (!tableRows.length) {
@@ -139,7 +139,7 @@
             return $('<div class="k-scheduler-times">' + table(rowHeaderRows) + '</div>');
         }
         function content() {
-            return $('<div class="k-scheduler-content">' + '<table ' + cellspacing() + ' class="k-scheduler-table"/>' + '</div>');
+            return $('<div class="k-scheduler-content">' + '<table role="presentation"' + cellspacing() + ' class="k-scheduler-table"/>' + '</div>');
         }
         var HINT = '<div class="k-marquee k-scheduler-marquee">' + '<div class="k-marquee-color"></div>' + '<div class="k-marquee-text">' + '<div class="k-label-top"></div>' + '<div class="k-label-bottom"></div>' + '</div>' + '</div>';
         var ResourceView = kendo.Class.extend({
@@ -1509,7 +1509,7 @@
                 }
                 var columnLevels = this.columnLevels = levels(layout, 'columns');
                 var rowLevels = this.rowLevels = levels(layout, 'rows');
-                this.table = $('<table ' + cellspacing() + ' class="k-scheduler-layout k-scheduler-' + this.name + 'view"><tbody></tbody></table>');
+                this.table = $('<table role="presentation"' + cellspacing() + ' class="k-scheduler-layout k-scheduler-' + this.name + 'view"><tbody></tbody></table>');
                 var rowCount = rowLevels[rowLevels.length - 1].length;
                 this.table.find('tbody:first').append(this._topSection(columnLevels, allDaySlot, rowCount));
                 this.table.find('tbody:first').append(this._bottomSection(columnLevels, rowLevels, rowCount));

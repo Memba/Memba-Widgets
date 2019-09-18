@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -383,7 +383,10 @@
                 return center;
             },
             _isFloating: function (item) {
-                return /left|right/.test(item.css('float')) || /inline|table-cell/.test(item.css('display'));
+                var isFloating = /left|right/.test(item.css('float'));
+                var isTable = /inline|table-cell/.test(item.css('display'));
+                var isHorizontalFlex = /flex/.test(item.parent().css('display')) && (/row|row-reverse/.test(item.parent().css('flex-direction')) || !item.parent().css('flex-direction'));
+                return isFloating || isTable || isHorizontalFlex;
             },
             _cancel: function () {
                 this.draggedElement.show();

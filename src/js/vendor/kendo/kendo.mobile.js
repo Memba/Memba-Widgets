@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2019.2.619'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2019.3.917'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1408,7 +1408,7 @@
                 } else {
                     propInit = null;
                 }
-                if (propInit && propInit !== Array && propInit !== ObservableArray && propInit !== LazyObservableArray && propInit !== DataSource && propInit !== HierarchicalDataSource && propInit !== RegExp) {
+                if (propInit && propInit !== Array && propInit !== ObservableArray && propInit !== LazyObservableArray && propInit !== DataSource && propInit !== HierarchicalDataSource && propInit !== RegExp && (!kendo.isFunction(window.ArrayBuffer) || propInit !== ArrayBuffer)) {
                     if (propValue instanceof Date) {
                         destination[property] = new Date(propValue.getTime());
                     } else if (isFunction(propValue.clone)) {
@@ -1946,6 +1946,17 @@
         function htmlEncode(value) {
             return ('' + value).replace(ampRegExp, '&amp;').replace(ltRegExp, '&lt;').replace(gtRegExp, '&gt;').replace(quoteRegExp, '&quot;').replace(aposRegExp, '&#39;');
         }
+        function unescape(value) {
+            var template;
+            try {
+                template = window.decodeURIComponent(value);
+            } catch (error) {
+                template = value.replace(/%u([\dA-F]{4})|%([\dA-F]{2})/gi, function (_, m1, m2) {
+                    return String.fromCharCode(parseInt('0x' + (m1 || m2), 16));
+                });
+            }
+            return template;
+        }
         var eventTarget = function (e) {
             return e.target;
         };
@@ -2087,6 +2098,7 @@
             stringify: proxy(JSON.stringify, JSON),
             eventTarget: eventTarget,
             htmlEncode: htmlEncode,
+            unescape: unescape,
             isLocalUrl: function (url) {
                 return url && !localUrlRe.test(url);
             },
@@ -2205,6 +2217,9 @@
                     e = that.events[idx];
                     if (that.options[e] && options[e]) {
                         that.unbind(e, that.options[e]);
+                        if (that._events && that._events[e]) {
+                            delete that._events[e];
+                        }
                     }
                 }
                 that.bind(that.events, options);
@@ -2589,7 +2604,7 @@
             e.preventDefault();
         };
         kendo.widgetInstance = function (element, suites) {
-            var role = element.data(kendo.ns + 'role'), widgets = [], i, length;
+            var role = element.data(kendo.ns + 'role'), widgets = [], i, length, elementData = element.data('kendoView');
             if (role) {
                 if (role === 'content') {
                     role = 'scroller';
@@ -2600,8 +2615,8 @@
                         return editorToolbar;
                     }
                 }
-                if (role === 'view') {
-                    return element.data('kendoView');
+                if (role === 'view' && elementData) {
+                    return elementData;
                 }
                 if (suites) {
                     if (suites[0]) {
@@ -3140,7 +3155,7 @@
                 }
             }
             function setHours(date, time) {
-                date = new Date(kendo.date.getDate(date).getTime() + kendo.date.getMilliseconds(time));
+                date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds());
                 adjustDST(date, time.getHours());
                 return date;
             }
@@ -6114,7 +6129,7 @@
                 return function (a, b, ignore, accentFoldingFiltering) {
                     b += '';
                     if (ignore) {
-                        a = '(' + a + ' || \'\').toString()' + (accentFoldingFiltering ? '.toLocaleLowerCase(\'' + accentFoldingFiltering + '\')' : '.toLowerCase()');
+                        a = '(' + a + ' + \'\').toString()' + (accentFoldingFiltering ? '.toLocaleLowerCase(\'' + accentFoldingFiltering + '\')' : '.toLowerCase()');
                         b = accentFoldingFiltering ? b.toLocaleLowerCase(accentFoldingFiltering) : b.toLowerCase();
                     }
                     return impl(a, quote(b), ignore);
@@ -12025,7 +12040,7 @@
                 options = options || {};
                 that.id = kendo.guid();
                 Observable.fn.init.call(that);
-                that._initOptions(options);
+                this.options = $.extend({}, this.options, options);
                 that.content = content;
                 if (that.options.renderOnInit) {
                     Widget.fn.init.call(that, that._createElement(), options);
@@ -12086,7 +12101,7 @@
                 if (element) {
                     element.css('display', '');
                 }
-                this.trigger(SHOW, { view: this });
+                this.trigger(SHOW_START, { view: this });
             },
             showEnd: function () {
             },
@@ -12659,7 +12674,8 @@
             },
             move: function (touchInfo) {
                 var that = this;
-                if (that._finished) {
+                var preventMove = touchInfo.type !== 'api' && that.userEvents._shouldNotMove;
+                if (that._finished || preventMove) {
                     return;
                 }
                 that.x.move(touchInfo.location);
@@ -14857,6 +14873,9 @@
                 }
             },
             _wheelScroll: function (e) {
+                if (e.ctrlKey) {
+                    return;
+                }
                 if (!this._wheel) {
                     this._wheel = true;
                     this._wheelY = 0;

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1847,6 +1847,7 @@
             }
         });
         kendo.spreadsheet.SaveAsCommand = Command.extend({
+            cannotUndo: true,
             exec: function () {
                 var fileName = this.options.name + this.options.extension;
                 if (this.options.extension === '.xlsx') {
@@ -4593,15 +4594,15 @@
                 }
                 return ref;
             },
-            startSelection: function (ref, mode, addToExisting, shiftKey) {
+            startSelection: function (ref, mode, addToExisting, shiftKey, view) {
                 if (mode == 'autofill') {
                     this._sheet.startAutoFill();
                 } else if (shiftKey && mode == 'range') {
                     var range = new RangeRef(this._sheet.activeCell().first(), ref);
                     this._sheet.select(range, false, false);
-                    this._sheet.startSelection();
+                    this._sheet.startSelection(view);
                 } else {
-                    this._sheet.startSelection();
+                    this._sheet.startSelection(view);
                     this.select(ref, mode, addToExisting);
                 }
             },
@@ -8304,7 +8305,7 @@
                 }
                 return this._activeCell;
             },
-            select: function (ref, expanded, changeActiveCell) {
+            select: function (ref, expanded, changeActiveCell, view) {
                 if (ref) {
                     if (ref.eq(this.originalSelection)) {
                         return;
@@ -8319,7 +8320,14 @@
                             });
                             this.activeCell(ref);
                         } else {
-                            this.activeCell(this.selection.lastRange().first());
+                            ref = this.selection.lastRange();
+                            if (view && view._sheet === this._sheet && view.panes[0]) {
+                                var rows = view.panes[0]._currentView.rows.values;
+                                var cols = view.panes[0]._currentView.columns.values;
+                                var visible = new RangeRef(new CellRef(rows.start, cols.start), new CellRef(rows.end, cols.end));
+                                ref = ref.intersect(visible);
+                            }
+                            this.activeCell(ref.first());
                         }
                         this.selectionRangeIndex = this.selection.size() - 1;
                     } else {
@@ -9041,7 +9049,10 @@
                     });
                 }
             },
-            startSelection: function () {
+            startSelection: function (view) {
+                if (view && view._sheet === this) {
+                    this._currentView = view;
+                }
                 this._selectionInProgress = true;
             },
             completeSelection: function () {
@@ -9089,7 +9100,7 @@
                     ref = this._grid.normalize(ref);
                     expandedRef = this._grid.isAxis(ref) ? ref : this.unionWithMerged(ref);
                 }
-                return selectionState.select(ref, expandedRef, changeActiveCell);
+                return selectionState.select(ref, expandedRef, changeActiveCell, this._currentView);
             },
             originalSelect: function () {
                 return this._selectionState().originalSelection;
@@ -13089,9 +13100,7 @@
                 }
                 var result = command.exec();
                 if (!result || result.reason !== 'error') {
-                    if (command.cannotUndo) {
-                        this.undoRedoStack.clear();
-                    } else {
+                    if (!command.cannotUndo) {
                         this.undoRedoStack.push(command);
                     }
                 }
@@ -14342,7 +14351,7 @@
                 }
                 if (this.editor.canInsertRef(false) && object.ref) {
                     this._workbook.activeSheet()._setFormulaSelections(this.editor.highlightedRefs());
-                    this.navigator.startSelection(object.ref, this._selectionMode, this.appendSelection, event.shiftKey);
+                    this.navigator.startSelection(object.ref, this._selectionMode, this.appendSelection, event.shiftKey, this.view);
                     event.preventDefault();
                     return;
                 } else {
@@ -14367,7 +14376,7 @@
                 }
                 this._selectionMode = SELECTION_MODES[object.type];
                 this.appendSelection = event.mod;
-                this.navigator.startSelection(object.ref, this._selectionMode, this.appendSelection, event.shiftKey);
+                this.navigator.startSelection(object.ref, this._selectionMode, this.appendSelection, event.shiftKey, this.view);
             },
             _startResizingDrawing: function (event) {
                 var handle = $(event.target).closest('.k-spreadsheet-drawing-handle');
@@ -15856,8 +15865,11 @@
                 this.cellContextMenu.destroy();
                 this.rowHeaderContextMenu.destroy();
                 this.colHeaderContextMenu.destroy();
+                this.drawingContextMenu.destroy();
+                this.cellContextMenu = this.rowHeaderContextMenu = this.colHeaderContextMenu = this.drawingContextMenu = null;
                 if (this.tabstrip) {
                     this.tabstrip.destroy();
+                    this.tabstrip = null;
                 }
                 this._destroyFilterMenu();
             },
@@ -18070,7 +18082,7 @@
         var percentCount = 0;
         var currency = /[\$\xA2-\xA5\u058F\u060B\u09F2\u09F3\u09FB\u0AF1\u0BF9\u0E3F\u17DB\u20A0-\u20BD\uA838\uFDFC\uFE69\uFF04\uFFE0\uFFE1\uFFE5\uFFE6]/;
         var scaleCount = 0;
-        var code = '';
+        var code = 'var intPart, decPart, isNegative, date, time; ';
         var separeThousands = false;
         var declen = 0;
         var intFormat = [], decFormat = [];
@@ -18126,20 +18138,20 @@
             code += 'value /= ' + Math.pow(1000, scaleCount) + '; ';
         }
         if (intFormat.length) {
-            code += 'var intPart = runtime.formatInt(culture, value, ' + JSON.stringify(intFormat) + ', ' + declen + ', ' + separeThousands + '); ';
-            code += 'var isNegative = parseInt(intPart[0]) < 0;';
+            code += 'intPart = runtime.formatInt(culture, value, ' + JSON.stringify(intFormat) + ', ' + declen + ', ' + separeThousands + '); ';
+            code += 'isNegative = parseInt(intPart[0]) < 0;';
         }
         if (decFormat.length) {
-            code += 'var decPart = runtime.formatDec(value, ' + JSON.stringify(decFormat) + ', ' + declen + '); ';
+            code += 'decPart = runtime.formatDec(value, ' + JSON.stringify(decFormat) + ', ' + declen + '); ';
         }
         if (intFormat.length || decFormat.length) {
             code += 'type = \'number\'; ';
         }
         if (hasDate) {
-            code += 'var date = runtime.unpackDate(value); ';
+            code += 'date = runtime.unpackDate(value); ';
         }
         if (hasTime) {
-            code += 'var time = runtime.unpackTime(value); ';
+            code += 'time = runtime.unpackTime(value); ';
         }
         if (hasDate || hasTime) {
             code += 'type = \'date\'; ';
@@ -20429,9 +20441,6 @@
                             if (!(options & opt_use_aggregates)) {
                                 return;
                             }
-                        }
-                        if ('value' in cell.formula) {
-                            value = cell.formula.value;
                         }
                     }
                     if (options & opt_ignore_errors && value instanceof CalcError) {
@@ -30430,7 +30439,11 @@
             if (!options.forScreen) {
                 cell.drawings = drawings.filter(function (d) {
                     var tl = d.drawing.topLeftCell;
-                    return tl && tl.row == row && tl.col == col;
+                    if (tl && tl.row == row && tl.col == col) {
+                        maxRow = Math.max(maxRow, sheet._rows.index(d.box.bottom));
+                        maxCol = Math.max(maxCol, sheet._columns.index(d.box.right));
+                        return true;
+                    }
                 });
             }
             if (!relcol) {
@@ -30604,7 +30617,7 @@
         return i < a.length ? a[i] : a[a.length - 1];
     }
     function shouldDrawCell(cell) {
-        return cell.value != null || cell.merged || cell.background != null || cell.borderRight != null || cell.borderBottom != null || cell.validation != null && !cell.validation.value;
+        return cell.value != null || cell.merged || cell.background != null || cell.borderRight != null || cell.borderBottom != null || cell.validation != null && !cell.validation.value || cell.drawings && cell.drawings.length;
     }
     function orderCells(a, b) {
         if (a.top < b.top) {

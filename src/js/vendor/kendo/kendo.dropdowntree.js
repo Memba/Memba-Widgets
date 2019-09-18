@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -354,6 +354,8 @@
                 }
             },
             setDataSource: function (dataSource) {
+                this._noInitialValue = true;
+                this._clearTextAndValue();
                 this.dataSource = dataSource;
                 this.treeview.setDataSource(dataSource);
             },
@@ -383,11 +385,12 @@
                 messages: {
                     'singleTag': 'item(s) selected',
                     'clear': 'clear',
-                    'deleteTag': 'delete'
+                    'deleteTag': 'delete',
+                    'noData': 'No data found.'
                 },
                 minLength: 1,
                 checkboxes: false,
-                noDataTemplate: 'No data found.',
+                noDataTemplate: true,
                 placeholder: '',
                 checkAll: false,
                 checkAllTemplate: 'Check all',
@@ -544,7 +547,7 @@
                 this._values = value;
             },
             items: function () {
-                this.treeview.dataItems();
+                return this.treeview.items();
             },
             value: function (value) {
                 var that = this;
@@ -597,7 +600,7 @@
             _noData: function () {
                 var list = this;
                 var noData = $(list.noData);
-                var template = list.options.noDataTemplate;
+                var template = list.options.noDataTemplate === true ? list.options.messages.noData : list.options.noDataTemplate;
                 list.angular('cleanup', function () {
                     return { elements: noData };
                 });
@@ -977,7 +980,7 @@
                 element.value = '';
             },
             _clearButton: function () {
-                var clearTitle = this.options.messages && this.options.messages.clear ? this.options.messages.clear : 'clear';
+                var clearTitle = this.options.messages.clear;
                 if (!this._clear) {
                     this._clear = $('<span unselectable="on" class="k-icon k-clear-value k-i-close" title="' + clearTitle + '"></span>').attr({
                         'role': 'button',
@@ -1036,8 +1039,11 @@
                     that.tree.css('max-height', that.options.height);
                 }
                 that.tree.attr('id', kendo.guid());
-                that.treeview = new TreeView(that.tree, extend({ select: that.options.select }, that.options.treeview), that);
+                that.treeview = new TreeView(that.tree, extend({}, that.options.treeview), that);
                 that.dataSource = that.treeview.dataSource;
+                that.treeview.bind('select', function (e) {
+                    that.trigger('select', e);
+                });
             },
             _treeViewDataBound: function (e) {
                 if (e.node && this._prev && this._prev.length) {

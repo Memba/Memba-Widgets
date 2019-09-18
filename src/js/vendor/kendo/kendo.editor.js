@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -85,6 +85,7 @@
         var PLACEHOLDER_CLASS = 'k-placeholder';
         var PLACEHOLDER_TAG_ID = 'placeholder';
         var REFRESH_INTERVAL = 200;
+        var DEFAULT_LANGUAGE = 'en';
         var ToolTemplate = Class.extend({
             init: function (options) {
                 this.options = options;
@@ -96,12 +97,13 @@
         });
         var EditorUtils = {
             editorWrapperTemplate: '<table cellspacing="4" cellpadding="0" class="k-widget k-editor k-header" role="presentation"><tbody>' + '<tr role="presentation"><td class="k-editor-toolbar-wrap" role="presentation"><ul class="k-editor-toolbar" role="toolbar" /></td></tr>' + '<tr><td class="k-editable-area" /></tr>' + '</tbody></table>',
-            buttonTemplate: '# var iconCssClass= "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '<a tabindex="0" role="button" class="k-tool"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #"><span unselectable="on" class="k-tool-icon #= iconCssClass #"></span><span class="k-tool-text">#= data.title #</span></a>',
+            buttonTemplate: '# var iconCssClass= "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '<a tabindex="0" role="button" class="k-tool"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #" aria-label="#= data.title #"><span unselectable="on" class="k-tool-icon #= iconCssClass #"></span></a>',
+            tableWizardButtonTemplate: '# var iconCssClass= "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '<a tabindex="0" role="button" class="k-tool"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #"><span unselectable="on" class="k-tool-icon #= iconCssClass #"></span><span class="k-tool-text">#= data.title #</span></a>',
             colorPickerTemplate: '<div class="k-colorpicker k-icon k-i-#= data.cssClass.replace("k-", "") #" />',
-            comboBoxTemplate: '<select title="#= data.title #" class="#= data.cssClass #" />',
-            dropDownListTemplate: '<span class="k-editor-dropdown"><select title="#= data.title #" class="#= data.cssClass #" /></span>',
+            comboBoxTemplate: '<select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #" />',
+            dropDownListTemplate: '<span class="k-editor-dropdown"><select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #" /></span>',
             separatorTemplate: '<span class="k-separator" />',
-            overflowAnchorTemplate: '<a tabindex="0" role="button" class="k-tool k-overflow-anchor" data-popup' + ' unselectable="on" title="#= data.title #" aria-haspopup="true" aria-expanded="false">' + '<span unselectable="on" class="k-icon k-i-more-vertical"></span><span class="k-tool-text">#= data.title #</span></a>',
+            overflowAnchorTemplate: '<a tabindex="0" role="button" class="k-tool k-overflow-anchor" data-popup' + ' unselectable="on" title="#= data.title #" aria-label="#= data.title #" aria-haspopup="true" aria-expanded="false">' + '<span unselectable="on" class="k-icon k-i-more-vertical"></span></a>',
             formatByName: function (name, format) {
                 for (var i = 0; i < format.length; i++) {
                     if ($.inArray(name, format[i].tags) >= 0) {
@@ -276,7 +278,8 @@
             rows: 'Rows',
             selectAllCells: 'Select All Cells',
             exportAs: 'Export As',
-            'import': 'Import'
+            'import': 'Import',
+            print: 'Print'
         };
         var supportedBrowser = !os || os.ios && os.flatVersion >= 500 || !os.ios && typeof document.documentElement.contentEditable != 'undefined';
         var toolGroups = {
@@ -513,6 +516,7 @@
                 var domain = specifiedDomain || document.domain;
                 var domainScript = '';
                 var src = 'javascript:""';
+                var lang = '';
                 textarea.hide();
                 iframe = $('<iframe />', {
                     title: editor.options.messages.editAreaTitle,
@@ -529,8 +533,9 @@
                 $(iframe).one('load', function () {
                     editor.toolbar.decorateFrom(doc.body);
                 });
+                lang = document.getElementsByTagName('html')[0].getAttribute('lang') || DEFAULT_LANGUAGE;
                 doc.open();
-                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html{padding:0;margin:0;height:100%;min-height:100%;cursor:text;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (os.ios ? 'word-break:keep-all;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + '.k-placeholder{color:grey}' + 'k\\:script{display:none;}' + '</style>' + domainScript + $.map(stylesheets, function (href) {
+                doc.write('<!DOCTYPE html><html lag=\'' + lang + '\'><head>' + '<meta charset=\'utf-8\' />' + '<title>Kendo UI Editor content</title>' + '<style>' + 'html{padding:0;margin:0;height:100%;min-height:100%;cursor:text;}' + 'body{padding:0;margin:0;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (os.ios ? 'word-break:keep-all;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + '.k-placeholder{color:grey}' + 'k\\:script{display:none;}' + '</style>' + domainScript + $.map(stylesheets, function (href) {
                     return '<link rel=\'stylesheet\' href=\'' + href + '\'>';
                 }).join('') + '</head><body autocorrect=\'off\' contenteditable=\'true\'></body></html>');
                 doc.close();
@@ -803,7 +808,7 @@
                 if ((e.which == 2 || e.which == 1 && e.ctrlKey) && target && target.is('a[href]')) {
                     window.open(target.attr('href'), '_new');
                 }
-                if (browser.msie && e.target.tagName.toLowerCase() === 'html') {
+                if (e.target.tagName && e.target.tagName.toLowerCase() === 'html') {
                     setTimeout(function () {
                         editor.body.focus();
                     }, 0);
@@ -1225,9 +1230,9 @@
             initialize: function (ui, options) {
                 ui.attr({
                     unselectable: 'on',
-                    title: options.title
+                    title: options.title,
+                    'aria-label': options.title
                 });
-                ui.children('.k-tool-text').html(options.title);
             },
             command: function (commandArguments) {
                 return new this.options.command(commandArguments);
@@ -8320,7 +8325,7 @@
                 this._popup = popup;
                 var tableWizard = new Editor.TableWizardTool({
                     template: new ToolTemplate({
-                        template: EditorUtils.buttonTemplate,
+                        template: EditorUtils.tableWizardButtonTemplate,
                         title: editor.options.messages.tableWizard
                     }),
                     command: Editor.TableWizardCommand,
@@ -9284,13 +9289,14 @@
                         'h4',
                         'h5',
                         'h6'
-                    ];
+                    ], isParentTable = false;
                 for (i = 0; i < blockChildren.length; i++) {
                     p = blockChildren[i];
                     listData = $(p).data();
                     var listIndex = listData.list;
                     name = dom.name(p);
-                    if (name == 'td') {
+                    isParentTable = !!$(p).parents('table').length;
+                    if (isParentTable) {
                         continue;
                     }
                     var listType = this.listType(p, listData);
@@ -11017,7 +11023,7 @@
                 var scrollTopOffset = rootElement.is(BODY) ? 0 : rootElement.scrollTop();
                 var tableBodyTopOffset = tableBody.offset().top - (rootElement.offset().top + parseFloat(rootElement.css('borderTopWidth'))) - parseFloat(tableBody.css('marginTop'));
                 var rowOffsetTop = $row.offset().top - (rootElement.offset().top + parseFloat(rootElement.css('borderTopWidth'))) - parseFloat($row.css('marginTop'));
-                var resizeHandleOffsetTop = resizeHandle.offset().top - (rootElement.offset().top + parseFloat(rootElement.css('borderTopWidth'))) - parseFloat(resizeHandle.css('marginTop'));
+                var resizeHandleOffsetTop = resizeHandle.offset().top - (Math.max(0, rootElement.offset().top) + parseFloat(rootElement.css('borderTopWidth'))) - parseFloat(resizeHandle.css('marginTop'));
                 var handleOffset = constrain({
                     value: resizeHandleOffsetTop + scrollTopOffset + e.y.delta,
                     min: rowOffsetTop + scrollTopOffset + min,

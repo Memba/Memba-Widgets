@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -219,8 +219,11 @@
                 var headers = this._headers(rows);
                 var colgroup = this._colgroup();
                 var tree = this._headerTree;
-                var header = kendoDomElement('thead', null, headers);
-                var table = kendoDomElement('table', { style: { width: this._tableWidth + 'px' } }, [
+                var header = kendoDomElement('tbody', null, headers);
+                var table = kendoDomElement('table', {
+                    style: { width: this._tableWidth + 'px' },
+                    role: 'presentation'
+                }, [
                     colgroup,
                     header
                 ]);
@@ -386,6 +389,7 @@
                     styles.style = {};
                 }
                 styles.style.width = this._tableWidth + 'px';
+                styles.role = 'presentation';
                 return kendoDomElement('table', styles, [
                     colgroup,
                     tbody
@@ -1086,7 +1090,7 @@
                     for (var columnIndex = 0, columnCount = level.length; columnIndex < columnCount; columnIndex++) {
                         column = level[columnIndex];
                         headerText = kendoHtmlElement(column.text);
-                        headers.push(kendoDomElement('th', {
+                        headers.push(kendoDomElement('td', {
                             colspan: column.span,
                             className: styles.header + (column.isNonWorking ? ' ' + styles.nonWorking : '')
                         }, [headerText]));

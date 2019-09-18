@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -48,10 +48,10 @@
                     that._miniMode();
                 }
                 that._initDrawerItems();
-                if (options.mini && options.mode == 'overlay') {
+                if (options.mini && options.mode != PUSH) {
                     that._setBodyOffset();
                 }
-                userEvents = this.userEvents = new kendo.UserEvents(options.mode == OVERLAY ? $(document.body) : this.outerWrapper, {
+                userEvents = this.userEvents = new kendo.UserEvents(options.mode != PUSH ? $(document.body) : this.drawerContainer, {
                     fastTap: true,
                     allowSelection: true
                 });
@@ -78,8 +78,8 @@
                 } else {
                     userEvents.bind('press', tap);
                 }
-                if (options.minHeight) {
-                    that.outerWrapper.css('min-height', options.minHeight);
+                if (options.minHeight && options.mode == PUSH) {
+                    that.drawerContainer.css('min-height', options.minHeight);
                 }
             },
             _element: function () {
@@ -89,7 +89,7 @@
                 var contentElement = that.contentElement = element.children().first();
                 that.drawerElement = $(options.template);
                 contentElement.addClass('k-drawer-content');
-                element.addClass('k-drawer k-widget');
+                element.addClass('k-widget k-drawer');
             },
             _wrapper: function () {
                 var options = this.options;
@@ -97,17 +97,25 @@
                 var element = this.element;
                 var contentElement = this.contentElement;
                 var drawerItemsWrapper = this.drawerItemsWrapper = drawerElement.wrap('<div class=\'k-drawer-items\'></div>').parent();
-                var drawerContainer = this.drawerContainer = drawerItemsWrapper.wrap('<div class=\'k-drawer-container\'></div>').parent();
-                var outerWrapper = this.outerWrapper = drawerContainer.wrap('<div class=\'k-drawer-wrapper\'></div>').parent();
-                if (options.mode == OVERLAY) {
-                    $(document.body).prepend(outerWrapper);
+                var drawerWrapper = this.drawerWrapper = drawerItemsWrapper.wrap('<div class=\'k-drawer-wrapper\'></div>').parent();
+                var drawerContainer = this.drawerContainer = element.wrap('<div class=\'k-drawer-container\'></div>').parent();
+                if (options.mini) {
+                    if (options.mini.width) {
+                        drawerWrapper.width(options.mini.width);
+                    }
                 } else {
-                    outerWrapper.append(contentElement);
-                    element.prepend(outerWrapper);
+                    drawerWrapper.width(0);
                 }
+                if (options.mode === PUSH) {
+                    drawerContainer.append(contentElement);
+                } else if (options.mode === OVERLAY) {
+                    drawerContainer.after(contentElement);
+                    $(document.body).prepend(drawerContainer);
+                }
+                element.append(drawerWrapper);
             },
             _setBodyOffset: function () {
-                var overlayMiniOffset = this.drawerContainer.outerWidth();
+                var overlayMiniOffset = this.element.outerWidth();
                 if (this.leftPositioned) {
                     $(document.body).css('padding-left', overlayMiniOffset);
                 } else {
@@ -127,32 +135,35 @@
             },
             _mode: function () {
                 var options = this.options;
-                var outerWrapper = this.outerWrapper;
+                var drawerContainer = this.drawerContainer;
                 var overlayContainer;
                 if (options.mode == PUSH) {
-                    outerWrapper.addClass('k-drawer-' + PUSH);
+                    drawerContainer.addClass('k-drawer-' + PUSH);
                 } else {
-                    outerWrapper.addClass('k-drawer-' + OVERLAY);
+                    drawerContainer.addClass('k-drawer-' + OVERLAY);
                     overlayContainer = this.overlayContainer = $('<div class="k-overlay"></div>');
-                    outerWrapper.prepend(overlayContainer);
+                    overlayContainer.hide();
+                    drawerContainer.prepend(overlayContainer);
                 }
             },
             _miniMode: function () {
                 var options = this.options;
-                var outerWrapper = this.outerWrapper;
+                var drawerContainer = this.drawerContainer;
                 var miniWidth = options.mini.width;
                 var miniTemplate = this._miniTemplate = options.mini.template && $(options.mini.template);
                 var drawerItemsWrapper = this.drawerItemsWrapper;
-                outerWrapper.addClass('k-drawer-mini-mode');
+                var drawerWrapper = this.drawerWrapper;
+                drawerContainer.addClass('k-drawer-mini');
                 if (miniTemplate) {
                     drawerItemsWrapper.html(miniTemplate);
                 }
                 if (miniWidth) {
-                    drawerItemsWrapper.width(miniWidth);
+                    drawerWrapper.width(miniWidth);
                 }
-                this.minWidth = options.mini.width || this.drawerContainer.width();
+                this.minWidth = options.mini.width || this.drawerWrapper.width();
             },
             show: function () {
+                var drawerWrapper = this.drawerWrapper;
                 var drawerContainer = this.drawerContainer;
                 var options = this.options;
                 var isExpanded = drawerContainer.hasClass('k-drawer-expanded');
@@ -168,18 +179,15 @@
                     this._initDrawerItems();
                     this._selectItem();
                 }
-                if (options.mini) {
-                    drawerItemsWrapper.width(options.width);
-                } else {
-                    drawerContainer.width(options.width);
-                }
-                if (options.mode == 'overlay') {
+                drawerWrapper.width(options.width);
+                if (options.mode === OVERLAY) {
                     this.overlayContainer.show();
                     this.visible = true;
                 }
             },
             hide: function () {
                 var that = this;
+                var drawerWrapper = that.drawerWrapper;
                 var drawerContainer = that.drawerContainer;
                 var options = this.options;
                 var drawerItemsWrapper = this.drawerItemsWrapper;
@@ -192,38 +200,39 @@
                 }
                 if (options.mini) {
                     if (miniWidth) {
-                        drawerItemsWrapper.width(miniWidth);
+                        drawerWrapper.width(miniWidth);
                     } else {
-                        drawerItemsWrapper.width('');
+                        drawerWrapper.width('');
                     }
                 } else {
-                    drawerContainer.width('');
+                    drawerWrapper.width(0);
                 }
                 if (this.visible) {
                     drawerContainer.removeClass('k-drawer-expanded');
                     this.visible = false;
                 }
-                if (options.mode == 'overlay') {
+                if (options.mode === OVERLAY) {
                     this.overlayContainer.hide();
                 }
             },
             position: function (value) {
-                var options = this.options;
-                var outerWrapper = this.outerWrapper;
+                var that = this;
+                var options = that.options;
                 var position = value || options.position;
+                var drawerContainer = that.drawerContainer;
                 if (position == RIGHT) {
-                    outerWrapper.removeClass('k-drawer-' + LEFT);
-                    outerWrapper.addClass('k-drawer-' + RIGHT);
+                    drawerContainer.removeClass('k-drawer-' + LEFT);
+                    drawerContainer.addClass('k-drawer-' + RIGHT);
                 } else {
-                    outerWrapper.removeClass('k-drawer-' + RIGHT);
-                    outerWrapper.addClass('k-drawer-' + LEFT);
+                    drawerContainer.removeClass('k-drawer-' + RIGHT);
+                    drawerContainer.addClass('k-drawer-' + LEFT);
                 }
                 this.leftPositioned = position === LEFT;
             },
             _start: function (e) {
                 var that = this;
                 var options = this.options;
-                var drawerContainer = this.drawerContainer;
+                var drawerWrapper = this.drawerWrapper;
                 var drawerItemsWrapper = this.drawerItemsWrapper;
                 var userEvents = e.sender;
                 if (Math.abs(e.x.velocity) < Math.abs(e.y.velocity) || kendo.triggeredByInput(e.event)) {
@@ -233,38 +242,29 @@
                 if (this.drawerMini) {
                     drawerItemsWrapper.html(that.drawerElement);
                 }
-                if (options.mini) {
-                    drawerItemsWrapper.css('transition', 'none');
-                } else {
-                    drawerContainer.css('transition', 'none');
-                }
-                if (options.mode == 'overlay') {
+                drawerWrapper.css('transition', 'none');
+                if (options.mode != PUSH) {
                     this.overlayContainer.show();
                 }
             },
             _update: function (e) {
                 var options = this.options;
                 var mode = options.mode;
-                if (mode == 'overlay') {
-                    this._overlay(e);
-                } else {
+                if (mode == PUSH) {
                     this._push(e);
+                } else {
+                    this._overlay(e);
                 }
             },
             _end: function (e) {
                 var velocity = e.x.velocity;
                 var options = this.options;
-                var drawerContainer = this.drawerContainer;
-                var drawerItemsWrapper = this.drawerItemsWrapper;
-                var elementWidth = drawerItemsWrapper.width();
+                var drawerWrapper = this.drawerWrapper;
+                var elementWidth = drawerWrapper.width();
                 var pastHalf = elementWidth > options.width / 2;
                 var velocityThreshold = 0.8;
                 var shouldShow;
-                if (options.mini) {
-                    drawerItemsWrapper.css('transition', 'all .3s ease-out');
-                } else {
-                    drawerContainer.css('transition', 'all .3s ease-out');
-                }
+                drawerWrapper.css('transition', 'all .3s ease-out');
                 if (this.leftPositioned) {
                     shouldShow = velocity > -velocityThreshold && (velocity > velocityThreshold || pastHalf);
                 } else {
@@ -287,40 +287,30 @@
                 }
             },
             _overlay: function (moveEventArgs) {
-                var drawerContainer = this.drawerContainer;
-                var drawerItemsWrapper = this.drawerItemsWrapper;
-                var elementWidth = drawerItemsWrapper.width();
                 var options = this.options;
                 var minWidth = options.mini && options.mini.width || this.minWidth || 0;
+                var drawerWrapper = this.drawerWrapper;
+                var elementWidth = drawerWrapper.width();
                 var limitedPosition;
                 var updatedPosition;
                 updatedPosition = elementWidth + (this.leftPositioned ? moveEventArgs.x.delta : -moveEventArgs.x.delta);
                 limitedPosition = Math.min(Math.max(updatedPosition, minWidth), options.width);
                 moveEventArgs.event.preventDefault();
                 moveEventArgs.event.stopPropagation();
-                if (options.mini) {
-                    drawerItemsWrapper.width(limitedPosition);
-                } else {
-                    drawerContainer.width(limitedPosition);
-                }
+                drawerWrapper.width(limitedPosition);
             },
             _push: function (moveEventArgs) {
-                var drawerContainer = this.drawerContainer;
-                var drawerItemsWrapper = this.drawerItemsWrapper;
-                var elementWidth = drawerItemsWrapper.width();
                 var options = this.options;
                 var minWidth = options.mini && options.mini.width || this.minWidth || 0;
+                var drawerWrapper = this.drawerWrapper;
+                var elementWidth = drawerWrapper.width();
                 var limitedPosition;
                 var updatedPosition;
                 updatedPosition = elementWidth + (this.leftPositioned ? moveEventArgs.x.delta : -moveEventArgs.x.delta);
                 limitedPosition = Math.min(Math.max(updatedPosition, minWidth), options.width);
                 moveEventArgs.event.preventDefault();
                 moveEventArgs.event.stopPropagation();
-                if (options.mini) {
-                    drawerItemsWrapper.width(limitedPosition);
-                } else {
-                    drawerContainer.width(limitedPosition);
-                }
+                drawerWrapper.width(limitedPosition);
             },
             _selectItem: function (item) {
                 var selectedItemIndex;
@@ -353,7 +343,7 @@
             },
             destroy: function () {
                 var options = this.options;
-                if (options.mode == 'overlay') {
+                if (options.mode != PUSH) {
                     if (this.leftPositioned) {
                         $(document.body).css('padding-left', 0);
                     } else {
@@ -363,7 +353,7 @@
                 Widget.fn.destroy.call(this);
                 this.userEvents.destroy();
                 kendo.destroy(this.element);
-                this.element = this.drawerContainer = this.drawerElement = this.drawerItemsWrapper = this._miniTemplate = null;
+                this.element = this.drawerWrapper = this.drawerElement = this.drawerContainer = this.drawerItemsWrapper = this._miniTemplate = null;
             },
             options: {
                 name: 'Drawer',

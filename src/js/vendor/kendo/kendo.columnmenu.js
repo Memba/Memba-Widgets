@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -161,7 +161,9 @@
                     anchor: that.link,
                     open: proxy(that._open, that),
                     activate: proxy(that._activate, that),
+                    deactivate: proxy(that._deactivate, that),
                     close: function () {
+                        that.menu._closing = true;
                         if (that.options.closeCallback) {
                             that.options.closeCallback(that.element);
                         }
@@ -174,6 +176,9 @@
                         that._updateMenuItems();
                     }
                 }).data(MENU);
+            },
+            _deactivate: function () {
+                this.menu._closing = false;
             },
             _createMobileMenu: function () {
                 var that = this, options = that.options;
@@ -210,7 +215,7 @@
                     that.menu._cancelChanges(true);
                     that.close();
                 });
-                that.view.bind('show', function () {
+                that.view.bind('showStart', function () {
                     var view = that.view || { columns: {} };
                     if (that.options.lockedColumns) {
                         that._updateLockedColumns();

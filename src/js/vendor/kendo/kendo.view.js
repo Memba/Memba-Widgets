@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -65,7 +65,7 @@
                 options = options || {};
                 that.id = kendo.guid();
                 Observable.fn.init.call(that);
-                that._initOptions(options);
+                this.options = $.extend({}, this.options, options);
                 that.content = content;
                 if (that.options.renderOnInit) {
                     Widget.fn.init.call(that, that._createElement(), options);
@@ -126,7 +126,7 @@
                 if (element) {
                     element.css('display', '');
                 }
-                this.trigger(SHOW, { view: this });
+                this.trigger(SHOW_START, { view: this });
             },
             showEnd: function () {
             },

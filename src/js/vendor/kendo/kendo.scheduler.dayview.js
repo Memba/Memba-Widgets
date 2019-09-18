@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.2.619 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -433,7 +433,7 @@
                 var cell = cells[cellIndex];
                 var collection = group.getTimeSlotCollection(timeIndex);
                 var currentDate = this._dates[timeIndex];
-                if (!currentDate) {
+                if (!currentDate || !cell) {
                     return;
                 }
                 var currentTime = Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());

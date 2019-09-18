@@ -52,11 +52,3 @@
 
 // Our dialog styles
 @import "../dialogs/widgets.basedialog.scss";
-
-// Fixes
-.k-slider {
-    .k-draghandle {
-        // @see https://github.com/telerik/kendo-themes/issues/796
-        text-indent: -3333px;
-    }
-}

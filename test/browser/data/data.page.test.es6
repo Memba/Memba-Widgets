@@ -13,7 +13,7 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
+import { assertBaseModel, baseUrl, tryCatch } from '../_misc/test.util.es6';
 import {
     getComponentArray,
     getPage,
@@ -122,20 +122,12 @@ describe('data.page', () => {
                         tryCatch(done)(() => {
                             expect(components.total()).to.equal(data.length);
                             components.data().forEach((component, index) => {
-                                assertBaseModel(
-                                    component,
-                                    Object.assign(
-                                        {},
-                                        component.defaults,
-                                        {
-                                            attributes:
-                                                component.attributes.defaults,
-                                            properties:
-                                                component.properties.defaults
-                                        },
-                                        options.components[index]
-                                    )
-                                );
+                                assertBaseModel(component, {
+                                    ...component.defaults,
+                                    attributes: component.attributes.defaults,
+                                    properties: component.properties.defaults,
+                                    ...options.components[index]
+                                });
                             });
                         })
                     )
@@ -560,6 +552,7 @@ describe('data.page', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 dataSource.read().then(() => {
@@ -573,11 +566,10 @@ describe('data.page', () => {
             });
 
             it('if initialized from a kendo.data.DataSource, an exception should be raised', () => {
-                const fn = function() {
-                    const dataSource = PageDataSource.create(
-                        new DataSource({ data: [] })
-                    );
-                };
+                function fn() {
+                    // const dataSource = PageDataSource.create(
+                    PageDataSource.create(new DataSource({ data: [] }));
+                }
                 expect(fn).to.throw(Error);
             });
 
@@ -592,9 +584,11 @@ describe('data.page', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource1.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource2.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 $.when(dataSource1.read(), dataSource2.read())
@@ -624,9 +618,11 @@ describe('data.page', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource1.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource2.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 $.when(dataSource1.read(), dataSource2.read())
@@ -643,7 +639,7 @@ describe('data.page', () => {
                 const dataSource = new PageDataSource({
                     transport: {
                         read: {
-                            url: dataUrl('pageCollection.json'),
+                            url: baseUrl('/test/data/pageCollection.json'),
                             dataType: 'json'
                         }
                     }
@@ -652,6 +648,7 @@ describe('data.page', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 $.when(
@@ -665,8 +662,8 @@ describe('data.page', () => {
                     const data = response2[0];
                     expect(dataSource.total()).to.equal(data.length);
                     const promises = [];
-                    for (var i = 0; i < dataSource.total(); i++) {
-                        var page = dataSource.at(i);
+                    for (let i = 0; i < dataSource.total(); i++) {
+                        const page = dataSource.at(i);
                         expect(page).to.be.an.instanceof(Page);
                         expect(page.components).to.be.an.instanceof(
                             PageComponentDataSource
@@ -699,6 +696,7 @@ describe('data.page', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 dataSource
@@ -745,6 +743,7 @@ describe('data.page', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 dataSource
@@ -775,6 +774,7 @@ describe('data.page', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 dataSource.read().then(() => {
@@ -813,6 +813,7 @@ describe('data.page', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 dataSource.read().then(() => {
@@ -839,6 +840,7 @@ describe('data.page', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 dataSource.read().then(() => {
@@ -877,6 +879,7 @@ describe('data.page', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(Page);
                 dataSource.read().then(() => {

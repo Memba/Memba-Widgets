@@ -85,18 +85,12 @@ describe('data.pagecomponent', () => {
                     expect(component).to.be.an.instanceof(BaseModel);
                     expect(component).to.be.an.instanceof(Model);
                     // Test default values
-                    assertBaseModel(
-                        component,
-                        Object.assign(
-                            {},
-                            component.defaults,
-                            {
-                                attributes: component.attributes.defaults,
-                                properties: component.properties.defaults
-                            },
-                            options
-                        )
-                    );
+                    assertBaseModel(component, {
+                        ...component.defaults,
+                        attributes: component.attributes.defaults,
+                        properties: component.properties.defaults,
+                        ...options
+                    });
                 }
                 getComponentArray()
                     .map(item => ({ tool: item.tool }))
@@ -568,6 +562,7 @@ describe('data.pagecomponent', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(PageComponent);
                 dataSource.read().then(() => {
@@ -593,6 +588,7 @@ describe('data.pagecomponent', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(PageComponent);
                 dataSource.read().then(() => {
@@ -631,6 +627,7 @@ describe('data.pagecomponent', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(PageComponent);
                 dataSource.read().then(() => {
@@ -655,6 +652,7 @@ describe('data.pagecomponent', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(PageComponent);
                 dataSource.read().then(() => {
@@ -695,6 +693,7 @@ describe('data.pagecomponent', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new pageComponentCollectionDataSource.options.schema.model()
                 ).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(() => {
@@ -732,6 +731,7 @@ describe('data.pagecomponent', () => {
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');
                 expect(
+                    // eslint-disable-next-line new-cap
                     new dataSource.options.schema.model()
                 ).to.be.an.instanceof(PageComponent);
                 dataSource.read().then(() => {
@@ -769,12 +769,11 @@ describe('data.pagecomponent', () => {
 
     xdescribe('PageComponentDataSource.create', () => {
         it('if initialized from a kendo.data.DataSource that is not a kendo.PageComponentDataSource, it should throw', () => {
-            const testFn = function() {
-                const dataSource = PageComponentDataSource.create(
-                    new kendo.data.DataSource({ data: [] })
-                );
-            };
-            expect(testFn).to.throw(Error);
+            function fn() {
+                // const dataSource = PageComponentDataSource.create(
+                PageComponentDataSource.create(new DataSource({ data: [] }));
+            }
+            expect(fn).to.throw(Error);
         });
 
         xit('if initialized from a PageComponentDataSource, the number of components should match', done => {
@@ -787,9 +786,11 @@ describe('data.pagecomponent', () => {
             expect(dataSource2)
                 .to.have.nested.property('options.schema.model')
                 .that.is.a('function');
+            // eslint-disable-next-line new-cap
             expect(new dataSource1.options.schema.model()).to.be.an.instanceof(
                 PageComponent
             );
+            // eslint-disable-next-line new-cap
             expect(new dataSource2.options.schema.model()).to.be.an.instanceof(
                 PageComponent
             );
@@ -816,9 +817,11 @@ describe('data.pagecomponent', () => {
             expect(dataSource2)
                 .to.have.nested.property('options.schema.model')
                 .that.is.a('function');
+            // eslint-disable-next-line new-cap
             expect(new dataSource1.options.schema.model()).to.be.an.instanceof(
                 PageComponent
             );
+            // eslint-disable-next-line new-cap
             expect(new dataSource2.options.schema.model()).to.be.an.instanceof(
                 PageComponent
             );

@@ -158,7 +158,9 @@ describe('data.asset', () => {
         });
 
         it('It should compute url$', () => {
-            expect(asset.url$()).to.equal(Asset.scheme2http(options.url, ASSETS.SCHEMES));
+            expect(asset.url$()).to.equal(
+                Asset.scheme2http(options.url, ASSETS.SCHEMES)
+            );
         });
     });
 

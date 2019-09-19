@@ -41,25 +41,21 @@ if (
     // return; // Cannot have a return statement here (check in IE)
 } else {
     describe('window.tts', () => {
-        if (!window.__karma__) {
-            describe('Legacy export', () => {
-                it('Check window.app.tts.*', () => {
-                    const tts = window.app && window.app.tts;
-                    expect(tts).not.to.be.undefined;
-                    expect(tts.cancelSpeak).to.equal(cancelSpeak);
-                    expect(tts._clearMarkdown).to.equal(clearMarkdown);
-                    expect(tts.doSpeak).to.equal(doSpeak);
-                    expect(tts._getVoice).to.equal(getVoice);
-                    expect(tts._speechSynthesisPromise).to.equal(
-                        speechSynthesisPromise
-                    );
-                    expect(tts._useCordovaPlugIn).to.equal(useCordovaPlugIn);
-                    expect(tts._useSpeechSynthesis).to.equal(
-                        useWebSpeechSynthesis
-                    );
-                });
+        (window.__karma__ ? xdescribe : describe)('Legacy export', () => {
+            it('Check window.app.tts.*', () => {
+                const tts = window.app && window.app.tts;
+                expect(tts).not.to.be.undefined;
+                expect(tts.cancelSpeak).to.equal(cancelSpeak);
+                expect(tts._clearMarkdown).to.equal(clearMarkdown);
+                expect(tts.doSpeak).to.equal(doSpeak);
+                expect(tts._getVoice).to.equal(getVoice);
+                expect(tts._speechSynthesisPromise).to.equal(
+                    speechSynthesisPromise
+                );
+                expect(tts._useCordovaPlugIn).to.equal(useCordovaPlugIn);
+                expect(tts._useSpeechSynthesis).to.equal(useWebSpeechSynthesis);
             });
-        }
+        });
 
         describe('useCordovaPlugIn', () => {
             it('useCordovaPlugIn should be false', () => {

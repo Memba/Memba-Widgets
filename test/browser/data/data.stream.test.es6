@@ -26,7 +26,7 @@ import Stream from '../../../src/js/data/data.stream.es6';
 import tools from '../../../src/js/tools/tools.es6';
 
 const { describe, it, xit } = window;
-const { observable } = window.kendo;
+const { observable, stringify } = window.kendo;
 const { expect } = chai;
 chai.use(sinonChai);
 
@@ -252,9 +252,7 @@ describe('data.stream', () => {
                                     const name = component.get(
                                         'properties.name'
                                     );
-                                    if (
-                                        TOOLS.RX_TEST_FIELD_NAME.test(name)
-                                    ) {
+                                    if (TOOLS.RX_TEST_FIELD_NAME.test(name)) {
                                         expect(
                                             TestModel.fields
                                         ).to.have.property(name);
@@ -424,7 +422,7 @@ describe('data.stream', () => {
                 }
             ]
         };
-        let viewModel;
+        // let viewModel;
 
         before(() => {
             const SuperStream = Stream.define({
@@ -447,22 +445,24 @@ describe('data.stream', () => {
                 },
                 load() {
                     const that = this;
-                    const stream =
+                    const json =
                         JSON.parse(localStorage.getItem(storageKey)) || {};
-                    that.accept(stream);
+                    that.accept(json);
                     return that._fetchAll();
                 },
                 save() {
                     const that = this;
                     const data = that.toJSON(true);
                     $.each(data.pages, (pageIdx, page) => {
+                        // eslint-disable-next-line no-param-reassign
                         page.id = page.id || new ObjectId().toString();
                         $.each(page.components, (componentIdx, component) => {
+                            // eslint-disable-next-line no-param-reassign
                             component.id =
                                 component.id || new ObjectId().toString();
                         });
                     });
-                    localStorage.setItem(storageKey, kendo.stringify(data));
+                    localStorage.setItem(storageKey, stringify(data));
                     that.accept(data);
                     return that._fetchAll();
                 }
@@ -890,6 +890,7 @@ describe('data.stream', () => {
             let stream;
             let pageSpies;
             let componentSpies;
+            /*
             const pageData = [{ id: new ObjectId().toString() }];
             const componentData = [
                 {
@@ -897,6 +898,7 @@ describe('data.stream', () => {
                     tool: 'label'
                 }
             ];
+             */
             before(() => {
                 const SuperStream = Stream.define({
                     model: {
@@ -914,6 +916,7 @@ describe('data.stream', () => {
                                         $.each(
                                             options.data.models,
                                             (index, model) => {
+                                                // eslint-disable-next-line no-param-reassign
                                                 model.id = new ObjectId().toString(); // id set on server
                                             }
                                         );
@@ -952,6 +955,7 @@ describe('data.stream', () => {
                                                     $.each(
                                                         options.data.models,
                                                         (index, model) => {
+                                                            // eslint-disable-next-line no-param-reassign
                                                             model.id = new ObjectId().toString(); // id set on server
                                                         }
                                                     );
@@ -1128,9 +1132,9 @@ describe('data.stream', () => {
 
         xdescribe('Same with batch: true and submit method', () => {
             let stream;
-            let pages;
-            let components;
-            xit('Mixing operations and saving stream', done => {
+            // let pages;
+            // let components;
+            xit('Mixing operations and saving stream', () => {
                 // window.console.log('--------------');
                 expect(stream.pages.total()).to.equal(3);
                 expect(stream.pages.at(0).components.total()).to.equal(1);

@@ -291,6 +291,7 @@ describe('data.basetest', () => {
                     .then(
                         tryCatch(done)(TestModel => {
                             const test = new TestModel();
+                            expect(test).to.be.an.instanceof(TestModel);
                         })
                     )
                     .catch(done);
@@ -303,6 +304,7 @@ describe('data.basetest', () => {
                     .then(
                         tryCatch(done)(TestModel => {
                             const test = new TestModel();
+                            expect(test).to.be.an.instanceof(TestModel);
                         })
                     )
                     .catch(done);

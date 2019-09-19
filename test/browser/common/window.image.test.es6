@@ -12,7 +12,7 @@ import 'jquery.simulate';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import JSC from 'jscheck';
-import { base, tryCatch } from '../_misc/test.util.es6';
+import { baseUrl, tryCatch } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import {
     dataUri2Blob,
@@ -32,11 +32,11 @@ const FIXTURES = 'fixtures';
 // --------------
 // urls
 // --------------
-const JPG_URL = `${base}/test/data/images/miscellaneous/Elvis.jpg`;
-const PNG_URL = `${base}/test/data/images/miscellaneous/rainbow.png`;
-const SVG_URL = `${base}/test/data/images/miscellaneous/logo.svg`;
+const JPG_URL = baseUrl('/test/data/images/miscellaneous/Elvis.jpg');
+const PNG_URL = baseUrl('/test/data/images/miscellaneous/rainbow.png');
+const SVG_URL = baseUrl('/test/data/images/miscellaneous/logo.svg');
 const UNRESOLVED_URL = [
-    `${base}/test/data/z.bin`, // 404
+    baseUrl('/test/data/z.bin'), // 404
     'https://xxx.yz.com/favicon.jpg' // unresolved dns
 ];
 

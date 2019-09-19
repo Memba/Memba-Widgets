@@ -26,7 +26,9 @@ module.exports = grunt => {
                 // 'test/**/*.es6'
                 'test/browser/_misc/*.es6',
                 'test/browser/app/*.es6',
-                'test/browser/common/*.es6'
+                'test/browser/common/*.es6',
+                'test/browser/cultures/*.es6',
+                'test/browser/data/*.es6'
             ],
             options: {
                 config: '.eslintrc'

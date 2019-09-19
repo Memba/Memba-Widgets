@@ -99,6 +99,7 @@ describe('data.util', () => {
         });
 
         xit('It should extend a complex query with a partition', () => {
+            /*
             const q = {
                 page: 1,
                 pagseSize: 5,
@@ -109,6 +110,7 @@ describe('data.util', () => {
                 },
                 sort: {}
             };
+             */
             expect(true).to.be.false;
         });
     });

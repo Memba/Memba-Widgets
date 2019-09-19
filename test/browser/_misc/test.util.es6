@@ -21,7 +21,7 @@ const { expect } = chai;
  * @type {string}
  */
 /* eslint-disable prettier/prettier */
-export const base = __karma__
+const base = __karma__
     ? 'base'
     : `${location.protocol}//${location.host}${
         /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
@@ -29,11 +29,21 @@ export const base = __karma__
 /* eslint-enable prettier/prettier */
 
 /**
+ * Return base url
+ * @param path
+ */
+function baseUrl(path) {
+    // Remove / at beginning of path
+    const p = (path || '').replace(/^\/(\S+)/, '$1');
+    return `${base}/${p}`;
+}
+
+/**
  * Try/catch wrapper for mocha tests
  * @param done
  * @returns {function(*): Function}
  */
-export function tryCatch(done) {
+function tryCatch(done) {
     return function f1(test) {
         return function f2(...args) {
             const resolve =
@@ -55,7 +65,7 @@ export function tryCatch(done) {
  * @param actual
  * @param expected
  */
-export function assertBaseModel(actual, expected) {
+function assertBaseModel(actual, expected) {
     expect(actual).to.be.an.instanceof(BaseModel);
     Object.keys(actual.fields).forEach(key => {
         if (
@@ -79,3 +89,13 @@ export function assertBaseModel(actual, expected) {
         }
     });
 }
+
+/**
+ * Exports
+ */
+export {
+    // ---
+    assertBaseModel,
+    baseUrl,
+    tryCatch
+};

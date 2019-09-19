@@ -17,15 +17,15 @@ import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import support from '../../../src/js/common/window.support.es6';
 import WorkerPool from '../../../src/js/common/window.workers.es6';
-import { base } from '../_misc/test.util.es6';
+import { baseUrl } from '../_misc/test.util.es6';
 
 const { before, describe, it, xdescribe } = window;
 const { expect } = chai;
 
 const libraries = [
-    `${base}/src/js/vendor/jashkenas/underscore.js`,
-    `${base}/src/js/vendor/khan/kas.js`,
-    `${base}/src/js/workers/workers.lib.js`
+    baseUrl('/src/js/vendor/jashkenas/underscore.js'),
+    baseUrl('/src/js/vendor/khan/kas.js'),
+    baseUrl('/src/js/workers/workers.lib.js')
 ];
 
 function noop() {}

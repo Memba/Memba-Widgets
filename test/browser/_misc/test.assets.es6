@@ -9,24 +9,18 @@ import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.window';
 import assert from '../../../src/js/common/window.assert.es6';
+import { baseUrl } from './test.util.es6';
 
-const { location } = window;
 const {
     roleSelector,
     ui: { Window }
 } = window.kendo;
-// const ROOT = `${location.protocol}//${location.host}`;
-const ROOT = window.__karma__
-    ? 'base' // Base directory for Karma assets
-    : `${location.protocol}//${location.host}${
-        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '' // eslint-disable-line prettier/prettier
-    }`; // eslint-disable-line prettier/prettier
 const TTL = 100;
 const CDN = 'https://cdn.kidoju.com';
 
 const SCHEMES = {
     cdn: `${CDN}/`,
-    data: `${ROOT}/test/data/images/miscellaneous/`
+    data: baseUrl('/test/data/images/miscellaneous/')
 };
 
 const AUDIO_EXT = ['.mp3', '.ogg'];
@@ -51,7 +45,7 @@ const G_COLLECTION = {
     name: 'G-Collection',
     transport: {
         // read: `${CDN}/images/g_collection/svg/all/index.json`
-        read: `${ROOT}/test/data/images/g_collection/svg/all/index.json`
+        read: baseUrl('/test/data/images/g_collection/svg/all/index.json')
     }
 };
 
@@ -65,19 +59,25 @@ const O_COLLECTION = {
         {
             name: 'Dark Grey',
             transport: {
-                read: `${ROOT}/test/data/images/o_collection/svg/dark_grey/index.json`
+                read: baseUrl(
+                    '/test/data/images/o_collection/svg/dark_grey/index.json'
+                )
             }
         },
         {
             name: 'Office',
             transport: {
-                read: `${ROOT}/test/data/images/o_collection/svg/office/index.json`
+                read: baseUrl(
+                    '/test/data/images/o_collection/svg/office/index.json'
+                )
             }
         },
         {
             name: 'White',
             transport: {
-                read: `${ROOT}/test/data/images/o_collection/svg/white/index.json`
+                read: baseUrl(
+                    '/test/data/images/o_collection/svg/white/index.json'
+                )
             }
         }
     ]
@@ -93,25 +93,33 @@ const V_COLLECTION = {
         {
             name: 'Small',
             transport: {
-                read: `${ROOT}/test/data/images/v_collection/png/32x32/index.json`
+                read: baseUrl(
+                    '/test/data/images/v_collection/png/32x32/index.json'
+                )
             }
         },
         {
             name: 'Medium',
             transport: {
-                read: `${ROOT}/test/data/images/v_collection/png/64x64/index.json`
+                read: baseUrl(
+                    '/test/data/images/v_collection/png/64x64/index.json'
+                )
             }
         },
         {
             name: 'Large',
             transport: {
-                read: `${ROOT}/test/data/images/v_collection/png/128x128/index.json`
+                read: baseUrl(
+                    '/test/data/images/v_collection/png/128x128/index.json'
+                )
             }
         },
         {
             name: 'Huge',
             transport: {
-                read: `${ROOT}/test/data/images/v_collection/png/256x256/index.json`
+                read: baseUrl(
+                    '/test/data/images/v_collection/png/256x256/index.json'
+                )
             }
         }
     ]
@@ -127,13 +135,17 @@ const X_COLLECTION = {
         {
             name: 'Small',
             transport: {
-                read: `${ROOT}/test/data/images/x_collection/png/32x32/index.json`
+                read: baseUrl(
+                    '/test/data/images/x_collection/png/32x32/index.json'
+                )
             }
         },
         {
             name: 'Large',
             transport: {
-                read: `${ROOT}/test/data/images/x_collection/png/128x128/index.json`
+                read: baseUrl(
+                    '/test/data/images/x_collection/png/128x128/index.json'
+                )
             }
         }
     ]
@@ -359,7 +371,6 @@ const COMPLEX_PROJECT = {
 
 const ASSETS = {
     CDN,
-    ROOT,
     SCHEMES,
     AUDIO_EXT,
     IMAGE_EXT,

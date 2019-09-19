@@ -7,7 +7,7 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
+// import $ from 'jquery';
 import 'kendo.binder';
 import chai from 'chai';
 // import JSC from 'jscheck';
@@ -630,16 +630,18 @@ describe('data.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(tryCatch(done)(() => {
-                        let item = dataSource.at(0);
-                        expect(item.author).to.be.an.instanceof(Author);
-                        dataSource.add(jsonClone(data2));
-                        item = dataSource.at(1);
-                        expect(item.author).to.be.an.instanceof(Author);
-                        dataSource.insert(0, jsonClone(data3));
-                        item = dataSource.at(0);
-                        expect(item.author).to.be.an.instanceof(Author);
-                    }))
+                    .then(
+                        tryCatch(done)(() => {
+                            let item = dataSource.at(0);
+                            expect(item.author).to.be.an.instanceof(Author);
+                            dataSource.add(jsonClone(data2));
+                            item = dataSource.at(1);
+                            expect(item.author).to.be.an.instanceof(Author);
+                            dataSource.insert(0, jsonClone(data3));
+                            item = dataSource.at(0);
+                            expect(item.author).to.be.an.instanceof(Author);
+                        })
+                    )
                     .catch(done);
             });
 
@@ -795,15 +797,19 @@ describe('data.base', () => {
                 expect(item.books).to.be.an.instanceof(DataSource);
                 item.books
                     .read()
-                    .then(tryCatch(done)(() => {
-                        expect(item.books.total()).to.equal(data1.books.length);
-                        let count = 0;
-                        item.books.data().forEach(book => {
-                            expect(book).to.be.an.instanceof(Book);
-                            count += 1;
-                        });
-                        expect(count).to.equal(data1.books.length);
-                    }))
+                    .then(
+                        tryCatch(done)(() => {
+                            expect(item.books.total()).to.equal(
+                                data1.books.length
+                            );
+                            let count = 0;
+                            item.books.data().forEach(book => {
+                                expect(book).to.be.an.instanceof(Book);
+                                count += 1;
+                            });
+                            expect(count).to.equal(data1.books.length);
+                        })
+                    )
                     .catch(done);
             });
 
@@ -825,24 +831,34 @@ describe('data.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(tryCatch(done)(() => {
-                        let item;
-                        item = dataSource.at(0);
-                        expect(item).to.be.an.instanceof(Author);
-                        expect(item.books).to.be.an.instanceof(DataSource); // This is unexpected!
-                        // Add
-                        dataSource.add(jsonClone(data2));
-                        item = dataSource.at(1);
-                        expect(item).to.be.an.instanceof(Author);
-                        expect(item.books).not.to.be.an.instanceof(DataSource); // Obviously!
-                        expect(item.books).to.be.an.instanceof(ObservableArray);
-                        // Insert
-                        dataSource.insert(0, jsonClone(data3));
-                        item = dataSource.at(0);
-                        expect(item).to.be.an.instanceof(Author);
-                        expect(item.books).not.to.be.an.instanceof(DataSource); // Obviously!
-                        expect(item.books).to.be.an.instanceof(ObservableArray);
-                    }))
+                    .then(
+                        tryCatch(done)(() => {
+                            let item;
+                            item = dataSource.at(0);
+                            expect(item).to.be.an.instanceof(Author);
+                            expect(item.books).to.be.an.instanceof(DataSource); // This is unexpected!
+                            // Add
+                            dataSource.add(jsonClone(data2));
+                            item = dataSource.at(1);
+                            expect(item).to.be.an.instanceof(Author);
+                            expect(item.books).not.to.be.an.instanceof(
+                                DataSource
+                            ); // Obviously!
+                            expect(item.books).to.be.an.instanceof(
+                                ObservableArray
+                            );
+                            // Insert
+                            dataSource.insert(0, jsonClone(data3));
+                            item = dataSource.at(0);
+                            expect(item).to.be.an.instanceof(Author);
+                            expect(item.books).not.to.be.an.instanceof(
+                                DataSource
+                            ); // Obviously!
+                            expect(item.books).to.be.an.instanceof(
+                                ObservableArray
+                            );
+                        })
+                    )
                     .catch(done);
             });
 
@@ -864,22 +880,24 @@ describe('data.base', () => {
                 });
                 dataSource
                     .read()
-                    .then(tryCatch(done)(() => {
-                        let item;
-                        item = dataSource.at(0);
-                        expect(item).to.be.an.instanceof(Author);
-                        expect(item.books).to.be.an.instanceof(DataSource);
-                        // Add
-                        dataSource.add(jsonClone(data2));
-                        item = dataSource.at(1);
-                        expect(item).to.be.an.instanceof(Author);
-                        expect(item.books).to.be.an.instanceof(DataSource);
-                        // Insert
-                        dataSource.insert(0, jsonClone(data3));
-                        item = dataSource.at(0);
-                        expect(item).to.be.an.instanceof(Author);
-                        expect(item.books).to.be.an.instanceof(DataSource);
-                    }))
+                    .then(
+                        tryCatch(done)(() => {
+                            let item;
+                            item = dataSource.at(0);
+                            expect(item).to.be.an.instanceof(Author);
+                            expect(item.books).to.be.an.instanceof(DataSource);
+                            // Add
+                            dataSource.add(jsonClone(data2));
+                            item = dataSource.at(1);
+                            expect(item).to.be.an.instanceof(Author);
+                            expect(item.books).to.be.an.instanceof(DataSource);
+                            // Insert
+                            dataSource.insert(0, jsonClone(data3));
+                            item = dataSource.at(0);
+                            expect(item).to.be.an.instanceof(Author);
+                            expect(item.books).to.be.an.instanceof(DataSource);
+                        })
+                    )
                     .catch(done);
             });
 
@@ -1008,12 +1026,14 @@ describe('data.base', () => {
                 });
                 dataSource
                     .fetch()
-                    .then(tryCatch(done)(() => {
-                        const results = dataSource.aggregates().age;
-                        expect(results).to.have.property('max', 20);
-                        expect(results).to.have.property('min', 10);
-                        expect(results).to.have.property('sum', 50);
-                    }))
+                    .then(
+                        tryCatch(done)(() => {
+                            const results = dataSource.aggregates().age;
+                            expect(results).to.have.property('max', 20);
+                            expect(results).to.have.property('min', 10);
+                            expect(results).to.have.property('sum', 50);
+                        })
+                    )
                     .catch(done);
             });
 
@@ -1033,21 +1053,23 @@ describe('data.base', () => {
                 });
                 dataSource
                     .fetch()
-                    .then(tryCatch(done)(() => {
-                        const view = dataSource.view();
-                        expect(view[0]).to.have.property('field', 'age');
-                        expect(view[0]).to.have.property('value', 10);
-                        expect(view[0])
-                            .to.have.property('items')
-                            .that.is.an('array')
-                            .with.lengthOf(1);
-                        expect(view[1]).to.have.property('field', 'age');
-                        expect(view[1]).to.have.property('value', 20);
-                        expect(view[1])
-                            .to.have.property('items')
-                            .that.is.an('array')
-                            .with.lengthOf(2);
-                    }))
+                    .then(
+                        tryCatch(done)(() => {
+                            const view = dataSource.view();
+                            expect(view[0]).to.have.property('field', 'age');
+                            expect(view[0]).to.have.property('value', 10);
+                            expect(view[0])
+                                .to.have.property('items')
+                                .that.is.an('array')
+                                .with.lengthOf(1);
+                            expect(view[1]).to.have.property('field', 'age');
+                            expect(view[1]).to.have.property('value', 20);
+                            expect(view[1])
+                                .to.have.property('items')
+                                .that.is.an('array')
+                                .with.lengthOf(2);
+                        })
+                    )
                     .catch(done);
             });
         });
@@ -1082,11 +1104,13 @@ describe('data.base', () => {
                 name: 'Jim Smith',
                 age: 20
             };
+            /*
             const data3 = {
                 id: new ObjectId().toString(),
                 name: 'Jim Smith',
                 age: 20
             };
+            */
 
             xit('kendo.data.Model does not raise a change event on accept (ObservableObject)', () => {
                 const DataModel = Model.define(definition);
@@ -1168,6 +1192,7 @@ describe('data.base', () => {
                 name: 'Joe Bloggs',
                 age: 10
             };
+            /*
             const data2 = {
                 id: new ObjectId().toString(),
                 name: 'Jim Smith',
@@ -1178,6 +1203,7 @@ describe('data.base', () => {
                 name: 'Mary Jones',
                 age: 20
             };
+            */
 
             const DataModel = BaseModel.define(definition);
             const error404 = new Error('Not found');

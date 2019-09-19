@@ -37,7 +37,7 @@ const { expect } = chai;
 
 const key = JSC.string(JSC.integer(1, 15), JSC.character('a', 'z'))();
 const params = JSC.object()();
-const editor = function() {};
+const editor = function editor() {};
 const library = [
     {
         key,

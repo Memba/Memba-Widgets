@@ -15,9 +15,9 @@ import $ from 'jquery';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import JSC from 'jscheck';
-import sinon from 'sinon';
+// import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import CONSTANTS from '../../../src/js/common/window.constants.es6';
+// import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { makeInput } from '../../../src/js/tools/util.validators.es6';
 
 const { describe, it } = window;
@@ -39,6 +39,4 @@ describe('util.validators', () => {
             expect(input).to.have.value(value);
         });
     });
-
-
 });

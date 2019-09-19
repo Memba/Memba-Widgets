@@ -22,7 +22,9 @@ describe('adapters.disabled', () => {
             expect(adapter).to.have.property('attributes').that.is.undefined;
             expect(adapter).to.have.property('defaultValue', false);
             expect(adapter).to.have.property('editable').that.is.undefined;
-            expect(adapter).to.have.property('editor').that.is.a('function');
+            expect(adapter)
+                .to.have.property('editor')
+                .that.is.a('function');
             expect(adapter).to.have.property('field').that.is.undefined;
             expect(adapter).to.have.property('format').that.is.undefined;
             expect(adapter).to.have.property('from').that.is.undefined;

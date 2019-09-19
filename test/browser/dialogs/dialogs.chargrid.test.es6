@@ -47,10 +47,7 @@ describe('dialogs.chargrid', () => {
                 .then(
                     tryCatch(done)(resp => {
                         expect(resp.action).to.equal('ok');
-                        expect(resp.data).to.have.property(
-                            'value',
-                            []
-                        );
+                        expect(resp.data).to.have.property('value', []);
                     })
                 )
                 .catch(done);

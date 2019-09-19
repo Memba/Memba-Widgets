@@ -13,12 +13,12 @@ import 'jquery.simulate';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import JSC from 'jscheck';
-import CONSTANTS from '../../../src/js/common/window.constants.es6';
+// import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import openSpreadsheet from '../../../src/js/dialogs/dialogs.spreadsheet.es6';
 import { tryCatch } from '../_misc/test.util.es6';
 
 const { afterEach, describe, it } = window;
-const { destroy, format } = window.kendo;
+const { destroy } = window.kendo;
 const { expect } = chai;
 
 // const FIXTURES = 'fixtures';

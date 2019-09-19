@@ -8,7 +8,7 @@
 /* eslint-disable no-unused-expressions */
 
 import chai from 'chai';
-import CONSTANTS from '../../../src/js/common/window.constants.es6';
+// import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { randomVal } from '../../../src/js/common/window.util.es6';
 import MultiQuizAdapter from '../../../src/js/tools/adapters.multiquiz.es6';
 

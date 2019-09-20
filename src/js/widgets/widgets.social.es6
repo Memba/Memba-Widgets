@@ -47,10 +47,10 @@ const IMAGES = {
 };
 
 /*
-* Load Google Classroom scripts
-* @see https://developers.google.com/classroom/guides/sharebutton
-*/
-(function() {
+ * Load Google Classroom scripts
+ * @see https://developers.google.com/classroom/guides/sharebutton
+ */
+(function init() {
     const GC_ID = '___gcfg';
     const head = document.getElementsByTagName('head')[0];
     const scripts = head.getElementsByTagName('script');
@@ -502,8 +502,8 @@ const Social = Widget.extend({
     destroy() {
         this.element.off(NS);
         Widget.fn.destroy.call(this);
-        destroy(this.element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
+        destroy(this.element);
     }
 });
 

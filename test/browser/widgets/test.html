@@ -262,7 +262,8 @@
                         document.getElementById('menu').style.display = 'none';
                         // now use SystemJS to load all test files
                         SystemJS.import('./' + test + '.test.es6').then(function() {
-                            mocha.checkLeaks().globals([]);
+                            // Note: 'gapi', '___jsl', '___gu' are for widgets.social
+                            mocha.checkLeaks().globals(['gapi', '___jsl', '___gu']);
                             mocha.run();
                         });
                     }

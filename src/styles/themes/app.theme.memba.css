@@ -36421,6 +36421,11 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   color: #edc87e;
 }
 
+.kj-social {
+  display: flex;
+  align-items: center;
+}
+
 .k-popup .k-button .k-image {
   height: 1.2em;
   width: 1.2em;

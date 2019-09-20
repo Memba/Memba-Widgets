@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Randomize values with JSC
+
 /* eslint-disable no-unused-expressions */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
@@ -12,7 +14,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import sinon from 'sinon';
+// import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.social.es6';
@@ -21,12 +23,12 @@ const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
 const {
     attr,
-    bind,
-    data: { DataSource, ObservableArray },
+    // bind,
+    // data: { DataSource, ObservableArray },
     destroy,
     format,
     init,
-    observable,
+    // observable,
     ui: { Social }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -76,7 +78,7 @@ describe('widgets.social', () => {
             const widget = element
                 .kendoSocial({
                     description: DESCRIPTION,
-                    disabled: false,
+                    enabled: true,
                     facebookAppId: FACEBOOK_APPID,
                     image: IMAGE,
                     language: LANGUAGE,
@@ -100,7 +102,7 @@ describe('widgets.social', () => {
                 .with.property('length', LENGTH - 1);
             const options = widget.options;
             expect(options.description).to.equal(DESCRIPTION);
-            expect(options.disabled).to.be.false;
+            expect(options.enabled).to.be.true;
             expect(options.facebookAppId).to.equal(FACEBOOK_APPID);
             expect(options.image).to.equal(IMAGE);
             expect(options.language).to.equal(LANGUAGE);
@@ -128,7 +130,7 @@ describe('widgets.social', () => {
                 .with.property('length', LENGTH - 1);
             const options = widget.options;
             expect(options.description).to.be.undefined;
-            expect(options.disabled).to.be.false;
+            expect(options.enabled).to.be.true;
             expect(options.facebookAppId).to.be.undefined;
             expect(options.image).to.be.undefined;
             expect(options.language).to.equal('en');
@@ -173,7 +175,7 @@ describe('widgets.social', () => {
                 .with.property('length', LENGTH - 1);
             const options = widget.options;
             expect(options.description).to.equal(DESCRIPTION);
-            expect(options.disabled).to.be.false;
+            expect(options.enabled).to.be.true;
             expect(options.facebookAppId).to.equal(FACEBOOK_APPID);
             expect(options.image).to.equal(IMAGE);
             expect(options.language).to.equal(LANGUAGE);
@@ -223,12 +225,12 @@ describe('widgets.social', () => {
         let element;
         let widget;
 
-        function test(command) {
+        function test(action) {
             expect(widget).to.be.an.instanceof(Social);
             const wrapper = widget.wrapper;
             expect(wrapper).to.be.an.instanceof($);
             const button = widget.wrapper.find(
-                `a[role="button"][data-command="${command}"]`
+                `a[role="button"][${attr(CONSTANTS.ACTION)}="${action}"]`
             );
             expect(button)
                 .to.be.an.instanceof($)
@@ -241,7 +243,7 @@ describe('widgets.social', () => {
             expect(widget._window).not.to.be.null;
             expect(widget._window).not.to.be.undefined;
             expect(widget._window.close).to.be.a('function');
-            const rx = new RegExp(`^https://(www.|plus.|)${command}.com/`);
+            const rx = new RegExp(`^https://(www.|plus.|)${action}.com/`);
             expect(widget._url).to.match(rx);
             // TODO: there is more we could to to test the url
         }

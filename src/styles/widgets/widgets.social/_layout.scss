@@ -1,0 +1,6 @@
+@include exports( "widgets.social/layout" ) {
+    .kj-social {
+        display: flex;
+        align-items: center;
+    }
+}

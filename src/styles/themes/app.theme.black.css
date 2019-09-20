@@ -36137,7 +36137,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 }
 
 .kj-navigation-item {
-  background-color: #2b2b2b;
+  background-color: #444;
 }
 .kj-navigation-item.k-state-selected {
   background-color: #0275d8;

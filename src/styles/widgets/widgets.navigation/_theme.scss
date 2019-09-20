@@ -1,9 +1,9 @@
 @include exports( "widgets.navigation/theme" ) {
     .kj-navigation-item {
-        background-color: $header-bg;
+        background-color: $button-bg;
 
         &.k-state-selected {
-            background-color: $header-selected-bg;
+            background-color: $selected-bg; // $primary-button-bg
         }
     }
 }

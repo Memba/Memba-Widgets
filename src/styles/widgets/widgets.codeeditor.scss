@@ -2,6 +2,9 @@
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
 
 // Dependencies
+@import "../vendor/codemirror/lib/codemirror.css";
+@import "../dependencies/_codemirror.scss";
+@import "../vendor/codemirror/addon/lint/lint.css";
 
 // Component
 @import "widgets.codeeditor/layout";

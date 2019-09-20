@@ -16,6 +16,10 @@
  * Sources at https://github.com/Memba
  */
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap");
+@import "../vendor/codemirror/lib/codemirror.css";
+@import "../vendor/codemirror/addon/lint/lint.css";
+@import "../vendor/codemirror/lib/codemirror.css";
+@import "../vendor/codemirror/addon/lint/lint.css";
 .k-button[disabled], .k-button[disabled]:focus, .k-button[disabled].k-state-focused, [disabled] .k-button, [disabled] .k-button:focus, [disabled] .k-button.k-state-focused, .k-button.k-state-disabled, .k-button.k-state-disabled:focus, .k-button.k-state-disabled.k-state-focused {
   outline: none;
   cursor: default;
@@ -31380,10 +31384,240 @@ body > .k-list-item > .kj-buttons .k-button,
   display: none;
 }
 
-/*
-<link href="../../../src/styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
-<link href="../../../src/styles/vendor/codemirror/addon/lint/lint.css" rel="stylesheet">
-*/
+.CodeMirror,
+.CodeMirror-scrollbar-filler,
+.CodeMirror-gutter-filler {
+  background-color: #fff;
+  color: #292b2c;
+}
+
+.CodeMirror-gutters {
+  border-right: 1px solid #dee2e6;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.CodeMirror-linenumber {
+  color: #292b2c;
+  outline: none;
+  cursor: default;
+  opacity: 0.65;
+  filter: grayscale(0.1);
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.CodeMirror-guttermarker {
+  color: black;
+}
+
+.CodeMirror-guttermarker-subtle {
+  color: #292b2c;
+  outline: none;
+  cursor: default;
+  opacity: 0.65;
+  filter: grayscale(0.1);
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.CodeMirror-cursor {
+  border-left: 1px solid #292b2c;
+}
+
+/* Shown when moving in bi-directional text */
+.CodeMirror div.CodeMirror-secondarycursor {
+  border-left: 1px solid #f00;
+}
+
+.cm-fat-cursor .CodeMirror-cursor {
+  background: #7e7;
+}
+
+.cm-animate-fat-cursor {
+  background-color: #7e7;
+}
+
+/* DEFAULT THEME */
+/* Note: everything I have not been able to play in CodeMirror markdown and JavaScript modes is $series-f */
+.cm-s-default .cm-header {
+  color: #ffffff;
+}
+
+.cm-s-default .cm-quote {
+  color: #0275d8;
+  font-style: italic;
+}
+
+.cm-negative {
+  color: #dc3545;
+}
+
+.cm-positive {
+  color: #28a745;
+}
+
+.cm-link {
+  text-decoration: underline;
+}
+
+.cm-strikethrough {
+  text-decoration: line-through;
+}
+
+.cm-s-default .cm-keyword {
+  color: #5cb85c;
+}
+
+.cm-s-default .cm-atom {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-number {
+  color: #ffffff;
+}
+
+.cm-s-default .cm-def {
+  color: #17a2b8;
+}
+
+.cm-s-default .cm-variable,
+.cm-s-default .cm-punctuation,
+.cm-s-default .cm-property,
+.cm-s-default .cm-operator {
+  /* default text color */
+}
+
+.cm-s-default .cm-variable-2 {
+  color: #ffffff;
+}
+
+.cm-s-default .cm-variable-3,
+.cm-s-default .cm-type {
+  color: #f0ad4e;
+}
+
+.cm-s-default .cm-comment {
+  color: #292b2c;
+  outline: none;
+  cursor: default;
+  opacity: 0.65;
+  filter: grayscale(0.1);
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.cm-s-default .cm-string {
+  color: #ffffff;
+}
+
+.cm-s-default .cm-string-2 {
+  color: #e67d4a;
+}
+
+.cm-s-default .cm-meta {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-qualifier {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-builtin {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-bracket {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-tag {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-attribute {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-hr {
+  color: #292b2c;
+  font-weight: bold;
+  outline: none;
+  cursor: default;
+  opacity: 0.65;
+  filter: grayscale(0.1);
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.cm-s-default .cm-link {
+  color: #5bc0de;
+}
+
+.cm-s-default .cm-error {
+  color: #dc3545;
+}
+
+.cm-invalidchar {
+  color: #dc3545;
+}
+
+/* Default styles for common addons */
+div.CodeMirror span.CodeMirror-matchingbracket {
+  color: #28a745;
+}
+
+div.CodeMirror span.CodeMirror-nonmatchingbracket {
+  color: #dc3545;
+}
+
+.CodeMirror-matchingtag {
+  background: #28a745;
+}
+
+.CodeMirror-activeline-background {
+  background: #e8f2ff;
+}
+
+.cm-s-default .cm-image {
+  color: #5bc0de;
+  text-decoration: none !important;
+}
+
+.cm-s-default .cm-url {
+  color: #5bc0de;
+  font-style: italic;
+}
+
+/* STOP */
+.CodeMirror-selected {
+  /* This is the default windows selection color */
+  background-color: #0561d1 !important;
+}
+
+.CodeMirror-focused .CodeMirror-selected {
+  /* This is the default windows selection color */
+  background-color: #0561d1 !important;
+}
+
+.CodeMirror-line::selection,
+.CodeMirror-line > span::selection,
+.CodeMirror-line > span > span::selection {
+  /* This is the default windows selection color */
+  background-color: #0561d1 !important;
+}
+
+.CodeMirror-line::-moz-selection,
+.CodeMirror-line > span::-moz-selection,
+.CodeMirror-line > span > span::-moz-selection {
+  /* This is the default windows selection color */
+  background-color: #0561d1 !important;
+}
+
+.cm-searching {
+  background: #ffa;
+  background: rgba(255, 255, 0, 0.4);
+}
+
 .kj-codeeditor .k-header,
 .kj-codeeditor .k-footer {
   padding: 0.25em;
@@ -33064,6 +33298,240 @@ body > .k-list-item > .kj-buttons .k-button,
  * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
+.CodeMirror,
+.CodeMirror-scrollbar-filler,
+.CodeMirror-gutter-filler {
+  background-color: #fff;
+  color: #292b2c;
+}
+
+.CodeMirror-gutters {
+  border-right: 1px solid #dee2e6;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.CodeMirror-linenumber {
+  color: #292b2c;
+  outline: none;
+  cursor: default;
+  opacity: 0.65;
+  filter: grayscale(0.1);
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.CodeMirror-guttermarker {
+  color: black;
+}
+
+.CodeMirror-guttermarker-subtle {
+  color: #292b2c;
+  outline: none;
+  cursor: default;
+  opacity: 0.65;
+  filter: grayscale(0.1);
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.CodeMirror-cursor {
+  border-left: 1px solid #292b2c;
+}
+
+/* Shown when moving in bi-directional text */
+.CodeMirror div.CodeMirror-secondarycursor {
+  border-left: 1px solid #f00;
+}
+
+.cm-fat-cursor .CodeMirror-cursor {
+  background: #7e7;
+}
+
+.cm-animate-fat-cursor {
+  background-color: #7e7;
+}
+
+/* DEFAULT THEME */
+/* Note: everything I have not been able to play in CodeMirror markdown and JavaScript modes is $series-f */
+.cm-s-default .cm-header {
+  color: #ffffff;
+}
+
+.cm-s-default .cm-quote {
+  color: #0275d8;
+  font-style: italic;
+}
+
+.cm-negative {
+  color: #dc3545;
+}
+
+.cm-positive {
+  color: #28a745;
+}
+
+.cm-link {
+  text-decoration: underline;
+}
+
+.cm-strikethrough {
+  text-decoration: line-through;
+}
+
+.cm-s-default .cm-keyword {
+  color: #5cb85c;
+}
+
+.cm-s-default .cm-atom {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-number {
+  color: #ffffff;
+}
+
+.cm-s-default .cm-def {
+  color: #17a2b8;
+}
+
+.cm-s-default .cm-variable,
+.cm-s-default .cm-punctuation,
+.cm-s-default .cm-property,
+.cm-s-default .cm-operator {
+  /* default text color */
+}
+
+.cm-s-default .cm-variable-2 {
+  color: #ffffff;
+}
+
+.cm-s-default .cm-variable-3,
+.cm-s-default .cm-type {
+  color: #f0ad4e;
+}
+
+.cm-s-default .cm-comment {
+  color: #292b2c;
+  outline: none;
+  cursor: default;
+  opacity: 0.65;
+  filter: grayscale(0.1);
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.cm-s-default .cm-string {
+  color: #ffffff;
+}
+
+.cm-s-default .cm-string-2 {
+  color: #e67d4a;
+}
+
+.cm-s-default .cm-meta {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-qualifier {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-builtin {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-bracket {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-tag {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-attribute {
+  color: #d9534f;
+}
+
+.cm-s-default .cm-hr {
+  color: #292b2c;
+  font-weight: bold;
+  outline: none;
+  cursor: default;
+  opacity: 0.65;
+  filter: grayscale(0.1);
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.cm-s-default .cm-link {
+  color: #5bc0de;
+}
+
+.cm-s-default .cm-error {
+  color: #dc3545;
+}
+
+.cm-invalidchar {
+  color: #dc3545;
+}
+
+/* Default styles for common addons */
+div.CodeMirror span.CodeMirror-matchingbracket {
+  color: #28a745;
+}
+
+div.CodeMirror span.CodeMirror-nonmatchingbracket {
+  color: #dc3545;
+}
+
+.CodeMirror-matchingtag {
+  background: #28a745;
+}
+
+.CodeMirror-activeline-background {
+  background: #e8f2ff;
+}
+
+.cm-s-default .cm-image {
+  color: #5bc0de;
+  text-decoration: none !important;
+}
+
+.cm-s-default .cm-url {
+  color: #5bc0de;
+  font-style: italic;
+}
+
+/* STOP */
+.CodeMirror-selected {
+  /* This is the default windows selection color */
+  background-color: #0561d1 !important;
+}
+
+.CodeMirror-focused .CodeMirror-selected {
+  /* This is the default windows selection color */
+  background-color: #0561d1 !important;
+}
+
+.CodeMirror-line::selection,
+.CodeMirror-line > span::selection,
+.CodeMirror-line > span > span::selection {
+  /* This is the default windows selection color */
+  background-color: #0561d1 !important;
+}
+
+.CodeMirror-line::-moz-selection,
+.CodeMirror-line > span::-moz-selection,
+.CodeMirror-line > span > span::-moz-selection {
+  /* This is the default windows selection color */
+  background-color: #0561d1 !important;
+}
+
+.cm-searching {
+  background: #ffa;
+  background: rgba(255, 255, 0, 0.4);
+}
+
 .kj-markeditor-toolbar .k-button-icon[data-tool=headings] {
   width: auto;
 }

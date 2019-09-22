@@ -6,7 +6,7 @@
 // TODO Add a kendo.ui.validator - https://github.com/kidoju/Kidoju-Widgets/issues/158
 // TODO Add testing of user value against solution
 // TODO Max lines/size of code
-// TODO Use solutionadapter to make a value editor
+// TODO Use solutionadapter to make a value editor (add solution editors)
 // TODO Limit size of code
 // TODO Get the component().page() to build all properly for tests or disable tests with all
 

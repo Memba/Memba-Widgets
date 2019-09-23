@@ -26,6 +26,7 @@ const {
     destroy,
     init,
     observable,
+    ui,
     ui: { Latex }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -47,7 +48,10 @@ describe('widgets.latex', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
-            expect($.fn.kendoLatex).to.be.a('function');
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
+            expect($.fn.kendoLatex).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

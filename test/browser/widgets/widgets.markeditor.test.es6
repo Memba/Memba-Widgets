@@ -26,6 +26,7 @@ const {
     destroy,
     init,
     observable,
+    ui,
     ui: { MarkEditor }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -47,7 +48,10 @@ describe('widgets.markeditor', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoMarkEditor).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

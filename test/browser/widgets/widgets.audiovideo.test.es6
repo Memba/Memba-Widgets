@@ -25,6 +25,7 @@ const {
     destroy,
     init,
     support,
+    ui,
     ui: { AudioVideo, Slider }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -62,9 +63,9 @@ describe('widgets.audiovideo', () => {
     describe('Availability', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
-            expect(kendo).not.to.be.undefined;
-            expect(kendo.version).to.be.a('string');
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoAudioVideo).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

@@ -29,6 +29,7 @@ const {
     init,
     observable,
     roleSelector,
+    ui,
     ui: { CodeInput, DropDownList }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -103,7 +104,10 @@ describe('widgets.codeinput', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoCodeInput).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

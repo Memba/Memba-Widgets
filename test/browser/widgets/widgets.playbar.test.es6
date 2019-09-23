@@ -28,6 +28,7 @@ const {
     guid,
     init,
     observable,
+    ui,
     ui: { PlayBar }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -165,7 +166,10 @@ describe('widgets.playbar', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoPlayBar).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

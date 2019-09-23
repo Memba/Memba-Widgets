@@ -29,6 +29,7 @@ const {
     guid,
     init,
     observable,
+    ui,
     ui: { Navigation }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -161,8 +162,11 @@ describe('widgets.navigation', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoStage).to.be.a(CONSTANTS.FUNCTION);
             expect($.fn.kendoNavigation).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

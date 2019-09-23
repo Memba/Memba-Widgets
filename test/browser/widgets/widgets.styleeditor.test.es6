@@ -27,6 +27,7 @@ const {
     destroy,
     init,
     observable,
+    ui,
     ui: { ComboBox, Grid, StyleEditor }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -48,9 +49,12 @@ describe('widgets.styleeditor', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoComboBox).to.be.a(CONSTANTS.FUNCTION);
             expect($.fn.kendoGrid).to.be.a(CONSTANTS.FUNCTION);
             expect($.fn.kendoStyleEditor).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

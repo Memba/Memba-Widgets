@@ -27,6 +27,7 @@ const {
     destroy,
     init,
     observable,
+    ui,
     ui: { Template }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -53,7 +54,10 @@ describe('widgets.template', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoTemplate).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

@@ -27,6 +27,7 @@ const {
     destroy,
     init,
     observable,
+    ui,
     ui: { ImageSet }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -35,10 +36,22 @@ const ROLE = 'imageset';
 const VALUE = JSC.string()();
 const ROOT = 'https://www.example.com/';
 const DATA = [
-    { text: VALUE, url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png` },
-    { text: JSC.string()(), url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png` },
-    { text: JSC.string()(), url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png` },
-    { text: JSC.string()(), url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png` }
+    {
+        text: VALUE,
+        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`
+    },
+    {
+        text: JSC.string()(),
+        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`
+    },
+    {
+        text: JSC.string()(),
+        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`
+    },
+    {
+        text: JSC.string()(),
+        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`
+    }
 ];
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -56,7 +69,10 @@ describe('widgets.imageset', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoImageSet).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
@@ -76,9 +92,7 @@ describe('widgets.imageset', () => {
                 dataSource: DATA,
                 value: VALUE
             };
-            const widget = element
-                .kendoImageSet(options)
-                .data('kendoImageSet');
+            const widget = element.kendoImageSet(options).data('kendoImageSet');
             expect(widget).to.be.an.instanceof(ImageSet);
             // expect(widget.wrapper).to.have.class('k-widget');
             expect(widget.wrapper).to.have.class('kj-imageset');
@@ -120,7 +134,10 @@ describe('widgets.imageset', () => {
             expect(widget).to.be.an.instanceof(ImageSet);
             DATA.forEach(data => {
                 widget.value(data.text);
-                expect(widget.wrapper).to.have.css('background-image', `url("${data.url}")`);
+                expect(widget.wrapper).to.have.css(
+                    'background-image',
+                    `url("${data.url}")`
+                );
                 expect(widget.value()).to.equal(data.text);
             });
         });
@@ -166,7 +183,7 @@ describe('widgets.imageset', () => {
 
         it('TODO', () => {
             DATA.forEach(data => {
-                $(`.kj-${ROLE}`).simulate(CONSTANTS.CLICK)
+                $(`.kj-${ROLE}`).simulate(CONSTANTS.CLICK);
             });
         });
 

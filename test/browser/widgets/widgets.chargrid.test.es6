@@ -26,6 +26,7 @@ const {
     destroy,
     init,
     observable,
+    ui,
     ui: { CharGrid }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -47,7 +48,10 @@ describe('widgets.chargrid', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoCharGrid).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

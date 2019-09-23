@@ -28,6 +28,7 @@ const {
     init,
     observable,
     roleSelector,
+    ui,
     ui: { Connector }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -57,7 +58,10 @@ describe('widgets.connector', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoConnector).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

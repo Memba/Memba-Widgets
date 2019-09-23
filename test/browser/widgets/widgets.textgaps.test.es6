@@ -63,6 +63,8 @@ describe('widgets.textgaps', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoTextGaps).to.be.a(CONSTANTS.FUNCTION);
             expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });

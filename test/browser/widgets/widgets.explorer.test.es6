@@ -28,6 +28,7 @@ const {
     format,
     guid,
     observable,
+    ui,
     ui: { Explorer }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -111,7 +112,10 @@ describe('widgets.explorer', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoExplorer).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

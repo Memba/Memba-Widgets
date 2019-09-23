@@ -27,6 +27,7 @@ const {
     destroy,
     init,
     observable,
+    ui,
     ui: { DropZone }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -48,7 +49,10 @@ describe('widgets.dropzone', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoDropZone).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

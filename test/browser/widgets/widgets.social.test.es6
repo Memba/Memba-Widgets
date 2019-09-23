@@ -30,6 +30,7 @@ const {
     format,
     init,
     // observable,
+    ui,
     ui: { Social }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -71,7 +72,10 @@ describe('widgets.social', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoSocial).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

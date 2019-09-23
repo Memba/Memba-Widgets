@@ -28,6 +28,7 @@ const {
     guid,
     init,
     observable,
+    ui,
     ui: { PropertyGrid }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -89,7 +90,10 @@ describe('widgets.propertygrid', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoPropertyGrid).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

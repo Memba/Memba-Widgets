@@ -27,7 +27,8 @@ const {
     destroy,
     init,
     observable,
-    ui: { PropertyGrid }
+    ui,
+    ui: { Selector }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -48,7 +49,10 @@ describe('widgets.selector', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoSelector).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

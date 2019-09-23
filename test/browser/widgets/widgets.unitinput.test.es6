@@ -32,7 +32,8 @@ const {
     destroy,
     init,
     observable,
-    ui: { roles, UnitInput }
+    ui,
+    ui: { UnitInput }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}>`;
@@ -53,8 +54,10 @@ describe('widgets.unitinput', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoUnitInput).to.be.a(CONSTANTS.FUNCTION);
-            expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

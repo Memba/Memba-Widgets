@@ -27,6 +27,7 @@ const {
     destroy,
     init,
     observable,
+    ui,
     ui: { DropDownList, Quiz }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -77,9 +78,9 @@ describe('widgets.quiz', () => {
     describe('Availability', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
-            expect(kendo).not.to.be.undefined;
-            expect(kendo.version).to.be.a('string');
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoQuiz).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

@@ -59,7 +59,7 @@ function handler(e) {
     });
 }
 
-const userEvents = new UserEvents($('.kj-stage'), {
+const userEvents = new UserEvents(stage, {
     global: false,
     allowSelection: true,
     filter: '.kj-element:has([data-behavior="draggable"])',

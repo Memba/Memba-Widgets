@@ -461,7 +461,7 @@ describe('window.assert', () => {
                 assert.type('object', [], ERR_MSG);
             }
             function fn7() {
-                assert.type('array', undefined, ERR_MSG);
+                assert.type(CONSTANTS.ARRAY, undefined, ERR_MSG);
             }
             expect(fn1).to.throw(Error, ERR_MSG);
             expect(fn2).to.throw(Error, ERR_MSG);
@@ -477,7 +477,7 @@ describe('window.assert', () => {
             expect(assert.type('number', 10, ERR_MSG)).to.be.undefined;
             expect(assert.type('string', 'a', ERR_MSG)).to.be.undefined;
             expect(assert.type('object', {}, ERR_MSG)).to.be.undefined;
-            expect(assert.type('array', [], ERR_MSG)).to.be.undefined;
+            expect(assert.type(CONSTANTS.ARRAY, [], ERR_MSG)).to.be.undefined;
         });
 
         it('typeOrUndef', () => {
@@ -503,7 +503,7 @@ describe('window.assert', () => {
                 assert.typeOrUndef('object', [], ERR_MSG);
             }
             function fn7() {
-                assert.typeOrUndef('array', new Company('World'), ERR_MSG);
+                assert.typeOrUndef(CONSTANTS.ARRAY, new Company('World'), ERR_MSG);
             }
             expect(fn1).to.throw(Error, ERR_MSG);
             expect(fn2).to.throw(Error, ERR_MSG);
@@ -528,8 +528,8 @@ describe('window.assert', () => {
             expect(assert.typeOrUndef('object', {}, ERR_MSG)).to.be.undefined;
             expect(assert.typeOrUndef('object', undefined, ERR_MSG)).to.be
                 .undefined;
-            expect(assert.typeOrUndef('array', [], ERR_MSG)).to.be.undefined;
-            expect(assert.typeOrUndef('array', undefined, ERR_MSG)).to.be
+            expect(assert.typeOrUndef(CONSTANTS.ARRAY, [], ERR_MSG)).to.be.undefined;
+            expect(assert.typeOrUndef(CONSTANTS.ARRAY, undefined, ERR_MSG)).to.be
                 .undefined;
         });
 

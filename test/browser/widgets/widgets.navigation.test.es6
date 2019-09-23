@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.navigation.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -150,8 +151,11 @@ const pageCollectionArray = [
 
 describe('widgets.navigation', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
@@ -205,7 +209,7 @@ describe('widgets.navigation', () => {
                 current: undefined
             });
             const element = $(NAVIGATION2).appendTo(`#${FIXTURES}`);
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             const widget = element.data('kendoNavigation');
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(
@@ -343,7 +347,7 @@ describe('widgets.navigation', () => {
                 }),
                 current: undefined
             });
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             widget = element.data('kendoNavigation');
         });
 

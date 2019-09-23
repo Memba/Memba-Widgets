@@ -11,7 +11,7 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import {
-    compareBasicArrays,
+    // compareBasicArrays,
     getSelection,
     isAnyArray,
     setSelection
@@ -76,10 +76,13 @@ const TextGaps = Widget.extend({
         if ($.type(value) === CONSTANTS.UNDEFINED) {
             ret = this._value;
         } else if ($.type(value) === CONSTANTS.NULL || isAnyArray(value)) {
-            if (!compareBasicArrays(this._value, value || [])) {
-                this._value = value || [];
-                this.refresh();
-            }
+            // if we return this._value and it is modified, the UI would not be refreshed
+            // because this._value and value are the same array and there compareBasicArrays would return true
+            // therefore both should be cloned or we should not compareBasicArrays
+            // if (!compareBasicArrays(this._value, value || [])) {
+            this._value = value || [];
+            this.refresh();
+            // }
         } else {
             throw new TypeError(
                 '`value` is expected to be an array if not null or undefined'

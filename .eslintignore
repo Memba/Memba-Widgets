@@ -7,7 +7,6 @@ src/js/experiments/
 src/js/vendor/
 temp/
 test/browser/experiments/
-test/browser/widgets/
 test/vendor/
 **/*.js
 !*.js

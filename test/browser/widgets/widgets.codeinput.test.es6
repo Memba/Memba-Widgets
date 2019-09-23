@@ -15,8 +15,9 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import { LIB_COMMENT } from '../../../src/js/tools/util.libraries.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 import '../../../src/js/widgets/widgets.codeinput.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -92,8 +93,11 @@ const SOLUTION = '0';
 
 describe('widgets.codeinput', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
@@ -135,7 +139,7 @@ describe('widgets.codeinput', () => {
             const codeInput = element
                 .kendoCodeInput({
                     dataSource: LIBRARY,
-                    value: LIB_COMMENT + NAME,
+                    value: `${TOOLS.LIB_COMMENT}${NAME}`,
                     solution: SOLUTION
                 })
                 .data('kendoCodeInput');
@@ -158,14 +162,16 @@ describe('widgets.codeinput', () => {
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
             expect(codeInput.dataSource.total()).to.equal(LIBRARY.length);
-            expect(codeInput.value()).to.equal(LIB_COMMENT + NAME);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
             expect(codeInput.customInput.val()).to.equal(
                 codeInput.options.custom
             );
         });
 
         it('from markup', () => {
-            const attributes = {};
+            const attributes = {
+
+            };
             attributes[attr('role')] = ROLE;
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -254,7 +260,7 @@ describe('widgets.codeinput', () => {
             codeInput = element
                 .kendoCodeInput({
                     dataSource: LIBRARY,
-                    default: LIB_COMMENT + NAME,
+                    default: TOOLS.LIB_COMMENT + NAME,
                     value: NAME
                 })
                 .data('kendoCodeInput');
@@ -266,9 +272,9 @@ describe('widgets.codeinput', () => {
             }
             expect(codeInput).to.be.an.instanceof(CodeInput);
             expect(fn).to.throw(TypeError);
-            expect(codeInput._isCustom(LIB_COMMENT)).to.be.undefined;
+            expect(codeInput._isCustom(TOOLS.LIB_COMMENT)).to.be.undefined;
             expect(codeInput._isCustom(EQ_NAME)).to.be.undefined;
-            expect(codeInput._isCustom(LIB_COMMENT + EQ_NAME)).to.be.undefined;
+            expect(codeInput._isCustom(TOOLS.LIB_COMMENT + EQ_NAME)).to.be.undefined;
             expect(codeInput._isCustom(FORMULA1)).to.be.undefined;
             expect(codeInput._isCustom(FORMULA2)).to.equal(FORMULA2);
             expect(codeInput._isCustom(FORMULA3)).to.equal(FORMULA3);
@@ -280,22 +286,22 @@ describe('widgets.codeinput', () => {
             }
             expect(codeInput).to.be.an.instanceof(CodeInput);
             expect(fn).to.throw(TypeError);
-            expect(codeInput._parseLibraryValue(LIB_COMMENT).item).to.be
+            expect(codeInput._parseLibraryValue(TOOLS.LIB_COMMENT).item).to.be
                 .undefined;
             expect(codeInput._parseLibraryValue(DUMMY).item).to.be.undefined;
-            expect(codeInput._parseLibraryValue(LIB_COMMENT + DUMMY).item).to.be
+            expect(codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + DUMMY).item).to.be
                 .undefined;
             expect(codeInput._parseLibraryValue(EQ_NAME).item).to.be.undefined;
             expect(codeInput._parseLibraryValue(FORMULA1).item).to.be.undefined;
             expect(codeInput._parseLibraryValue(FORMULA2).item).to.be.undefined;
             expect(codeInput._parseLibraryValue(FORMULA3).item).to.be.undefined;
-            expect(codeInput._parseLibraryValue(LIB_COMMENT + EQ_NAME).item).not
+            expect(codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item).not
                 .to.be.undefined;
             expect(
-                codeInput._parseLibraryValue(LIB_COMMENT + EQ_NAME).item.name
+                codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item.name
             ).to.equal(EQ_NAME);
             expect(
-                codeInput._parseLibraryValue(LIB_COMMENT + EQ_NAME).item.formula
+                codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item.formula
             ).to.equal(EQ_FORMULA);
         });
 
@@ -314,9 +320,9 @@ describe('widgets.codeinput', () => {
                 codeInput.dropDownList.dataSource
             );
             expect(codeInput.dataSource.total()).to.equal(LIBRARY.length);
-            expect(codeInput.value()).to.equal(LIB_COMMENT + NAME);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
             codeInput.setDataSource([LIBRARY[0], LIBRARY[1], LIBRARY[4]]);
-            expect(codeInput.value()).to.equal(LIB_COMMENT + NAME);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
             expect(codeInput)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
@@ -350,23 +356,23 @@ describe('widgets.codeinput', () => {
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(TypeError);
             codeInput.value(undefined);
-            expect(codeInput.value()).to.equal(LIB_COMMENT + NAME);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
             expect(codeInput.dropDownList.text()).to.equal(NAME);
             expect(codeInput.dropDownList.wrapper).to.be.visible;
             expect(codeInput.customInput).not.to.be.visible;
-            codeInput.value(LIB_COMMENT);
-            expect(codeInput.value()).to.equal(LIB_COMMENT + NAME);
+            codeInput.value(TOOLS.LIB_COMMENT);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
             expect(codeInput.dropDownList.text()).to.equal(NAME);
             expect(codeInput.dropDownList.wrapper).to.be.visible;
             expect(codeInput.customInput).not.to.be.visible;
-            codeInput.value(LIB_COMMENT + EQ_NAME);
-            expect(codeInput.value()).to.equal(LIB_COMMENT + EQ_NAME);
+            codeInput.value(TOOLS.LIB_COMMENT + EQ_NAME);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + EQ_NAME);
             expect(codeInput.dropDownList.text()).to.equal(EQ_NAME);
             expect(codeInput.dropDownList.wrapper).to.be.visible;
             expect(codeInput.customInput).not.to.be.visible;
             // If the value is stupid it uses codeInput.options.default
-            codeInput.value(LIB_COMMENT + DUMMY);
-            expect(codeInput.value()).to.equal(LIB_COMMENT + NAME);
+            codeInput.value(TOOLS.LIB_COMMENT + DUMMY);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
             expect(codeInput.dropDownList.text()).to.equal(NAME);
             expect(codeInput.dropDownList.wrapper).to.be.visible;
             expect(codeInput.customInput).not.to.be.visible;
@@ -376,7 +382,7 @@ describe('widgets.codeinput', () => {
             expect(codeInput.customInput).to.be.visible;
             // If the value is stupid it uses codeInput.options.default
             codeInput.value(FORMULA1);
-            expect(codeInput.value()).to.equal(LIB_COMMENT + NAME);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
             expect(codeInput.dropDownList.text()).to.equal(NAME);
             expect(codeInput.dropDownList.wrapper).to.be.visible;
             expect(codeInput.customInput).not.to.be.visible;
@@ -417,7 +423,7 @@ describe('widgets.codeinput', () => {
             element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             codeInput = element.data('kendoCodeInput');
             change = sinon.spy();
             viewModel.bind(CONSTANTS.CHANGE, change);
@@ -426,24 +432,24 @@ describe('widgets.codeinput', () => {
         it('A change of widget value raises a change in the viewModel', () => {
             expect(change).not.to.have.been.called;
             expect(codeInput).to.be.an.instanceof(CodeInput);
-            expect(codeInput.value()).to.equal(LIB_COMMENT + NAME);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
             expect(viewModel.get('code')).to.equal(codeInput.value());
             // Change the widget value
-            codeInput.value(LIB_COMMENT + EQ_NAME);
+            codeInput.value(TOOLS.LIB_COMMENT + EQ_NAME);
             expect(change).to.have.been.calledOnce;
-            expect(codeInput.value()).to.equal(LIB_COMMENT + EQ_NAME);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + EQ_NAME);
             expect(viewModel.get('code')).to.equal(codeInput.value());
         });
 
         it('A change in the viewModel raises a change of widget value', () => {
             expect(change).not.to.have.been.called;
             expect(codeInput).to.be.an.instanceof(CodeInput);
-            expect(codeInput.value()).to.equal(LIB_COMMENT + NAME);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
             expect(viewModel.get('code')).to.equal(codeInput.value());
             // Change in the view Model
-            viewModel.set('code', LIB_COMMENT + EQ_NAME);
+            viewModel.set('code', TOOLS.LIB_COMMENT + EQ_NAME);
             expect(change).to.have.been.calledOnce;
-            expect(codeInput.value()).to.equal(LIB_COMMENT + EQ_NAME);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + EQ_NAME);
             expect(viewModel.get('code')).to.equal(codeInput.value());
         });
 
@@ -463,7 +469,7 @@ describe('widgets.codeinput', () => {
             item.simulate(CONSTANTS.CLICK);
             // a second click closes the list and sets a new value
             expect(change).to.have.been.calledOnce;
-            expect(codeInput.value()).to.equal(LIB_COMMENT + EQ_NAME);
+            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + EQ_NAME);
             expect(viewModel.get('code')).to.equal(codeInput.value());
         });
 
@@ -493,8 +499,8 @@ describe('widgets.codeinput', () => {
             codeInput = element
                 .kendoCodeInput({
                     dataSource: LIBRARY,
-                    value: LIB_COMMENT + NAME,
-                    default: LIB_COMMENT + NAME,
+                    value: TOOLS.LIB_COMMENT + NAME,
+                    default: TOOLS.LIB_COMMENT + NAME,
                     solution: SOLUTION
                 })
                 .data('kendoCodeInput');
@@ -505,12 +511,12 @@ describe('widgets.codeinput', () => {
             codeInput.bind(CONSTANTS.CHANGE, e => {
                 change(e.value);
             });
-            codeInput.value(LIB_COMMENT + EQ_NAME);
-            expect(change).to.have.been.calledWith(LIB_COMMENT + EQ_NAME);
+            codeInput.value(TOOLS.LIB_COMMENT + EQ_NAME);
+            expect(change).to.have.been.calledWith(TOOLS.LIB_COMMENT + EQ_NAME);
             codeInput.value(FORMULA2);
             expect(change).to.have.been.calledWith(FORMULA2);
             codeInput.value(DUMMY);
-            expect(change).to.have.been.calledWith(LIB_COMMENT + NAME);
+            expect(change).to.have.been.calledWith(TOOLS.LIB_COMMENT + NAME);
         });
 
         afterEach(() => {

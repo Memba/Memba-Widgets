@@ -55,7 +55,7 @@ describe('tools.base', () => {
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows();
             expect(rows)
-                .to.be.an('array')
+                .to.be.an(CONSTANTS.ARRAY)
                 .with.lengthOf(5);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
@@ -78,7 +78,7 @@ describe('tools.base', () => {
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows();
             expect(rows)
-                .to.be.an('array')
+                .to.be.an(CONSTANTS.ARRAY)
                 .with.lengthOf(0);
         });
 

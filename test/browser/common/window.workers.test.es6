@@ -52,11 +52,11 @@ describe('window.workers', () => {
             expect(pool).to.have.property('ttl', 500);
             expect(pool)
                 .to.have.property('tasks')
-                .that.is.an('array')
+                .that.is.an(CONSTANTS.ARRAY)
                 .with.property('length', 0);
             expect(pool)
                 .to.have.property('workers')
-                .that.is.an('array')
+                .that.is.an(CONSTANTS.ARRAY)
                 .with.property('length', 2);
         });
 

@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.template.es6';
+import '../../../src/js/widgets/widgets.bitflags.es6';
 import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
@@ -27,21 +27,16 @@ const {
     destroy,
     init,
     observable,
-    ui: { Template }
+    ui: { BitFlags }
 } = window.kendo;
 const FIXTURES = 'fixtures';
-const ELEMENT = `<${CONSTANTS.DIV}/>`;
-const ROLE = 'template';
+const ELEMENT = `<${CONSTANTS.INPUT}>`;
+const ROLE = 'bitflags';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const SCRIPT1 =
-    '<script id="script1" type="text/x-kendo-template"><div style="color: red;">#: data #</div></script>';
-const SCRIPT2 =
-    '<script id="script2" type="text/x-kendo-template"><div style="color: blue;">#: data.name #</div></script>';
-
-describe('widgets.template', () => {
+describe('widgets.bitflags', () => {
     before(() => {
         if (window.__karma__) {
             if ($(`#${FIXTURES}`).length === 0) {
@@ -53,45 +48,41 @@ describe('widgets.template', () => {
 
     describe('Availability', () => {
         it('requirements', () => {
-            expect($.fn.kendoTemplate).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn.kendoBitFlags).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoTemplate().data('kendoTemplate');
-            expect(widget).to.be.an.instanceof(Template);
+            const widget = element.kendoBitFlags().data('kendoBitFlags');
+            expect(widget).to.be.an.instanceof(BitFlags);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-template');
+            expect(element).to.have.class('kj-bitflags');
             expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
         });
 
         it('from code with options', () => {
-            $(SCRIPT1).appendTo(`#${FIXTURES}`);
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
-                template: 'script1',
+                bitflags: 'script1',
                 value: 'Todd'
             };
-            const template = element
-                .kendoTemplate(options)
-                .data('kendoTemplate');
-            expect(template).to.be.an.instanceof(Template);
+            const widget = element.kendoBitFlags(options).data('kendoBitFlags');
+            expect(widget).to.be.an.instanceof(BitFlags);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-template');
-            expect(template)
+            expect(element).to.have.class('kj-bitflags');
+            expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
         });
 
         it('from code with options and dataSource', () => {
-            $(SCRIPT2).appendTo(`#${FIXTURES}`);
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
-                template: 'script2',
+                bitflags: 'script2',
                 value: 2,
                 valueField: 'id',
                 dataSource: [
@@ -100,83 +91,78 @@ describe('widgets.template', () => {
                     { id: 3, name: 'Paris' }
                 ]
             };
-            const template = element
-                .kendoTemplate(options)
-                .data('kendoTemplate');
-            expect(template).to.be.an.instanceof(Template);
+            const widget = element.kendoBitFlags(options).data('kendoBitFlags');
+            expect(widget).to.be.an.instanceof(BitFlags);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-template');
-            expect(template.element).to.be.an.instanceof($);
-            expect(template.wrapper).to.be.an.instanceof($);
-            expect(template.options.template).to.equal(options.template);
-            expect(template.options.value).to.equal(options.value);
-            expect(template.options.valueField).to.equal(options.valueField);
-            expect(template)
+            expect(element).to.have.class('kj-bitflags');
+            expect(widget.element).to.be.an.instanceof($);
+            expect(widget.wrapper).to.be.an.instanceof($);
+            expect(widget.options.bitflags).to.equal(options.bitflags);
+            expect(widget.options.value).to.equal(options.value);
+            expect(widget.options.valueField).to.equal(options.valueField);
+            expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
             expect(element.text()).to.include(
-                template.dataSource.get(options.value).name
+                widget.dataSource.get(options.value).name
             );
         });
 
         it('from markup', () => {
             const attributes = {};
             attributes[attr('role')] = ROLE;
-            const element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const template = element.data('kendoTemplate');
-            expect(template).to.be.an.instanceof(Template);
+            const widget = element.data('kendoBitFlags');
+            expect(widget).to.be.an.instanceof(BitFlags);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-template');
-            expect(template)
+            expect(element).to.have.class('kj-bitflags');
+            expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
         });
 
         it('from markup with attributes', () => {
-            $(SCRIPT1).appendTo(`#${FIXTURES}`);
             const attributes = {};
             attributes[attr('role')] = ROLE;
-            attributes[attr('template')] = 'script1';
-            attributes[attr('value')] = 'Todd';
+            // TODO more attributes
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const template = element.data('kendoTemplate');
-            expect(template).to.be.an.instanceof(Template);
+            const widget = element.data('kendoBitFlags');
+            expect(widget).to.be.an.instanceof(BitFlags);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-template');
-            expect(template.element).to.be.an.instanceof($);
-            expect(template.wrapper).to.be.an.instanceof($);
-            expect(template.options.template).to.be.a('function');
-            expect(template.options.value).to.equal(attributes['data-value']);
-            expect(template)
+            expect(element).to.have.class('kj-bitflags');
+            expect(widget.element).to.be.an.instanceof($);
+            expect(widget.wrapper).to.be.an.instanceof($);
+            expect(widget.options.bitflags).to.be.a('function');
+            expect(widget.options.value).to.equal(attributes['data-value']);
+            expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
             expect(element.text()).to.include(attributes['data-value']);
-        });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
         });
     });
 
     describe('Methods', () => {
         let element;
-        let template;
+        let widget;
         const options = {};
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            template = element.kendoTemplate(options).data('kendoTemplate');
+            widget = element.kendoBitFlags(options).data('kendoBitFlags');
         });
 
-        xit('value', done => {
-            expect(template).to.be.an.instanceof(Template);
-            done();
+        xit('value', () => {
+            expect(widget).to.be.an.instanceof(BitFlags);
+        });
+
+        xit('refresh', () => {
+            expect(widget).to.be.an.instanceof(BitFlags);
         });
 
         xit('setOptions', () => {
@@ -184,21 +170,15 @@ describe('widgets.template', () => {
         });
 
         xit('destroy', () => {
-            expect(template).to.be.an.instanceof(Template);
-            template.destroy();
-            expect(template.element).to.be.empty;
-        });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
+            expect(widget).to.be.an.instanceof(BitFlags);
+            widget.destroy();
+            expect(widget.element).to.be.empty;
         });
     });
 
     describe('MVVM (and UI interactions)', () => {
         let element;
-        let template;
+        let widget;
         const options = {};
         let viewModel;
         let change;
@@ -206,7 +186,7 @@ describe('widgets.template', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            template = element.kendoTemplate(options).data('kendoTemplate');
+            widget = element.kendoBitFlags(options).data('kendoBitFlags');
             viewModel = observable({
                 // TODO
             });
@@ -215,32 +195,26 @@ describe('widgets.template', () => {
         });
 
         xit('TODO', () => {});
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
-        });
     });
 
     describe('Events', () => {
         let element;
-        let template;
+        let widget;
         const options = {};
         let event;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            template = element.kendoTemplate(options).data('kendoTemplate');
+            widget = element.kendoBitFlags(options).data('kendoBitFlags');
             event = sinon.spy();
         });
 
         xit('TODO', () => {});
+    });
 
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
-        });
+    afterEach(() => {
+        const fixtures = $(`#${FIXTURES}`);
+        destroy(fixtures);
+        fixtures.empty();
     });
 });

@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.latex.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
@@ -36,8 +37,11 @@ chai.use(sinonChai);
 
 describe('widgets.latex', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
@@ -54,7 +58,7 @@ describe('widgets.latex', () => {
                 .kendoLatex()
                 .data('kendoLatex');
             expect(widget).to.be.an.instanceof(Latex);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 
@@ -65,7 +69,7 @@ describe('widgets.latex', () => {
                 .kendoLatex()
                 .data('kendoLatex');
             expect(widget).to.be.an.instanceof(Latex);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 
@@ -76,7 +80,7 @@ describe('widgets.latex', () => {
             init(`#${FIXTURES}`);
             const widget = element.data('kendoLatex');
             expect(widget).to.be.an.instanceof(Latex);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 

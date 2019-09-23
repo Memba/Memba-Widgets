@@ -114,7 +114,7 @@ describe('data.basetest', () => {
                                         .get('properties.disabled')
                             );
                             expect(table)
-                                .to.be.an('array')
+                                .to.be.an(CONSTANTS.ARRAY)
                                 .with.lengthOf(keys.length);
                             table.forEach(scoreLine => {
                                 expect(scoreLine).to.have.property('name');

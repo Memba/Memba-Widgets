@@ -17,20 +17,22 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+// import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.unitinput.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
 const {
     attr,
-    bind,
     destroy,
     init,
     observable,
-    ui: { UnitInput }
+    ui: { roles, UnitInput }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}>`;
@@ -41,14 +43,18 @@ chai.use(sinonChai);
 
 describe('widgets.unitinput', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
     describe('Availability', () => {
         it('requirements', () => {
             expect($.fn.kendoUnitInput).to.be.a(CONSTANTS.FUNCTION);
+            expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
@@ -57,7 +63,7 @@ describe('widgets.unitinput', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoUnitInput().data('kendoUnitInput');
             expect(widget).to.be.an.instanceof(UnitInput);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             // expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
         });
@@ -72,25 +78,37 @@ describe('widgets.unitinput', () => {
                 .kendoUnitInput(options)
                 .data('kendoUnitInput');
             expect(widget).to.be.an.instanceof(UnitInput);
-            // expect(element).to.have.class('k-widget');
-            // expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper).not.to.have.class('k-widget');
             expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
         });
 
         it('from markup', () => {
+            const attributes = {};
+            attributes[attr('role')] = ROLE;
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data('kendoUnitInput');
             expect(widget).to.be.an.instanceof(UnitInput);
-            // expect(element).to.have.class('k-widget');
-            // expect(element).to.have.class(`kj-${ROLE}`);
+            expect(widget.wrapper).not.to.have.class('k-widget');
             expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
         });
 
-        xit('from markup with attributes', () => {
-            // TODO
+        it('from markup with attributes', () => {
+            const attributes = {
+                'data-units': ['%', 'px'],
+                'data-non-units': ['auto', 'inherit', 'initial']
+            };
+            attributes[attr('role')] = ROLE;
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data('kendoUnitInput');
+            expect(widget).to.be.an.instanceof(UnitInput);
+            expect(widget.wrapper).not.to.have.class('k-widget');
+            expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
         });
     });
 
@@ -104,7 +122,7 @@ describe('widgets.unitinput', () => {
             widget = element.kendoUnitInput(options).data('kendoUnitInput');
         });
 
-        xit('value', done => {
+        xit('value', () => {
             expect(widget).to.be.an.instanceof(UnitInput);
         });
 
@@ -125,7 +143,6 @@ describe('widgets.unitinput', () => {
         const options = {};
         let viewModel;
         let change;
-        let destroy;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
@@ -134,10 +151,14 @@ describe('widgets.unitinput', () => {
                 // TODO
             });
             change = sinon.spy();
-            destroy = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            expect(element).to.be.an.instanceof($);
+            expect(widget);
+            expect(viewModel);
+            expect(change);
+        });
     });
 
     describe('Events', () => {
@@ -152,7 +173,11 @@ describe('widgets.unitinput', () => {
             event = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            expect(element).to.be.an.instanceof($);
+            expect(widget);
+            expect(event);
+        });
     });
 
     afterEach(() => {

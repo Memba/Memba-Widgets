@@ -12,21 +12,24 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.textgaps.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
 const {
     attr,
     bind,
-    data: { DataSource },
     destroy,
     init,
     observable,
-    ui: { ButtonSet }
+    ui,
+    ui: { TextGaps }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -35,66 +38,213 @@ const ROLE = 'textgaps';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
+function getText(count = 2) {
+    let ret = '';
+    for (let i = 0; i < count; i++) {
+        ret += `${JSC.string()()}[]`;
+    }
+    ret += JSC.string()();
+    return ret;
+}
+
+function getValue(count = 2) {
+    return Array(count).fill('');
+}
+
 describe('widgets.textgaps', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
     describe('Availability', () => {
         it('requirements', () => {
             expect($.fn.kendoTextGaps).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
     describe('Initialization', () => {
         it('from code', () => {
-            expect(true).to.be.false;
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            // const options = {};
+            const widget = element.kendoTextGaps().data('kendoTextGaps');
+            expect(widget).to.be.an.instanceof(TextGaps);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.be.empty;
         });
 
         it('from code with options', () => {
-            expect(true).to.be.false;
+            // expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
+            const count = JSC.integer(1, 5)();
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            const options = {
+                inputStyle: 'background-color: #ff0',
+                text: getText(count),
+                value: getValue(count)
+            };
+            const widget = element.kendoTextGaps(options).data('kendoTextGaps');
+            expect(widget).to.be.an.instanceof(TextGaps);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element.children(`.kj-${ROLE}-input`)).to.have.lengthOf(
+                count
+            );
         });
 
         it('from markup', () => {
-            expect(true).to.be.false;
+            // expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
+            const attributes = {};
+            attributes[attr('role')] = ROLE;
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data('kendoTextGaps');
+            expect(widget).to.be.an.instanceof(TextGaps);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.be.empty;
         });
 
         it('from markup with attributes', () => {
-            expect(true).to.be.false;
+            // expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
+            const count = JSC.integer(1, 5)();
+            const attributes = {
+                'data-input-style': 'background-color: #ff0',
+                'data-text': getText(count),
+                'data-value': JSON.stringify(getValue(count))
+            };
+            attributes[attr('role')] = ROLE;
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data('kendoTextGaps');
+            expect(widget).to.be.an.instanceof(TextGaps);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element.children(`.kj-${ROLE}-input`)).to.have.lengthOf(
+                count
+            );
         });
     });
 
     describe('Methods', () => {
+        let count;
+        let element;
+        let options;
+        let widget;
+
+        beforeEach(() => {
+            count = JSC.integer(1, 5)();
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            options = {
+                inputStyle: 'background-color: #ff0',
+                text: getText(count),
+                value: getValue(count)
+            };
+            widget = element.kendoTextGaps(options).data('kendoTextGaps');
+        });
+
         it('value', () => {
-            expect(true).to.be.false;
+            expect(widget).to.be.an.instanceof(TextGaps);
+            const value = widget.value();
+            expect(value).to.deep.equal(options.value);
+            let text = value[count - 1];
+            expect(
+                widget.element.children(`.kj-${ROLE}-input`).last()
+            ).to.have.text(text);
+            text = JSC.string()();
+            value[count - 1] = text;
+            widget.value(value);
+            expect(
+                widget.element.children(`.kj-${ROLE}-input`).last()
+            ).to.have.text(text);
         });
 
         it('refresh', () => {
-            expect(true).to.be.false;
+            expect(widget).to.be.an.instanceof(TextGaps);
+            widget.refresh();
         });
 
+        // TODO enable
+
         it('destroy', () => {
-            expect(true).to.be.false;
+            expect(widget).to.be.an.instanceof(TextGaps);
+            widget.destroy();
         });
     });
 
     describe('MVVM (with UI interactions)', () => {
-        it('It should...', () => {
-            expect(true).to.be.false;
+        let count;
+        let element;
+        let options;
+        let widget;
+
+        beforeEach(() => {
+            count = JSC.integer(1, 5)();
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            options = {
+                inputStyle: 'background-color: #ff0',
+                text: getText(count),
+                value: getValue(count)
+            };
+            widget = element.kendoTextGaps(options).data('kendoTextGaps');
         });
+
+        it('It should update value when input', () => {
+            expect(widget).to.be.an.instanceof(TextGaps);
+            const value = getValue(count);
+            widget.element
+                .children(`.kj-${ROLE}-input`)
+                .each((index, input) => {
+                    $(input)
+                        .text(value[index])
+                        .trigger('input');
+                });
+            expect(widget.value()).to.deep.equal(value);
+        });
+
+        /*
+        it('It should update value when pasted', () => {
+            // It does not seem possible to simulate a paste event
+            expect(widget).to.be.an.instanceof(TextGaps);
+        });
+         */
     });
 
     describe('Events', () => {
+        let count;
+        let element;
+        let options;
+        let widget;
+
+        beforeEach(() => {
+            count = JSC.integer(1, 5)();
+            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            options = {
+                inputStyle: 'background-color: #ff0',
+                text: getText(count),
+                value: getValue(count)
+            };
+            widget = element.kendoTextGaps(options).data('kendoTextGaps');
+        });
+
         it('change', () => {
-            expect(true).to.be.false;
+            expect(widget).to.be.an.instanceof(TextGaps);
         });
     });
 
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
+        fixtures.find('*').off();
         fixtures.empty();
     });
 });

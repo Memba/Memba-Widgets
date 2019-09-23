@@ -22,11 +22,11 @@ describe('util.assets', () => {
                 const assets = new ToolAssets();
                 expect(assets)
                     .to.have.property('collections')
-                    .that.is.an('array')
+                    .that.is.an(CONSTANTS.ARRAY)
                     .with.lengthOf(0);
                 expect(assets)
                     .to.have.property('extensions')
-                    .that.is.an('array')
+                    .that.is.an(CONSTANTS.ARRAY)
                     .with.lengthOf(0);
                 expect(assets)
                     .to.have.property('schemes')
@@ -39,11 +39,11 @@ describe('util.assets', () => {
                 });
                 expect(assets)
                     .to.have.property('collections')
-                    .that.is.an('array')
+                    .that.is.an(CONSTANTS.ARRAY)
                     .with.lengthOf(0);
                 expect(assets)
                     .to.have.property('extensions')
-                    .that.is.an('array')
+                    .that.is.an(CONSTANTS.ARRAY)
                     .with.lengthOf(0);
                 expect(assets)
                     .to.have.property('schemes')

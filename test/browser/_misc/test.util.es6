@@ -28,6 +28,37 @@ const base = __karma__
     }`;
 /* eslint-enable prettier/prettier */
 
+
+/**
+ * Assert BaseModel
+ * @param actual
+ * @param expected
+ */
+function assertBaseModel(actual, expected) {
+    expect(actual).to.be.an.instanceof(BaseModel);
+    Object.keys(actual.fields).forEach(key => {
+        if (
+            actual[key] === null ||
+            [
+                CONSTANTS.BOOLEAN,
+                CONSTANTS.DATE,
+                CONSTANTS.NUMBER,
+                CONSTANTS.STRING
+            ].indexOf(actual.fields[key].type) > -1
+        ) {
+            expect(actual).to.have.property(key, expected[key]);
+        } else if (actual[key] instanceof BaseModel) {
+            assertBaseModel(actual[key], (expected || {})[key]);
+        } else if (actual[key] instanceof DataSource) {
+            actual[key].data().forEach((item, index) => {
+                assertBaseModel(item, ((expected || {})[key] || [])[index]);
+            });
+        } else {
+            throw new Error(`actual.${key} has an unexpected value.`);
+        }
+    });
+}
+
 /**
  * Return base url
  * @param path
@@ -58,36 +89,6 @@ function tryCatch(done) {
             }
         };
     };
-}
-
-/**
- * Assert BaseModel
- * @param actual
- * @param expected
- */
-function assertBaseModel(actual, expected) {
-    expect(actual).to.be.an.instanceof(BaseModel);
-    Object.keys(actual.fields).forEach(key => {
-        if (
-            actual[key] === null ||
-            [
-                CONSTANTS.BOOLEAN,
-                CONSTANTS.DATE,
-                CONSTANTS.NUMBER,
-                CONSTANTS.STRING
-            ].indexOf(actual.fields[key].type) > -1
-        ) {
-            expect(actual).to.have.property(key, expected[key]);
-        } else if (actual[key] instanceof BaseModel) {
-            assertBaseModel(actual[key], (expected || {})[key]);
-        } else if (actual[key] instanceof DataSource) {
-            actual[key].data().forEach((item, index) => {
-                assertBaseModel(item, ((expected || {})[key] || [])[index]);
-            });
-        } else {
-            throw new Error(`actual.${key} has an unexpected value.`);
-        }
-    });
 }
 
 /**

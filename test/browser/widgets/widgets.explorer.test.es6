@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.explorer.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -100,8 +101,11 @@ const pageComponentCollectionArray = [
 
 describe('widgets.explorer', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
@@ -159,7 +163,7 @@ describe('widgets.explorer', () => {
                 current: undefined
             });
             const element = $(EXPLORER3).appendTo(`#${FIXTURES}`);
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             const widget = element.data('kendoExplorer');
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
@@ -315,7 +319,7 @@ describe('widgets.explorer', () => {
                 }),
                 current: null
             });
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             widget = element.data('kendoExplorer');
         });
 

@@ -123,7 +123,7 @@ const SplitButton = Widget.extend({
      */
     options: {
         name: 'SplitButton',
-        command: '',
+        action: '',
         enabled: true,
         icon: '',
         imageUrl: '',
@@ -143,20 +143,22 @@ const SplitButton = Widget.extend({
      * @private
      */
     _render() {
-        const { element, options } = this;
+        const {
+            element,
+            options: { action, icon, imageUrl, text }
+        } = this;
         assert.ok(
             element.is(CONSTANTS.DIV),
             'Please use a div tag to instantiate a SplitButton widget.'
         );
         this.wrapper = element;
         element.addClass(WIDGET_CLASS).prop('tabIndex', 0);
-        const icon = options.icon
-            ? format(ICON_TMPL, options.icon)
-            : options.imageUrl
-                ? format(IMAGE_TMPL, options.imageUrl)
-                : '';
-        this.mainButton = $(format(BUTTON_TMPL, icon + options.text))
-            .attr(attr('command'), options.command || '')
+        const iconHtml = icon ? format(ICON_TMPL, icon) : CONSTANTS.EMPTY;
+        const imageHtml = imageUrl
+            ? format(IMAGE_TMPL, imageUrl)
+            : CONSTANTS.EMPTY;
+        this.mainButton = $(format(BUTTON_TMPL, (iconHtml || imageHtml) + text))
+            .attr(attr(CONSTANTS.ACTION), action)
             .appendTo(element);
         this.arrowButton = $(ARROW_BUTTON_TMPL).appendTo(element);
         this._createPopup();
@@ -176,17 +178,22 @@ const SplitButton = Widget.extend({
             this.popupElement = actionSheetWrap(this.popupElement);
         }
         */
-        for (let i = 0, { length } = items, item, icon; i < length; i++) {
+        for (
+            let i = 0, { length } = items, item, iconHtml, imageHtml;
+            i < length;
+            i++
+        ) {
             item = items[i];
-            icon = item.icon
+            iconHtml = item.icon
                 ? format(ICON_TMPL, item.icon)
-                : item.imageUrl
-                    ? format(IMAGE_TMPL, item.imageUrl)
-                    : '';
-            $(format(BUTTON_TMPL, icon + item.text))
-                .attr(attr('command'), item.command || '')
+                : CONSTANTS.EMPTY;
+            imageHtml = item.imageUrl
+                ? format(IMAGE_TMPL, item.imageUrl)
+                : CONSTANTS.EMPTY;
+            $(format(BUTTON_TMPL, iconHtml + imageHtml + item.text))
+                .attr(attr(CONSTANTS.ACTION), item.action || '')
                 .prop('tabIndex', 0)
-                .wrap('<li></li>')
+                .wrap('<li/>')
                 .parent()
                 .appendTo(this.popupElement);
         }
@@ -324,7 +331,7 @@ const SplitButton = Widget.extend({
             }
             // Trigger click event
             this.trigger(CONSTANTS.CLICK, {
-                command: $(e.currentTarget).attr(attr('command'))
+                action: $(e.currentTarget).attr(attr(CONSTANTS.ACTION))
             });
         }
     },
@@ -343,6 +350,7 @@ const SplitButton = Widget.extend({
         this.arrowButton = undefined;
         // Destroy widget
         Widget.fn.destroy.call(this);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
     }
 });

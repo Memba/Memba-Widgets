@@ -84,7 +84,7 @@ describe('tools.table', () => {
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
-                .to.be.an('array')
+                .to.be.an(CONSTANTS.ARRAY)
                 .with.lengthOf(7);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
@@ -110,7 +110,7 @@ describe('tools.table', () => {
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
             expect(rows)
-                .to.be.an('array')
+                .to.be.an(CONSTANTS.ARRAY)
                 .with.lengthOf(2);
             expect(rows[0]).to.have.property('field', 'properties.behavior');
             expect(rows[1]).to.have.property('field', 'properties.constant');
@@ -120,15 +120,15 @@ describe('tools.table', () => {
             const assets = tool.getAssets(component);
             expect(assets)
                 .to.have.property('audio')
-                .that.is.an('array')
+                .that.is.an(CONSTANTS.ARRAY)
                 .with.lengthOf(0);
             expect(assets)
                 .to.have.property('image')
-                .that.is.an('array')
+                .that.is.an(CONSTANTS.ARRAY)
                 .with.lengthOf(0);
             expect(assets)
                 .to.have.property('video')
-                .that.is.an('array')
+                .that.is.an(CONSTANTS.ARRAY)
                 .with.lengthOf(0);
         });
 

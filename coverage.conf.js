@@ -102,8 +102,8 @@ module.exports = config => {
                 // pattern: 'test/browser/editors/*.test.es6',
                 // pattern: 'test/browser/experiments/*.test.es6',
                 // pattern: 'test/browser/sockets/*.test.es6',
-                pattern: 'test/browser/tools/*.test.es6',
-                // pattern: 'test/browser/widgets/*.test.es6',
+                // pattern: 'test/browser/tools/*.test.es6',
+                pattern: 'test/browser/widgets/*.test.es6',
                 // pattern: 'test/browser/workers/*.test.es6',
                 served: true,
                 included: true // They need to be included!

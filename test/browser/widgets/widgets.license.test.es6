@@ -12,10 +12,12 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.license.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -35,8 +37,11 @@ chai.use(sinonChai);
 
 describe('widgets.license', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
@@ -48,31 +53,22 @@ describe('widgets.license', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const value = 2;
+            const value = JSC.one_of([0, 1, 13])();
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
             const widget = element
-            .kendoRating({
-                value
-            })
-            .data('kendoRating');
+                .kendoLicense({ value })
+                .data('kendoLicense');
             const {
                 options: { min, max, step },
                 wrapper
             } = widget;
-            expect(min).to.equal(0);
-            expect(max).to.equal(5);
-            expect(step).to.equal(1);
             expect(widget).to.be.an.instanceof(License);
             expect(wrapper).not.to.have.class('k-widget');
             expect(wrapper).to.have.class('kj-rating');
             expect(wrapper.children('input')).to.exist;
-            expect(wrapper.find('span.kj-rating-star'))
-            .to.be.an.instanceof($)
-            .with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-rating-star.k-state-selected'))
-            .to.be.an.instanceof($)
-            .with.property('length', Math.round(value / step));
+            expect(wrapper.find('span.kj-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
+            expect(wrapper.find('span.kj-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
         });
 
         it('from code with options', () => {
@@ -83,13 +79,13 @@ describe('widgets.license', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
             const widget = element
-                .kendoRating({
+                .kendoLicense({
                     value,
                     min,
                     max,
                     step
                 })
-                .data('kendoRating');
+                .data('kendoLicense');
             expect(widget).to.be.an.instanceof(License);
             const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
@@ -116,8 +112,8 @@ describe('widgets.license', () => {
                 .attr(attr('max'), 10)
                 .appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
-            bind(FIXTURES, viewModel);
-            const widget = element.data('kendoRating');
+            bind(`#${FIXTURES}`, viewModel);
+            const widget = element.data('kendoLicense');
             expect(widget).to.be.an.instanceof(License);
             const {
                 options: { min, max, step },
@@ -153,10 +149,10 @@ describe('widgets.license', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
-                .kendoRating({
+                .kendoLicense({
                     value: value1
                 })
-                .data('kendoRating');
+                .data('kendoLicense');
         });
 
         it('value (get)', () => {
@@ -193,9 +189,9 @@ describe('widgets.license', () => {
         });
 
         // it('visible', function () {
-        // expect(widget).to.be.an.instanceof(License);
-        // expect(widget.wrapper).to.be.an.instanceof($).with.property('length', 1);
-        // TODO
+        //     expect(widget).to.be.an.instanceof(License);
+        //     expect(widget.wrapper).to.be.an.instanceof($).with.property('length', 1);
+        //     TODO
         // });
 
         // it('destroy', function () {
@@ -224,8 +220,8 @@ describe('widgets.license', () => {
             viewModel = observable({
                 rating: undefined
             });
-            bind(FIXTURES, viewModel);
-            widget = element.data('kendoRating');
+            bind(`#${FIXTURES}`, viewModel);
+            widget = element.data('kendoLicense');
         });
 
         it('Changing the value in the viewModel changes the number of plain/selected stars', () => {
@@ -300,7 +296,7 @@ describe('widgets.license', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoRating().data('kendoRating');
+            widget = element.kendoLicense().data('kendoLicense');
         });
 
         it('mouseover', () => {
@@ -341,12 +337,12 @@ describe('widgets.license', () => {
         it('change', () => {
             const change = sinon.spy();
             widget = element
-                .kendoRating({
+                .kendoLicense({
                     change(e) {
                         change(e.value);
                     }
                 })
-                .data('kendoRating');
+                .data('kendoLicense');
             expect(widget).to.be.an.instanceof(License);
             const {
                 options: { min, max, step }

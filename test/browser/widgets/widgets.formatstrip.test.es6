@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.formatstrip.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -35,8 +36,11 @@ chai.use(sinonChai);
 
 describe('widgets.formatstrip', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
@@ -116,7 +120,7 @@ describe('widgets.formatstrip', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             const widget = element.data('kendoFormatStrip');
             expect(widget).to.be.an.instanceof(FormatStrip);
             const min = widget.options.min;
@@ -219,7 +223,7 @@ describe('widgets.formatstrip', () => {
             viewModel = observable({
                 current: undefined
             });
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             widget = element.data('kendoFormatStrip');
         });
 

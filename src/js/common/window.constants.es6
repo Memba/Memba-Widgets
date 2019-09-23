@@ -8,6 +8,7 @@
  */
 const CONSTANTS = {
     // Data types
+    ARRAY: 'array',
     BOOLEAN: 'boolean',
     DATE: 'date',
     FUNCTION: 'function',

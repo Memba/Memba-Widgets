@@ -30,7 +30,7 @@ describe('data.util', () => {
         it('It should convert an error into an $.ajax failure', () => {
             const arr = error2xhr(new Error('Oops!'));
             expect(arr)
-                .to.be.an('array')
+                .to.be.an(CONSTANTS.ARRAY)
                 .with.property('length', 3);
             expect(arr[0]).to.have.property('readyState', 4);
             expect(arr[0]).to.have.property('responseJSON');

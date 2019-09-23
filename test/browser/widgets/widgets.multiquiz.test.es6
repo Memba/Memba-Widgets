@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.multiquiz.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -65,8 +66,11 @@ const MULTIQUIZ_DATA = [
 
 describe('widgets.multiquiz', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
@@ -87,8 +91,8 @@ describe('widgets.multiquiz', () => {
             expect(widget.element).to.be.an.instanceof($);
             expect(widget.wrapper).to.be.an.instanceof($);
             expect(widget.multiSelect).to.be.undefined;
-            expect(element.hasClass('k-widget')).to.be.false;
-            expect(element.hasClass(`kj-${ROLE}`)).to.be.true;
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         it('from code with options', () => {
@@ -114,8 +118,8 @@ describe('widgets.multiquiz', () => {
             expect(widget.multiSelect.items())
                 .to.be.an.instanceof(window.HTMLCollection)
                 .with.property('length', options.dataSource.length);
-            expect(element.hasClass('k-widget')).to.be.false;
-            expect(element.hasClass(`kj-${ROLE}`)).to.be.true;
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         it('from markup', () => {
@@ -131,8 +135,8 @@ describe('widgets.multiquiz', () => {
             expect(widget.element).to.be.an.instanceof($);
             expect(widget.wrapper).to.be.an.instanceof($);
             expect(widget.multiSelect).to.be.undefined;
-            expect(element.hasClass('k-widget')).to.be.false;
-            expect(element.hasClass(`kj-${ROLE}`)).to.be.true;
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         it('from markup with attributes', () => {
@@ -172,8 +176,8 @@ describe('widgets.multiquiz', () => {
                     attributes['data-item-style']
                 );
             }
-            expect(element.hasClass('k-widget')).to.be.false;
-            expect(element.hasClass(`kj-${ROLE}`)).to.be.true;
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
     });
 
@@ -262,7 +266,7 @@ describe('widgets.multiquiz', () => {
                 data: MULTIQUIZ_DATA,
                 current: null
             });
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             widget = element.data('kendoMultiQuiz');
             viewModel.bind('change', () => {
                 change();
@@ -349,7 +353,7 @@ describe('widgets.multiquiz', () => {
                 data: MULTIQUIZ_DATA,
                 current: null
             });
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             widget = element.data('kendoMultiQuiz');
             viewModel.bind('change', () => {
                 change();
@@ -432,7 +436,7 @@ describe('widgets.multiquiz', () => {
                 data: MULTIQUIZ_DATA,
                 current: null
             });
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             widget = element.data('kendoMultiQuiz');
             viewModel.bind('change', () => {
                 change();
@@ -519,7 +523,7 @@ describe('widgets.multiquiz', () => {
                 data: MULTIQUIZ_DATA,
                 current: null
             });
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             widget = element.data('kendoMultiQuiz');
             viewModel.bind('change', () => {
                 change();
@@ -606,7 +610,7 @@ describe('widgets.multiquiz', () => {
                 data: MULTIQUIZ_DATA,
                 current: null
             });
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             widget = element.data('kendoMultiQuiz');
             viewModel.bind('change', () => {
                 change();

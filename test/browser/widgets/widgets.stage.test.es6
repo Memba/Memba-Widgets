@@ -15,7 +15,8 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.widget.es6';
+import '../../../src/js/widgets/widgets.stage.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -112,8 +113,11 @@ function findCenter(elem) {
 
 describe('widgets.widget', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
@@ -307,7 +311,7 @@ describe('widgets.widget', () => {
                 current: undefined
             });
             const element = $(STAGE2).appendTo(`#${FIXTURES}`);
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             const widget = element.data('kendoStage');
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
@@ -564,7 +568,7 @@ describe('widgets.widget', () => {
                 }),
                 current: null
             });
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             widget = element.data('kendoStage');
         });
 

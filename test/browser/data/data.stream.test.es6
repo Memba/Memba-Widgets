@@ -203,12 +203,12 @@ describe('data.stream', () => {
                         tryCatch(done)(stream => {
                             // TODO find a way to predict the size ????
                             const assets = stream.assets();
-                            expect(assets.audio).to.be.an('array');
+                            expect(assets.audio).to.be.an(CONSTANTS.ARRAY);
                             expect(assets.image)
-                                .to.be.an('array')
+                                .to.be.an(CONSTANTS.ARRAY)
                                 .with.property('length')
                                 .gt(0);
-                            expect(assets.audio).to.be.an('array');
+                            expect(assets.audio).to.be.an(CONSTANTS.ARRAY);
                         })
                     )
                     .catch(done);

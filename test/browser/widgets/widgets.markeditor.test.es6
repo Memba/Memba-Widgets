@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.markeditor.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -36,8 +37,11 @@ chai.use(sinonChai);
 
 describe('widgets.markeditor', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
@@ -52,7 +56,7 @@ describe('widgets.markeditor', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoMarkEditor().data('kendoMarkEditor');
             expect(widget).to.be.an.instanceof(MarkEditor);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 
@@ -61,7 +65,7 @@ describe('widgets.markeditor', () => {
             const options = {};
             const widget = element.kendoMarkEditor().data('kendoMarkEditor');
             expect(widget).to.be.an.instanceof(MarkEditor);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 
@@ -72,7 +76,7 @@ describe('widgets.markeditor', () => {
             init(`#${FIXTURES}`);
             const widget = element.data('kendoMarkEditor');
             expect(widget).to.be.an.instanceof(MarkEditor);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 

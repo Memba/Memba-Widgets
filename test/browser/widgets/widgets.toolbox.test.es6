@@ -12,54 +12,57 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.toolbox.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
 const {
     attr,
-    bind,
-    data: { DataSource, ObservableObject },
+    // bind,
+    data: { ObservableObject },
     destroy,
     init,
-    observable,
-    ui: { ToolBox }
+    ui: { roles, ToolBox }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'toolbox';
 const ICON_PATH = '../../src/styles/images/';
-const TOOLBOX2 = `<div id="toolbox2" data-role="widget" data-size="48" data-icon-path="${ICON_PATH}"></div>`;
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
 describe('widgets.toolbox', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
     describe('Availability', () => {
         it('requirements', () => {
             expect($.fn.kendoToolBox).to.be.a(CONSTANTS.FUNCTION);
+            expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoToolBox({ iconPath: ICON_PATH })
-                .data('kendoToolBox');
+            const options = { iconPath: ICON_PATH };
+            const widget = element.kendoToolBox(options).data('kendoToolBox');
             expect(widget).to.be.an.instanceof(ToolBox);
-            expect(element.hasClass('k-widget')).to.be.true;
-            expect(element.hasClass(`kj-${ROLE}`)).to.be.true;
+            expect(element).to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(element.find('a.kj-tool'))
                 .to.be.an.instanceof($)
                 .with.property('length')
@@ -74,75 +77,82 @@ describe('widgets.toolbox', () => {
 
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoToolBox({ iconPath: ICON_PATH, size: 64 })
-                .data('kendoToolBox');
+            const options = {
+                iconPath: ICON_PATH,
+                size: 64
+            };
+            const widget = element.kendoToolBox(options).data('kendoToolBox');
             expect(widget).to.be.an.instanceof(ToolBox);
-            expect(element.hasClass('k-widget')).to.be.true;
-            expect(element.hasClass(`kj-${ROLE}`)).to.be.true;
+            expect(element).to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(element.find('a.kj-tool'))
                 .to.be.an.instanceof($)
                 .with.property('length')
                 .that.is.gte(1);
             expect(
                 Math.round(10 * element.find('a.kj-tool > img').width()) / 10
-            ).to.equal(64);
+            ).to.equal(options.size);
             expect(
                 Math.round(10 * element.find('a.kj-tool > img').height()) / 10
-            ).to.equal(64);
+            ).to.equal(options.size);
         });
 
-        it('from markup', () => {
-            const element = $(TOOLBOX2).appendTo(`#${FIXTURES}`);
+        it('from markup with attributes', () => {
+            const attributes = {
+                'data-icon-path': ICON_PATH,
+                'data-size': 48
+            };
+            attributes[attr('role')] = ROLE;
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data('kendoToolBox');
             expect(widget).to.be.an.instanceof(ToolBox);
-            expect(element.hasClass('k-widget')).to.be.true;
-            expect(element.hasClass(`kj-${ROLE}`)).to.be.true;
+            expect(element).to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(element.find('a.kj-tool'))
                 .to.be.an.instanceof($)
                 .with.property('length')
                 .that.is.gte(1);
             expect(
                 Math.round(10 * element.find('a.kj-tool > img').width()) / 10
-            ).to.equal(48);
+            ).to.equal(attributes['data-size']);
             expect(
                 Math.round(10 * element.find('a.kj-tool > img').height()) / 10
-            ).to.equal(48);
+            ).to.equal(attributes['data-size']);
         });
     });
 
     describe('Methods', () => {
         let element;
+        let options;
         let widget;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoToolBox({ iconPath: ICON_PATH })
-                .data('kendoToolBox');
+            options = { iconPath: ICON_PATH };
+            widget = element.kendoToolBox(options).data('kendoToolBox');
         });
 
         it('Set/Get the current tool with valid values', () => {
             expect(widget).to.be.an.instanceof(ToolBox);
-            expect(kidoju.tools)
-                .to.be.an.instanceof(ObservableObject)
-                .with.property('active', 'pointer');
-            expect(widget.tool()).to.equal('pointer');
-            widget.tool('label');
-            expect(widget.tool()).to.equal('label');
-            expect(kidoju.tools).to.have.property('active', 'label');
-            widget.tool('textbox');
-            expect(widget.tool()).to.equal('textbox');
-            expect(kidoju.tools).to.have.property('active', 'textbox');
+            expect(widget.value()).to.equal('pointer');
+            expect(tools).to.have.property('active', 'pointer');
+            widget.value('label');
+            expect(widget.value()).to.equal('label');
+            expect(tools).to.have.property('active', 'label');
+            widget.value('textbox');
+            expect(widget.value()).to.equal('textbox');
+            expect(tools).to.have.property('active', 'textbox');
         });
 
         it('Set/Get the current tool with invalid values', () => {
             function fn1() {
-                widget.tool(0);
+                widget.value(JSC.integer()());
             }
             function fn2() {
-                widget.tool('dummy');
+                widget.value(JSC.string()());
             }
             expect(widget).to.be.an.instanceof(ToolBox);
             expect(fn1).to.throw(TypeError);
@@ -151,52 +161,53 @@ describe('widgets.toolbox', () => {
 
         it('Reset', () => {
             expect(widget).to.be.an.instanceof(ToolBox);
-            widget.tool('label');
-            expect(kidoju.tools).to.have.property('active', 'label');
+            widget.value('label');
+            expect(tools).to.have.property('active', 'label');
             widget.reset();
-            expect(kidoju.tools).to.have.property('active', 'pointer');
-            widget.tool('textbox');
-            expect(kidoju.tools).to.have.property('active', 'textbox');
+            expect(tools).to.have.property('active', 'pointer');
+            widget.value('textbox');
+            expect(tools).to.have.property('active', 'textbox');
             widget.reset();
-            expect(kidoju.tools).to.have.property('active', 'pointer');
+            expect(tools).to.have.property('active', 'pointer');
         });
     });
 
     describe('MVVM (and UI interactions)', () => {
         let element;
+        let options;
         let widget;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoToolBox({ iconPath: ICON_PATH })
-                .data('kendoToolBox');
+            options = { iconPath: ICON_PATH };
+            widget = element.kendoToolBox(options).data('kendoToolBox');
         });
 
-        it('A change of tool raises a change in the widget', () => {
+        it('A change of tool updates the widget UI', () => {
             expect(widget).to.be.an.instanceof(ToolBox);
             widget.reset();
-            expect(kidoju.tools)
+            expect(tools())
                 .to.be.an.instanceof(ObservableObject)
                 .with.property('active', 'pointer');
-            expect(widget.tool()).to.equal('pointer');
-            kidoju.tools.set('active', 'label');
-            expect(widget.tool()).to.equal('label');
+            expect(widget.value()).to.equal('pointer');
+            tools.active = 'label';
+            expect(widget.value()).to.equal('label');
             expect(
                 element.find('a.k-state-selected').attr(attr('tool'))
             ).to.equal('label');
+            // expect(change).to.have.been.calledOnce;
         });
 
-        it('A selection in the widget raises a change of tool', () => {
+        it('A selection in the widget updates the data', () => {
             expect(widget).to.be.an.instanceof(ToolBox);
             widget.reset();
-            expect(kidoju.tools)
+            expect(tools())
                 .to.be.an.instanceof(ObservableObject)
                 .with.property('active', 'pointer');
-            expect(widget.tool()).to.equal('pointer');
+            expect(widget.value()).to.equal('pointer');
             element.find('[data-tool="label"]').simulate(CONSTANTS.CLICK);
-            expect(kidoju.tools.get('active')).to.equal('label');
-            expect(widget.tool()).to.equal('label');
+            expect(widget.value()).to.equal('label');
+            expect(tools).to.have.property('active', 'label');
             expect(
                 element.find('a.k-state-selected').attr(attr('tool'))
             ).to.equal('label');
@@ -205,40 +216,40 @@ describe('widgets.toolbox', () => {
 
     describe('Events', () => {
         let element;
+        let options;
         let widget;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoToolBox({ iconPath: ICON_PATH })
-                .data('kendoToolBox');
+            options = { iconPath: ICON_PATH };
+            widget = element.kendoToolBox(options).data('kendoToolBox');
         });
 
         it('Change event', () => {
             const change = sinon.spy();
             expect(widget).to.be.an.instanceof(ToolBox);
             widget.reset();
-            expect(kidoju.tools)
+            expect(tools())
                 .to.be.an.instanceof(ObservableObject)
                 .with.property('active', 'pointer');
-            widget.bind('change', e => {
+            tools().bind(CONSTANTS.CHANGE, e => {
                 change(e.value);
             });
-            widget.tool('label');
-            expect(change).to.have.been.calledWith('label');
+            element.find('a[data-tool=label]').simulate(CONSTANTS.CLICK);
+            expect(change).to.have.been.calledOnce;
         });
 
         it('Click event', () => {
             const click = sinon.spy();
             expect(widget).to.be.an.instanceof(ToolBox);
             widget.reset();
-            expect(kidoju.tools)
+            expect(tools())
                 .to.be.an.instanceof(ObservableObject)
                 .with.property('active', 'pointer');
-            widget.bind('click', e => {
+            widget.bind(CONSTANTS.CLICK, e => {
                 click(e.value);
             });
-            element.find('a[data-tool=textbox]').simulate('click');
+            element.find('a[data-tool=textbox]').simulate(CONSTANTS.CLICK);
             expect(click).to.have.been.calledWith('textbox');
         });
     });

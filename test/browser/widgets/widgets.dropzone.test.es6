@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.dropzone.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -37,8 +38,11 @@ chai.use(sinonChai);
 
 describe('widgets.dropzone', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
@@ -53,7 +57,7 @@ describe('widgets.dropzone', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoDropZone().data('kendoDropZone');
             expect(widget).to.be.an.instanceof(DropZone);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-dropzone');
             // TODO expect(widget).to.have.property('dataSource').that.is.an.instanceof(DataSource);
         });
@@ -63,7 +67,7 @@ describe('widgets.dropzone', () => {
             const options = {};
             const widget = element.kendoDropZone().data('kendoDropZone');
             expect(widget).to.be.an.instanceof(DropZone);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-dropzone');
             // TODO expect(assetManager).to.have.property('dataSource').that.is.an.instanceof(DataSource);
         });
@@ -73,7 +77,7 @@ describe('widgets.dropzone', () => {
             init(`#${FIXTURES}`);
             const widget = element.data('kendoDropZone');
             expect(widget).to.be.an.instanceof(DropZone);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-dropzone');
         });
 

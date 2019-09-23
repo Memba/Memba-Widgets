@@ -145,13 +145,13 @@ describe('data.pagecomponent', () => {
                     const assets = component.assets();
                     expect(assets)
                         .to.have.property('audio')
-                        .that.is.an('array');
+                        .that.is.an(CONSTANTS.ARRAY);
                     expect(assets)
                         .to.have.property('image')
-                        .that.is.an('array');
+                        .that.is.an(CONSTANTS.ARRAY);
                     expect(assets)
                         .to.have.property('video')
-                        .that.is.an('array');
+                        .that.is.an(CONSTANTS.ARRAY);
                     // TODO: how do we ensure these have the correct list?
                 }
                 getComponentArray().forEach(test);

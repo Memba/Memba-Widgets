@@ -40,7 +40,7 @@ if (!Modernizr.getusermedia || userAgent.indexOf('HeadlessChrome') > -1) {
                     .then(devices => {
                         try {
                             expect(devices)
-                                .to.be.an('array')
+                                .to.be.an(CONSTANTS.ARRAY)
                                 .with.property('length')
                                 .gt(0);
                             for (

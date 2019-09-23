@@ -91,7 +91,7 @@ const ToolBox = Widget.extend({
      * Events
      * @property events
      */
-    events: [CONSTANTS.CHANGE],
+    events: [CONSTANTS.CLICK],
 
     /**
      * value
@@ -210,14 +210,14 @@ const ToolBox = Widget.extend({
         const { element } = this;
         const enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
-        element.off(CONSTANTS.CLICK + NS);
+        element.off(`${CONSTANTS.CLICK}${NS}`);
         if (enabled) {
             element
                 .removeClass(CONSTANTS.DISABLED_CLASS)
-                .on(CONSTANTS.CLICK + NS, 'a.kj-tool', e => {
+                .on(`${CONSTANTS.CLICK}${NS}`, 'a.kj-tool', e => {
                     e.preventDefault();
                     const value = $(e.currentTarget).attr(attr(TOOL));
-                    if (!this.trigger(CONSTANTS.CHANGE, { value })) {
+                    if (!this.trigger(CONSTANTS.CLICK, { value })) {
                         this.value(value);
                     }
                 });

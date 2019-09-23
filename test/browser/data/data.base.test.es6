@@ -1060,13 +1060,13 @@ describe('data.base', () => {
                             expect(view[0]).to.have.property('value', 10);
                             expect(view[0])
                                 .to.have.property('items')
-                                .that.is.an('array')
+                                .that.is.an(CONSTANTS.ARRAY)
                                 .with.lengthOf(1);
                             expect(view[1]).to.have.property('field', 'age');
                             expect(view[1]).to.have.property('value', 20);
                             expect(view[1])
                                 .to.have.property('items')
-                                .that.is.an('array')
+                                .that.is.an(CONSTANTS.ARRAY)
                                 .with.lengthOf(2);
                         })
                     )

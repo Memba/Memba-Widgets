@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.propertygrid.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -78,8 +79,11 @@ function validateGridHtml(element, rowCount) {
 
 describe('widgets.propertygrid', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
@@ -942,7 +946,7 @@ describe('widgets.propertygrid', () => {
         it('from markup', () => {
             const element = $(PROPERTYGRID2).appendTo(`#${FIXTURES}`);
             const viewModel = observable({});
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             const widget = element.data('kendoPropertyGrid');
             expect(widget).to.be.an.instanceof(PropertyGrid);
         });
@@ -950,7 +954,7 @@ describe('widgets.propertygrid', () => {
         it('from markup and rows', () => {
             const element = $(PROPERTYGRID2).appendTo(`#${FIXTURES}`);
             const viewModel = observable({});
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             const widget = element.data('kendoPropertyGrid');
             expect(widget).to.be.an.instanceof(PropertyGrid);
         });
@@ -1213,7 +1217,7 @@ describe('widgets.propertygrid', () => {
             viewModel = observable({
                 current: null
             });
-            bind(FIXTURES, viewModel);
+            bind(`#${FIXTURES}`, viewModel);
             widget = element.data('kendoPropertyGrid');
         });
 

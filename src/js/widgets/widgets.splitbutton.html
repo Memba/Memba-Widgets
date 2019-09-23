@@ -214,21 +214,21 @@
                     visible: true,
                     enabled: true,
                     onClick: function (e) {
-                        window.alert('Bindings - Clicked with command: ' + e.command);
+                        window.alert('Bindings - Clicked with action: ' + e.action);
                     }
                 });
                 $(function () {
                     $('#splitbutton').kendoSplitButton({
-                        command: 'antenna',
+                        action: 'antenna',
                         imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/wlan_antenna.svg',
                         text: 'Contact',
                         menuButtons: [
-                            { command: 'computer', text: 'Computer', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_monitor.svg' },
-                            { command: 'smartphone', text: 'Smartphone', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_smartphone.svg' },
-                            { command: 'telephone', text: 'Telephone', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_telephone.svg' }
+                            { action: 'computer', text: 'Computer', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_monitor.svg' },
+                            { action: 'smartphone', text: 'Smartphone', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_smartphone.svg' },
+                            { action: 'telephone', text: 'Telephone', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_telephone.svg' }
                         ],
                         click: function (e) {
-                            window.alert('From Code - Clicked with command: ' + e.command);
+                            window.alert('From Code - Clicked with action: ' + e.action);
                         }
                     });
                     kendo.bind('body', viewModel);
@@ -244,7 +244,7 @@
 <div id="splitbutton"></div>
 
 <h2>Bound to observable</h2>
-<div data-role="splitbutton" data-bind="visible: visible, enabled: enabled, events: { click: onClick }" data-command="align" data-icon="align-justify" data-text="Align" data-menu-buttons="[{&quot;command&quot;:&quot;left&quot;,&quot;icon&quot;:&quot;align-left&quot;,&quot;text&quot;:&quot;Align Left&quot;},{&quot;command&quot;:&quot;center&quot;,&quot;icon&quot;:&quot;align-center&quot;,&quot;text&quot;:&quot;Align Center&quot;},{&quot;command&quot;:&quot;right&quot;,&quot;icon&quot;:&quot;align-right&quot;,&quot;text&quot;:&quot;Align Right&quot;}]"></div>
+<div data-role="splitbutton" data-bind="visible: visible, enabled: enabled, events: { click: onClick }" data-action="align" data-icon="align-justify" data-text="Align" data-menu-buttons="[{&quot;action&quot;:&quot;left&quot;,&quot;icon&quot;:&quot;align-left&quot;,&quot;text&quot;:&quot;Align Left&quot;},{&quot;action&quot;:&quot;center&quot;,&quot;icon&quot;:&quot;align-center&quot;,&quot;text&quot;:&quot;Align Center&quot;},{&quot;action&quot;:&quot;right&quot;,&quot;icon&quot;:&quot;align-right&quot;,&quot;text&quot;:&quot;Align Right&quot;}]"></div>
 
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;

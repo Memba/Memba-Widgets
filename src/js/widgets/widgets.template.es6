@@ -257,6 +257,7 @@ const Template = DataBoundWidget.extend({
         this.setDataSource(null);
         this._template = undefined;
         DataBoundWidget.fn.destroy.call(this);
+        logger.debug({ method: 'destroy', message: 'Widget destroyed' });
         destroy(this.element);
     }
 });

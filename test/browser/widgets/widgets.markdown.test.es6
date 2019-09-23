@@ -14,8 +14,10 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.markdown.es6';
+import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
@@ -24,6 +26,7 @@ const {
     destroy,
     init,
     observable,
+    ui,
     ui: { Markdown }
 } = window.kendo;
 const FIXTURES = 'fixtures';
@@ -35,14 +38,20 @@ chai.use(sinonChai);
 
 describe('widgets.markdown', () => {
     before(() => {
-        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
-            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+        if (window.__karma__) {
+            if ($(`#${FIXTURES}`).length === 0) {
+                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
+            }
+            fixKendoRoles();
         }
     });
 
     describe('Availability', () => {
         it('requirements', () => {
+            expect($).not.to.be.undefined;
+            expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoMarkdown).to.be.a(CONSTANTS.FUNCTION);
+            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
@@ -51,16 +60,18 @@ describe('widgets.markdown', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoMarkdown().data('kendoMarkdown');
             expect(widget).to.be.an.instanceof(Markdown);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-markdown');
         });
 
         it('from code with options', () => {
-            const options = {};
+            const options = {
+                // TODO Add options
+            };
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoMarkdown(options).data('kendoMarkdown');
             expect(widget).to.be.an.instanceof(Markdown);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-markdown');
         });
 
@@ -73,7 +84,7 @@ describe('widgets.markdown', () => {
             init(`#${FIXTURES}`);
             const markDown = element.data('kendoMarkdown');
             expect(markDown).to.be.an.instanceof(Markdown);
-            // expect(element).to.have.class('k-widget');
+            expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-markdown');
         });
 

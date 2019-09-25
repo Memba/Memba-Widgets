@@ -204,7 +204,7 @@ const MarkEditorToolBar = ToolBar.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         options = options || {};
         options.items = this._expandTools(
             options.tools || MarkEditorToolBar.prototype.options.tools

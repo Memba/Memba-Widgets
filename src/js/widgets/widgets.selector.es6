@@ -423,7 +423,7 @@ const SelectorToolBar = ToolBar.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         ToolBar.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'toolbar initialized' });
         this.bind(TOGGLE, this._onToggle);
@@ -693,7 +693,7 @@ var SelectorSurface = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug('surface initialized');
         this.selectors = [];
@@ -1437,7 +1437,7 @@ var Selector = DataBoundWidget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         const that = this;
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });

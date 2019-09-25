@@ -750,7 +750,7 @@ const FormatStrip = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         const that = this;
         Widget.fn.init.call(that, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });

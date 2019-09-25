@@ -51,8 +51,7 @@ const License = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
-        // TODO: We need an input to post a form and a wrapper: see rating!!!
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this.wrapper = this.element;
@@ -65,7 +64,7 @@ const License = Widget.extend({
      * Events
      * @field
      */
-    events: [],
+    events: [CONSTANTS.CLICK],
 
     /**
      * Options
@@ -115,13 +114,12 @@ const License = Widget.extend({
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         if (enabled) {
             this.element.removeClass(CONSTANTS.DISABLED_CLASS);
-            this.element.off(NS);
+            this.element.off(`${CONSTANTS.CLICK}${NS}`);
         } else {
             this.element.addClass(CONSTANTS.DISABLED_CLASS);
-            this.element.on(CONSTANTS.CLICK + NS, 'a', e => {
+            this.element.on(`${CONSTANTS.CLICK}${NS}`, 'a', e => {
                 e.preventDefault();
-                e.stopPropagation();
-                // TODO set the value
+                this.trigger(CONSTANTS.CLICK);
             });
         }
     },
@@ -140,16 +138,16 @@ const License = Widget.extend({
 
         if (by) {
             let license = 'by';
-            let icons = '<i class="kf kf-cc"></i><i class="kf kf-cc-by"></i>';
+            let icons = '<i class="kf kf-cc"/><i class="kf kf-cc-by"/>';
 
             license += sa ? '-sa' : '';
-            icons += sa ? '<i class="kf kf-cc-sa"></i>' : '';
+            icons += sa ? '<i class="kf kf-cc-sa"/>' : '';
 
             license += nc ? '-nc' : '';
-            icons += nc ? '<i class="kf kf-cc-nc"></i>' : '';
+            icons += nc ? '<i class="kf kf-cc-nc"/>' : '';
 
             license += nd ? '-nd' : '';
-            icons += nd ? '<i class="kf kf-cc-nd"></i>' : '';
+            icons += nd ? '<i class="kf kf-cc-nd"/>' : '';
 
             this.element.html(
                 `<a rel="license" href="//creativecommons.org/licenses/${license}/4.0/" target="_blank">${icons}</i></a>`
@@ -164,7 +162,7 @@ const License = Widget.extend({
              */
         } else {
             this.element.html(
-                '<a rel="license" href="//creativecommons.org/publicdomain/zero/1.0/" target="_blank"><i class="kf kf-cc-zero"></i></a>'
+                '<a rel="license" href="//creativecommons.org/publicdomain/zero/1.0/" target="_blank"><i class="kf kf-cc-zero"/></a>'
             );
             /*
             <p xmlns:dct="http://purl.org/dc/terms/" xmlns:vcard="http://www.w3.org/2001/vcard-rdf/3.0#">
@@ -175,6 +173,7 @@ const License = Widget.extend({
             </p>
              */
         }
+        logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
 
     /**
@@ -182,8 +181,9 @@ const License = Widget.extend({
      * @method destroy
      */
     destroy() {
-        this.element.off(NS);
+        this.enable(false);
         Widget.fn.destroy.call(this);
+        logger.debug({ destroy: 'init', message: 'widget destroyed' });
         destroy(this.element);
     }
 });

@@ -480,10 +480,6 @@ describe('widgets.codeinput', () => {
         afterEach(() => {
             viewModel.unbind(CONSTANTS.CHANGE);
             viewModel.set('code', ''); // undefined would not work
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
         });
     });
 
@@ -522,11 +518,12 @@ describe('widgets.codeinput', () => {
             codeInput.value(DUMMY);
             expect(change).to.have.been.calledWith(TOOLS.LIB_COMMENT + NAME);
         });
+    });
 
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
-        });
+    afterEach(() => {
+        const fixtures = $(`#${FIXTURES}`);
+        destroy(fixtures);
+        fixtures.find('*').off();
+        fixtures.empty();
     });
 });

@@ -108,13 +108,6 @@ describe('widgets.imageset', () => {
             // expect(widget.wrapper).to.have.class('k-widget');
             expect(widget.wrapper).to.have.class('kj-imageset');
         });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
     });
 
     describe('Methods', () => {
@@ -151,13 +144,6 @@ describe('widgets.imageset', () => {
             widget.destroy();
             expect(widget.element.data('kendoImageSet')).to.be.undefined;
         });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
     });
 
     describe('MVVM (and UI interactions)', () => {
@@ -186,13 +172,6 @@ describe('widgets.imageset', () => {
                 $(`.kj-${ROLE}`).simulate(CONSTANTS.CLICK);
             });
         });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
     });
 
     describe('Events', () => {
@@ -208,12 +187,12 @@ describe('widgets.imageset', () => {
         });
 
         xit('TODO', () => {});
+    });
 
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
+    afterEach(() => {
+        const fixtures = $(`#${FIXTURES}`);
+        destroy(fixtures);
+        fixtures.find('*').off();
+        fixtures.empty();
     });
 });

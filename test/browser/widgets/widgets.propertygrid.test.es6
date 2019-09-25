@@ -1320,7 +1320,7 @@ describe('widgets.propertygrid', () => {
 
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
-        // destroy(fixtures); // TODO: RangeError: Maximum call stack size exceeded
+        destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();
     });

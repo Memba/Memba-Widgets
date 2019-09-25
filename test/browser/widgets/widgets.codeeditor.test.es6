@@ -308,13 +308,6 @@ describe('widgets.codeeditor', () => {
             expect(widget.solutionInput.val()).to.equal(attr['data-solution']);
             expect(widget.valueInput.val()).to.equal('');
         });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
     });
 
     describe('Methods', () => {
@@ -474,13 +467,6 @@ describe('widgets.codeeditor', () => {
             expect(widget.testButton).to.be.undefined;
             expect(widget.messageWrap).to.be.undefined;
         });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
     });
 
     describe('MVVM (and UI interactions)', () => {
@@ -596,10 +582,6 @@ describe('widgets.codeeditor', () => {
         afterEach(() => {
             viewModel.unbind(CHANGE);
             viewModel.set('code', ''); // undefined would not work
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
         });
     });
 
@@ -638,11 +620,12 @@ describe('widgets.codeeditor', () => {
             widget.value(DUMMY);
             expect(change).to.have.been.calledWith(TOOLS.LIB_COMMENT + NAME);
         });
+    });
 
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
-        });
+    afterEach(() => {
+        const fixtures = $(`#${FIXTURES}`);
+        destroy(fixtures);
+        fixtures.find('*').off();
+        fixtures.empty();
     });
 });

@@ -160,12 +160,6 @@ describe('widgets.template', () => {
                 .that.is.an.instanceof(DataSource);
             expect(element.text()).to.include(attributes['data-value']);
         });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
-        });
     });
 
     describe('Methods', () => {
@@ -192,12 +186,6 @@ describe('widgets.template', () => {
             template.destroy();
             expect(template.element).to.be.empty;
         });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
-        });
     });
 
     describe('MVVM (and UI interactions)', () => {
@@ -219,12 +207,6 @@ describe('widgets.template', () => {
         });
 
         xit('TODO', () => {});
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
-        });
     });
 
     describe('Events', () => {
@@ -240,11 +222,12 @@ describe('widgets.template', () => {
         });
 
         xit('TODO', () => {});
+    });
 
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
-        });
+    afterEach(() => {
+        const fixtures = $(`#${FIXTURES}`);
+        destroy(fixtures);
+        fixtures.find('*').off();
+        fixtures.empty();
     });
 });

@@ -10,6 +10,7 @@
 import $ from 'jquery';
 import 'jquery.simulate';
 import 'kendo.binder';
+import 'kendo.slider';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
@@ -17,6 +18,7 @@ import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.audiovideo.es6';
 import fixKendoRoles from '../_misc/test.roles.es6';
+import { baseUrl } from '../_misc/test.util.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -35,8 +37,14 @@ const ROLE = 'audiovideo';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const AUDIO_FILES = ['../data/audio/audio.ogg', '../data/audio/audio.mp3'];
-const VIDEO_FILES = ['../data/video/video.mp4', '../data/video/video.webm'];
+const AUDIO_FILES = [
+    baseUrl('/test/data/audio/audio.ogg'),
+    baseUrl('/test/data/audio/audio.mp3')
+];
+const VIDEO_FILES = [
+    baseUrl('/test/data/video/video.mp4'),
+    baseUrl('/test/data/video/video.webm')
+];
 const TTL = 250;
 
 /**
@@ -45,7 +53,7 @@ const TTL = 250;
  */
 /*
 if (window.PHANTOMJS) {
-    // TODO user Modernizr
+    // TODO use Modernizr
     return;
 }
 */
@@ -74,7 +82,7 @@ describe('widgets.audiovideo', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoAudioVideo().data('kendoAudioVideo');
             expect(widget).to.be.an.instanceof(AudioVideo);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
@@ -84,10 +92,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider); // Only ui.Slider works in Karma
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -103,7 +111,7 @@ describe('widgets.audiovideo', () => {
                 .kendoAudioVideo(options)
                 .data('kendoAudioVideo');
             expect(widget).to.be.an.instanceof(AudioVideo);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
@@ -113,10 +121,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -138,7 +146,7 @@ describe('widgets.audiovideo', () => {
                 .kendoAudioVideo(options)
                 .data('kendoAudioVideo');
             expect(widget).to.be.an.instanceof(AudioVideo);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
@@ -148,10 +156,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -170,7 +178,7 @@ describe('widgets.audiovideo', () => {
             init(`#${FIXTURES}`);
             const widget = element.data('kendoAudioVideo');
             expect(widget).to.be.an.instanceof(AudioVideo);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
@@ -180,10 +188,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -200,7 +208,7 @@ describe('widgets.audiovideo', () => {
             init(`#${FIXTURES}`);
             const widget = element.data('kendoAudioVideo');
             expect(widget).to.be.an.instanceof(AudioVideo);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
@@ -210,10 +218,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -236,7 +244,7 @@ describe('widgets.audiovideo', () => {
             init(`#${FIXTURES}`);
             const widget = element.data('kendoAudioVideo');
             expect(widget).to.be.an.instanceof(AudioVideo);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-audiovideo');
             expect(widget)
                 .to.have.property('media')
@@ -246,10 +254,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(Slider);
+                .that.is.an.instanceof(ui.Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -259,13 +267,6 @@ describe('widgets.audiovideo', () => {
             expect(widget.toolbar.find('a.k-button'))
                 .to.be.an.instanceof($)
                 .with.property('length', 3);
-        });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
         });
     });
 
@@ -294,6 +295,7 @@ describe('widgets.audiovideo', () => {
                 expect(mediaElement.readyState).to.be.gte(3);
                 expect(mediaElement.paused).to.be.true;
                 widget.togglePlayPause();
+                debugger;
                 expect(mediaElement.paused).to.be.false;
                 widget.togglePlayPause();
                 expect(mediaElement.paused).to.be.true;
@@ -413,8 +415,8 @@ describe('widgets.audiovideo', () => {
         it('enable', () => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget.toolbar).to.be.an.instanceof($);
-            expect(widget.seekerSlider).to.be.an.instanceof(Slider);
-            expect(widget.volumeSlider).to.be.an.instanceof(Slider);
+            expect(widget.seekerSlider).to.be.an.instanceof(ui.Slider);
+            expect(widget.volumeSlider).to.be.an.instanceof(ui.Slider);
             widget.enable(false);
             expect(widget.toolbar).to.have.class('k-state-disabled');
             expect(widget.seekerSlider.wrapper).to.have.class(
@@ -433,13 +435,6 @@ describe('widgets.audiovideo', () => {
             expect(element).to.be.empty;
             expect(element).not.to.have.class('k-widget');
             expect(element).not.to.have.class('kj-audiovideo');
-        });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
         });
     });
 
@@ -463,7 +458,7 @@ describe('widgets.audiovideo', () => {
             expect(widget.media).to.be.an.instanceof($);
             expect(widget.toolbar).to.be.an.instanceof($);
             const playButton = widget.toolbar.find(
-                'a.k-button[data-command="play"]'
+                'a.k-button[data-action="play"]'
             );
             expect(playButton)
                 .to.be.an.instanceof($)
@@ -499,7 +494,7 @@ describe('widgets.audiovideo', () => {
             expect(widget.media).to.be.an.instanceof($);
             expect(widget.toolbar).to.be.an.instanceof($);
             const muteButton = widget.toolbar.find(
-                'a.k-button[data-command="mute"]'
+                'a.k-button[data-action="volume"]'
             );
             expect(muteButton)
                 .to.be.an.instanceof($)
@@ -567,35 +562,30 @@ describe('widgets.audiovideo', () => {
         xit('seek', () => {
             // TODO
         });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
     });
 
     xdescribe('Events', () => {
         let element;
+        let options;
         let widget;
-        const options = {};
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            options = {};
             widget = element.kendoAudioVideo(options).data('kendoAudioVideo');
             // change = sinon.spy();
         });
 
-        it('event', done => {
+        it('event', () => {
             // TODO: No event at this stage
+            $.noop(widget);
         });
+    });
 
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.find('*').off();
-            fixtures.empty();
-        });
+    afterEach(() => {
+        const fixtures = $(`#${FIXTURES}`);
+        destroy(fixtures);
+        fixtures.find('*').off();
+        fixtures.empty();
     });
 });

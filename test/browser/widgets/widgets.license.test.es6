@@ -25,13 +25,32 @@ const {
     attr,
     bind,
     destroy,
+    init,
     observable,
     ui,
     ui: { License }
 } = window.kendo;
 const FIXTURES = 'fixtures';
-const ELEMENT = `<${CONSTANTS.INPUT}>`;
+const ELEMENT = `<${CONSTANTS.DIV}>`;
 const ROLE = 'license';
+
+function getValue() {
+    return JSC.one_of([0, 1, 13])();
+}
+
+function assertIcons(element, value) {
+    switch (value) {
+        case 0:
+            expect(element.find('a > i')).to.have.lengthOf(1);
+            break;
+        case 1:
+            expect(element.find('a > i')).to.have.lengthOf(2);
+            break;
+        case 13:
+        default:
+            expect(element.find('a > i')).to.have.lengthOf(4);
+    }
+}
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -57,127 +76,90 @@ describe('widgets.license', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const value = JSC.one_of([0, 1, 13])();
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            expect(element).to.match('input');
-            const widget = element
-                .kendoLicense({ value })
-                .data('kendoLicense');
-            const {
-                options: { min, max, step },
-                wrapper
-            } = widget;
+            const widget = element.kendoLicense().data('kendoLicense');
             expect(widget).to.be.an.instanceof(License);
-            expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-rating');
-            expect(wrapper.children('input')).to.exist;
-            expect(wrapper.find('span.kj-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            assertIcons(element, widget.value());
         });
 
         it('from code with options', () => {
-            const value = 4;
-            const min = 0;
-            const max = 10;
-            const step = 2;
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            expect(element).to.match('input');
-            const widget = element
-                .kendoLicense({
-                    value,
-                    min,
-                    max,
-                    step
-                })
-                .data('kendoLicense');
+            const options = {
+                value: getValue()
+            };
+            const widget = element.kendoLicense(options).data('kendoLicense');
             expect(widget).to.be.an.instanceof(License);
-            const { wrapper } = widget;
-            expect(wrapper).to.be.an.instanceof($);
-            expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-rating');
-            expect(wrapper.find('input'))
-                .to.be.an.instanceof($)
-                .with.property('length', 1);
-            expect(wrapper.find('span.kj-rating-star'))
-                .to.be.an.instanceof($)
-                .with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-rating-star.k-state-selected'))
-                .to.be.an.instanceof($)
-                .with.property('length', Math.round(value / step));
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            assertIcons(element, options.value);
         });
 
         it('from markup', () => {
-            const viewModel = observable({
-                rating: undefined
-            });
+            const attributes = {};
+            attributes[attr('role')] = ROLE;
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
-                .attr(attr('bind'), 'value: rating')
-                .attr(attr('max'), 10)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
-            expect(element).to.match('input');
-            bind(`#${FIXTURES}`, viewModel);
+            init(`#${FIXTURES}`);
             const widget = element.data('kendoLicense');
             expect(widget).to.be.an.instanceof(License);
-            const {
-                options: { min, max, step },
-                wrapper
-            } = widget;
-            const value = widget.value();
-            expect(min).to.equal(0);
-            expect(max).to.equal(10);
-            expect(step).to.equal(1);
-            expect(value).to.equal(0);
-            expect(wrapper).not.to.have.class('k-widget');
-            expect(wrapper).to.have.class('kj-rating');
-            expect(wrapper.children('input')).to.exist;
-            expect(wrapper.find('span.kj-rating-star'))
-                .to.be.an.instanceof($)
-                .with.property('length', Math.round((max - min) / step));
-            expect(wrapper.find('span.kj-rating-star.k-state-selected'))
-                .to.be.an.instanceof($)
-                .with.property('length', Math.round(value / step));
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            assertIcons(element, widget.value());
         });
 
         it('from markup with attributes', () => {
-            expect(true).to.be.false;
+            const attributes = {
+                'data-value': getValue()
+            };
+            attributes[attr('role')] = ROLE;
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data('kendoLicense');
+            expect(widget).to.be.an.instanceof(License);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            assertIcons(element, attributes['data-value']);
         });
     });
 
     describe('Methods', () => {
+        let options;
         let element;
         let widget;
-        const value1 = 1;
-        const value2 = 2;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoLicense({
-                    value: value1
-                })
-                .data('kendoLicense');
+            options = { value: getValue() };
+            widget = element.kendoLicense(options).data('kendoLicense');
         });
 
         it('value (get)', () => {
             expect(widget).to.be.an.instanceof(License);
-            expect(widget.value()).to.equal(value1);
-            expect(parseFloat(widget.element.val())).to.equal(value1);
+            expect(widget.value()).to.equal(options.value);
         });
 
         it('value (set)', () => {
+            const value = getValue();
             expect(widget).to.be.an.instanceof(License);
-            widget.value(value2);
-            expect(widget.value()).to.equal(value2);
-            expect(parseFloat(widget.element.val())).to.equal(value2);
+            widget.value(value);
+            expect(widget.value()).to.equal(value);
         });
 
-        it('value (range error)', () => {
-            const fn = function() {
-                widget.value(100);
+        it('value (error)', () => {
+            const fn1 = function() {
+                widget.value(JSC.string()());
+            };
+            const fn2 = function() {
+                widget.value(JSC.integer(100)());
             };
             expect(widget).to.be.an.instanceof(License);
-            expect(fn).to.throw(RangeError);
+            expect(fn1).to.throw(TypeError);
+            expect(fn2).to.throw(RangeError);
         });
 
         it('enable/readonly', () => {
@@ -365,6 +347,7 @@ describe('widgets.license', () => {
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
+        fixtures.find('*').off();
         fixtures.empty();
     });
 });

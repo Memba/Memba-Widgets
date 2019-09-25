@@ -299,7 +299,7 @@ describe('widgets.social', () => {
         const fixtures = $(`#${FIXTURES}`);
         // unbind(fixtures);
         destroy(fixtures);
-        // fixtures.find('*').off();
+        fixtures.find('*').off();
         fixtures.empty();
     });
 });

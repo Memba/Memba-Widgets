@@ -91,12 +91,6 @@ describe('widgets.latex', () => {
         xit('from markup with attributes', () => {
             // TODO: AssetManager might be a bit complex to initialize with attributes...
         });
-
-        afterEach(() => {
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
-        });
     });
 
     describe('Methods', () => {
@@ -169,6 +163,7 @@ describe('widgets.latex', () => {
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
+        fixtures.find('*').off();
         fixtures.empty();
     });
 });

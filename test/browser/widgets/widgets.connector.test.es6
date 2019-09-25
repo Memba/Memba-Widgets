@@ -230,9 +230,6 @@ describe('widgets.connector', () => {
         afterEach(() => {
             // viewModel.unbind(CHANGE);
             viewModel.set('code', ''); // undefined would not work
-            const fixtures = $(`#${FIXTURES}`);
-            destroy(fixtures);
-            fixtures.empty();
         });
     });
 
@@ -276,6 +273,7 @@ describe('widgets.connector', () => {
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
+        fixtures.find('*').off();
         fixtures.empty();
     });
 });

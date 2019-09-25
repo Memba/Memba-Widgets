@@ -31282,11 +31282,22 @@ h3 {
   background-repeat: no-repeat;
   background-size: contain;
 }
+.kj-audiovideo .k-toolbar {
+  padding: 0;
+}
 .kj-audiovideo .k-toolbar .k-button {
   border-radius: 50%;
 }
 .kj-audiovideo .k-toolbar .k-button.k-button-icon .k-icon {
   font-size: inherit;
+}
+.kj-audiovideo[data-mode=audio] .k-toolbar {
+  border: 0;
+}
+.kj-audiovideo[data-mode=video] .k-toolbar {
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 0;
 }
 
 /**

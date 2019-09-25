@@ -481,19 +481,24 @@ const AudioVideo = Widget.extend({
      */
     _toolbar() {
         const { element, options } = this;
-        this.toolbar = $(`<${CONSTANTS.DIV}/>`)
-            .addClass(TOOLBAR_CLASS)
-            .css({
-                position: 'absolute',
-                boxSizing: 'border-box',
+        const css = {
+            boxSizing: 'border-box',
+            width: '100%'
+        };
+        if (options.mode === MODES.VIDEO) {
+            $.extend(css, {
                 bottom: 0,
                 left: 0,
-                width: '100%',
-                zIndex: 99,
+                position: 'absolute',
                 // We hide the toolbar until we get loadedmetadata to resize it properly.
                 // We cannot use display:none which yields incorrect measurements
-                visibility: 'hidden'
-            })
+                visibility: 'hidden',
+                zIndex: 99
+            });
+        }
+        this.toolbar = $(`<${CONSTANTS.DIV}/>`)
+            .addClass(TOOLBAR_CLASS)
+            .css(css)
             .appendTo(element);
 
         // Play button

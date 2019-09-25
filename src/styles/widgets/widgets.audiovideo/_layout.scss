@@ -11,6 +11,8 @@
         }
 
         .k-toolbar {
+            padding: 0;
+
             .k-button {
                 border-radius: 50%;
 
@@ -19,6 +21,20 @@
                         font-size: inherit;
                     }
                 }
+            }
+        }
+
+        &[data-mode='audio'] {
+            .k-toolbar {
+                border: 0;
+            }
+        }
+
+        &[data-mode='video'] {
+            .k-toolbar {
+                border-bottom: 0;
+                border-left: 0;
+                border-right: 0;
             }
         }
     }

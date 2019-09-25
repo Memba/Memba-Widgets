@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Add broken lines (left Z and right Z)
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';

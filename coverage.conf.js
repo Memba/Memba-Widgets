@@ -58,17 +58,19 @@ module.exports = config => {
                 served: true,
                 included: true
             },
-            // External jQuery and polyfill
+            // jQuery
             {
                 pattern: 'src/js/vendor/jquery/jquery-3.4.1.min.js',
                 served: true,
                 included: true
             },
+            // Babel polyfill
             {
                 pattern: 'test/vendor/polyfill.min.js',
                 served: true,
                 included: true
             },
+            // Kendo UI
             {
                 pattern: 'src/js/vendor/kendo/kendo.all.min.js',
                 served: true,
@@ -95,7 +97,7 @@ module.exports = config => {
                 served: true,
                 included: false
             },
-            // Our mocha tests
+            // Mocha tests
             {
                 // pattern: 'test/browser/**/*.test.es6',
                 // pattern:

@@ -30,9 +30,10 @@ describe('editors.textarea', () => {
     });
 
     it('Initialization', () => {
+        const fixtures = $(`#${FIXTURES}`);
         const field = `${randomVal()}.value`;
-        textarea(FIXTURES, { field });
-        const element = $(`#${FIXTURES}`).children('textarea');
+        textarea(fixtures, { field });
+        const element = fixtures.children('textarea');
         expect(element).to.exist;
         expect(element).to.have.attr('data-bind', `value: ${field}`);
     });
@@ -40,6 +41,7 @@ describe('editors.textarea', () => {
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
+        fixtures.find('*').off();
         fixtures.empty();
     });
 });

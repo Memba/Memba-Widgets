@@ -10,6 +10,7 @@ import '../../../src/js/cultures/all.en.es6';
 
 import chai from 'chai';
 import JSC from 'jscheck';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import ToolAssets from '../../../src/js/tools/util.assets.es6';
 
 const { describe, it } = window;

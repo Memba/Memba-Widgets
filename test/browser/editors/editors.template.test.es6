@@ -31,9 +31,10 @@ describe('editors.template', () => {
 
     it('Initialization', () => {
         const field = `${randomVal()}.value`;
+        const fixtures = $(`#${FIXTURES}`);
         const template = '<span data-bind="text: #: field #"></span>';
-        tmpl(FIXTURES, { field, template });
-        const element = $(`#${FIXTURES}`).children('span');
+        tmpl(fixtures, { field, template });
+        const element = fixtures.children('span');
         expect(element).to.exist;
         expect(element).to.have.attr('data-bind', `text: ${field}`);
     });
@@ -41,6 +42,7 @@ describe('editors.template', () => {
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
+        fixtures.find('*').off();
         fixtures.empty();
     });
 });

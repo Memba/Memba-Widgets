@@ -30,11 +30,12 @@ describe('editors.input', () => {
     });
 
     it('Initialization', () => {
-        const viewModel = observable({ value: null });
         const field = `${randomVal()}.value`;
-        input(FIXTURES, { field });
-        bind(FIXTURES, viewModel);
-        const element = $(`#${FIXTURES}`).children('input');
+        const fixtures = $(`#${FIXTURES}`);
+        const viewModel = observable({ value: null });
+        input(fixtures, { field });
+        bind(fixtures, viewModel);
+        const element = fixtures.children('input');
         expect(element).to.exist;
         expect(element).to.have.attr('data-bind', `value: ${field}`);
     });
@@ -42,6 +43,7 @@ describe('editors.input', () => {
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
+        fixtures.find('*').off();
         fixtures.empty();
     });
 });

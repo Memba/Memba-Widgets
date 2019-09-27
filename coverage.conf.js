@@ -99,19 +99,8 @@ module.exports = config => {
             },
             // Mocha tests
             {
-                // pattern: 'test/browser/**/*.test.es6',
-                // pattern:
-                //    'test/browser/{app,common,data,tools,workers}/*.test.es6',
-                // pattern: 'test/browser/app/*.test.es6',
-                // pattern: 'test/browser/common/*.test.es6',
-                // pattern: 'test/browser/data/*.test.es6',
-                // pattern: 'test/browser/dialogs/*.test.es6',
-                // pattern: 'test/browser/editors/*.test.es6',
-                // pattern: 'test/browser/experiments/*.test.es6',
-                // pattern: 'test/browser/sockets/*.test.es6',
-                // pattern: 'test/browser/tools/*.test.es6',
-                pattern: 'test/browser/widgets/*.test.es6',
-                // pattern: 'test/browser/workers/*.test.es6',
+                pattern: 'test/browser/**/*.test.es6',
+                // pattern: 'test/browser/{app,common,cultures,data,tools,widgets,workers}/*.test.es6',
                 served: true,
                 included: true // They need to be included!
             },
@@ -124,7 +113,7 @@ module.exports = config => {
         ],
 
         // list of files to exclude
-        exclude: ['**/Thumbs.db'],
+        exclude: ['**/Thumbs.db', 'test/browser/experiments/*.test.es6'],
 
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor

@@ -30,9 +30,10 @@ describe('editors.span', () => {
     });
 
     it('Initialization', () => {
+        const fixtures = $(`#${FIXTURES}`);
         const field = `${randomVal()}.value`;
-        span(FIXTURES, { field });
-        const element = $(`#${FIXTURES}`).children('span');
+        span(fixtures, { field });
+        const element = fixtures.children('span');
         expect(element).to.exist;
         expect(element).to.have.attr('data-bind', `text: ${field}`);
     });
@@ -40,6 +41,7 @@ describe('editors.span', () => {
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
+        fixtures.find('*').off();
         fixtures.empty();
     });
 });

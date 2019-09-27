@@ -30,16 +30,17 @@ describe('editors.select', () => {
     });
 
     it('Initialization', () => {
-        const viewModel = observable({ value: null });
         const field = `${randomVal()}.value`;
+        const fixtures = $(`#${FIXTURES}`);
+        const viewModel = observable({ value: null });
         const source = [{ text: 'One', value: 1 }, { text: 'Two', value: 2 }];
         const attributes = {
             'data-text-field': 'text',
             'data-value-field': 'value'
         };
-        select(FIXTURES, { attributes, field, source });
-        bind(FIXTURES, viewModel);
-        const element = $(`#${FIXTURES}`).find('select'); // .children('select');
+        select(fixtures, { attributes, field, source });
+        bind(fixtures, viewModel);
+        const element = fixtures.find('select'); // .children('select');
         expect(element).to.exist;
         expect(element).to.have.attr('data-bind', `value: ${field}`);
     });
@@ -47,6 +48,7 @@ describe('editors.select', () => {
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
         destroy(fixtures);
+        fixtures.find('*').off();
         fixtures.empty();
     });
 });

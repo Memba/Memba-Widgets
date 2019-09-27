@@ -69,6 +69,11 @@ module.exports = config => {
                 served: true,
                 included: true
             },
+            {
+                pattern: 'src/js/vendor/kendo/kendo.all.min.js',
+                served: true,
+                included: true
+            },
             // Other files made available on demand
             {
                 pattern: 'src/js/**/*.es6',
@@ -143,6 +148,7 @@ module.exports = config => {
             module: {
                 rules: [
                     {
+                        // Process es6 files with Babel
                         test: /\.es6$/,
                         exclude: /node_modules/,
                         use: [
@@ -151,6 +157,11 @@ module.exports = config => {
                                 options: { babelrc: true }
                             }
                         ]
+                    },
+                    {
+                        // Prevent any kendo.* from loading (we have already added kendo.all.min.js)
+                        test: /kendo\.\w+\.js$/,
+                        use: 'null-loader'
                     },
                     {
                         // Append  module.exports = JSC; to jscheck.js

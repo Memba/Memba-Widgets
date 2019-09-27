@@ -16,7 +16,6 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.playbar.es6';
-import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -28,8 +27,7 @@ const {
     guid,
     init,
     observable,
-    ui,
-    ui: { PlayBar }
+    ui: { PlayBar, roles }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -156,11 +154,8 @@ for (let i = 0; i < 30; i++) {
 
 describe('widgets.playbar', () => {
     before(() => {
-        if (window.__karma__) {
-            if ($(`#${FIXTURES}`).length === 0) {
-                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
-            }
-            fixKendoRoles();
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -169,7 +164,7 @@ describe('widgets.playbar', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoPlayBar).to.be.a(CONSTANTS.FUNCTION);
-            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
+            expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

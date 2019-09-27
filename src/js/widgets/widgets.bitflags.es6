@@ -31,7 +31,7 @@ const BitFlags = DataBoundWidget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         DataBoundWidget.fn.init.call(this, element, options);
         this._render();
         this.setOptions(options);
@@ -125,6 +125,7 @@ const BitFlags = DataBoundWidget.extend({
      */
     setOptions(options) {
         const { multiSelect } = this;
+        debugger;
         assert.instanceof(
             MultiSelect,
             multiSelect,

@@ -16,7 +16,6 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.explorer.es6';
-import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -28,8 +27,7 @@ const {
     format,
     guid,
     observable,
-    ui,
-    ui: { Explorer }
+    ui: { Explorer, roles }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -102,11 +100,8 @@ const pageComponentCollectionArray = [
 
 describe('widgets.explorer', () => {
     before(() => {
-        if (window.__karma__) {
-            if ($(`#${FIXTURES}`).length === 0) {
-                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
-            }
-            fixKendoRoles();
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -115,7 +110,7 @@ describe('widgets.explorer', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoExplorer).to.be.a(CONSTANTS.FUNCTION);
-            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
+            expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

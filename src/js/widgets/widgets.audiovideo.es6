@@ -151,7 +151,7 @@ const AudioVideo = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
@@ -641,6 +641,7 @@ const AudioVideo = Widget.extend({
 
     /**
      * Toggle play pause
+     * @returns {*}
      */
     togglePlayPause() {
         const mediaElement = this.media.get(0);
@@ -653,12 +654,24 @@ const AudioVideo = Widget.extend({
                 'HTMLMediaElement'
             )
         );
-        if (mediaElement.paused && mediaElement.readyState >= 1) {
+        const dfd = $.Deferred();
+        let promise;
+        try {
+            // @see https://developers.google.com/web/updates/2016/03/play-returns-promise
             // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
-            mediaElement.play();
-        } else {
-            mediaElement.pause();
+            promise =
+                mediaElement.paused && mediaElement.readyState >= 1
+                    ? mediaElement.play()
+                    : mediaElement.pause();
+            if (promise instanceof Promise) {
+                promise.then(dfd.resolve).catch(dfd.reject);
+            } else {
+                dfd.resolve();
+            }
+        } catch (ex) {
+            dfd.reject(ex);
         }
+        return dfd.promise();
     },
 
     /**

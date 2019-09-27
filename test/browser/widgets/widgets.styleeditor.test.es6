@@ -16,7 +16,6 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.styleeditor.es6';
-import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -27,8 +26,7 @@ const {
     destroy,
     init,
     observable,
-    ui,
-    ui: { ComboBox, Grid, StyleEditor }
+    ui: { ComboBox, Grid, roles, StyleEditor }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -39,11 +37,8 @@ chai.use(sinonChai);
 
 describe('widgets.styleeditor', () => {
     before(() => {
-        if (window.__karma__) {
-            if ($(`#${FIXTURES}`).length === 0) {
-                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
-            }
-            fixKendoRoles();
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -54,7 +49,7 @@ describe('widgets.styleeditor', () => {
             expect($.fn.kendoComboBox).to.be.a(CONSTANTS.FUNCTION);
             expect($.fn.kendoGrid).to.be.a(CONSTANTS.FUNCTION);
             expect($.fn.kendoStyleEditor).to.be.a(CONSTANTS.FUNCTION);
-            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
+            expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 

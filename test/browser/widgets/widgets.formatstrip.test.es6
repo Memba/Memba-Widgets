@@ -16,7 +16,6 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.formatstrip.es6';
-import fixKendoRoles from '../_misc/test.roles.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -36,11 +35,8 @@ chai.use(sinonChai);
 
 describe('widgets.formatstrip', () => {
     before(() => {
-        if (window.__karma__) {
-            if ($(`#${FIXTURES}`).length === 0) {
-                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
-            }
-            fixKendoRoles();
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 

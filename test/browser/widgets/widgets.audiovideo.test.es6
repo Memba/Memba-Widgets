@@ -17,7 +17,6 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.audiovideo.es6';
-import fixKendoRoles from '../_misc/test.roles.es6';
 import { baseUrl } from '../_misc/test.util.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
@@ -26,9 +25,7 @@ const {
     attr,
     destroy,
     init,
-    support,
-    ui,
-    ui: { AudioVideo, Slider }
+    ui: { AudioVideo, roles, Slider }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -60,11 +57,8 @@ if (window.PHANTOMJS) {
 
 describe('widgets.audiovideo', () => {
     before(() => {
-        if (window.__karma__) {
-            if ($(`#${FIXTURES}`).length === 0) {
-                $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
-            }
-            fixKendoRoles();
+        if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
+            $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
     });
 
@@ -73,7 +67,7 @@ describe('widgets.audiovideo', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoAudioVideo).to.be.a(CONSTANTS.FUNCTION);
-            expect(ui.roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
+            expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
@@ -92,10 +86,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(ui.Slider); // Only ui.Slider works in Karma
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(ui.Slider);
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -121,10 +115,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(ui.Slider);
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(ui.Slider);
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -156,10 +150,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(ui.Slider);
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(ui.Slider);
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -188,10 +182,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(ui.Slider);
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(ui.Slider);
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -218,10 +212,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(ui.Slider);
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(ui.Slider);
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -254,10 +248,10 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
-                .that.is.an.instanceof(ui.Slider);
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
-                .that.is.an.instanceof(ui.Slider);
+                .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
@@ -295,7 +289,6 @@ describe('widgets.audiovideo', () => {
                 expect(mediaElement.readyState).to.be.gte(3);
                 expect(mediaElement.paused).to.be.true;
                 widget.togglePlayPause();
-                debugger;
                 expect(mediaElement.paused).to.be.false;
                 widget.togglePlayPause();
                 expect(mediaElement.paused).to.be.true;
@@ -388,10 +381,6 @@ describe('widgets.audiovideo', () => {
                 .that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLAudioElement);
-            if (support.browser.chrome) {
-                // This does not work in Chrome
-                return done();
-            }
             // Yield some time for media files to load
             setTimeout(() => {
                 expect(mediaElement.readyState).to.be.gte(3);
@@ -415,8 +404,8 @@ describe('widgets.audiovideo', () => {
         it('enable', () => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget.toolbar).to.be.an.instanceof($);
-            expect(widget.seekerSlider).to.be.an.instanceof(ui.Slider);
-            expect(widget.volumeSlider).to.be.an.instanceof(ui.Slider);
+            expect(widget.seekerSlider).to.be.an.instanceof(Slider);
+            expect(widget.volumeSlider).to.be.an.instanceof(Slider);
             widget.enable(false);
             expect(widget.toolbar).to.have.class('k-state-disabled');
             expect(widget.seekerSlider.wrapper).to.have.class(

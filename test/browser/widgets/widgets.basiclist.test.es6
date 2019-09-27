@@ -16,7 +16,7 @@ import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.license.es6';
+import '../../../src/js/widgets/widgets.basiclist.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -30,7 +30,7 @@ const {
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}>`;
-const ROLE = 'license';
+const ROLE = 'basiclist';
 
 function getValue() {
     return JSC.one_of([0, 1, 13])();
@@ -53,7 +53,7 @@ function assertIcons(element, value) {
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-describe('widgets.license', () => {
+xdescribe('widgets.basiclist', () => {
     before(() => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
@@ -64,7 +64,7 @@ describe('widgets.license', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoLicense).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn.kendoBasicList).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -72,7 +72,7 @@ describe('widgets.license', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoLicense().data('kendoLicense');
+            const widget = element.kendoBasicList().data('kendoBasicList');
             expect(widget).to.be.an.instanceof(License);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -84,7 +84,9 @@ describe('widgets.license', () => {
             const options = {
                 value: getValue()
             };
-            const widget = element.kendoLicense(options).data('kendoLicense');
+            const widget = element
+                .kendoBasicList(options)
+                .data('kendoBasicList');
             expect(widget).to.be.an.instanceof(License);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -98,7 +100,7 @@ describe('widgets.license', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoLicense');
+            const widget = element.data('kendoBasicList');
             expect(widget).to.be.an.instanceof(License);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -114,7 +116,7 @@ describe('widgets.license', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoLicense');
+            const widget = element.data('kendoBasicList');
             expect(widget).to.be.an.instanceof(License);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -130,7 +132,7 @@ describe('widgets.license', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             options = { value: getValue() };
-            widget = element.kendoLicense(options).data('kendoLicense');
+            widget = element.kendoBasicList(options).data('kendoBasicList');
         });
 
         it('value (get)', () => {
@@ -202,7 +204,7 @@ describe('widgets.license', () => {
                 rating: undefined
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoLicense');
+            widget = element.data('kendoBasicList');
         });
 
         it('Changing the value in the viewModel changes the number of plain/selected stars', () => {
@@ -277,7 +279,7 @@ describe('widgets.license', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoLicense().data('kendoLicense');
+            widget = element.kendoBasicList().data('kendoBasicList');
         });
 
         it('mouseover', () => {
@@ -318,12 +320,12 @@ describe('widgets.license', () => {
         it('change', () => {
             const change = sinon.spy();
             widget = element
-                .kendoLicense({
+                .kendoBasicList({
                     change(e) {
                         change(e.value);
                     }
                 })
-                .data('kendoLicense');
+                .data('kendoBasicList');
             expect(widget).to.be.an.instanceof(License);
             const {
                 options: { min, max, step }

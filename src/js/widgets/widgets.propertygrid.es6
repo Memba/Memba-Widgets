@@ -752,4 +752,7 @@ const PropertyGrid = Widget.extend({
 /**
  * Registration
  */
-plugin(PropertyGrid);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'PropertyGrid')) {
+    // Prevents loading several times in karma
+    plugin(PropertyGrid);
+}

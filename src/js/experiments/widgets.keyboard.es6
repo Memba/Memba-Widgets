@@ -394,4 +394,7 @@ const Keyboard = Widget.extend({
 /**
  * Registration
  */
-plugin(Keyboard);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Keyboard')) {
+    // Prevents loading several times in karma
+    plugin(Keyboard);
+}

@@ -747,4 +747,7 @@ const Connector = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Connector);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Connector')) {
+    // Prevents loading several times in karma
+    plugin(Connector);
+}

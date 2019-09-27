@@ -510,4 +510,7 @@ const Social = Widget.extend({
 /**
  * Registration
  */
-plugin(Social);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Social')) {
+    // Prevents loading several times in karma
+    plugin(Social);
+}

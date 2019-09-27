@@ -883,7 +883,10 @@
                 logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
         });
-        kendo.ui.plugin(VectorDrawingToolBar);
+        if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'VectorDrawingToolBar')) {
+            // Prevents loading several times in karma
+            kendo.ui.plugin(VectorDrawingToolBar);
+        }
 
         /*********************************************************************************
          * VectorDrawingToolBar Tools

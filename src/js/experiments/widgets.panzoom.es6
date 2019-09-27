@@ -154,7 +154,10 @@ const PanZoom = Widget.extend({
 /**
  * Registration
  */
-plugin(PanZoom);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'PanZoom')) {
+    // Prevents loading several times in karma
+    plugin(PanZoom);
+}
 
 /** *****************************************************************************
  * Document events

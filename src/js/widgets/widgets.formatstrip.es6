@@ -736,7 +736,10 @@ const FormatBar = ToolBar.extend({
 /**
  * Registration
  */
-plugin(FormatBar);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'FormatBar')) {
+    // Prevents loading several times in karma
+    plugin(FormatBar);
+}
 
 /**
  * FormatStrip
@@ -944,4 +947,7 @@ const FormatStrip = Widget.extend({
 /**
  * Registration
  */
-plugin(FormatStrip);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'FormatStrip')) {
+    // Prevents loading several times in karma
+    plugin(FormatStrip);
+}

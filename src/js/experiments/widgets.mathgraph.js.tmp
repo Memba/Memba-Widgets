@@ -1128,7 +1128,10 @@
             }
         });
 
-        kendo.ui.plugin(OldMathGraph);
+        if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'OldMathGraph')) {
+            // Prevents loading several times in karma
+            kendo.ui.plugin(OldMathGraph);
+        }
 
         /*********************************************************************************
          * MathGraphToolBar Widget
@@ -1455,7 +1458,11 @@
                 ToolBar.fn.destroy.call(this);
             }
         });
-        kendo.ui.plugin(MathGraphToolBar);
+
+        if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MathGraphToolBar')) {
+            // Prevents loading several times in karma
+            kendo.ui.plugin(MathGraphToolBar);
+        }
 
         /*********************************************************************************
          * MathGraphToolBar Tools

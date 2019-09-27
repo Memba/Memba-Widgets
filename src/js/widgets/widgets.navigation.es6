@@ -734,4 +734,7 @@ const Navigation = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Navigation);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Navigation')) {
+    // Prevents loading several times in karma
+    plugin(Navigation);
+}

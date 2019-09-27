@@ -249,4 +249,7 @@ const ToolBox = Widget.extend({
 /**
  * Registration
  */
-plugin(ToolBox);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'ToolBox')) {
+    // Prevents loading several times in karma
+    plugin(ToolBox);
+}

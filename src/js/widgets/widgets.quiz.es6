@@ -849,4 +849,7 @@ const Quiz = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Quiz);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Quiz')) {
+    // Prevents loading several times in karma
+    plugin(Quiz);
+}

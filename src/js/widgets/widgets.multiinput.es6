@@ -610,4 +610,7 @@ const MultiInput = Widget.extend({
 /**
  * Registration
  */
-plugin(MultiInput);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MultiInput')) {
+    // Prevents loading several times in karma
+    plugin(MultiInput);
+}

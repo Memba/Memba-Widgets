@@ -230,4 +230,7 @@ const UnitInput = Widget.extend({
 /**
  * Registration
  */
-plugin(UnitInput);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'UnitInput')) {
+    // Prevents loading several times in karma
+    plugin(UnitInput);
+}

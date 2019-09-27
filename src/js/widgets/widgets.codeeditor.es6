@@ -668,4 +668,7 @@ const CodeEditor = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(CodeEditor);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'CodeEditor')) {
+    // Prevents loading several times in karma
+    plugin(CodeEditor);
+}

@@ -512,4 +512,7 @@ const MarkEditor = Widget.extend({
 /**
  * Registration
  */
-plugin(MarkEditor);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MarkEditor')) {
+    // Prevents loading several times in karma
+    plugin(MarkEditor);
+}

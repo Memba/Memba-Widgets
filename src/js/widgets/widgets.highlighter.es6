@@ -750,4 +750,10 @@ const HighLighter = Widget.extend({
     }
 });
 
-plugin(HighLighter);
+/**
+ * Registration
+ */
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'HighLighter')) {
+    // Prevents loading several times in karma
+    plugin(HighLighter);
+}

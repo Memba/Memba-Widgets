@@ -268,4 +268,7 @@ const Cursor = Widget.extend({
 /**
  * Registration
  */
-plugin(Cursor);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Cursor')) {
+    // Prevents loading several times in karma
+    plugin(Cursor);
+}

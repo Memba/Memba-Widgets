@@ -382,7 +382,10 @@
             }
         });
 
-        kendo.ui.plugin(MathGraphToolBar);
+        if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MathGraphToolBar')) {
+            // Prevents loading several times in karma
+            kendo.ui.plugin(MathGraphToolBar);
+        }
 
         /*********************************************************************************
          * MathGraphToolBar Tools

@@ -1863,4 +1863,7 @@ const AssetManager = Widget.extend({
 /**
  * Registration
  */
-plugin(AssetManager);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'AssetManager')) {
+    // Prevents loading several times in karma
+    plugin(AssetManager);
+}

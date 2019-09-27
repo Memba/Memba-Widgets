@@ -674,7 +674,10 @@ const SelectorToolBar = ToolBar.extend({
 /**
  * Registration
  */
-plugin(SelectorToolBar);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'SelectorToolBar')) {
+    // Prevents loading several times in karma
+    plugin(SelectorToolBar);
+}
 
 /** *******************************************************************************
  * SelectorSurface Widget
@@ -1420,7 +1423,10 @@ var SelectorSurface = Widget.extend({
 /**
  * Registration
  */
-plugin(SelectorSurface);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'SelectorSurface')) {
+    // Prevents loading several times in karma
+    plugin(SelectorSurface);
+}
 
 /** *******************************************************************************
  * Selector Widget
@@ -1817,4 +1823,7 @@ var Selector = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Selector);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Selector')) {
+    // Prevents loading several times in karma
+    plugin(Selector);
+}

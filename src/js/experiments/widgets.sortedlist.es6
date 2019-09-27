@@ -77,4 +77,7 @@ const SortedList = ListView.extend({
 /**
  * Registration
  */
-plugin(SortedList);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'SortedList')) {
+    // Prevents loading several times in karma
+    plugin(SortedList);
+}

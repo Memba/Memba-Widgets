@@ -155,4 +155,7 @@ const MathInput = Widget.extend({
 /**
  * Registration
  */
-plugin(MathInput);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MathInput')) {
+    // Prevents loading several times in karma
+    plugin(MathInput);
+}

@@ -354,4 +354,7 @@ const CodeInput = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(CodeInput);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'CodeInput')) {
+    // Prevents loading several times in karma
+    plugin(CodeInput);
+}

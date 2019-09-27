@@ -907,4 +907,7 @@ const MultiQuiz = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(MultiQuiz);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MultiQuiz')) {
+    // Prevents loading several times in karma
+    plugin(MultiQuiz);
+}

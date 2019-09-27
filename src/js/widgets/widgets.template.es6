@@ -265,4 +265,7 @@ const Template = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Template);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Template')) {
+    // Prevents loading several times in karma
+    plugin(Template);
+}

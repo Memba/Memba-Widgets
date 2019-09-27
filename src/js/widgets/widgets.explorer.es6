@@ -675,4 +675,7 @@ const Explorer = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Explorer);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Explorer')) {
+    // Prevents loading several times in karma
+    plugin(Explorer);
+}

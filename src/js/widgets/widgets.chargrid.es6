@@ -834,4 +834,7 @@ CharGrid._getCharGridArray = (rows, columns, whitelist, layout, data) => {
 /**
  * Registration
  */
-plugin(CharGrid);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'CharGrid')) {
+    // Prevents loading several times in karma
+    plugin(CharGrid);
+}

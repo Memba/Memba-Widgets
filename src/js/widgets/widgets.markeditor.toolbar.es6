@@ -464,7 +464,12 @@ const MarkEditorToolBar = ToolBar.extend({
 /**
  * Registrtation
  */
-plugin(MarkEditorToolBar);
+if (
+    !Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MarkEditorToolBar')
+) {
+    // Prevents loading several times in karma
+    plugin(MarkEditorToolBar);
+}
 
 /** *******************************************************************************
  * MarkEditorToolBar Tools
@@ -667,11 +672,7 @@ const HeadingsTool = PopupTool.extend({
         const element = $('<div />').appendTo(this.popup.element);
         buttons.forEach((options, index) => {
             const button =
-                `<a title="${options.text}" data-property="${
-                    options.property
-                }" data-value="${
-                    options.value
-                }" class="k-button k-button-icon">` +
+                `<a title="${options.text}" data-property="${options.property}" data-value="${options.value}" class="k-button k-button-icon">` +
                 `<span class="k-icon k-i-${options.iconClass}"></span>` +
                 `</a>`;
             if (

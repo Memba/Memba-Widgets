@@ -532,4 +532,7 @@ const BasicList = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(BasicList);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'BasicList')) {
+    // Prevents loading several times in karma
+    plugin(BasicList);
+}

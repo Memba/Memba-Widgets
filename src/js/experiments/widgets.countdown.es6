@@ -209,4 +209,7 @@ const CountDown = Widget.extend({
 /**
  * Registration
  */
-plugin(CountDown);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'CountDown')) {
+    // Prevents loading several times in karma
+    plugin(CountDown);
+}

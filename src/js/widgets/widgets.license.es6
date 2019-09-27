@@ -191,4 +191,7 @@ const License = Widget.extend({
 /**
  * Registration
  */
-plugin(License);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'License')) {
+    // Prevents loading several times in karma
+    plugin(License);
+}

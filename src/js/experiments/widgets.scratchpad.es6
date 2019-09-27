@@ -227,7 +227,10 @@ const ScratchPad = Widget.extend({
 /**
  * Registration
  */
-plugin(ScratchPad);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'ScratchPad')) {
+    // Prevents loading several times in karma
+    plugin(ScratchPad);
+}
 
 /** *****************************************************************************
  * Document events

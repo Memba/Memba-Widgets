@@ -123,4 +123,7 @@ const Latex = Widget.extend({
 /**
  * Registration
  */
-plugin(Latex);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Latex')) {
+    // Prevents loading several times in karma
+    plugin(Latex);
+}

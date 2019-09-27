@@ -255,4 +255,7 @@ const Table = Widget.extend({
 /**
  * Registration
  */
-plugin(Table);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Table')) {
+    // Prevents loading several times in karma
+    plugin(Table);
+}

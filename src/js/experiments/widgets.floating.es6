@@ -238,4 +238,7 @@ const Floating = Widget.extend({
 /**
  * Registration
  */
-plugin(Floating);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Floating')) {
+    // Prevents loading several times in karma
+    plugin(Floating);
+}

@@ -242,4 +242,7 @@ const TextGaps = Widget.extend({
 /**
  * Registration
  */
-plugin(TextGaps);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'TextGaps')) {
+    // Prevents loading several times in karma
+    plugin(TextGaps);
+}

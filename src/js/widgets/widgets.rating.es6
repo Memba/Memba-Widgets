@@ -325,4 +325,7 @@ const Rating = Widget.extend({
 /**
  * Registration
  */
-plugin(Rating);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Rating')) {
+    // Prevents loading several times in karma
+    plugin(Rating);
+}

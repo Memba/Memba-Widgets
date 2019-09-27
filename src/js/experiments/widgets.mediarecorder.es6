@@ -660,5 +660,10 @@ const MediaRecorder = Widget.extend({
     }
 });
 
-// Register MediaRecorder
-plugin(MediaRecorder);
+/**
+ * Registration
+ */
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MediaRecorder')) {
+    // Prevents loading several times in karma
+    plugin(MediaRecorder);
+}

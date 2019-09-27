@@ -692,6 +692,15 @@ const DraggableEx = Widget.extend({
 /**
  * Registration
  */
-plugin(DropTargetEx);
-plugin(DropTargetAreaEx);
-plugin(DraggableEx);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'DropTargetEx')) {
+    // Prevents loading several times in karma
+    plugin(DropTargetEx);
+}
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'DropTargetAreaEx')) {
+    // Prevents loading several times in karma
+    plugin(DropTargetAreaEx);
+}
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'DraggableEx')) {
+    // Prevents loading several times in karma
+    plugin(DraggableEx);
+}

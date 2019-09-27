@@ -309,4 +309,7 @@ const SpeechRecognizer = Widget.extend({
 /**
  * Registration
  */
-plugin(SpeechRecognizer);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'SpeechRecognizer')) {
+    // Prevents loading several times in karma
+    plugin(SpeechRecognizer);
+}

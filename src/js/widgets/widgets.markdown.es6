@@ -424,4 +424,7 @@ const Markdown = Widget.extend({
 /**
  * Registration
  */
-plugin(Markdown);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Markdown')) {
+    // Prevents loading several times in karma
+    plugin(Markdown);
+}

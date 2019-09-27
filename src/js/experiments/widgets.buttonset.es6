@@ -278,4 +278,7 @@ const ButtonSet = Widget.extend({
 /**
  * Registration
  */
-plugin(ButtonSet);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'ButtonSet')) {
+    // Prevents loading several times in karma
+    plugin(ButtonSet);
+}

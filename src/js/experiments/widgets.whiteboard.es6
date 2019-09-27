@@ -333,4 +333,7 @@ const Whiteboard = Widget.extend({
 /**
  * Registration
  */
-plugin(Whiteboard);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Whiteboard')) {
+    // Prevents loading several times in karma
+    plugin(Whiteboard);
+}

@@ -844,4 +844,7 @@ var DropZone = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(DropZone);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'DropZone')) {
+    // Prevents loading several times in karma
+    plugin(DropZone);
+}

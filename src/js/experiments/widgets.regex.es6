@@ -204,4 +204,7 @@ const RegEx = Widget.extend({
 /**
  * Registration
  */
-plugin(RegEx);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'RegEx')) {
+    // Prevents loading several times in karma
+    plugin(RegEx);
+}

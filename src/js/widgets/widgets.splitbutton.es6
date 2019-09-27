@@ -358,4 +358,7 @@ const SplitButton = Widget.extend({
 /**
  * Registration
  */
-plugin(SplitButton);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'SplitButton')) {
+    // Prevents loading several times in karma
+    plugin(SplitButton);
+}

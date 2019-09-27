@@ -503,7 +503,14 @@
                 logger.debug({ method: 'destroy', message: 'widget destroyed' });
             }
         });
-        kendo.ui.plugin(MathInputToolBar);
+
+        /**
+         * Registration
+         */
+        if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MathInputToolBar')) {
+            // Prevents loading several times in karma
+            plugin(MathInputToolBar);
+        }
 
         /*********************************************************************************
          * MathInputToolBar Tools

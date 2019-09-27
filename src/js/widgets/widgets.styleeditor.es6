@@ -886,4 +886,7 @@ const StyleEditor = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(StyleEditor);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'StyleEditor')) {
+    // Prevents loading several times in karma
+    plugin(StyleEditor);
+}

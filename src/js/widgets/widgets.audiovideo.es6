@@ -1058,4 +1058,7 @@ const AudioVideo = Widget.extend({
 /**
  * Registration
  */
-plugin(AudioVideo);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'AudioVideo')) {
+    // Prevents loading several times in karma
+    plugin(AudioVideo);
+}

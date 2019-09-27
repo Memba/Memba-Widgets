@@ -2303,7 +2303,10 @@ const Stage = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Stage);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Stage')) {
+    // Prevents loading several times in karma
+    plugin(Stage);
+}
 
 /** *******************************************************************************
  * Visual debug helpers

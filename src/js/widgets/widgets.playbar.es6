@@ -709,4 +709,7 @@ const PlayBar = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(PlayBar);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'PlayBar')) {
+    // Prevents loading several times in karma
+    plugin(PlayBar);
+}

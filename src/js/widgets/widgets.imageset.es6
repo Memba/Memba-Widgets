@@ -328,4 +328,7 @@ const ImageSet = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(ImageSet);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'ImageSet')) {
+    // Prevents loading several times in karma
+    plugin(ImageSet);
+}

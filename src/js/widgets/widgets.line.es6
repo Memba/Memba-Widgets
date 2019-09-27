@@ -457,4 +457,7 @@ const Line = Widget.extend({
 /**
  * Registration
  */
-plugin(Line);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Line')) {
+    // Prevents loading several times in karma
+    plugin(Line);
+}

@@ -240,4 +240,7 @@ const Helper = Widget.extend({
 /**
  * Registration
  */
-plugin(Helper);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Helper')) {
+    // Prevents loading several times in karma
+    plugin(Helper);
+}

@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Could be merge with test/browser/_misc/test.componments.es6
+
 import JSC from 'jscheck';
 import ObjectId from '../common/window.objectid.es6';
 import { randomVal } from '../common/window.util.es6';

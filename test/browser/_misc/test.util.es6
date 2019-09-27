@@ -28,7 +28,6 @@ const base = __karma__
     }`;
 /* eslint-enable prettier/prettier */
 
-
 /**
  * Assert BaseModel
  * @param actual

@@ -5,6 +5,9 @@
 
 /* eslint-disable no-unused-expressions */
 
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -70,5 +73,7 @@ describe('dialogs.textboxwizard', () => {
         const dialog = $('.k-dialog');
         destroy(dialog);
         dialog.remove();
+        $('body > .k-overlay').remove();
+        $('body > .k-popup').remove();
     });
 });

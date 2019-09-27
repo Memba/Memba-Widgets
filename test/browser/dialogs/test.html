@@ -262,7 +262,8 @@
                         document.getElementById('menu').style.display = 'none';
                         // now use SystemJS to load all test files
                         SystemJS.import('./' + test + '.test.es6').then(function() {
-                            mocha.checkLeaks().globals([]);
+                            // 'JSHINT' is for dialogs.codeeditor
+                            mocha.checkLeaks().globals(['JSHINT']);
                             mocha.run();
                         });
                     }
@@ -278,16 +279,16 @@
 <ul id="menu">
     <li><a href="?t=dialogs.alert">dialogs.alert</a></li>
     <li><a href="?t=dialogs.assetmanager">dialogs.assetmanager</a></li>
-    <li><a href="?t=dialogs.chargrid">dialogs.chargrid</a><span style="color: red;">*</span></li>
+    <li><a href="?t=dialogs.chargrid">dialogs.chargrid</li>
     <li><a href="?t=dialogs.codeeditor">dialogs.codeeditor</a></li>
     <li><a href="?t=dialogs.prompt">dialogs.prompt</a></li>
-    <li><a href="?t=dialogs.publish">dialogs.publish</a><span style="color: red;">*</span></li>
-    <li><a href="?t=dialogs.quizwizard">dialogs.quizwizard</a><span style="color: red;">*</span></li>
-    <li><a href="?t=dialogs.spreadsheet">dialogs.spreadsheet</a><span style="color: red;">*</span></li>
-    <li><a href="?t=dialogs.styleeditor">dialogs.styleeditor</a><span style="color: red;">*</span></li>
+    <li><a href="?t=dialogs.publish">dialogs.publish</a></li>
+    <li><a href="?t=dialogs.quizwizard">dialogs.quizwizard</a></li>
+    <li><a href="?t=dialogs.spreadsheet">dialogs.spreadsheet</a></li>
+    <li><a href="?t=dialogs.styleeditor">dialogs.styleeditor</a></li>
     <li><a href="?t=dialogs.textboxwizard">dialogs.textboxwizard</a></li>
-    <li><a href="?t=dialogs.vectordrawing">dialogs.vectordrawing</a><span style="color: red;">*</span></li>
-    <li><a href="?t=widgets.basedialog">widgets.basedialog</a><span style="color: red;">*</span></li>
+    <li><a href="?t=dialogs.vectordrawing">dialogs.vectordrawing</a></li>
+    <li><a href="?t=widgets.basedialog">widgets.basedialog</a></li>
 </ul>
 <div id="mocha"></div>
 <div id="fixtures"></div>

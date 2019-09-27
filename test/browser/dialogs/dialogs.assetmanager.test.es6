@@ -5,6 +5,9 @@
 
 /* eslint-disable no-unused-expressions */
 
+// Load i18n resources
+import '../../../src/js/cultures/all.en.es6';
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -29,6 +32,7 @@ const SELECTORS = {
     OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)',
     ITEM: '.k-dialog .kj-assetmanager li.k-tile:has(img[alt="{0}"])'
 };
+const TTL = 500;
 
 chai.use((c, u) => chaiJquery(c, u, $));
 
@@ -81,7 +85,7 @@ describe('dialogs.assetmanager', () => {
                 // We need to give time for data to show
                 $(format(SELECTORS.ITEM, image)).simulate(CONSTANTS.CLICK);
                 $(SELECTORS.PRIMARY_BUTTON).simulate(CONSTANTS.CLICK);
-            }, 500);
+            }, TTL);
         });
     });
 
@@ -90,5 +94,7 @@ describe('dialogs.assetmanager', () => {
         const dialog = $('.k-dialog');
         destroy(dialog);
         dialog.remove();
+        $('body > .k-overlay').remove();
+        $('body > .k-popup').remove();
     });
 });

@@ -8,6 +8,7 @@
 import 'kendo.core';
 import chai from 'chai';
 import JSC from 'jscheck';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import {
     error2xhr,
     extendQueryWithPartition,

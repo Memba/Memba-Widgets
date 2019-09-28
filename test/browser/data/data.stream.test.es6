@@ -23,7 +23,7 @@ import { normalizeSchema } from '../../../src/js/data/data.util.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
-import { getStream, getComponentArray } from '../_misc/test.components.es6';
+import { componentGenerator, getStream, getComponentArray } from '../_misc/test.components.es6';
 import { getSpyingTransport } from '../_misc/test.transports.es6';
 
 const { describe, it, xit } = window;
@@ -52,7 +52,7 @@ function loadStream() {
 
 describe('data.stream', () => {
     before(done => {
-        const promises = ['image', 'label', 'textbox'].map(tool =>
+        const promises = Object.keys(componentGenerator).map(tool =>
             tools.load(tool)
         );
         $.when(...promises)

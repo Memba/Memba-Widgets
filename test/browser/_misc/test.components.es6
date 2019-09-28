@@ -558,6 +558,7 @@ export {
     getVariable,
     getVideo,
     // -- Generic
+    componentGenerator,
     getComponentArray,
     getPage,
     getPageArray,

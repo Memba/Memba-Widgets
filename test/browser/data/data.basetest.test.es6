@@ -21,7 +21,7 @@ import Stream from '../../../src/js/data/data.stream.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 import { tryCatch } from '../_misc/test.util.es6';
-import { getStream } from '../_misc/test.components.es6';
+import { componentGenerator, getStream } from '../_misc/test.components.es6';
 
 const { describe, it, xit } = window;
 const {
@@ -73,7 +73,7 @@ function assertBaseTest(test) {
 
 describe('data.basetest', () => {
     before(done => {
-        const promises = ['image', 'label', 'textbox'].map(tool =>
+        const promises = Object.keys(componentGenerator).map(tool =>
             tools.load(tool)
         );
         $.when(...promises)

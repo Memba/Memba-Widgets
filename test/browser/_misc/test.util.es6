@@ -9,24 +9,12 @@ import 'kendo.data';
 import chai from 'chai';
 import BaseModel from '../../../src/js/data/data.base.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import base from './test.base.es6';
 
-const { __karma__, location } = window;
 const {
     data: { DataSource }
 } = window.kendo;
 const { expect } = chai;
-
-/**
- * Base directory for Karma path
- * @type {string}
- */
-/* eslint-disable prettier/prettier */
-const base = __karma__
-    ? 'base'
-    : `${location.protocol}//${location.host}${
-        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
-    }`;
-/* eslint-enable prettier/prettier */
 
 /**
  * Assert BaseModel

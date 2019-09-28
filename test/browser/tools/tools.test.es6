@@ -16,35 +16,34 @@ import chai from 'chai';
 import JSC from 'jscheck';
 // import sinon from 'sinon';
 // import sinonChai from 'sinon-chai';
-import { tryCatch } from '../_misc/test.util.es6';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import tools from '../../../src/js/tools/tools.es6';
-import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import { BaseTool, StubTool } from '../../../src/js/tools/tools.base.es6';
 import PointerTool from '../../../src/js/tools/tools.pointer.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
+import { componentGenerator } from '../_misc/test.components.es6';
+import { tryCatch } from '../_misc/test.util.es6';
 
 const { describe, it } = window;
 const { Observable } = window.kendo;
 const { expect } = chai;
-const DATA = ['image', 'label', 'textbox'];
+const DATA = Object.keys(componentGenerator);
 
 describe('tools', () => {
     describe('Initializing', () => {
         it('it should be an Observable', () => {
-            expect(tools).to.be.an.instanceof(Observable);
-            expect(tools).to.have.property(TOOLS.ACTIVE);
-            expect(tools).to.have.property(TOOLS.POINTER);
-            expect(tools).to.respondTo('load');
+            expect(tools).to.be.a(CONSTANTS.FUNCTION);
+            expect(tools()).to.be.an.instanceof(Observable);
+            expect(tools).to.have.property(TOOLS.ACTIVE, TOOLS.POINTER);
+            // expect(tools).to.respondTo('load');
+            expect(tools.load).to.be.a(CONSTANTS.FUNCTION);
         });
 
         it('it should at least have a pointer, a label, a textbox and an image tool', () => {
-            expect(tools)
-                .to.have.property(TOOLS.POINTER)
-                .that.is.an.instanceof(PointerTool);
             expect(tools).to.have.property(TOOLS.ACTIVE, TOOLS.POINTER);
+            expect(tools(TOOLS.POINTER)).to.be.an.instanceof(PointerTool);
             DATA.forEach(id => {
-                expect(tools)
-                    .to.have.property(id)
-                    .that.is.an.instanceof(Observable);
+                expect(tools(id)).to.be.an.instanceof(StubTool);
             });
         });
     });
@@ -73,8 +72,8 @@ describe('tools', () => {
                 TOOLS.ACTIVE,
                 JSC.string()()
             ])();
-            expect(tools[id]).not.to.be.an.instanceof(Observable);
-            expect(tools[id]).not.to.be.an.instanceof(BaseTool);
+            expect(tools(id)).not.to.be.an.instanceof(Observable);
+            expect(tools(id)).not.to.be.an.instanceof(BaseTool);
             tools
                 .load('id')
                 .then(() => {
@@ -89,13 +88,13 @@ describe('tools', () => {
         it('it should load a tool with a known id', done => {
             function test(id) {
                 const dfd = $.Deferred();
-                expect(tools[id]).to.be.an.instanceof(Observable);
-                expect(tools[id]).not.to.be.an.instanceof(BaseTool);
+                expect(tools(id)).to.be.an.instanceof(StubTool);
+                expect(tools(id)).not.to.be.an.instanceof(BaseTool);
                 tools
                     .load(id)
                     .then(
                         tryCatch(dfd)(() => {
-                            expect(tools[id]).to.be.an.instanceof(BaseTool);
+                            expect(tools(id)).to.be.an.instanceof(BaseTool);
                         })
                     )
                     .catch(dfd.reject);
@@ -112,13 +111,13 @@ describe('tools', () => {
         it('it should reload a tool with a known id', done => {
             function test(id) {
                 const dfd = $.Deferred();
-                expect(tools[id]).not.to.be.an.instanceof(Observable);
-                expect(tools[id]).to.be.an.instanceof(BaseTool);
+                expect(tools(id)).to.be.an.instanceof(StubTool);
+                expect(tools(id)).to.be.an.instanceof(BaseTool); // BaseTool extends StubTool
                 tools
                     .load(id)
                     .then(
                         tryCatch(dfd)(() => {
-                            expect(tools[id]).to.be.an.instanceof(BaseTool);
+                            expect(tools(id)).to.be.an.instanceof(BaseTool);
                         })
                     )
                     .catch(dfd.reject);

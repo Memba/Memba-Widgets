@@ -15,7 +15,16 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import {
+    PageComponent,
+    PageComponentDataSource
+} from '../../../src/js/data/data.pagecomponent.es6';
+import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.explorer.es6';
+import {
+    componentGenerator,
+    getComponentArray
+} from '../_misc/test.components.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -26,6 +35,7 @@ const {
     destroy,
     format,
     guid,
+    init,
     observable,
     ui: { Explorer, roles }
 } = window.kendo;
@@ -36,73 +46,20 @@ const ROLE = 'explorer';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const kidoju = window.kidoju;
-const tools = kidoju.tools;
-const Page = kidoju.data.Page;
-const PageComponent = kidoju.data.PageComponent;
-const PageComponentDataSource =
-    kidoju.data.PageComponentDataSource;
 const ICON_PATH = '../../src/styles/images/';
 const EXPLORER3 = `<div data-role="explorer" data-bind="source: components, value: current" data-icon-path="${ICON_PATH}"></div>`;
 
-const pageComponentCollectionArray = [
-    {
-        id: guid(),
-        tool: 'image',
-        top: 50,
-        left: 100,
-        height: 250,
-        width: 250,
-        rotate: 45,
-        attributes: {
-            src:
-                'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png'
-        }
-    },
-    {
-        id: guid(),
-        tool: 'image',
-        top: 300,
-        left: 300,
-        height: 250,
-        width: 250,
-        rotate: 315,
-        attributes: {
-            src:
-                'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg'
-        }
-    },
-    {
-        id: guid(),
-        tool: 'label',
-        top: 250,
-        left: 500,
-        height: 100,
-        width: 300,
-        rotate: 90,
-        attributes: {
-            style: 'font-family: Georgia, serif; color: #FF0000;',
-            text: 'World'
-        }
-    },
-    {
-        id: guid(),
-        tool: 'textbox',
-        top: 20,
-        left: 20,
-        height: 100,
-        width: 300,
-        rotate: 0,
-        attributes: {},
-        properties: { name: 'textfield3' }
-    }
-];
-
 describe('widgets.explorer', () => {
-    before(() => {
+    before(done => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
+        const promises = Object.keys(componentGenerator).map(tool =>
+            tools.load(tool)
+        );
+        $.when(...promises)
+            .then(done)
+            .catch(done);
     });
 
     describe('Availability', () => {
@@ -115,7 +72,7 @@ describe('widgets.explorer', () => {
     });
 
     describe('Initialization', () => {
-        it('from code without datasource', () => {
+        it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element.kendoExplorer().data('kendoExplorer');
             expect(widget).to.be.an.instanceof(Explorer);
@@ -131,37 +88,66 @@ describe('widgets.explorer', () => {
                 .with.property('length', 0);
         });
 
-        it('from code with datasource', () => {
+        it('from code with options', () => {
+            const data = getComponentArray();
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoExplorer({
-                    dataSource: pageComponentCollectionArray,
-                    iconPath: ICON_PATH
-                })
-                .data('kendoExplorer');
+            const options = {
+                dataSource: data,
+                iconPath: ICON_PATH
+            };
+            const widget = element.kendoExplorer(options).data('kendoExplorer');
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
             expect(element).to.have.descendants('ul');
             expect(element.find('li'))
                 .to.be.an.instanceof($)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
         });
 
         it('from markup', () => {
+            const attributes = {};
+            attributes[attr('role')] = ROLE;
+            attributes[attr('iconPath')] = ICON_PATH;
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data('kendoExplorer');
+            expect(widget).to.be.an.instanceof(Explorer);
+            expect(widget.dataSource).to.be.an.instanceof(
+                PageComponentDataSource
+            );
+            expect(widget.dataSource.data())
+                .to.be.an.instanceof(ObservableArray)
+                .with.property('length', 0);
+            expect(element).to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.descendants('ul');
+            expect(element.find('li'))
+                .to.be.an.instanceof($)
+                .with.property('length', 0);
+        });
+
+        it('from markup with attributes', () => {
+            const attributes = {};
+            attributes[attr('role')] = ROLE;
+            attributes[attr('bind')] = 'source: components, value: current';
+            attributes[attr('iconPath')] = ICON_PATH;
+            const data = getComponentArray();
             const viewModel = observable({
-                components: new PageComponentDataSource({
-                    data: pageComponentCollectionArray
-                }),
+                components: new PageComponentDataSource({ data }),
                 current: undefined
             });
-            const element = $(EXPLORER3).appendTo(`#${FIXTURES}`);
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             bind(`#${FIXTURES}`, viewModel);
             const widget = element.data('kendoExplorer');
             expect(widget).to.be.an.instanceof(Explorer);
@@ -170,28 +156,30 @@ describe('widgets.explorer', () => {
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
             expect(element).to.have.descendants('ul');
             expect(element.find('li'))
                 .to.be.an.instanceof($)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
         });
     });
 
     describe('Methods', () => {
+        let data;
         let element;
+        let options;
         let widget;
 
         beforeEach(() => {
+            data = getComponentArray();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoExplorer({
-                    dataSource: pageComponentCollectionArray,
-                    iconPath: ICON_PATH
-                })
-                .data('kendoExplorer');
+            options = {
+                dataSource: data,
+                iconPath: ICON_PATH
+            };
+            widget = element.kendoExplorer(options).data('kendoExplorer');
         });
 
         it('length', () => {
@@ -199,9 +187,7 @@ describe('widgets.explorer', () => {
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.length()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.length()).to.equal(data.length);
         });
 
         it('items', () => {
@@ -212,17 +198,15 @@ describe('widgets.explorer', () => {
             const items = widget.items();
             expect(items)
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
             const check = sinon.spy();
             $.each(items, (index, item) => {
                 check();
                 expect($(item)).to.match('li');
                 expect($(item)).to.have.class('k-item');
-                expect($(item)).to.have.class('kj-item');
+                expect($(item)).to.have.class(`kj-${ROLE}-item`);
             });
-            expect(check).to.have.callCount(
-                pageComponentCollectionArray.length
-            );
+            expect(check).to.have.callCount(data.length);
         });
 
         it('value', () => {
@@ -234,11 +218,7 @@ describe('widgets.explorer', () => {
                 PageComponentDataSource
             );
             expect(fn).to.throw(TypeError);
-            for (
-                let idx = 0;
-                idx < pageComponentCollectionArray.length;
-                idx++
-            ) {
+            for (let idx = 0; idx < data.length; idx++) {
                 const component = widget.dataSource.at(idx);
                 widget.value(component);
                 expect(widget.index()).to.equal(idx);
@@ -259,11 +239,7 @@ describe('widgets.explorer', () => {
             );
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(RangeError);
-            for (
-                let idx = 0;
-                idx < pageComponentCollectionArray.length;
-                idx++
-            ) {
+            for (let idx = 0; idx < data.length; idx++) {
                 const component = widget.dataSource.at(idx);
                 widget.index(idx);
                 expect(widget.value()).to.equal(component);
@@ -280,11 +256,7 @@ describe('widgets.explorer', () => {
                 PageComponentDataSource
             );
             expect(fn).to.throw(TypeError);
-            for (
-                let idx = 0;
-                idx < pageComponentCollectionArray.length;
-                idx++
-            ) {
+            for (let idx = 0; idx < data.length; idx++) {
                 const component = widget.dataSource.at(idx);
                 widget.id(component.id);
                 expect(widget.value()).to.equal(component);
@@ -298,6 +270,7 @@ describe('widgets.explorer', () => {
     });
 
     describe('MVVM (and UI interactions)', () => {
+        let data;
         let element;
         let widget;
         let viewModel;
@@ -305,17 +278,16 @@ describe('widgets.explorer', () => {
         /*
          // For obscure reasons, setting the viewModel here does not work
         viewModel = observable({
-            components: new PageComponentDataSource({ data: pageComponentCollectionArray }),
+            components: new PageComponentDataSource({ data: getComponentArray() }),
             current: null
         });
         */
 
         beforeEach(() => {
+            data = getComponentArray();
             element = $(EXPLORER3).appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                components: new PageComponentDataSource({
-                    data: pageComponentCollectionArray
-                }),
+                components: new PageComponentDataSource({ data }),
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -329,7 +301,7 @@ describe('widgets.explorer', () => {
             );
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
             viewModel.components.add(
                 new PageComponent({
                     id: guid(),
@@ -347,10 +319,7 @@ describe('widgets.explorer', () => {
             );
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property(
-                    'length',
-                    pageComponentCollectionArray.length + 1
-                );
+                .with.property('length', data.length + 1);
         });
 
         it('Removing a component from the viewModel removes the corresponding item from the widget', () => {
@@ -360,14 +329,11 @@ describe('widgets.explorer', () => {
             );
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
             viewModel.components.remove(viewModel.components.at(0));
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property(
-                    'length',
-                    pageComponentCollectionArray.length - 1
-                );
+                .with.property('length', data.length - 1);
         });
 
         // Currently, there is no point testing a change of component data in the viewModel
@@ -381,24 +347,18 @@ describe('widgets.explorer', () => {
             );
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
             const check = sinon.spy();
             $.each(viewModel.components.data(), (index, component) => {
                 check();
                 viewModel.set('current', component);
                 expect(
                     widget.element.find(
-                        format(
-                            '[{0}="{1}"]',
-                            attr('uid'),
-                            component.uid
-                        )
+                        format('[{0}="{1}"]', attr('uid'), component.uid)
                     )
                 ).to.have.class('k-state-selected');
             });
-            expect(check).to.have.callCount(
-                pageComponentCollectionArray.length
-            );
+            expect(check).to.have.callCount(data.length);
         });
 
         it('Changing the selected item in the widget, changes the corresponding component in the viewModel', () => {
@@ -407,7 +367,7 @@ describe('widgets.explorer', () => {
                 PageComponentDataSource
             );
             const check = sinon.spy();
-            $.each(widget.element.find('li.kj-item'), (index, item) => {
+            $.each(widget.element.find(`li.kj-${ROLE}-item`), (index, item) => {
                 check();
                 $(item).simulate('click');
                 expect(viewModel.get('current')).to.have.property(
@@ -415,17 +375,17 @@ describe('widgets.explorer', () => {
                     $(item).attr(attr('uid'))
                 );
             });
-            expect(check).to.have.callCount(
-                pageComponentCollectionArray.length
-            );
+            expect(check).to.have.callCount(data.length);
         });
     });
 
     describe('Events', () => {
+        let data;
         let element;
         let widget;
 
         beforeEach(() => {
+            data = getComponentArray();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
         });
 
@@ -434,7 +394,7 @@ describe('widgets.explorer', () => {
             const dataBound = sinon.spy();
             widget = element
                 .kendoExplorer({
-                    dataSource: pageComponentCollectionArray,
+                    dataSource: data,
                     iconPath: ICON_PATH,
                     dataBinding(e) {
                         dataBinding(e.sender);
@@ -459,7 +419,7 @@ describe('widgets.explorer', () => {
             const change = sinon.spy();
             widget = element
                 .kendoExplorer({
-                    dataSource: pageComponentCollectionArray,
+                    dataSource: data,
                     iconPath: ICON_PATH,
                     change(e) {
                         change(e.value);
@@ -472,7 +432,7 @@ describe('widgets.explorer', () => {
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
             const component = widget.dataSource.at(1);
             expect(component).to.be.an.instanceof(PageComponent);
             widget.value(component);

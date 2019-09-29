@@ -18,6 +18,16 @@ const base = __karma__
 /* eslint-enable prettier/prettier */
 
 /**
+ * Return base url
+ * @param path
+ */
+function baseUrl(path) {
+    // Remove / at beginning of path
+    const p = (path || '').replace(/^\/(\S+)/, '$1');
+    return `${base}/${p}`;
+}
+
+/**
  * Default export
  */
-export default base;
+export default baseUrl;

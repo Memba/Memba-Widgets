@@ -3,13 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
-/* eslint-disable no-unused-expressions */
-
 import 'kendo.data';
 import chai from 'chai';
 import BaseModel from '../../../src/js/data/data.base.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import base from './test.base.es6';
 
 const {
     data: { DataSource }
@@ -47,16 +44,6 @@ function assertBaseModel(actual, expected) {
 }
 
 /**
- * Return base url
- * @param path
- */
-function baseUrl(path) {
-    // Remove / at beginning of path
-    const p = (path || '').replace(/^\/(\S+)/, '$1');
-    return `${base}/${p}`;
-}
-
-/**
  * Try/catch wrapper for mocha tests
  * @param done
  * @returns {function(*): Function}
@@ -81,9 +68,4 @@ function tryCatch(done) {
 /**
  * Exports
  */
-export {
-    // ---
-    assertBaseModel,
-    baseUrl,
-    tryCatch
-};
+export { assertBaseModel, tryCatch };

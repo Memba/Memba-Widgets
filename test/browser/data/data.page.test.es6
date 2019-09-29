@@ -13,22 +13,24 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import { assertBaseModel, baseUrl, tryCatch } from '../_misc/test.util.es6';
-import {
-    getComponentArray,
-    getPage,
-    getPageArray
-} from '../_misc/test.components.es6';
 import ObjectId from '../../../src/js/common/window.objectid.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { Page, PageDataSource } from '../../../src/js/data/data.page.es6';
 import { PageComponentDataSource } from '../../../src/js/data/data.pagecomponent.es6';
 // import Stream from '../../../src/js/data/data.stream.es6';
 // import { normalizeSchema } from '../../../src/js/data/data.util.es6';
+import baseUrl from '../../../src/js/helpers/helpers.base.es6';
+
+import {
+    getComponentArray,
+    getPage,
+    getPageArray
+} from '../_misc/test.components.es6';
 import {
     getErrorTransport
     // getSpyingTransport
 } from '../_misc/test.transports.es6';
+import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
 
 const { describe, it } = window;
 const { expect } = chai;

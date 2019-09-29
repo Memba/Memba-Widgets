@@ -33,7 +33,7 @@ const IMAGES = [
  * getValidationLibrary
  * @function getValidationLibrary
  */
-export function getValidationLibrary() {
+function getValidationLibrary() {
     return [
         {
             name: 'Custom',
@@ -103,7 +103,7 @@ export function getValidationLibrary() {
  * getAudio
  * @function getAudio
  */
-export function getAudio() {
+function getAudio() {
     const height = JSC.integer(
         MIN_HEIGHT,
         Math.floor(MAX_HEIGHT * MAX_RATIO)
@@ -130,7 +130,7 @@ export function getAudio() {
  * @function getImage
  * @param index
  */
-export function getImage(index) {
+function getImage(index) {
     const height = JSC.integer(
         MIN_HEIGHT,
         Math.floor(MAX_HEIGHT * MAX_RATIO)
@@ -152,7 +152,7 @@ export function getImage(index) {
  * getLabel
  * @function getLabel
  */
-export function getLabel() {
+function getLabel() {
     const height = JSC.integer(
         MIN_HEIGHT,
         Math.floor(MAX_HEIGHT * MAX_RATIO)
@@ -177,7 +177,7 @@ export function getLabel() {
  * getQuiz
  * @function getQuiz
  */
-export function getQuiz() {
+function getQuiz() {
     const height = JSC.integer(
         MIN_HEIGHT,
         Math.floor(MAX_HEIGHT * MAX_RATIO)
@@ -204,7 +204,7 @@ export function getQuiz() {
  * getDummy
  * @function getDummy
  */
-export function getDummy() {
+function getDummy() {
     const height = JSC.integer(
         MIN_HEIGHT,
         Math.floor(MAX_HEIGHT * MAX_RATIO)
@@ -225,7 +225,7 @@ export function getDummy() {
  * getTextBox
  * @function getTextBox
  */
-export function getTextBox() {
+function getTextBox() {
     const height = JSC.integer(
         MIN_HEIGHT,
         Math.floor(MAX_HEIGHT * MAX_RATIO)
@@ -250,7 +250,7 @@ export function getTextBox() {
  * getComponentArray
  * @function getComponentArray
  */
-export function getComponentArray() {
+function getComponentArray() {
     return [
         getDummy(),
         getImage(0),
@@ -266,7 +266,7 @@ export function getComponentArray() {
  * getPage
  * @function getPage
  */
-export function getPage() {
+function getPage() {
     return {};
 }
 
@@ -274,7 +274,7 @@ export function getPage() {
  * getPageArray
  * @function getPageArray
  */
-export function getPageArray() {
+function getPageArray() {
     return [
         {
             id: new ObjectId().toString(),
@@ -381,3 +381,19 @@ export function getPageArray() {
         }
     ];
 }
+
+/**
+ * Export
+ */
+export {
+    getAudio,
+    getDummy,
+    getImage,
+    getLabel,
+    getQuiz,
+    getTextBox,
+    getComponentArray,
+    getPage,
+    getPageArray,
+    getValidationLibrary
+};

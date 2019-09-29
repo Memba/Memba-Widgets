@@ -11,7 +11,8 @@ import '../../../src/js/cultures/all.en.es6';
 import 'kendo.core';
 import chai from 'chai';
 import JSC from 'jscheck';
-import { tryCatch } from '../_misc/test.util.es6';
+import __ from '../../../src/js/app/app.i18n.es6';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 import {
     isCustomFormula,
@@ -30,6 +31,7 @@ import {
     stringLibrary,
     textLibrary
 } from '../../../src/js/tools/util.libraries.es6';
+import { tryCatch } from '../_misc/test.util.es6';
 
 const { describe, it } = window;
 const { format } = window.kendo;
@@ -37,8 +39,10 @@ const { expect } = chai;
 
 const key = JSC.string(JSC.integer(1, 15), JSC.character('a', 'z'))();
 const params = JSC.object()();
-const editor = function editor() {};
-const library = [
+function editor() {
+    return CONSTANTS.EMPTY;
+}
+const sampleLibrary = [
     {
         key,
         formula: 'function (value, solution) {\n\treturn true;\n}',
@@ -97,13 +101,13 @@ describe('util.libraries', () => {
     describe('parseLibraryItem', () => {
         it('it should parse', () => {
             expect(
-                parseLibraryItem(formulas.withoutParams, library)
+                parseLibraryItem(formulas.withoutParams, sampleLibrary)
             ).to.have.property('item');
             expect(
-                parseLibraryItem(formulas.withParams, library)
+                parseLibraryItem(formulas.withParams, sampleLibrary)
             ).to.have.property('item');
             expect(
-                parseLibraryItem(formulas.withParams, library)
+                parseLibraryItem(formulas.withParams, sampleLibrary)
             ).to.have.property('params');
             expect(
                 parseLibraryItem(formulas.equal, booleanLibrary.library)
@@ -112,7 +116,16 @@ describe('util.libraries', () => {
                 parseLibraryItem(formulas.equal, charGridLibrary.library)
             ).to.have.property('item');
             expect(
+                parseLibraryItem(formulas.equal, dateLibrary.library)
+            ).to.have.property('item');
+            expect(
                 parseLibraryItem(formulas.equal, genericLibrary.library)
+            ).to.have.property('item');
+            expect(
+                parseLibraryItem(formulas.equal, mathLibrary.library)
+            ).to.have.property('item');
+            expect(
+                parseLibraryItem(formulas.equal, multiQuizLibrary.library)
             ).to.have.property('item');
             expect(
                 parseLibraryItem(formulas.equal, numberLibrary.library)
@@ -127,7 +140,7 @@ describe('util.libraries', () => {
     });
 
     describe('CUSTOM', () => {
-        it('TODO', () => {});
+        xit('TODO', () => {});
     });
 
     describe('arrayLibrary', () => {
@@ -191,39 +204,21 @@ describe('util.libraries', () => {
     });
 
     describe('i18n', () => {
-        it('It should internationalize names', done => {
-            const { libraries } = window.kendo.ex;
-            expect(CUSTOM).to.equal(libraries.CUSTOM);
-            expect(arrayLibrary).to.equal(libraries.arrayLibrary);
-            expect(booleanLibrary).to.equal(libraries.booleanLibrary);
-            expect(charGridLibrary).to.equal(libraries.charGridLibrary);
-            expect(dateLibrary).to.equal(libraries.dateLibrary);
-            expect(genericLibrary).to.equal(libraries.genericLibrary);
-            expect(mathLibrary).to.equal(libraries.mathLibrary);
-            expect(multiQuizLibrary).to.equal(libraries.multiQuizLibrary);
-            expect(numberLibrary).to.equal(libraries.numberLibrary);
-            expect(stringLibrary).to.equal(libraries.stringLibrary);
-            expect(textLibrary).to.equal(libraries.textLibrary);
-            import('../../../src/js/cultures/libraries.fr.es6')
-                .then(
-                    tryCatch(done)(() => {
-                        expect(CUSTOM).to.have.property('name', 'Personnalisé');
-                        expect(arrayLibrary).to.have.nested.property(
-                            'library.0.name',
-                            'Égal'
-                        );
-                        expect(arrayLibrary).to.have.nested.property(
-                            'library.1.name',
-                            'Égal (sans maj.)'
-                        );
-                        expect(arrayLibrary).to.have.nested.property(
-                            'library.2.name',
-                            'Égal (sommes)'
-                        );
-                        // NOte: should we check them all?
-                    })
-                )
-                .catch(done);
+        it('It should internationalize names', () => {
+            debugger;
+            expect(CUSTOM).to.have.property('name', 'Personnalisé');
+            expect(arrayLibrary).to.have.nested.property(
+                'library.0.name',
+                'Égal'
+            );
+            expect(arrayLibrary).to.have.nested.property(
+                'library.1.name',
+                'Égal (sans maj.)'
+            );
+            expect(arrayLibrary).to.have.nested.property(
+                'library.2.name',
+                'Égal (sommes)'
+            );
         });
     });
 });

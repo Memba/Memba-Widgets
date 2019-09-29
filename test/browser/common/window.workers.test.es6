@@ -17,7 +17,7 @@ import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import support from '../../../src/js/common/window.support.es6';
 import WorkerPool from '../../../src/js/common/window.workers.es6';
-import { baseUrl } from '../_misc/test.util.es6';
+import baseUrl from '../../../src/js/helpers/helpers.base.es6';
 
 const { before, describe, it, xdescribe } = window;
 const { expect } = chai;

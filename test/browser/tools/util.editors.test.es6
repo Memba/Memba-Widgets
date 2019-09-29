@@ -16,7 +16,7 @@ const { expect } = chai;
 
 describe('util.editors', () => {
     describe('fn', () => {
-        it('TODO', () => {
+        xit('TODO', () => {
             expect(true).to.be.false;
         });
     });

@@ -30,6 +30,7 @@ const {
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'markdown';
+const CLASS = 'kendoMarkdown';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -53,7 +54,7 @@ describe('widgets.markdown', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoMarkdown().data('kendoMarkdown');
+            const widget = element[CLASS]().data(CLASS);
             expect(widget).to.be.an.instanceof(Markdown);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-markdown');
@@ -64,7 +65,7 @@ describe('widgets.markdown', () => {
                 // TODO Add options
             };
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoMarkdown(options).data('kendoMarkdown');
+            const widget = element[CLASS](options).data(CLASS);
             expect(widget).to.be.an.instanceof(Markdown);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-markdown');
@@ -77,7 +78,7 @@ describe('widgets.markdown', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const markDown = element.data('kendoMarkdown');
+            const markDown = element.data(CLASS);
             expect(markDown).to.be.an.instanceof(Markdown);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-markdown');
@@ -93,7 +94,7 @@ describe('widgets.markdown', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoMarkdown(options).data('kendoMarkdown');
+            widget = element[CLASS](options).data(CLASS);
         });
 
         xit('destroy', () => {
@@ -119,7 +120,7 @@ describe('widgets.markdown', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoMarkdown(options).data('kendoMarkdown');
+            widget = element[CLASS](options).data(CLASS);
             viewModel = observable({
                 // TODO
             });
@@ -138,7 +139,7 @@ describe('widgets.markdown', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoMarkdown(options).data('kendoMarkdown');
+            widget = element[CLASS](options).data(CLASS);
             event = sinon.spy();
         });
 

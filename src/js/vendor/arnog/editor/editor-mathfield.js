@@ -33,12 +33,17 @@ import '../addons/outputSpokenText.js';
     toSpeakableText() respectively.
 */
 
+/* The default eslint parser, espree, does not parse the "declare type" correctly.
+   Could use a different parser (babel-eslint), but to avoid bringing in another
+   dependency, just turn off linting for this line */
+/* eslint-disable */
 /**
  * @typedef {function} MathFieldCallback
- * @param {any} mf
- * @return void
+ * @param {MathField} mf
+ * @return {void}
  * @global
  */
+/* eslint-enable */
 
 /**
  @typedef MathFieldConfig
@@ -1052,7 +1057,7 @@ class MathField {
      * @private
      */
     performWithFeedback_(command) {
-        this.focus();
+        this.$focus();
         if (this.config.keypressVibration && navigator.vibrate) {
             navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
         }

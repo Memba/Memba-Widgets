@@ -211,7 +211,18 @@ function getLabel() {
  */
 function getLatex() {
     return {
-        // TODO
+        attributes: {
+            formula: '', // TODO
+            inline: JSC.boolean()(),
+            style: styleGenerator()
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        rotate: angleGenerator(),
+        tool: 'latex',
+        top: positionGenerator(),
+        width: positionGenerator()
     };
 }
 
@@ -222,8 +233,8 @@ function getLatex() {
 function getLine() {
     return {
         attributes: {
-            color: '#ff0000'
-            // TODO more?
+            lineColor: '#ff0000',
+            lineWidth: 5
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -267,6 +278,37 @@ function getMultiQuiz() {
         },
         rotate: angleGenerator(),
         tool: 'multiquiz',
+        top: positionGenerator(),
+        width: positionGenerator()
+    };
+}
+
+/**
+ * getNumericBox
+ * @function getNumericBox
+ */
+function getNumericBox() {
+    return {
+        attributes: {
+            decimals: JSC.integer(0, 2)(),
+            // max: undefined
+            min: JSC.integer(0, 100)(),
+            style: styleGenerator()
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: textGenerator(),
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'numericbox',
         top: positionGenerator(),
         width: positionGenerator()
     };
@@ -549,6 +591,7 @@ export {
     getLatex,
     getLine,
     getMultiQuiz,
+    getNumericBox,
     getQuiz,
     getSelector,
     getTable,

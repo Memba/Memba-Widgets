@@ -13,6 +13,7 @@ import '../../../src/js/cultures/all.en.es6';
 import $ from 'jquery';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import __ from '../../../src/js/app/app.i18n.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
 import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
@@ -51,13 +52,18 @@ describe('tools.variable', () => {
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);
             expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
-            expect(tool).to.have.property('description', 'Variable');
+            expect(tool).to.have.property(
+                'description',
+                __('tools.variable.description')
+            );
             expect(tool).to.have.property('height', 64);
-            expect(tool).to.have.property('help', null); // TODO
-            expect(tool).to.have.property('id', 'variable');
-            expect(tool).to.have.property('icon', 'magic_wand');
-            // TODO expect(tool).to.have.property('menu', 'Label');
-            expect(tool).to.have.property('name', 'Variable');
+            expect(tool).to.have.property('help', __('tools.variable.help'));
+            expect(tool).to.have.property('id', TOOL);
+            expect(tool).to.have.property('icon', __('tools.variable.icon'));
+            expect(tool)
+                .to.have.property('menu')
+                .that.eql(['properties.variable', 'properties.expression']);
+            expect(tool).to.have.property('name', __('tools.variable.name'));
             expect(tool).to.have.property('weight', 0);
             expect(tool).to.have.property('width', 64);
         });
@@ -70,22 +76,20 @@ describe('tools.variable', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('variable');
-            expect(Model.fields).to.have.property('expression');
+            expect(Model.fields).to.deep.equal({});
+
         });
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(5);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.variable');
-            expect(rows[6]).to.have.property('field', 'attributes.expression');
         });
 
         it('getPropertyModel', () => {
@@ -96,14 +100,17 @@ describe('tools.variable', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.deep.equal({});
+            expect(Model.fields).to.have.property('variable');
+            expect(Model.fields).to.have.property('expression');
         });
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(0);
+                .with.lengthOf(2);
+            expect(rows[0]).to.have.property('field', 'properties.variable');
+            expect(rows[1]).to.have.property('field', 'properties.expression');
         });
 
         it('getAssets', () => {
@@ -156,8 +163,9 @@ describe('tools.variable', () => {
 
             // Test all stage TOOLS.STAGE_MODES
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
-                const html = tool.getHtmlContent(component, mode);
-                expect(html).to.match(/^<img/);
+                const content = tool.getHtmlContent(component, mode);
+                expect(content).to.be.an.instanceOf($);
+                expect(content).to.match('img');
             });
         });
 

@@ -109,7 +109,7 @@ const VariableTool = BaseTool.extend({
                 return format(config.uris.cdn.icons, icon);
             }
         });
-        BaseTool.fn.getHtmlContent.call(this, component, mode);
+        return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
 
     /**

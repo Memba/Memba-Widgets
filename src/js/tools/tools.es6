@@ -194,6 +194,26 @@ function tools(id) {
         });
 
         /**
+         * NumericBox
+         */
+        _tools.numericbox = new StubTool({
+            description: __('tools.numericbox.description'),
+            help: __('tools.numericbox.help'),
+            icon: __('tools.numericbox.icon'),
+            name: __('tools.numericbox.name')
+        });
+
+        /**
+         * Variable
+         */
+        _tools.variable = new StubTool({
+            description: __('tools.variable.description'),
+            help: __('tools.variable.help'),
+            icon: __('tools.variable.icon'),
+            name: __('tools.variable.name')
+        });
+
+        /**
          * TextBox
          */
         _tools.textgaps = new StubTool({
@@ -231,6 +251,16 @@ function tools(id) {
             help: __('tools.line.help'),
             icon: __('tools.line.icon'),
             name: __('tools.line.name')
+        });
+
+        /**
+         * Latex
+         */
+        _tools.latex = new StubTool({
+            description: __('tools.latex.description'),
+            help: __('tools.latex.help'),
+            icon: __('tools.latex.icon'),
+            name: __('tools.latex.name')
         });
 
         /**

@@ -57,16 +57,16 @@ describe('tools.latex', () => {
                 'description',
                 __('tools.latex.description')
             );
-            expect(tool).to.have.property('height', 80);
+            expect(tool).to.have.property('height', 180);
             expect(tool).to.have.property('help', __('tools.latex.help'));
             expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.latex.icon'));
             expect(tool)
                 .to.have.property('menu')
-                .that.eql(['attributes.text']);
+                .that.eql(['attributes.formula']);
             expect(tool).to.have.property('name', __('tools.latex.name'));
             expect(tool).to.have.property('weight', 0);
-            expect(tool).to.have.property('width', 300);
+            expect(tool).to.have.property('width', 370);
         });
 
         it('getAttributeModel', () => {
@@ -77,7 +77,8 @@ describe('tools.latex', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('text');
+            expect(Model.fields).to.have.property('formula');
+            expect(Model.fields).to.have.property('inline');
             expect(Model.fields).to.have.property('style');
         });
 
@@ -85,14 +86,15 @@ describe('tools.latex', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(8);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.text');
-            expect(rows[6]).to.have.property('field', 'attributes.style');
+            expect(rows[5]).to.have.property('field', 'attributes.formula');
+            expect(rows[6]).to.have.property('field', 'attributes.inline');
+            expect(rows[7]).to.have.property('field', 'attributes.style');
         });
 
         it('getPropertyModel', () => {

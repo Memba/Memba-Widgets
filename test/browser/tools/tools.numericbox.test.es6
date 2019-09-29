@@ -4,6 +4,7 @@
  */
 
 // TODO getHtmlContent return html text, not a jQuery instance
+// TODO test culture en-GB and fr-FR
 
 /* eslint-disable no-unused-expressions */
 
@@ -78,7 +79,9 @@ describe('tools.numericbox', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('mask');
+            expect(Model.fields).to.have.property('decimals');
+            expect(Model.fields).to.have.property('min');
+            expect(Model.fields).to.have.property('max');
             expect(Model.fields).to.have.property('style');
         });
 
@@ -86,14 +89,16 @@ describe('tools.numericbox', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(9);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.mask');
-            expect(rows[6]).to.have.property('field', 'attributes.style');
+            expect(rows[5]).to.have.property('field', 'attributes.decimals');
+            expect(rows[6]).to.have.property('field', 'attributes.min');
+            expect(rows[7]).to.have.property('field', 'attributes.max');
+            expect(rows[8]).to.have.property('field', 'attributes.style');
         });
 
         it('getPropertyModel', () => {

@@ -19,7 +19,7 @@ import JSC from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import openAssetManager from '../../../src/js/dialogs/dialogs.assetmanager.es6';
 import { tryCatch } from '../_misc/test.util.es6';
-import ASSETS from '../_misc/test.assets.es6';
+import ASSETS from '../../../src/js/helpers/helpers.assets.es6';
 
 const { afterEach, describe, it } = window;
 const { destroy, format } = window.kendo;

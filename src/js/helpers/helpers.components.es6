@@ -6,10 +6,10 @@
 // TODO Could be merged with src/js/helpers/helpers.data.es6
 
 import JSC from 'jscheck';
-import ObjectId from '../../../src/js/common/window.objectid.es6';
-import { randomVal } from '../../../src/js/common/window.util.es6';
-import tools from '../../../src/js/tools/tools.es6';
-import { BaseTool } from '../../../src/js/tools/tools.base.es6';
+import ObjectId from '../common/window.objectid.es6';
+import { randomVal } from '../common/window.util.es6';
+import tools from '../tools/tools.es6';
+import { BaseTool } from '../tools/tools.base.es6';
 
 // Note: floating numbers generate errors due to changes in the last digit
 const angleGenerator = JSC.integer(0, 359);

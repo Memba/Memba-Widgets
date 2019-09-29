@@ -22,7 +22,7 @@ import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 // Component data
-import { getCharGrid } from '../_misc/test.components.es6';
+import { getCharGrid } from '../../../src/js/helpers/helpers.components.es6';
 
 import BaseModel from '../../../src/js/data/data.base';
 

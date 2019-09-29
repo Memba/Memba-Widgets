@@ -13,7 +13,7 @@ import sinonChai from 'sinon-chai';
 import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
 import { Asset, AssetDataSource } from '../../../src/js/data/data.asset.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
-import ASSETS from '../_misc/test.assets.es6';
+import ASSETS from '../../../src/js/helpers/helpers.assets.es6';
 
 const { describe, it } = window;
 const { expect } = chai;

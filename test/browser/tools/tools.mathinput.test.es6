@@ -21,7 +21,7 @@ import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 // Component data
-import { getMathInput } from '../_misc/test.components.es6';
+import { getMathInput } from '../../../src/js/helpers/helpers.components.es6';
 import __ from '../../../src/js/app/app.i18n';
 import BaseModel from '../../../src/js/data/data.base';
 

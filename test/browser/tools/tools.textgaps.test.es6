@@ -24,7 +24,7 @@ import TOOLS from '../../../src/js/tools/util.constants.es6';
 // import { tryCatch } from '../_misc/test.util.es6';
 
 // Component data
-import { getTextGaps } from '../_misc/test.components.es6';
+import { getTextGaps } from '../../../src/js/helpers/helpers.components.es6';
 
 const { describe, it, xit } = window;
 // const { htmlEncode } = window.kendo;

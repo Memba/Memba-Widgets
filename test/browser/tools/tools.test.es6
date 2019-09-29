@@ -21,7 +21,7 @@ import tools from '../../../src/js/tools/tools.es6';
 import { BaseTool, StubTool } from '../../../src/js/tools/tools.base.es6';
 import PointerTool from '../../../src/js/tools/tools.pointer.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
-import { componentGenerator } from '../_misc/test.components.es6';
+import { componentGenerator } from '../../../src/js/helpers/helpers.components.es6';
 import { tryCatch } from '../_misc/test.util.es6';
 
 const { describe, it } = window;

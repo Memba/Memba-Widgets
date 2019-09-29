@@ -24,7 +24,7 @@ import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 // Component data
-import { getDummy } from '../_misc/test.components.es6';
+import { getDummy } from '../../../src/js/helpers/helpers.components.es6';
 
 const { before, describe, it } = window;
 const { expect } = chai;

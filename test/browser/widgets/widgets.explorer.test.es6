@@ -24,7 +24,7 @@ import '../../../src/js/widgets/widgets.explorer.es6';
 import {
     componentGenerator,
     getComponentArray
-} from '../_misc/test.components.es6';
+} from '../../../src/js/helpers/helpers.components.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;

@@ -8,8 +8,8 @@
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.window';
-import assert from '../../../src/js/common/window.assert.es6';
-import baseUrl from '../../../src/js/helpers/helpers.base.es6';
+import assert from '../common/window.assert.es6';
+import baseUrl from './helpers.base.es6';
 
 const {
     roleSelector,

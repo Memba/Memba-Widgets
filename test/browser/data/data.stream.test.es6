@@ -23,7 +23,7 @@ import { normalizeSchema } from '../../../src/js/data/data.util.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
-import { componentGenerator, getStream, getComponentArray } from '../_misc/test.components.es6';
+import { componentGenerator, getStream, getComponentArray } from '../../../src/js/helpers/helpers.components.es6';
 import { getSpyingTransport } from '../_misc/test.transports.es6';
 
 const { describe, it, xit } = window;

@@ -16,7 +16,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.assetmanager.es6';
-import ASSETS from '../_misc/test.assets.es6';
+import ASSETS from '../../../src/js/helpers/helpers.assets.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;

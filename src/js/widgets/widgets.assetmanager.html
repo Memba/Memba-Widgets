@@ -211,7 +211,7 @@
             SystemJS.import('kendo.dataviz.diagram') // This is a workaround to force the correct load order
                 .then(function () {
                     return Promise.all([
-                        SystemJS.import('../../../test/browser/_misc/test.assets.es6'),
+                        SystemJS.import('../helpers/helpers.assets.es6'),
                         // SystemJS.import('./widgets.vectordrawing.js'),
                         SystemJS.import('./widgets.assetmanager.es6')]);
                 })

@@ -215,7 +215,7 @@
                     // otherwise we get: Uncaught (in promise) Error: Cannot read property 'Connection' of undefined
                     return Promise.all([
                         SystemJS.import('./dialogs.assetmanager.es6'),
-                        SystemJS.import('../../../test/browser/_misc/test.assets.es6')
+                        SystemJS.import('../helpers/helpers.assets.es6')
                     ]);
                 })
                 .then(function (modules) {

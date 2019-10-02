@@ -28,6 +28,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 // import { isAnyArray } from '../common/window.util.es6';
 import { AssetDataSource } from '../data/data.asset.es6';
+import { openOKCancelAlert } from '../dialogs/dialogs.alert.es6';
 
 const { FileList } = window;
 const {
@@ -774,20 +775,18 @@ const AssetManager = Widget.extend({
             }
         }
         if (found.length) {
-            window.kidoju.dialogs
-                .openAlert({
-                    type: BaseDialog.fn.type.warning,
-                    title: options.messages.dialogs.confirm,
-                    message: format(
-                        options.messages.dialogs.warningOverwrite,
-                        found.join('`, `')
-                    )
-                })
-                .then(e => {
-                    if (e.action === 'ok') {
-                        execUpload();
-                    }
-                });
+            openOKCancelAlert({
+                type: BaseDialog.fn.type.warning,
+                title: options.messages.dialogs.confirm,
+                message: format(
+                    options.messages.dialogs.warningOverwrite,
+                    found.join('`, `')
+                )
+            }).then(e => {
+                if (e.action === 'ok') {
+                    execUpload();
+                }
+            });
         } else {
             execUpload();
         }

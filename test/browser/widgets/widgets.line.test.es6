@@ -31,7 +31,7 @@ const {
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}>`;
 const ROLE = 'line';
-const CLASS = 'kendoLine';
+const WIDGET = 'kendoLine';
 
 function getValue() {
     return 1;
@@ -51,7 +51,7 @@ describe('widgets.line', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn[CLASS]).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -59,7 +59,7 @@ describe('widgets.line', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[CLASS]().data(CLASS);
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(Line);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -70,7 +70,7 @@ describe('widgets.line', () => {
             const options = {
                 value: getValue()
             };
-            const widget = element[CLASS](options).data(CLASS);
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Line);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -83,7 +83,7 @@ describe('widgets.line', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data(CLASS);
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Line);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -98,7 +98,7 @@ describe('widgets.line', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data(CLASS);
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Line);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -113,7 +113,7 @@ describe('widgets.line', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             options = { value: getValue() };
-            widget = element[CLASS](options).data(CLASS);
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('value (get)', () => {
@@ -185,7 +185,7 @@ describe('widgets.line', () => {
                 rating: undefined
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data(CLASS);
+            widget = element.data(WIDGET);
         });
 
         it('Changing the value in the viewModel changes the number of plain/selected stars', () => {
@@ -260,7 +260,7 @@ describe('widgets.line', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[CLASS]().data(CLASS);
+            widget = element[WIDGET]().data(WIDGET);
         });
 
         it('mouseover', () => {
@@ -274,7 +274,7 @@ describe('widgets.line', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[CLASS]().data(CLASS);
+            widget = element[WIDGET]().data(WIDGET);
         });
 
         it('change', () => {

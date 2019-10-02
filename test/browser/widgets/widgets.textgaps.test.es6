@@ -23,15 +23,16 @@ const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
 const {
     attr,
-    bind,
+    // bind,
     destroy,
     init,
-    observable,
+    // observable,
     ui: { roles, TextGaps }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'textgaps';
+const WIDGET = 'kendoTextGaps';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -60,7 +61,7 @@ describe('widgets.textgaps', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoTextGaps).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -69,7 +70,7 @@ describe('widgets.textgaps', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             // const options = {};
-            const widget = element.kendoTextGaps().data('kendoTextGaps');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(TextGaps);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -84,7 +85,7 @@ describe('widgets.textgaps', () => {
                 text: getText(count),
                 value: getValue(count)
             };
-            const widget = element.kendoTextGaps(options).data('kendoTextGaps');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(TextGaps);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -100,7 +101,7 @@ describe('widgets.textgaps', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoTextGaps');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(TextGaps);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -119,7 +120,7 @@ describe('widgets.textgaps', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoTextGaps');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(TextGaps);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -143,7 +144,7 @@ describe('widgets.textgaps', () => {
                 text: getText(count),
                 value: getValue(count)
             };
-            widget = element.kendoTextGaps(options).data('kendoTextGaps');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('value', () => {
@@ -189,7 +190,7 @@ describe('widgets.textgaps', () => {
                 text: getText(count),
                 value: getValue(count)
             };
-            widget = element.kendoTextGaps(options).data('kendoTextGaps');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('It should update value when input', () => {
@@ -227,7 +228,7 @@ describe('widgets.textgaps', () => {
                 text: getText(count),
                 value: getValue(count)
             };
-            widget = element.kendoTextGaps(options).data('kendoTextGaps');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('change', () => {

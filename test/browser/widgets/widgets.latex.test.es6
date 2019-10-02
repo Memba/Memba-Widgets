@@ -30,7 +30,7 @@ const {
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'latex';
-const CLASS = 'kendoLatex';
+const WIDGET = 'kendoLatex';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -46,7 +46,7 @@ describe('widgets.latex', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn[CLASS]).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -54,7 +54,7 @@ describe('widgets.latex', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[CLASS]().data(CLASS);
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(Latex);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -63,7 +63,7 @@ describe('widgets.latex', () => {
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {};
-            const widget = element[CLASS](options).data(CLASS);
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Latex);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -74,7 +74,7 @@ describe('widgets.latex', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data(CLASS);
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Latex);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -92,7 +92,7 @@ describe('widgets.latex', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[CLASS](options).data(CLASS);
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         xit('value', () => {
@@ -119,7 +119,7 @@ describe('widgets.latex', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[CLASS](options).data(CLASS);
+            widget = element[WIDGET](options).data(WIDGET);
             viewModel = observable({
                 // TODO
             });
@@ -139,7 +139,7 @@ describe('widgets.latex', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[CLASS](options).data(CLASS);
+            widget = element[WIDGET](options).data(WIDGET);
             event = sinon.spy();
         });
 

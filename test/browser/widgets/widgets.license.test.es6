@@ -31,7 +31,7 @@ const {
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}>`;
 const ROLE = 'license';
-const CLASS = 'kendoLicense';
+const WIDGET = 'kendoLicense';
 
 function getValue() {
     return JSC.one_of([0, 1, 13])();
@@ -65,7 +65,7 @@ describe('widgets.license', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn[CLASS]).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -73,7 +73,7 @@ describe('widgets.license', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[CLASS]().data(CLASS);
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(License);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -85,7 +85,7 @@ describe('widgets.license', () => {
             const options = {
                 value: getValue()
             };
-            const widget = element[CLASS](options).data(CLASS);
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(License);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -99,7 +99,7 @@ describe('widgets.license', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data(CLASS);
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(License);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -115,7 +115,7 @@ describe('widgets.license', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data(CLASS);
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(License);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -131,7 +131,7 @@ describe('widgets.license', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             options = { value: getValue() };
-            widget = element[CLASS](options).data(CLASS);
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('value (get)', () => {
@@ -195,7 +195,7 @@ describe('widgets.license', () => {
                 license: getValue()
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data(CLASS);
+            widget = element.data(WIDGET);
         });
 
         it('Changing the value in the viewModel changes the license icon', () => {
@@ -212,7 +212,7 @@ describe('widgets.license', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[CLASS]().data(CLASS);
+            widget = element[WIDGET]().data(WIDGET);
         });
 
         it('mouseover', () => {});
@@ -228,11 +228,11 @@ describe('widgets.license', () => {
 
         it('change', () => {
             const change = sinon.spy();
-            widget = element[CLASS]({
+            widget = element[WIDGET]({
                 change(e) {
                     change(e.value);
                 }
-            }).data(CLASS);
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(License);
         });
     });

@@ -34,6 +34,7 @@ const {
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'assetmanager';
+const WIDGET = 'kendoAssetManager';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -51,7 +52,7 @@ describe('widgets.assetmanager', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoAssetManager).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -59,12 +60,10 @@ describe('widgets.assetmanager', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoAssetManager()
-                .data('kendoAssetManager');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-assetmanager');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
@@ -103,15 +102,15 @@ describe('widgets.assetmanager', () => {
             const options = {
                 collections: [ASSETS.O_COLLECTION]
             };
-            const widget = element
-                .kendoAssetManager(options)
-                .data('kendoAssetManager');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-assetmanager');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            /*
             expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
+            */
             expect(widget)
                 .to.have.property('dropDownList')
                 .that.is.an.instanceof(DropDownList);
@@ -136,7 +135,7 @@ describe('widgets.assetmanager', () => {
             expect(widget.tabStrip)
                 .to.have.property('contentElements')
                 .that.is.an.instanceof($)
-                .with.property('length', 4);
+                .with.property('length', 1);
             expect(
                 widget.tabStrip.tabGroup.children(':nth-child(1)').text()
             ).to.equal(widget.options.messages.tabs.default);
@@ -157,12 +156,10 @@ describe('widgets.assetmanager', () => {
                 collections: [ASSETS.O_COLLECTION, ASSETS.V_COLLECTION],
                 schemes: ASSETS.SCHEMES
             };
-            const widget = element
-                .kendoAssetManager(options)
-                .data('kendoAssetManager');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-assetmanager');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
@@ -208,10 +205,10 @@ describe('widgets.assetmanager', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoAssetManager');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-assetmanager');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         xit('from markup with attributes (N/A: need transports)', () => {});
@@ -228,9 +225,7 @@ describe('widgets.assetmanager', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoAssetManager(options)
-                .data('kendoAssetManager');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('value and select', done => {
@@ -354,9 +349,7 @@ describe('widgets.assetmanager', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoAssetManager(options)
-                .data('kendoAssetManager');
+            widget = element[WIDGET](options).data(WIDGET);
             viewModel = observable({ url: undefined });
             change = sinon.spy();
             destroy = sinon.spy();
@@ -674,9 +667,7 @@ describe('widgets.assetmanager', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoAssetManager(options)
-                .data('kendoAssetManager');
+            widget = element[WIDGET](options).data(WIDGET);
             change = sinon.spy();
             error = sinon.spy();
         });

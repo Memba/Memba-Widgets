@@ -15,7 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.rating.es6';
+import '../../../src/js/experiments/widgets.rating.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;

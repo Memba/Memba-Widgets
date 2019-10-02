@@ -21,7 +21,7 @@ import openCharGrid from '../../../src/js/dialogs/dialogs.chargrid.es6';
 import { tryCatch } from '../_misc/test.util.es6';
 
 const { afterEach, describe, it } = window;
-const { destroy, format } = window.kendo;
+const { destroy } = window.kendo;
 const { expect } = chai;
 
 // const FIXTURES = 'fixtures';

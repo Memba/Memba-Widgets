@@ -8,6 +8,7 @@
 import chai from 'chai';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'modernizr';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import {
     enumerateDevices,
     getUserMedia,

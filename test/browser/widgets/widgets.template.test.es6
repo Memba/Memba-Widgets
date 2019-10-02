@@ -21,7 +21,7 @@ const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
 const {
     attr,
-    bind,
+    // bind,
     data: { DataSource },
     destroy,
     init,
@@ -31,6 +31,7 @@ const {
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'template';
+const WIDGET = 'kendoTemplate';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -59,10 +60,10 @@ describe('widgets.template', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoTemplate().data('kendoTemplate');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(Template);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-template');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
@@ -75,12 +76,10 @@ describe('widgets.template', () => {
                 template: 'script1',
                 value: 'Todd'
             };
-            const template = element
-                .kendoTemplate(options)
-                .data('kendoTemplate');
+            const template = element[WIDGET](options).data(WIDGET);
             expect(template).to.be.an.instanceof(Template);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-template');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(template)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
@@ -99,12 +98,10 @@ describe('widgets.template', () => {
                     { id: 3, name: 'Paris' }
                 ]
             };
-            const template = element
-                .kendoTemplate(options)
-                .data('kendoTemplate');
+            const template = element[WIDGET](options).data(WIDGET);
             expect(template).to.be.an.instanceof(Template);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-template');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(template.element).to.be.an.instanceof($);
             expect(template.wrapper).to.be.an.instanceof($);
             expect(template.options.template).to.equal(options.template);
@@ -125,10 +122,10 @@ describe('widgets.template', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const template = element.data('kendoTemplate');
+            const template = element.data(WIDGET);
             expect(template).to.be.an.instanceof(Template);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-template');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(template)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
@@ -144,10 +141,10 @@ describe('widgets.template', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const template = element.data('kendoTemplate');
+            const template = element.data(WIDGET);
             expect(template).to.be.an.instanceof(Template);
             expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-template');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(template.element).to.be.an.instanceof($);
             expect(template.wrapper).to.be.an.instanceof($);
             expect(template.options.template).to.be.a('function');
@@ -166,7 +163,7 @@ describe('widgets.template', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            template = element.kendoTemplate(options).data('kendoTemplate');
+            template = element[WIDGET](options).data(WIDGET);
         });
 
         xit('value', done => {
@@ -191,19 +188,19 @@ describe('widgets.template', () => {
         const options = {};
         let viewModel;
         let change;
-        let destroy;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            template = element.kendoTemplate(options).data('kendoTemplate');
+            template = element[WIDGET](options).data(WIDGET);
             viewModel = observable({
                 // TODO
             });
             change = sinon.spy();
-            destroy = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(template, viewModel, change);
+        });
     });
 
     describe('Events', () => {
@@ -214,11 +211,13 @@ describe('widgets.template', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            template = element.kendoTemplate(options).data('kendoTemplate');
+            template = element[WIDGET](options).data(WIDGET);
             event = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(template, event);
+        });
     });
 
     afterEach(() => {

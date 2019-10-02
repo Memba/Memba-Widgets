@@ -13,7 +13,7 @@ import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import JSC from 'jscheck';
-import sinon from 'sinon';
+// import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
 import CONSTANTS from '../../../src/js/common/window.constants.es6';

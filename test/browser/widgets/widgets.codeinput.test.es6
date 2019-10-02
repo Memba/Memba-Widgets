@@ -168,9 +168,7 @@ describe('widgets.codeinput', () => {
         });
 
         it('from markup', () => {
-            const attributes = {
-
-            };
+            const attributes = {};
             attributes[attr('role')] = ROLE;
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -273,7 +271,8 @@ describe('widgets.codeinput', () => {
             expect(fn).to.throw(TypeError);
             expect(codeInput._isCustom(TOOLS.LIB_COMMENT)).to.be.undefined;
             expect(codeInput._isCustom(EQ_NAME)).to.be.undefined;
-            expect(codeInput._isCustom(TOOLS.LIB_COMMENT + EQ_NAME)).to.be.undefined;
+            expect(codeInput._isCustom(TOOLS.LIB_COMMENT + EQ_NAME)).to.be
+                .undefined;
             expect(codeInput._isCustom(FORMULA1)).to.be.undefined;
             expect(codeInput._isCustom(FORMULA2)).to.equal(FORMULA2);
             expect(codeInput._isCustom(FORMULA3)).to.equal(FORMULA3);
@@ -288,19 +287,22 @@ describe('widgets.codeinput', () => {
             expect(codeInput._parseLibraryValue(TOOLS.LIB_COMMENT).item).to.be
                 .undefined;
             expect(codeInput._parseLibraryValue(DUMMY).item).to.be.undefined;
-            expect(codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + DUMMY).item).to.be
-                .undefined;
+            expect(codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + DUMMY).item)
+                .to.be.undefined;
             expect(codeInput._parseLibraryValue(EQ_NAME).item).to.be.undefined;
             expect(codeInput._parseLibraryValue(FORMULA1).item).to.be.undefined;
             expect(codeInput._parseLibraryValue(FORMULA2).item).to.be.undefined;
             expect(codeInput._parseLibraryValue(FORMULA3).item).to.be.undefined;
-            expect(codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item).not
-                .to.be.undefined;
             expect(
-                codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item.name
+                codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item
+            ).not.to.be.undefined;
+            expect(
+                codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item
+                    .name
             ).to.equal(EQ_NAME);
             expect(
-                codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item.formula
+                codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item
+                    .formula
             ).to.equal(EQ_FORMULA);
         });
 

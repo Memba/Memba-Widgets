@@ -93,7 +93,7 @@ describe('widgets.social', () => {
                 })
                 .data('kendoSocial');
             expect(widget).to.be.an.instanceof(Social);
-            const wrapper = widget.wrapper;
+            const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
             expect(wrapper).not.to.have.class('k-widget');
             expect(wrapper).to.have.class(`kj-${ROLE}`);
@@ -103,7 +103,7 @@ describe('widgets.social', () => {
             expect(wrapper.find('svg'))
                 .to.be.an.instanceof($)
                 .with.property('length', LENGTH - 1);
-            const options = widget.options;
+            const { options } = widget;
             expect(options.description).to.equal(DESCRIPTION);
             expect(options.enabled).to.be.true;
             expect(options.facebookAppId).to.equal(FACEBOOK_APPID);
@@ -121,7 +121,7 @@ describe('widgets.social', () => {
             expect(element).to.match('div');
             const widget = element.kendoSocial({}).data('kendoSocial');
             expect(widget).to.be.an.instanceof(Social);
-            const wrapper = widget.wrapper;
+            const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
             expect(wrapper).not.to.have.class('k-widget');
             expect(wrapper).to.have.class(`kj-${ROLE}`);
@@ -131,7 +131,7 @@ describe('widgets.social', () => {
             expect(wrapper.find('svg'))
                 .to.be.an.instanceof($)
                 .with.property('length', LENGTH - 1);
-            const options = widget.options;
+            const { options } = widget;
             expect(options.description).to.be.undefined;
             expect(options.enabled).to.be.true;
             expect(options.facebookAppId).to.be.undefined;
@@ -154,9 +154,7 @@ describe('widgets.social', () => {
                 .append(format(META_TAG, 'og:site_name', SOURCE))
                 .append(format(META_TAG, 'og:title', TITLE))
                 .append(format(META_TAG, 'og:url', URL))
-                .append(
-                    format(META_TAG, 'twitter:site', TWITTER_ACCOUNT)
-                );
+                .append(format(META_TAG, 'twitter:site', TWITTER_ACCOUNT));
             // Init and test widget
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
@@ -166,7 +164,7 @@ describe('widgets.social', () => {
             init(`#${FIXTURES}`);
             const widget = element.data('kendoSocial');
             expect(widget).to.be.an.instanceof(Social);
-            const wrapper = widget.wrapper;
+            const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
             expect(wrapper).not.to.have.class('k-widget');
             expect(wrapper).to.have.class(`kj-${ROLE}`);
@@ -176,7 +174,7 @@ describe('widgets.social', () => {
             expect(wrapper.find('svg'))
                 .to.be.an.instanceof($)
                 .with.property('length', LENGTH - 1);
-            const options = widget.options;
+            const { options } = widget;
             expect(options.description).to.equal(DESCRIPTION);
             expect(options.enabled).to.be.true;
             expect(options.facebookAppId).to.equal(FACEBOOK_APPID);
@@ -230,7 +228,7 @@ describe('widgets.social', () => {
 
         function test(action) {
             expect(widget).to.be.an.instanceof(Social);
-            const wrapper = widget.wrapper;
+            const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
             const button = widget.wrapper.find(
                 `a[role="button"][${attr(CONSTANTS.ACTION)}="${action}"]`

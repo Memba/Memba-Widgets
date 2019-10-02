@@ -288,9 +288,7 @@ describe('widgets.styleeditor', () => {
                 valueInput.trigger('change');
                 setTimeout(() => {
                     // Check value
-                    const expectedStyle = `${newStyle.name}:${
-                        newStyle.value
-                    };${oldStyle}`;
+                    const expectedStyle = `${newStyle.name}:${newStyle.value};${oldStyle}`;
                     expect(widget.value()).to.equal(expectedStyle);
                     // Check data
                     expect(widget._dataSource.total()).to.equal(rows + 1);

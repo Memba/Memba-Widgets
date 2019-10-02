@@ -152,9 +152,7 @@ const PropertyGrid = Widget.extend({
                     '<th role="columnheader" class="k-header">'}${
                     messages.property
                 }</th>` +
-                    `<th role="columnheader" class="k-header">${
-                        messages.value
-                    }</th>` +
+                    `<th role="columnheader" class="k-header">${messages.value}</th>` +
                     `</tr></thead>` +
                     `</table>` +
                     `</div>` +
@@ -300,10 +298,7 @@ const PropertyGrid = Widget.extend({
                 !$.isFunction(properties[prop]) &&
                 // if rows are designated in this.options.rows, only select these rows
                 (!hasRows ||
-                    Object.prototype.hasOwnProperty.call(
-                        optionRows,
-                        prop
-                    ))
+                    Object.prototype.hasOwnProperty.call(optionRows, prop))
             ) {
                 // TODO: the following line has been modified to care for complex values like CharGrid, which should be edited as a whole in a specific editor
                 // if ($.type(properties[prop]) === CONSTANTS.OBJECT) {
@@ -340,9 +335,7 @@ const PropertyGrid = Widget.extend({
                                 : undefined,
                         field: path.length === 0 ? prop : `${path}.${prop}`,
                         help:
-                            hasRows &&
-                            optionRows[prop] &&
-                            optionRows[prop].help
+                            hasRows && optionRows[prop] && optionRows[prop].help
                                 ? optionRows[prop].help
                                 : CONSTANTS.EMPTY,
                         // nullable

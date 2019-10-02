@@ -435,11 +435,7 @@ const PlayBar = DataBoundWidget.extend({
         if (options.refresh) {
             if (!element.find('.k-pager-refresh').length) {
                 element.append(
-                    `<a href="#" class="k-pager-refresh k-link" aria-label="${
-                        options.messages.refresh
-                    }" title="${
-                        options.messages.refresh
-                    }"><span class="k-icon k-i-refresh"></span></a>`
+                    `<a href="#" class="k-pager-refresh k-link" aria-label="${options.messages.refresh}" title="${options.messages.refresh}"><span class="k-icon k-i-refresh"></span></a>`
                 );
             }
             element.on(

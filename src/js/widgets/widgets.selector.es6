@@ -76,7 +76,10 @@ const SelectorEvents = Class.extend({
     init(options) {
         assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
         );
         assert(
             CONSTANTS.STRING,
@@ -263,7 +266,9 @@ const SelectorEvents = Class.extend({
         );
         const target = $(e.target);
         // Do not interfere with interactive elements
-        if (target.closest(CONSTANTS.DOT + CONSTANTS.INTERACTIVE_CLASS).length) {
+        if (
+            target.closest(CONSTANTS.DOT + CONSTANTS.INTERACTIVE_CLASS).length
+        ) {
             return;
         }
         const selectorSurface = this._getSelectorSurface(target);
@@ -273,7 +278,7 @@ const SelectorEvents = Class.extend({
             const pulled = selectorSurface._pullSelections(point);
             // If we are not removing selections under point, we are adding a new selection
             if (Array.isArray(pulled) && pulled.length === 0) {
-                const stroke = selectorSurface.activeSelector.options.stroke;
+                const { stroke } = selectorSurface.activeSelector.options;
                 const path = new Path({ stroke });
                 path.moveTo(point);
                 selectorSurface.drawingSurface.draw(path);
@@ -491,7 +496,7 @@ const SelectorToolBar = ToolBar.extend({
         );
         const id = e.id.substr(BUTTON_PREFIX.length);
         for (
-            let i = 0, length = this.selectorSurface.selectors.length;
+            let i = 0, { length } = this.selectorSurface.selectors;
             i < length;
             i++
         ) {
@@ -609,8 +614,8 @@ const SelectorToolBar = ToolBar.extend({
             }
         }
         var that = this;
-        const selectorSurface = that.selectorSurface;
-        const length = selectorSurface.selectors.length; // TODO check enabled
+        const { selectorSurface } = that;
+        const { length } = selectorSurface.selectors; // TODO check enabled
         if (length > 1) {
             // Rebuild all buttons
             const promises = [];
@@ -661,7 +666,7 @@ const SelectorToolBar = ToolBar.extend({
      * Destroy widget
      */
     destroy() {
-        const element = this.element;
+        const { element } = this;
         // Unref
         this.selectorSurface = undefined;
         // Destroy
@@ -854,7 +859,7 @@ var SelectorSurface = Widget.extend({
             this.selectors,
             assert.format(assert.messages.isArray.default, 'this.selectors')
         );
-        for (let i = 0, length = this.selectors.length; i < length; i++) {
+        for (let i = 0, { length } = this.selectors; i < length; i++) {
             if (this.selectors[i]._enabled) {
                 return true;
             }
@@ -1027,7 +1032,7 @@ var SelectorSurface = Widget.extend({
             )
         );
         const selector = this.activeSelector;
-        const dataSource = selector.dataSource;
+        const { dataSource } = selector;
         // Discard small selection that anyone will struggle to see on mobile
         if (!this._isSmallSelection(selector, rect)) {
             // Find the dataItem corresponding to the selector
@@ -1099,7 +1104,7 @@ var SelectorSurface = Widget.extend({
         );
         const ret = [];
         const selector = this.activeSelector;
-        const dataSource = selector.dataSource;
+        const { dataSource } = selector;
         // Find the dataItem corresponding to the selector
         const dataItem = this._getDataItem(selector);
         // Check and remove selections containing point
@@ -1153,14 +1158,17 @@ var SelectorSurface = Widget.extend({
         );
         assert.isNonEmptyPlainObject(
             stroke,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'stroke')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'stroke'
+            )
         );
         const RECT_RADIUS = 10;
         const path = new Path({ stroke });
-        const x = rect.origin.x;
-        const y = rect.origin.y;
-        const height = rect.size.height;
-        const width = rect.size.width;
+        const { x } = rect.origin;
+        const { y } = rect.origin;
+        const { height } = rect.size;
+        const { width } = rect.size;
         path.moveTo(x + width - RECT_RADIUS, y)
             .curveTo(
                 [x + width, y],
@@ -1203,7 +1211,10 @@ var SelectorSurface = Widget.extend({
         );
         assert.isNonEmptyPlainObject(
             stroke,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'stroke')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'stroke'
+            )
         );
         const arcGeometry = new geometry.Arc(
             [
@@ -1240,14 +1251,17 @@ var SelectorSurface = Widget.extend({
         );
         assert.isNonEmptyPlainObject(
             stroke,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'stroke')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'stroke'
+            )
         );
         const CROSS_CURVE = 0.5;
         const path = new Path({ stroke });
-        const x = rect.origin.x;
-        const y = rect.origin.y;
-        const height = rect.size.height;
-        const width = rect.size.width;
+        const { x } = rect.origin;
+        const { y } = rect.origin;
+        const { height } = rect.size;
+        const { width } = rect.size;
         path.moveTo(x + width, y)
             .lineTo(x + CROSS_CURVE * width, y + (1 - CROSS_CURVE) * height)
             .curveTo(
@@ -1307,7 +1321,7 @@ var SelectorSurface = Widget.extend({
                 CONSTANTS.OBJECT
             )
         );
-        const selections = dataItem.data.selections;
+        const { selections } = dataItem.data;
         const group = new Group();
         // We need a plain object for stroke
         const stroke =
@@ -1315,7 +1329,7 @@ var SelectorSurface = Widget.extend({
                 ? dataItem.data.stroke.toJSON()
                 : dataItem.data.stroke || {};
         // Iterate over selections to draw all shapes in group
-        for (let idx = 0, length = selections.length; idx < length; idx++) {
+        for (let idx = 0, { length } = selections; idx < length; idx++) {
             const rect = new geometry.Rect(
                 selections[idx].origin,
                 selections[idx].size
@@ -1523,9 +1537,9 @@ var Selector = DataBoundWidget.extend({
             );
             let ret;
             const that = this;
-            const element = that.element;
-            const options = that.options;
-            const selectorSurface = that.selectorSurface;
+            const { element } = that;
+            const { options } = that;
+            const { selectorSurface } = that;
             const dataItem = selectorSurface._getDataItem(that);
             if (
                 dataItem &&
@@ -1546,7 +1560,7 @@ var Selector = DataBoundWidget.extend({
                     const constant = selectable.attr(attr(CONSTANT));
                     const bbox = that._getBBox(selectable);
                     for (
-                        let i = 0, length = dataItem.data.selections.length;
+                        let i = 0, { length } = dataItem.data.selections;
                         i < length;
                         i++
                     ) {
@@ -1586,7 +1600,7 @@ var Selector = DataBoundWidget.extend({
      * @private
      */
     _initSurface() {
-        const options = this.options;
+        const { options } = this;
         const container = this.element.closest(options.container);
         assert.hasLength(
             container,
@@ -1634,7 +1648,10 @@ var Selector = DataBoundWidget.extend({
         // TODO Review for null
 
         // bind to the reset event to reset the dataSource
-        if (this.dataSource instanceof DataSource &&  $.isFunction(this._refreshHandler)) {
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHandler = undefined;
         }
@@ -1709,7 +1726,7 @@ var Selector = DataBoundWidget.extend({
      * @private
      */
     _getBBox(element) {
-        const options = this.options;
+        const { options } = this;
         const container = element.closest(options.container);
         const scaler = container.closest(options.scaler);
         const scale = scaler.length ? getTransformScale(scaler) : 1;

@@ -38,9 +38,7 @@ const viewModel = observable({
         return viewModel.test
             .grade()
             .then(() => {
-                const stageWidget = $(roleSelector('stage')).data(
-                    'kendoStage'
-                );
+                const stageWidget = $(roleSelector('stage')).data('kendoStage');
                 stageWidget.mode(stageWidget.modes.review);
                 const grid = $('div[data-role="grid"]').data('kendoGrid');
                 grid.setDataSource(

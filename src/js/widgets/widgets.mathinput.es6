@@ -30,26 +30,26 @@ const {
     ui: { plugin, Widget }
 } = window.kendo;
 const logger = new Logger('widgets.mathinput');
-var WIDGET = 'kendoMathInput';
-var NS = CONSTANTS.DOT + WIDGET;
+const WIDGET = 'kendoMathInput';
+const NS = CONSTANTS.DOT + WIDGET;
 const WIDGET_CLASS = 'kj-mathinput'; // 'k-widget kj-mathinput';
 
-var MathInputToolBar = ui.MathInputToolBar;
-var MQ = mq.getInterface(mq.getInterface.MAX);
+const { MathInputToolBar } = ui;
+const MQ = mq.getInterface(mq.getInterface.MAX);
 
-var DIV = `<${CONSTANTS.DIV}/>`;
-var RX_CHARACTER = /^[\s\[\]\{\}\(\)\|]$/;
-var RX_SIMPLE_COMMAND = /^\\[a-z]+$/; // These are simple LaTeX commands
-var RX_COMPLEX_COMMAND = /^\\mathbb{[^\}]+}$/; // These are commands with parameters which should be passed to mathField.command instead of mathField.write
-var RX_PARAMS = /[\(\[\{][^\}\]\)]*[\}\]\)]/g;
-var RX_INNERFIELD = /\\MathQuillMathField/; // or /\\MathQuillMathField{[\}]*}/
-var KEYSTROKES = {
+const DIV = `<${CONSTANTS.DIV}/>`;
+const RX_CHARACTER = /^[\s\[\]\{\}\(\)\|]$/;
+const RX_SIMPLE_COMMAND = /^\\[a-z]+$/; // These are simple LaTeX commands
+const RX_COMPLEX_COMMAND = /^\\mathbb{[^\}]+}$/; // These are commands with parameters which should be passed to mathField.command instead of mathField.write
+const RX_PARAMS = /[\(\[\{][^\}\]\)]*[\}\]\)]/g;
+const RX_INNERFIELD = /\\MathQuillMathField/; // or /\\MathQuillMathField{[\}]*}/
+const KEYSTROKES = {
     BACKSPACE: 'Backspace',
     LEFT: 'Left',
     RIGHT: 'Right',
     SPACE: 'Spacebar'
 };
-var TOOLBAR = [
+const TOOLBAR = [
     'backspace',
     'field',
     'keypad',
@@ -69,21 +69,22 @@ var TOOLBAR = [
  * @class MathInput
  * @extends Widget
  */
-var MathInput = Widget.extend({
-
+const MathInput = Widget.extend({
     /**
      * Init
      * @param element
      * @param options
      */
-    init: function (element, options) {
-        var that = this;
+    init(element, options) {
+        const that = this;
         options = options || {};
         Widget.fn.init.call(that, element, options);
         logger.debug({ method: 'init', message: 'Widget initialized' });
         // We need to set tools otherwise the options.toolbar.tools array is simply pasted over the TOOLBAR array, which creates duplicates in the overflow
         that.options.toolbar.tools = (options.toolbar || {}).tools || TOOLBAR;
-        that._enabled = that.element.prop('disabled') ? false : that.options.enable;
+        that._enabled = that.element.prop('disabled')
+            ? false
+            : that.options.enable;
         // that.bind(CONSTANTS.CHANGE, that.refresh.bind(that));
         that._render();
         that.value(that.options.value);
@@ -111,10 +112,13 @@ var MathInput = Widget.extend({
             charsThatBreakOutOfSupSub: '+-=<>',
             autoSubscriptNumerals: false, // Otherwise non-isolated numbers are subscript (true is good for chemistry)
             autoCommands: 'int pi sqrt sum', // The ones you can type without \ in addition to autoOperatorNames
-            autoOperatorNames: 'arccos arcsin arctan cos deg det dim exp lim log ln sin tan', // Otherwise BuiltInOpNames like sin are not converted to \sin
+            autoOperatorNames:
+                'arccos arcsin arctan cos deg det dim exp lim log ln sin tan', // Otherwise BuiltInOpNames like sin are not converted to \sin
             // arg deg det dim exp gcd hom inf ker lg lim ln log max min sup limsup liminf injlim projlim Pr
             // sin cos tan arcsin arccos arctan sinh cosh tanh sec cosec cotan csc cot coth ctg // why coth but not sech and csch, LaTeX?
-            substituteTextarea: function () { return document.createElement('textarea'); },
+            substituteTextarea() {
+                return document.createElement('textarea');
+            },
             mouseEvents: true // TODO
         },
         toolbar: {
@@ -128,20 +132,17 @@ var MathInput = Widget.extend({
      * Events
      * @property events
      */
-    events: [
-        CONSTANTS.CHANGE
-    ],
+    events: [CONSTANTS.CHANGE],
 
     /**
      * Value for MVVM binding
      * @param value
      */
-    value: function (value) {
+    value(value) {
         if (this._hasInnerFields()) {
             return this._arrayValue(value);
-        } else {
-            return this._stringValue(value);
         }
+        return this._stringValue(value);
     },
 
     /**
@@ -149,7 +150,7 @@ var MathInput = Widget.extend({
      * @returns {boolean}
      * @private
      */
-    _hasInnerFields: function () {
+    _hasInnerFields() {
         // Make sure RX_INNERFIELD does not have the /g option
         return RX_INNERFIELD.test(this.innerHTML);
     },
@@ -163,14 +164,22 @@ var MathInput = Widget.extend({
      * @returns {Array}
      * @private
      */
-    _arrayValue: function (value) {
-        var that = this;
-        var i;
-        var length;
+    _arrayValue(value) {
+        const that = this;
+        let i;
+        let length;
         if ($.isArray(value) || value instanceof kendo.data.ObservableArray) {
             for (i = 0, length = that.mathFields.length; i < length; i++) {
-                if (that.mathFields[i] instanceof MQ.MathField && that.mathFields[i].latex() !== (value[i] || that.defaults[i])) {
-                    logger.debug({ method: 'value', message: 'Setting value', data: { value: value }});
+                if (
+                    that.mathFields[i] instanceof MQ.MathField &&
+                    that.mathFields[i].latex() !==
+                        (value[i] || that.defaults[i])
+                ) {
+                    logger.debug({
+                        method: 'value',
+                        message: 'Setting value',
+                        data: { value }
+                    });
                     if ($.type(value[i]) === CONSTANTS.STRING) {
                         that.mathFields[i].latex(value[i]);
                     } else {
@@ -181,8 +190,10 @@ var MathInput = Widget.extend({
         } else if ($.type(value) === CONSTANTS.NULL) {
             that._arrayValue([]);
         } else if ($.type(value) === CONSTANTS.UNDEFINED) {
-            var ret = that.mathFields.map(function (mathField) { return mathField.latex(); });
-            var isDefault = true;
+            let ret = that.mathFields.map(function(mathField) {
+                return mathField.latex();
+            });
+            let isDefault = true;
             for (i = 0, length = ret.length; i < length; i++) {
                 if (ret[i] !== that.defaults[i]) {
                     isDefault = false;
@@ -194,7 +205,9 @@ var MathInput = Widget.extend({
             }
             return ret;
         } else {
-            throw new TypeError('`value` is expected to be an array if not undefined');
+            throw new TypeError(
+                '`value` is expected to be an array if not undefined'
+            );
         }
     },
 
@@ -205,10 +218,10 @@ var MathInput = Widget.extend({
      * @param value
      * @private
      */
-    _stringValue: function (value) {
+    _stringValue(value) {
         // We should only update if value has changed because this triggers _onEdit and a CONSTANTS.CHANGE event
         // which breaks that.trigger(DATABOUND); in widgets.stage
-        var latex = this.mathFields[0].latex();
+        const latex = this.mathFields[0].latex();
         if ($.type(value) === CONSTANTS.STRING) {
             if (value !== latex) {
                 this.mathFields[0].latex(value);
@@ -218,7 +231,9 @@ var MathInput = Widget.extend({
         } else if ($.type(value) === CONSTANTS.UNDEFINED) {
             return latex;
         } else {
-            throw new TypeError('`value` is expected to be a string if not undefined');
+            throw new TypeError(
+                '`value` is expected to be a string if not undefined'
+            );
         }
     },
 
@@ -226,10 +241,12 @@ var MathInput = Widget.extend({
      * Builds the widget layout
      * @private
      */
-    _render: function () {
-        var that = this;
+    _render() {
+        const that = this;
         that.wrapper = that.element;
-        that.element.addClass(WIDGET_CLASS).addClass(CONSTANTS.INTERACTIVE_CLASS);
+        that.element
+            .addClass(WIDGET_CLASS)
+            .addClass(CONSTANTS.INTERACTIVE_CLASS);
         that._initMathInput();
         that._initToolBar();
     },
@@ -241,11 +258,11 @@ var MathInput = Widget.extend({
      * @see http://docs.mathquill.com/en/latest/Config/
      * @private
      */
-    _getConfig: function () {
+    _getConfig() {
         // We cannot build return that.config for all MathFields because MathQuill modifies it and it cannot be reused.
         // Se we keep track of a single instance of handlers and return a new config object at each request.
-        var that = this;
-        var options = that.options;
+        const that = this;
+        const { options } = that;
 
         // Cache handlers
         if ($.type(that._handlers) === CONSTANTS.UNDEFINED) {
@@ -261,7 +278,7 @@ var MathInput = Widget.extend({
         }
 
         // Return a fresh config that MathQuill can modify
-        var config = $.extend({}, options.mathquill);
+        const config = $.extend({}, options.mathquill);
         config.substituteTextarea = options.mathquill.substituteTextarea;
         config.handlers = that._handlers;
         return config;
@@ -271,10 +288,10 @@ var MathInput = Widget.extend({
      * Initialize
      * @private
      */
-    _initMathInput: function () {
-        var that = this;
-        var element = that.element;
-        var options = that.options;
+    _initMathInput() {
+        const that = this;
+        const { element } = that;
+        const { options } = that;
         // Get initial layout within <div></div> or <span></span>
         that.innerHTML = that.element.text().trim();
         if (this._hasInnerFields()) {
@@ -288,7 +305,7 @@ var MathInput = Widget.extend({
             that.mathFields = [MQ.MathField(element.get(0))];
         }
         // Gather defaults
-        that.defaults = that.mathFields.map(function (mathField) {
+        that.defaults = that.mathFields.map(function(mathField) {
             return mathField.latex();
         });
     },
@@ -297,17 +314,17 @@ var MathInput = Widget.extend({
      * Initialize handlers
      * @private
      */
-    _initHandlers: function () {
-        var that = this;
-        var options = that.options;
+    _initHandlers() {
+        const that = this;
+        const { options } = that;
 
         // Set config handlers on each field
-        for (var i = 0, length = that.mathFields.length; i < length; i++) {
+        for (let i = 0, { length } = that.mathFields; i < length; i++) {
             that.mathFields[i].config(that._enabled ? that._getConfig() : {});
             // that.mathFields[i].__controller.editable = that._enabled;
         }
         // Enabled/Disable textareas
-        that.element.find('textarea').each(function () {
+        that.element.find('textarea').each(function() {
             $(this).prop('disabled', !that._enabled);
         });
 
@@ -333,7 +350,6 @@ var MathInput = Widget.extend({
                 .on(CONSTANTS.FOCUSIN + NS, that._onFocusIn.bind(that))
                 .on(CONSTANTS.FOCUSOUT + NS, that._onFocusOut.bind(that));
             // $(document).on(CONSTANTS.FOCUSIN + NS, that._onFocusOut.bind(that));
-
         }
     },
 
@@ -343,7 +359,7 @@ var MathInput = Widget.extend({
      * @param mathField
      * @private
      */
-    _onEdit: function (mathField) {
+    _onEdit(mathField) {
         this.trigger(CONSTANTS.CHANGE);
         logger.debug({ method: '_onEdit', message: 'Edit' });
     },
@@ -354,7 +370,7 @@ var MathInput = Widget.extend({
      * @param mathField
      * @private
      */
-    _onEnter: function (mathField) {
+    _onEnter(mathField) {
         this.trigger(CONSTANTS.CHANGE);
         logger.debug({ method: '_onEnter', message: 'Enter' });
     },
@@ -366,7 +382,7 @@ var MathInput = Widget.extend({
      * @param mathField
      * @private
      */
-    _onOutOf: function (direction, mathField) {
+    _onOutOf(direction, mathField) {
         logger.debug({ method: '_onOutOf', message: 'Not implemented' });
     },
 
@@ -374,27 +390,29 @@ var MathInput = Widget.extend({
      * Event handler for focusing into the widget element (or any of its MathFields)
      * @private
      */
-    _onFocusIn: function (e) {
-        var that = this;
-        var options = that.options;
+    _onFocusIn(e) {
+        const that = this;
+        const { options } = that;
         // Record MathField with focus
         that._activeField = undefined;
-        for (var i = 0, length = that.mathFields.length; i < length; i++) {
+        for (let i = 0, { length } = that.mathFields; i < length; i++) {
             // if (!that.mathFields[i].__controller.blurred) {
             if (this.mathFields[i].__controller.textarea.is(e.target)) {
                 that._activeField = that.mathFields[i];
             }
         }
         // Hide all toolbars
-        var container = $(options.toolbar.container);
+        const container = $(options.toolbar.container);
         if (container.length) {
             // $(document).find(kendo.roleSelector('mathinputtoolbar')).hide();
-            container
-                .children(kendo.roleSelector('mathinputtoolbar'))
-                .hide();
+            container.children(kendo.roleSelector('mathinputtoolbar')).hide();
             // Show widget's toolbar
-            if (that._activeField instanceof MQ.MathField && that.toolBar instanceof MathInputToolBar) {
-                setTimeout(function () { // Without setTimeout, iOS does not show the toolbar
+            if (
+                that._activeField instanceof MQ.MathField &&
+                that.toolBar instanceof MathInputToolBar
+            ) {
+                setTimeout(function() {
+                    // Without setTimeout, iOS does not show the toolbar
                     that.toolBar.wrapper.show();
                 });
             }
@@ -410,17 +428,21 @@ var MathInput = Widget.extend({
      * @param e
      * @private
      */
-    _onFocusOut: function (e) {
-        var that = this;
-        var options = that.options;
-        var container = $(options.toolbar.container);
+    _onFocusOut(e) {
+        const that = this;
+        const { options } = that;
+        const container = $(options.toolbar.container);
         if (container.length) {
             // This is how kendo.editor does it at L#698
-            setTimeout(function () {
+            setTimeout(function() {
                 // Check whether we are interacting with the toolbar
-                if (that.toolBar instanceof MathInputToolBar &&
-                    that.toolBar.wrapper.has(document.activeElement).length === 0 && // Prevents the toolbar from hiding when clicking buttons
-                    !$(document.activeElement).is('.kj-floating')) { // Prevents the toolbar from hiding when moving the floating toolbar container
+                if (
+                    that.toolBar instanceof MathInputToolBar &&
+                    that.toolBar.wrapper.has(document.activeElement).length ===
+                        0 && // Prevents the toolbar from hiding when clicking buttons
+                    !$(document.activeElement).is('.kj-floating')
+                ) {
+                    // Prevents the toolbar from hiding when moving the floating toolbar container
                     that.toolBar.wrapper.hide();
                 }
             }, 10);
@@ -436,10 +458,10 @@ var MathInput = Widget.extend({
      * popups have more space to expand like a keyboard.
      * @private
      */
-    _initToolBar: function () {
-        var that = this;
-        var options = that.options;
-        var container = $(options.toolbar.container);
+    _initToolBar() {
+        const that = this;
+        const { options } = that;
+        let container = $(options.toolbar.container);
         if (container.length) {
             that.toolBar = $(DIV)
                 .appendTo(container)
@@ -475,7 +497,7 @@ var MathInput = Widget.extend({
      * @param e
      * @private
      */
-    _onToolBarAction: function (e) {
+    _onToolBarAction(e) {
         switch (e.command) {
             case 'ToolbarBackspaceCommand':
                 this._activeField.keystroke(KEYSTROKES.BACKSPACE);
@@ -507,10 +529,12 @@ var MathInput = Widget.extend({
                 if (RX_CHARACTER.test(e.params.value)) {
                     // Especially to type spaces
                     this._activeField.typedText(e.params.value);
-                } else if (RX_SIMPLE_COMMAND.test(e.params.value) || RX_COMPLEX_COMMAND.test(e.params.value)) {
+                } else if (
+                    RX_SIMPLE_COMMAND.test(e.params.value) ||
+                    RX_COMPLEX_COMMAND.test(e.params.value)
+                ) {
                     this._activeField.cmd(e.params.value);
                     // With `cmd`, the cursor is positioned as expected
-
 
                     // } else if (/^\\text/.test(e.params.value)) {
                     //     // Currently commented out because this requires a double backspace to delete
@@ -545,8 +569,11 @@ var MathInput = Widget.extend({
      * @param e
      * @private
      */
-    _onToolBarDialog: function (e) {
-        assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
+    _onToolBarDialog(e) {
+        assert.isNonEmptyPlainObject(
+            e,
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
+        );
         this._openDialog(e.name, e.options);
     },
 
@@ -557,8 +584,8 @@ var MathInput = Widget.extend({
      * @returns {name}
      * @private
      */
-    _openDialog: function (name, options) {
-        var dialog = kendo.mathinput.dialogs.create(name, options);
+    _openDialog(name, options) {
+        const dialog = kendo.mathinput.dialogs.create(name, options);
         if (!$.isArray(this._dialogs)) {
             this._dialogs = [];
         }
@@ -575,7 +602,7 @@ var MathInput = Widget.extend({
      *
      * @private
      */
-    _destroyDialog: function () {
+    _destroyDialog() {
         this._dialogs.pop();
     },
 
@@ -583,12 +610,15 @@ var MathInput = Widget.extend({
      * Enable
      * @param enabled
      */
-    enable: function (enabled) {
-        var that = this;
-        that._enabled = $.type(enabled) === CONSTANTS.UNDEFINED ? true : !!enabled;
+    enable(enabled) {
+        const that = this;
+        that._enabled =
+            $.type(enabled) === CONSTANTS.UNDEFINED ? true : !!enabled;
         that._initHandlers();
         if (that.toolBar instanceof MathInputToolBar) {
-            that.toolBar.element.children('a.k-button').each(function (index, button) {
+            that.toolBar.element
+                .children('a.k-button')
+                .each(function(index, button) {
                     that.toolBar.enable(button, enabled);
                 });
         }
@@ -599,18 +629,23 @@ var MathInput = Widget.extend({
     /**
      * Refresh
      */
-    refresh: function () {
+    refresh() {
         logger.debug({ method: 'refresh', message: 'Widget refreshed' });
     },
 
     /**
      * Return latex as text, especially for mathjs
      */
-    text: function () {
-        var that = this;
+    text() {
+        const that = this;
         if (that.staticMath instanceof MQ.StaticMath) {
             return that.staticMath.text();
-        } else if ($.isArray(that.mathFields) && that.mathFields.length === 1 && that.mathFields[0] instanceof MQ.MathField) {
+        }
+        if (
+            $.isArray(that.mathFields) &&
+            that.mathFields.length === 1 &&
+            that.mathFields[0] instanceof MQ.MathField
+        ) {
             return that.mathFields[0].text();
         }
     },
@@ -619,9 +654,9 @@ var MathInput = Widget.extend({
      * Destroy
      * @method destroy
      */
-    destroy: function () {
-        var that = this;
-        var wrapper = that.wrapper;
+    destroy() {
+        const that = this;
+        const { wrapper } = that;
         // Unbind events
         that.enable(false);
         kendo.unbind(wrapper);
@@ -635,7 +670,11 @@ var MathInput = Widget.extend({
         if (that.staticMath instanceof MQ.StaticMath) {
             that.staticMath.revert();
             that.staticMath = undefined;
-        } else if ($.isArray(that.mathFields) && that.mathFields.length === 1 && that.mathFields[0] instanceof MQ.MathField) {
+        } else if (
+            $.isArray(that.mathFields) &&
+            that.mathFields.length === 1 &&
+            that.mathFields[0] instanceof MQ.MathField
+        ) {
             that.mathFields[0].revert();
             that.mathFields = undefined;
         }
@@ -646,7 +685,6 @@ var MathInput = Widget.extend({
         // wrapper.removeClass(WIDGET_CLASS);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
-
 });
 
 /**

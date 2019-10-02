@@ -37,14 +37,13 @@ const ROLE = 'widget';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const kidoju = window.kidoju;
-const tools = kidoju.tools;
-const Tool = kidoju.Tool;
-const Page = kidoju.data.Page;
-const PageComponent = kidoju.data.PageComponent;
-const PageDataSource = kidoju.data.PageDataSource;
-const PageComponentDataSource =
-    kidoju.data.PageComponentDataSource;
+const { kidoju } = window;
+const { tools } = kidoju;
+const { Tool } = kidoju;
+const { Page } = kidoju.data;
+const { PageComponent } = kidoju.data;
+const { PageDataSource } = kidoju.data;
+const { PageComponentDataSource } = kidoju.data;
 const STAGE2 =
     '<div data-role="stage" data-bind="source: components, value: current" data-mode="design"></div>';
 
@@ -867,8 +866,8 @@ describe('widgets.widget', () => {
                     .to.be.an.instanceof($)
                     .with.property('length', 1);
                 const center = findCenter(handle);
-                let x = center.x;
-                let y = center.y;
+                let { x } = center;
+                let { y } = center;
                 const moves = 10;
                 const dx = 100;
                 const dy = 50;
@@ -971,8 +970,8 @@ describe('widgets.widget', () => {
                 const moves = 10;
                 const dx = 50;
                 const dy = 100;
-                let x = center.x;
-                let y = center.y;
+                let { x } = center;
+                let { y } = center;
 
                 // Making Drag a separate function fixes jshint message `This function has too many statements.`
                 function drag() {
@@ -1076,8 +1075,8 @@ describe('widgets.widget', () => {
                 const moves = 10;
                 const dx = 80;
                 const dy = 120;
-                let x = center.x;
-                let y = center.y;
+                let { x } = center;
+                let { y } = center;
 
                 // Making Drag a separate function fixes jshint message `This function has too many statements.`
                 function drag() {

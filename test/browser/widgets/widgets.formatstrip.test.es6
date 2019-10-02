@@ -49,7 +49,7 @@ describe('widgets.formatstrip', () => {
     });
 
     describe('Style', () => {
-        const Style = window.Style;
+        const { Style } = window;
 
         xit('Style', () => {
             const css =
@@ -72,7 +72,7 @@ describe('widgets.formatstrip', () => {
                 })
                 .data('kendoFormatStrip');
             expect(widget).to.be.an.instanceof(FormatStrip);
-            const wrapper = widget.wrapper;
+            const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
             // expect(wrapper).not.to.have.class('k-widget');
             // expect(wrapper).to.have.class(`kj-${ROLE}`);
@@ -87,14 +87,14 @@ describe('widgets.formatstrip', () => {
                     value
                 })
                 .data('kendoFormatStrip');
-            const min = widget.options.min;
-            const max = widget.options.max;
-            const step = widget.options.step;
+            const { min } = widget.options;
+            const { max } = widget.options;
+            const { step } = widget.options;
             expect(min).to.equal(0);
             expect(max).to.equal(5);
             expect(step).to.equal(1);
             expect(widget).to.be.an.instanceof(FormatStrip);
-            const wrapper = widget.wrapper;
+            const { wrapper } = widget;
             expect(wrapper).not.to.have.class('k-widget');
             expect(wrapper).to.have.class(`kj-${ROLE}`);
             expect(wrapper.find('input'))
@@ -119,15 +119,15 @@ describe('widgets.formatstrip', () => {
             bind(`#${FIXTURES}`, viewModel);
             const widget = element.data('kendoFormatStrip');
             expect(widget).to.be.an.instanceof(FormatStrip);
-            const min = widget.options.min;
-            const max = widget.options.max;
-            const step = widget.options.step;
+            const { min } = widget.options;
+            const { max } = widget.options;
+            const { step } = widget.options;
             const value = widget.value();
             expect(min).to.equal(0);
             expect(max).to.equal(10);
             expect(step).to.equal(1);
             expect(value).to.equal(0);
-            const wrapper = widget.wrapper;
+            const { wrapper } = widget;
             expect(wrapper).not.to.have.class('k-widget');
             expect(wrapper).to.have.class(`kj-${ROLE}`);
             expect(wrapper.find('input'))
@@ -225,9 +225,9 @@ describe('widgets.formatstrip', () => {
 
         it('Changing the value in the viewModel changes the number of plain/selected stars', () => {
             expect(widget).to.be.an.instanceof(FormatStrip);
-            const min = widget.options.min;
-            const max = widget.options.max;
-            const step = widget.options.step;
+            const { min } = widget.options;
+            const { max } = widget.options;
+            const { step } = widget.options;
             const count = Math.round((max - min) / step);
             const input = widget.wrapper.find('input');
             expect(input)
@@ -257,9 +257,9 @@ describe('widgets.formatstrip', () => {
 
         it('Clicking a star updates the value in the viewModel', () => {
             expect(widget).to.be.an.instanceof(FormatStrip);
-            const min = widget.options.min;
-            const max = widget.options.max;
-            const step = widget.options.step;
+            const { min } = widget.options;
+            const { max } = widget.options;
+            const { step } = widget.options;
             const count = Math.round((max - min) / step);
             const input = widget.wrapper.find('input');
             expect(input)
@@ -300,9 +300,9 @@ describe('widgets.formatstrip', () => {
 
         it('mouseover', () => {
             expect(widget).to.be.an.instanceof(FormatStrip);
-            const min = widget.options.min;
-            const max = widget.options.max;
-            const step = widget.options.step;
+            const { min } = widget.options;
+            const { max } = widget.options;
+            const { step } = widget.options;
             const count = Math.round((max - min) / step);
             const stars = widget.wrapper.find('span.kj-widget-star');
             expect(stars)
@@ -341,9 +341,9 @@ describe('widgets.formatstrip', () => {
                 })
                 .data('kendoFormatStrip');
             expect(widget).to.be.an.instanceof(FormatStrip);
-            const min = widget.options.min;
-            const max = widget.options.max;
-            const step = widget.options.step;
+            const { min } = widget.options;
+            const { max } = widget.options;
+            const { step } = widget.options;
             const value = widget.value();
             expect(min).to.equal(0);
             expect(max).to.equal(5);

@@ -321,9 +321,9 @@ const MultiInput = Widget.extend({
             wrapper
                 .removeClass(`${CONSTANTS.DISABLED_CLASS} kj-readonly`)
                 .on(
-                    `${CONSTANTS.MOUSEENTER}${NS} ${`${
-                        CONSTANTS.MOUSELEAVE
-                    }${NS}`}`,
+                    `${
+                        CONSTANTS.MOUSEENTER
+                    }${NS} ${`${CONSTANTS.MOUSELEAVE}${NS}`}`,
                     this._toggleHover.bind(this)
                 )
                 .on(

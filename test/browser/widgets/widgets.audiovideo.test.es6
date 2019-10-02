@@ -19,7 +19,6 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import baseUrl from '../../../src/js/helpers/helpers.base.es6';
 import '../../../src/js/widgets/widgets.audiovideo.es6';
 
-
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
 const {

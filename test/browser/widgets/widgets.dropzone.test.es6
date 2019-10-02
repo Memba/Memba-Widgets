@@ -72,7 +72,9 @@ describe('widgets.dropzone', () => {
         });
 
         it('from markup', () => {
-            const element = $(ELEMENT).attr(attr('role'), ROLE).appendTo(`#${FIXTURES}`);
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
+                .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data('kendoDropZone');
             expect(widget).to.be.an.instanceof(DropZone);

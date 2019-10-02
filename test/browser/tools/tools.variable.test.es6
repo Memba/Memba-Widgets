@@ -77,7 +77,6 @@ describe('tools.variable', () => {
                 )
             ).to.be.true;
             expect(Model.fields).to.deep.equal({});
-
         });
 
         it('getAttributeRows', () => {

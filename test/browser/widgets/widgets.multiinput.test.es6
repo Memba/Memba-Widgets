@@ -59,13 +59,13 @@ describe('widgets.multiinput', () => {
             expect(widget)
                 .to.have.property('tagList')
                 .that.is.an.instanceof($);
-            const tagList = widget.tagList;
+            const { tagList } = widget;
             expect(tagList).to.match('ul');
             expect(tagList).to.be.empty;
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
-            const wrapper = widget.wrapper;
+            const { wrapper } = widget;
             expect(wrapper).to.match('div');
             expect(wrapper).to.have.class('k-widget');
             expect(wrapper).to.have.class(`kj-${ROLE}`);
@@ -84,7 +84,7 @@ describe('widgets.multiinput', () => {
             expect(widget)
                 .to.have.property('tagList')
                 .that.is.an.instanceof($);
-            const tagList = widget.tagList;
+            const { tagList } = widget;
             expect(tagList).to.match('ul');
             expect(tagList).to.have.descendants('>li');
             expect(tagList.children('li'))
@@ -94,7 +94,7 @@ describe('widgets.multiinput', () => {
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
-            const wrapper = widget.wrapper;
+            const { wrapper } = widget;
             expect(wrapper).to.match('div');
             expect(wrapper).to.have.class('k-widget');
             expect(wrapper).to.have.class(`kj-${ROLE}`);
@@ -102,7 +102,8 @@ describe('widgets.multiinput', () => {
 
         it('from markup', () => {
             const options = {};
-            const element = $(ELEMENT).attr(attr('role'), ROLE)
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
                 .attr(options)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
@@ -111,13 +112,13 @@ describe('widgets.multiinput', () => {
             expect(widget)
                 .to.have.property('tagList')
                 .that.is.an.instanceof($);
-            const tagList = widget.tagList;
+            const { tagList } = widget;
             expect(tagList).to.match('ul');
             expect(tagList).to.be.empty;
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
-            const wrapper = widget.wrapper;
+            const { wrapper } = widget;
             expect(wrapper).to.match('div');
             expect(wrapper).to.have.class('k-widget');
             expect(wrapper).to.have.class(`kj-${ROLE}`);
@@ -129,7 +130,8 @@ describe('widgets.multiinput', () => {
                 // value: JSON.stringify(['alpha', 'beta', 'gamma']) // <-- Does not work
                 'data-value': JSON.stringify(['alpha', 'beta', 'gamma'])
             };
-            const element = $(ELEMENT).attr(attr('role'), ROLE)
+            const element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
@@ -138,7 +140,7 @@ describe('widgets.multiinput', () => {
             expect(widget)
                 .to.have.property('tagList')
                 .that.is.an.instanceof($);
-            const tagList = widget.tagList;
+            const { tagList } = widget;
             expect(tagList).to.match('ul');
             expect(tagList).to.have.descendants('>li');
             expect(tagList.children('li'))
@@ -151,7 +153,7 @@ describe('widgets.multiinput', () => {
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
-            const wrapper = widget.wrapper;
+            const { wrapper } = widget;
             expect(wrapper).to.match('div');
             expect(wrapper).to.have.class('k-widget');
             expect(wrapper).to.have.class(`kj-${ROLE}`);
@@ -258,7 +260,8 @@ describe('widgets.multiinput', () => {
         let viewModel;
 
         beforeEach(() => {
-            element = $(ELEMENT).attr(attr('role'), ROLE)
+            element = $(ELEMENT)
+                .attr(attr('role'), ROLE)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             change = sinon.spy();
@@ -273,7 +276,7 @@ describe('widgets.multiinput', () => {
         });
 
         it('change of viewModel changes widget value', () => {
-            const length = viewModel.value.length;
+            const { length } = viewModel.value;
             expect(widget).to.be.an.instanceof(MultiInput);
             expect(widget.tagList).to.exist;
             expect(widget.tagList.children('li').length).to.equal(length);
@@ -286,7 +289,7 @@ describe('widgets.multiinput', () => {
         });
 
         it('change of widget value changes the viewModel', () => {
-            const length = viewModel.value.length;
+            const { length } = viewModel.value;
             expect(widget).to.be.an.instanceof(MultiInput);
             expect(widget.tagList).to.exist;
             expect(widget.tagList.children('li').length).to.equal(length);
@@ -303,7 +306,7 @@ describe('widgets.multiinput', () => {
         });
 
         it('input', () => {
-            const length = viewModel.value.length;
+            const { length } = viewModel.value;
             const input = widget.element;
             expect(input).to.match('input');
             expect(widget).to.be.an.instanceof(MultiInput);
@@ -320,7 +323,7 @@ describe('widgets.multiinput', () => {
         });
 
         it('delete', () => {
-            const length = viewModel.value.length;
+            const { length } = viewModel.value;
             expect(widget).to.be.an.instanceof(MultiInput);
             const closeButtons = widget.tagList.find('.k-i-close');
             expect(closeButtons.length).to.equal(length);

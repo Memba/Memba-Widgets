@@ -66,7 +66,10 @@ const Rating = Widget.extend({
         );
         assert.isPlainObject(
             options,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
         );
         const input = $(element);
         assert.ok(

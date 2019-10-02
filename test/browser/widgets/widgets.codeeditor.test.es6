@@ -337,7 +337,8 @@ describe('widgets.codeeditor', () => {
             expect(fn).to.throw(TypeError);
             expect(widget._isCustom(TOOLS.LIB_COMMENT)).to.be.undefined;
             expect(widget._isCustom(EQ_NAME)).to.be.undefined;
-            expect(widget._isCustom(TOOLS.LIB_COMMENT + EQ_NAME)).to.be.undefined;
+            expect(widget._isCustom(TOOLS.LIB_COMMENT + EQ_NAME)).to.be
+                .undefined;
             expect(widget._isCustom(FORMULA1)).to.be.undefined;
             expect(widget._isCustom(FORMULA2)).to.equal(FORMULA2);
             expect(widget._isCustom(FORMULA3)).to.equal(FORMULA3);
@@ -349,21 +350,23 @@ describe('widgets.codeeditor', () => {
             }
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(fn).to.throw(TypeError);
-            expect(widget._parseLibraryValue(TOOLS.LIB_COMMENT).item).to.be.undefined;
-            expect(widget._parseLibraryValue(DUMMY).item).to.be.undefined;
-            expect(widget._parseLibraryValue(TOOLS.LIB_COMMENT + DUMMY).item).to.be
+            expect(widget._parseLibraryValue(TOOLS.LIB_COMMENT).item).to.be
                 .undefined;
+            expect(widget._parseLibraryValue(DUMMY).item).to.be.undefined;
+            expect(widget._parseLibraryValue(TOOLS.LIB_COMMENT + DUMMY).item).to
+                .be.undefined;
             expect(widget._parseLibraryValue(EQ_NAME).item).to.be.undefined;
             expect(widget._parseLibraryValue(FORMULA1).item).to.be.undefined;
             expect(widget._parseLibraryValue(FORMULA2).item).to.be.undefined;
             expect(widget._parseLibraryValue(FORMULA3).item).to.be.undefined;
-            expect(widget._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item).not.to
-                .be.undefined;
+            expect(widget._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item)
+                .not.to.be.undefined;
             expect(
                 widget._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item.name
             ).to.equal(EQ_NAME);
             expect(
-                widget._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item.formula
+                widget._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item
+                    .formula
             ).to.equal(EQ_FORMULA);
         });
 

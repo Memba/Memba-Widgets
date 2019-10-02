@@ -36,10 +36,10 @@ const ROLE = 'propertygrid';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const kidoju = window.kidoju;
-const tools = kidoju.tools;
-const Page = kidoju.data.Page;
-const PageComponent = kidoju.data.PageComponent;
+const { kidoju } = window;
+const { tools } = kidoju;
+const { Page } = kidoju.data;
+const { PageComponent } = kidoju.data;
 const PROPERTYGRID2 =
     '<div data-role="propertygrid" data-bind="value: current"></div>';
 
@@ -285,9 +285,7 @@ describe('widgets.propertygrid', () => {
                             field: 'sample',
                             editor(container, options) {
                                 $(
-                                    `<input data-bind="value: ${
-                                        options.field
-                                    }"/>`
+                                    `<input data-bind="value: ${options.field}"/>`
                                 )
                                     .appendTo(container)
                                     .kendoMaskedTextBox({
@@ -546,9 +544,7 @@ describe('widgets.propertygrid', () => {
                             title: 'Category',
                             editor(container, options) {
                                 $(
-                                    `<input data-bind="value: ${
-                                        options.field
-                                    }"/>`
+                                    `<input data-bind="value: ${options.field}"/>`
                                 )
                                     .appendTo(container)
                                     .kendoDropDownList({
@@ -838,9 +834,7 @@ describe('widgets.propertygrid', () => {
                             title: 'Birthday',
                             editor(container, options) {
                                 $(
-                                    `<input type="checkbox" data-bind="checked: ${
-                                        options.field
-                                    }"/>`
+                                    `<input type="checkbox" data-bind="checked: ${options.field}"/>`
                                 ).appendTo(container);
                             }
                         }
@@ -914,9 +908,7 @@ describe('widgets.propertygrid', () => {
                             title: 'Category',
                             editor(container, options) {
                                 $(
-                                    `<input data-bind="value: ${
-                                        options.field
-                                    }"/>`
+                                    `<input data-bind="value: ${options.field}"/>`
                                 ).appendTo(container);
                             }
                         },

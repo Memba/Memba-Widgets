@@ -87,11 +87,7 @@ function comboBox(container, options, widgetOptions) {
     // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
     // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + this.options.messages.validation.value + '">')
     const input = $(
-        `<input data-bind="value: ${
-            options.field
-        }" required data-required-msg="${
-            this.options.messages.validation.value
-        }">`
+        `<input data-bind="value: ${options.field}" required data-required-msg="${this.options.messages.validation.value}">`
     )
         .appendTo(container)
         .kendoComboBox(widgetOptions)
@@ -121,11 +117,7 @@ function unitInput(container, options, widgetOptions) {
     // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
     // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + this.options.messages.validation.value + '">')
     const unitinput = $(
-        `<input data-${ns}bind="value: ${
-            options.field
-        }" required data-required-msg="${
-            this.options.messages.validation.value
-        }" style="width:100%;">`
+        `<input data-${ns}bind="value: ${options.field}" required data-required-msg="${this.options.messages.validation.value}" style="width:100%;">`
     )
         .appendTo(container)
         .kendoUnitInput(widgetOptions)
@@ -189,11 +181,7 @@ function colorPicker(container, options) {
     // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
     // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.value + '">')
     const picker = $(
-        `<input data-bind="value: ${
-            options.field
-        }" required data-required-msg="${
-            that.options.messages.validation.value
-        }">`
+        `<input data-bind="value: ${options.field}" required data-required-msg="${that.options.messages.validation.value}">`
     )
         .appendTo(container)
         .kendoColorPicker()
@@ -541,11 +529,7 @@ const StyleEditor = DataBoundWidget.extend({
         // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
         // $('<input name="style_name" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.name + '">')
         const combobox = $(
-            `<input data-bind="value: ${
-                options.field
-            }" required data-required-msg="${
-                that.options.messages.validation.name
-            }">`
+            `<input data-bind="value: ${options.field}" required data-required-msg="${that.options.messages.validation.name}">`
         )
             .appendTo(container)
             .kendoComboBox({
@@ -610,11 +594,7 @@ const StyleEditor = DataBoundWidget.extend({
             return found[0].editor.bind(that)(container, options);
         }
         const textbox = $(
-            `<input type="text" name="value" class="k-textbox" data-bind="value: ${
-                options.field
-            }" required data-required-msg="${
-                that.options.messages.validation.value
-            }">`
+            `<input type="text" name="value" class="k-textbox" data-bind="value: ${options.field}" required data-required-msg="${that.options.messages.validation.value}">`
         ).appendTo(container);
         $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(
             container

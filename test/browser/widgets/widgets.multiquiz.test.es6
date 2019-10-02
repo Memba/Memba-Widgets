@@ -696,7 +696,7 @@ describe('widgets.multiquiz', () => {
         it('change', () => {
             expect(widget).to.be.an.instanceof(MultiQuiz);
             for (
-                let i = 0, length = options.dataSource.data.length;
+                let i = 0, { length } = options.dataSource.data;
                 i < length;
                 i++
             ) {

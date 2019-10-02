@@ -122,7 +122,10 @@ const MultiQuiz = DataBoundWidget.extend({
     setOptions(options) {
         assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
         );
         Widget.fn.setOptions.call(this, options);
         const {
@@ -173,7 +176,7 @@ const MultiQuiz = DataBoundWidget.extend({
      */
     value(value) {
         const that = this;
-        const options = that.options;
+        const { options } = that;
         if (Array.isArray(value) || value instanceof ObservableArray) {
             if (that.dataSource instanceof DataSource) {
                 // finder is used to satisfy jshint which would otherwise complain about making functions within loops

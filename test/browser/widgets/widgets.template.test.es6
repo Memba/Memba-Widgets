@@ -121,7 +121,9 @@ describe('widgets.template', () => {
         it('from markup', () => {
             const attributes = {};
             attributes[attr('role')] = ROLE;
-            const element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const template = element.data('kendoTemplate');
             expect(template).to.be.an.instanceof(Template);

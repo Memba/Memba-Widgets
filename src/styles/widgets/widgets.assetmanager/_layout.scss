@@ -11,6 +11,7 @@
                     padding: 0.5em;
 
                     .k-filebrowser-toolbar {
+                        align-items: start;
                         margin: 0;
                         // left
                         .k-toolbar-wrap {
@@ -46,11 +47,12 @@
                                     color: inherit;
                                 }
 
+                                /*
                                 .k-search {
-                                    // Enforce values of .k-textbox .k-icon
                                     top: 50%;
                                     margin: -8px 0 0;
                                 }
+                                */
                             }
                         }
                     }
@@ -70,9 +72,11 @@
                         }
                     }
 
+                    /*
                     .k-pager-wrap.k-floatwrap {
                         border-top: 0;
                     }
+                    */
                 }
             }
         }
@@ -87,5 +91,4 @@
             overflow: hidden;
         }
     }
-
 }

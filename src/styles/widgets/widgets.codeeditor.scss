@@ -3,8 +3,8 @@
 
 // Dependencies
 @import "../vendor/codemirror/lib/codemirror.css";
-@import "../dependencies/_codemirror.scss";
 @import "../vendor/codemirror/addon/lint/lint.css";
+@import "../dependencies/_codemirror.scss";
 
 // Component
 @import "widgets.codeeditor/layout";

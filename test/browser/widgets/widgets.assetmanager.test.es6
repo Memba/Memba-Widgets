@@ -59,42 +59,11 @@ describe('widgets.assetmanager', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]().data(WIDGET);
-            expect(widget).to.be.an.instanceof(AssetManager);
-            expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
-            expect(widget)
-                .to.have.property('dataSource')
-                .that.is.an.instanceof(DataSource);
-            expect(widget)
-                .to.have.property('dropDownList')
-                .that.is.an.instanceof(DropDownList);
-            expect(widget)
-                .to.have.property('fileBrowser')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('listView')
-                .that.is.an.instanceof(ListView);
-            expect(widget)
-                .to.have.property('pager')
-                .that.is.an.instanceof(Pager);
-            expect(widget)
-                .to.have.property('searchInput')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('tabStrip')
-                .that.is.an.instanceof(TabStrip);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
-            expect(widget.tabStrip)
-                .to.have.property('contentElements')
-                .that.is.an.instanceof($)
-                .with.property('length', 1);
-            expect(
-                widget.tabStrip.tabGroup.children(':nth-child(1)').text()
-            ).to.equal(widget.options.messages.tabs.default);
+            function fn() {
+                const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+                element[WIDGET]();
+            }
+            expect(fn).to.throw();
         });
 
         it('from code with options: simple collection', () => {
@@ -138,16 +107,7 @@ describe('widgets.assetmanager', () => {
                 .with.property('length', 1);
             expect(
                 widget.tabStrip.tabGroup.children(':nth-child(1)').text()
-            ).to.equal(widget.options.messages.tabs.default);
-            expect(
-                widget.tabStrip.tabGroup.children(':nth-child(2)').text()
             ).to.equal(options.collections[0].name);
-            expect(
-                widget.tabStrip.tabGroup.children(':nth-child(3)').text()
-            ).to.equal(options.collections[1].name);
-            expect(
-                widget.tabStrip.tabGroup.children(':nth-child(4)').text()
-            ).to.equal(options.collections[2].name);
         });
 
         it('from code with options: sub-collections', () => {
@@ -160,9 +120,11 @@ describe('widgets.assetmanager', () => {
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
+            /*
             expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
+            */
             expect(widget)
                 .to.have.property('dropDownList')
                 .that.is.an.instanceof(DropDownList);
@@ -187,31 +149,19 @@ describe('widgets.assetmanager', () => {
             expect(widget.tabStrip)
                 .to.have.property('contentElements')
                 .that.is.an.instanceof($)
-                .with.property('length', 3);
+                .with.property('length', 2);
             expect(
                 widget.tabStrip.tabGroup.children(':nth-child(1)').text()
-            ).to.equal(widget.options.messages.tabs.default);
-            expect(
-                widget.tabStrip.tabGroup.children(':nth-child(2)').text()
             ).to.equal(options.collections[0].name);
             expect(
-                widget.tabStrip.tabGroup.children(':nth-child(3)').text()
+                widget.tabStrip.tabGroup.children(':nth-child(2)').text()
             ).to.equal(options.collections[1].name);
-            // expect(widget.tabStrip.tabGroup.children(':nth-child(4)').text()).to.equal(options.collections[2].name);
+            // TODO Check combobox with sub-collections
         });
 
-        it('from markup', () => {
-            const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
-                .appendTo(`#${FIXTURES}`);
-            init(`#${FIXTURES}`);
-            const widget = element.data(WIDGET);
-            expect(widget).to.be.an.instanceof(AssetManager);
-            expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
-        });
+        xit('from code with options: summary files', $.noop);
 
-        xit('from markup with attributes (N/A: need transports)', () => {});
+        // it('from markup', $.noop);
     });
 
     xdescribe('Methods', () => {

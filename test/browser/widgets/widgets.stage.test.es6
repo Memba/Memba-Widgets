@@ -15,7 +15,17 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import {
+    PageComponent,
+    PageComponentDataSource
+} from '../../../src/js/data/data.pagecomponent.es6';
+import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.stage.es6';
+
+import {
+    componentGenerator,
+    getComponentArray
+} from '../../../src/js/helpers/helpers.components.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -28,77 +38,19 @@ const {
     guid,
     init,
     observable,
-    ui: { roles, Stage }
+    support,
+    ui: { ContextMenu, roles, Stage }
 } = window.kendo;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
-const ROLE = 'widget';
+const ROLE = 'stage';
+const WIDGET = 'kendoStage';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const { kidoju } = window;
-const { tools } = kidoju;
-const { Tool } = kidoju;
-const { Page } = kidoju.data;
-const { PageComponent } = kidoju.data;
-const { PageDataSource } = kidoju.data;
-const { PageComponentDataSource } = kidoju.data;
 const STAGE2 =
     '<div data-role="stage" data-bind="source: components, value: current" data-mode="design"></div>';
-
-const pageComponentCollectionArray = [
-    {
-        id: guid(),
-        tool: 'image',
-        top: 50,
-        left: 100,
-        height: 250,
-        width: 250,
-        rotate: 45,
-        attributes: {
-            src:
-                'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png'
-        }
-    },
-    {
-        id: guid(),
-        tool: 'image',
-        top: 300,
-        left: 300,
-        height: 250,
-        width: 250,
-        rotate: 315,
-        attributes: {
-            src:
-                'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg'
-        }
-    },
-    {
-        id: guid(),
-        tool: 'label',
-        top: 250,
-        left: 500,
-        height: 100,
-        width: 300,
-        rotate: 90,
-        attributes: {
-            style: 'font-family: Georgia, serif; color: #FF0000;',
-            text: 'World'
-        }
-    },
-    {
-        id: guid(),
-        tool: 'textbox',
-        top: 20,
-        left: 20,
-        height: 100,
-        width: 300,
-        rotate: 0,
-        attributes: {},
-        properties: { name: 'textfield3' }
-    }
-];
 
 function findCenter(elem) {
     const document = $(elem.get(0).ownerDocument);
@@ -109,18 +61,24 @@ function findCenter(elem) {
     };
 }
 
-describe('widgets.widget', () => {
-    before(() => {
+describe('widgets.stage', () => {
+    before(done => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
+        const promises = Object.keys(componentGenerator).map(tool =>
+            tools.load(tool)
+        );
+        $.when(...promises)
+            .then(done)
+            .catch(done);
     });
 
     describe('Availability', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoStage).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -128,7 +86,7 @@ describe('widgets.widget', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoStage().data('kendoStage');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
@@ -147,21 +105,17 @@ describe('widgets.widget', () => {
 
         it('from code with dataSource in design mode', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoStage({
-                    mode: Stage.fn.modes.design,
-                    dataSource: new PageComponentDataSource({
-                        data: pageComponentCollectionArray
-                    })
-                })
-                .data('kendoStage');
+            const data = getComponentArray();
+            const options = {
+                mode: Stage.fn.modes.design,
+                dataSource: new PageComponentDataSource({ data })
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.mode()).to.equal(Stage.fn.modes.design);
             // expect(widget.wrapper).to.equal(element.parent());
             expect(widget.wrapper[0]).to.equal(element.parent()[0]);
@@ -176,11 +130,11 @@ describe('widgets.widget', () => {
             // expect(widget.wrapper).to.have.descendants('div.debug.center');
             // expect(widget.wrapper).to.have.descendants('div.debug-mouse');
             expect($(document.body)).to.have.descendants('ul.kj-widget-menu'); // <------------------------- in design mode, there is a contextual menu
-            expect(widget.menu).to.be.an.instanceof(kendo.ui.ContextMenu);
+            expect(widget.menu).to.be.an.instanceof(ContextMenu);
             const items = element.find('div.kj-element');
             expect(items)
                 .to.be.an.instanceof($)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
             $.each(items, (index, item) => {
                 const data = widget.dataSource.at(index);
                 expect($(item).attr(attr('uid'))).to.equal(data.uid);
@@ -197,21 +151,17 @@ describe('widgets.widget', () => {
 
         it('from code with dataSource in play mode', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoStage({
-                    mode: Stage.fn.modes.play,
-                    dataSource: new PageComponentDataSource({
-                        data: pageComponentCollectionArray
-                    })
-                })
-                .data('kendoStage');
+            const data = getComponentArray();
+            const options = {
+                mode: Stage.fn.modes.play,
+                dataSource: new PageComponentDataSource({ data })
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.mode()).to.equal(Stage.fn.modes.play);
             // expect(widget.wrapper).to.equal(element.parent());
             expect(widget.wrapper[0]).to.equal(element.parent()[0]);
@@ -232,7 +182,7 @@ describe('widgets.widget', () => {
             const items = element.find('div.kj-element');
             expect(items)
                 .to.be.an.instanceof($)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
             $.each(items, (index, item) => {
                 const data = widget.dataSource.at(index);
                 expect($(item).attr(attr('uid'))).to.equal(data.uid);
@@ -250,21 +200,17 @@ describe('widgets.widget', () => {
 
         it('from code with dataSource in review mode', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoStage({
-                    mode: Stage.fn.modes.review,
-                    dataSource: new PageComponentDataSource({
-                        data: pageComponentCollectionArray
-                    })
-                })
-                .data('kendoStage');
+            const data = getComponentArray();
+            const options = {
+                mode: Stage.fn.modes.review,
+                dataSource: new PageComponentDataSource({ data })
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.mode()).to.equal(Stage.fn.modes.review);
             // expect(widget.wrapper).to.equal(element.parent());
             expect(widget.wrapper[0]).to.equal(element.parent()[0]);
@@ -285,7 +231,7 @@ describe('widgets.widget', () => {
             const items = element.find('div.kj-element');
             expect(items)
                 .to.be.an.instanceof($)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
             $.each(items, (index, item) => {
                 const data = widget.dataSource.at(index);
                 expect($(item).attr(attr('uid'))).to.equal(data.uid);
@@ -302,22 +248,21 @@ describe('widgets.widget', () => {
         });
 
         it('from markup', () => {
+            const data = getComponentArray();
             const viewModel = observable({
                 components: new PageComponentDataSource({
-                    data: pageComponentCollectionArray
+                    data
                 }),
                 current: undefined
             });
             const element = $(STAGE2).appendTo(`#${FIXTURES}`);
             bind(`#${FIXTURES}`, viewModel);
-            const widget = element.data('kendoStage');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.mode()).to.equal(Stage.fn.modes.design);
             // expect(widget.wrapper).to.equal(element.parent());
             expect(widget.wrapper[0]).to.equal(element.parent()[0]);
@@ -332,11 +277,11 @@ describe('widgets.widget', () => {
             // expect(widget.wrapper).not.to.have.descendants('div.debug.center');
             // expect(widget.wrapper).not.to.have.descendants('div.debug-mouse');
             expect($(document.body)).to.have.descendants('ul.kj-widget-menu'); // <------------------------ in design mode, there is a contextual menu
-            expect(widget.menu).to.be.an.instanceof(kendo.ui.ContextMenu);
+            expect(widget.menu).to.be.an.instanceof(ContextMenu);
             const items = element.find('div.kj-element');
             expect(items)
                 .to.be.an.instanceof($)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data.length);
             $.each(items, (index, item) => {
                 const component = widget.dataSource.at(index);
                 expect($(item).attr(attr('uid'))).to.equal(component.uid);
@@ -354,17 +299,17 @@ describe('widgets.widget', () => {
     });
 
     describe('Methods', () => {
+        let data;
         let element;
         let widget;
 
         beforeEach(() => {
+            data = getComponentArray();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoStage({
-                    dataSource: pageComponentCollectionArray,
-                    mode: Stage.fn.modes.design
-                })
-                .data('kendoStage');
+            widget = element[WIDGET]({
+                dataSource: data,
+                mode: Stage.fn.modes.design
+            }).data(WIDGET);
         });
 
         it('length', () => {
@@ -372,9 +317,7 @@ describe('widgets.widget', () => {
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.length()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.length()).to.equal(data.length);
         });
 
         it('items', () => {
@@ -384,17 +327,11 @@ describe('widgets.widget', () => {
             );
             const items = widget.items();
             if (window.PHANTOMJS) {
-                expect(items).to.have.property(
-                    'length',
-                    pageComponentCollectionArray.length
-                );
+                expect(items).to.have.property('length', data.length);
             } else {
                 expect(items)
                     .to.be.an.instanceof(window.HTMLCollection)
-                    .with.property(
-                        'length',
-                        pageComponentCollectionArray.length
-                    );
+                    .with.property('length', data.length);
             }
             const check = sinon.spy();
             $.each(items, (index, item) => {
@@ -403,9 +340,7 @@ describe('widgets.widget', () => {
                 expect($(item)).to.have.class('kj-element');
                 expect($(item)).to.have.attr(attr('uid'));
             });
-            expect(check).to.have.callCount(
-                pageComponentCollectionArray.length
-            );
+            expect(check).to.have.callCount(data.length);
         });
 
         it('value', () => {
@@ -417,11 +352,7 @@ describe('widgets.widget', () => {
                 PageComponentDataSource
             );
             expect(fn).to.throw(TypeError);
-            for (
-                let idx = 0;
-                idx < pageComponentCollectionArray.length;
-                idx++
-            ) {
+            for (let idx = 0; idx < data; idx++) {
                 const component = widget.dataSource.at(idx);
                 widget.value(component);
                 expect(widget.index()).to.equal(idx);
@@ -442,11 +373,7 @@ describe('widgets.widget', () => {
             );
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(RangeError);
-            for (
-                let idx = 0;
-                idx < pageComponentCollectionArray.length;
-                idx++
-            ) {
+            for (let idx = 0; idx < data; idx++) {
                 const component = widget.dataSource.at(idx);
                 widget.index(idx);
                 expect(widget.value()).to.equal(component);
@@ -463,11 +390,7 @@ describe('widgets.widget', () => {
                 PageComponentDataSource
             );
             expect(fn).to.throw(TypeError);
-            for (
-                let idx = 0;
-                idx < pageComponentCollectionArray.length;
-                idx++
-            ) {
+            for (let idx = 0; idx < data; idx++) {
                 const component = widget.dataSource.at(idx);
                 widget.id(component.id);
                 expect(widget.value()).to.equal(component);
@@ -487,7 +410,7 @@ describe('widgets.widget', () => {
                 PageComponentDataSource
             );
             expect(widget.mode()).to.equal(Stage.fn.modes.design);
-            expect(widget.menu).to.be.an.instanceof(kendo.ui.ContextMenu);
+            expect(widget.menu).to.be.an.instanceof(ContextMenu);
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(RangeError);
         });
@@ -546,6 +469,7 @@ describe('widgets.widget', () => {
     });
 
     describe('MVVM', () => {
+        let data;
         let element;
         let widget;
         let viewModel;
@@ -553,21 +477,22 @@ describe('widgets.widget', () => {
         /*
          // For obscure reasons, setting the viewModel here does not work
          viewModel = observable({
-            components: new PageComponentDataSource({ data: pageComponentCollectionArray }),
+            components: new PageComponentDataSource({ datay }),
             current: null
          });
          */
 
         beforeEach(() => {
+            data = getComponentArray();
             element = $(STAGE2).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 components: new PageComponentDataSource({
-                    data: pageComponentCollectionArray
+                    data
                 }),
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoStage');
+            widget = element.data(WIDGET);
         });
 
         it('Adding a component to the viewModel adds the corresponding element to the widget', () => {
@@ -575,21 +500,13 @@ describe('widgets.widget', () => {
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data);
             if (window.PHANTOMJS) {
-                expect(widget.items()).to.have.property(
-                    'length',
-                    pageComponentCollectionArray.length
-                );
+                expect(widget.items()).to.have.property('length', data);
             } else {
                 expect(widget.items())
                     .to.be.an.instanceof(window.HTMLCollection)
-                    .with.property(
-                        'length',
-                        pageComponentCollectionArray.length
-                    );
+                    .with.property('length', data);
             }
             viewModel.components.add(
                 new PageComponent({
@@ -606,21 +523,13 @@ describe('widgets.widget', () => {
                     }
                 })
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length + 1
-            );
+            expect(widget.dataSource.total()).to.equal(data + 1);
             if (window.PHANTOMJS) {
-                expect(widget.items()).to.have.property(
-                    'length',
-                    pageComponentCollectionArray.length + 1
-                );
+                expect(widget.items()).to.have.property('length', data + 1);
             } else {
                 expect(widget.items())
                     .to.be.an.instanceof(window.HTMLCollection)
-                    .with.property(
-                        'length',
-                        pageComponentCollectionArray.length + 1
-                    );
+                    .with.property('length', data + 1);
             }
         });
 
@@ -629,38 +538,22 @@ describe('widgets.widget', () => {
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data);
             if (window.PHANTOMJS) {
-                expect(widget.items()).to.have.property(
-                    'length',
-                    pageComponentCollectionArray.length
-                );
+                expect(widget.items()).to.have.property('length', data);
             } else {
                 expect(widget.items())
                     .to.be.an.instanceof(window.HTMLCollection)
-                    .with.property(
-                        'length',
-                        pageComponentCollectionArray.length
-                    );
+                    .with.property('length', data);
             }
             viewModel.components.remove(viewModel.components.at(0));
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length - 1
-            );
+            expect(widget.dataSource.total()).to.equal(data - 1);
             if (window.PHANTOMJS) {
-                expect(widget.items()).to.have.property(
-                    'length',
-                    pageComponentCollectionArray.length - 1
-                );
+                expect(widget.items()).to.have.property('length', data - 1);
             } else {
                 expect(widget.items())
                     .to.be.an.instanceof(window.HTMLCollection)
-                    .with.property(
-                        'length',
-                        pageComponentCollectionArray.length - 1
-                    );
+                    .with.property('length', data - 1);
             }
         });
 
@@ -669,21 +562,13 @@ describe('widgets.widget', () => {
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data);
             if (window.PHANTOMJS) {
-                expect(widget.items()).to.have.property(
-                    'length',
-                    pageComponentCollectionArray.length
-                );
+                expect(widget.items()).to.have.property('length', data);
             } else {
                 expect(widget.items())
                     .to.be.an.instanceof(window.HTMLCollection)
-                    .with.property(
-                        'length',
-                        pageComponentCollectionArray.length
-                    );
+                    .with.property('length', data);
             }
             const check = sinon.spy();
             $.each(viewModel.components.data(), (index, component) => {
@@ -695,9 +580,7 @@ describe('widgets.widget', () => {
                     .with.property('length', 1);
                 expect(handleBox).to.have.attr(attr('uid'), component.uid);
             });
-            expect(check).to.have.callCount(
-                pageComponentCollectionArray.length
-            );
+            expect(check).to.have.callCount(data);
         });
 
         it('Changing the selected element in the widget, changes the corresponding component in the viewModel', () => {
@@ -705,21 +588,13 @@ describe('widgets.widget', () => {
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data);
             if (window.PHANTOMJS) {
-                expect(widget.items()).to.have.property(
-                    'length',
-                    pageComponentCollectionArray.length
-                );
+                expect(widget.items()).to.have.property('length', data);
             } else {
                 expect(widget.items())
                     .to.be.an.instanceof(window.HTMLCollection)
-                    .with.property(
-                        'length',
-                        pageComponentCollectionArray.length
-                    );
+                    .with.property('length', data);
             }
             const check = sinon.spy();
             $.each(widget.items(), (index, item) => {
@@ -742,9 +617,7 @@ describe('widgets.widget', () => {
                 expect(handleBox).to.have.css('width', `${component.width}px`);
                 // rotate?
             });
-            expect(check).to.have.callCount(
-                pageComponentCollectionArray.length
-            );
+            expect(check).to.have.callCount(data);
         });
 
         /* This function has too many statements. */
@@ -755,23 +628,15 @@ describe('widgets.widget', () => {
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data);
             if (window.PHANTOMJS) {
-                expect(widget.items()).to.have.property(
-                    'length',
-                    pageComponentCollectionArray.length
-                );
+                expect(widget.items()).to.have.property('length', data);
             } else {
                 expect(widget.items())
                     .to.be.an.instanceof(window.HTMLCollection)
-                    .with.property(
-                        'length',
-                        pageComponentCollectionArray.length
-                    );
+                    .with.property('length', data);
             }
-            const total = pageComponentCollectionArray.length;
+            const total = data;
             const offset = element.offset();
             let count = 0;
             const check = sinon.spy();
@@ -828,21 +693,13 @@ describe('widgets.widget', () => {
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data);
             if (window.PHANTOMJS) {
-                expect(widget.items()).to.have.property(
-                    'length',
-                    pageComponentCollectionArray.length
-                );
+                expect(widget.items()).to.have.property('length', data);
             } else {
                 expect(widget.items())
                     .to.be.an.instanceof(window.HTMLCollection)
-                    .with.property(
-                        'length',
-                        pageComponentCollectionArray.length
-                    );
+                    .with.property('length', data);
             }
             const counter = sinon.spy();
             $.each(widget.items(), (index, item) => {
@@ -898,7 +755,7 @@ describe('widgets.widget', () => {
                 }
 
                 function check() {
-                    if (kendo.support.browser.msie) {
+                    if (support.browser.msie) {
                         // for whatever reason, on IE you get 99.999997 instead of 100
                         expect(viewModel.get('current.top')).to.be.closeTo(
                             top + dy,
@@ -918,9 +775,7 @@ describe('widgets.widget', () => {
                 drag();
                 check();
             });
-            expect(counter).to.have.callCount(
-                pageComponentCollectionArray.length
-            );
+            expect(counter).to.have.callCount(data);
         });
 
         it('Rotating an element on widget, updates the rotate property of the corresponding component in the viewModel', () => {
@@ -928,21 +783,13 @@ describe('widgets.widget', () => {
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data);
             if (window.PHANTOMJS) {
-                expect(widget.items()).to.have.property(
-                    'length',
-                    pageComponentCollectionArray.length
-                );
+                expect(widget.items()).to.have.property('length', data);
             } else {
                 expect(widget.items())
                     .to.be.an.instanceof(window.HTMLCollection)
-                    .with.property(
-                        'length',
-                        pageComponentCollectionArray.length
-                    );
+                    .with.property('length', data);
             }
             const counter = sinon.spy();
             $.each(widget.items(), (index, item) => {
@@ -1024,9 +871,7 @@ describe('widgets.widget', () => {
                 drag();
                 check();
             });
-            expect(counter).to.have.callCount(
-                pageComponentCollectionArray.length
-            );
+            expect(counter).to.have.callCount(data);
         });
 
         it('Resizing an element on widget, updates the top, left, height & width properties of the corresponding component in the viewModel', () => {
@@ -1034,21 +879,13 @@ describe('widgets.widget', () => {
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
-            expect(widget.dataSource.total()).to.equal(
-                pageComponentCollectionArray.length
-            );
+            expect(widget.dataSource.total()).to.equal(data);
             if (window.PHANTOMJS) {
-                expect(widget.items()).to.have.property(
-                    'length',
-                    pageComponentCollectionArray.length
-                );
+                expect(widget.items()).to.have.property('length', data);
             } else {
                 expect(widget.items())
                     .to.be.an.instanceof(window.HTMLCollection)
-                    .with.property(
-                        'length',
-                        pageComponentCollectionArray.length
-                    );
+                    .with.property('length', data);
             }
             const counter = sinon.spy();
             $.each(widget.items(), (index, item) => {
@@ -1126,34 +963,32 @@ describe('widgets.widget', () => {
                 drag();
                 check();
             });
-            expect(counter).to.have.callCount(
-                pageComponentCollectionArray.length
-            );
+            expect(counter).to.have.callCount(data);
         });
     });
 
     describe('Events', () => {
+        let data;
         let element;
         let widget;
 
         beforeEach(() => {
+            data = getComponentArray();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
         });
 
         it('dataBinding & dataBound', () => {
             const dataBinding = sinon.spy();
             const dataBound = sinon.spy();
-            widget = element
-                .kendoStage({
-                    dataSource: pageComponentCollectionArray,
-                    dataBinding(e) {
-                        dataBinding(e.sender);
-                    },
-                    dataBound(e) {
-                        dataBound(e.sender);
-                    }
-                })
-                .data('kendoStage');
+            widget = element[WIDGET]({
+                dataSource: data,
+                dataBinding(e) {
+                    dataBinding(e.sender);
+                },
+                dataBound(e) {
+                    dataBound(e.sender);
+                }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
@@ -1168,18 +1003,16 @@ describe('widgets.widget', () => {
         it('propertyBinding & propertyBound', () => {
             const propertyBinding = sinon.spy();
             const propertyBound = sinon.spy();
-            widget = element
-                .kendoStage({
-                    mode: Stage.fn.modes.play, // TODO only in play mode
-                    dataSource: pageComponentCollectionArray,
-                    propertyBinding(e) {
-                        propertyBinding(e.sender);
-                    },
-                    propertyBound(e) {
-                        propertyBound(e.sender);
-                    }
-                })
-                .data('kendoStage');
+            widget = element[WIDGET]({
+                mode: Stage.fn.modes.play, // TODO only in play mode
+                dataSource: data,
+                propertyBinding(e) {
+                    propertyBinding(e.sender);
+                },
+                propertyBound(e) {
+                    propertyBound(e.sender);
+                }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
@@ -1193,21 +1026,19 @@ describe('widgets.widget', () => {
 
         it('change', () => {
             const change = sinon.spy();
-            widget = element
-                .kendoStage({
-                    dataSource: pageComponentCollectionArray,
-                    change(e) {
-                        change(e.value);
-                    }
-                })
-                .data('kendoStage');
+            widget = element[WIDGET]({
+                dataSource: data,
+                change(e) {
+                    change(e.value);
+                }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)
-                .with.property('length', pageComponentCollectionArray.length);
+                .with.property('length', data);
             const component = widget.dataSource.at(1);
             expect(component).to.be.an.instanceof(PageComponent);
             widget.value(component);

@@ -374,16 +374,38 @@ const res = {
     // line
     line: {
         description:
-            'Line: <div styles="background-color: #: attributes.lineColor #; height: 1em; width: 1em;"/>',
+            'Ligne: <div style="background-color: #: attributes.lineColor #; display: inline-block; height: 1em; width: 1em; vertical-align: top;"/>',
         help: 'TODO',
         icon: 'vector_line',
         name: 'Line',
         attributes: {
+            endCap: {
+                title: 'Type de Début',
+                source: [
+                    { text: 'Aucun', value: 'none' },
+                    { text: 'Flèche', value: 'arrow' },
+                    { text: 'Cercle', value: 'circle' },
+                    { text: 'Diamant', value: 'diamond' },
+                    { text: 'Carré', value: 'square' }
+                ]
+            },
             lineColor: {
-                title: 'Coleurr'
+                help: 'Choisissez la couleur de la ligne',
+                title: 'Couleur'
             },
             lineWidth: {
+                help: 'Saississez un nombre pour l´épaisseur de la ligne',
                 title: 'Épaisseur'
+            },
+            startCap: {
+                title: 'Type de Fin',
+                source: [
+                    { text: 'Aucun', value: 'none' },
+                    { text: 'Flèche', value: 'arrow' },
+                    { text: 'Cercle', value: 'circle' },
+                    { text: 'Diamant', value: 'diamond' },
+                    { text: 'Carré', value: 'square' }
+                ]
             }
         },
         properties: {}

@@ -15,6 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { Page, PageDataSource } from '../../../src/js/data/data.page.es6';
 import '../../../src/js/widgets/widgets.navigation.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
@@ -33,15 +34,11 @@ const {
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'navigation';
+const WIDGET = 'kendoNavigation';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const { kidoju } = window;
-const { tools } = kidoju;
-const { Page } = kidoju.data;
-const { PageComponent } = kidoju.data;
-const { PageDataSource } = kidoju.data;
 const NAVIGATION2 =
     '<div data-role="navigation" data-bind="source: pages, value: current"></div>';
 
@@ -160,7 +157,7 @@ describe('widgets.navigation', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoStage).to.be.a(CONSTANTS.FUNCTION);
-            expect($.fn.kendoNavigation).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -168,7 +165,7 @@ describe('widgets.navigation', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoNavigation().data('kendoNavigation');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.total()).to.equal(0);
@@ -183,7 +180,7 @@ describe('widgets.navigation', () => {
                 .kendoNavigation({
                     dataSource: pageCollectionArray
                 })
-                .data('kendoNavigation');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.data())
@@ -205,7 +202,7 @@ describe('widgets.navigation', () => {
             });
             const element = $(NAVIGATION2).appendTo(`#${FIXTURES}`);
             bind(`#${FIXTURES}`, viewModel);
-            const widget = element.data('kendoNavigation');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.data())
@@ -229,7 +226,7 @@ describe('widgets.navigation', () => {
                 .kendoNavigation({
                     dataSource: pageCollectionArray
                 })
-                .data('kendoNavigation');
+                .data(WIDGET);
         });
 
         it('length', () => {
@@ -331,7 +328,7 @@ describe('widgets.navigation', () => {
                 current: undefined
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoNavigation');
+            widget = element.data(WIDGET);
         });
 
         it('Adding a page to the viewModel adds the corresponding item to the widget', () => {
@@ -423,7 +420,7 @@ describe('widgets.navigation', () => {
                         dataBound(e.sender);
                     }
                 })
-                .data('kendoNavigation');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(dataBinding).to.have.been.calledOnce;
@@ -442,7 +439,7 @@ describe('widgets.navigation', () => {
                         change(e.value);
                     }
                 })
-                .data('kendoNavigation');
+                .data(WIDGET);
             expect(change).not.to.have.been.called;
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);

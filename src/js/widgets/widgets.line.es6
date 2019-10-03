@@ -4,6 +4,8 @@
  */
 
 // TODO Add broken lines (left Z and right Z)
+// TODO Add curved lines (left S and right S)
+// TODO Add numbers to graduations (top, bottom)
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -19,28 +21,47 @@ const {
     geometry,
     drawing: { Circle, Element, Group, Path, Rect, Surface },
     ui: { plugin, Widget }
-    // UserEvents
 } = window.kendo;
 const logger = new Logger('widgets.line');
 // const NS = '.kendoLine';
 const WIDGET_CLASS = 'kj-line';
 const SHAPES = {
-    ARROW: 'arrow',
-    CIRCLE: 'circle',
-    DIAMOND: 'diamond',
-    NONE: 'none',
+    arrow: 'arrow',
+    circle: 'circle',
+    diamond: 'diamond',
+    none: 'none',
     SQUARE: 'square'
 };
 
+/**
+ * Normalize a number
+ * @function normalizeNumber
+ * @param value
+ * @param num
+ * @returns {number}
+ */
 function normalizeNumber(value, num = 0) {
     return $.type(value) === CONSTANTS.NUMBER ? value : num;
 }
 
+/**
+ * Normalize a shape
+ * @function normalizeShape
+ * @param value
+ * @returns {string}
+ */
 function normalizeShape(value) {
     const shape = String(value).toLowerCase();
-    return Object.values(SHAPES).indexOf(shape) === -1 ? 'none' : shape;
+    return Object.values(SHAPES).indexOf(shape) === -1 ? SHAPES.none : shape;
 }
 
+/**
+ * Get arrow cap
+ * @function getArrowCap
+ * @param bounds
+ * @param options
+ * @returns {*}
+ */
 function getArrowCap(bounds, options) {
     let path;
     if (bounds.origin.x === 0) {
@@ -79,6 +100,13 @@ function getArrowCap(bounds, options) {
     return path;
 }
 
+/**
+ * Get circle cap
+ * @function getCircleCap
+ * @param bounds
+ * @param options
+ * @returns {*}
+ */
 function getCircleCap(bounds, options) {
     const circle = new geometry.Circle(
         bounds.origin
@@ -89,6 +117,13 @@ function getCircleCap(bounds, options) {
     return new Circle(circle, options);
 }
 
+/**
+ * Get diamond cap
+ * @function getDiamondCap
+ * @param bounds
+ * @param options
+ * @returns {*}
+ */
 function getDiamondCap(bounds, options) {
     const path = new Path(options);
     path.moveTo(bounds.origin.clone().translate(bounds.size.width / 2, 0))
@@ -107,6 +142,13 @@ function getDiamondCap(bounds, options) {
     return path;
 }
 
+/**
+ * Get square cap
+ * @function getSquareCap
+ * @param bounds
+ * @param options
+ * @returns {*}
+ */
 function getSquareCap(bounds, options) {
     const rect = new geometry.Rect(bounds.origin, bounds.size);
     return new Rect(rect, options);
@@ -119,7 +161,7 @@ function getSquareCap(bounds, options) {
  */
 const Line = Widget.extend({
     /**
-     * Constructor
+     * Init
      * @constructor
      * @param element
      * @param options
@@ -148,10 +190,22 @@ const Line = Widget.extend({
                 color: '#999'
             },
             opacity: 1,
-            scale: 4,
-            shape: 'none',
+            scale: 3,
+            shape: SHAPES.none,
             stroke: {
                 width: 0
+            }
+        },
+        graduations: {
+            fill: {
+                color: '#999'
+            },
+            opacity: 1,
+            scale: 4,
+            count: 0,
+            stroke: {
+                color: '#999',
+                width: 2
             }
         },
         line: {
@@ -166,7 +220,7 @@ const Line = Widget.extend({
                 width: 5
             }
         },
-        smallSteps: {
+        smallGraduations: {
             fill: {
                 color: '#999'
             },
@@ -183,25 +237,18 @@ const Line = Widget.extend({
                 color: '#999'
             },
             opacity: 1,
-            scale: 2,
-            shape: 'none',
+            scale: 3,
+            shape: SHAPES.none,
             stroke: {
                 width: 0
             }
-        },
-        steps: {
-            fill: {
-                color: '#999'
-            },
-            opacity: 1,
-            scale: 4,
-            count: 0,
-            stroke: {
-                color: '#999',
-                width: 2
-            }
         }
     },
+
+    /**
+     * Shapes
+     */
+    shapes: SHAPES,
 
     /**
      * Render the widget
@@ -215,8 +262,8 @@ const Line = Widget.extend({
             'Please use a div tag to instantiate a Line widget.'
         );
         this.wrapper = element.addClass(WIDGET_CLASS).css({
-            touchAction: 'none', // Prevents scrolling (also pinching and zooming)
-            userSelect: 'none' // Prevents selecting
+            touchAction: CONSTANTS.none, // Prevents scrolling (also pinching and zooming)
+            userSelect: CONSTANTS.none // Prevents selecting
             // TODO maybe we need to add height 100% if undefined - check html
         });
         this.surface = Surface.create(element);
@@ -268,11 +315,11 @@ const Line = Widget.extend({
         });
         const lineWidth = normalizeNumber(((line || {}).stroke || {}).width);
         const startShift =
-            normalizeShape((startCap || {}).shape) === 'none'
+            normalizeShape((startCap || {}).shape) === SHAPES.none
                 ? 0
                 : (normalizeNumber((startCap || {}).scale) * lineWidth) / 2;
         const endShift =
-            normalizeShape(endCap.shape) === 'none'
+            normalizeShape(endCap.shape) === SHAPES.none
                 ? 0
                 : (normalizeNumber((endCap || {}).scale) * lineWidth) / 2;
         path.moveTo(startShift, size.height / 2)
@@ -288,64 +335,73 @@ const Line = Widget.extend({
      */
     _getGraduations(size) {
         const {
-            options: { line, smallSteps, steps } // TODO number
+            options: { line, smallGraduations, graduations }
         } = this;
         let group;
-        // stepCount is the number of primary graduations
+        // graduationCount is the number of primary graduations
         // 10 means 10 spaces or 11 (n+1) primary graduations from 0 to 10
-        const stepCount = normalizeNumber((steps || {}).count);
-        if (stepCount > 0) {
+        const graduationCount = normalizeNumber((graduations || {}).count);
+        if (graduationCount > 0) {
             group = new Group();
-            // stepHeight is the height of a primary graduation
-            const stepHeight =
-                normalizeNumber((steps || {}).scale) *
+            // graduationHeight is the height of a primary graduation
+            const graduationHeight =
+                normalizeNumber((graduations || {}).scale) *
                 normalizeNumber(((line || {}).stroke || {}).width);
-            // stepWidth is the stroke width of a primary graduation
-            const stepWidth = normalizeNumber(
-                ((steps || {}).stroke || {}).width
+            // graduationWidth is the stroke width of a primary graduation
+            const graduationWidth = normalizeNumber(
+                ((graduations || {}).stroke || {}).width
             );
-            // smallStepCount is the number of secondary graduations within a primary graduation space
+            // smallGraduationCount is the number of secondary graduations within a primary graduation space
             // 5 means 5 spaces or 4 (n-1) secondary graduations at x.2, x.4, x.6 and x.8 (x and 2x being primary graduations)
-            const smallStepCount = normalizeNumber((smallSteps || {}).count);
-            // smallStepHeight is the height of a secondary graduation
-            const smallStepHeight =
-                normalizeNumber((smallSteps || {}).scale) *
-                normalizeNumber(((line || {}).stroke || {}).width);
-            // smallStepWidth is the stroke width of a secondary graduation
-            const smallStepWidth = normalizeNumber(
-                ((smallSteps || {}).stroke || {}).width
+            const smallGraduationCount = normalizeNumber(
+                (smallGraduations || {}).count
             );
-            // Loop through steps (primary graduations)
-            for (let i = 0; i <= stepCount; i++) {
-                const stepPath = new Path({
-                    fill: steps.fill,
-                    opacity: steps.opacity,
-                    stroke: steps.stroke
+            // smallGraduationHeight is the height of a secondary graduation
+            const smallGraduationHeight =
+                normalizeNumber((smallGraduations || {}).scale) *
+                normalizeNumber(((line || {}).stroke || {}).width);
+            // smallGraduationWidth is the stroke width of a secondary graduation
+            const smallGraduationWidth = normalizeNumber(
+                ((smallGraduations || {}).stroke || {}).width
+            );
+            // Loop through graduations (primary graduations)
+            for (let i = 0; i <= graduationCount; i++) {
+                const graduationPath = new Path({
+                    fill: graduations.fill,
+                    opacity: graduations.opacity,
+                    stroke: graduations.stroke
                 });
-                const stepSpace = (size.width - stepWidth) / stepCount;
-                const stepX = stepWidth / 2 + i * stepSpace;
-                stepPath
-                    .moveTo(stepX, (size.height - stepHeight) / 2)
-                    .lineTo(stepX, (size.height + stepHeight) / 2)
+                const graduationSpace =
+                    (size.width - graduationWidth) / graduationCount;
+                const graduationX = graduationWidth / 2 + i * graduationSpace;
+                graduationPath
+                    .moveTo(graduationX, (size.height - graduationHeight) / 2)
+                    .lineTo(graduationX, (size.height + graduationHeight) / 2)
                     .close();
-                group.append(stepPath);
-                // TODO: Add numbers
-                // Loop through small steps (secondary graduations)
-                for (let j = 1; j < smallStepCount; j++) {
-                    const smallStepPath = new Path({
-                        fill: smallSteps.fill,
-                        opacity: smallSteps.opacity,
-                        stroke: smallSteps.stroke
+                group.append(graduationPath);
+                // Loop through small graduations (secondary graduations)
+                for (let j = 1; j < smallGraduationCount; j++) {
+                    const smallGraduationPath = new Path({
+                        fill: smallGraduations.fill,
+                        opacity: smallGraduations.opacity,
+                        stroke: smallGraduations.stroke
                     });
-                    const smallStepX =
-                        stepX +
-                        smallStepWidth / 2 +
-                        (j * (stepSpace - smallStepWidth)) / smallStepCount;
-                    smallStepPath
-                        .moveTo(smallStepX, (size.height - smallStepHeight) / 2)
-                        .lineTo(smallStepX, (size.height + smallStepHeight) / 2)
+                    const smallGraduationX =
+                        graduationX +
+                        smallGraduationWidth / 2 +
+                        (j * (graduationSpace - smallGraduationWidth)) /
+                            smallGraduationCount;
+                    smallGraduationPath
+                        .moveTo(
+                            smallGraduationX,
+                            (size.height - smallGraduationHeight) / 2
+                        )
+                        .lineTo(
+                            smallGraduationX,
+                            (size.height + smallGraduationHeight) / 2
+                        )
                         .close();
-                    group.append(smallStepPath);
+                    group.append(smallGraduationPath);
                 }
             }
         }
@@ -378,19 +434,19 @@ const Line = Widget.extend({
         };
         let cap;
         switch (shape) {
-            case SHAPES.ARROW:
+            case SHAPES.arrow:
                 cap = getArrowCap(bounds, options);
                 break;
-            case SHAPES.CIRCLE:
+            case SHAPES.circle:
                 cap = getCircleCap(bounds, options);
                 break;
-            case SHAPES.DIAMOND:
+            case SHAPES.diamond:
                 cap = getDiamondCap(bounds, options);
                 break;
-            case SHAPES.SQUARE:
+            case SHAPES.square:
                 cap = getSquareCap(bounds, options);
                 break;
-            case SHAPES.NONE:
+            case SHAPES.none:
             default:
                 break;
         }
@@ -424,19 +480,19 @@ const Line = Widget.extend({
         };
         let cap;
         switch (shape) {
-            case SHAPES.ARROW:
+            case SHAPES.arrow:
                 cap = getArrowCap(bounds, options);
                 break;
-            case SHAPES.CIRCLE:
+            case SHAPES.circle:
                 cap = getCircleCap(bounds, options);
                 break;
-            case SHAPES.DIAMOND:
+            case SHAPES.diamond:
                 cap = getDiamondCap(bounds, options);
                 break;
-            case SHAPES.SQUARE:
+            case SHAPES.square:
                 cap = getSquareCap(bounds, options);
                 break;
-            case SHAPES.NONE:
+            case SHAPES.none:
             default:
                 break;
         }

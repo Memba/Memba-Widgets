@@ -364,26 +364,46 @@ const res = {
     },
 
     // line
-    // TODO endCap and startCap
     line: {
         description:
-            'Line: <div styles="background-color: #: attributes.lineColor #; height: 1em; width: 1em;"/>',
+            'Line: <div style="background-color: #: attributes.lineColor #; display: inline-block; height: 1em; width: 1em; vertical-align: top;"/>',
         help: 'TODO',
         icon: 'vector_line',
         name: 'Line',
         attributes: {
+            endCap: {
+                title: 'End Type',
+                source: [
+                    { text: 'None', value: 'none' },
+                    { text: 'Arrow', value: 'arrow' },
+                    { text: 'Circle', value: 'circle' },
+                    { text: 'Diamond', value: 'diamond' },
+                    { text: 'Square', value: 'square' }
+                ]
+            },
             lineColor: {
+                help: 'Select a color for the line',
                 title: 'Color'
             },
             lineWidth: {
+                help: 'Enter a number for the thickness of the line',
                 title: 'Thickness'
+            },
+            startCap: {
+                title: 'Begin Type',
+                source: [
+                    { text: 'None', value: 'none' },
+                    { text: 'Arrow', value: 'arrow' },
+                    { text: 'Circle', value: 'circle' },
+                    { text: 'Diamond', value: 'diamond' },
+                    { text: 'Square', value: 'square' }
+                ]
             }
         },
         properties: {}
     },
 
     // mathinput
-    // TODO
     mathinput: {
         description: 'Math input',
         help: 'TODO',

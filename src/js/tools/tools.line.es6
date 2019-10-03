@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO attributes.lineWidth... -----> Consider slider
+// TODO Add lineStroke(dashed, ...) and graduations
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
@@ -13,8 +16,8 @@ import __ from '../app/app.i18n.es6';
 // import { PageComponent } from '../data/data.pagecomponent.es6';
 import '../widgets/widgets.line.es6';
 import ColorAdapter from './adapters.color.es6';
-// import DropDownListAdapter from './adapters.dropdownlist.es6';
-import NumberAdapter from './adapters.dropdownlist.es6';
+import DropDownListAdapter from './adapters.dropdownlist.es6';
+import NumberAdapter from './adapters.number.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 
@@ -26,9 +29,9 @@ const { ns } = window.kendo;
  */
 const TEMPLATE = `<div
     data-${ns}role="line"
-    data-${ns}end-cap="{shape:&quot;arrow&quot;,fill:{color:&quot;#: attributes.lineColor #&quot;}}"
-    data-${ns}line="{stroke:{color:&quot;#: attributes.lineColor #&quot;}}"
-    data-${ns}start-cap="{shape:&quot;circle&quot;,fill:{color:&quot;#: attributes.lineColor #&quot;}}">
+    data-${ns}end-cap="{shape:&quot;#: attributes.endCap #&quot;,fill:{color:&quot;#: attributes.lineColor #&quot;}}"
+    data-${ns}line="{stroke:{color:&quot;#: attributes.lineColor #&quot;,width: #: attributes.lineWidth #}}"
+    data-${ns}start-cap="{shape:&quot;#: attributes.startCap #&quot;,fill:{color:&quot;#: attributes.lineColor #&quot;}}">
 </div>`;
 
 /**
@@ -40,20 +43,45 @@ const LineTool = BaseTool.extend({
     id: 'line',
     height: 60,
     width: 300,
-    menu: ['attributes.lineColor'],
+    menu: ['attributes.lineColor', 'attributes.lineWidth'],
     templates: {
         default: TEMPLATE
     },
     attributes: {
         lineColor: new ColorAdapter({
+            help: __('tools.line.attributes.lineColor.help'),
             title: __('tools.line.attributes.lineColor.title'),
             defaultValue: TOOLS.MEDIUM_GREY
         }),
-        lineWidth: new NumberAdapter({
-            title: __('tools.line.attributes.lineWidth.title'),
-            defaultValue: 5
-            // TODO min, nax, step... -----> Consider slider
-        })
+        lineWidth: new NumberAdapter(
+            {
+                help: __('tools.line.attributes.lineWidth.help'),
+                title: __('tools.line.attributes.lineWidth.title'),
+                defaultValue: 5
+            },
+            {
+                'data-decimals': 0,
+                'data-format': 'n0',
+                'data-min': 1,
+                'data-max': 20
+            }
+        ),
+        startCap: new DropDownListAdapter(
+            {
+                title: __('tools.line.attributes.endCap.title'),
+                defaultValue: 'none',
+                source: __('tools.line.attributes.endCap.source')
+            },
+            { style: 'width: 100%;' }
+        ),
+        endCap: new DropDownListAdapter(
+            {
+                title: __('tools.line.attributes.startCap.title'),
+                defaultValue: 'none',
+                source: __('tools.line.attributes.startCap.source')
+            },
+            { style: 'width: 100%;' }
+        )
     },
     // properties: {},
 

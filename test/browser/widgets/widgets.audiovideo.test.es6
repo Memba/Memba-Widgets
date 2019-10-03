@@ -19,17 +19,20 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import baseUrl from '../../../src/js/helpers/helpers.base.es6';
 import '../../../src/js/widgets/widgets.audiovideo.es6';
 
-const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
+const { afterEach, before, beforeEach, describe, it, xit } = window;
 const {
     attr,
     destroy,
     init,
     ui: { AudioVideo, roles, Slider }
 } = window.kendo;
+const { webdriver } = window.navigator;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'audiovideo';
+const WIDGET = 'kendoAudioVideo';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -66,7 +69,7 @@ describe('widgets.audiovideo', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoAudioVideo).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -74,10 +77,10 @@ describe('widgets.audiovideo', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoAudioVideo().data('kendoAudioVideo');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-audiovideo');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -101,12 +104,10 @@ describe('widgets.audiovideo', () => {
                 mode: 'audio',
                 files: AUDIO_FILES
             };
-            const widget = element
-                .kendoAudioVideo(options)
-                .data('kendoAudioVideo');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-audiovideo');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -136,12 +137,10 @@ describe('widgets.audiovideo', () => {
                 mode: 'video',
                 files: VIDEO_FILES
             };
-            const widget = element
-                .kendoAudioVideo(options)
-                .data('kendoAudioVideo');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-audiovideo');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -170,10 +169,10 @@ describe('widgets.audiovideo', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoAudioVideo');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-audiovideo');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -200,10 +199,10 @@ describe('widgets.audiovideo', () => {
                 })
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoAudioVideo');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-audiovideo');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -236,10 +235,10 @@ describe('widgets.audiovideo', () => {
                 })
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoAudioVideo');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-audiovideo');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('media')
                 .that.is.an.instanceof($);
@@ -274,10 +273,10 @@ describe('widgets.audiovideo', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoAudioVideo(options).data('kendoAudioVideo');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
-        it('togglePlayPause', done => {
+        (webdriver ? xit : it)('togglePlayPause', done => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget)
                 .to.have.property('media')
@@ -420,10 +419,10 @@ describe('widgets.audiovideo', () => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             widget.destroy();
             expect(element.parent()).to.match(`#${FIXTURES}`);
-            expect(element.data('kendoAudioVideo')).to.be.undefined;
+            expect(element.data(WIDGET)).to.be.undefined;
             expect(element).to.be.empty;
             expect(element).not.to.have.class('k-widget');
-            expect(element).not.to.have.class('kj-audiovideo');
+            expect(element).not.to.have.class(`kj-${ROLE}`);
         });
     });
 
@@ -438,11 +437,11 @@ describe('widgets.audiovideo', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoAudioVideo(options).data('kendoAudioVideo');
+            widget = element[WIDGET](options).data(WIDGET);
             // viewModel = observable({ url: undefined });
         });
 
-        it('togglePlayPause', done => {
+        (webdriver ? xit : it)('togglePlayPause', done => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget.media).to.be.an.instanceof($);
             expect(widget.toolbar).to.be.an.instanceof($);
@@ -561,7 +560,7 @@ describe('widgets.audiovideo', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             options = {};
-            widget = element.kendoAudioVideo(options).data('kendoAudioVideo');
+            widget = element[WIDGET](options).data(WIDGET);
             // change = sinon.spy();
         });
 

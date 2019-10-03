@@ -62,7 +62,7 @@ describe('tools.line', () => {
             expect(tool).to.have.property('icon', __('tools.line.icon'));
             expect(tool)
                 .to.have.property('menu')
-                .that.eql(['attributes.lineColor']);
+                .that.eql(['attributes.lineColor', 'attributes.lineWidth']);
             expect(tool).to.have.property('name', __('tools.line.name'));
             expect(tool).to.have.property('weight', 0);
             expect(tool).to.have.property('width', 300);
@@ -84,7 +84,7 @@ describe('tools.line', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(9);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
@@ -92,6 +92,8 @@ describe('tools.line', () => {
             expect(rows[4]).to.have.property('field', 'rotate');
             expect(rows[5]).to.have.property('field', 'attributes.lineColor');
             expect(rows[6]).to.have.property('field', 'attributes.lineWidth');
+            expect(rows[7]).to.have.property('field', 'attributes.startCap');
+            expect(rows[8]).to.have.property('field', 'attributes.endCap');
         });
 
         it('getPropertyModel', () => {

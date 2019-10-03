@@ -517,11 +517,11 @@ const BasicList = DataBoundWidget.extend({
     destroy() {
         this.enable(false);
         unbind(this.element);
+        this.setDataSource(null);
         if (this.listView instanceof ListView) {
             this.listView.destroy();
             this.listView = undefined;
         }
-        this.dataSource(null);
         // Destroy widget
         DataBoundWidget.fn.destroy.call(this);
         destroy(this.element);

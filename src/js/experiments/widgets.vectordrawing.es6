@@ -1189,7 +1189,7 @@ var VectorDrawing = Diagram.extend({
 /**
  * Registration
  */
-if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'VectorDrawing')) {
+// if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'VectorDrawing')) {
     // Prevents loading several times in karma
     plugin(VectorDrawing);
-}
+// }

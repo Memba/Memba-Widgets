@@ -233,8 +233,11 @@ function getLatex() {
 function getLine() {
     return {
         attributes: {
+            endCap: 'none',
+            // TODO graduations
             lineColor: '#ff0000',
-            lineWidth: 5
+            lineWidth: 5,
+            startCap: 'none'
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),

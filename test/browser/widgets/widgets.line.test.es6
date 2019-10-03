@@ -16,7 +16,7 @@ import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.license.es6';
+import '../../../src/js/widgets/widgets.line.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
@@ -33,8 +33,67 @@ const ELEMENT = `<${CONSTANTS.DIV}>`;
 const ROLE = 'line';
 const WIDGET = 'kendoLine';
 
-function getValue() {
-    return 1;
+function getOptions() {
+    return {
+        endCap: {
+            fill: {
+                color: '#999'
+            },
+            opacity: JSC.number(0, 1)(),
+            scale: 3,
+            shape: JSC.one_of(Object.values(Line.fn.shapes))(),
+            stroke: {
+                width: 0
+            }
+        },
+        graduations: {
+            fill: {
+                color: '#999'
+            },
+            opacity: JSC.number(0, 1)(),
+            scale: 4,
+            count: 0,
+            stroke: {
+                color: '#999',
+                width: 2
+            }
+        },
+        line: {
+            // fill: {},
+            opacity: JSC.number(0, 1)(),
+            stroke: {
+                color: '#999',
+                dashType: 'solid',
+                // lineCap: 'butt',
+                // lineJoin: 'miter',
+                // opacity: 1,
+                width: 5
+            }
+        },
+        smallGraduations: {
+            fill: {
+                color: '#999'
+            },
+            opacity: JSC.number(0, 1)(),
+            scale: 3,
+            count: 0,
+            stroke: {
+                color: '#999',
+                width: 1
+            }
+        },
+        startCap: {
+            fill: {
+                color: '#999'
+            },
+            opacity: JSC.number(0, 1)(),
+            scale: 3,
+            shape: JSC.one_of(Object.values(Line.fn.shapes))(),
+            stroke: {
+                width: 0
+            }
+        }
+    };
 }
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -67,9 +126,7 @@ describe('widgets.line', () => {
 
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const options = {
-                value: getValue()
-            };
+            const options = getOptions();
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Line);
             expect(element).not.to.have.class('k-widget');
@@ -90,9 +147,7 @@ describe('widgets.line', () => {
         });
 
         it('from markup with attributes', () => {
-            const attributes = {
-                'data-value': getValue()
-            };
+            const attributes = {};
             attributes[attr('role')] = ROLE;
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -105,183 +160,33 @@ describe('widgets.line', () => {
         });
     });
 
-    describe('Methods', () => {
+    xdescribe('Methods', () => {
         let options;
         let element;
         let widget;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            options = { value: getValue() };
+            options = getOptions();
             widget = element[WIDGET](options).data(WIDGET);
         });
 
-        it('value (get)', () => {
-            expect(widget).to.be.an.instanceof(Line);
-            expect(widget.value()).to.equal(options.value);
-        });
-
-        it('value (set)', () => {
-            const value = getValue();
-            expect(widget).to.be.an.instanceof(Line);
-            widget.value(value);
-            expect(widget.value()).to.equal(value);
-        });
-
-        it('value (error)', () => {
-            const fn1 = function() {
-                widget.value(JSC.string()());
-            };
-            const fn2 = function() {
-                widget.value(JSC.integer(100)());
-            };
-            expect(widget).to.be.an.instanceof(Line);
-            expect(fn1).to.throw(TypeError);
-            expect(fn2).to.throw(RangeError);
-        });
-
-        it('enable/readonly', () => {
-            expect(widget).to.be.an.instanceof(Line);
-            const { wrapper } = widget;
-            expect(wrapper)
-                .to.be.an.instanceof($)
-                .with.property('length', 1);
-            widget.enable(false);
-            expect(wrapper).to.have.class(CONSTANTS.DISABLED_CLASS);
-            widget.enable(true);
-            expect(wrapper).not.to.have.class(CONSTANTS.DISABLED_CLASS);
-        });
-
-        // it('visible', function () {
+        // it('visible', () => {
         //     expect(widget).to.be.an.instanceof(Line);
         //     expect(widget.wrapper).to.be.an.instanceof($).with.property('length', 1);
         //     TODO
         // });
 
-        // it('destroy', function () {
-        // TODO
-        // });
-    });
-
-    describe('MVVM', () => {
-        let element;
-        let widget;
-        let viewModel;
-
-        /*
-         // For obscure reasons, setting the viewModel here does not work
-         viewModel = observable({
-            rating: undefined
-         });
-         */
-
-        beforeEach(() => {
-            element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
-                .attr(attr('bind'), 'value: rating')
-                .attr(attr('max'), 10)
-                .appendTo(`#${FIXTURES}`);
-            viewModel = observable({
-                rating: undefined
-            });
-            bind(`#${FIXTURES}`, viewModel);
-            widget = element.data(WIDGET);
-        });
-
-        it('Changing the value in the viewModel changes the number of plain/selected stars', () => {
-            expect(widget).to.be.an.instanceof(Line);
-            const {
-                options: { min, max, step }
-            } = widget;
-            const count = Math.round((max - min) / step);
-            const input = widget.wrapper.find('input');
-            expect(input)
-                .to.be.an.instanceof($)
-                .with.property('length', 1);
-            const stars = widget.wrapper.find('span.kj-rating-star');
-            expect(stars)
-                .to.be.an.instanceof($)
-                .with.property('length', count);
-            for (let value = min; value <= max; value += step) {
-                viewModel.set('current', value);
-                expect(parseFloat(input.val())).to.equal(value);
-                const pos = Math.round((value - min) / step) - 1;
-                for (let i = 0; i < count; i++) {
-                    if (i <= pos) {
-                        expect($(stars.get(i))).to.have.class(
-                            CONSTANTS.DISABLED_CLASS
-                        );
-                    } else {
-                        expect($(stars.get(i))).to.not.have.class(
-                            CONSTANTS.DISABLED_CLASS
-                        );
-                    }
-                }
-            }
-        });
-
-        it('Clicking a star updates the value in the viewModel', () => {
-            expect(widget).to.be.an.instanceof(Line);
-            const {
-                options: { min, max, step }
-            } = widget;
-            const count = Math.round((max - min) / step);
-            const input = widget.wrapper.find('input');
-            expect(input)
-                .to.be.an.instanceof($)
-                .with.property('length', 1);
-            const stars = widget.wrapper.find('span.kj-rating-star');
-            expect(stars)
-                .to.be.an.instanceof($)
-                .with.property('length', count);
-            for (let pos = 0; pos < count; pos++) {
-                $(stars.get(pos)).simulate('click');
-                expect(parseFloat(input.val())).to.equal(
-                    min + (pos + 1) * step
-                );
-                for (let i = 0; i < count; i++) {
-                    if (i <= pos) {
-                        expect($(stars.get(i))).to.have.class(
-                            CONSTANTS.DISABLED_CLASS
-                        );
-                    } else {
-                        expect($(stars.get(i))).to.not.have.class(
-                            CONSTANTS.DISABLED_CLASS
-                        );
-                    }
-                }
-            }
+        it('destroy', () => {
+            $.noop(widget);
         });
     });
 
-    xdescribe('UI Interactions', () => {
-        let element;
-        let widget;
+    // describe('MVVM', () => {});
 
-        beforeEach(() => {
-            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[WIDGET]().data(WIDGET);
-        });
+    // describe('UI Interactions', () => {});
 
-        it('mouseover', () => {
-            $.moop(widget);
-        });
-    });
-
-    xdescribe('Events', () => {
-        let element;
-        let widget;
-
-        beforeEach(() => {
-            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[WIDGET]().data(WIDGET);
-        });
-
-        it('change', () => {
-            const change = sinon.spy();
-            $.noop(widget, change);
-        });
-    });
+    // describe('Events', () => {});
 
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);

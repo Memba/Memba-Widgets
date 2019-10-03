@@ -363,4 +363,7 @@ BaseDialog.getElement = function getElement(cssClass = 'kj-dialog-tools') {
 /**
  * Registration
  */
-plugin(BaseDialog);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'BaseDialog')) {
+    // Prevents loading several times in karma
+    plugin(BaseDialog);
+}

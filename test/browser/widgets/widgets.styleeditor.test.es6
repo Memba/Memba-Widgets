@@ -12,13 +12,13 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+// import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.styleeditor.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
@@ -28,9 +28,12 @@ const {
     observable,
     ui: { ComboBox, Grid, roles, StyleEditor }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'styleeditor';
+const WIDGET = 'kendoStyleEditor';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -48,7 +51,7 @@ describe('widgets.styleeditor', () => {
             expect(window.kendo).not.to.be.undefined;
             expect($.fn.kendoComboBox).to.be.a(CONSTANTS.FUNCTION);
             expect($.fn.kendoGrid).to.be.a(CONSTANTS.FUNCTION);
-            expect($.fn.kendoStyleEditor).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -56,8 +59,9 @@ describe('widgets.styleeditor', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoStyleEditor().data('kendoStyleEditor');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(StyleEditor);
+            debugger;
             expect(widget.value()).to.equal('');
             expect(widget.grid).to.be.an.instanceof(Grid);
             expect(widget.grid.dataSource).to.be.an.instanceof(DataSource);
@@ -68,7 +72,9 @@ describe('widgets.styleeditor', () => {
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('k-grid');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(widget.wrapper.height()).to.equal(widget.options.height);
+            expect(widget.wrapper.outerHeight()).to.equal(
+                widget.options.height
+            );
             expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add'))
                 .to.exist;
             expect(
@@ -82,9 +88,7 @@ describe('widgets.styleeditor', () => {
                 height: 500
             };
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoStyleEditor(options)
-                .data('kendoStyleEditor');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(StyleEditor);
             expect(widget.value()).to.equal(options.value);
             expect(widget.grid).to.be.an.instanceof(Grid);
@@ -109,7 +113,7 @@ describe('widgets.styleeditor', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoStyleEditor');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(StyleEditor);
             expect(widget.value()).to.equal('');
             expect(widget.grid).to.be.an.instanceof(Grid);
@@ -139,7 +143,7 @@ describe('widgets.styleeditor', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoStyleEditor');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(StyleEditor);
             expect(widget.value()).to.equal(attributes['data-value']);
             expect(widget.grid).to.be.an.instanceof(Grid);
@@ -169,7 +173,7 @@ describe('widgets.styleeditor', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoStyleEditor(options).data('kendoStyleEditor');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('value', () => {
@@ -194,7 +198,7 @@ describe('widgets.styleeditor', () => {
             expect(widget).to.be.an.instanceof(StyleEditor);
             widget.destroy();
             expect(element).not.to.have.class(`kj-${ROLE}`);
-            expect(element.data('kendoStyleEditor')).to.be.undefined;
+            expect(element.data(WIDGET)).to.be.undefined;
         });
     });
 
@@ -218,7 +222,7 @@ describe('widgets.styleeditor', () => {
                 style: 'color:#FF0000;border:1px solid rgb(255, 0, 0);'
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoStyleEditor');
+            widget = element.data(WIDGET);
             viewModel.bind('change', () => {
                 change();
             });
@@ -343,7 +347,7 @@ describe('widgets.styleeditor', () => {
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoStyleEditor(options).data('kendoStyleEditor');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('Change', () => {

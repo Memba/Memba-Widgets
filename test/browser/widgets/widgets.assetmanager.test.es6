@@ -655,7 +655,6 @@ describe('widgets.assetmanager', () => {
 
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
-        // unbind(fixtures);
         destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();

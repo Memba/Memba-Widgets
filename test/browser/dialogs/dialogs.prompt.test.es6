@@ -67,6 +67,6 @@ describe('dialogs.prompt', () => {
         destroy(dialog);
         dialog.remove();
         $('body > .k-overlay').remove();
-        // $('body > .k-popup').remove();
+        $('body > .k-popup').remove();
     });
 });

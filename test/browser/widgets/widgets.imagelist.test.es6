@@ -12,25 +12,26 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import sinon from 'sinon';
+// import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.imagelist.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
-    bind,
-    data: { DataSource },
+    // bind,
+    // data: { DataSource },
     destroy,
     init,
-    observable,
     ui: { ImageList, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'imagelist';
+const WIDGET = 'kendoImageList';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -46,30 +47,63 @@ describe('widgets.imagelist', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoImageList).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
     describe('Initialization', () => {
         it('from code', () => {
-            expect(true).to.be.false;
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            const widget = element[WIDGET]().data(WIDGET);
+            expect(widget).to.be.an.instanceof(ImageList);
+            expect(element).to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         it('from code with options', () => {
-            expect(true).to.be.false;
+            const options = {
+                // TODO
+            };
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            const widget = element[WIDGET](options).data(WIDGET);
+            expect(widget).to.be.an.instanceof(ImageList);
+            expect(element).to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         it('from markup', () => {
-            expect(true).to.be.false;
+            const attributes = {};
+            attributes[attr('role')] = ROLE;
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data(WIDGET);
+            expect(widget).to.be.an.instanceof(ImageList);
+            expect(element).to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         it('from markup with attributes', () => {
-            expect(true).to.be.false;
+            const attributes = {
+                // TODO
+            };
+            attributes[attr('role')] = ROLE;
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data(WIDGET);
+            expect(widget).to.be.an.instanceof(ImageList);
+            expect(element).to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
         });
     });
 
-    describe('Methods', () => {
+    xdescribe('Methods', () => {
+        beforeEach(() => {});
+
         it('value', () => {
             expect(true).to.be.false;
         });
@@ -83,13 +117,17 @@ describe('widgets.imagelist', () => {
         });
     });
 
-    describe('MVVM (with UI interactions)', () => {
+    xdescribe('MVVM (with UI interactions)', () => {
+        beforeEach(() => {});
+
         it('It should...', () => {
             expect(true).to.be.false;
         });
     });
 
-    describe('Events', () => {
+    xdescribe('Events', () => {
+        beforeEach(() => {});
+
         it('change', () => {
             expect(true).to.be.false;
         });

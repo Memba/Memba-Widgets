@@ -557,8 +557,9 @@ const MultiInput = Widget.extend({
             if (isMatch) {
                 const value = this.value();
                 value.push(tag);
-                this._addTagElements(tag);
+                // this._addTagElements(tag);
                 input.val('');
+                this.value(value);
                 this.trigger(CONSTANTS.CHANGE, { value });
             }
         }

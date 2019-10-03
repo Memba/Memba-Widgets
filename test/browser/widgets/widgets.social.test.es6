@@ -290,7 +290,6 @@ describe('widgets.social', () => {
 
     afterEach(() => {
         const fixtures = $(`#${FIXTURES}`);
-        // unbind(fixtures);
         destroy(fixtures);
         fixtures.find('*').off();
         fixtures.empty();

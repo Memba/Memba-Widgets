@@ -26,10 +26,10 @@ const logger = new Logger('widgets.line');
 // const NS = '.kendoLine';
 const WIDGET_CLASS = 'kj-line';
 const SHAPES = {
-    arrow: 'arrow',
-    circle: 'circle',
-    diamond: 'diamond',
-    none: 'none',
+    ARROW: 'arrow',
+    CIRCLE: 'circle',
+    DIAMOND: 'diamond',
+    NONE: 'none',
     SQUARE: 'square'
 };
 
@@ -52,7 +52,7 @@ function normalizeNumber(value, num = 0) {
  */
 function normalizeShape(value) {
     const shape = String(value).toLowerCase();
-    return Object.values(SHAPES).indexOf(shape) === -1 ? SHAPES.none : shape;
+    return Object.values(SHAPES).indexOf(shape) === -1 ? SHAPES.NONE : shape;
 }
 
 /**
@@ -191,7 +191,7 @@ const Line = Widget.extend({
             },
             opacity: 1,
             scale: 3,
-            shape: SHAPES.none,
+            shape: SHAPES.NONE,
             stroke: {
                 width: 0
             }
@@ -238,7 +238,7 @@ const Line = Widget.extend({
             },
             opacity: 1,
             scale: 3,
-            shape: SHAPES.none,
+            shape: SHAPES.NONE,
             stroke: {
                 width: 0
             }
@@ -315,11 +315,11 @@ const Line = Widget.extend({
         });
         const lineWidth = normalizeNumber(((line || {}).stroke || {}).width);
         const startShift =
-            normalizeShape((startCap || {}).shape) === SHAPES.none
+            normalizeShape((startCap || {}).shape) === SHAPES.NONE
                 ? 0
                 : (normalizeNumber((startCap || {}).scale) * lineWidth) / 2;
         const endShift =
-            normalizeShape(endCap.shape) === SHAPES.none
+            normalizeShape(endCap.shape) === SHAPES.NONE
                 ? 0
                 : (normalizeNumber((endCap || {}).scale) * lineWidth) / 2;
         path.moveTo(startShift, size.height / 2)
@@ -434,19 +434,19 @@ const Line = Widget.extend({
         };
         let cap;
         switch (shape) {
-            case SHAPES.arrow:
+            case SHAPES.ARROW:
                 cap = getArrowCap(bounds, options);
                 break;
-            case SHAPES.circle:
+            case SHAPES.CIRCLE:
                 cap = getCircleCap(bounds, options);
                 break;
-            case SHAPES.diamond:
+            case SHAPES.DIAMOND:
                 cap = getDiamondCap(bounds, options);
                 break;
-            case SHAPES.square:
+            case SHAPES.SQUARE:
                 cap = getSquareCap(bounds, options);
                 break;
-            case SHAPES.none:
+            case SHAPES.NONE:
             default:
                 break;
         }
@@ -480,19 +480,19 @@ const Line = Widget.extend({
         };
         let cap;
         switch (shape) {
-            case SHAPES.arrow:
+            case SHAPES.ARROW:
                 cap = getArrowCap(bounds, options);
                 break;
-            case SHAPES.circle:
+            case SHAPES.CIRCLE:
                 cap = getCircleCap(bounds, options);
                 break;
-            case SHAPES.diamond:
+            case SHAPES.DIAMOND:
                 cap = getDiamondCap(bounds, options);
                 break;
-            case SHAPES.square:
+            case SHAPES.SQUARE:
                 cap = getSquareCap(bounds, options);
                 break;
-            case SHAPES.none:
+            case SHAPES.NONE:
             default:
                 break;
         }

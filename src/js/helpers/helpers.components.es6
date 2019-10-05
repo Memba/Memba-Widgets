@@ -189,7 +189,7 @@ function getLabel() {
     return {
         attributes: {
             style: styleGenerator(),
-            text: JSC.string()()
+            text: JSC.string()().replace(/#/g, '\\#') // Note: avoids breaking kendo templates
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),

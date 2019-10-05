@@ -1780,6 +1780,9 @@ const Stage = DataBoundWidget.extend({
                 this.trigger(CONSTANTS.SELECT, { value: null });
             }
 
+            // this.userEvents.cancel();
+            this.userEvents._disposeAll();
+
             // Focus on the stage to receive keyboard events
             this.stage.focus();
         } else {
@@ -1827,6 +1830,9 @@ const Stage = DataBoundWidget.extend({
 
                         // Reset the pointer tool
                         options.tools.active = TOOLS.POINTER;
+
+                        // this.userEvents.cancel();
+                        this.userEvents._disposeAll();
 
                         // Focus on the stage to receive keyboard events
                         this.stage.focus();
@@ -1906,8 +1912,8 @@ const Stage = DataBoundWidget.extend({
         const adorner = this._getAdorner();
         const uid = adorner.attr(attr(CONSTANTS.UID));
         const state = adorner.data(STATE);
-
-        // Weh have s state with a consistent action and uid
+debugger;
+        // We have s state with a consistent action and uid
         if (
             $.isPlainObject(state) &&
             action === state.action &&
@@ -2033,7 +2039,7 @@ const Stage = DataBoundWidget.extend({
         const uid = adorner.attr(attr(CONSTANTS.UID));
         const state = adorner.data(STATE);
 
-        // Weh have s state with a consistent action and uid
+        // We have s state with a consistent action and uid
         if (
             $.isPlainObject(state) &&
             action === state.action &&
@@ -2052,6 +2058,9 @@ const Stage = DataBoundWidget.extend({
                 Stage._hideDebugVisualElements(this.wrapper);
             }
         }
+
+        // this.userEvents.cancel();
+        this.userEvents._disposeAll();
     },
 
     /**

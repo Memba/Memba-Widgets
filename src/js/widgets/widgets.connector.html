@@ -243,19 +243,19 @@
 </head>
 <body>
 <h1>widgets.connector</h1>
-<div class="kj-stage" style="position:relative; height:300px; width:300px; border:solid 1px black; transform: scale(0.75);">
-    <div data-role="stage" style="height:300px; width:300px;">
-        <div class="kj-element" style="position:absolute; top:10px; left:10px; height:40px; width:40px;">
-            <div data-role="connector" data-id="id-red" data-target-value="red" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF0000" style="height:40px; width:40px;" data-bind="value: red, source: source, visible: visible, enabled: enabled"></div>
+<div class="kj-stage" style="position: relative; height: 300px; width: 300px; border: solid 1px black; transform: scale(0.75);">
+    <div data-role="stage" style="height: 300px; width: 300px;">
+        <div class="kj-element" style="position: absolute; top: 10px; left: 10px; height: 40px; width: 40px;">
+            <div data-role="connector" data-id="id-red" data-target-value="red" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF0000" style="height: 40px; width: 40px;" data-bind="value: red, source: source, visible: visible, enabled: enabled"></div>
         </div>
-        <div class="kj-element" style="position:absolute; top:10px; left:250px; height:40px; width:40px;">
-            <div data-role="connector" data-id="id-green" data-target-value="green" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#00FF00" style="height:40px; width:40px;" data-bind="value: green, source: source, visible: visible, enabled: enabled"></div>
+        <div class="kj-element" style="position: absolute; top: 10px; left: 250px; height: 40px; width: 40px;">
+            <div data-role="connector" data-id="id-green" data-target-value="green" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#00FF00" style="height: 40px; width: 40px;" data-bind="value: green, source: source, visible: visible, enabled: enabled"></div>
         </div>
-        <div class="kj-element" style="position:absolute; top:250px; left:250px; height:40px; width:40px;">
-            <div data-role="connector" data-id="id-blue" data-target-value="blue" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:40px; width:40px;" data-bind="value: blue, source: source, visible: visible, enabled: enabled"></div>
+        <div class="kj-element" style="position: absolute; top: 250px; left: 250px; height: 40px; width: 40px;">
+            <div data-role="connector" data-id="id-blue" data-target-value="blue" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height: 40px; width: 40px;" data-bind="value: blue, source: source, visible: visible, enabled: enabled"></div>
         </div>
-        <div class="kj-element" style="position:absolute; top:250px; left:10px; height:40px; width:40px;">
-            <div data-role="connector" data-id="id-yellow" data-target-value="yellow" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF00FF" style="height:40px; width:40px;" data-bind="value: yellow, source: source, visible: visible, enabled: enabled"></div>
+        <div class="kj-element" style="position: absolute; top: 250px; left: 10px; height: 40px; width: 40px;">
+            <div data-role="connector" data-id="id-yellow" data-target-value="yellow" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF00FF" style="height: 40px; width: 40px;" data-bind="value: yellow, source: source, visible: visible, enabled: enabled"></div>
         </div>
     </div>
 </div>
@@ -266,7 +266,7 @@
     blue: <span data-bind="text: blue"></span>
     yellow: <span data-bind="text: yellow"></span>
     source$:
-    <div data-bind="text: source$" style="margin-left:50px;"></div>
+    <div data-bind="text: source$" style="margin-left: 50px;"></div>
     visible: <span data-bind="text: visible"></span>
     enabled: <span data-bind="text: enabled"></span>
 }
@@ -277,19 +277,19 @@
 </div>
 
 <h2>Check a second widget on the same page</h2>
-<div class="kj-stage" style="position:relative; height:300px; width:300px; border:solid 1px black; transform: scale(0.9);">
-    <div data-role="stage" style="height:300px; width:300px;">
-        <div class="kj-element" style="position:absolute; top:10px; left:10px; height:40px; width:40px;">
-            <div data-role="connector" data-id="id-red" data-target-value="red" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF0000" style="height:40px; width:40px;" data-bind="source: source2"></div>
+<div class="kj-stage" style="position: relative; height: 300px; width: 300px; border: solid 1px black; transform: scale(0.9);">
+    <div data-role="stage" style="height: 300px; width: 300px;">
+        <div class="kj-element" style="position: absolute; top: 10px; left: 10px; height: 40px; width: 40px;">
+            <div data-role="connector" data-id="id-red" data-target-value="red" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF0000" style="height: 40px; width: 40px;" data-bind="source: source2"></div>
         </div>
-        <div class="kj-element" style="position:absolute; top:10px; left:250px; height:40px; width:40px;">
-            <div data-role="connector" data-id="id-green" data-target-value="green" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#00FF00" style="height:40px; width:40px;" data-bind="source: source2"></div>
+        <div class="kj-element" style="position: absolute; top: 10px; left: 250px; height: 40px; width: 40px;">
+            <div data-role="connector" data-id="id-green" data-target-value="green" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#00FF00" style="height: 40px; width: 40px;" data-bind="source: source2"></div>
         </div>
-        <div class="kj-element" style="position:absolute; top:250px; left:250px; height:40px; width:40px;">
-            <div data-role="connector" data-id="id-blue" data-target-value="blue" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:40px; width:40px;" data-bind="source: source2"></div>
+        <div class="kj-element" style="position: absolute; top: 250px; left: 250px; height: 40px; width: 40px;">
+            <div data-role="connector" data-id="id-blue" data-target-value="blue" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height: 40px; width: 40px;" data-bind="source: source2"></div>
         </div>
-        <div class="kj-element" style="position:absolute; top:250px; left:10px; height:40px; width:40px;">
-            <div data-role="connector" data-id="id-yellow" data-target-value="yellow" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF00FF" style="height:40px; width:40px;" data-bind="source: source2"></div>
+        <div class="kj-element" style="position: absolute; top: 250px; left: 10px; height: 40px; width: 40px;">
+            <div data-role="connector" data-id="id-yellow" data-target-value="yellow" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF00FF" style="height: 40px; width: 40px;" data-bind="source: source2"></div>
         </div>
     </div>
 </div>

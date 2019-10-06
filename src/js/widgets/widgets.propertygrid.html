@@ -223,7 +223,7 @@
                 var kendo = window.kendo;
                 //This function is taken from http://demos.kendoui.com/web/grid/editing-custom.html
                 function categoryDropDownEditor(container, options) {
-                    $('<input data-bind="value: ' + options.field + '" style="width:100%;"/>')
+                    $('<input data-bind="value: ' + options.field + '" style="width: 100%;"/>')
                     .appendTo(container)
                     .kendoDropDownList({
                         autoBind: false,
@@ -376,7 +376,7 @@
                         { field: 'height', title: 'Height', editor: 'slider', attributes: { min: -100,  max: 100, smallStep: 5, largeStep: 50 } },
                         { field: 'background', title: 'Background', editor: 'url' },
                         { field: 'colour', title: 'Colour', editor: 'colorpicker' },
-                        { field: 'creationDate', title: 'Creation Date', editor:'datepicker', attributes: { 'data-format': 'dd MMM yyyy' } },
+                        { field: 'creationDate', title: 'Creation Date', editor: 'datepicker', attributes: { 'data-format': 'dd MMM yyyy' } },
                         { field: 'like', title: 'Like'},
                         { field: 'rating', title: 'Rating', editor: 'rating'},
                         { field: 'views', title: 'Views' }

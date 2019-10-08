@@ -1780,8 +1780,9 @@ const Stage = DataBoundWidget.extend({
                 this.trigger(CONSTANTS.SELECT, { value: null });
             }
 
+            // Do not uncomment: breaks moving, resizing and rotating
             // this.userEvents.cancel();
-            this.userEvents._disposeAll();
+            // this.userEvents._disposeAll();
 
             // Focus on the stage to receive keyboard events
             this.stage.focus();
@@ -1912,7 +1913,7 @@ const Stage = DataBoundWidget.extend({
         const adorner = this._getAdorner();
         const uid = adorner.attr(attr(CONSTANTS.UID));
         const state = adorner.data(STATE);
-debugger;
+
         // We have s state with a consistent action and uid
         if (
             $.isPlainObject(state) &&
@@ -2333,7 +2334,7 @@ if (window.DEBUG) {
      * Add debug visual eleemnts
      * @param wrapper
      */
-    Stage._addDebugVisualElements = function(wrapper) {
+    Stage._addDebugVisualElements = wrapper => {
         // Add bounding rectangle
         $(DEBUG_BOUNDS)
             .css({
@@ -2376,7 +2377,7 @@ if (window.DEBUG) {
      * Update debug visual elements
      * @param options
      */
-    Stage._updateDebugVisualElements = function(options) {
+    Stage._updateDebugVisualElements = options => {
         if ($.isPlainObject(options)) {
             const { bounds, center, mouse, wrapper } = options;
             // Display center of rotation
@@ -2408,7 +2409,7 @@ if (window.DEBUG) {
      * Hide debug visual elements
      * @param wrapper
      */
-    Stage._hideDebugVisualElements = function(wrapper) {
+    Stage._hideDebugVisualElements = wrapper => {
         wrapper
             .children(CONSTANTS.DOT + DEBUG_CENTER_CLASS)
             .css({ display: CONSTANTS.NONE });
@@ -2424,7 +2425,7 @@ if (window.DEBUG) {
      * Remove debug visual elements
      * @param wrapper
      */
-    Stage._removeDebugVisualElements = function(wrapper) {
+    Stage._removeDebugVisualElements = wrapper => {
         wrapper.children(CONSTANTS.DOT + DEBUG_CENTER_CLASS).remove();
         wrapper.children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS).remove();
         wrapper.children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS).remove();

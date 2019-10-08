@@ -19,7 +19,7 @@ const {
     ui: { plugin, Widget }
 } = window.kendo;
 const logger = new Logger('widgets.latex');
-const WIDGET_CLASS = 'kj-latex'; // 'k-widget kj-latex';
+const WIDGET_CLASS = /* 'k-widget */ 'kj-latex';
 
 /**
  * Latex

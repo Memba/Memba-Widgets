@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
-import CONSTANTS from '../src/js/common/window.constants';
+import CONSTANTS from '../src/js/common/window.constants.es6';
 
 const {
     destroy,

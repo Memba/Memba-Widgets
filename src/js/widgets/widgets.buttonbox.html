@@ -2,19 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Add test to query string</title>
+    <title>widgets.buttonbox</title>
     <script>
         window.DEBUG = true;
     </script>
     <!-- Kidoju fonts -->
-    <link href="../../../src/styles/fonts/kidoju.css" rel="stylesheet">
-    <!-- Nordic theme -->
-    <link href="../../../src/styles/themes/app.theme.nordic.css" rel="stylesheet">
-    <!-- Mocha css -->
-    <link href="../../vendor/mocha.css" rel="stylesheet" />
+    <link href="../../styles/fonts/kidoju.css" rel="stylesheet">
+    <!-- Kidoju theme -->
+    <link href="../../styles/themes/app.theme.nordic.css" rel="stylesheet">
     <!-- SystemJS loader -->
-    <script src="../../vendor/polyfill.min.js"></script>
-    <script src="../../vendor/system.js"></script>
+    <script src="../../../test/vendor/polyfill.min.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
     <script>
         (function () {
             'use strict';
@@ -43,7 +41,7 @@
                 },
                 map: {
                     'jquery': 'src/js/vendor/jquery/jquery-3.4.1.js',
-                    // Kendo UI - http://docs.telerik.com/kendo-ui/third-party/systemjs
+                    // http://docs.telerik.com/kendo-ui/third-party/systemjs
                     'kendo.culture.en-GB': 'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',
                     'kendo.messages.en-GB': 'src/js/vendor/kendo/messages/kendo.messages.en-GB.js',
                     'kendo.autocomplete': 'src/js/vendor/kendo/kendo.autocomplete.js',
@@ -85,7 +83,7 @@
                     'kendo.list': 'src/js/vendor/kendo/kendo.list.js',
                     'kendo.listview': 'src/js/vendor/kendo/kendo.listview.js',
                     'kendo.maskedtextbox': 'src/js/vendor/kendo/kendo.maskedtextbox.js',
-                    'kendo.audiovideo': 'src/js/vendor/kendo/kendo.audiovideo.js',
+                    'kendo.mediaplayer': 'src/js/vendor/kendo/kendo.mediaplayer.js',
                     'kendo.menu': 'src/js/vendor/kendo/kendo.menu.js',
                     'kendo.mobile.actionsheet': 'src/js/vendor/kendo/kendo.mobile.actionsheet.js',
                     'kendo.mobile.application': 'src/js/vendor/kendo/kendo.mobile.application.js',
@@ -173,22 +171,10 @@
                     'kendoscheduler': 'src/js/vendor/kendo/kendo.scheduler.js',
                     'kendospreadsheet': 'src/js/vendor/kendo/kendo.spreadsheet.js',
                     // Test frameworks
-                    'chai': 'test/vendor/chai.js',
-                    'chai-jquery': 'test/vendor/chai-jquery.js',
-                    'jquery.mockjax': 'test/vendor/jquery.mockjax.js',
-                    'jquery.simulate': 'test/vendor/jquery.simulate.js',
-                    'jscheck': 'test/vendor/jscheck.js',
-                    'mocha': 'test/vendor/mocha.js',
-                    'modernizr': 'src/js/vendor/modernizr/modernizr.js',
-                    'sinon': 'test/vendor/sinon.js',
-                    'sinon-chai': 'test/vendor/sinon-chai.js'
+                    'jscheck': 'test/vendor/jscheck.js'
                 },
                 meta: {
-                    'test/vendor/chai-jquery.js': { format: 'cjs' },
-                    'test/vendor/jquery.mockjax.js': { format: 'global' },
-                    'test/vendor/jscheck.js': { format: 'global' },
-                    'test/vendor/mocha.js': { format: 'global' },
-                    'test/vendor/sinon-chai.js': { format: 'cjs' }
+                    'test/vendor/jscheck.js': { format: 'global' }
                 },
                 packages: {
                     'src/js': {
@@ -227,96 +213,45 @@
                 },
                 transpiler: 'plugin-babel'
             });
-            SystemJS.import('mocha').then(function (args) {
-                var mocha = args.mocha;
-                // Help SystemJS export mocha globals
-                // https://staxmanade.com/2015/09/browser-only-mochajs-tests-using-systemjs/
-                mocha.suite.on('pre-require', function (context) {
-                    var exports = window;
-                    exports.afterEach = context.afterEach || context.teardown;
-                    exports.after = context.after || context.suiteTeardown;
-                    exports.beforeEach = context.beforeEach || context.setup;
-                    exports.before = context.before || context.suiteSetup;
-                    exports.describe = context.describe || context.suite;
-                    exports.it = context.it || context.test;
-                    exports.setup = context.setup || context.beforeEach;
-                    exports.suiteSetup = context.suiteSetup || context.before;
-                    exports.suiteTeardown = context.suiteTeardown || context.after;
-                    exports.suite = context.suite || context.describe;
-                    exports.teardown = context.teardown || context.afterEach;
-                    exports.test = context.test || context.it;
-                    exports.run = context.run;
-                    const params = 'URLSearchParams' in window ?
-                        new URLSearchParams(window.location.search) :
-                        {
-                            // Especially for Internet Explorer
-                            get: function (name) {
-                                const match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-                                return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-                            }
-                        };
-                    const test = params.get('t');
-                    if (test) {
-                        document.title = test;
-                        document.getElementsByTagName('h1')[0].innerHTML = test;
-                        document.getElementById('menu').style.display = 'none';
-                        // now use SystemJS to load all test files
-                        SystemJS.import('./' + test + '.test.es6').then(function() {
-                            // Note: 'gapi', '___jsl', '___gu' are for widgets.social
-                            // Note: 'JSHINT' is for widgets.codeeditor
-                            mocha.checkLeaks().globals(['gapi', '___jsl', '___gu', 'JSHINT']);
-                            mocha.run();
-                        });
+            Promise.all([
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('./widgets.buttonbox.es6')
+            ]).then(function () {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    value: 'hello',
+                    visible: true,
+                    enabled: true,
+                    click() {
+                        window.alert(this.get('value'));
                     }
                 });
-                mocha.setup('bdd');
-                mocha.timeout(10000);
+                $(function(){
+                    kendo.bind('body', viewModel);
+                    $('input[type="checkbox"]:not([data-bind])').on('change', e => {
+                        const widget = $(kendo.roleSelector('buttonbox')).data('kendoButtonBox');
+                        widget.readonly(e.currentTarget.checked);
+                    });
+                });
             });
         }());
     </script>
 </head>
 <body>
-<h1>Add test to query string ?t=[name] (from [name].test.es6)</h1>
-<ul id="menu">
-    <li><a href="?t=widgets.assetmanager">widgets.assetmanager</a></li>
-    <li><a href="?t=widgets.audiovideo">widgets.audiovideo</a></li>
-    <li><a href="?t=widgets.basiclist">widgets.basiclist</a></li>
-    <li><a href="?t=widgets.bitflags">widgets.bitflags</a></li>
-    <li><a href="?t=widgets.buttonbox">widgets.buttonbox</a></li>
-    <li><a href="?t=widgets.chargrid">widgets.chargrid</a></li>
-    <li><a href="?t=widgets.codeeditor">widgets.codeeditor</a></li>
-    <li><a href="?t=widgets.codeinput">widgets.codeinput</a></li>
-    <li><a href="?t=widgets.connector">widgets.connector</a></li>
-    <li><a href="?t=widgets.dropzone">widgets.dropzone</a></li>
-    <li><a href="?t=widgets.explorer">widgets.explorer</a></li>
-    <li><a href="?t=widgets.formatstrip">widgets.formatstrip</a></li>
-    <li><a href="?t=widgets.highlighter">widgets.highlighter</a></li>
-    <li><a href="?t=widgets.imagelist">widgets.imagelist</a></li>
-    <li><a href="?t=widgets.imageset">widgets.imageset</a></li>
-    <li><a href="?t=widgets.latex">widgets.latex</a></li>
-    <li><a href="?t=widgets.license">widgets.license</a></li>
-    <li><a href="?t=widgets.line">widgets.line</a></li>
-    <li><a href="?t=widgets.markdown">widgets.markdown</a></li>
-    <li><a href="?t=widgets.markeditor">widgets.markeditor</a></li>
-    <li><a href="?t=widgets.mathinput">widgets.mathinput</a></li>
-    <li><a href="?t=widgets.multiinput">widgets.multiinput</a></li>
-    <li><a href="?t=widgets.multiquiz">widgets.multiquiz</a></li>
-    <li><a href="?t=widgets.navigation">widgets.navigation</a></li>
-    <li><a href="?t=widgets.playbar">widgets.playbar</a></li>
-    <li><a href="?t=widgets.propertygrid">widgets.propertygrid</a></li>
-    <li><a href="?t=widgets.quiz">widgets.quiz</a></li>
-    <li><a href="?t=widgets.social">widgets.social</a></li>
-    <li><a href="?t=widgets.selector">widgets.selector</a></li>
-    <li><a href="?t=widgets.splitbutton">widgets.splitbutton</a></li>
-    <li><a href="?t=widgets.stage">widgets.stage</a></li>
-    <li><a href="?t=widgets.styleeditor">widgets.styleeditor</a></li>
-    <li><a href="?t=widgets.table">widgets.table</a></li>
-    <li><a href="?t=widgets.template">widgets.template</a></li>
-    <li><a href="?t=widgets.textgaps">widgets.textgaps</a></li>
-    <li><a href="?t=widgets.toolbox">widgets.toolbox</a></li>
-    <li><a href="?t=widgets.unitinput">widgets.unitinput</a></li>
-</ul>
-<div id="mocha"></div>
-<div id="fixtures"></div>
+<h1>widgets.buttonbox</h1>
+<h2>Bound to observable</h2>
+<input data-role="buttonbox" data-bind="click: click, value: value, visible: visible, enabled: enabled">
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+    <input type="checkbox" />Readonly
+</div>
+<pre>
+{
+    visible: <span data-bind="text: visible"></span>
+    enabled: <span data-bind="text: enabled"></span>
+    value: <span data-bind="text: value"></span>
+}
+</pre>
 </body>
 </html>

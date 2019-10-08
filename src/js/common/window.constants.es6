@@ -88,6 +88,7 @@ const CONSTANTS = {
     DEFAULT_CURSOR: 'default',
     // Well-known classes
     ACTIVE_CLASS: 'k-state-active',
+    DEFAULT_CLASS: 'k-state-default',
     DISABLED_CLASS: 'k-state-disabled',
     FOCUSED_CLASS: 'k-state-focused',
     HIDDEN_CLASS: 'k-hidden',
@@ -168,7 +169,12 @@ const CONSTANTS = {
     TABLE: 'table',
     TEXTAREA: 'textarea',
     TBODY: 'tbody',
-    UL: 'ul'
+    UL: 'ul',
+    // HTML attributes
+    ARIA_DISABLED: 'aria-disabled',
+    ARIA_HIDDEN: 'aria-hidden',
+    DISABLED: 'disabled',
+    READONLY: 'readonly'
 };
 
 /**

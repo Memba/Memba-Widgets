@@ -3,8 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO fix issuie when changing to { enabled: false, readonly: true }
-// TODO Consider triggering change on _keyup
+// TODO Consider triggering change with data-value-update="keyup"
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -43,7 +42,7 @@ const ButtonBox = Widget.extend({
                 ? false
                 : this.options.enabled,
             readonly: this.element.prop('readonly')
-                ? false
+                ? true
                 : this.options.readonly,
             value: this.options.value
         });
@@ -73,10 +72,8 @@ const ButtonBox = Widget.extend({
      * @param options
      */
     setOptions(options) {
-        this._editable({
-            disable: !options.enabled,
-            readonly: options.readonly
-        });
+        this.enable(options.enabled);
+        this.readonly(options.readonly);
         this.value(options.value);
     },
 
@@ -140,23 +137,31 @@ const ButtonBox = Widget.extend({
     },
 
     /**
-     * Editable
-     * @param options
-     * @private
+     * Enable
+     * @method enable
+     * @param enable
      */
-    _editable(options) {
-        const { disable, readonly } = options;
+    enable(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         const { _button, _inputWrapper, element } = this;
         _button.off(NS);
-        element.off(NS);
         _inputWrapper.off(NS);
-        if (!readonly && !disable) {
+        element.off(NS);
+        if (enabled) {
+            _button
+                .on(`${CONSTANTS.MOUSEDOWN}${NS}`, e => e.preventDefault())
+                .on(`${CONSTANTS.MOUSEUP}${NS}`, this._onClick.bind(this));
             _inputWrapper
                 .addClass(CONSTANTS.DEFAULT_CLASS)
-                .removeClass(CONSTANTS.DISABLED_CLASS);
+                .removeClass(CONSTANTS.DISABLED_CLASS)
+                .on(
+                    `${CONSTANTS.MOUSEENTER}${NS} ${CONSTANTS.MOUSELEAVE}${NS}`,
+                    this._toggleHover.bind(this)
+                );
             element
                 .removeAttr(CONSTANTS.DISABLED)
-                .removeAttr(CONSTANTS.READONLY)
+                // .removeAttr(CONSTANTS.READONLY)
                 .attr(CONSTANTS.ARIA_DISABLED, false)
                 .on(`${CONSTANTS.CHANGE}${NS}`, this._onChange.bind(this))
                 .on(`${CONSTANTS.FOCUSOUT}${NS}`, this._onBlur.bind(this))
@@ -164,49 +169,26 @@ const ButtonBox = Widget.extend({
         } else {
             _inputWrapper
                 .addClass(
-                    disable ? CONSTANTS.DISABLED_CLASS : CONSTANTS.DEFAULT_CLASS
+                    enabled ? CONSTANTS.DEFAULT_CLASS : CONSTANTS.DISABLED_CLASS
                 )
                 .removeClass(
-                    disable ? CONSTANTS.DEFAULT_CLASS : CONSTANTS.DISABLED_CLASS
+                    enabled ? CONSTANTS.DISABLED_CLASS : CONSTANTS.DEFAULT_CLASS
                 );
             element
-                .attr(CONSTANTS.DISABLED, disable)
-                .attr(CONSTANTS.READONLY, readonly)
-                .attr(CONSTANTS.ARIA_DISABLED, disable);
+                .attr(CONSTANTS.DISABLED, !enabled)
+                // .attr(CONSTANTS.READONLY, readonly)
+                .attr(CONSTANTS.ARIA_DISABLED, !enabled);
         }
-        if (!disable) {
-            _button
-                .on(`${CONSTANTS.MOUSEDOWN}${NS}`, e => e.preventDefault())
-                .on(`${CONSTANTS.MOUSEUP}${NS}`, this._onClick.bind(this));
-            _inputWrapper.on(
-                `${CONSTANTS.MOUSEENTER}${NS} ${CONSTANTS.MOUSELEAVE}${NS}`,
-                this._toggleHover.bind(this)
-            );
-        }
-    },
-
-    /**
-     * Enable
-     * @method enable
-     * @param enable
-     */
-    enable(enable) {
-        this._editable({
-            readonly: false,
-            disable: !($.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable)
-        });
     },
 
     /**
      * Readonly
-     * @param readonly
+     * @param enable
      */
-    readonly(readonly) {
-        this._editable({
-            readonly:
-                $.type(readonly) === CONSTANTS.UNDEFINED ? true : !!readonly,
-            disable: false
-        });
+    readonly(enable) {
+        const readonly =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        this.element.attr(CONSTANTS.READONLY, readonly);
     },
 
     /**

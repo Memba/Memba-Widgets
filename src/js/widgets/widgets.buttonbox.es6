@@ -3,7 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO transfer input style/class to wrapper
+// TODO fix issuie when changing to { enabled: false, readonly: true }
+// TODO Consider triggering change on _keyup
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -108,7 +109,6 @@ const ButtonBox = Widget.extend({
             'Please use an input tag to instantiate a ButtonBox widget.'
         );
         this._inputWrapper = element
-            .addClass('k-input')
             .wrap(`<${CONSTANTS.SPAN}/>`)
             .parent()
             .addClass('k-picker-wrap')
@@ -117,7 +117,9 @@ const ButtonBox = Widget.extend({
             .wrap(`<${CONSTANTS.SPAN}/>`)
             .parent()
             .addClass('k-widget k-datepicker')
-            .addClass(WIDGET_CLASS);
+            .addClass(WIDGET_CLASS)
+            .addClass(element.attr('class'))
+            .attr('style', element.attr('style'));
         this._button = $(`<${CONSTANTS.SPAN}/>`)
             .addClass(`k-icon ${options.iconClass}`)
             .wrap(`<${CONSTANTS.SPAN}/>`)
@@ -130,6 +132,11 @@ const ButtonBox = Widget.extend({
                 unselectable: 'on'
             })
             .appendTo(this._inputWrapper);
+        element
+            .removeAttr('class')
+            .addClass('k-input')
+            .removeAttr('style')
+            .css({ width: '100%' }); // .width('100%');
     },
 
     /**

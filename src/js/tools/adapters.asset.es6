@@ -14,11 +14,12 @@ import { getValueBinding } from '../data/data.util.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import openAssetManager from '../dialogs/dialogs.assetmanager.es6';
 import '../dialogs/widgets.basedialog.es6';
+import '../widgets/widgets.buttonbox.es6';
 import BaseAdapter from './adapters.base.es6';
 import ToolAssets from './util.assets.es6';
 
 const {
-    ui: { BaseDialog }
+    ui: { ButtonBox, BaseDialog }
 } = window.kendo;
 
 /**
@@ -34,22 +35,13 @@ const AssetAdapter = BaseAdapter.extend({
      * @param attributes
      */
     init(options, attributes) {
-        const that = this;
-        BaseAdapter.fn.init.call(that, options);
-        that.type = CONSTANTS.STRING;
-        that.defaultValue = that.defaultValue || (that.nullable ? null : '');
-        // that.editor is the inline editor with a [...] button which triggers this.showDialog
-        that.editor = (container, settings) => {
-            // We need a wrapper because container has { display: table-cell; }
-            const wrapper = $(`<${CONSTANTS.DIV}/>`)
-                .css({ display: 'flex', alignItems: 'center' })
-                .appendTo(container);
+        BaseAdapter.fn.init.call(this, options);
+        this.type = CONSTANTS.STRING;
+        this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+        // this.editor is the inline editor with a [...] button which triggers this.showDialog
+        this.editor = (container, settings) => {
             $(`<${CONSTANTS.INPUT}>`)
-                .addClass('k-textbox')
-                .css({
-                    flex: 'auto',
-                    width: '100%' // 'auto' seems to imply a min-width
-                })
+                .css({ width: '100%' }) // 'auto' seems to imply a min-width
                 .prop({ readonly: true })
                 .attr(
                     $.extend(
@@ -60,16 +52,10 @@ const AssetAdapter = BaseAdapter.extend({
                         attributes
                     )
                 )
-                .appendTo(wrapper);
-            $(`<${CONSTANTS.BUTTON}/>`)
-                .text(CONSTANTS.ELLIPSIS)
-                .addClass('k-button')
-                .css({
-                    flex: 'none',
-                    marginRight: 0
-                })
-                .appendTo(wrapper)
-                .on(CONSTANTS.CLICK, that.showDialog.bind(that, settings));
+                .appendTo(container)
+                .kendoButtonBox({
+                    click: this.showDialog.bind(this, settings)
+                });
         };
     },
 

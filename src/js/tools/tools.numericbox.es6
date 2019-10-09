@@ -37,7 +37,19 @@ const ScoreAdapter = NumberAdapter;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<input type="number" id="#: properties.name #" class="kj-interactive" data-${ns}role="numerictextbox" data-${ns}decimals="#: attributes.decimals #" data-${ns}format="n#: attributes.decimals #" data-${ns}min="#: attributes.min #" data-${ns}max="#: attributes.max #" data-${ns}spinners="false" style="#: attributes.style #" {0}>`;
+const TEMPLATE = `<input
+    type="number"
+    id="#: properties.name #"
+    class="kj-interactive"
+    data-${ns}role="numerictextbox"
+    data-${ns}decimals="#: attributes.decimals #"
+    data-${ns}format="n#: attributes.decimals #"
+    data-${ns}min="#: attributes.min #"
+    data-${ns}max="#: attributes.max #"
+    data-${ns}spinners="false"
+    style="#: attributes.style #" {0}>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enabled="false"`;
 
 /**
  * NumericBoxTool
@@ -46,22 +58,18 @@ const TEMPLATE = `<input type="number" id="#: properties.name #" class="kj-inter
  */
 const NumericBoxTool = BaseTool.extend({
     id: 'numericbox',
-    childSelector: `${CONSTANTS.INPUT}${roleSelector('numerictextbox')}`,
+    // childSelector: `${CONSTANTS.INPUT}${roleSelector('numerictextbox')}`,
+    childSelector: `${CONSTANTS.INPUT}`, // Note there are 2 inputs to resize
     height: 80,
     width: 300,
     weight: 1,
     menu: ['properties.question', 'properties.solution'],
     templates: {
-        design: format(TEMPLATE, ''),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, BINDING),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         decimals: new NumberAdapter(

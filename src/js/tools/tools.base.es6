@@ -568,7 +568,8 @@ const BaseTool = StubTool.extend({
             // Especially when item is an empty string, create a separator
             if ($.type(item) !== CONSTANTS.STRING || !item.length) {
                 return {
-                    cssClass: 'k-separator'
+                    cssClass: 'k-separator',
+                    text: CONSTANTS.EMPTY
                 };
             }
             // Otherwise add a menu item

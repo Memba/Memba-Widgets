@@ -43,6 +43,9 @@ const TEMPLATE = `<div
     data-${ns}source="#: data$() #"
     style="#: attributes.groupStyle #" {0}>
 </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enable="false"`;
+const SHUFFLE = `data-${ns}shuffle="#: attributes.shuffle #"`;
 
 /**
  * QuizTool
@@ -63,16 +66,11 @@ const QuizTool = BaseTool.extend({
     weight: 1,
     width: 490,
     templates: {
-        design: format(TEMPLATE, `data-${ns}enable="false"`),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, `${BINDING} ${SHUFFLE}`),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         mode: new DropDownListAdapter(

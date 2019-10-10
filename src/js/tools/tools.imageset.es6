@@ -33,7 +33,12 @@ const ScoreAdapter = NumberAdapter;
  * ImageSet Template
  * @type {string}
  */
-const IMAGESET = `<input data-${ns}role="imageset" data-${ns}source="#: data$() #" data-${ns}style="#: attributes.style #" {0}></input>`;
+const TEMPLATE = `<input
+    data-${ns}role="imageset"
+    data-${ns}source="#: data$() #"
+    data-${ns}style="#: attributes.style #" {0}>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enabled="false"`;
 
 /**
  * @class ImageSetTool tool
@@ -48,16 +53,11 @@ const ImageSetTool = BaseTool.extend({
     weight: 1,
     menu: ['attributes.data'],
     templates: {
-        design: format(IMAGESET, `data-${ns}enabled="false"`),
-        play: format(
-            IMAGESET,
-            `data-${ns}bind="value: #: properties.name #.value"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, BINDING),
         review:
-            format(
-                IMAGESET,
-                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enabled="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         // shuffle: new BooleanAdapter({ title: i18n.quiz.attributes.shuffle.title }),

@@ -23,7 +23,13 @@ const { format, ns, roleSelector } = window.kendo;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="table" style="#: attributes.style #" data-${ns}columns="#: attributes.columns #" data-${ns}rows="#: attributes.rows #" data-${ns}value="#: JSON.stringify(attributes.data) #"></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="table"
+    style="#: attributes.style #"
+    data-${ns}columns="#: attributes.columns #"
+    data-${ns}rows="#: attributes.rows #"
+    data-${ns}value="#: JSON.stringify(attributes.data) #">
+    </div>`;
 
 /**
  * @class Static table tool

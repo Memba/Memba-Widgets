@@ -25,7 +25,16 @@ const { format, ns } = window.kendo;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="latex" class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #" data-${ns}inline="#: attributes.inline #" data-${ns}value="#: attributes.formula #" ></div>`;
+const TEMPLATE = `<div
+    class="#: class$() #"
+    data-${ns}behavior="#: properties.behavior #"
+    data-${ns}constant="#: properties.constant #"
+    data-${ns}id="#: id$() #"
+    data-${ns}inline="#: attributes.inline #"
+    data-${ns}role="latex"
+    data-${ns}value="#: attributes.formula #"
+    style="#: attributes.style #">
+    </div>`;
 
 /**
  * @class LatexTool

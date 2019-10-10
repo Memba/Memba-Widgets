@@ -31,7 +31,14 @@ const ScoreAdapter = NumberAdapter;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="textgaps" data-${ns}text="#: attributes.text #" data-${ns}input-style="#: attributes.inputStyle #" style="#: attributes.style #" {0}></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="textgaps"
+    data-${ns}text="#: attributes.text #"
+    data-${ns}input-style="#: attributes.inputStyle #"
+    style="#: attributes.style #" {0}>
+    </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enable="false"`; // TODO: enabled
 
 /**
  * TextGapsTool
@@ -46,16 +53,14 @@ const TextGapsTool = BaseTool.extend({
     weight: 1,
     menu: ['properties.question', 'properties.solution'],
     templates: {
-        design: format(TEMPLATE, `data-${ns}enable="false"`),
+        design: format(TEMPLATE, DISABLED),
         play: format(
             TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
+            `${BINDING} data-${ns}shuffle="#: attributes.shuffle #"`
         ),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         inputStyle: new StyleAdapter({

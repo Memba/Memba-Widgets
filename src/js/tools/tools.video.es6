@@ -21,7 +21,13 @@ import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 
 const { format, ns, roleSelector } = window.kendo;
-const TEMPLATE = `<div data-${ns}role="audiovideo" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="audiovideo"
+    data-${ns}mode="video"
+    data-${ns}autoplay="#: attributes.autoplay #"
+    data-${ns}files="#: files$() #"
+    data-${ns}toolbar-height="#: attributes.toolbarHeight #">
+    </div>`;
 
 /**
  * VideoTool

@@ -52,6 +52,7 @@ const TEMPLATE = `<input
     data-${ns}prompt-char="\u25CA"
     style="#: attributes.style #" {0}>`;
 const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enabled="false"`;
 
 /**
  * @class TextBoxTool tool
@@ -65,9 +66,11 @@ const TextBoxTool = BaseTool.extend({
     weight: 1,
     width: 300,
     templates: {
-        design: format(TEMPLATE, ''),
+        design: format(TEMPLATE, DISABLED),
         play: format(TEMPLATE, BINDING),
-        review: format(TEMPLATE, BINDING) + BaseTool.fn.getHtmlCheckMarks()
+        review:
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         mask: new TextBoxAdapter({

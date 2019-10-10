@@ -39,7 +39,23 @@ const ScoreAdapter = NumberAdapter;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="chargrid" data-${ns}columns="#: attributes.columns #" data-${ns}rows="#: attributes.rows #" data-${ns}blank="#: attributes.blank #" data-${ns}whitelist="#: attributes.whitelist #" data-${ns}grid-fill="#: attributes.gridFill #" data-${ns}grid-stroke="#: attributes.gridStroke #" data-${ns}blank-fill="#: attributes.gridStroke #" data-${ns}selected-fill="#: attributes.selectedFill #" data-${ns}locked-fill="#: attributes.lockedFill #" data-${ns}locked-color="#: attributes.fontColor #" data-${ns}value-color="#: attributes.fontColor #" {0}></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="chargrid"
+    data-${ns}columns="#: attributes.columns #"
+    data-${ns}rows="#: attributes.rows #"
+    data-${ns}blank="#: attributes.blank #"
+    data-${ns}whitelist="#: attributes.whitelist #"
+    data-${ns}grid-fill="#: attributes.gridFill #"
+    data-${ns}grid-stroke="#: attributes.gridStroke #"
+    data-${ns}blank-fill="#: attributes.gridStroke #"
+    data-${ns}selected-fill="#: attributes.selectedFill #"
+    data-${ns}locked="#: JSON.stringify(attributes.layout) #"
+    data-${ns}locked-fill="#: attributes.lockedFill #"
+    data-${ns}locked-color="#: attributes.fontColor #"
+    data-${ns}value-color="#: attributes.fontColor #" {0}>
+    </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enable="false"`;
 
 /**
  * CharGridTool
@@ -55,17 +71,12 @@ const CharGridTool = BaseTool.extend({
     templates: {
         design: format(
             TEMPLATE,
-            `data-${ns}value="#: JSON.stringify(attributes.layout) #" data-${ns}locked="#: JSON.stringify(attributes.layout) #" data-${ns}enable="false"`
+            `data-${ns}value="#: JSON.stringify(attributes.layout) #" ${DISABLED}`
         ),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value" data-${ns}locked="#: JSON.stringify(attributes.layout) #"`
-        ),
+        play: format(TEMPLATE, BINDING),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value" data-${ns}locked="#: JSON.stringify(attributes.layout) #" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         columns: new NumberAdapter(

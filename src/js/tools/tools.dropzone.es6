@@ -28,8 +28,18 @@ import __ from '../app/app.i18n.es6';
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-const DROPZONE = `<div id="#: properties.name #" data-${ns}role="dropzone" data-${ns}center="#: attributes.center #"  data-${ns}empty="#: attributes.empty #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>`;
-// TODO: Check whether DROPZONE requires class="kj-interactive"
+const TEMPLATE = `<div
+    id="#: properties.name #"
+    data-${ns}role="dropzone"
+    data-${ns}center="#: attributes.center #"
+    data-${ns}empty="#: attributes.empty #"
+    style="#: attributes.style #" {0}>
+    <div>#: attributes.text #</div>
+    </div>`;
+// TODO: Check whether TEMPLATE requires class="kj-interactive"
+const BINDING = `data-${ns}bind="value: #: properties.name #.value, source: interactions"`;
+const DISABLED = `data-${ns}enable="false"`; // TODO : enabled
+
 /**
  * @class DropZoneTool tool
  * @type {void|*}
@@ -42,16 +52,11 @@ const DropZoneTool = BaseTool.extend({
     weight: 1,
     // menu: [],
     templates: {
-        design: format(DROPZONE, `data-${ns}enable="false"`),
-        play: format(
-            DROPZONE,
-            `data-${ns}bind="value: #: properties.name #.value, source: interactions"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, BINDING),
         review:
-            format(
-                DROPZONE,
-                `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         center: new BooleanAdapter({

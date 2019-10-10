@@ -25,7 +25,12 @@ const { format, ns, roleSelector } = window.kendo;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="audiovideo" data-${ns}mode="audio" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #"></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="audiovideo"
+    data-${ns}mode="audio"
+    data-${ns}autoplay="#: attributes.autoplay #"
+    data-${ns}files="#: files$() #">
+    </div>`;
 
 /**
  * @class AudioTool

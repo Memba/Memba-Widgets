@@ -25,7 +25,17 @@ const { ns, roleSelector } = window.kendo;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="chart" data-${ns}chart-area="#: chartArea$() #" data-${ns}series-defaults="#: seriesDefaults$() #" data-${ns}title="#: title$() #" data-${ns}legend="#: legend$() #" data-${ns}series="#: series$() #" data-${ns}category-axis="#: categoryAxis$() #" data-${ns}value-axis="#: valueAxis$() #" style="#: attributes.style #"></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="chart"
+    data-${ns}chart-area="#: chartArea$() #"
+    data-${ns}series-defaults="#: seriesDefaults$() #"
+    data-${ns}title="#: title$() #"
+    data-${ns}legend="#: legend$() #"
+    data-${ns}series="#: series$() #"
+    data-${ns}category-axis="#: categoryAxis$() #"
+    data-${ns}value-axis="#: valueAxis$() #"
+    style="#: attributes.style #">
+    </div>`;
 
 /**
  * ChartTool

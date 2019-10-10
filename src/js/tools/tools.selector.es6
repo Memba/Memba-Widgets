@@ -28,7 +28,17 @@ import { scoreValidator } from './util.validators.es6';
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-const TEMPLATE = `<div data-${ns}role="selector" data-${ns}id="#: properties.name #" data-${ns}shape="#: attributes.shape #" data-${ns}stroke="{ color: '#: attributes.color #', dashType: 'solid', opacity: 1, width: '#: attributes.strokeWidth #' }" data-${ns}empty="#: attributes.empty #" data-${ns}hit-radius="#: attributes.hitRadius #" {0}></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="selector"
+    data-${ns}id="#: properties.name #"
+    data-${ns}shape="#: attributes.shape #"
+    data-${ns}stroke="{ color: '#: attributes.color #', dashType: 'solid', opacity: 1, width: '#: attributes.strokeWidth #' }"
+    data-${ns}empty="#: attributes.empty #"
+    data-${ns}hit-radius="#: attributes.hitRadius #" {0}>
+    </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value, source: interactions"`;
+const DISABLED = `data-${ns}enable="false"`;
+
 /**
  * @class SelectorTool tool
  * @type {void|*}
@@ -46,13 +56,11 @@ const SelectorTool = BaseTool.extend({
         // design: '<img src="#: icon$() #" alt="#: description$() #">',
         play: format(
             TEMPLATE,
-            `data-${ns}toolbar="\\#floating .kj-floating-content" data-${ns}bind="value: #: properties.name #.value, source: interactions"`
+            `data-${ns}toolbar="\\#floating .kj-floating-content" ${BINDING}`
         ),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         color: new ColorAdapter({

@@ -30,7 +30,7 @@ import {
     styleValidator
 } from './util.validators.es6';
 
-const { format, htmlEncode, ns, template, roleSelector } = window.kendo;
+const { format, htmlEncode, ns, template /* , roleSelector */ } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**

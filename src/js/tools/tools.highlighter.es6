@@ -32,7 +32,16 @@ const ScoreAdapter = NumberAdapter;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div class="kj-interactive" data-${ns}role="highlighter" data-${ns}text="#: attributes.text #" data-${ns}split="#: attributes.split #"  data-${ns}highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>`;
+const TEMPLATE = `<div
+    class="kj-interactive"
+    data-${ns}role="highlighter"
+    data-${ns}text="#: attributes.text #"
+    data-${ns}split="#: attributes.split #"
+    data-${ns}highlight-style="#: attributes.highlightStyle #"
+    style="#: attributes.style #" {0}>
+    </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value, source: interactions"`;
+const DISABLED = `data-${ns}enable="false"`;
 
 /**
  * HighLighterTool
@@ -47,16 +56,11 @@ const HighLighterTool = BaseTool.extend({
     weight: 1,
     // menu: [],
     templates: {
-        design: format(TEMPLATE, `data-${ns}enable="false"`),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value, source: interactions"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, BINDING),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         highlightStyle: new StyleAdapter({

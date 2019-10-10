@@ -30,12 +30,27 @@ const { format, htmlEncode, ns } = window.kendo;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div class="#: class$() #" data-${ns}role="template" data-${ns}template="t-#: id #" style="#: attributes.style #" data-${ns}id="#: id #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #" data-${ns}bind="value: variables$()"></div><script id="t-#: id #" type="text/x-kendo-template">#= template$() #</script>`;
+const TEMPLATE = `<div
+    class="#: class$() #"
+    data-${ns}role="template"
+    data-${ns}template="t-#: id #"
+    data-${ns}id="#: id #"
+    data-${ns}behavior="#: properties.behavior #"
+    data-${ns}constant="#: properties.constant #"
+    data-${ns}bind="value: variables$()"
+    style="#: attributes.style #">
+    </div>
+    <script id="t-#: id #" type="text/x-kendo-template">#= template$() #</script>`;
 // We need to designate the template in a script, because kendo.init calls parseOption from kendo.core.js
 // which tranforms any data-*template tag into a template function assigned to options.template and
 // it won't work otherwise because ${'#' + value) fails if value is the template content
 
-const DESIGN = `<div class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #">#= text$() #</div>`;
+const DESIGN = `<div
+    class="#: class$() #"
+    data-${ns}id="#: id #" 
+    data-${ns}behavior="#: properties.behavior #"
+    data-${ns}constant="#: properties.constant #"
+    style="#: attributes.style #">#= text$() #</div>`;
 
 /**
  * LabelTool

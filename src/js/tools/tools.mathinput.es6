@@ -26,7 +26,14 @@ import __ from '../app/app.i18n.es6';
 const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-const TEMPLATE = `<div data-${ns}role="mathinput" data-${ns}toolbar="#: JSON.stringify(toolbar$()) #" style="#: attributes.style #" {0}>#: attributes.formula #</div>`;
+const TEMPLATE = `<div
+    data-${ns}role="mathinput"
+    data-${ns}toolbar="#: JSON.stringify(toolbar$()) #"
+    style="#: attributes.style #" {0}>#: attributes.formula #
+    </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enable="false"`; // TODO enabled
+
 /**
  * @class MathInputTool tool
  * @type {void|*}
@@ -38,16 +45,11 @@ const MathInputTool = BaseTool.extend({
     weight: 1,
     // menu: [],
     templates: {
-        design: format(TEMPLATE, `data-${ns}enable="false"`),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, BINDING),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         // The formula is intended to set several MathQuillMathFields, which requires to make the solution an array of mathinputs

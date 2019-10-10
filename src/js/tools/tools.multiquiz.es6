@@ -35,7 +35,17 @@ const ScoreAdapter = NumberAdapter;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="multiquiz" data-${ns}mode="#: attributes.mode #" data-${ns}source="#: data$() #" style="#: attributes.groupStyle #" data-${ns}item-style="#: attributes.itemStyle #" data-${ns}selected-style="#: attributes.selectedStyle #" {0}></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="multiquiz"
+    data-${ns}mode="#: attributes.mode #"
+    data-${ns}source="#: data$() #"
+    data-${ns}item-style="#: attributes.itemStyle #"
+    data-${ns}selected-style="#: attributes.selectedStyle #"
+    style="#: attributes.groupStyle #" {0}>
+    </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enable="false"`;
+const SHUFFLE = `data-${ns}shuffle="#: attributes.shuffle #"`;
 
 /**
  * MultiQuizTool tool
@@ -56,16 +66,11 @@ const MultiQuizTool = BaseTool.extend({
     weight: 1,
     width: 420,
     templates: {
-        design: format(TEMPLATE, `data-${ns}enable="false"`),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, `${BINDING} ${SHUFFLE}`),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         mode: new DropDownListAdapter(

@@ -19,18 +19,19 @@ import '../../../src/js/widgets/widgets.assetmanager.es6';
 import ASSETS from '../../../src/js/helpers/helpers.assets.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
-    attr,
-    bind,
+    // attr,
+    // bind,
     data: { DataSource, ObservableArray },
     destroy,
-    init,
+    // init,
     observable,
     Observable, // TODO CHeck
     support,
     ui: { AssetManager, DropDownList, ListView, Pager, roles, TabStrip }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'assetmanager';

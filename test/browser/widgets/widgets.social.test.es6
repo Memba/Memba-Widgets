@@ -20,7 +20,6 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.social.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     // bind,
@@ -31,9 +30,12 @@ const {
     // observable,
     ui: { roles, Social }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'social';
+const WIDGET = 'kendoSocial';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -69,7 +71,7 @@ describe('widgets.social', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoSocial).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -78,20 +80,18 @@ describe('widgets.social', () => {
         it('from code with all options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('div');
-            const widget = element
-                .kendoSocial({
-                    description: DESCRIPTION,
-                    enabled: true,
-                    facebookAppId: FACEBOOK_APPID,
-                    image: IMAGE,
-                    language: LANGUAGE,
-                    size: SIZE,
-                    source: SOURCE,
-                    title: TITLE,
-                    twitterAccount: TWITTER_ACCOUNT,
-                    url: URL
-                })
-                .data('kendoSocial');
+            const widget = element[WIDGET]({
+                description: DESCRIPTION,
+                enabled: true,
+                facebookAppId: FACEBOOK_APPID,
+                image: IMAGE,
+                language: LANGUAGE,
+                size: SIZE,
+                source: SOURCE,
+                title: TITLE,
+                twitterAccount: TWITTER_ACCOUNT,
+                url: URL
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Social);
             const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
@@ -119,7 +119,7 @@ describe('widgets.social', () => {
         it('from code with minimal options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('div');
-            const widget = element.kendoSocial({}).data('kendoSocial');
+            const widget = element[WIDGET]({}).data(WIDGET);
             expect(widget).to.be.an.instanceof(Social);
             const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
@@ -162,7 +162,7 @@ describe('widgets.social', () => {
                 .appendTo(`#${FIXTURES}`);
             expect(element).to.match('div');
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoSocial');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Social);
             const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
@@ -194,7 +194,7 @@ describe('widgets.social', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoSocial().data('kendoSocial');
+            widget = element[WIDGET]().data(WIDGET);
         });
 
         it('enable/readonly', () => {
@@ -251,7 +251,7 @@ describe('widgets.social', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoSocial().data('kendoSocial');
+            widget = element[WIDGET]().data(WIDGET);
         });
 
         it('click facebook', () => {

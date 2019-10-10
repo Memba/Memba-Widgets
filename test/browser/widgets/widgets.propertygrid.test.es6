@@ -18,28 +18,26 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.propertygrid.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
-    data: { DataSource, Model, ObservableArray },
+    data: { Model },
     destroy,
     guid,
-    init,
+    // init,
     observable,
     ui: { PropertyGrid, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'propertygrid';
+const WIDGET = 'kendoPropertyGrid';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const { kidoju } = window;
-const { tools } = kidoju;
-const { Page } = kidoju.data;
-const { PageComponent } = kidoju.data;
 const PROPERTYGRID2 =
     '<div data-role="propertygrid" data-bind="value: current"></div>';
 
@@ -87,7 +85,7 @@ describe('widgets.propertygrid', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoPropertyGrid).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -95,18 +93,14 @@ describe('widgets.propertygrid', () => {
     describe('Basic Initialization', () => {
         it('from code without option', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid()
-                .data('kendoPropertyGrid');
+            const widget = element.kendoPropertyGrid().data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 0);
         });
 
         it('from code with bad options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid([])
-                .data('kendoPropertyGrid');
+            const widget = element.kendoPropertyGrid([]).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 0);
         });
@@ -119,7 +113,7 @@ describe('widgets.propertygrid', () => {
                 .kendoPropertyGrid({
                     value: { sample: 'Sample' }
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -149,7 +143,7 @@ describe('widgets.propertygrid', () => {
                     value: { sample: 'Sample' },
                     rows: [{ field: 'sample', title: 'Another sample' }]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -185,7 +179,7 @@ describe('widgets.propertygrid', () => {
                         }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -221,7 +215,7 @@ describe('widgets.propertygrid', () => {
                         }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -251,7 +245,7 @@ describe('widgets.propertygrid', () => {
                     value: { sample: '#ffffff' },
                     rows: [{ field: 'sample', editor: 'colorpicker' }]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -295,7 +289,7 @@ describe('widgets.propertygrid', () => {
                         }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -336,7 +330,7 @@ describe('widgets.propertygrid', () => {
                     value: new Sample({ sample: 'Sample' }),
                     rows: [{ field: 'sample' }]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -379,7 +373,7 @@ describe('widgets.propertygrid', () => {
                         }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -410,7 +404,7 @@ describe('widgets.propertygrid', () => {
                         { field: 'sample.subvalue', title: 'Another sample' }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -441,7 +435,7 @@ describe('widgets.propertygrid', () => {
                 .kendoPropertyGrid({
                     value: { sample: 3 }
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -474,7 +468,7 @@ describe('widgets.propertygrid', () => {
                     value: { sample: 5.41 },
                     rows: [{ field: 'sample', title: 'Another sample' }]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -508,7 +502,7 @@ describe('widgets.propertygrid', () => {
                         { field: 'sample', title: 'Slider', editor: 'slider' }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -579,7 +573,7 @@ describe('widgets.propertygrid', () => {
                         }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -612,7 +606,7 @@ describe('widgets.propertygrid', () => {
                 .kendoPropertyGrid({
                     value: { sample: new Date(1966, 2, 14) }
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -644,7 +638,7 @@ describe('widgets.propertygrid', () => {
                     value: { sample: new Date(1966, 2, 14) },
                     rows: [{ field: 'sample', title: 'Another sample' }]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -682,7 +676,7 @@ describe('widgets.propertygrid', () => {
                         }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -724,7 +718,7 @@ describe('widgets.propertygrid', () => {
                         }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -754,7 +748,7 @@ describe('widgets.propertygrid', () => {
                 .kendoPropertyGrid({
                     value: { sample: true }
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -795,7 +789,7 @@ describe('widgets.propertygrid', () => {
                         }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -840,7 +834,7 @@ describe('widgets.propertygrid', () => {
                         }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -877,7 +871,7 @@ describe('widgets.propertygrid', () => {
                         male: true
                     }
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, Object.keys(widget.value()).length);
         });
@@ -928,7 +922,7 @@ describe('widgets.propertygrid', () => {
                         // { field: 'active', title: 'Active' }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             // One row has been commented out and should not be displayed
             validateGridHtml(element, Object.keys(widget.value()).length - 1);
@@ -938,7 +932,7 @@ describe('widgets.propertygrid', () => {
             const element = $(PROPERTYGRID2).appendTo(`#${FIXTURES}`);
             const viewModel = observable({});
             bind(`#${FIXTURES}`, viewModel);
-            const widget = element.data('kendoPropertyGrid');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
         });
 
@@ -946,7 +940,7 @@ describe('widgets.propertygrid', () => {
             const element = $(PROPERTYGRID2).appendTo(`#${FIXTURES}`);
             const viewModel = observable({});
             bind(`#${FIXTURES}`, viewModel);
-            const widget = element.data('kendoPropertyGrid');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
         });
     });
@@ -974,7 +968,7 @@ describe('widgets.propertygrid', () => {
                     value: new Sample({ id: guid(), sample: null }),
                     rows: [{ field: 'sample' }]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -1002,7 +996,7 @@ describe('widgets.propertygrid', () => {
                     value: new Sample({ id: guid(), sample: 'sample' }),
                     rows: [{ field: 'sample' }]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -1030,7 +1024,7 @@ describe('widgets.propertygrid', () => {
                         }
                     ]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -1049,7 +1043,7 @@ describe('widgets.propertygrid', () => {
                     value: { sample: 'Sample' },
                     rows: [{ field: 'sample', attributes: { type: 'url' } }]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -1066,7 +1060,7 @@ describe('widgets.propertygrid', () => {
                     value: { sample: 'Sample' },
                     rows: [{ field: 'sample', attributes: { type: 'email' } }]
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -1096,7 +1090,7 @@ describe('widgets.propertygrid', () => {
                         }
                     }
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -1112,12 +1106,10 @@ describe('widgets.propertygrid', () => {
     describe('Methods', () => {
         it('Get/set value', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid()
-                .data('kendoPropertyGrid');
-            const fn = function() {
+            const widget = element.kendoPropertyGrid().data(WIDGET);
+            function fn() {
                 widget.value(1);
-            };
+            }
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 0);
             expect(fn).to.throw(TypeError);
@@ -1152,10 +1144,10 @@ describe('widgets.propertygrid', () => {
                         children: 3
                     }
                 })
-                .data('kendoPropertyGrid');
-            const fn = function() {
+                .data(WIDGET);
+            function fn() {
                 widget.rows(1);
-            };
+            }
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 5);
             expect(fn).to.throw(TypeError);
@@ -1185,7 +1177,7 @@ describe('widgets.propertygrid', () => {
                         children: 3
                     }
                 })
-                .data('kendoPropertyGrid');
+                .data(WIDGET);
             widget.destroy();
         });
     });
@@ -1209,7 +1201,7 @@ describe('widgets.propertygrid', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoPropertyGrid');
+            widget = element.data(WIDGET);
         });
 
         it('Instantiating the widget on a null bound value, displays no row', () => {
@@ -1219,9 +1211,9 @@ describe('widgets.propertygrid', () => {
         });
 
         it('Setting the bound value to a non object, throws a type error', () => {
-            const fn = function() {
+            function fn() {
                 viewModel.set('current', true);
-            };
+            }
             expect(fn).to.throw(TypeError);
         });
 

@@ -19,7 +19,6 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.bitflags.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     // bind,
@@ -29,9 +28,13 @@ const {
     observable,
     ui: { BitFlags, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}>`;
 const ROLE = 'bitflags';
+const WIDGET = 'kendoBitFlags';
+
 const DATA = [
     { text: JSC.string()(), value: 1 },
     { text: JSC.string()(), value: 2 },
@@ -57,7 +60,7 @@ describe('widgets.bitflags', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoBitFlags).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -65,7 +68,7 @@ describe('widgets.bitflags', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoBitFlags().data('kendoBitFlags');
+            const widget = element[WIDGET]().data('kendoBitFlags');
             expect(widget).to.be.an.instanceof(BitFlags);
             expect(widget)
                 .to.have.property('dataSource')
@@ -86,7 +89,7 @@ describe('widgets.bitflags', () => {
                 placeholder: JSC.string()()
                 // value: JSC.integer(0, 255)()
             };
-            const widget = element.kendoBitFlags(options).data('kendoBitFlags');
+            const widget = element[WIDGET](options).data('kendoBitFlags');
             expect(widget).to.be.an.instanceof(BitFlags);
             expect(widget)
                 .to.have.property('dataSource')
@@ -108,7 +111,7 @@ describe('widgets.bitflags', () => {
                 // readonly: true,
                 value: JSC.integer(0, 255)()
             };
-            const widget = element.kendoBitFlags(options).data('kendoBitFlags');
+            const widget = element[WIDGET](options).data('kendoBitFlags');
             expect(widget).to.be.an.instanceof(BitFlags);
             expect(widget.options.bitflags).to.equal(options.bitflags);
             expect(widget.options.value).to.equal(options.value);
@@ -167,7 +170,7 @@ describe('widgets.bitflags', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoBitFlags(options).data('kendoBitFlags');
+            widget = element[WIDGET](options).data('kendoBitFlags');
         });
 
         xit('value', () => {
@@ -195,19 +198,19 @@ describe('widgets.bitflags', () => {
         const options = {};
         let viewModel;
         let change;
-        let destroy;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoBitFlags(options).data('kendoBitFlags');
+            widget = element[WIDGET](options).data('kendoBitFlags');
             viewModel = observable({
                 // TODO
             });
             change = sinon.spy();
-            destroy = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, viewModel, change);
+        });
     });
 
     describe('Events', () => {
@@ -218,11 +221,13 @@ describe('widgets.bitflags', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoBitFlags(options).data('kendoBitFlags');
+            widget = element[WIDGET](options).data('kendoBitFlags');
             event = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, event);
+        });
     });
 
     afterEach(() => {

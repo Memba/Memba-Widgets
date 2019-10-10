@@ -19,7 +19,6 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.markdown.es6';
 
 const { afterEach, before, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     destroy,
@@ -27,6 +26,8 @@ const {
     observable,
     ui: { Markdown, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'markdown';
@@ -46,7 +47,7 @@ describe('widgets.markdown', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoMarkdown).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });

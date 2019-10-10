@@ -27,7 +27,6 @@ import {
 } from '../../../src/js/helpers/helpers.components.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
@@ -39,9 +38,12 @@ const {
     observable,
     ui: { Explorer, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'explorer';
+const WIDGET = 'kendoExplorer';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -66,7 +68,7 @@ describe('widgets.explorer', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoExplorer).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -74,7 +76,7 @@ describe('widgets.explorer', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoExplorer().data('kendoExplorer');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
@@ -95,7 +97,7 @@ describe('widgets.explorer', () => {
                 dataSource: data,
                 iconPath: ICON_PATH
             };
-            const widget = element.kendoExplorer(options).data('kendoExplorer');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
@@ -119,7 +121,7 @@ describe('widgets.explorer', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoExplorer');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
@@ -149,7 +151,7 @@ describe('widgets.explorer', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             bind(`#${FIXTURES}`, viewModel);
-            const widget = element.data('kendoExplorer');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
@@ -179,7 +181,7 @@ describe('widgets.explorer', () => {
                 dataSource: data,
                 iconPath: ICON_PATH
             };
-            widget = element.kendoExplorer(options).data('kendoExplorer');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('length', () => {
@@ -210,9 +212,9 @@ describe('widgets.explorer', () => {
         });
 
         it('value', () => {
-            const fn = function() {
+            function fn() {
                 widget.value(0);
-            };
+            }
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
@@ -227,12 +229,12 @@ describe('widgets.explorer', () => {
         });
 
         it('index', () => {
-            const fn1 = function() {
+            function fn1() {
                 widget.index('not a number');
-            };
-            const fn2 = function() {
+            }
+            function fn2() {
                 widget.index(300); // not in range
-            };
+            }
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
@@ -248,9 +250,9 @@ describe('widgets.explorer', () => {
         });
 
         it('id', () => {
-            const fn = function() {
+            function fn() {
                 widget.id({});
-            };
+            }
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
@@ -291,7 +293,7 @@ describe('widgets.explorer', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoExplorer');
+            widget = element.data(WIDGET);
         });
 
         it('Adding a component to the viewModel adds the corresponding item to the widget', () => {
@@ -392,18 +394,16 @@ describe('widgets.explorer', () => {
         it('dataBinding & dataBound', () => {
             const dataBinding = sinon.spy();
             const dataBound = sinon.spy();
-            widget = element
-                .kendoExplorer({
-                    dataSource: data,
-                    iconPath: ICON_PATH,
-                    dataBinding(e) {
-                        dataBinding(e.sender);
-                    },
-                    dataBound(e) {
-                        dataBound(e.sender);
-                    }
-                })
-                .data('kendoExplorer');
+            widget = element[WIDGET]({
+                dataSource: data,
+                iconPath: ICON_PATH,
+                dataBinding(e) {
+                    dataBinding(e.sender);
+                },
+                dataBound(e) {
+                    dataBound(e.sender);
+                }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
@@ -417,15 +417,13 @@ describe('widgets.explorer', () => {
 
         it('change', () => {
             const change = sinon.spy();
-            widget = element
-                .kendoExplorer({
-                    dataSource: data,
-                    iconPath: ICON_PATH,
-                    change(e) {
-                        change(e.value);
-                    }
-                })
-                .data('kendoExplorer');
+            widget = element[WIDGET]({
+                dataSource: data,
+                iconPath: ICON_PATH,
+                change(e) {
+                    change(e.value);
+                }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource

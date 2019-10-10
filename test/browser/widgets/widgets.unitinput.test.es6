@@ -25,7 +25,6 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.unitinput.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     destroy,
@@ -33,9 +32,12 @@ const {
     observable,
     ui: { UnitInput, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}>`;
 const ROLE = 'unitinput';
+const WIDGET = 'kendoMultiInput';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -51,7 +53,7 @@ describe('widgets.unitinput', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoUnitInput).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -59,7 +61,7 @@ describe('widgets.unitinput', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoUnitInput().data('kendoUnitInput');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(UnitInput);
             expect(element).not.to.have.class('k-widget');
             // expect(element).to.have.class(`kj-${ROLE}`);
@@ -72,9 +74,7 @@ describe('widgets.unitinput', () => {
                 units: ['%', 'px'],
                 nonUnits: ['auto', 'inherit', 'initial']
             };
-            const widget = element
-                .kendoUnitInput(options)
-                .data('kendoUnitInput');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(UnitInput);
             expect(widget.wrapper).not.to.have.class('k-widget');
             expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
@@ -87,7 +87,7 @@ describe('widgets.unitinput', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoUnitInput');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(UnitInput);
             expect(widget.wrapper).not.to.have.class('k-widget');
             expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
@@ -103,7 +103,7 @@ describe('widgets.unitinput', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoUnitInput');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(UnitInput);
             expect(widget.wrapper).not.to.have.class('k-widget');
             expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
@@ -117,7 +117,7 @@ describe('widgets.unitinput', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoUnitInput(options).data('kendoUnitInput');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         xit('value', () => {
@@ -144,7 +144,7 @@ describe('widgets.unitinput', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoUnitInput(options).data('kendoUnitInput');
+            widget = element[WIDGET](options).data(WIDGET);
             viewModel = observable({
                 // TODO
             });
@@ -167,7 +167,7 @@ describe('widgets.unitinput', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoUnitInput(options).data('kendoUnitInput');
+            widget = element[WIDGET](options).data(WIDGET);
             event = sinon.spy();
         });
 

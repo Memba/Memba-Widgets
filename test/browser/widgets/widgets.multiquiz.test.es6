@@ -18,7 +18,6 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.multiquiz.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
@@ -28,9 +27,12 @@ const {
     observable,
     ui: { MultiQuiz, MultiSelect, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'multiquiz';
+const WIDGET = 'kendoMultiQuiz';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -74,7 +76,7 @@ describe('widgets.multiquiz', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoMultiQuiz).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -82,7 +84,7 @@ describe('widgets.multiquiz', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoMultiQuiz().data('kendoMultiQuiz');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(MultiQuiz);
             expect(widget.options.mode).to.equal('button');
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
@@ -102,9 +104,7 @@ describe('widgets.multiquiz', () => {
                 itemStyle: { color: 'rgb(255, 0, 0)' },
                 activeStyle: { backgroundColor: 'rgb(255, 224, 224)' }
             };
-            const widget = element
-                .kendoMultiQuiz(options)
-                .data('kendoMultiQuiz');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(MultiQuiz);
             expect(widget.options.mode).to.equal('multiselect');
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
@@ -126,7 +126,7 @@ describe('widgets.multiquiz', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoMultiQuiz');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(MultiQuiz);
             expect(widget.options.mode).to.equal('button');
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
@@ -151,7 +151,7 @@ describe('widgets.multiquiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoMultiQuiz');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(MultiQuiz);
             expect(widget.options.mode).to.equal('checkbox');
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
@@ -198,7 +198,7 @@ describe('widgets.multiquiz', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoMultiQuiz(options1).data('kendoMultiQuiz');
+            widget = element[WIDGET](options1).data(WIDGET);
         });
 
         it('value', () => {
@@ -266,7 +266,7 @@ describe('widgets.multiquiz', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoMultiQuiz');
+            widget = element.data(WIDGET);
             viewModel.bind('change', () => {
                 change();
             });
@@ -353,7 +353,7 @@ describe('widgets.multiquiz', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoMultiQuiz');
+            widget = element.data(WIDGET);
             viewModel.bind('change', () => {
                 change();
             });
@@ -436,7 +436,7 @@ describe('widgets.multiquiz', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoMultiQuiz');
+            widget = element.data(WIDGET);
             viewModel.bind('change', () => {
                 change();
             });
@@ -523,7 +523,7 @@ describe('widgets.multiquiz', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoMultiQuiz');
+            widget = element.data(WIDGET);
             viewModel.bind('change', () => {
                 change();
             });
@@ -610,7 +610,7 @@ describe('widgets.multiquiz', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoMultiQuiz');
+            widget = element.data(WIDGET);
             viewModel.bind('change', () => {
                 change();
             });
@@ -687,7 +687,7 @@ describe('widgets.multiquiz', () => {
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoMultiQuiz(options).data('kendoMultiQuiz');
+            widget = element[WIDGET](options).data(WIDGET);
             widget.bind('change', () => {
                 change();
             });

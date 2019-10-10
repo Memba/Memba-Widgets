@@ -18,7 +18,6 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.quiz.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
@@ -28,9 +27,12 @@ const {
     observable,
     ui: { DropDownList, roles, Quiz }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'quiz';
+const WIDGET = 'kenndoQuiz';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -74,7 +76,7 @@ describe('widgets.quiz', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoQuiz).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -82,7 +84,7 @@ describe('widgets.quiz', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoQuiz().data('kendoQuiz');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(Quiz);
             expect(widget.options.mode).to.equal('button');
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
@@ -102,7 +104,7 @@ describe('widgets.quiz', () => {
                 itemStyle: { color: 'rgb(255, 0, 0)' },
                 activeStyle: { backgroundColor: 'rgb(255, 224, 224)' }
             };
-            const widget = element.kendoQuiz(options).data('kendoQuiz');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Quiz);
             expect(widget.options.mode).to.equal('dropdown');
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
@@ -124,7 +126,7 @@ describe('widgets.quiz', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoQuiz');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Quiz);
             expect(widget.options.mode).to.equal('button');
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
@@ -149,7 +151,7 @@ describe('widgets.quiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoQuiz');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Quiz);
             expect(widget.options.mode).to.equal('radio');
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
@@ -196,7 +198,7 @@ describe('widgets.quiz', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoQuiz(options1).data('kendoQuiz');
+            widget = element[WIDGET](options1).data(WIDGET);
         });
 
         it('value', () => {
@@ -264,7 +266,7 @@ describe('widgets.quiz', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoQuiz');
+            widget = element.data(WIDGET);
             viewModel.bind('change', () => {
                 change();
             });
@@ -282,6 +284,7 @@ describe('widgets.quiz', () => {
                 expect(widget.value()).to.equal(value);
                 expect(viewModel.get('current')).to.equal(value);
                 expect(change).to.have.callCount(i + 1);
+                debugger;
                 expect(
                     widget.element.find(`button.kj-widget-button:eq(${i})`)
                 ).to.have.class('k-state-selected');
@@ -349,7 +352,7 @@ describe('widgets.quiz', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoQuiz');
+            widget = element.data(WIDGET);
             viewModel.bind('change', () => {
                 change();
             });
@@ -432,7 +435,7 @@ describe('widgets.quiz', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoQuiz');
+            widget = element.data(WIDGET);
             viewModel.bind('change', () => {
                 change();
             });
@@ -517,7 +520,7 @@ describe('widgets.quiz', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoQuiz');
+            widget = element.data(WIDGET);
             viewModel.bind('change', () => {
                 change();
             });
@@ -602,7 +605,7 @@ describe('widgets.quiz', () => {
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoQuiz');
+            widget = element.data(WIDGET);
             viewModel.bind('change', () => {
                 change();
             });
@@ -677,7 +680,7 @@ describe('widgets.quiz', () => {
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoQuiz(options).data('kendoQuiz');
+            widget = element[WIDGET](options).data(WIDGET);
             widget.bind('change', () => {
                 change();
             });

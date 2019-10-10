@@ -18,18 +18,20 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.markeditor.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
-    bind,
+    // bind,
     destroy,
     init,
     observable,
     ui: { MarkEditor, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'markeditor';
+const WIDGET = 'kendoMarkEditor';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -45,7 +47,7 @@ describe('widgets.markeditor', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoMarkEditor).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -53,18 +55,20 @@ describe('widgets.markeditor', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoMarkEditor().data('kendoMarkEditor');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(MarkEditor);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const options = {};
-            const widget = element.kendoMarkEditor().data('kendoMarkEditor');
+            const options = {
+                // TODO
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(MarkEditor);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 
@@ -73,9 +77,9 @@ describe('widgets.markeditor', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoMarkEditor');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(MarkEditor);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 
@@ -89,10 +93,10 @@ describe('widgets.markeditor', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoMarkEditor(options).data('kendoMarkEditor');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
-        xit('value', done => {
+        xit('value', () => {
             expect(widget).to.be.an.instanceof(MarkEditor);
         });
 
@@ -111,19 +115,19 @@ describe('widgets.markeditor', () => {
         const options = {};
         let viewModel;
         let change;
-        let destroy;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoMarkEditor(options).data('kendoMarkEditor');
+            widget = element[WIDGET](options).data(WIDGET);
             viewModel = observable({
                 // TODO
             });
             change = sinon.spy();
-            destroy = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, viewModel, change);
+        });
     });
 
     describe('Events', () => {
@@ -134,11 +138,13 @@ describe('widgets.markeditor', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoMarkEditor(options).data('kendoMarkEditor');
+            widget = element[WIDGET](options).data(WIDGET);
             event = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, event);
+        });
     });
 
     afterEach(() => {

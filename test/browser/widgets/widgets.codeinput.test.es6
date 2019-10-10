@@ -19,7 +19,6 @@ import TOOLS from '../../../src/js/tools/util.constants.es6';
 import '../../../src/js/widgets/widgets.codeinput.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
@@ -30,9 +29,12 @@ const {
     roleSelector,
     ui: { CodeInput, DropDownList, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'codeinput';
+const WIDGET = 'kendoCodeinput';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -101,7 +103,7 @@ describe('widgets.codeinput', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoCodeInput).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -109,7 +111,7 @@ describe('widgets.codeinput', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoCodeInput().data('kendoCodeInput');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeInput);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-codeinput');
@@ -135,13 +137,11 @@ describe('widgets.codeinput', () => {
 
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const codeInput = element
-                .kendoCodeInput({
-                    dataSource: LIBRARY,
-                    value: `${TOOLS.LIB_COMMENT}${NAME}`,
-                    solution: SOLUTION
-                })
-                .data('kendoCodeInput');
+            const codeInput = element[WIDGET]({
+                dataSource: LIBRARY,
+                value: `${TOOLS.LIB_COMMENT}${NAME}`,
+                solution: SOLUTION
+            }).data(WIDGET);
             expect(codeInput).to.be.an.instanceof(CodeInput);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-codeinput');
@@ -174,7 +174,7 @@ describe('widgets.codeinput', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const codeInput = element.data('kendoCodeInput');
+            const codeInput = element.data(WIDGET);
             expect(codeInput).to.be.an.instanceof(CodeInput);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-codeinput');
@@ -211,7 +211,7 @@ describe('widgets.codeinput', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const codeInput = element.data('kendoCodeInput');
+            const codeInput = element.data(WIDGET);
             expect(codeInput).to.be.an.instanceof(CodeInput);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-codeinput');
@@ -254,13 +254,11 @@ describe('widgets.codeinput', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            codeInput = element
-                .kendoCodeInput({
-                    dataSource: LIBRARY,
-                    default: TOOLS.LIB_COMMENT + NAME,
-                    value: NAME
-                })
-                .data('kendoCodeInput');
+            codeInput = element[WIDGET]({
+                dataSource: LIBRARY,
+                default: TOOLS.LIB_COMMENT + NAME,
+                value: NAME
+            }).data(WIDGET);
         });
 
         it('_isCustom: private method to check custom formula', () => {
@@ -425,7 +423,7 @@ describe('widgets.codeinput', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             bind(`#${FIXTURES}`, viewModel);
-            codeInput = element.data('kendoCodeInput');
+            codeInput = element.data(WIDGET);
             change = sinon.spy();
             viewModel.bind(CONSTANTS.CHANGE, change);
         });
@@ -493,14 +491,12 @@ describe('widgets.codeinput', () => {
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            codeInput = element
-                .kendoCodeInput({
-                    dataSource: LIBRARY,
-                    value: TOOLS.LIB_COMMENT + NAME,
-                    default: TOOLS.LIB_COMMENT + NAME,
-                    solution: SOLUTION
-                })
-                .data('kendoCodeInput');
+            codeInput = element[WIDGET]({
+                dataSource: LIBRARY,
+                value: TOOLS.LIB_COMMENT + NAME,
+                default: TOOLS.LIB_COMMENT + NAME,
+                solution: SOLUTION
+            }).data(WIDGET);
         });
 
         it('Change event', () => {

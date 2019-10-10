@@ -19,7 +19,6 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.imageset.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
@@ -28,9 +27,13 @@ const {
     observable,
     ui: { ImageSet, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}/>`;
 const ROLE = 'imageset';
+const WIDGET = 'kendoImageSet';
+
 const VALUE = JSC.string()();
 const ROOT = 'https://www.example.com/';
 const DATA = [
@@ -66,7 +69,7 @@ describe('widgets.imageset', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoImageSet).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -74,7 +77,7 @@ describe('widgets.imageset', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoImageSet().data('kendoImageSet');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(ImageSet);
             // expect(widget.wrapper).to.have.class('k-widget');
             expect(widget.wrapper).to.have.class('kj-imageset');
@@ -87,7 +90,7 @@ describe('widgets.imageset', () => {
                 dataSource: DATA,
                 value: VALUE
             };
-            const widget = element.kendoImageSet(options).data('kendoImageSet');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(ImageSet);
             // expect(widget.wrapper).to.have.class('k-widget');
             expect(widget.wrapper).to.have.class('kj-imageset');
@@ -98,7 +101,7 @@ describe('widgets.imageset', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoImageSet');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(ImageSet);
             // expect(widget.wrapper).to.have.class('k-widget');
             expect(widget.wrapper).to.have.class('kj-imageset');
@@ -115,7 +118,7 @@ describe('widgets.imageset', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoImageSet(options).data('kendoImageSet');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('value', () => {
@@ -137,7 +140,7 @@ describe('widgets.imageset', () => {
         it('destroy', () => {
             expect(widget).to.be.an.instanceof(ImageSet);
             widget.destroy();
-            expect(widget.element.data('kendoImageSet')).to.be.undefined;
+            expect(widget.element.data(WIDGET)).to.be.undefined;
         });
     });
 
@@ -177,7 +180,7 @@ describe('widgets.imageset', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoImageSet(options).data('kendoImageSet');
+            widget = element[WIDGET](options).data(WIDGET);
             event = sinon.spy();
         });
 

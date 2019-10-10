@@ -20,7 +20,6 @@ import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.toolbox.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     // bind,
@@ -29,9 +28,13 @@ const {
     init,
     ui: { roles, ToolBox }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'toolbox';
+const WIDGET = 'kendoToolBox';
+
 const ICON_PATH = '../../src/styles/images/';
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -48,7 +51,7 @@ describe('widgets.toolbox', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoToolBox).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -57,7 +60,7 @@ describe('widgets.toolbox', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = { iconPath: ICON_PATH };
-            const widget = element.kendoToolBox(options).data('kendoToolBox');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(ToolBox);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -79,7 +82,7 @@ describe('widgets.toolbox', () => {
                 iconPath: ICON_PATH,
                 size: 64
             };
-            const widget = element.kendoToolBox(options).data('kendoToolBox');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(ToolBox);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -105,7 +108,7 @@ describe('widgets.toolbox', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoToolBox');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(ToolBox);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -130,7 +133,7 @@ describe('widgets.toolbox', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             options = { iconPath: ICON_PATH };
-            widget = element.kendoToolBox(options).data('kendoToolBox');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('Set/Get the current tool with valid values', () => {
@@ -178,7 +181,7 @@ describe('widgets.toolbox', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             options = { iconPath: ICON_PATH };
-            widget = element.kendoToolBox(options).data('kendoToolBox');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('A change of tool updates the widget UI', () => {
@@ -220,7 +223,7 @@ describe('widgets.toolbox', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             options = { iconPath: ICON_PATH };
-            widget = element.kendoToolBox(options).data('kendoToolBox');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('Change event', () => {

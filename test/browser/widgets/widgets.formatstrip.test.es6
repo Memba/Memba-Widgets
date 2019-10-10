@@ -18,7 +18,6 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.formatstrip.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
@@ -26,9 +25,12 @@ const {
     observable,
     ui: { FormatStrip }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'formatstrip';
+const WIDGET = 'kendoFormatStrip';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -44,7 +46,7 @@ describe('widgets.formatstrip', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoFormatStrip).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
 
@@ -63,14 +65,12 @@ describe('widgets.formatstrip', () => {
         it('from code with all options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('div');
-            const widget = element
-                .kendoFormatStrip({
-                    // value: value,
-                    // min: min,
-                    // max: max,
-                    // step: step
-                })
-                .data('kendoFormatStrip');
+            const widget = element[WIDGET]({
+                // value: value,
+                // min: min,
+                // max: max,
+                // step: step
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(FormatStrip);
             const { wrapper } = widget;
             expect(wrapper).to.be.an.instanceof($);
@@ -82,11 +82,9 @@ describe('widgets.formatstrip', () => {
             const value = 2;
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
-            const widget = element
-                .kendoFormatStrip({
-                    value
-                })
-                .data('kendoFormatStrip');
+            const widget = element[WIDGET]({
+                value
+            }).data(WIDGET);
             const { min } = widget.options;
             const { max } = widget.options;
             const { step } = widget.options;
@@ -117,7 +115,7 @@ describe('widgets.formatstrip', () => {
                 .appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
             bind(`#${FIXTURES}`, viewModel);
-            const widget = element.data('kendoFormatStrip');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(FormatStrip);
             const { min } = widget.options;
             const { max } = widget.options;
@@ -150,11 +148,9 @@ describe('widgets.formatstrip', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoFormatStrip({
-                    value: value1
-                })
-                .data('kendoFormatStrip');
+            widget = element[WIDGET]({
+                value: value1
+            }).data(WIDGET);
         });
 
         it('value (get)', () => {
@@ -171,9 +167,9 @@ describe('widgets.formatstrip', () => {
         });
 
         it('value (range error)', () => {
-            const fn = function() {
+            function fn() {
                 widget.value(100);
-            };
+            }
             expect(widget).to.be.an.instanceof(FormatStrip);
             expect(fn).to.throw(RangeError);
         });
@@ -220,7 +216,7 @@ describe('widgets.formatstrip', () => {
                 current: undefined
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoFormatStrip');
+            widget = element.data(WIDGET);
         });
 
         it('Changing the value in the viewModel changes the number of plain/selected stars', () => {
@@ -295,7 +291,7 @@ describe('widgets.formatstrip', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoFormatStrip().data('kendoFormatStrip');
+            widget = element[WIDGET]().data(WIDGET);
         });
 
         it('mouseover', () => {
@@ -333,13 +329,11 @@ describe('widgets.formatstrip', () => {
 
         it('change', () => {
             const change = sinon.spy();
-            widget = element
-                .kendoFormatStrip({
-                    change(e) {
-                        change(e.value);
-                    }
-                })
-                .data('kendoFormatStrip');
+            widget = element[WIDGET]({
+                change(e) {
+                    change(e.value);
+                }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(FormatStrip);
             const { min } = widget.options;
             const { max } = widget.options;

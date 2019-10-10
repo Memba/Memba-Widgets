@@ -18,20 +18,22 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.connector.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
-    data: { DataSource },
+    // data: { DataSource },
     destroy,
     init,
     observable,
     roleSelector,
     ui: { Connector, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'connnector';
+const WIDGET = 'kendoConnector';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -55,7 +57,7 @@ describe('widgets.connector', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoConnector).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -67,7 +69,7 @@ describe('widgets.connector', () => {
 
         it('from code', () => {
             const element = $(ELEMENT).appendTo(ELEMENT);
-            const widget = element.kendoConnector().data('kendoConnector');
+            const widget = element[WIDGET]().data('kendoConnector');
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
@@ -79,9 +81,9 @@ describe('widgets.connector', () => {
 
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(ELEMENT);
-            const widget = element
-                .kendoConnector({ color: '#000000' })
-                .data('kendoConnector');
+            const widget = element[WIDGET]({ color: '#000000' }).data(
+                'kendoConnector'
+            );
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
@@ -140,11 +142,9 @@ describe('widgets.connector', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoConnector({
-                    // TODO
-                })
-                .data('kendoConnector');
+            widget = element[WIDGET]({
+                // TODO
+            }).data('kendoConnector');
         });
 
         xit('value', () => {
@@ -241,14 +241,12 @@ describe('widgets.connector', () => {
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoConnector({
-                    // dataSource: LIBRARY,
-                    // value: NAME,
-                    // default: NAME,
-                    // solution: SOLUTION
-                })
-                .data('kendoConnector');
+            widget = element[WIDGET]({
+                // dataSource: LIBRARY,
+                // value: NAME,
+                // default: NAME,
+                // solution: SOLUTION
+            }).data('kendoConnector');
         });
 
         it('Change event', () => {

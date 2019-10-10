@@ -18,20 +18,22 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.playbar.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
-    data: { DataSource, ObservableArray },
+    data: { ObservableArray },
     destroy,
     guid,
-    init,
+    // init,
     observable,
     ui: { PlayBar, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'playbar';
+const WIDGET = 'kendoPlaybar';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -163,7 +165,7 @@ describe('widgets.playbar', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoPlayBar).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -175,7 +177,7 @@ describe('widgets.playbar', () => {
                 .kendoPlayBar({
                     input: true
                 })
-                .data('kendoPlayBar');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.total()).to.equal(0);
@@ -209,7 +211,7 @@ describe('widgets.playbar', () => {
                     tick: false,
                     refresh: false
                 })
-                .data('kendoPlayBar');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.total()).to.equal(0);
@@ -239,7 +241,7 @@ describe('widgets.playbar', () => {
                 .kendoPlayBar({
                     dataSource: pageCollectionData1
                 })
-                .data('kendoPlayBar');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.total()).to.equal(
@@ -270,7 +272,7 @@ describe('widgets.playbar', () => {
                 .kendoPlayBar({
                     dataSource: pageCollectionData2
                 })
-                .data('kendoPlayBar');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.total()).to.equal(
@@ -304,7 +306,7 @@ describe('widgets.playbar', () => {
             });
             const element = $(PLAYBAR2).appendTo(`#${FIXTURES}`);
             bind(`#${FIXTURES}`, viewModel);
-            const widget = element.data('kendoPlayBar');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.total()).to.equal(
@@ -340,7 +342,7 @@ describe('widgets.playbar', () => {
                 .kendoPlayBar({
                     dataSource: pageCollectionData1
                 })
-                .data('kendoPlayBar');
+                .data(WIDGET);
         });
 
         it('length', () => {
@@ -366,9 +368,9 @@ describe('widgets.playbar', () => {
         */
 
         it('value', () => {
-            const fn = function() {
+            function fn() {
                 widget.value(0);
-            };
+            }
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(fn).to.throw(TypeError);
@@ -381,12 +383,12 @@ describe('widgets.playbar', () => {
         });
 
         it('index', () => {
-            const fn1 = function() {
+            function fn1() {
                 widget.index('not a number');
-            };
-            const fn2 = function() {
+            }
+            function fn2() {
                 widget.index(300); // not in range
-            };
+            }
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(fn1).to.throw(TypeError);
@@ -400,9 +402,9 @@ describe('widgets.playbar', () => {
         });
 
         it('id', () => {
-            const fn = function() {
+            function fn() {
                 widget.id({});
-            };
+            }
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(fn).to.throw(TypeError);
@@ -440,7 +442,7 @@ describe('widgets.playbar', () => {
                 current: undefined
             });
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoPlayBar');
+            widget = element.data(WIDGET);
         });
 
         it('Adding a page to the viewModel adds the corresponding item to the widget', () => {
@@ -544,7 +546,7 @@ describe('widgets.playbar', () => {
                         dataBound(e.sender);
                     }
                 })
-                .data('kendoPlayBar');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(dataBinding).to.have.been.calledOnce;
@@ -563,7 +565,7 @@ describe('widgets.playbar', () => {
                         change(e.value);
                     }
                 })
-                .data('kendoPlayBar');
+                .data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.data())

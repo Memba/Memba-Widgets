@@ -19,7 +19,6 @@ import TOOLS from '../../../src/js/tools/util.constants.es6';
 import '../../../src/js/widgets/widgets.codeeditor.es6';
 
 const { afterEach, before, beforeEach, CodeMirror, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
@@ -30,9 +29,12 @@ const {
     roleSelector,
     ui: { CodeEditor, DropDownList, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'codeeditor';
+const WIDGET = 'kendoCodeEditor';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -108,7 +110,7 @@ describe('widgets.codeeditor', () => {
             expect($).not.to.be.undefined;
             expect(CodeMirror).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoCodeEditor).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -116,7 +118,7 @@ describe('widgets.codeeditor', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoCodeEditor().data('kendoCodeEditor');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-codeeditor');
@@ -157,13 +159,11 @@ describe('widgets.codeeditor', () => {
 
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoCodeEditor({
-                    dataSource: LIBRARY,
-                    value: TOOLS.LIB_COMMENT + NAME,
-                    solution: SOLUTION
-                })
-                .data('kendoCodeEditor');
+            const widget = element[WIDGET]({
+                dataSource: LIBRARY,
+                value: TOOLS.LIB_COMMENT + NAME,
+                solution: SOLUTION
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-codeeditor');
@@ -209,7 +209,7 @@ describe('widgets.codeeditor', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoCodeEditor');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-codeeditor');
@@ -261,7 +261,7 @@ describe('widgets.codeeditor', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoCodeEditor');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class('kj-codeeditor');
@@ -319,14 +319,12 @@ describe('widgets.codeeditor', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoCodeEditor({
-                    dataSource: LIBRARY,
-                    default: TOOLS.LIB_COMMENT + NAME,
-                    solution: SOLUTION,
-                    value: NAME
-                })
-                .data('kendoCodeEditor');
+            widget = element[WIDGET]({
+                dataSource: LIBRARY,
+                default: TOOLS.LIB_COMMENT + NAME,
+                solution: SOLUTION,
+                value: NAME
+            }).data(WIDGET);
         });
 
         it('_isCustom: private method to check custom formula', () => {
@@ -487,7 +485,7 @@ describe('widgets.codeeditor', () => {
                 })
                 .appendTo(`#${FIXTURES}`);
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoCodeEditor');
+            widget = element.data(WIDGET);
             change = sinon.spy();
             viewModel.bind(CHANGE, change);
         });
@@ -596,14 +594,12 @@ describe('widgets.codeeditor', () => {
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoCodeEditor({
-                    dataSource: LIBRARY,
-                    value: TOOLS.LIB_COMMENT + NAME,
-                    default: TOOLS.LIB_COMMENT + NAME,
-                    solution: SOLUTION
-                })
-                .data('kendoCodeEditor');
+            widget = element[WIDGET]({
+                dataSource: LIBRARY,
+                value: TOOLS.LIB_COMMENT + NAME,
+                default: TOOLS.LIB_COMMENT + NAME,
+                solution: SOLUTION
+            }).data(WIDGET);
         });
 
         it('Change event', () => {

@@ -18,18 +18,20 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.chargrid.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
-    bind,
+    // bind,
     destroy,
     init,
     observable,
     ui: { CharGrid, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'chargrid';
+const WIDGET = 'kendoCharGrid';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -45,7 +47,7 @@ describe('widgets.chargrid', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoCharGrid).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -53,7 +55,7 @@ describe('widgets.chargrid', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoCharGrid().data('kendoCharGrid');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(CharGrid);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-chargrid');
@@ -64,7 +66,7 @@ describe('widgets.chargrid', () => {
             const options = {
                 // TODO
             };
-            const widget = element.kendoCharGrid(options).data('kendoCharGrid');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(CharGrid);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-chargrid');
@@ -75,7 +77,7 @@ describe('widgets.chargrid', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoCharGrid');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(CharGrid);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-chargrid');
@@ -93,7 +95,7 @@ describe('widgets.chargrid', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoCharGrid(options).data('kendoCharGrid');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         xit('destroy', () => {
@@ -123,19 +125,19 @@ describe('widgets.chargrid', () => {
         const options = {};
         let viewModel;
         let change;
-        let destroy;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoCharGrid(options).data('kendoCharGrid');
+            widget = element[WIDGET](options).data(WIDGET);
             viewModel = observable({
                 // TODO
             });
             change = sinon.spy();
-            destroy = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, viewModel, change);
+        });
     });
 
     describe('Events', () => {
@@ -146,11 +148,13 @@ describe('widgets.chargrid', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoCharGrid(options).data('kendoCharGrid');
+            widget = element[WIDGET](options).data(WIDGET);
             event = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, event);
+        });
     });
 
     afterEach(() => {

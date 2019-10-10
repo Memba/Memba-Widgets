@@ -18,19 +18,21 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.dropzone.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
-    bind,
-    data: { DataSource },
+    // bind,
+    // data: { DataSource },
     destroy,
     init,
     observable,
     ui: { DropZone, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'dropzone';
+const WIDGET = 'kendoDropZone';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -46,7 +48,7 @@ describe('widgets.dropzone', () => {
         it('requirements', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
-            expect($.fn.kendoDropZone).to.be.a(CONSTANTS.FUNCTION);
+            expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -54,7 +56,7 @@ describe('widgets.dropzone', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoDropZone().data('kendoDropZone');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(DropZone);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-dropzone');
@@ -64,7 +66,7 @@ describe('widgets.dropzone', () => {
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {};
-            const widget = element.kendoDropZone().data('kendoDropZone');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(DropZone);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-dropzone');
@@ -76,7 +78,7 @@ describe('widgets.dropzone', () => {
                 .attr(attr('role'), ROLE)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoDropZone');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(DropZone);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-dropzone');
@@ -94,10 +96,10 @@ describe('widgets.dropzone', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoDropZone(options).data('kendoDropZone');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
-        xit('value', done => {
+        xit('value', () => {
             expect(widget).to.be.an.instanceof(DropZone);
         });
 
@@ -118,19 +120,19 @@ describe('widgets.dropzone', () => {
         const options = {};
         let viewModel;
         let change;
-        let destroy;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoDropZone(options).data('kendoDropZone');
+            widget = element[WIDGET](options).data(WIDGET);
             viewModel = observable({
                 // TODO
             });
             change = sinon.spy();
-            destroy = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, viewModel, change);
+        });
     });
 
     describe('Events', () => {
@@ -141,11 +143,13 @@ describe('widgets.dropzone', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element.kendoDropZone(options).data('kendoDropZone');
+            widget = element[WIDGET](options).data(WIDGET);
             event = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, event);
+        });
     });
 
     afterEach(() => {

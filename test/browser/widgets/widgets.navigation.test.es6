@@ -25,7 +25,6 @@ import {
 } from '../../../src/js/helpers/helpers.components.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
-const { expect } = chai;
 const {
     attr,
     bind,
@@ -37,6 +36,8 @@ const {
     observable,
     ui: { Navigation, roles }
 } = window.kendo;
+const { expect } = chai;
+
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'navigation';

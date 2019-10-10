@@ -22,7 +22,7 @@ const { expect } = chai;
 const {
     attr,
     bind,
-    data: { DataSource, ObservableArray },
+    data: { DataSource /* , ObservableArray */ },
     destroy,
     init,
     observable,

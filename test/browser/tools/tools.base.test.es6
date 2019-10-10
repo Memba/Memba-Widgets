@@ -9,6 +9,7 @@
 import '../../../src/js/cultures/all.en.es6';
 
 import chai from 'chai';
+import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
 import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 // import TOOLS from '../../../src/js/tools/util.constants.es6';

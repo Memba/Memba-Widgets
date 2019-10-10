@@ -11,7 +11,7 @@ import '../../../src/js/cultures/all.en.es6';
 import chai from 'chai';
 // import JSC from 'jscheck';
 
-const { describe, it } = window;
+const { describe, xit } = window;
 const { expect } = chai;
 
 describe('util.miscellaneous', () => {

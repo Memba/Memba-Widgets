@@ -147,12 +147,12 @@ describe('widgets.license', () => {
         });
 
         it('value (error)', () => {
-            const fn1 = function() {
+            function fn1() {
                 widget.value(JSC.string()());
-            };
-            const fn2 = function() {
+            }
+            function fn2() {
                 widget.value(JSC.integer(100)());
-            };
+            }
             expect(widget).to.be.an.instanceof(License);
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(RangeError);
@@ -215,7 +215,9 @@ describe('widgets.license', () => {
             widget = element[WIDGET]().data(WIDGET);
         });
 
-        it('mouseover', () => {});
+        it('mouseover', () => {
+            $.noop(widget);
+        });
     });
 
     xdescribe('Events', () => {

@@ -780,6 +780,7 @@ describe('widgets.stage', () => {
                 }
 
                 function check() {
+                    /*
                     const c = findCenter($(item));
                     const p1 = center;
                     const p2 = { x, y };
@@ -788,6 +789,7 @@ describe('widgets.stage', () => {
                             Math.atan2(p1.y - c.y, p1.x - c.x)) *
                             180) /
                         Math.PI;
+                    */
                     expect(viewModel.get('current.top')).to.equal(top);
                     expect(viewModel.get('current.left')).to.equal(left);
                     expect(viewModel.get('current.height')).to.equal(height);

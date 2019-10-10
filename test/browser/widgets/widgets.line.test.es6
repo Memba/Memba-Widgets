@@ -13,7 +13,7 @@ import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import JSC from 'jscheck';
-import sinon from 'sinon';
+// import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.line.es6';
@@ -22,10 +22,10 @@ const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
 const {
     attr,
-    bind,
+    // bind,
     destroy,
     init,
-    observable,
+    // observable,
     ui: { Line, roles }
 } = window.kendo;
 const FIXTURES = 'fixtures';

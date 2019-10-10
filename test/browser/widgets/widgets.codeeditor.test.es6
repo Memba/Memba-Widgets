@@ -249,7 +249,7 @@ describe('widgets.codeeditor', () => {
         });
 
         it('from markup with attributes', () => {
-            const attr = {
+            const attributes = {
                 'data-source': JSON.stringify(LIBRARY),
                 'data-default': '// floatEqual',
                 'data-solution': '1.5555',
@@ -258,7 +258,7 @@ describe('widgets.codeeditor', () => {
             };
             const element = $(ELEMENT)
                 .attr(attr('role'), ROLE)
-                .attr(attr)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data('kendoCodeEditor');

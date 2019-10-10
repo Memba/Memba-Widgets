@@ -125,7 +125,6 @@ const BitFlags = DataBoundWidget.extend({
      */
     setOptions(options) {
         const { multiSelect } = this;
-        debugger;
         assert.instanceof(
             MultiSelect,
             multiSelect,

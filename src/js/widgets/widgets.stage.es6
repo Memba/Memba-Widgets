@@ -772,7 +772,6 @@ const Stage = DataBoundWidget.extend({
     _toggleLoadingOverlay(enable) {
         const enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
-        debugger;
         this.element.toggleClass('k-loading', enabled);
     },
 

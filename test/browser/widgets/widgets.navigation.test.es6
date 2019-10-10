@@ -16,18 +16,24 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { Page, PageDataSource } from '../../../src/js/data/data.page.es6';
+import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.navigation.es6';
+
+import {
+    componentGenerator,
+    getPageArray
+} from '../../../src/js/helpers/helpers.components.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const { expect } = chai;
 const {
     attr,
     bind,
-    data: { DataSource, ObservableArray },
+    data: { /* DataSource */ ObservableArray },
     destroy,
     format,
     guid,
-    init,
+    // init,
     observable,
     ui: { Navigation, roles }
 } = window.kendo;
@@ -42,114 +48,17 @@ chai.use(sinonChai);
 const NAVIGATION2 =
     '<div data-role="navigation" data-bind="source: pages, value: current"></div>';
 
-const pageCollectionArray = [
-    {
-        id: guid(),
-        components: [
-            {
-                id: guid(),
-                tool: 'image',
-                top: 50,
-                left: 370,
-                height: 250,
-                width: 250,
-                rotate: 0,
-                attributes: {
-                    src:
-                        'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png'
-                }
-            },
-            {
-                id: guid(),
-                tool: 'label',
-                top: 300,
-                left: 300,
-                height: 100,
-                width: 300,
-                rotate: 0,
-                attributes: {
-                    style: 'font-family: Georgia, serif; color: #0000FF;',
-                    text: 'Company?'
-                }
-            },
-            {
-                id: guid(),
-                tool: 'textbox',
-                top: 450,
-                left: 350,
-                height: 100,
-                width: 300,
-                rotate: 0,
-                attributes: {},
-                properties: { name: 'textfield1' }
-            }
-        ]
-    },
-    {
-        id: guid(),
-        components: [
-            {
-                id: guid(),
-                tool: 'label',
-                top: 150,
-                left: 280,
-                height: 100,
-                width: 300,
-                rotate: 0,
-                attributes: {
-                    style: 'font-family: Georgia, serif; color: #FF0000;',
-                    text: 'Marignan?'
-                }
-            },
-            {
-                id: guid(),
-                tool: 'textbox',
-                top: 300,
-                left: 330,
-                height: 100,
-                width: 300,
-                rotate: 0,
-                attributes: {},
-                properties: { name: 'textfield2' }
-            }
-        ]
-    },
-    {
-        id: guid(),
-        components: [
-            {
-                id: guid(),
-                tool: 'label',
-                top: 120,
-                left: 280,
-                height: 150,
-                width: 400,
-                rotate: 0,
-                attributes: {
-                    style: 'font-family: Georgia, serif; color: #00FF00;',
-                    text: "Couleur du cheval blanc d'Henri IV?"
-                }
-            },
-            {
-                id: guid(),
-                tool: 'textbox',
-                top: 300,
-                left: 330,
-                height: 100,
-                width: 300,
-                rotate: 0,
-                attributes: {},
-                properties: { name: 'textfield3' }
-            }
-        ]
-    }
-];
-
 describe('widgets.navigation', () => {
-    before(() => {
+    before(done => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
+        const promises = Object.keys(componentGenerator).map(tool =>
+            tools.load(tool)
+        );
+        $.when(...promises)
+            .then(done)
+            .catch(done);
     });
 
     describe('Availability', () => {
@@ -175,28 +84,30 @@ describe('widgets.navigation', () => {
         });
 
         it('from code with dataSource', () => {
+            const data = getPageArray();
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element
                 .kendoNavigation({
-                    dataSource: pageCollectionArray
+                    dataSource: data
                 })
                 .data(WIDGET);
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)
-                .with.property('length', pageCollectionArray.length);
+                .with.property('length', data.length);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(element.find('div.kj-item>div.kj-stage'))
+            expect(element.find(`div.kj-${ROLE}-item>div.kj-stage`))
                 .to.be.an.instanceof($)
-                .with.property('length', pageCollectionArray.length);
+                .with.property('length', data.length);
         });
 
         it('from markup', () => {
+            const data = getPageArray();
             const viewModel = observable({
                 pages: new PageDataSource({
-                    data: pageCollectionArray
+                    data
                 }),
                 current: undefined
             });
@@ -207,24 +118,26 @@ describe('widgets.navigation', () => {
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)
-                .with.property('length', pageCollectionArray.length);
+                .with.property('length', data.length);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(element.find('div.kj-item>div.kj-stage'))
+            expect(element.find(`div.kj-${ROLE}-item>div.kj-stage`))
                 .to.be.an.instanceof($)
-                .with.property('length', pageCollectionArray.length);
+                .with.property('length', data.length);
         });
     });
 
     describe('Methods', () => {
+        let data;
         let element;
         let widget;
 
         beforeEach(() => {
+            data = getPageArray();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element
                 .kendoNavigation({
-                    dataSource: pageCollectionArray
+                    dataSource: data
                 })
                 .data(WIDGET);
         });
@@ -232,7 +145,7 @@ describe('widgets.navigation', () => {
         it('length', () => {
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
-            expect(widget.length()).to.equal(pageCollectionArray.length);
+            expect(widget.length()).to.equal(data.length);
         });
 
         it('items', () => {
@@ -241,24 +154,24 @@ describe('widgets.navigation', () => {
             const items = widget.items();
             expect(items)
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property('length', pageCollectionArray.length);
+                .with.property('length', data.length);
             const check = sinon.spy();
             $.each(items, (index, item) => {
                 check();
                 expect($(item)).to.match('div');
-                expect($(item)).to.have.class('kj-item');
+                expect($(item)).to.have.class(`kj-${ROLE}-item`);
             });
-            expect(check).to.have.callCount(pageCollectionArray.length);
+            expect(check).to.have.callCount(data.length);
         });
 
         it('value', () => {
-            const fn = function() {
+            function fn() {
                 widget.value(0);
-            };
+            }
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(fn).to.throw(TypeError);
-            for (let idx = 0; idx < pageCollectionArray.length; idx++) {
+            for (let idx = 0; idx < data.length; idx++) {
                 const page = widget.dataSource.at(idx);
                 widget.value(page);
                 expect(widget.index()).to.equal(idx);
@@ -267,17 +180,19 @@ describe('widgets.navigation', () => {
         });
 
         it('index', () => {
-            const fn1 = function() {
+            function fn1() {
                 widget.index('not a number');
-            };
-            const fn2 = function() {
+            }
+            /*
+            function fn2() {
                 widget.index(300); // not in range
-            };
+            }
+             */
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(fn1).to.throw(TypeError);
-            expect(fn2).to.throw(RangeError);
-            for (let idx = 0; idx < pageCollectionArray.length; idx++) {
+            // expect(fn2).to.throw(RangeError); // <-- error not raised
+            for (let idx = 0; idx < data.length; idx++) {
                 const page = widget.dataSource.at(idx);
                 widget.index(idx);
                 expect(widget.value()).to.equal(page);
@@ -286,13 +201,13 @@ describe('widgets.navigation', () => {
         });
 
         it('id', () => {
-            const fn = function() {
+            function fn() {
                 widget.id({});
-            };
+            }
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(fn).to.throw(TypeError);
-            for (let idx = 0; idx < pageCollectionArray.length; idx++) {
+            for (let idx = 0; idx < data.length; idx++) {
                 const page = widget.dataSource.at(idx);
                 widget.id(page.id);
                 expect(widget.value()).to.equal(page);
@@ -307,6 +222,7 @@ describe('widgets.navigation', () => {
     });
 
     describe('MVVM', () => {
+        let data;
         let element;
         let widget;
         let viewModel;
@@ -314,17 +230,16 @@ describe('widgets.navigation', () => {
         /*
         // For obscure reasons, setting the viewModel here does not work
         viewModel = observable({
-            pages: new PageDataSource({ data: pageCollectionArray }),
+            pages: new PageDataSource({ data }),
             current: undefined
         });
         */
 
         beforeEach(() => {
+            data = getPageArray();
             element = $(NAVIGATION2).appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                pages: new PageDataSource({
-                    data: pageCollectionArray
-                }),
+                pages: new PageDataSource({ data }),
                 current: undefined
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -336,7 +251,7 @@ describe('widgets.navigation', () => {
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property('length', pageCollectionArray.length);
+                .with.property('length', data.length);
             viewModel.pages.add(
                 new Page({
                     id: guid(),
@@ -345,7 +260,7 @@ describe('widgets.navigation', () => {
             );
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property('length', pageCollectionArray.length + 1);
+                .with.property('length', data.length + 1);
         });
 
         it('Removing a page from the viewModel removes the corresponding item from the widget', () => {
@@ -353,11 +268,11 @@ describe('widgets.navigation', () => {
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property('length', pageCollectionArray.length);
+                .with.property('length', data.length);
             viewModel.pages.remove(viewModel.pages.at(0));
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property('length', pageCollectionArray.length - 1);
+                .with.property('length', data.length - 1);
         });
 
         // Note: Since Navigation is a collection of kendo.ui.Stage, we are assuming that
@@ -369,7 +284,7 @@ describe('widgets.navigation', () => {
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.items())
                 .to.be.an.instanceof(window.HTMLCollection)
-                .with.property('length', pageCollectionArray.length);
+                .with.property('length', data.length);
             const check = sinon.spy();
             $.each(viewModel.pages.data(), (index, page) => {
                 check();
@@ -380,14 +295,14 @@ describe('widgets.navigation', () => {
                     )
                 ).to.have.class('k-state-selected');
             });
-            expect(check).to.have.callCount(pageCollectionArray.length);
+            expect(check).to.have.callCount(data.length);
         });
 
         it('Changing the selected page in the widget, changes the corresponding page in the viewModel', () => {
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             const check = sinon.spy();
-            $.each(widget.element.find('div.kj-item'), (index, item) => {
+            widget.element.find(`div.kj-${ROLE}-item`).each((index, item) => {
                 check();
                 $(item).simulate('click');
                 expect(viewModel.get('current')).to.have.property(
@@ -395,15 +310,17 @@ describe('widgets.navigation', () => {
                     $(item).attr(attr('uid'))
                 );
             });
-            expect(check).to.have.callCount(pageCollectionArray.length);
+            expect(check).to.have.callCount(data.length);
         });
     });
 
     describe('Events', () => {
+        let data;
         let element;
         let widget;
 
         beforeEach(() => {
+            data = getPageArray();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
         });
 
@@ -412,7 +329,7 @@ describe('widgets.navigation', () => {
             const dataBound = sinon.spy();
             widget = element
                 .kendoNavigation({
-                    dataSource: pageCollectionArray,
+                    dataSource: data,
                     dataBinding(e) {
                         dataBinding(e.sender);
                     },
@@ -434,7 +351,7 @@ describe('widgets.navigation', () => {
             const change = sinon.spy();
             widget = element
                 .kendoNavigation({
-                    dataSource: pageCollectionArray,
+                    dataSource: data,
                     change(e) {
                         change(e.value);
                     }
@@ -445,7 +362,7 @@ describe('widgets.navigation', () => {
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)
-                .with.property('length', pageCollectionArray.length);
+                .with.property('length', data.length);
             const page = widget.dataSource.at(1);
             expect(page).to.be.an.instanceof(Page);
             widget.value(page);

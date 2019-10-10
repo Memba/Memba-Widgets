@@ -76,7 +76,25 @@ function getAudio() {
  */
 function getCharGrid() {
     return {
-        // TODO
+        attributes: {
+            // TODO
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: [], // TODO
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'chartgrid',
+        top: positionGenerator(),
+        width: positionGenerator()
     };
 }
 
@@ -86,7 +104,16 @@ function getCharGrid() {
  */
 function getChart() {
     return {
-        // TODO
+        attributes: {
+            // TODO
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        rotate: angleGenerator(),
+        tool: 'chart',
+        top: positionGenerator(),
+        width: positionGenerator()
     };
 }
 
@@ -96,7 +123,25 @@ function getChart() {
  */
 function getConnector() {
     return {
-        // TODO
+        attributes: {
+            // TODO
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: '', // TODO
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'connector',
+        top: positionGenerator(),
+        width: positionGenerator()
     };
 }
 
@@ -106,7 +151,25 @@ function getConnector() {
  */
 function getDropZone() {
     return {
-        // TODO
+        attributes: {
+            // TODO
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: '', // TODO
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'dropzone',
+        top: positionGenerator(),
+        width: positionGenerator()
     };
 }
 
@@ -121,6 +184,34 @@ function getDummy() {
         left: positionGenerator(),
         rotate: angleGenerator(),
         tool: 'dummy',
+        top: positionGenerator(),
+        width: positionGenerator()
+    };
+}
+
+/**
+ * getHighLighter
+ * @function getHighLighter
+ */
+function getHighLighter() {
+    return {
+        attributes: {
+            // TODO
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: [], // TODO
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'highlighter',
         top: positionGenerator(),
         width: positionGenerator()
     };
@@ -244,6 +335,34 @@ function getLine() {
         left: positionGenerator(),
         rotate: angleGenerator(),
         tool: 'line',
+        top: positionGenerator(),
+        width: positionGenerator()
+    };
+}
+
+/**
+ * getMathInput
+ * @function getMathInput
+ */
+function getMathInput() {
+    return {
+        attributes: {
+            // TODO
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: '', // TODO
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'mathinput',
         top: positionGenerator(),
         width: positionGenerator()
     };
@@ -588,11 +707,13 @@ export {
     getConnector,
     getDropZone,
     getDummy,
+    getHighLighter,
     getImage,
     getImageSet,
     getLabel,
     getLatex,
     getLine,
+    getMathInput,
     getMultiQuiz,
     getNumericBox,
     getQuiz,

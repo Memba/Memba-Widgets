@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO NummericBox can use Random tools to calculate solutions using simple MathJS scripting
+// TODO NummericBox can use variables to calculate solutions using simple MathJS scripting
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -14,6 +14,7 @@ import math from '../vendor/josdejong/math';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ExpressionAdapter from './adapters.expression.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -32,6 +33,7 @@ import {
 
 const { format, htmlEncode, ns, template /* , roleSelector */ } = window.kendo;
 const ScoreAdapter = NumberAdapter;
+const logger = new Logger('tools.numericbox');
 
 /**
  * Template
@@ -200,13 +202,24 @@ const NumericBoxTool = BaseTool.extend({
             variables,
             assert.format(assert.messages.isPlainObject.default, 'variables')
         );
-        // TODO Manage eval errors in try/catch
-        const value = math.eval(
-            component.get('properties.solution'),
-            variables
-        );
-        const decimals = Math.round(component.get('attributes.decimals') || 0);
-        return math.round(value, decimals);
+        let ret;
+        try {
+            const value = math.evaluate(
+                component.get('properties.solution'),
+                variables
+            );
+            const decimals = Math.round(
+                component.get('attributes.decimals') || 0
+            );
+            ret = math.round(value, decimals);
+        } catch (error) {
+            logger.error({
+                method: 'getSolution',
+                error,
+                data: { component, variables }
+            });
+        }
+        return ret;
     },
 
     /**

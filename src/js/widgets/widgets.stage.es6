@@ -673,10 +673,11 @@ const Stage = DataBoundWidget.extend({
             options: { dataSource }
         } = this;
 
+        const mode = this.mode();
         const hasPage = !!dataSource; // TODO and data.length
         const isReadOnly = !hasPage || !this._enabled;
-        const bindUserEntries = hasPage && this.mode() !== modes.DESIGN;
-        const designMode = hasPage && this.mode() === modes.DESIGN;
+        const bindUserEntries = hasPage && mode !== modes.DESIGN;
+        const designMode = hasPage && mode === modes.DESIGN;
         const enabledDesignMode = designMode && this._enabled;
 
         // Set mode
@@ -689,6 +690,12 @@ const Stage = DataBoundWidget.extend({
         this._toggleKeyboardEvents(enabledDesignMode);
         this._toggleTransformEventHandlers(designMode);
         this._initContextMenu(enabledDesignMode);
+
+        // Toggle stage class
+        this.wrapper
+            .toggleClass(`kj-${modes.DESIGN}`, mode === modes.DESIGN)
+            .toggleClass(`kj-${modes.PLAY}`, mode === modes.PLAY)
+            .toggleClass(`kj-${modes.REVIEW}`, mode === modes.REVIEW);
     },
 
     /**

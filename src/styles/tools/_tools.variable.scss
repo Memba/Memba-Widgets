@@ -1,0 +1,8 @@
+.kj-stage {
+    &.kj-review,
+    &.kj-play {
+        .kj-element[data-tool="variable"] {
+            display: none;
+        }
+    }
+}

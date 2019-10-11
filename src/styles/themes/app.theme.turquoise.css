@@ -36250,23 +36250,24 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   font-weight: normal;
   text-align: initial;
   transform-origin: 0 0;
-}
-.kj-stage .kj-element input.k-textbox {
-  text-indent: initial;
-}
-.kj-stage .kj-element input:not([type]),
-.kj-stage .kj-element input[type=email],
-.kj-stage .kj-element input[type=number],
-.kj-stage .kj-element input[type=password],
-.kj-stage .kj-element input[type=tel],
-.kj-stage .kj-element input[type=url],
-.kj-stage .kj-element input[type=text] {
-  padding-left: 2px !important;
-  padding-right: 2px !important;
-}
-.kj-stage .kj-element span.k-maskedtextbox,
-.kj-stage .kj-element span.k-numerictextbox {
-  width: auto;
+  /*
+  .kj-element {
+      input.k-textbox {
+          text-indent: initial;
+      }
+
+      input:not([type]),
+      input[type="email"],
+      input[type="number"],
+      input[type="password"],
+      input[type="tel"],
+      input[type="url"],
+      input[type="text"] {
+          padding-left: 2px !important;
+          padding-right: 2px !important;
+      }
+  }
+   */
 }
 .kj-stage .kj-element-result {
   position: relative;
@@ -36309,6 +36310,18 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 }
 .kj-stage .kj-nopage {
   font-size: xx-large;
+}
+
+.kj-stage span.k-numerictextbox {
+  width: auto;
+}
+
+.kj-stage span.k-maskedtextbox {
+  width: auto;
+}
+
+.kj-stage.kj-review .kj-element[data-tool=variable], .kj-stage.kj-play .kj-element[data-tool=variable] {
+  display: none;
 }
 
 .kj-navigation {
@@ -36651,6 +36664,18 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   margin: 0 0 0 -1px;
   padding-left: 0.4em;
   padding-right: 0.4em;
+}
+
+.kj-stage span.k-numerictextbox {
+  width: auto;
+}
+
+.kj-stage span.k-maskedtextbox {
+  width: auto;
+}
+
+.kj-stage.kj-review .kj-element[data-tool=variable], .kj-stage.kj-play .kj-element[data-tool=variable] {
+  display: none;
 }
 
 .kj-styleeditor .k-grid .k-edit-cell > .k-colorpicker {

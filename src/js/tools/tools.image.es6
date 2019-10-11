@@ -140,44 +140,16 @@ const ImageTool = BaseTool.extend({
         const stageElement = $(e.currentTarget);
         const content = stageElement.children(CONSTANTS.IMG);
         // Assuming we can get the natural size of the image, we shall keep proportions
-        // TODO Cannot get naturalHeight for SVG inages
         const { naturalHeight, naturalWidth } = content[0];
         if (naturalHeight && naturalWidth) {
             const height = component.get('height');
             const width = component.get('width');
-            const rectLimitedByHeight = {
-                height,
-                width: (height * naturalWidth) / naturalHeight
-            };
-            /*
-             // Note: comparing rectLimitedByHeight and rectLimitedByWidth does not work because
-             // we are using the component size and not the mouse position
-             // therefore, we can only reduce the size proportionaly, not increase it
-             var rectLimitedByWidth = {
-                height: Math.round(width * naturalHeight / naturalWidth),
-                width: Math.round(width)
-             };
-             // if (rectLimitedByHeight.height * rectLimitedByHeight.width <= rectLimitedByWidth.height * rectLimitedByWidth.width) {
-             if (rectLimitedByHeight.width <= width) {
-             */
-            if (height !== rectLimitedByHeight.height) {
-                // avoids a stack overflow
-                component.set('height', rectLimitedByHeight.height);
+            // Keep the height, change the width
+            const w = (height * naturalWidth) / naturalHeight;
+            if (width !== w) {
+                // `if` avoids a stack overflow
+                component.set('width', w);
             }
-            if (width !== rectLimitedByHeight.width) {
-                // avoids a stack overflow
-                component.set('width', rectLimitedByHeight.width);
-            }
-            /*
-             } else if(rectLimitedByWidth.height <= height) {
-             if (height !== rectLimitedByWidth.height) {
-             component.set('height', rectLimitedByWidth.height);
-             }
-             if (width !== rectLimitedByWidth.width) {
-             component.set('width', rectLimitedByWidth.width);
-             }
-             }
-             */
         }
         BaseTool.fn.onResize.call(this, e, component);
     },

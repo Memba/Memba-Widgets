@@ -20,7 +20,6 @@ import chaiJquery from 'chai-jquery';
 // import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.unitinput.es6';
 
@@ -37,7 +36,7 @@ const { expect } = chai;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}>`;
 const ROLE = 'unitinput';
-const WIDGET = 'kendoMultiInput';
+const WIDGET = 'kendoUnitInput';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);

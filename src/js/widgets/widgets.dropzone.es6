@@ -35,10 +35,10 @@ const logger = new Logger('widgets.dropzone');
 const NS = '.kendoDropZone';
 const WIDGET_CLASS = 'kj-dropzone'; // 'k-widget kj-dropzone';
 
-const MOUSEDOWN = `mousedown${NS} ` + `touchstart${NS}`;
-const MOUSEMOVE = `mousemove${NS} ` + `touchmove${NS}`;
-const MOUSELEAVE = `mouseleave${NS} ` + `touchleave${NS}`;
-const MOUSEUP = `mouseup${NS} ` + `touchend${NS}`;
+const MOUSEDOWN = `mousedown${NS} touchstart${NS}`;
+const MOUSEMOVE = `mousemove${NS} touchmove${NS}`;
+const MOUSELEAVE = `mouseleave${NS} touchleave${NS}`;
+const MOUSEUP = `mouseup${NS} touchend${NS}`;
 const ROLE_SELECTOR = 'dropzone';
 const DATA_TYPE = 'draggable';
 

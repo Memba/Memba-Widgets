@@ -799,7 +799,7 @@ const Stage = DataBoundWidget.extend({
 
         if (enabled) {
             // Bind properties
-            that._propertyBinding = function() {
+            that._propertyBinding = function _propertyBinding() {
                 const widget = this;
                 if (widget.properties() instanceof ObservableObject) {
                     widget.stage
@@ -1838,9 +1838,7 @@ const Stage = DataBoundWidget.extend({
                         this.stage.focus();
                     }
                 })
-                .catch(err => {
-                    // TODO
-                });
+                .catch($.noop); // TODO error
         }
     },
 

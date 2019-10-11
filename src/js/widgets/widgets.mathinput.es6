@@ -168,7 +168,7 @@ const MathInput = Widget.extend({
         const that = this;
         let i;
         let length;
-        if ($.isArray(value) || value instanceof kendo.data.ObservableArray) {
+        if (Array.isArray(value) || value instanceof kendo.data.ObservableArray) {
             for (i = 0, length = that.mathFields.length; i < length; i++) {
                 if (
                     that.mathFields[i] instanceof MQ.MathField &&
@@ -546,7 +546,7 @@ const MathInput = Widget.extend({
                     /*
                     var matches = e.params.value.match(RX_PARAMS);
                     // TODO: Note _ and ^ might need to be counted too - see log_{}() which requires 3 keystrokes instead of 2
-                    if ($.isArray(matches)) {
+                    if (Array.isArray(matches)) {
                         for (var i = 0, length = matches.length; i < length; i++) {
                             var content = matches[i].replace(/\\[a-z]+/g, '').replace(/\s/g, '');
                             if (content.length === 2) {
@@ -586,7 +586,7 @@ const MathInput = Widget.extend({
      */
     _openDialog(name, options) {
         const dialog = kendo.mathinput.dialogs.create(name, options);
-        if (!$.isArray(this._dialogs)) {
+        if (!Array.isArray(this._dialogs)) {
             this._dialogs = [];
         }
         if (dialog) {
@@ -642,7 +642,7 @@ const MathInput = Widget.extend({
             return that.staticMath.text();
         }
         if (
-            $.isArray(that.mathFields) &&
+            Array.isArray(that.mathFields) &&
             that.mathFields.length === 1 &&
             that.mathFields[0] instanceof MQ.MathField
         ) {
@@ -671,7 +671,7 @@ const MathInput = Widget.extend({
             that.staticMath.revert();
             that.staticMath = undefined;
         } else if (
-            $.isArray(that.mathFields) &&
+            Array.isArray(that.mathFields) &&
             that.mathFields.length === 1 &&
             that.mathFields[0] instanceof MQ.MathField
         ) {

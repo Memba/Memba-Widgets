@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO: use the scheme2http function ot ToolAssets
+// TODO: use the scheme2http function of ToolAssets
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -107,10 +107,11 @@ const Helper = Widget.extend({
         const { md } = this;
         const defaultRender =
             md.renderer.rules.link_open ||
-            function(tokens, idx, options, env, self) {
+            function defaultRender(tokens, idx, options, env, self) {
                 return self.renderToken(tokens, idx, options);
             };
-        md.renderer.rules.link_open = function(
+        // eslint-disable-next-line camelcase
+        md.renderer.rules.link_open = function link_open(
             tokens,
             idx,
             options,

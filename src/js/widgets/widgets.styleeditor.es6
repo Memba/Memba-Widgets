@@ -424,7 +424,7 @@ const StyleEditor = DataBoundWidget.extend({
                 const styles = ret.split(CONSTANTS.SEMICOLON);
                 for (i = 0; i < styles.length; i++) {
                     const style = styles[i].split(CONSTANTS.COLON);
-                    if ($.isArray(style) && style.length === 2) {
+                    if (Array.isArray(style) && style.length === 2) {
                         data.push({
                             name: style[0].trim(),
                             value: style[1].trim()
@@ -586,14 +586,14 @@ const StyleEditor = DataBoundWidget.extend({
         const found = CSS_STYLES.filter(item => item.name === name);
         // Switch to the corresponding editor or fallback to a simple textbox
         if (
-            $.isArray(found) &&
+            Array.isArray(found) &&
             found.length &&
             found[0] &&
             $.isFunction(found[0].editor)
         ) {
             return found[0].editor.bind(that)(container, options);
         }
-        const textbox = $(
+        $(
             `<input type="text" name="value" class="k-textbox" data-bind="value: ${options.field}" required data-required-msg="${that.options.messages.validation.value}">`
         ).appendTo(container);
         $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(

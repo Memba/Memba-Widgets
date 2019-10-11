@@ -399,7 +399,7 @@
                         return tool;
                     }
                     return tools.reduce(function(tools, tool) {
-                        if ($.isArray(tool)) {
+                        if (Array.isArray(tool)) {
                             tools.push({
                                 type: 'buttonGroup',
                                 buttons: tool.map(expandTool)

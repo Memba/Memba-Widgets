@@ -98,7 +98,7 @@ const UnitInput = Widget.extend({
         } else if (element.val() !== value) {
             const matches = value.match(RX_UNIT);
             if (
-                $.isArray(matches) &&
+                Array.isArray(matches) &&
                 matches.length === 3 // &&
                 // options.units.indexOf(matches[2]) !== -1
             ) {

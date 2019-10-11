@@ -22,6 +22,7 @@ const {
     data: { ObservableArray },
     destroy,
     format,
+    notify,
     ns,
     roleSelector,
     support,
@@ -371,7 +372,7 @@ const Navigation = DataBoundWidget.extend({
                 this._onClick.bind(this)
             );
         // TODO debugger;
-        kendo.notify(this);
+        notify(this);
     },
 
     /**
@@ -539,14 +540,18 @@ const Navigation = DataBoundWidget.extend({
             pages.forEach(page => {
                 that._addItem(page);
             });
-        } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
+        } else if (
+            e.action === 'add' &&
+            Array.isArray(e.items) &&
+            e.items.length
+        ) {
             e.items.forEach(page => {
                 selectedIndex = that.dataSource.indexOf(page);
                 that._addItem(page, selectedIndex);
             });
         } else if (
             e.action === 'remove' &&
-            $.isArray(e.items) &&
+            Array.isArray(e.items) &&
             e.items.length
         ) {
             e.items.forEach(page => {

@@ -404,7 +404,7 @@ const PropertyGrid = Widget.extend({
      */
     _hash(rows) {
         let ret = null;
-        if ($.isArray(rows)) {
+        if (Array.isArray(rows)) {
             ret = {};
             $.each(rows, (index, row) => {
                 // check fields like attributes.src

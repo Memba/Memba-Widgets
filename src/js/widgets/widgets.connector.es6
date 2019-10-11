@@ -325,6 +325,7 @@ const Connector = DataBoundWidget.extend({
                 CONSTANTS.DOT + WIDGET_CLASS,
                 e => {
                     if (element instanceof $ && path instanceof Path) {
+                        /* eslint-disable prettier/prettier */
                         const targetElement =
                             e.originalEvent && e.originalEvent.changedTouches
                                 ? document.elementFromPoint(
@@ -332,6 +333,7 @@ const Connector = DataBoundWidget.extend({
                                     e.originalEvent.changedTouches[0].clientY
                                 )
                                 : e.currentTarget;
+                        /* eslint-enable prettier/prettier */
                         target = $(targetElement).closest(
                             CONSTANTS.DOT + WIDGET_CLASS
                         );

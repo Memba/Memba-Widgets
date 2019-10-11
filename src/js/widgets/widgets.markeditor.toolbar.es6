@@ -278,7 +278,7 @@ const MarkEditorToolBar = ToolBar.extend({
             return tool;
         }
         return tools.reduce(function(all, tool) {
-            if ($.isArray(tool)) {
+            if (Array.isArray(tool)) {
                 all.push({
                     type: 'buttonGroup',
                     buttons: tool.map(expandTool)
@@ -361,7 +361,7 @@ const MarkEditorToolBar = ToolBar.extend({
      */
     /*
             refresh: function (selection) {
-                if ($.isArray(selected) && selected.length !== 1) {
+                if (Array.isArray(selected) && selected.length !== 1) {
                     // For now, we disable fill and stroke buttons on multiple selections
                     // TODO: Disable toolbar options
                     return;

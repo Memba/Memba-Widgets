@@ -45,9 +45,9 @@ function head(content) {
     );
     const yml = {};
     const ymlMatches = content.match(RX_YML);
-    if ($.isArray(ymlMatches) && ymlMatches.length > 1) {
+    if (Array.isArray(ymlMatches) && ymlMatches.length > 1) {
         const keyvalMatches = ymlMatches[1].match(RX_KEYVAL);
-        if ($.isArray(keyvalMatches) && keyvalMatches.length) {
+        if (Array.isArray(keyvalMatches) && keyvalMatches.length) {
             for (let i = 0; i < keyvalMatches.length; i++) {
                 const keyval = keyvalMatches[i];
                 const pos = keyval.indexOf(':');
@@ -167,7 +167,13 @@ const Markdown = Widget.extend({
      */
     _initHljs() {
         const { md } = this;
-        md.renderer.rules.fence = function(tokens, idx, options, env, self) {
+        md.renderer.rules.fence = function fence(
+            tokens,
+            idx,
+            options,
+            env,
+            self
+        ) {
             const { escapeHtml, unescapeAll } = md.utils;
             const token = tokens[idx];
             const info = token.info
@@ -201,10 +207,11 @@ const Markdown = Widget.extend({
         const { md } = this;
         const defaultRender =
             md.renderer.rules.link_open ||
-            function(tokens, idx, options, env, self) {
+            function defaultRender(tokens, idx, options, env, self) {
                 return self.renderToken(tokens, idx, options);
             };
-        md.renderer.rules.link_open = function(
+        // eslint-disable-next-line camelcase
+        md.renderer.rules.link_open = function link_open(
             tokens,
             idx,
             options,

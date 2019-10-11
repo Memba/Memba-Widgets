@@ -1382,7 +1382,7 @@ const AssetManager = Widget.extend({
         const value = $(e.target).val();
         const search = { field: 'url', operator: 'contains', value };
         if ($.type(value) === CONSTANTS.STRING && value.length) {
-            if ($.isArray(filter)) {
+            if (Array.isArray(filter)) {
                 // We assume all array items are valid filters
                 filter = filter.slice().push(search);
             } else if (
@@ -1395,13 +1395,13 @@ const AssetManager = Widget.extend({
             } else if (
                 $.isPlainObject(filter) &&
                 filter.logic === 'and' &&
-                $.isArray(filter.filters)
+                Array.isArray(filter.filters)
             ) {
                 filter = $.extend(true, {}, filter).filters.push(search);
             } else if (
                 $.isPlainObject(filter) &&
                 filter.logic === 'or' &&
-                $.isArray(filter.filters)
+                Array.isArray(filter.filters)
             ) {
                 filter = { logic: 'and', filters: [filter, search] };
             } else {
@@ -1575,7 +1575,7 @@ const AssetManager = Widget.extend({
         );
         const listView = e.sender; // Do not use this.listView because it might not yet have been assigned.
         this._computeStorageSize();
-        if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
+        if (e.action === 'add' && Array.isArray(e.items) && e.items.length) {
             listView._dataBoundUid = e.items[e.items.length - 1].uid;
         } else if (
             e.action === 'sync' &&

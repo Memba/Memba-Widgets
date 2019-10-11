@@ -90,7 +90,6 @@ describe('widgets.stage', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
-            debugger;
             expect(widget.dataSource).to.be.an.instanceof(
                 PageComponentDataSource
             );

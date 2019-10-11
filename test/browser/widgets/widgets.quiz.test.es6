@@ -284,7 +284,6 @@ describe('widgets.quiz', () => {
                 expect(widget.value()).to.equal(value);
                 expect(viewModel.get('current')).to.equal(value);
                 expect(change).to.have.callCount(i + 1);
-                debugger;
                 expect(
                     widget.element.find(`button.kj-widget-button:eq(${i})`)
                 ).to.have.class('k-state-selected');

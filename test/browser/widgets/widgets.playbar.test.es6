@@ -173,11 +173,9 @@ describe('widgets.playbar', () => {
     describe('Initialization', () => {
         it('from code with all options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPlayBar({
-                    input: true
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                input: true
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.total()).to.equal(0);
@@ -202,16 +200,14 @@ describe('widgets.playbar', () => {
 
         it('from code with minimal options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPlayBar({
-                    numeric: false,
-                    info: false,
-                    input: false,
-                    previousNext: false,
-                    tick: false,
-                    refresh: false
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                numeric: false,
+                info: false,
+                input: false,
+                previousNext: false,
+                tick: false,
+                refresh: false
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.total()).to.equal(0);
@@ -237,11 +233,9 @@ describe('widgets.playbar', () => {
 
         it('from code with dataSource', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPlayBar({
-                    dataSource: pageCollectionData1
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                dataSource: pageCollectionData1
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.total()).to.equal(
@@ -268,11 +262,9 @@ describe('widgets.playbar', () => {
 
         it('from code with large dataSource and options.buttonCount', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPlayBar({
-                    dataSource: pageCollectionData2
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                dataSource: pageCollectionData2
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.total()).to.equal(
@@ -338,11 +330,9 @@ describe('widgets.playbar', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoPlayBar({
-                    dataSource: pageCollectionData1
-                })
-                .data(WIDGET);
+            widget = element[WIDGET]({
+                dataSource: pageCollectionData1
+            }).data(WIDGET);
         });
 
         it('length', () => {
@@ -536,17 +526,15 @@ describe('widgets.playbar', () => {
         it('dataBinding & dataBound', () => {
             const dataBinding = sinon.spy();
             const dataBound = sinon.spy();
-            widget = element
-                .kendoPlayBar({
-                    dataSource: pageCollectionData2,
-                    dataBinding(e) {
-                        dataBinding(e.sender);
-                    },
-                    dataBound(e) {
-                        dataBound(e.sender);
-                    }
-                })
-                .data(WIDGET);
+            widget = element[WIDGET]({
+                dataSource: pageCollectionData2,
+                dataBinding(e) {
+                    dataBinding(e.sender);
+                },
+                dataBound(e) {
+                    dataBound(e.sender);
+                }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(dataBinding).to.have.been.calledOnce;
@@ -558,14 +546,12 @@ describe('widgets.playbar', () => {
 
         it('change', () => {
             const change = sinon.spy();
-            widget = element
-                .kendoPlayBar({
-                    dataSource: pageCollectionData1,
-                    change(e) {
-                        change(e.value);
-                    }
-                })
-                .data(WIDGET);
+            widget = element[WIDGET]({
+                dataSource: pageCollectionData1,
+                change(e) {
+                    change(e.value);
+                }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.data())

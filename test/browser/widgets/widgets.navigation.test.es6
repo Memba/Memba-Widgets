@@ -87,11 +87,9 @@ describe('widgets.navigation', () => {
         it('from code with dataSource', () => {
             const data = getPageArray();
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoNavigation({
-                    dataSource: data
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                dataSource: data
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(widget.dataSource.data())
@@ -136,11 +134,9 @@ describe('widgets.navigation', () => {
         beforeEach(() => {
             data = getPageArray();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element
-                .kendoNavigation({
-                    dataSource: data
-                })
-                .data(WIDGET);
+            widget = element[WIDGET]({
+                dataSource: data
+            }).data(WIDGET);
         });
 
         it('length', () => {
@@ -328,17 +324,15 @@ describe('widgets.navigation', () => {
         it('dataBinding & dataBound', () => {
             const dataBinding = sinon.spy();
             const dataBound = sinon.spy();
-            widget = element
-                .kendoNavigation({
-                    dataSource: data,
-                    dataBinding(e) {
-                        dataBinding(e.sender);
-                    },
-                    dataBound(e) {
-                        dataBound(e.sender);
-                    }
-                })
-                .data(WIDGET);
+            widget = element[WIDGET]({
+                dataSource: data,
+                dataBinding(e) {
+                    dataBinding(e.sender);
+                },
+                dataBound(e) {
+                    dataBound(e.sender);
+                }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
             expect(dataBinding).to.have.been.calledOnce;
@@ -350,14 +344,12 @@ describe('widgets.navigation', () => {
 
         it('change', () => {
             const change = sinon.spy();
-            widget = element
-                .kendoNavigation({
-                    dataSource: data,
-                    change(e) {
-                        change(e.value);
-                    }
-                })
-                .data(WIDGET);
+            widget = element[WIDGET]({
+                dataSource: data,
+                change(e) {
+                    change(e.value);
+                }
+            }).data(WIDGET);
             expect(change).not.to.have.been.called;
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);

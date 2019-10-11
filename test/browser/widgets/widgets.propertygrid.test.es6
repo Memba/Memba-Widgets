@@ -93,14 +93,14 @@ describe('widgets.propertygrid', () => {
     describe('Basic Initialization', () => {
         it('from code without option', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoPropertyGrid().data(WIDGET);
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 0);
         });
 
         it('from code with bad options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoPropertyGrid([]).data(WIDGET);
+            const widget = element[WIDGET]([]).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 0);
         });
@@ -109,11 +109,9 @@ describe('widgets.propertygrid', () => {
     describe('String Initialization', () => {
         it('string object value', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 'Sample' }
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: 'Sample' }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -138,12 +136,10 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with basic rows options (title only)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 'Sample' },
-                    rows: [{ field: 'sample', title: 'Another sample' }]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: 'Sample' },
+                rows: [{ field: 'sample', title: 'Another sample' }]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -168,18 +164,16 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with textarea editor', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 'Sample' },
-                    rows: [
-                        {
-                            field: 'sample',
-                            title: 'Another sample',
-                            editor: 'textarea'
-                        }
-                    ]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: 'Sample' },
+                rows: [
+                    {
+                        field: 'sample',
+                        title: 'Another sample',
+                        editor: 'textarea'
+                    }
+                ]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -203,19 +197,17 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with span editor and attributes', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 'Sample' },
-                    rows: [
-                        {
-                            field: 'sample',
-                            title: 'Another sample',
-                            editor: 'span',
-                            attributes: { style: 'color: red;' }
-                        }
-                    ]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: 'Sample' },
+                rows: [
+                    {
+                        field: 'sample',
+                        title: 'Another sample',
+                        editor: 'span',
+                        attributes: { style: 'color: red;' }
+                    }
+                ]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -240,12 +232,10 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with kendo widget (color picker)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: '#ffffff' },
-                    rows: [{ field: 'sample', editor: 'colorpicker' }]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: '#ffffff' },
+                rows: [{ field: 'sample', editor: 'colorpicker' }]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -271,25 +261,21 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with custom widget', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 'W1N 1AC' },
-                    rows: [
-                        {
-                            field: 'sample',
-                            editor(container, options) {
-                                $(
-                                    `<input data-bind="value: ${options.field}"/>`
-                                )
-                                    .appendTo(container)
-                                    .kendoMaskedTextBox({
-                                        mask: 'L0L 0LL'
-                                    });
-                            }
+            const widget = element[WIDGET]({
+                value: { sample: 'W1N 1AC' },
+                rows: [
+                    {
+                        field: 'sample',
+                        editor(container, options) {
+                            $(`<input data-bind="value: ${options.field}"/>`)
+                                .appendTo(container)
+                                .kendoMaskedTextBox({
+                                    mask: 'L0L 0LL'
+                                });
                         }
-                    ]
-                })
-                .data(WIDGET);
+                    }
+                ]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -325,12 +311,10 @@ describe('widgets.propertygrid', () => {
                     }
                 }
             });
-            const widget = element
-                .kendoPropertyGrid({
-                    value: new Sample({ sample: 'Sample' }),
-                    rows: [{ field: 'sample' }]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: new Sample({ sample: 'Sample' }),
+                rows: [{ field: 'sample' }]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -362,18 +346,16 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with template', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 'Sample' },
-                    rows: [
-                        {
-                            field: 'sample',
-                            template:
-                                '<div style="border: dashed 1px \\#000000;" data-bind="text: sample"></div>'
-                        }
-                    ]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: 'Sample' },
+                rows: [
+                    {
+                        field: 'sample',
+                        template:
+                            '<div style="border: dashed 1px \\#000000;" data-bind="text: sample"></div>'
+                    }
+                ]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -397,14 +379,10 @@ describe('widgets.propertygrid', () => {
 
         xit('string object value with basic rows options (title only)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: { subvalue: 'Sample' } },
-                    rows: [
-                        { field: 'sample.subvalue', title: 'Another sample' }
-                    ]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: { subvalue: 'Sample' } },
+                rows: [{ field: 'sample.subvalue', title: 'Another sample' }]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -431,11 +409,9 @@ describe('widgets.propertygrid', () => {
     describe('Number Initialization', () => {
         it('number object value', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 3 }
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: 3 }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -463,12 +439,10 @@ describe('widgets.propertygrid', () => {
 
         it('number object value with basic rows options (title only)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 5.41 },
-                    rows: [{ field: 'sample', title: 'Another sample' }]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: 5.41 },
+                rows: [{ field: 'sample', title: 'Another sample' }]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -495,14 +469,10 @@ describe('widgets.propertygrid', () => {
 
         it('number object value with kendo editor (slider)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 5.41 },
-                    rows: [
-                        { field: 'sample', title: 'Slider', editor: 'slider' }
-                    ]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: 5.41 },
+                rows: [{ field: 'sample', title: 'Slider', editor: 'slider' }]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -529,51 +499,47 @@ describe('widgets.propertygrid', () => {
 
         it('number object value with custom widget', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 3 },
-                    rows: [
-                        {
-                            field: 'sample',
-                            title: 'Category',
-                            editor(container, options) {
-                                $(
-                                    `<input data-bind="value: ${options.field}"/>`
-                                )
-                                    .appendTo(container)
-                                    .kendoDropDownList({
-                                        autoBind: false,
-                                        dataTextField: 'CategoryName',
-                                        dataValueField: 'CategoryID',
-                                        valuePrimitive: false,
-                                        dataSource: [
-                                            {
-                                                CategoryID: 1,
-                                                CategoryName: 'Maths'
-                                            },
-                                            {
-                                                CategoryID: 2,
-                                                CategoryName: 'Physics'
-                                            },
-                                            {
-                                                CategoryID: 3,
-                                                CategoryName: 'English'
-                                            },
-                                            {
-                                                CategoryID: 4,
-                                                CategoryName: 'History'
-                                            },
-                                            {
-                                                CategoryID: 5,
-                                                CategoryName: 'Geography'
-                                            }
-                                        ]
-                                    });
-                            }
+            const widget = element[WIDGET]({
+                value: { sample: 3 },
+                rows: [
+                    {
+                        field: 'sample',
+                        title: 'Category',
+                        editor(container, options) {
+                            $(`<input data-bind="value: ${options.field}"/>`)
+                                .appendTo(container)
+                                .kendoDropDownList({
+                                    autoBind: false,
+                                    dataTextField: 'CategoryName',
+                                    dataValueField: 'CategoryID',
+                                    valuePrimitive: false,
+                                    dataSource: [
+                                        {
+                                            CategoryID: 1,
+                                            CategoryName: 'Maths'
+                                        },
+                                        {
+                                            CategoryID: 2,
+                                            CategoryName: 'Physics'
+                                        },
+                                        {
+                                            CategoryID: 3,
+                                            CategoryName: 'English'
+                                        },
+                                        {
+                                            CategoryID: 4,
+                                            CategoryName: 'History'
+                                        },
+                                        {
+                                            CategoryID: 5,
+                                            CategoryName: 'Geography'
+                                        }
+                                    ]
+                                });
                         }
-                    ]
-                })
-                .data(WIDGET);
+                    }
+                ]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -602,11 +568,9 @@ describe('widgets.propertygrid', () => {
     describe('Date Initialization', () => {
         it('date object value', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: new Date(1966, 2, 14) }
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: new Date(1966, 2, 14) }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -633,12 +597,10 @@ describe('widgets.propertygrid', () => {
 
         it('date object value with basic rows options (title only)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: new Date(1966, 2, 14) },
-                    rows: [{ field: 'sample', title: 'Another sample' }]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: new Date(1966, 2, 14) },
+                rows: [{ field: 'sample', title: 'Another sample' }]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -665,18 +627,16 @@ describe('widgets.propertygrid', () => {
 
         it('date object value with kendo editor (datetimepicker)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: new Date(1966, 2, 14) },
-                    rows: [
-                        {
-                            field: 'sample',
-                            title: 'Date & Time Picker',
-                            editor: 'datetimepicker'
-                        }
-                    ]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: new Date(1966, 2, 14) },
+                rows: [
+                    {
+                        field: 'sample',
+                        title: 'Date & Time Picker',
+                        editor: 'datetimepicker'
+                    }
+                ]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -703,22 +663,20 @@ describe('widgets.propertygrid', () => {
 
         it('date object value with custom widget', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: new Date(1966, 2, 14) },
-                    rows: [
-                        {
-                            field: 'sample',
-                            title: 'Birthday',
-                            editor(container, options) {
-                                $(
-                                    `<span data-bind="text: ${options.field}"/>`
-                                ).appendTo(container);
-                            }
+            const widget = element[WIDGET]({
+                value: { sample: new Date(1966, 2, 14) },
+                rows: [
+                    {
+                        field: 'sample',
+                        title: 'Birthday',
+                        editor(container, options) {
+                            $(
+                                `<span data-bind="text: ${options.field}"/>`
+                            ).appendTo(container);
                         }
-                    ]
-                })
-                .data(WIDGET);
+                    }
+                ]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -744,11 +702,9 @@ describe('widgets.propertygrid', () => {
     describe('Boolean Initialization', () => {
         it('boolean object value', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: true }
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: true }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -775,21 +731,19 @@ describe('widgets.propertygrid', () => {
 
         it('boolean object value with basic rows options (title and attributes)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: true },
-                    rows: [
-                        {
-                            field: 'sample',
-                            title: 'Another sample',
-                            attributes: {
-                                'data-off-label': 'No',
-                                'data-on-label': 'Yes'
-                            }
+            const widget = element[WIDGET]({
+                value: { sample: true },
+                rows: [
+                    {
+                        field: 'sample',
+                        title: 'Another sample',
+                        attributes: {
+                            'data-off-label': 'No',
+                            'data-on-label': 'Yes'
                         }
-                    ]
-                })
-                .data(WIDGET);
+                    }
+                ]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -819,22 +773,20 @@ describe('widgets.propertygrid', () => {
 
         it('boolean object value with custom widget', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: new Date(1966, 2, 14) },
-                    rows: [
-                        {
-                            field: 'sample',
-                            title: 'Birthday',
-                            editor(container, options) {
-                                $(
-                                    `<input type="checkbox" data-bind="checked: ${options.field}"/>`
-                                ).appendTo(container);
-                            }
+            const widget = element[WIDGET]({
+                value: { sample: new Date(1966, 2, 14) },
+                rows: [
+                    {
+                        field: 'sample',
+                        title: 'Birthday',
+                        editor(container, options) {
+                            $(
+                                `<input type="checkbox" data-bind="checked: ${options.field}"/>`
+                            ).appendTo(container);
                         }
-                    ]
-                })
-                .data(WIDGET);
+                    }
+                ]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -861,68 +813,64 @@ describe('widgets.propertygrid', () => {
     describe('Composite Object Initialization', () => {
         it('from code with object value only', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: {
-                        firstName: 'John',
-                        lastName: 'Smith',
-                        dateOfBirth: new Date(1966, 2, 14),
-                        children: 3,
-                        male: true
-                    }
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: {
+                    firstName: 'John',
+                    lastName: 'Smith',
+                    dateOfBirth: new Date(1966, 2, 14),
+                    children: 3,
+                    male: true
+                }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, Object.keys(widget.value()).length);
         });
 
         it('from code with object value and rows options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: {
-                        title: 'Google',
-                        description: 'A nice logo',
-                        category: 'Companies',
-                        image: 'http://www.kidoju.com/logo.png',
-                        backgroundColor: '#FFFFFF',
-                        created: new Date(),
-                        scale: 1,
-                        active: true
+            const widget = element[WIDGET]({
+                value: {
+                    title: 'Google',
+                    description: 'A nice logo',
+                    category: 'Companies',
+                    image: 'http://www.kidoju.com/logo.png',
+                    backgroundColor: '#FFFFFF',
+                    created: new Date(),
+                    scale: 1,
+                    active: true
+                },
+                rows: [
+                    { field: 'title', title: 'Title' },
+                    {
+                        field: 'description',
+                        title: 'Description',
+                        editor: 'textarea'
                     },
-                    rows: [
-                        { field: 'title', title: 'Title' },
-                        {
-                            field: 'description',
-                            title: 'Description',
-                            editor: 'textarea'
-                        },
-                        {
-                            field: 'category',
-                            title: 'Category',
-                            editor(container, options) {
-                                $(
-                                    `<input data-bind="value: ${options.field}"/>`
-                                ).appendTo(container);
-                            }
-                        },
-                        { field: 'image', title: 'Image', editor: 'url' },
-                        {
-                            field: 'backgroundColor',
-                            title: 'Colour',
-                            editor: 'colorpicker'
-                        },
-                        {
-                            field: 'created',
-                            title: 'Creation Date',
-                            editor: 'datepicker',
-                            format: 'dd MMM yyyy'
-                        },
-                        { field: 'scale', title: 'Scale', editor: 'slider' } // ,
-                        // { field: 'active', title: 'Active' }
-                    ]
-                })
-                .data(WIDGET);
+                    {
+                        field: 'category',
+                        title: 'Category',
+                        editor(container, options) {
+                            $(
+                                `<input data-bind="value: ${options.field}"/>`
+                            ).appendTo(container);
+                        }
+                    },
+                    { field: 'image', title: 'Image', editor: 'url' },
+                    {
+                        field: 'backgroundColor',
+                        title: 'Colour',
+                        editor: 'colorpicker'
+                    },
+                    {
+                        field: 'created',
+                        title: 'Creation Date',
+                        editor: 'datepicker',
+                        format: 'dd MMM yyyy'
+                    },
+                    { field: 'scale', title: 'Scale', editor: 'slider' } // ,
+                    // { field: 'active', title: 'Active' }
+                ]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             // One row has been commented out and should not be displayed
             validateGridHtml(element, Object.keys(widget.value()).length - 1);
@@ -963,12 +911,10 @@ describe('widgets.propertygrid', () => {
                     }
                 }
             });
-            const widget = element
-                .kendoPropertyGrid({
-                    value: new Sample({ id: guid(), sample: null }),
-                    rows: [{ field: 'sample' }]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: new Sample({ id: guid(), sample: null }),
+                rows: [{ field: 'sample' }]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -991,12 +937,10 @@ describe('widgets.propertygrid', () => {
                     }
                 }
             });
-            const widget = element
-                .kendoPropertyGrid({
-                    value: new Sample({ id: guid(), sample: 'sample' }),
-                    rows: [{ field: 'sample' }]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: new Sample({ id: guid(), sample: 'sample' }),
+                rows: [{ field: 'sample' }]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -1008,23 +952,21 @@ describe('widgets.propertygrid', () => {
 
         it('min, max, step', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: -100 },
-                    rows: [
-                        {
-                            field: 'sample',
-                            editor: 'input',
-                            attributes: {
-                                type: 'number',
-                                min: 0,
-                                max: 10,
-                                step: 1
-                            }
+            const widget = element[WIDGET]({
+                value: { sample: -100 },
+                rows: [
+                    {
+                        field: 'sample',
+                        editor: 'input',
+                        attributes: {
+                            type: 'number',
+                            min: 0,
+                            max: 10,
+                            step: 1
                         }
-                    ]
-                })
-                .data(WIDGET);
+                    }
+                ]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -1038,12 +980,10 @@ describe('widgets.propertygrid', () => {
 
         it('url', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 'Sample' },
-                    rows: [{ field: 'sample', attributes: { type: 'url' } }]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: 'Sample' },
+                rows: [{ field: 'sample', attributes: { type: 'url' } }]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -1055,12 +995,10 @@ describe('widgets.propertygrid', () => {
 
         it('email', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 'Sample' },
-                    rows: [{ field: 'sample', attributes: { type: 'email' } }]
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: { sample: 'Sample' },
+                rows: [{ field: 'sample', attributes: { type: 'email' } }]
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -1072,25 +1010,22 @@ describe('widgets.propertygrid', () => {
 
         it('custom validation rules', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: { sample: 'Sample' },
-                    validation: {
-                        messages: {
-                            custom:
-                                'Please enter a valid value for my custom rule'
-                        },
-                        rules: {
-                            custom(input) {
-                                if (input.is('[name="sample"]')) {
-                                    return input.val() === 'Tom';
-                                }
-                                return true;
+            const widget = element[WIDGET]({
+                value: { sample: 'Sample' },
+                validation: {
+                    messages: {
+                        custom: 'Please enter a valid value for my custom rule'
+                    },
+                    rules: {
+                        custom(input) {
+                            if (input.is('[name="sample"]')) {
+                                return input.val() === 'Tom';
                             }
+                            return true;
                         }
                     }
-                })
-                .data(WIDGET);
+                }
+            }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -1106,7 +1041,7 @@ describe('widgets.propertygrid', () => {
     describe('Methods', () => {
         it('Get/set value', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element.kendoPropertyGrid().data(WIDGET);
+            const widget = element[WIDGET]().data(WIDGET);
             function fn() {
                 widget.value(1);
             }
@@ -1134,17 +1069,15 @@ describe('widgets.propertygrid', () => {
 
         it('Get/set rows', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: {
-                        firstName: 'John',
-                        lastName: 'Smith',
-                        dateOfBirth: new Date(1966, 2, 14),
-                        married: true,
-                        children: 3
-                    }
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: {
+                    firstName: 'John',
+                    lastName: 'Smith',
+                    dateOfBirth: new Date(1966, 2, 14),
+                    married: true,
+                    children: 3
+                }
+            }).data(WIDGET);
             function fn() {
                 widget.rows(1);
             }
@@ -1167,17 +1100,15 @@ describe('widgets.propertygrid', () => {
 
         it('Destroy', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element
-                .kendoPropertyGrid({
-                    value: {
-                        firstName: 'John',
-                        lastName: 'Smith',
-                        dateOfBirth: new Date(1966, 2, 14),
-                        married: true,
-                        children: 3
-                    }
-                })
-                .data(WIDGET);
+            const widget = element[WIDGET]({
+                value: {
+                    firstName: 'John',
+                    lastName: 'Smith',
+                    dateOfBirth: new Date(1966, 2, 14),
+                    married: true,
+                    children: 3
+                }
+            }).data(WIDGET);
             widget.destroy();
         });
     });

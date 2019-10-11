@@ -19,7 +19,7 @@ import BaseAdapter from './adapters.base.es6';
 import ToolAssets from './util.assets.es6';
 
 const {
-    ui: { ButtonBox, BaseDialog }
+    ui: { BaseDialog }
 } = window.kendo;
 
 /**

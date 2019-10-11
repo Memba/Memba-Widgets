@@ -471,10 +471,10 @@ const res = {
 
     // numericbox
     numericbox: {
-        description: 'Numeric box',
+        description: 'Numeric Box',
         help: 'TODO',
         icon: 'odometer',
-        name: 'Numeric box',
+        name: 'Numeric Box',
         attributes: {
             decimals: { title: 'Decimals' },
             min: { title: 'Minimum' },
@@ -668,10 +668,10 @@ const res = {
 
     // textgaps
     textgaps: {
-        description: 'Text gap',
+        description: 'Text gaps',
         help: 'TODO',
         icon: 'text_gaps',
-        name: 'Text gap',
+        name: 'Text gaps',
         attributes: {
             inputStyle: { title: 'Input Style' },
             style: { title: 'Style' },
@@ -699,14 +699,22 @@ const res = {
     },
 
     // variable
-    // TODO
     variable: {
-        description: 'TODO',
+        description: 'Calculated variable',
         help: 'TODO',
         icon: 'magic_wand',
-        name: 'TODO',
-        attributes: {},
-        properties: {}
+        name: 'Variable',
+        // attributes: {},
+        properties: {
+            expression: {
+                help: 'Enter a calculated expression',
+                title: 'Expression'
+            },
+            variable: {
+                help: 'Enter a variable name',
+                title: 'Variable'
+            }
+        }
     },
 
     // video

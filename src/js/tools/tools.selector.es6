@@ -23,7 +23,7 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
+import { questionValidator, scoreValidator } from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -49,7 +49,7 @@ const SelectorTool = BaseTool.extend({
     height: 50,
     width: 50,
     weight: 1,
-    // MENU: [],
+    MENU: ['properties.question', 'properties.solution'],
     templates: {
         design:
             '<img src="https://cdn.kidoju.com/images/o_collection/svg/office/selector.svg" alt="selector">',
@@ -108,9 +108,12 @@ const SelectorTool = BaseTool.extend({
             title: __('tools.selector.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.selector.properties.question.title')
+            help: __('tools.selector.properties.question.help'),
+            title: __('tools.selector.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new BasicListAdapter({
+            help: __('tools.selector.properties.solution.help'),
             title: __('tools.selector.properties.solution.title')
         }),
         validation: new ValidationAdapter({
@@ -119,23 +122,23 @@ const SelectorTool = BaseTool.extend({
             title: __('tools.selector.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.selector.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.selector.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.selector.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.selector.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.selector.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.selector.properties.omit.title'),
             validation: scoreValidator
         }),
         disabled: new DisabledAdapter({
-            title: __('tools.selector.properties.disabled.title'),
-            defaultValue: false
+            defaultValue: false,
+            title: __('tools.selector.properties.disabled.title')
         })
     },
 

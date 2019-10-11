@@ -127,18 +127,18 @@ const NumericBoxTool = BaseTool.extend({
             title: __('tools.numericbox.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.numericbox.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.numericbox.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.numericbox.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.numericbox.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.numericbox.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.numericbox.properties.omit.title'),
             validation: scoreValidator
         })
     },

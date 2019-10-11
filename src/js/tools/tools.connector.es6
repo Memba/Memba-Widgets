@@ -20,7 +20,7 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
+import { questionValidator, scoreValidator } from './util.validators.es6';
 
 const {
     format,
@@ -54,7 +54,7 @@ const ConnectorTool = BaseTool.extend({
     height: 70,
     width: 70,
     weight: 0.25,
-    // menu: [],
+    menu: ['properties.question', 'properties.solution'],
     templates: {
         design: format(TEMPLATE, `${DISABLED} ${NO_SURFACE}`),
         play: format(TEMPLATE, BINDING),
@@ -73,9 +73,12 @@ const ConnectorTool = BaseTool.extend({
             title: __('tools.connector.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.connector.properties.question.title')
+            help: __('tools.connector.properties.question.help'),
+            title: __('tools.connector.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new ConnectorAdapter({
+            help: __('tools.connector.properties.solution.help'),
             title: __('tools.connector.properties.solution.title')
         }),
         validation: new ValidationAdapter({
@@ -84,23 +87,23 @@ const ConnectorTool = BaseTool.extend({
             title: __('tools.connector.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.connector.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.connector.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.connector.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.connector.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.connector.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.connector.properties.omit.title'),
             validation: scoreValidator
         }),
         disabled: new DisabledAdapter({
-            title: __('tools.connector.properties.disabled.title'),
-            defaultValue: false
+            defaultValue: false,
+            title: __('tools.connector.properties.disabled.title')
         })
     },
 

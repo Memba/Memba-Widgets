@@ -54,7 +54,7 @@ const HighLighterTool = BaseTool.extend({
     height: 250,
     width: 250,
     weight: 1,
-    // menu: [],
+    menu: ['properties.question', 'properties.solution'],
     templates: {
         design: format(TEMPLATE, DISABLED),
         play: format(TEMPLATE, BINDING),
@@ -84,10 +84,12 @@ const HighLighterTool = BaseTool.extend({
             title: __('tools.highlighter.properties.name.title')
         }),
         question: new QuestionAdapter({
+            help: __('tools.highlighter.properties.question.help'),
             title: __('tools.highlighter.properties.question.title'),
             validator: questionValidator
         }),
         solution: new HighLighterAdapter({
+            help: __('tools.highlighter.properties.solution.help'),
             title: __('tools.highlighter.properties.solution.title')
         }),
         validation: new ValidationAdapter({
@@ -96,18 +98,18 @@ const HighLighterTool = BaseTool.extend({
             title: __('tools.highlighter.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.highlighter.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.highlighter.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.highlighter.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.highlighter.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.highlighter.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.highlighter.properties.omit.title'),
             validation: scoreValidator
         })
     },

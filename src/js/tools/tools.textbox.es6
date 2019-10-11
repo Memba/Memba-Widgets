@@ -101,18 +101,18 @@ const TextBoxTool = BaseTool.extend({
             validation: validationValidator
         }),
         success: new ScoreAdapter({
-            title: __('tools.textbox.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.textbox.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.textbox.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.textbox.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.textbox.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.textbox.properties.omit.title'),
             validation: scoreValidator
         })
     },

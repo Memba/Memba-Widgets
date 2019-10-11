@@ -26,7 +26,7 @@ import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 import { multiQuizLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
+import { questionValidator, scoreValidator } from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -104,11 +104,14 @@ const MultiQuizTool = BaseTool.extend({
             title: __('tools.multiquiz.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.multiquiz.properties.question.title')
+            help: __('tools.multiquiz.properties.question.help'),
+            title: __('tools.multiquiz.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new MultiQuizAdapter({
-            title: __('tools.multiquiz.properties.solution.title'),
-            defaultValue: []
+            defaultValue: [],
+            help: __('tools.multiquiz.properties.solution.help'),
+            title: __('tools.multiquiz.properties.solution.title')
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${multiQuizLibrary.defaultKey}`,
@@ -116,18 +119,18 @@ const MultiQuizTool = BaseTool.extend({
             title: __('tools.multiquiz.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.multiquiz.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.multiquiz.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.multiquiz.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.multiquiz.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.multiquiz.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.multiquiz.properties.omit.title'),
             validation: scoreValidator
         })
     },

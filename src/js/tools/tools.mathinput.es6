@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import __ from '../app/app.i18n.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // import { PageComponent } from '../data/data.pagecomponent.es6';
@@ -20,8 +21,7 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { mathLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
-import __ from '../app/app.i18n.es6';
+import { questionValidator, scoreValidator } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -43,7 +43,7 @@ const MathInputTool = BaseTool.extend({
     height: 120,
     width: 370,
     weight: 1,
-    // menu: [],
+    menu: ['properties.question', 'properties.solution'],
     templates: {
         design: format(TEMPLATE, DISABLED),
         play: format(TEMPLATE, BINDING),
@@ -98,11 +98,14 @@ const MathInputTool = BaseTool.extend({
             title: __('tools.mathinput.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.mathinput.properties.question.title')
+            help: __('tools.mathinput.properties.question.help'),
+            title: __('tools.mathinput.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new MathInputAdapter({
-            title: __('tools.mathinput.properties.solution.title'),
-            defaultValue: ''
+            defaultValue: '',
+            help: __('tools.mathinput.properties.solution.help'),
+            title: __('tools.mathinput.properties.solution.title')
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${mathLibrary.defaultKey}`,
@@ -110,18 +113,18 @@ const MathInputTool = BaseTool.extend({
             title: __('tools.mathinput.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.mathinput.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.mathinput.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.mathinput.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.mathinput.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.mathinput.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.mathinput.properties.omit.title'),
             validation: scoreValidator
         })
     },

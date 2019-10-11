@@ -20,7 +20,7 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { textLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
+import { questionValidator, scoreValidator } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -59,9 +59,12 @@ const TextAreaTool = BaseTool.extend({
             title: __('tools.textarea.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.textarea.properties.question.title')
+            help: __('tools.textarea.properties.question.help'),
+            title: __('tools.textarea.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new TextAreaAdapter({
+            help: __('tools.textarea.properties.solution.help'),
             title: __('tools.textarea.properties.solution.title')
         }),
         validation: new ValidationAdapter({
@@ -70,18 +73,18 @@ const TextAreaTool = BaseTool.extend({
             title: __('tools.textarea.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.textarea.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.textarea.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.textarea.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.textarea.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.textarea.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.textarea.properties.omit.title'),
             validation: scoreValidator
         })
     },

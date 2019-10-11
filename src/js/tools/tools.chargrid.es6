@@ -23,7 +23,7 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { charGridLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
+import { questionValidator, scoreValidator } from './util.validators.es6';
 
 const {
     data: { ObservableArray },
@@ -67,7 +67,7 @@ const CharGridTool = BaseTool.extend({
     height: 400,
     width: 400,
     weight: 8,
-    // menu: [],
+    menu: ['properties.question', 'properties.solutions'],
     templates: {
         design: format(
             TEMPLATE,
@@ -143,9 +143,12 @@ const CharGridTool = BaseTool.extend({
             title: __('tools.chargrid.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.chargrid.properties.question.title')
+            help: __('tools.chargrid.properties.question.help'),
+            title: __('tools.chargrid.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new CharGridAdapter({
+            help: __('tools.chargrid.properties.solution.help'),
             title: __('tools.chargrid.properties.solution.title')
         }),
         validation: new ValidationAdapter({
@@ -154,18 +157,18 @@ const CharGridTool = BaseTool.extend({
             title: __('tools.chargrid.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.chargrid.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.chargrid.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.chargrid.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.chargrid.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.chargrid.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.chargrid.properties.omit.title'),
             validation: scoreValidator
         })
     },

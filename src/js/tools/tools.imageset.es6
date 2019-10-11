@@ -24,7 +24,7 @@ import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
+import { questionValidator, scoreValidator } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -51,7 +51,7 @@ const ImageSetTool = BaseTool.extend({
     height: 250,
     width: 250,
     weight: 1,
-    menu: ['attributes.data'],
+    menu: ['attributes.data', '', 'properties.question', 'properties.solution'],
     templates: {
         design: format(TEMPLATE, DISABLED),
         play: format(TEMPLATE, BINDING),
@@ -74,9 +74,12 @@ const ImageSetTool = BaseTool.extend({
             title: __('tools.imageset.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.imageset.properties.question.title')
+            help: __('tools.imageset.properties.question.help'),
+            title: __('tools.imageset.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new QuizAdapter({
+            help: __('tools.imageset.properties.solution.help'),
             title: __('tools.imageset.properties.solution.title')
         }),
         validation: new ValidationAdapter({
@@ -85,18 +88,18 @@ const ImageSetTool = BaseTool.extend({
             title: __('tools.imageset.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.imageset.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.imageset.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.imageset.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.imageset.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.imageset.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.imageset.properties.omit.title'),
             validation: scoreValidator
         })
     },

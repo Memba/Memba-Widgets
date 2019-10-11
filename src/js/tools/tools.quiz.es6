@@ -121,18 +121,18 @@ const QuizTool = BaseTool.extend({
             title: __('tools.quiz.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.quiz.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.quiz.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.quiz.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.quiz.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.quiz.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.quiz.properties.omit.title'),
             validation: scoreValidator
         })
     },

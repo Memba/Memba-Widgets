@@ -103,12 +103,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -148,12 +148,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -186,12 +186,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -229,12 +229,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -253,7 +253,7 @@ const res = {
         attributes: {
             alt: {
                 defaultValue: 'Image',
-                help: 'Entrez la description pour les malvoyants',
+                help: 'Saisissez la description pour les malvoyants',
                 title: 'Texte'
             },
             src: {
@@ -299,12 +299,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -324,7 +324,7 @@ const res = {
             style: { title: 'Style' },
             text: {
                 defaultValue: 'Texte',
-                help: 'Entrez le texte de l´étiquette',
+                help: 'Saisissez le texte de l´étiquette',
                 title: 'Texte'
             }
         },
@@ -442,7 +442,7 @@ const res = {
                             'cdn://images/o_collection/svg/office/hand_point_up.svg'
                     }
                 ],
-                help: 'Entrez les réponses possibles',
+                help: 'Saisissez les réponses possibles',
                 title: 'Valeurs'
             },
             groupStyle: { title: 'Style Groupe' },
@@ -465,12 +465,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -496,12 +496,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -537,7 +537,7 @@ const res = {
                         url: 'cdn://images/o_collection/svg/office/error.svg'
                     }
                 ],
-                help: 'Entrez les réponses possibles',
+                help: 'Saisissez les réponses possibles',
                 title: 'Valeurs'
             },
             groupStyle: { title: 'Style Groupe' },
@@ -560,12 +560,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -596,12 +596,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -638,12 +638,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -672,12 +672,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -708,12 +708,12 @@ const res = {
             name: { title: 'Nom' },
             question: {
                 help:
-                    'Entrez la question à afficher dans les rapports de correction',
+                    'Saisissez la question à afficher dans les rapports de correction',
                 title: 'Question'
             },
             solution: {
                 help:
-                    'Entrez la solution à afficher dans les rapports de correction',
+                    'Saisissez la solution à afficher dans les rapports de correction',
                 title: 'Solution'
             },
             validation: { title: 'Validation' },
@@ -726,14 +726,22 @@ const res = {
     },
 
     // variable
-    // TODO
     variable: {
-        description: 'Variable',
+        description: 'Variable calculée',
         help: 'TODO',
         icon: 'magic_wand',
         name: 'Variable',
-        attributes: {},
-        properties: {}
+        // attributes: {},
+        properties: {
+            expression: {
+                help: 'Saisissez une expression calculée',
+                title: 'Expression'
+            },
+            variable: {
+                help: 'Saisissez un nom de variable',
+                title: 'Variable'
+            }
+        }
     },
 
     // video

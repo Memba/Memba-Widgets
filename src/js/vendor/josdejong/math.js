@@ -6,8 +6,8 @@
  * It features real and complex numbers, units, matrices, a large set of
  * mathematical functions, and a flexible expression parser.
  *
- * @version 6.2.1
- * @date    2019-08-31
+ * @version 6.2.3
+ * @date    2019-10-06
  *
  * @license
  * Copyright (C) 2013-2019 Jos de Jong <wjosdejong@gmail.com>
@@ -11928,9 +11928,9 @@ Object(factory["a" /* factory */])('typed', typed_dependencies, function createT
     test: is["J" /* isSymbolNode */]
   }, {
     name: 'Object',
-    test: is["z" /* isObject */] // order 'Object' last, it matches on other classes too
-
-  }];
+    test: is["z" /* isObject */]
+  } // order 'Object' last, it matches on other classes too
+  ];
   typed.conversions = [{
     from: 'number',
     to: 'BigNumber',
@@ -14490,7 +14490,7 @@ Object(factory["a" /* factory */])(isNumeric_name, isNumeric_dependencies, funct
    * Examples:
    *
    *    math.isNumeric(2)                     // returns true
-   *    math.isNumeric('2')                   // returns true
+   *    math.isNumeric('2')                   // returns false
    *    math.hasNumericValue('2')             // returns true
    *    math.isNumeric(0)                     // returns true
    *    math.isNumeric(math.bignumber(500))   // returns true
@@ -25616,7 +25616,7 @@ function validateSafeMethod(object, method) {
 
 
 function isSafeMethod(object, method) {
-  if (!object || typeof object[method] !== 'function') {
+  if (object === null || object === undefined || typeof object[method] !== 'function') {
     return false;
   } // UNSAFE: ghosted
   // e.g overridden toString
@@ -26922,41 +26922,36 @@ Object(factory["a" /* factory */])(isPrime_name, isPrime_dependencies, function 
    */
   var isPrime = typed(isPrime_name, {
     number: function number(x) {
-      if (x < 2) {
+      if (x * 0 !== 0) {
         return false;
       }
 
-      if (x === 2) {
-        return true;
+      if (x <= 3) {
+        return x > 1;
       }
 
-      if (x % 2 === 0) {
+      if (x % 2 === 0 || x % 3 === 0) {
         return false;
       }
 
-      for (var i = 3; i * i <= x; i += 2) {
-        if (x % i === 0) {
+      for (var i = 5; i * i <= x; i += 6) {
+        if (x % i === 0 || x % (i + 2) === 0) {
           return false;
         }
       }
 
       return true;
     },
-    BigNumber: function BigNumber(x) {
-      if (x.lt(2)) {
+    BigNumber: function BigNumber(n) {
+      if (n.toNumber() * 0 !== 0) {
         return false;
       }
 
-      if (x.equals(2)) {
-        return true;
-      }
+      if (n.lte(3)) return n.gt(1);
+      if (n.mod(2).eq(0) || n.mod(3).eq(0)) return false;
 
-      if (x.mod(2).isZero()) {
-        return false;
-      }
-
-      for (var i = new x.constructor(3); i.times(i).lte(x); i = i.plus(1)) {
-        if (x.mod(i).isZero()) {
+      for (var i = 5; n.gte(i * i); i += 6) {
+        if (n.mod(i).eq(0) || n.mod(i + 2).eq(0)) {
           return false;
         }
       }
@@ -26985,9 +26980,9 @@ Object(factory["a" /* factory */])(numeric_name, numeric_dependencies, function 
     string: true,
     number: true,
     BigNumber: true,
-    Fraction: true // Load the conversion functions for each output type
+    Fraction: true
+  }; // Load the conversion functions for each output type
 
-  };
   var validOutputTypes = {
     number: function number(x) {
       return _number(x);
@@ -26998,36 +26993,36 @@ Object(factory["a" /* factory */])(numeric_name, numeric_dependencies, function 
     Fraction: fraction ? function (x) {
       return fraction(x);
     } : noFraction
-    /**
-     * Convert a numeric input to a specific numeric type: number, BigNumber, or Fraction.
-     *
-     * Syntax:
-     *
-     *    math.numeric(x)
-     *
-     * Examples:
-     *
-     *    math.numeric('4')                           // returns number 4
-     *    math.numeric('4', 'number')                 // returns number 4
-     *    math.numeric('4', 'BigNumber')              // returns BigNumber 4
-     *    math.numeric('4', 'Fraction')               // returns Fraction 4
-     *    math.numeric(4, 'Fraction')                 // returns Fraction 4
-     *    math.numeric(math.fraction(2, 5), 'number') // returns number 0.4
-     *
-     * See also:
-     *
-     *    number, fraction, bignumber, string, format
-     *
-     * @param {string | number | BigNumber | Fraction } value
-     *              A numeric value or a string containing a numeric value
-     * @param {string} outputType
-     *              Desired numeric output type.
-     *              Available values: 'number', 'BigNumber', or 'Fraction'
-     * @return {number | BigNumber | Fraction}
-     *              Returns an instance of the numeric in the requested type
-     */
-
   };
+  /**
+   * Convert a numeric input to a specific numeric type: number, BigNumber, or Fraction.
+   *
+   * Syntax:
+   *
+   *    math.numeric(x)
+   *
+   * Examples:
+   *
+   *    math.numeric('4')                           // returns number 4
+   *    math.numeric('4', 'number')                 // returns number 4
+   *    math.numeric('4', 'BigNumber')              // returns BigNumber 4
+   *    math.numeric('4', 'Fraction')               // returns Fraction 4
+   *    math.numeric(4, 'Fraction')                 // returns Fraction 4
+   *    math.numeric(math.fraction(2, 5), 'number') // returns number 0.4
+   *
+   * See also:
+   *
+   *    number, fraction, bignumber, string, format
+   *
+   * @param {string | number | BigNumber | Fraction } value
+   *              A numeric value or a string containing a numeric value
+   * @param {string} outputType
+   *              Desired numeric output type.
+   *              Available values: 'number', 'BigNumber', or 'Fraction'
+   * @return {number | BigNumber | Fraction}
+   *              Returns an instance of the numeric in the requested type
+   */
+
   return function numeric(value, outputType) {
     var inputType = Object(is["M" /* typeOf */])(value);
 
@@ -31929,9 +31924,8 @@ Object(factory["a" /* factory */])(FibonacciHeap_name, FibonacciHeap_dependencie
     var node = {
       key: key,
       value: value,
-      degree: 0 // check we have a node in the minimum
-
-    };
+      degree: 0
+    }; // check we have a node in the minimum
 
     if (this._minimum) {
       // minimum node
@@ -35768,9 +35762,9 @@ Object(factory["a" /* factory */])(Unit_name, Unit_dependencies, function (_ref)
       prefixes: PREFIXES.BINARY_LONG,
       value: 8,
       offset: 0
-    } // aliases (formerly plurals)
+    }
+  }; // aliases (formerly plurals)
 
-  };
   var ALIASES = {
     meters: 'meter',
     inches: 'inch',
@@ -35857,13 +35851,12 @@ Object(factory["a" /* factory */])(Unit_name, Unit_dependencies, function (_ref)
     moles: 'mole',
     bit: 'bits',
     "byte": 'bytes'
-    /**
-     * Calculate the values for the angle units.
-     * Value is calculated as number or BigNumber depending on the configuration
-     * @param {{number: 'number' | 'BigNumber'}} config
-     */
-
   };
+  /**
+   * Calculate the values for the angle units.
+   * Value is calculated as number or BigNumber depending on the configuration
+   * @param {{number: 'number' | 'BigNumber'}} config
+   */
 
   function calculateAngleValues(config) {
     if (config.number === 'BigNumber') {
@@ -36012,9 +36005,9 @@ Object(factory["a" /* factory */])(Unit_name, Unit_dependencies, function (_ref)
         unit: UNITS.Hz,
         prefix: PREFIXES.SHORT['']
       }
-    } // Clone to create the other unit systems
+    }
+  }; // Clone to create the other unit systems
 
-  };
   UNIT_SYSTEMS.cgs = JSON.parse(JSON.stringify(UNIT_SYSTEMS.si));
   UNIT_SYSTEMS.cgs.LENGTH = {
     unit: UNITS.m,
@@ -36030,10 +36023,10 @@ Object(factory["a" /* factory */])(Unit_name, Unit_dependencies, function (_ref)
   };
   UNIT_SYSTEMS.cgs.ENERGY = {
     unit: UNITS.erg,
-    prefix: PREFIXES.NONE[''] // there are wholly 4 unique cgs systems for electricity and magnetism,
-    // so let's not worry about it unless somebody complains
+    prefix: PREFIXES.NONE['']
+  }; // there are wholly 4 unique cgs systems for electricity and magnetism,
+  // so let's not worry about it unless somebody complains
 
-  };
   UNIT_SYSTEMS.us = JSON.parse(JSON.stringify(UNIT_SYSTEMS.si));
   UNIT_SYSTEMS.us.LENGTH = {
     unit: UNITS.ft,
@@ -36061,10 +36054,10 @@ Object(factory["a" /* factory */])(Unit_name, Unit_dependencies, function (_ref)
   };
   UNIT_SYSTEMS.us.PRESSURE = {
     unit: UNITS.psi,
-    prefix: PREFIXES.NONE[''] // Add additional unit systems here.
-    // Choose a unit system to seed the auto unit system.
+    prefix: PREFIXES.NONE['']
+  }; // Add additional unit systems here.
+  // Choose a unit system to seed the auto unit system.
 
-  };
   UNIT_SYSTEMS.auto = JSON.parse(JSON.stringify(UNIT_SYSTEMS.si)); // Set the current unit system
 
   var currentUnitSystem = UNIT_SYSTEMS.auto;
@@ -36112,16 +36105,15 @@ Object(factory["a" /* factory */])(Unit_name, Unit_dependencies, function (_ref)
     number: function number(x) {
       return x;
     }
-    /**
-     * Retrieve the right convertor function corresponding with the type
-     * of provided exampleValue.
-     *
-     * @param {string} type   A string 'number', 'BigNumber', or 'Fraction'
-     *                        In case of an unknown type,
-     * @return {Function}
-     */
-
   };
+  /**
+   * Retrieve the right convertor function corresponding with the type
+   * of provided exampleValue.
+   *
+   * @param {string} type   A string 'number', 'BigNumber', or 'Fraction'
+   *                        In case of an unknown type,
+   * @return {Function}
+   */
 
   Unit._getNumberConverter = function (type) {
     if (!Unit.typeConverters[type]) {
@@ -36364,9 +36356,9 @@ Object(factory["a" /* factory */])(Unit_name, Unit_dependencies, function (_ref)
         value: defUnit.value,
         dimensions: defUnit.dimensions.slice(0),
         prefixes: prefixes,
-        offset: offset // Create a new base if no matching base exists
+        offset: offset
+      }; // Create a new base if no matching base exists
 
-      };
       var anyMatch = false;
 
       for (var _i7 in BASE_UNITS) {
@@ -42720,7 +42712,7 @@ Object(factory["a" /* factory */])(IndexNode_name, IndexNode_dependencies, funct
       dimensions[i] = this._ifNode(callback(this.dimensions[i], 'dimensions[' + i + ']', this));
     }
 
-    return new IndexNode(dimensions);
+    return new IndexNode(dimensions, this.dotNotation);
   };
   /**
    * Create a clone of this node, a shallow copy
@@ -42729,7 +42721,7 @@ Object(factory["a" /* factory */])(IndexNode_name, IndexNode_dependencies, funct
 
 
   IndexNode.prototype.clone = function () {
-    return new IndexNode(this.dimensions.slice(0));
+    return new IndexNode(this.dimensions.slice(0), this.dotNotation);
   };
   /**
    * Test whether this IndexNode contains a single property name
@@ -45194,9 +45186,9 @@ Object(factory["a" /* factory */])(parse_name, parse_dependencies, function (_re
     DELIMITER: 1,
     NUMBER: 2,
     SYMBOL: 3,
-    UNKNOWN: 4 // map with all delimiters
+    UNKNOWN: 4
+  }; // map with all delimiters
 
-  };
   var DELIMITERS = {
     ',': true,
     '(': true,
@@ -45233,9 +45225,9 @@ Object(factory["a" /* factory */])(parse_name, parse_dependencies, function (_re
     '>=': true,
     '<<': true,
     '>>': true,
-    '>>>': true // map with all named delimiters
+    '>>>': true
+  }; // map with all named delimiters
 
-  };
   var NAMED_DELIMITERS = {
     mod: true,
     to: true,
@@ -50226,9 +50218,9 @@ Object(factory["a" /* factory */])(Chain_name, Chain_dependencies, function (_re
     json: true,
     error: true,
     isChain: true // conflicts with the property isChain of a Chain instance
-    // create proxy for everything that is in math.js
 
-  };
+  }; // create proxy for everything that is in math.js
+
   Chain.createProxy(math); // register on the import event, automatically add a proxy for every imported function.
 
   if (on) {
@@ -50593,7 +50585,7 @@ var stdDocs = {
   syntax: ['std(a, b, c, ...)', 'std(A)', 'std(A, normalization)'],
   description: 'Compute the standard deviation of all values, defined as std(A) = sqrt(variance(A)). Optional parameter normalization can be "unbiased" (default), "uncorrected", or "biased".',
   examples: ['std(2, 4, 6)', 'std([2, 4, 6, 8])', 'std([2, 4, 6, 8], "uncorrected")', 'std([2, 4, 6, 8], "biased")', 'std([1, 2, 3; 4, 5, 6])'],
-  seealso: ['max', 'mean', 'min', 'median', 'min', 'prod', 'sum', 'variance']
+  seealso: ['max', 'mean', 'min', 'median', 'prod', 'sum', 'variance']
 };
 // CONCATENATED MODULE: ./src/expression/embeddedDocs/function/statistics/quantileSeq.js
 var quantileSeqDocs = {
@@ -54339,11 +54331,11 @@ Object(factory["a" /* factory */])(mean_name, mean_dependencies, function (_ref)
 
 
   function _mean(array) {
-    var sum = 0;
+    var sum;
     var num = 0;
     deepForEach(array, function (value) {
       try {
-        sum = add(sum, value);
+        sum = sum === undefined ? value : add(sum, value);
         num++;
       } catch (err) {
         throw improveErrorMessage(err, 'mean', value);
@@ -54351,7 +54343,7 @@ Object(factory["a" /* factory */])(mean_name, mean_dependencies, function (_ref)
     });
 
     if (num === 0) {
-      throw new Error('Cannot calculate mean of an empty array');
+      throw new Error('Cannot calculate the mean of an empty array');
     }
 
     return divide(sum, num);
@@ -57377,17 +57369,17 @@ Object(factory["a" /* factory */])(simplify_name, simplify_dependencies, functio
     tau: true // null: false,
     // undefined: false,
     // version: false,
-    // Array of strings, used to build the ruleSet.
-    // Each l (left side) and r (right side) are parsed by
-    // the expression parser into a node tree.
-    // Left hand sides are matched to subtrees within the
-    // expression to be parsed and replaced with the right
-    // hand side.
-    // TODO: Add support for constraints on constants (either in the form of a '=' expression or a callback [callback allows things like comparing symbols alphabetically])
-    // To evaluate lhs constants for rhs constants, use: { l: 'c1+c2', r: 'c3', evaluate: 'c3 = c1 + c2' }. Multiple assignments are separated by ';' in block format.
-    // It is possible to get into an infinite loop with conflicting rules
 
-  };
+  }; // Array of strings, used to build the ruleSet.
+  // Each l (left side) and r (right side) are parsed by
+  // the expression parser into a node tree.
+  // Left hand sides are matched to subtrees within the
+  // expression to be parsed and replaced with the right
+  // hand side.
+  // TODO: Add support for constraints on constants (either in the form of a '=' expression or a callback [callback allows things like comparing symbols alphabetically])
+  // To evaluate lhs constants for rhs constants, use: { l: 'c1+c2', r: 'c3', evaluate: 'c3 = c1 + c2' }. Multiple assignments are separated by ';' in block format.
+  // It is possible to get into an infinite loop with conflicting rules
+
   simplify.rules = [simplifyCore, // { l: 'n+0', r: 'n' },     // simplifyCore
   // { l: 'n^0', r: '1' },     // simplifyCore
   // { l: '0*n', r: '0' },     // simplifyCore
@@ -57497,9 +57489,9 @@ Object(factory["a" /* factory */])(simplify_name, simplify_dependencies, functio
   // { l: '(n*n1)/(n*n2)', r: 'n1/n2' },
   {
     l: '1*n',
-    r: 'n' // this pattern can be produced by simplifyConstant
-
-  }];
+    r: 'n'
+  } // this pattern can be produced by simplifyConstant
+  ];
   /**
    * Parse the string array of rules into nodes
    *
@@ -57696,9 +57688,8 @@ Object(factory["a" /* factory */])(simplify_name, simplify_dependencies, functio
 
   function mergeMatch(match1, match2) {
     var res = {
-      placeholders: {} // Some matches may not have placeholders; this is OK
-
-    };
+      placeholders: {}
+    }; // Some matches may not have placeholders; this is OK
 
     if (!match1.placeholders && !match2.placeholders) {
       return res;
@@ -59123,9 +59114,9 @@ Object(factory["a" /* factory */])(rationalize_name, rationalize_dependencies, f
     }, // inversion constant with variable
     {
       l: '(n1^n2)^n3',
-      r: '(n1^(n2*n3))' // Power to Power
-
-    }];
+      r: '(n1^(n2*n3))'
+    } // Power to Power
+    ];
     return setRules;
   } // End rulesRationalize
   // ---------------------------------------------------------------------------------------
@@ -59471,7 +59462,7 @@ Object(factory["a" /* factory */])(reviver_name, reviver_dependencies, function 
   };
 });
 // CONCATENATED MODULE: ./src/version.js
-var version = '6.2.1'; // Note: This file is automatically generated when building math.js.
+var version = '6.2.3'; // Note: This file is automatically generated when building math.js.
 // Changes made in this file will be overwritten.
 // CONCATENATED MODULE: ./src/plain/number/constants.js
 var constants_pi = Math.PI;
@@ -62012,9 +62003,9 @@ function create(factories, config) {
     transform: {},
     mathWithTransform: {
       config: math.config
-    } // cached factories and instances used by function load
+    }
+  }; // cached factories and instances used by function load
 
-  };
   var legacyFactories = [];
   var legacyInstances = [];
   /**

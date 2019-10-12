@@ -92,7 +92,7 @@ function getCharGrid() {
             validation: '// equal'
         },
         rotate: angleGenerator(),
-        tool: 'chartgrid',
+        tool: 'chargrid',
         top: positionGenerator(),
         width: positionGenerator()
     };
@@ -105,7 +105,13 @@ function getCharGrid() {
 function getChart() {
     return {
         attributes: {
-            // TODO
+            // categories: undefined,
+            // data: undefined,
+            // legend: undefined,
+            // style: undefined,
+            // title: undefined,
+            // type: undefined,
+            // values: undefined
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),

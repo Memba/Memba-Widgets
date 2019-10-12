@@ -63,7 +63,12 @@ describe('tools.imageset', () => {
             expect(tool).to.have.property('icon', __('tools.imageset.icon'));
             expect(tool)
                 .to.have.property('menu')
-                .that.eql(['attributes.data']);
+                .that.eql([
+                    'attributes.data',
+                    '',
+                    'properties.question',
+                    'properties.solution'
+                ]);
             expect(tool).to.have.property('name', __('tools.imageset.name'));
             expect(tool).to.have.property('weight', 1);
             expect(tool).to.have.property('width', 250);

@@ -11,6 +11,7 @@ import __ from '../app/app.i18n.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.mathinput.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import MathInputAdapter from './adapters.mathinput.es6';
 import NumberAdapter from './adapters.number.es6';

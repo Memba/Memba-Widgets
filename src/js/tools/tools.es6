@@ -294,6 +294,26 @@ function tools(id) {
         });
 
         /**
+         * Chart
+         */
+        _tools.chart = new StubTool({
+            description: __('tools.chart.description'),
+            help: __('tools.chart.help'),
+            icon: __('tools.chart.icon'),
+            name: __('tools.chart.name')
+        });
+
+        /**
+         * CharGrid
+         */
+        _tools.chargrid = new StubTool({
+            description: __('tools.chargrid.description'),
+            help: __('tools.chargrid.help'),
+            icon: __('tools.chargrid.icon'),
+            name: __('tools.chargrid.name')
+        });
+
+        /**
          * Dummy tool for tests
          */
         try {

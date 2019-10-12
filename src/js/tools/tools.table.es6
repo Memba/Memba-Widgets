@@ -11,6 +11,7 @@ import __ from '../app/app.i18n.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.table.es6';
 import NumberAdapter from './adapters.number.es6';
 import TableAdapter from './adapters.table.es6';
 import { BaseTool } from './tools.base.es6';

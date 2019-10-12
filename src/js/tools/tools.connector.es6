@@ -10,6 +10,7 @@ import 'kendo.core';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import '../widgets/widgets.connector.es6';
 import ColorAdapter from './adapters.color.es6';
 import ConnectorAdapter from './adapters.connector.es6';
 import DisabledAdapter from './adapters.disabled.es6';

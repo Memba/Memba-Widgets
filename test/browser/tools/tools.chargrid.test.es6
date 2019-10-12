@@ -16,6 +16,7 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import __ from '../../../src/js/app/app.i18n.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
 import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import { BaseTool } from '../../../src/js/tools/tools.base.es6';
@@ -23,8 +24,6 @@ import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 // Component data
 import { getCharGrid } from '../../../src/js/helpers/helpers.components.es6';
-
-import BaseModel from '../../../src/js/data/data.base';
 
 const { describe, it, xit } = window;
 const { expect } = chai;
@@ -56,18 +55,18 @@ describe('tools.chargrid', () => {
             expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
             expect(tool).to.have.property(
                 'description',
-                __('tools.label.description')
+                __('tools.chargrid.description')
             );
-            expect(tool).to.have.property('height', 80);
-            expect(tool).to.have.property('help', __('tools.label.help'));
+            expect(tool).to.have.property('height', 400);
+            expect(tool).to.have.property('help', __('tools.chargrid.help'));
             expect(tool).to.have.property('id', TOOL);
-            expect(tool).to.have.property('icon', __('tools.label.icon'));
+            expect(tool).to.have.property('icon', __('tools.chargrid.icon'));
             expect(tool)
                 .to.have.property('menu')
-                .that.eql(['attributes.text']);
-            expect(tool).to.have.property('name', __('tools.label.name'));
-            expect(tool).to.have.property('weight', 0);
-            expect(tool).to.have.property('width', 300);
+                .that.eql(['properties.question', 'properties.solution']);
+            expect(tool).to.have.property('name', __('tools.chargrid.name'));
+            expect(tool).to.have.property('weight', 4);
+            expect(tool).to.have.property('width', 400);
         });
 
         it('getAttributeModel', () => {
@@ -78,22 +77,41 @@ describe('tools.chargrid', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('text');
-            expect(Model.fields).to.have.property('style');
+            expect(Model.fields).to.have.property('blank');
+            expect(Model.fields).to.have.property('columns');
+            expect(Model.fields).to.have.property('fontColor');
+            expect(Model.fields).to.have.property('gridFill');
+            expect(Model.fields).to.have.property('gridStroke');
+            expect(Model.fields).to.have.property('layout');
+            expect(Model.fields).to.have.property('lockedFill');
+            expect(Model.fields).to.have.property('rows');
+            expect(Model.fields).to.have.property('selectedFill');
+            expect(Model.fields).to.have.property('whitelist');
         });
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(15);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.text');
-            expect(rows[6]).to.have.property('field', 'attributes.style');
+            expect(rows[5]).to.have.property('field', 'attributes.columns');
+            expect(rows[6]).to.have.property('field', 'attributes.rows');
+            expect(rows[7]).to.have.property('field', 'attributes.blank');
+            expect(rows[8]).to.have.property('field', 'attributes.whitelist');
+            expect(rows[9]).to.have.property('field', 'attributes.layout');
+            expect(rows[10]).to.have.property('field', 'attributes.gridFill');
+            expect(rows[11]).to.have.property('field', 'attributes.gridStroke');
+            expect(rows[12]).to.have.property(
+                'field',
+                'attributes.selectedFill'
+            );
+            expect(rows[13]).to.have.property('field', 'attributes.lockedFill');
+            expect(rows[14]).to.have.property('field', 'attributes.fontColor');
         });
 
         it('getPropertyModel', () => {
@@ -104,17 +122,27 @@ describe('tools.chargrid', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('behavior');
-            expect(Model.fields).to.have.property('constant');
+            expect(Model.fields).to.have.property('failure');
+            expect(Model.fields).to.have.property('name');
+            expect(Model.fields).to.have.property('omit');
+            expect(Model.fields).to.have.property('question');
+            expect(Model.fields).to.have.property('solution');
+            expect(Model.fields).to.have.property('success');
+            expect(Model.fields).to.have.property('validation');
         });
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(2);
-            expect(rows[0]).to.have.property('field', 'properties.behavior');
-            expect(rows[1]).to.have.property('field', 'properties.constant');
+                .with.lengthOf(7);
+            expect(rows[0]).to.have.property('field', 'properties.name');
+            expect(rows[1]).to.have.property('field', 'properties.question');
+            expect(rows[2]).to.have.property('field', 'properties.solution');
+            expect(rows[3]).to.have.property('field', 'properties.validation');
+            expect(rows[4]).to.have.property('field', 'properties.success');
+            expect(rows[5]).to.have.property('field', 'properties.failure');
+            expect(rows[6]).to.have.property('field', 'properties.omit');
         });
 
         it('getAssets', () => {

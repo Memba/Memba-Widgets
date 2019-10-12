@@ -57,16 +57,16 @@ describe('tools.chart', () => {
                 'description',
                 __('tools.chart.description')
             );
-            expect(tool).to.have.property('height', 80);
+            expect(tool).to.have.property('height', 400);
             expect(tool).to.have.property('help', __('tools.chart.help'));
             expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.chart.icon'));
             expect(tool)
                 .to.have.property('menu')
-                .that.eql(['attributes.text']);
+                .that.eql(['attributes.type', 'attributes.data']);
             expect(tool).to.have.property('name', __('tools.chart.name'));
             expect(tool).to.have.property('weight', 0);
-            expect(tool).to.have.property('width', 300);
+            expect(tool).to.have.property('width', 400);
         });
 
         it('getAttributeModel', () => {
@@ -77,22 +77,32 @@ describe('tools.chart', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('text');
+            expect(Model.fields).to.have.property('categories');
+            expect(Model.fields).to.have.property('data');
+            expect(Model.fields).to.have.property('legend');
             expect(Model.fields).to.have.property('style');
+            expect(Model.fields).to.have.property('title');
+            expect(Model.fields).to.have.property('type');
+            expect(Model.fields).to.have.property('values');
         });
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(12);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.text');
-            expect(rows[6]).to.have.property('field', 'attributes.style');
+            expect(rows[5]).to.have.property('field', 'attributes.type');
+            expect(rows[6]).to.have.property('field', 'attributes.title');
+            expect(rows[7]).to.have.property('field', 'attributes.categories');
+            expect(rows[8]).to.have.property('field', 'attributes.values');
+            expect(rows[9]).to.have.property('field', 'attributes.legend');
+            expect(rows[10]).to.have.property('field', 'attributes.data');
+            expect(rows[11]).to.have.property('field', 'attributes.style');
         });
 
         it('getPropertyModel', () => {
@@ -103,17 +113,14 @@ describe('tools.chart', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('behavior');
-            expect(Model.fields).to.have.property('constant');
+            expect(Model.fields).to.eql({});
         });
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(2);
-            expect(rows[0]).to.have.property('field', 'properties.behavior');
-            expect(rows[1]).to.have.property('field', 'properties.constant');
+                .with.lengthOf(0);
         });
 
         it('getAssets', () => {

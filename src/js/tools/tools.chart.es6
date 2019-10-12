@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.dataviz.chart';
 import __ from '../app/app.i18n.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -46,7 +47,7 @@ const ChartTool = BaseTool.extend({
     childSelector: `${CONSTANTS.DIV}${roleSelector('chart')}`,
     height: 400,
     width: 400,
-    // MENU: [],
+    menu: ['attributes.type', 'attributes.data'],
     templates: {
         default: TEMPLATE
     },

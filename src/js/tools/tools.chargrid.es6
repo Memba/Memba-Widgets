@@ -12,7 +12,7 @@ import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // import { PageComponent } from '../data/data.pagecomponent.es6';
-// TODO import '../widgets/widgets.chargrid.es6';
+import '../widgets/widgets.chargrid.es6';
 import CharGridAdapter from './adapters.chargrid.es6';
 import ColorAdapter from './adapters.color.es6';
 import ReadOnlyAdapter from './adapters.readonly.es6';
@@ -66,8 +66,8 @@ const CharGridTool = BaseTool.extend({
     childSelector: `${CONSTANTS.DIV}${roleSelector('chargrid')}`, // div.kj-chargrid
     height: 400,
     width: 400,
-    weight: 8,
-    menu: ['properties.question', 'properties.solutions'],
+    weight: 4,
+    menu: ['properties.question', 'properties.solution'],
     templates: {
         design: format(
             TEMPLATE,

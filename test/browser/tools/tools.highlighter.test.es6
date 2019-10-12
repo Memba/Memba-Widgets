@@ -57,7 +57,7 @@ describe('tools.highlighter', () => {
                 'description',
                 __('tools.highlighter.description')
             );
-            expect(tool).to.have.property('height', 80);
+            expect(tool).to.have.property('height', 250);
             expect(tool).to.have.property('help', __('tools.highlighter.help'));
             expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.highlighter.icon'));
@@ -66,7 +66,7 @@ describe('tools.highlighter', () => {
                 .that.eql(['properties.question', 'properties.solution']);
             expect(tool).to.have.property('name', __('tools.highlighter.name'));
             expect(tool).to.have.property('weight', 1);
-            expect(tool).to.have.property('width', 300);
+            expect(tool).to.have.property('width', 250);
         });
 
         it('getAttributeModel', () => {
@@ -77,22 +77,29 @@ describe('tools.highlighter', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('mask');
+            expect(Model.fields).to.have.property('highlightStyle');
+            expect(Model.fields).to.have.property('split');
             expect(Model.fields).to.have.property('style');
+            expect(Model.fields).to.have.property('text');
         });
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(9);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.mask');
+            expect(rows[5]).to.have.property(
+                'field',
+                'attributes.highlightStyle'
+            );
             expect(rows[6]).to.have.property('field', 'attributes.style');
+            expect(rows[7]).to.have.property('field', 'attributes.text');
+            expect(rows[8]).to.have.property('field', 'attributes.split');
         });
 
         it('getPropertyModel', () => {
@@ -218,7 +225,7 @@ describe('tools.highlighter', () => {
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
-                expect(content).to.match('input');
+                expect(content).to.match('div');
             });
         });
 

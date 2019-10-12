@@ -214,16 +214,6 @@ function tools(id) {
         });
 
         /**
-         * TextBox
-         */
-        _tools.textgaps = new StubTool({
-            description: __('tools.textgaps.description'),
-            help: __('tools.textgaps.help'),
-            icon: __('tools.textgaps.icon'),
-            name: __('tools.textgaps.name')
-        });
-
-        /**
          * Quiz
          */
         _tools.quiz = new StubTool({
@@ -241,6 +231,26 @@ function tools(id) {
             help: __('tools.multiquiz.help'),
             icon: __('tools.multiquiz.icon'),
             name: __('tools.multiquiz.name')
+        });
+
+        /**
+         * HighLighter
+         */
+        _tools.highlighter = new StubTool({
+            description: __('tools.highlighter.description'),
+            help: __('tools.highlighter.help'),
+            icon: __('tools.highlighter.icon'),
+            name: __('tools.highlighter.name')
+        });
+
+        /**
+         * TextGaps
+         */
+        _tools.textgaps = new StubTool({
+            description: __('tools.textgaps.description'),
+            help: __('tools.textgaps.help'),
+            icon: __('tools.textgaps.icon'),
+            name: __('tools.textgaps.name')
         });
 
         /**

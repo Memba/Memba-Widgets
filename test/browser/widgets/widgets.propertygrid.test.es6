@@ -329,7 +329,13 @@ describe('widgets.propertygrid', () => {
                 .to.be.an.instanceof(Array)
                 .with.property(
                     'length',
-                    5 + (value.hasOwnProperty('_handlers') ? 1 : 0)
+                    5 +
+                        (Object.prototype.hasOwnProperty.call(
+                            value,
+                            '_handlers'
+                        )
+                            ? 1
+                            : 0)
                 ); // including _events, _handlers, uid, dirty and id
             expect(row).to.exist;
             expect(input).not.to.exist;
@@ -337,7 +343,15 @@ describe('widgets.propertygrid', () => {
             expect(span.attr(attr('bind'))).to.match(
                 new RegExp(
                     `^text:[\\s]*${
-                        keys[1 + (value.hasOwnProperty('_handlers') ? 1 : 0)]
+                        keys[
+                            1 +
+                                (Object.prototype.hasOwnProperty.call(
+                                    value,
+                                    '_handlers'
+                                )
+                                    ? 1
+                                    : 0)
+                        ]
                     }$`
                 )
             );

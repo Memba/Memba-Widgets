@@ -12,7 +12,7 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { randomVal } from '../common/window.util.es6';
 import BaseModel from '../data/data.base.es6';
-import { PageComponent } from '../data/data.pagecomponent.es6';
+// import { PageComponent } from '../data/data.pagecomponent.es6';
 import poolExec from '../workers/workers.exec.es6';
 import BaseAdapter from './adapters.base.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -40,11 +40,11 @@ const {
  */
 const StubTool = Class.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: '',
-    help: '',
-    icon: '',
+    description: CONSTANTS.EMPTY,
+    help: CONSTANTS.EMPTY,
+    icon: 'piece',
     id: null,
-    name: '',
+    name: CONSTANTS.EMPTY,
 
     /**
      * Init
@@ -57,12 +57,13 @@ const StubTool = Class.extend({
     },
 
     /**
-     * Get description
-     * @method getDescription
+     * _assertComponent
      * @param component
-     * @returns {Array}
+     * @private
      */
-    getDescription(component) {
+    _assertComponent(component) {
+        /*
+        // Avoid circular references
         assert.instanceof(
             PageComponent,
             component,
@@ -72,6 +73,36 @@ const StubTool = Class.extend({
                 'PageComponent'
             )
         );
+        */
+        assert.instanceof(
+            BaseModel,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'BaseModel'
+            )
+        );
+        // It is essential that the tool matches the component
+        assert.equal(
+            this.id,
+            component.tool,
+            assert.format(
+                assert.messages.equal.default,
+                'this.id',
+                'component.tool'
+            )
+        );
+    },
+
+    /**
+     * Get description
+     * @method getDescription
+     * @param component
+     * @returns {Array}
+     */
+    getDescription(component) {
+        this._assertComponent(component);
         return template(this.description || CONSTANTS.EMPTY)(component);
     },
 
@@ -82,15 +113,7 @@ const StubTool = Class.extend({
      * @returns {Array}
      */
     getHelp(component) {
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
+        this._assertComponent(component);
         return template(this.help || CONSTANTS.EMPTY)(component);
     }
 });
@@ -227,19 +250,10 @@ const BaseTool = StubTool.extend({
     /**
      * Get assets
      * @method getAssets
-     * @param component
      * @returns {Array}
      */
-    getAssets(component) {
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
+    getAssets(/* component */) {
+        // this._assertComponent(component);
         return {
             audio: [],
             image: [],
@@ -253,15 +267,7 @@ const BaseTool = StubTool.extend({
      * @returns {string}
      */
     getQuestion(component) {
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
+        this._assertComponent(component);
         return component.get('properties.question');
     },
 
@@ -271,15 +277,7 @@ const BaseTool = StubTool.extend({
      * @returns {string}
      */
     getSolution(component) {
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
+        this._assertComponent(component);
         return component.get('properties.solution');
     },
 
@@ -291,29 +289,11 @@ const BaseTool = StubTool.extend({
      */
     getTestModelField(component) {
         const tool = this;
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
+        this._assertComponent(component);
         // The component must belong to a page
         assert.isDefined(
             component.page(),
             assert.format(assert.messages.isDefined.default, 'component.page()')
-        );
-        // It is essential that the tool matches the component
-        assert.equal(
-            this.id,
-            component.tool,
-            assert.format(
-                assert.messages.equal.default,
-                'this.id',
-                'component.tool'
-            )
         );
         return BaseModel.define({
             fields: {
@@ -507,25 +487,7 @@ const BaseTool = StubTool.extend({
      * @returns {*}
      */
     getHtmlContent(component, mode) {
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        // It is essential that the tool matches the component
-        assert.equal(
-            this.id,
-            component.tool,
-            assert.format(
-                assert.messages.equal.default,
-                'this.id',
-                'component.tool'
-            )
-        );
+        this._assertComponent(component);
         assert.enum(
             Object.values(TOOLS.STAGE_MODES),
             mode,
@@ -600,25 +562,7 @@ const BaseTool = StubTool.extend({
                 CONSTANTS.STRING
             )
         );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        // It is essential that the tool matches the component
-        assert.equal(
-            this.id,
-            component.tool,
-            assert.format(
-                assert.messages.equal.default,
-                'this.id',
-                'component.tool'
-            )
-        );
+        this._assertComponent(component);
         const adapter = getter(action)(this);
         adapter.showDialog({
             field: action,
@@ -632,15 +576,7 @@ const BaseTool = StubTool.extend({
      * @returns {*}
      */
     getHtmlQuestion(component) {
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
+        this._assertComponent(component);
         return htmlEncode(component.get('properties.question'));
     },
 
@@ -650,25 +586,7 @@ const BaseTool = StubTool.extend({
      * @param component
      */
     getHtmlSolution(component) {
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        // It is essential that the tool matches the component
-        assert.equal(
-            this.id,
-            component.tool,
-            assert.format(
-                assert.messages.equal.default,
-                'this.id',
-                'component.tool'
-            )
-        );
+        this._assertComponent(component);
         return htmlEncode(component.get('properties.solution'));
     },
 
@@ -716,15 +634,7 @@ const BaseTool = StubTool.extend({
             // to call onEnable({ currentTarget: el[0] }, component )
             assert.format(assert.messages.type.default, 'e', CONSTANTS.OBJECT)
         );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
+        this._assertComponent(component);
         const stageElement = $(e.currentTarget);
         assert.ok(
             stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
@@ -810,15 +720,7 @@ const BaseTool = StubTool.extend({
      * @param pageIdx
      */
     validate(component, pageIdx) {
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
+        this._assertComponent(component);
         assert.type(
             CONSTANTS.NUMBER,
             pageIdx,

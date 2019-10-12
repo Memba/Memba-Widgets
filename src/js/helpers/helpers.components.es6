@@ -194,9 +194,13 @@ function getDummy() {
  * @function getHighLighter
  */
 function getHighLighter() {
+    const text = '';
     return {
         attributes: {
-            // TODO
+            highlightStyle: styleGenerator(),
+            style: styleGenerator(),
+            text: ''
+            // split: ''
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -206,7 +210,7 @@ function getHighLighter() {
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
-            solution: [], // TODO
+            solution: [], // TODO from text
             success: JSC.integer(0, 3)(),
             validation: '// equal'
         },

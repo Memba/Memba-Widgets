@@ -16,19 +16,25 @@ import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
+const id = 'mytool';
 
 describe('tools.base', () => {
     describe('BaseTool', () => {
-        const tool = new BaseTool();
+        const tool = new BaseTool({ id });
+        const Component = BaseModel.extend({
+            fields: {
+                tool: { type: CONSTANTS.STRING }
+            }
+        });
 
         it('It should have descriptors', () => {
             expect(tool).to.be.an.instanceof(BaseTool);
-            expect(tool).to.have.property('cursor', null);
-            expect(tool).to.have.property('description', null);
+            expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
+            expect(tool).to.have.property('description', CONSTANTS.EMPTY);
             expect(tool).to.have.property('height', 250);
-            expect(tool).to.have.property('help', null);
-            expect(tool).to.have.property('id', null);
-            expect(tool).to.have.property('icon', null);
+            expect(tool).to.have.property('help', CONSTANTS.EMPTY);
+            expect(tool).to.have.property('id', id);
+            expect(tool).to.have.property('icon', 'piece');
             expect(tool).to.have.property('weight', 0);
             expect(tool).to.have.property('width', 250);
         });
@@ -93,13 +99,15 @@ describe('tools.base', () => {
         });
 
         it('getDescription', () => {
-            const description = tool.getDescription();
-            expect(description).to.be.null;
+            const component = new Component({ tool: id });
+            const description = tool.getDescription(component);
+            expect(description).to.equal(CONSTANTS.EMPTY);
         });
 
         it('getHelp', () => {
-            const help = tool.getHelp();
-            expect(help).to.be.null;
+            const component = new Component({ tool: id });
+            const help = tool.getHelp(component);
+            expect(help).to.equal(CONSTANTS.EMPTY);
         });
 
         it('getTestModelField', () => {

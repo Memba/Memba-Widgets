@@ -46,7 +46,7 @@ const UnitInput = Widget.extend({
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
         this.enable(
-            this.element.prop('disabled') ? false : this.options.enabled
+            this.element.prop('disabled') ? false : this.options.enable
         );
         this.value(this.options.value);
     },
@@ -65,7 +65,7 @@ const UnitInput = Widget.extend({
         name: 'UnitInput',
         decimals: 0,
         default: 0,
-        enabled: true,
+        enable: true,
         format: 'n0',
         value: '',
         max: 100,

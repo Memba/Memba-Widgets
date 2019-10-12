@@ -22,7 +22,6 @@ import {
 import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.stage.es6';
-
 import {
     componentGenerator,
     getComponentArray

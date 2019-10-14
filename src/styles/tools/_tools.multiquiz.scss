@@ -1,0 +1,11 @@
+@import "./tools";
+
+.kj-stage {
+    .kj-element[data-tool="multiquiz"] {
+        .kj-multiquiz {
+            font-size: $normal-font-size;
+
+            // .k-button.kj-quiz-button { font-size: 1em; }
+        }
+    }
+}

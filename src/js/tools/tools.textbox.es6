@@ -28,6 +28,7 @@ import {
     questionValidator,
     scoreValidator,
     solutionValidator,
+    styleValidator,
     validationValidator
 } from './util.validators.es6';
 
@@ -77,7 +78,8 @@ const TextBoxTool = BaseTool.extend({
             title: __('tools.textbox.attributes.mask.title')
         }),
         style: new StyleAdapter({
-            title: __('tools.textbox.attributes.style.title')
+            title: __('tools.textbox.attributes.style.title'),
+            validation: styleValidator
         })
     },
     properties: {

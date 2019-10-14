@@ -23,7 +23,11 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
-import { questionValidator, scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -64,11 +68,12 @@ const HighLighterTool = BaseTool.extend({
     },
     attributes: {
         highlightStyle: new StyleAdapter({
-            title: __('tools.highlighter.attributes.highlightStyle.title')
+            title: __('tools.highlighter.attributes.highlightStyle.title'),
+            validation: styleValidator
         }),
         style: new StyleAdapter({
             title: __('tools.highlighter.attributes.style.title'),
-            defaultValue: 'font-size:32px;'
+            validation: styleValidator
         }),
         text: new TextAreaAdapter({
             title: __('tools.highlighter.attributes.text.title'),

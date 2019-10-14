@@ -1,0 +1,9 @@
+@import "./tools";
+
+.kj-stage {
+    .kj-element[data-tool="mathinput"] {
+        .kj-mathinput {
+            font-size: $normal-font-size;
+        }
+    }
+}

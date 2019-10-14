@@ -1,0 +1,10 @@
+@import "./tools";
+
+.kj-stage {
+    .kj-element[data-tool="dropzone"] {
+        .kj-dropzone {
+            font-size: $small-font-size;
+            border: dashed 3px #e1e1e1;
+        }
+    }
+}

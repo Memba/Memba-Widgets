@@ -1,0 +1,9 @@
+@import "./tools";
+
+.kj-stage {
+    .kj-element[data-tool="latex"] {
+        .kj-latex {
+            font-size: $normal-font-size;
+        }
+    }
+}

@@ -1,0 +1,9 @@
+@import "./tools";
+
+.kj-stage {
+    .kj-element[data-tool="highlighter"] {
+        .kj-highlighter {
+            font-size: $normal-font-size;
+        }
+    }
+}

@@ -1,0 +1,9 @@
+@import "./tools";
+
+.kj-stage {
+    .kj-element[data-tool="label"] {
+        .kj-label {
+            font-size: $large-font-size;
+        }
+    }
+}

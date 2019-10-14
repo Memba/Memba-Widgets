@@ -26,7 +26,11 @@ import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
-import { questionValidator, scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -86,14 +90,16 @@ const QuizTool = BaseTool.extend({
             title: __('tools.quiz.attributes.shuffle.title')
         }),
         groupStyle: new StyleAdapter({
-            defaultValue: 'font-size:60px;',
-            title: __('tools.quiz.attributes.groupStyle.title')
+            title: __('tools.quiz.attributes.groupStyle.title'),
+            validation: styleValidator
         }),
         itemStyle: new StyleAdapter({
-            title: __('tools.quiz.attributes.itemStyle.title')
+            title: __('tools.quiz.attributes.itemStyle.title'),
+            validation: styleValidator
         }),
         selectedStyle: new StyleAdapter({
-            title: __('tools.quiz.attributes.selectedStyle.title')
+            title: __('tools.quiz.attributes.selectedStyle.title'),
+            validation: styleValidator
         }),
         data: new ImageListAdapter({
             defaultValue: __('tools.quiz.attributes.data.defaultValue'),

@@ -22,7 +22,11 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { mathLibrary } from './util.libraries.es6';
-import { questionValidator, scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -91,7 +95,7 @@ const MathInputTool = BaseTool.extend({
         }),
         style: new StyleAdapter({
             title: __('tools.mathinput.attributes.style.title'),
-            defaultValue: 'font-size:50px;'
+            validation: styleValidator
         })
     },
     properties: {

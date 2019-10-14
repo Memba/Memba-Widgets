@@ -26,7 +26,11 @@ import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 import { multiQuizLibrary } from './util.libraries.es6';
-import { questionValidator, scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -86,13 +90,15 @@ const MultiQuizTool = BaseTool.extend({
         }),
         groupStyle: new StyleAdapter({
             title: __('tools.multiquiz.attributes.groupStyle.title'),
-            defaultValue: 'font-size:60px;'
+            validation: styleValidator
         }),
         itemStyle: new StyleAdapter({
-            title: __('tools.multiquiz.attributes.itemStyle.title')
+            title: __('tools.multiquiz.attributes.itemStyle.title'),
+            validation: styleValidator
         }),
         selectedStyle: new StyleAdapter({
-            title: __('tools.multiquiz.attributes.selectedStyle.title')
+            title: __('tools.multiquiz.attributes.selectedStyle.title'),
+            validation: styleValidator
         }),
         data: new ImageListAdapter({
             title: __('tools.multiquiz.attributes.data.title'),

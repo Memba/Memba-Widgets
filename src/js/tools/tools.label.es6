@@ -84,7 +84,6 @@ const LabelTool = BaseTool.extend({
         style: new StyleAdapter(
             {
                 title: __('tools.label.attributes.style.title'),
-                defaultValue: 'font-size:60px;',
                 validation: styleValidator
             },
             {

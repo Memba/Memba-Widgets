@@ -20,7 +20,11 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { textLibrary } from './util.libraries.es6';
-import { questionValidator, scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -51,7 +55,7 @@ const TextAreaTool = BaseTool.extend({
     attributes: {
         style: new StyleAdapter({
             title: __('tools.textarea.attributes.style.title'),
-            defaultValue: 'font-size:40px;resize:none;'
+            validation: styleValidator
         })
     },
     properties: {

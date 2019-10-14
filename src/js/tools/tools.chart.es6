@@ -19,6 +19,7 @@ import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import { BaseTool } from './tools.base.es6';
 import { defaultChartData } from './util.miscellaneous.es6';
+import { styleValidator } from './util.validators.es6';
 
 const { ns, roleSelector } = window.kendo;
 
@@ -113,7 +114,8 @@ const ChartTool = BaseTool.extend({
             defaultValue: defaultChartData(4, 2)
         }),
         style: new StyleAdapter({
-            title: __('tools.chart.attributes.style.title')
+            title: __('tools.chart.attributes.style.title'),
+            validation: styleValidator
         })
     },
 

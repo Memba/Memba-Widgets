@@ -22,7 +22,11 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
-import { questionValidator, scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -64,11 +68,12 @@ const TextGapsTool = BaseTool.extend({
     },
     attributes: {
         inputStyle: new StyleAdapter({
-            title: __('tools.textgaps.attributes.inputStyle.title')
+            title: __('tools.textgaps.attributes.inputStyle.title'),
+            validation: styleValidator
         }),
         style: new StyleAdapter({
             title: __('tools.textgaps.attributes.style.title'),
-            defaultValue: 'font-size:32px;'
+            validation: styleValidator
         }),
         text: new TextBoxAdapter({
             title: __('tools.textgaps.attributes.text.title'),

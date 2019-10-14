@@ -19,6 +19,7 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import { BaseTool } from './tools.base.es6';
 // import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
+import { styleValidator } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 
@@ -54,7 +55,8 @@ const ImageTool = BaseTool.extend({
             defaultValue: __('tools.image.attributes.src.defaultValue')
         }),
         style: new StyleAdapter({
-            title: __('tools.image.attributes.style.title')
+            title: __('tools.image.attributes.style.title'),
+            validation: styleValidator
         })
     },
     properties: {

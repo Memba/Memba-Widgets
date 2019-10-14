@@ -1,0 +1,9 @@
+@import "./tools";
+
+.kj-stage {
+    .kj-element[data-tool="textgaps"] {
+        .kj-textgaps {
+            font-size: $normal-font-size;
+        }
+    }
+}

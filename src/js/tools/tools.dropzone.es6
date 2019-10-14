@@ -24,7 +24,11 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
-import { questionValidator, scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -73,7 +77,7 @@ const DropZoneTool = BaseTool.extend({
         }),
         style: new StyleAdapter({
             title: __('tools.dropzone.attributes.style.title'),
-            defaultValue: 'font-size:30px;border:dashed 3px #e1e1e1;'
+            validation: styleValidator
         })
     },
     properties: {

@@ -1,5 +1,9 @@
+@import "./tools";
+
 .kj-stage {
-    span.k-maskedtextbox {
-        width: auto;
+    .kj-element[data-tool="textbox"] {
+        span.k-maskedtextbox {
+            width: auto;
+        }
     }
 }

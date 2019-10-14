@@ -19,6 +19,7 @@ import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
+import { styleValidator } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 
@@ -59,7 +60,7 @@ const LatexTool = BaseTool.extend({
         }),
         style: new StyleAdapter({
             title: __('tools.latex.attributes.style.title'),
-            defaultValue: 'font-size:50px;'
+            validation: styleValidator
         })
     },
     properties: {

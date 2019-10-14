@@ -1,0 +1,10 @@
+@import "./tools";
+
+.kj-stage {
+    .kj-element[data-tool="textarea"] {
+        .k-textbox {
+            font-size: $normal-font-size;
+            resize: none;
+        }
+    }
+}

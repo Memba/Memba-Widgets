@@ -15,7 +15,13 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { Page, PageDataSource } from '../../../src/js/data/data.page.es6';
+import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.playbar.es6';
+import {
+    componentGenerator,
+    getPageArray
+} from '../../../src/js/helpers/helpers.components.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
@@ -33,16 +39,11 @@ const { expect } = chai;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'playbar';
-const WIDGET = 'kendoPlaybar';
+const WIDGET = 'kendoPlayBar';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const { kidoju } = window;
-const { tools } = kidoju;
-const { Page } = kidoju.data;
-const { PageComponent } = kidoju.data;
-const { PageDataSource } = kidoju.data;
 const PLAYBAR2 =
     '<div data-role="playbar" data-bind="source: pages, value: current"></div>'; // TODO use getRoleBinding and getValueBinding
 
@@ -155,10 +156,16 @@ for (let i = 0; i < 30; i++) {
 }
 
 describe('widgets.playbar', () => {
-    before(() => {
+    before(done => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
+        const promises = Object.keys(componentGenerator).map(tool =>
+            tools.load(tool)
+        );
+        $.when(...promises)
+            .then(done)
+            .catch(done);
     });
 
     describe('Availability', () => {

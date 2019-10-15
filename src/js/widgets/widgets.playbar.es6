@@ -465,24 +465,22 @@ const PlayBar = DataBoundWidget.extend({
 
     _initTooltip() {
         const that = this;
-        this.tooltip = this.ul
-            .kendoTooltip({
+        if (this.ul instanceof $) {
+            this.tooltip = this.ul.kendoTooltip({
                 filter: 'span.k-state-selected, a[data-index]',
                 width: 256, // 1024 * 0.25
                 height: 192, // 768 * 0.25
                 position: 'bottom',
                 content(e) {
-                    const { target } = e;
+                    const {target} = e;
                     const index =
                         target.attr(attr('index')) ||
                         parseInt(target.text(), 10) - 1;
                     return $(`<${CONSTANTS.DIV}/>`).attr(attr('index'), index);
                 },
                 show(e) {
-                    e.sender.content.css({ padding: 0 });
-                    const element = e.sender.content
-                        .children(CONSTANTS.DIV)
-                        .first();
+                    e.sender.content.css({padding: 0});
+                    const element = e.sender.content.children(CONSTANTS.DIV).first();
                     const index = parseInt(element.attr(attr('index')), 10);
                     const page = that.dataSource.at(index);
                     element.kendoStage({
@@ -502,8 +500,8 @@ const PlayBar = DataBoundWidget.extend({
                         duration: 150
                     }
                 }
-            })
-            .data('kendoTooltip');
+            }).data('kendoTooltip');
+        }
     },
 
     /**

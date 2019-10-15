@@ -7,22 +7,20 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import 'kendo.data';
 import 'kendo.dropdownlist';
-import assets from '../app/app.assets.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { ImageDataSource } from '../data/data.image.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 import '../widgets/widgets.quiz.es6';
 
 const {
-    data: { DataSource, Model },
     ui: { Quiz }
 } = window.kendo;
 
 // Important: kj-quiz-item kj-quiz-dropdown defines background-position:vover;background-position:center,display:inline-block;height:1.1em;width:1.1em;
 const QUIZSOLUTION_TMPL =
-    '<span class="kj-quiz-item kj-quiz-dropdown"># if (data.image) { #<span class="k-image" style="background-image:url(#: data.image$() #);"></span># } #<span class="k-text">#: data.text #</span></span>';
+    '<span class="kj-quiz-item kj-quiz-dropdown"># if (data.url) { #<span class="k-image" style="background-image:url(#: data.url$() #);"></span># } #<span class="k-text">#: data.text #</span></span>';
 
 /**
  * QuizAdapter
@@ -48,7 +46,7 @@ const QuizAdapter = BaseAdapter.extend({
                 .attr(
                     $.extend(
                         true,
-                        {},
+                        { name: settings.field },
                         settings.attributes,
                         getValueBinding(settings.field),
                         attributes
@@ -57,22 +55,8 @@ const QuizAdapter = BaseAdapter.extend({
                 .appendTo(container);
             input.kendoDropDownList({
                 autoWidth: true,
-                dataSource: new DataSource({
-                    data: settings.model.get('attributes.data'),
-                    schema: {
-                        // TODO Model image -- check ?????????????????????????????????????????????
-                        model: Model.define({
-                            id: 'text',
-                            fields: {
-                                text: { type: CONSTANTS.STRING },
-                                image: { type: CONSTANTS.STRING }
-                            },
-                            image$() {
-                                const image = this.get('image');
-                                return assets.image.scheme2http(image);
-                            }
-                        })
-                    }
+                dataSource: new ImageDataSource({
+                    data: settings.model.get('attributes.data')
                 }),
                 dataTextField: 'text',
                 dataValueField: 'text',

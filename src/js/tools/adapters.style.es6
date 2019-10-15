@@ -31,19 +31,18 @@ const StyleAdapter = BaseAdapter.extend({
      * @param attributes
      */
     init(options, attributes) {
-        const that = this;
-        BaseAdapter.fn.init.call(that, options);
-        that.type = CONSTANTS.STRING;
-        that.defaultValue = that.defaultValue || (that.nullable ? null : '');
+        BaseAdapter.fn.init.call(this, options);
+        this.type = CONSTANTS.STRING;
+        this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         // This is the inline editor with a [...] button which triggers this.showDialog
-        that.editor = (container, settings) => {
+        this.editor = (container, settings) => {
             $(`<${CONSTANTS.INPUT}>`)
                 .css({ width: '100%' }) // 'auto' seems to imply a min-width
                 .prop({ readonly: true })
                 .attr(
                     $.extend(
                         true,
-                        {},
+                        { name: settings.name },
                         settings.attributes,
                         getValueBinding(settings.field),
                         attributes

@@ -20,7 +20,7 @@ const {
  * @class Image
  * @extends BaseModel
  */
-export const Image = BaseModel.define({
+const Image = BaseModel.define({
     id: 'text', // `text` is used for component validation
     fields: {
         text: {
@@ -54,7 +54,7 @@ export const Image = BaseModel.define({
  * @class ImageDataSource
  * @extends DataSource
  */
-export const ImageDataSource = DataSource.extend({
+const ImageDataSource = DataSource.extend({
     /**
      * Init
      * @constructor init
@@ -96,3 +96,8 @@ ImageDataSource.create = options => {
         ? dataSource
         : new ImageDataSource(dataSource);
 };
+
+/**
+ * Exports
+ */
+export { Image, ImageDataSource };

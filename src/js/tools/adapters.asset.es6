@@ -46,7 +46,7 @@ const AssetAdapter = BaseAdapter.extend({
                 .attr(
                     $.extend(
                         true,
-                        {},
+                        { name: settings.field },
                         settings.attributes,
                         getValueBinding(settings.field),
                         attributes

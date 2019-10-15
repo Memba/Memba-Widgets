@@ -28,17 +28,17 @@ const TableAdapter = BaseAdapter.extend({
      * @param options
      */
     init(options /* , attributes */) {
-        const that = this;
-        BaseAdapter.fn.init.call(that, options);
-        that.type = undefined;
+        BaseAdapter.fn.init.call(this, options);
+        this.type = undefined;
         // This is the inline editor with a [...] button which triggers this.showDialog
-        that.editor = (container, settings) => {
+        this.editor = (container, settings) => {
+            // TODO: Consider hidden input for validation
             $(`<${CONSTANTS.BUTTON}/>`)
                 .text(CONSTANTS.ELLIPSIS)
                 .addClass('k-button')
                 .css({ margin: 0, width: '100%' })
                 .appendTo(container)
-                .on(CONSTANTS.CLICK, that.showDialog.bind(that, settings));
+                .on(CONSTANTS.CLICK, this.showDialog.bind(this, settings));
         };
     },
 

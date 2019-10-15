@@ -44,7 +44,7 @@ const HighLighterAdapter = BaseAdapter.extend({
                 .attr(
                     $.extend(
                         true,
-                        {},
+                        {}, // { settings.field }
                         settings.attributes,
                         getValueBinding(settings.field),
                         attributes

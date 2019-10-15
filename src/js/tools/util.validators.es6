@@ -41,6 +41,22 @@ export function makeInput(name, value) {
  */
 
 /**
+ * Alternate text validation
+ * @const altValidator
+ */
+const altValidator = {
+    required: true,
+    // the pattern rule requires type="text" which does not fit textareas
+    // pattern: TOOLS.RX_TEXT
+    alt(input) {
+        if (input.is('[name="attributes.alt"]')) {
+            return false; // TOOLS.RX_TEXT.test(input.val());
+        }
+        return true;
+    }
+};
+
+/**
  * Constant validation
  * @const constantValidator
  */
@@ -89,7 +105,13 @@ const styleValidator = {
     // required: true,
     // pattern: TOOLS.RX_STYLE
     style(input) {
-        if (input.is('[name="attributes.style"]')) {
+        if (
+            input.is('[name="attributes.style"]') ||
+            input.is('[name="attributes.groupStyle"]') ||
+            input.is('[name="attributes.itemStyle"]') ||
+            input.is('[name="attributes.selectedStyle"]') ||
+            input.is('[name="attributes.highlightStyle"]')
+        ) {
             return (
                 input.val() === CONSTANTS.EMPTY ||
                 TOOLS.RX_STYLE.test(input.val())
@@ -131,6 +153,7 @@ const validationValidator = {
  * Exports
  */
 export {
+    altValidator,
     constantValidator,
     questionValidator,
     scoreValidator,

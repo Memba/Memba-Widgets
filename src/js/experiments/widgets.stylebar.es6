@@ -12,6 +12,7 @@ import 'kendo.colorpicker';
 import 'kendo.combobox';
 import 'kendo.dropdownlist';
 import 'kendo.popup';
+import 'kendo.tabstrip';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';

@@ -3,7 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Use ImageDataSource and DataBoundWidget
 // TODO Check html encoding and XSS
 // TODO Check with all widgets that setOptions uses this.options after calling Widget.fn.setOptions.call and not options, otherwise default values are missing
 
@@ -18,10 +17,11 @@ import Logger from '../common/window.logger.es6';
 import { getTransformScale } from '../common/window.position.es6';
 import Style from '../common/window.style.es6';
 import { randomId, shuffle } from '../common/window.util.es6';
+import { ImageDataSource } from '../data/data.image.es6';
 
 const {
     attr,
-    data: { DataSource, ObservableArray },
+    data: { ObservableArray },
     destroy,
     format,
     ns,
@@ -32,6 +32,8 @@ const logger = new Logger('widgets.quiz');
 
 const NS = '.kendoQuiz';
 const WIDGET_CLASS = 'kj-quiz'; // 'k-widget kj-quiz',
+const OPTIONSLABEL_TMPL =
+    '<span class="kj-quiz-item kj-quiz-dropdown"><span class="k-text">#: data #</span></span>';
 const DROPDOWN_TMPL =
     '<span class="kj-quiz-item kj-quiz-dropdown"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></span>';
 const BUTTON_TMPL = `<button class="k-button kj-quiz-item kj-quiz-button" data-${ns}uid="#: data.uid #" data-${ns}value="#: data.{0} #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></button>`;
@@ -96,7 +98,7 @@ const Quiz = DataBoundWidget.extend({
         mode: MODES.BUTTON,
         shuffle: false,
         textField: 'text',
-        imageField: 'url',
+        urlField: 'url$()',
         buttonTemplate: BUTTON_TMPL,
         dropDownTemplate: DROPDOWN_TMPL,
         imageTemplate: IMAGE_TMPL,
@@ -131,7 +133,7 @@ const Quiz = DataBoundWidget.extend({
             buttonTemplate,
             dropDownTemplate,
             groupStyle,
-            imageField,
+            urlField,
             itemStyle,
             imageTemplate,
             linkTemplate,
@@ -143,21 +145,18 @@ const Quiz = DataBoundWidget.extend({
         this._itemStyle = new Style(itemStyle || '');
         this._selectedStyle = new Style(selectedStyle || '');
         this._buttonTemplate = template(
-            format(buttonTemplate, textField, imageField)
+            format(buttonTemplate, textField, urlField)
         );
-        this._dropDownTemplate = format(
-            dropDownTemplate,
-            textField,
-            imageField
-        ); // ! not a compiled template
+        this._dropDownTemplate = format(dropDownTemplate, textField, urlField); // ! not a compiled template
+        this._optionLabelTemplate = OPTIONSLABEL_TMPL;
         this._imageTemplate = template(
-            format(imageTemplate, textField, imageField)
+            format(imageTemplate, textField, urlField)
         );
         this._linkTemplate = template(
-            format(linkTemplate, textField, imageField)
+            format(linkTemplate, textField, urlField)
         );
         this._radioTemplate = template(
-            format(radioTemplate, textField, imageField, randomId())
+            format(radioTemplate, textField, urlField, randomId())
         );
     },
 
@@ -187,7 +186,7 @@ const Quiz = DataBoundWidget.extend({
         } else if (value !== this._value) {
             // Note: Giving a value to the dropDownList that does not exist in dataSource is discarded without raising an error
             if (
-                this.dataSource instanceof DataSource &&
+                this.dataSource instanceof ImageDataSource &&
                 this.dataSource
                     .data()
                     .find(item => item[this.options.textField] === value)
@@ -230,10 +229,11 @@ const Quiz = DataBoundWidget.extend({
                 autoBind: options.autoBind,
                 change: this._onDropDownListChange.bind(this), // Change is not triggered by dropDownList api calls incl. value(), text(), ...
                 open: this._onDropDownListOpen.bind(this),
-                dataSource: options.dataSource,
+                dataSource: [], // ImageDataSource.create(options.dataSource),
                 dataTextField: options.textField,
                 dataValueField: options.textField,
                 optionLabel: options.messages.optionLabel,
+                optionLabelTemplate: this._optionLabelTemplate,
                 template: this._dropDownTemplate,
                 valueTemplate: this._dropDownTemplate,
                 value: options.value,
@@ -456,13 +456,10 @@ const Quiz = DataBoundWidget.extend({
                 )
                 .addClass(CONSTANTS.SELECTED_CLASS)
                 .attr('style', '')
-                .css(
-                    $.extend(
-                        {}, // TODO Check remove
-                        this._itemStyle.toJSON(),
-                        this._selectedStyle.toJSON()
-                    )
-                );
+                .css({
+                    ...this._itemStyle.toJSON(),
+                    ...this._selectedStyle.toJSON()
+                });
         }
     },
 
@@ -502,13 +499,10 @@ const Quiz = DataBoundWidget.extend({
                 )
                 .addClass(CONSTANTS.SELECTED_CLASS)
                 .attr('style', '')
-                .css(
-                    $.extend(
-                        {},
-                        this._itemStyle.toJSON(),
-                        this._selectedStyle.toJSON()
-                    )
-                );
+                .css({
+                    ...this._itemStyle.toJSON(),
+                    ...this._selectedStyle.toJSON()
+                });
         }
     },
 
@@ -531,13 +525,10 @@ const Quiz = DataBoundWidget.extend({
                 )
                 .addClass(CONSTANTS.SELECTED_CLASS)
                 .attr('style', '')
-                .css(
-                    $.extend(
-                        {},
-                        this._itemStyle.toJSON(),
-                        this._selectedStyle.toJSON()
-                    )
-                );
+                .css({
+                    ...this._itemStyle.toJSON(),
+                    ...this._selectedStyle.toJSON()
+                });
         }
     },
 
@@ -566,13 +557,10 @@ const Quiz = DataBoundWidget.extend({
                 .prop(CHECKED, true)
                 .parent()
                 .attr('style', '')
-                .css(
-                    $.extend(
-                        {},
-                        this._itemStyle.toJSON(),
-                        this._selectedStyle.toJSON()
-                    )
-                );
+                .css({
+                    ...this._itemStyle.toJSON(),
+                    ...this._selectedStyle.toJSON()
+                });
         }
     },
 
@@ -582,7 +570,7 @@ const Quiz = DataBoundWidget.extend({
      */
     _dataSource() {
         if (
-            this.dataSource instanceof DataSource &&
+            this.dataSource instanceof ImageDataSource &&
             $.isFunction(this._refreshHandler)
         ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
@@ -591,7 +579,7 @@ const Quiz = DataBoundWidget.extend({
 
         if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
             // returns the datasource OR creates one if using array or configuration
-            this.dataSource = DataSource.create(this.options.dataSource);
+            this.dataSource = ImageDataSource.create(this.options.dataSource);
 
             // bind to the CONSTANTS.CHANGE event to refresh the widget
             this._refreshHandler = this.refresh.bind(this);

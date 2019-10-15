@@ -20,10 +20,11 @@ import Logger from '../common/window.logger.es6';
 import { getTransformScale } from '../common/window.position.es6';
 import Style from '../common/window.style.es6';
 import { isAnyArray, randomId, shuffle } from '../common/window.util.es6';
+import { ImageDataSource } from '../data/data.image.es6';
 
 const {
     attr,
-    data: { DataSource, ObservableArray },
+    data: { ObservableArray },
     destroy,
     format,
     ns,
@@ -178,7 +179,7 @@ const MultiQuiz = DataBoundWidget.extend({
         const that = this;
         const { options } = that;
         if (Array.isArray(value) || value instanceof ObservableArray) {
-            if (that.dataSource instanceof DataSource) {
+            if (that.dataSource instanceof ImageDataSource) {
                 // finder is used to satisfy jshint which would otherwise complain about making functions within loops
                 const finder = function(value) {
                     return that.dataSource
@@ -245,7 +246,7 @@ const MultiQuiz = DataBoundWidget.extend({
                 autoBind: options.autoBind,
                 change: this._onMultiSelectChange.bind(this), // change is not triggered by multiSelect api calls incl. value()
                 open: this._onMultiSelectOpen.bind(this),
-                dataSource: options.dataSource,
+                dataSource: [], // ImageDataSource.create(options.dataSource),
                 dataTextField: options.textField,
                 dataValueField: options.textField,
                 placeholder: options.messages.placeholder,
@@ -637,7 +638,7 @@ const MultiQuiz = DataBoundWidget.extend({
         // TODO review for null
 
         if (
-            this.dataSource instanceof DataSource &&
+            this.dataSource instanceof ImageDataSource &&
             $.isFunction(this._refreshHandler)
         ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
@@ -646,7 +647,7 @@ const MultiQuiz = DataBoundWidget.extend({
 
         if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
             // returns the datasource OR creates one if using array or configuration
-            this.dataSource = DataSource.create(this.options.dataSource);
+            this.dataSource = ImageDataSource.create(this.options.dataSource);
 
             // bind to the CONSTANTS.CHANGE event to refresh the widget
             this._refreshHandler = this.refresh.bind(this);

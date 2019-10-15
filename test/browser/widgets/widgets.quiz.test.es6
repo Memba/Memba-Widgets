@@ -32,12 +32,12 @@ const { expect } = chai;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'quiz';
-const WIDGET = 'kenndoQuiz';
+const WIDGET = 'kendoQuiz';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const QUIZ_DATA = [
+const data = [
     {
         text: 'answer 1',
         image:
@@ -99,7 +99,7 @@ describe('widgets.quiz', () => {
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
-                dataSource: QUIZ_DATA,
+                dataSource: data,
                 mode: 'dropdown',
                 itemStyle: { color: 'rgb(255, 0, 0)' },
                 activeStyle: { backgroundColor: 'rgb(255, 224, 224)' }
@@ -140,7 +140,7 @@ describe('widgets.quiz', () => {
 
         it('from markup with attributes', () => {
             const attributes = {
-                'data-source': JSON.stringify(QUIZ_DATA),
+                'data-source': JSON.stringify(data),
                 'data-mode': 'radio',
                 'data-group-style': 'border: 1px solid rgb(255, 0, 0);',
                 'data-item-style': 'color: rgb(255, 0, 0);',
@@ -184,13 +184,13 @@ describe('widgets.quiz', () => {
         let element;
         let widget;
         const options1 = {
-            dataSource: QUIZ_DATA,
+            dataSource: data,
             mode: 'image',
             itemStyle: { color: 'rgb(255, 0, 0)' },
             activeStyle: { backgroundColor: 'rgb(255, 224, 224)' }
         };
         const options2 = {
-            dataSource: QUIZ_DATA,
+            dataSource: data,
             mode: 'button',
             itemStyle: { color: 'rgb(0, 0, 255)' },
             activeStyle: { backgroundColor: 'rgb(224, 224, 255)' }
@@ -211,10 +211,11 @@ describe('widgets.quiz', () => {
             widget.value('dummy');
             expect(widget.value()).to.be.null;
             for (let i = 0; i < widget.dataSource.total(); i++) {
-                widget.value(widget.dataSource.at(i).text);
-                expect(widget.value()).to.equal(widget.dataSource.at(i).text);
+                const value = widget.dataSource.at(i).text;
+                widget.value(value);
+                expect(widget.value()).to.equal(value);
                 widget.value('dummy');
-                expect(widget.value()).to.equal(widget.dataSource.at(i).text);
+                expect(widget.value()).to.be.null;
             }
         });
 
@@ -262,7 +263,7 @@ describe('widgets.quiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                data: QUIZ_DATA,
+                data,
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -285,7 +286,7 @@ describe('widgets.quiz', () => {
                 expect(viewModel.get('current')).to.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`button.kj-widget-button:eq(${i})`)
+                    widget.element.find(`button.kj-quiz-button:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -304,7 +305,7 @@ describe('widgets.quiz', () => {
                 expect(viewModel.get('current')).to.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`button.kj-widget-button:eq(${i})`)
+                    widget.element.find(`button.kj-quiz-button:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -318,13 +319,13 @@ describe('widgets.quiz', () => {
             for (let i = 0; i < viewModel.data.length; i++) {
                 const value = viewModel.data[i].text;
                 widget.element
-                    .find(`button.kj-widget-button:eq(${i})`)
+                    .find(`button.kj-quiz-button:eq(${i})`)
                     .simulate('click');
                 expect(widget.value()).to.equal(value);
                 expect(viewModel.get('current')).to.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`button.kj-widget-button:eq(${i})`)
+                    widget.element.find(`button.kj-quiz-button:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -347,7 +348,7 @@ describe('widgets.quiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                data: QUIZ_DATA,
+                data,
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -430,7 +431,7 @@ describe('widgets.quiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                data: QUIZ_DATA,
+                data,
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -453,7 +454,7 @@ describe('widgets.quiz', () => {
                 expect(viewModel.get('current')).to.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`div.kj-widget-image:eq(${i})`)
+                    widget.element.find(`div.kj-quiz-image:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -472,7 +473,7 @@ describe('widgets.quiz', () => {
                 expect(viewModel.get('current')).to.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`div.kj-widget-image:eq(${i})`)
+                    widget.element.find(`div.kj-quiz-image:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -486,13 +487,13 @@ describe('widgets.quiz', () => {
             for (let i = 0; i < viewModel.data.length; i++) {
                 const value = viewModel.data[i].text;
                 widget.element
-                    .find(`div.kj-widget-image:eq(${i})`)
+                    .find(`div.kj-quiz-image:eq(${i})`)
                     .simulate('click');
                 expect(widget.value()).to.equal(value);
                 expect(viewModel.get('current')).to.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`div.kj-widget-image:eq(${i})`)
+                    widget.element.find(`div.kj-quiz-image:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -515,7 +516,7 @@ describe('widgets.quiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                data: QUIZ_DATA,
+                data,
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -538,7 +539,7 @@ describe('widgets.quiz', () => {
                 expect(viewModel.get('current')).to.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`span.kj-widget-link:eq(${i})`)
+                    widget.element.find(`span.kj-quiz-link:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -557,7 +558,7 @@ describe('widgets.quiz', () => {
                 expect(viewModel.get('current')).to.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`span.kj-widget-link:eq(${i})`)
+                    widget.element.find(`span.kj-quiz-link:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -571,13 +572,13 @@ describe('widgets.quiz', () => {
             for (let i = 0; i < viewModel.data.length; i++) {
                 const value = viewModel.data[i].text;
                 widget.element
-                    .find(`span.kj-widget-link:eq(${i})`)
+                    .find(`span.kj-quiz-link:eq(${i})`)
                     .simulate('click');
                 expect(widget.value()).to.equal(value);
                 expect(viewModel.get('current')).to.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`span.kj-widget-link:eq(${i})`)
+                    widget.element.find(`span.kj-quiz-link:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -600,7 +601,7 @@ describe('widgets.quiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                data: QUIZ_DATA,
+                data,
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -670,7 +671,7 @@ describe('widgets.quiz', () => {
         let widget;
         let change;
         const options = {
-            dataSource: { data: QUIZ_DATA },
+            dataSource: { data },
             mode: 'button',
             itemStyle: { color: 'rgb(0, 0, 255)' },
             activeStyle: { backgroundColor: 'rgb(224, 224, 255)' }

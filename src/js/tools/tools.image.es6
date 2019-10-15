@@ -19,7 +19,11 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import { BaseTool } from './tools.base.es6';
 // import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
-import { styleValidator } from './util.validators.es6';
+import {
+    altValidator,
+    constantValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 
@@ -45,14 +49,15 @@ const ImageTool = BaseTool.extend({
     },
     attributes: {
         alt: new TextBoxAdapter({
-            title: __('tools.image.attributes.alt.title'),
+            defaultValue: __('tools.image.attributes.alt.defaultValue'),
             help: __('tools.image.attributes.alt.help'),
-            defaultValue: __('tools.image.attributes.alt.defaultValue')
+            title: __('tools.image.attributes.alt.title'),
+            validation: altValidator
         }),
         src: new AssetAdapter({
-            title: __('tools.image.attributes.src.title'),
+            defaultValue: __('tools.image.attributes.src.defaultValue'),
             help: __('tools.image.attributes.src.help'),
-            defaultValue: __('tools.image.attributes.src.defaultValue')
+            title: __('tools.image.attributes.src.title')
         }),
         style: new StyleAdapter({
             title: __('tools.image.attributes.style.title'),
@@ -71,7 +76,8 @@ const ImageTool = BaseTool.extend({
             }
         ),
         constant: new TextBoxAdapter({
-            title: __('tools.image.properties.constant.title')
+            title: __('tools.image.properties.constant.title'),
+            validation: constantValidator
         })
     },
 

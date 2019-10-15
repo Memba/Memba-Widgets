@@ -219,21 +219,14 @@
                     { text: 'question 3', url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg' },
                     { text: 'question 4', url: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg' }
                 ];
-                var model = kendo.data.Model.define({
-                    id: 'text',
-                    fields: {
-                        text: { type: 'string' },
-                        url: { type: 'string' }
-                    }
-                });
                 var viewModel = kendo.observable({
                     value: [], // Note: value  always contains the text (not the image) in the following source items
                     value$: function () {
                         return (this.get('value') || []).join(', ');
                     },
-                    source: '1974[http://www.acardandagift.com/images/1974_C1871_I_HEART_IMAGE1.png]\n' +
-                    '1982[http://www.acardandagift.com/images/1982_C1879_I_HEART_IMAGE1.png]\n' +
-                    '1993[http://www.acardandagift.com/images/1993_C1890_I_HEART_IMAGE1.png]',
+                    source: '1974[https://cdn.kidoju.com/images/o_collection/svg/office/hand_count_one.svg]\n' +
+                        '1982[https://cdn.kidoju.com/images/o_collection/svg/office/hand_point_up.svg]\n' +
+                        '1993[https://cdn.kidoju.com/images/o_collection/svg/office/hand_count_three.svg]',
                     visible: true,
                     enabled: true,
                     readonly: true,
@@ -264,12 +257,7 @@
                         selectedStyle: {
                             backgroundColor: '#00FF00'
                         },
-                        dataSource: new kendo.data.DataSource({
-                            data: data,
-                            schema: {
-                                model: model
-                            }
-                        })
+                        dataSource: data
                     });
 
                     $('#multiquiz2').kendoMultiQuiz({
@@ -281,12 +269,7 @@
                         selectedStyle: {
                             backgroundColor: '#00FF00'
                         },
-                        dataSource: new kendo.data.DataSource({
-                            data: data,
-                            schema: {
-                                model: model
-                            }
-                        })
+                        dataSource: data
                     });
 
                     $('#multiquiz3').kendoMultiQuiz({
@@ -298,12 +281,7 @@
                         selectedStyle: {
                             backgroundColor: '#00FF00'
                         },
-                        dataSource: new kendo.data.DataSource({
-                            data: data,
-                            schema: {
-                                model: model
-                            }
-                        })
+                        dataSource: data
                     });
 
                     // Other multiquizzes bound to observable

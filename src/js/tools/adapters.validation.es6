@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: Consider validation
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -30,15 +32,14 @@ const ValidationAdapter = BaseAdapter.extend({
      * @param attributes
      */
     init(options, attributes) {
-        const that = this;
-        BaseAdapter.fn.init.call(that, options);
-        that.library = (options || {}).library; // For showDialog
-        that.type = CONSTANTS.STRING;
+        BaseAdapter.fn.init.call(this, options);
+        this.library = (options || {}).library; // For showDialog
+        this.type = CONSTANTS.STRING;
         // this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-        that.editor = (container, settings) => {
+        this.editor = (container, settings) => {
             const { field, model } = settings;
             // Add library to model for MVVM bindings
-            model._library = that.library;
+            model._library = this.library;
             // Add code input
             // We need a wrapper because container has { display: table-cell; }
             const wrapper = $(`<${CONSTANTS.DIV}/>`)
@@ -50,7 +51,7 @@ const ValidationAdapter = BaseAdapter.extend({
                 .attr(
                     $.extend(
                         true,
-                        {},
+                        {}, // { name: settings.field } for validation
                         settings.attributes,
                         getValueBinding(field, '_library'),
                         attributes
@@ -70,7 +71,7 @@ const ValidationAdapter = BaseAdapter.extend({
                     marginTop: 0
                 })
                 .appendTo(wrapper)
-                .on(CONSTANTS.CLICK, that.showDialog.bind(that, settings));
+                .on(CONSTANTS.CLICK, this.showDialog.bind(this, settings));
         };
     },
 
@@ -79,17 +80,16 @@ const ValidationAdapter = BaseAdapter.extend({
      * @param options
      */
     showDialog(options = {} /* , evt */) {
-        const that = this;
         openCodeEditor({
             title: options.title || this.title,
-            // defaultValue: that.defaultValue,
-            default: that.defaultValue,
+            // defaultValue: this.defaultValue,
+            default: this.defaultValue,
             solution: htmlEncode(
                 JSON.stringify(options.model.get('properties.solution'))
             ),
             data: {
                 value: options.model.get(options.field),
-                library: [CUSTOM].concat(that.library)
+                library: [CUSTOM].concat(this.library)
             }
         })
             .then(result => {

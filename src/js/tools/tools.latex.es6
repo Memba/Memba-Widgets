@@ -19,7 +19,7 @@ import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
-import { styleValidator } from './util.validators.es6';
+import { constantValidator, styleValidator } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 
@@ -66,16 +66,17 @@ const LatexTool = BaseTool.extend({
     properties: {
         behavior: new DropDownListAdapter(
             {
-                title: __('tools.latex.properties.behavior.title'),
                 defaultValue: 'none',
-                enum: ['none', 'draggable', 'selectable']
+                source: __('tools.latex.properties.behavior.source'),
+                title: __('tools.latex.properties.behavior.title')
             },
             {
                 style: 'width: 100%;'
             }
         ),
         constant: new TextBoxAdapter({
-            title: __('tools.image.properties.constant.title')
+            title: __('tools.image.properties.constant.title'),
+            validation: constantValidator
         })
     },
 

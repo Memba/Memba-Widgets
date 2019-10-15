@@ -3,23 +3,17 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Rename into checkboxes
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import 'kendo.data';
-import assets from '../app/app.assets.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { ImageDataSource } from '../data/data.image.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 import '../widgets/widgets.multiquiz.es6';
 
-const {
-    data: { DataSource, Model },
-    ns
-} = window.kendo;
+const { ns } = window.kendo;
 
 /**
  * MultiQuizAdapter
@@ -44,7 +38,7 @@ const MultiQuizAdapter = BaseAdapter.extend({
                 .attr(
                     $.extend(
                         true,
-                        {},
+                        {}, // { name: settings.field }
                         settings.attributes,
                         getValueBinding(settings.field),
                         attributes
@@ -55,21 +49,8 @@ const MultiQuizAdapter = BaseAdapter.extend({
                 mode: 'checkbox',
                 // checkboxTemplate: '<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-' + kendo.ns + 'uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>',
                 checkboxTemplate: `<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-${ns}uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1}$() #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>`,
-                dataSource: new DataSource({
-                    data: settings.model.get('attributes.data'),
-                    schema: {
-                        model: Model.define({
-                            id: 'text',
-                            fields: {
-                                text: { type: CONSTANTS.STRING },
-                                image: { type: CONSTANTS.STRING }
-                            },
-                            image$() {
-                                const image = this.get('image');
-                                return assets.image.scheme2http(image);
-                            }
-                        })
-                    }
+                dataSource: new ImageDataSource({
+                    data: settings.model.get('attributes.data')
                 })
             });
         };

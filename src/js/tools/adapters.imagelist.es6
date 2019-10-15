@@ -35,17 +35,16 @@ const ImageListAdapter = BaseAdapter.extend({
      * @param attributes
      */
     init(options, attributes) {
-        const that = this;
-        BaseAdapter.fn.init.call(that, options);
-        that.type = undefined;
-        that.defaultValue = that.defaultValue || [];
-        // that.editor is the list editor where the insert image button triggers this.onImageClick
-        that.editor = (container, settings) => {
+        BaseAdapter.fn.init.call(this, options);
+        this.type = undefined;
+        this.defaultValue = this.defaultValue || [];
+        // this.editor is the list editor where the insert image button triggers this.onImageClick
+        this.editor = (container, settings) => {
             const element = $(`<${CONSTANTS.DIV}/>`)
                 .attr(
                     $.extend(
                         true,
-                        {},
+                        {}, // { name: settings.field } for validation
                         settings.attributes,
                         getValueBinding(undefined, settings.field),
                         attributes
@@ -55,7 +54,7 @@ const ImageListAdapter = BaseAdapter.extend({
             const widget = element
                 .kendoImageList({
                     schemes: assets.image.schemes,
-                    click: that.onImageClick.bind(that, settings)
+                    click: this.onImageClick.bind(this, settings)
                 })
                 .data('kendoImageList');
             assert.instanceof(

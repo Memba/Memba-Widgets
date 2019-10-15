@@ -217,30 +217,41 @@
             });
             Promise.all([
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('../data/data.pagecomponent.es6'),
                 SystemJS.import('./widgets.stylebar.es6'),
-                SystemJS.import('../helpers/helpers.data.es6')
+                SystemJS.import('../helpers/helpers.data.es6'),
+                SystemJS.import('../data/data.pagecomponent.es6'),
+                SystemJS.import('../tools/tools.es6'),
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                var PageComponentDataSource = modules[1].PageComponentDataSource;
-                var data = modules[3].getComponentArray();
-                var pageComponentDataSource = new PageComponentDataSource({ data });
-                var viewModel = window.viewModel = kendo.observable({
-                    components: pageComponentDataSource,
-                    selectedComponent: null, // For the stylestrip
-                    style: null, // For the stylebar
-                    enabled: true,
-                    visible: true,
-                    reset: function(e) {
-                        this.set('selectedComponent', null);
-                    }
+                var data = modules[2].getComponentArray();
+                var PageComponentDataSource = modules[3].PageComponentDataSource;
+                var tools = modules[4].default;
+                var promises = data.map(function (component) {
+                    // Load tool
+                    return tools.load(component.tool);
                 });
-                $(function() {
-                    kendo.bind('body', viewModel);
-                    pageComponentDataSource.fetch();
-                    //    .then(function() {
-                    //        viewModel.set('selectedComponent', pageComponentDataSource.at(0));
-                    //    });
+                $.when.apply($, promises).then(() => {
+                    var pageComponentDataSource = new PageComponentDataSource({ data });
+                    var viewModel = kendo.observable({
+                        components: pageComponentDataSource,
+                        selectedComponent: null, // For the stylestrip
+                        style: null, // For the stylebar
+                        enabled: true,
+                        visible: true,
+                        reset: function(e) {
+                            this.set('selectedComponent', null);
+                        }
+                    });
+
+                    $(function() {
+                        kendo.bind('body', viewModel);
+                        pageComponentDataSource.fetch().then(function() {
+                            viewModel.set('selectedComponent', pageComponentDataSource.at(0));
+                        });
+                        debugger;
+                        new kendo.spreadsheet.TabStrip($('#stylebar'))
+
+                    });
                 });
             });
         }());
@@ -257,7 +268,7 @@
 </head>
 <body>
 <h1>widgets.stylebar</h1>
-<div data-role="stylebar" data-bind="value: style, visible: visible, enabled: enabled"></div>
+<div id="stylebar" data-bind="value: style, visible: visible, enabled: enabled"></div>
 <div style="padding: 20px;">
     <input type="text" data-bind="value: style" class="k-textbox" style="width: 100%;">
     <div>

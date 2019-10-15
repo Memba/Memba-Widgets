@@ -37,7 +37,7 @@ const WIDGET = 'kendoMultiQuiz';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const MULTIQUIZ_DATA = [
+const data = [
     {
         text: 'answer 1',
         image:
@@ -99,7 +99,7 @@ describe('widgets.multiquiz', () => {
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
-                dataSource: MULTIQUIZ_DATA,
+                dataSource: data,
                 mode: 'multiselect',
                 itemStyle: { color: 'rgb(255, 0, 0)' },
                 activeStyle: { backgroundColor: 'rgb(255, 224, 224)' }
@@ -140,7 +140,7 @@ describe('widgets.multiquiz', () => {
 
         it('from markup with attributes', () => {
             const attributes = {
-                'data-source': JSON.stringify(MULTIQUIZ_DATA),
+                'data-source': JSON.stringify(data),
                 'data-mode': 'checkbox',
                 'data-group-style': 'border: 1px solid rgb(255, 0, 0);',
                 'data-item-style': 'color: rgb(255, 0, 0);',
@@ -184,13 +184,13 @@ describe('widgets.multiquiz', () => {
         let element;
         let widget;
         const options1 = {
-            dataSource: MULTIQUIZ_DATA,
+            dataSource: data,
             mode: 'image',
             itemStyle: { color: 'rgb(255, 0, 0)' },
             activeStyle: { backgroundColor: 'rgb(255, 224, 224)' }
         };
         const options2 = {
-            dataSource: MULTIQUIZ_DATA,
+            dataSource: data,
             mode: 'button',
             itemStyle: { color: 'rgb(0, 0, 255)' },
             activeStyle: { backgroundColor: 'rgb(224, 224, 255)' }
@@ -262,7 +262,7 @@ describe('widgets.multiquiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                data: MULTIQUIZ_DATA,
+                data,
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -286,7 +286,7 @@ describe('widgets.multiquiz', () => {
                 expect(viewModel.get('current').toJSON()).to.deep.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`button.kj-widget-button:eq(${i})`)
+                    widget.element.find(`button.kj-multiquiz-button:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -305,7 +305,7 @@ describe('widgets.multiquiz', () => {
                 expect(viewModel.get('current').toJSON()).to.deep.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`button.kj-widget-button:eq(${i})`)
+                    widget.element.find(`button.kj-multiquiz-button:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -320,13 +320,13 @@ describe('widgets.multiquiz', () => {
             for (let i = 0; i < viewModel.data.length; i++) {
                 value.push(viewModel.data[i].text);
                 widget.element
-                    .find(`button.kj-widget-button:eq(${i})`)
+                    .find(`button.kj-multiquiz-button:eq(${i})`)
                     .simulate('click');
                 expect(widget.value()).to.deep.equal(value);
                 expect(viewModel.get('current').toJSON()).to.deep.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`button.kj-widget-button:eq(${i})`)
+                    widget.element.find(`button.kj-multiquiz-button:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -349,7 +349,7 @@ describe('widgets.multiquiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                data: MULTIQUIZ_DATA,
+                data,
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -432,7 +432,7 @@ describe('widgets.multiquiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                data: MULTIQUIZ_DATA,
+                data,
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -456,7 +456,7 @@ describe('widgets.multiquiz', () => {
                 expect(viewModel.get('current').toJSON()).to.deep.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`div.kj-widget-image:eq(${i})`)
+                    widget.element.find(`div.kj-multiquiz-image:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -475,7 +475,7 @@ describe('widgets.multiquiz', () => {
                 expect(viewModel.get('current').toJSON()).to.deep.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`div.kj-widget-image:eq(${i})`)
+                    widget.element.find(`div.kj-multiquiz-image:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -490,13 +490,13 @@ describe('widgets.multiquiz', () => {
             for (let i = 0; i < viewModel.data.length; i++) {
                 value.push(viewModel.data[i].text);
                 widget.element
-                    .find(`div.kj-widget-image:eq(${i})`)
+                    .find(`div.kj-multiquiz-image:eq(${i})`)
                     .simulate('click');
                 expect(widget.value()).to.deep.equal(value);
                 expect(viewModel.get('current').toJSON()).to.deep.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`div.kj-widget-image:eq(${i})`)
+                    widget.element.find(`div.kj-multiquiz-image:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -519,7 +519,7 @@ describe('widgets.multiquiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                data: MULTIQUIZ_DATA,
+                data,
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -543,7 +543,7 @@ describe('widgets.multiquiz', () => {
                 expect(viewModel.get('current').toJSON()).to.deep.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`span.kj-widget-link:eq(${i})`)
+                    widget.element.find(`span.kj-multiquiz-link:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -562,7 +562,7 @@ describe('widgets.multiquiz', () => {
                 expect(viewModel.get('current').toJSON()).to.deep.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`span.kj-widget-link:eq(${i})`)
+                    widget.element.find(`span.kj-multiquiz-link:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -577,13 +577,13 @@ describe('widgets.multiquiz', () => {
             for (let i = 0; i < viewModel.data.length; i++) {
                 value.push(viewModel.data[i].text);
                 widget.element
-                    .find(`span.kj-widget-link:eq(${i})`)
+                    .find(`span.kj-multiquiz-link:eq(${i})`)
                     .simulate('click');
                 expect(widget.value()).to.deep.equal(value);
                 expect(viewModel.get('current').toJSON()).to.deep.equal(value);
                 expect(change).to.have.callCount(i + 1);
                 expect(
-                    widget.element.find(`span.kj-widget-link:eq(${i})`)
+                    widget.element.find(`span.kj-multiquiz-link:eq(${i})`)
                 ).to.have.class('k-state-selected');
             }
         });
@@ -606,7 +606,7 @@ describe('widgets.multiquiz', () => {
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                data: MULTIQUIZ_DATA,
+                data,
                 current: null
             });
             bind(`#${FIXTURES}`, viewModel);
@@ -678,7 +678,7 @@ describe('widgets.multiquiz', () => {
         let widget;
         let change;
         const options = {
-            dataSource: { data: MULTIQUIZ_DATA },
+            dataSource: { data },
             mode: 'button',
             itemStyle: { color: 'rgb(0, 0, 255)' },
             activeStyle: { backgroundColor: 'rgb(224, 224, 255)' }

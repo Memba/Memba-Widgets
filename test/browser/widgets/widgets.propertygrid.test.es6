@@ -10,6 +10,13 @@
 import $ from 'jquery';
 import 'jquery.simulate';
 import 'kendo.binder';
+import 'kendo.colorpicker';
+import 'kendo.datepicker';
+import 'kendo.datetimepicker';
+import 'kendo.dropdownlist';
+import 'kendo.maskedtextbox';
+import 'kendo.numerictextbox';
+import 'kendo.switch';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
@@ -26,6 +33,7 @@ const {
     guid,
     // init,
     observable,
+    toString,
     ui: { PropertyGrid, roles }
 } = window.kendo;
 const { expect } = chai;
@@ -38,9 +46,6 @@ const WIDGET = 'kendoPropertyGrid';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const PROPERTYGRID2 =
-    '<div data-role="propertygrid" data-bind="value: current"></div>';
-
 function validateGridHtml(element, rowCount) {
     expect(element).to.have.class('k-widget');
     expect(element).to.have.class('k-grid');
@@ -51,24 +56,24 @@ function validateGridHtml(element, rowCount) {
         )
     )
         .to.be.an.instanceof($)
-        .with.property('length', 2);
+        .with.lengthOf(2);
     expect(
         element.find(
             'div.k-grid-header>div.k-grid-header-wrap>table>thead>tr>th'
         )
     )
         .to.be.an.instanceof($)
-        .with.property('length', 2);
+        .with.lengthOf(2);
     expect(element.find('div.k-grid-content>table>colgroup>col'))
         .to.be.an.instanceof($)
-        .with.property('length', 2);
+        .with.lengthOf(2);
     if (rowCount) {
         expect(element.find('div.k-grid-content>table>tbody>tr'))
             .to.be.an.instanceof($)
-            .with.property('length', rowCount);
+            .with.lengthOf(rowCount);
         expect(element.find('div.k-grid-content>table>tbody>tr>td'))
             .to.be.an.instanceof($)
-            .with.property('length', 2 * rowCount);
+            .with.lengthOf(2 * rowCount);
     } else {
         expect(element.find('div.k-grid-content>table>tbody')).to.be.empty;
     }
@@ -109,9 +114,10 @@ describe('widgets.propertygrid', () => {
     describe('String Initialization', () => {
         it('string object value', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 'Sample' }
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -122,7 +128,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('string');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -136,10 +142,11 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with basic rows options (title only)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 'Sample' },
                 rows: [{ field: 'sample', title: 'Another sample' }]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -150,7 +157,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('string');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -164,7 +171,7 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with textarea editor', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 'Sample' },
                 rows: [
                     {
@@ -173,7 +180,8 @@ describe('widgets.propertygrid', () => {
                         editor: 'textarea'
                     }
                 ]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -184,7 +192,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('string');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -197,7 +205,7 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with span editor and attributes', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 'Sample' },
                 rows: [
                     {
@@ -207,7 +215,8 @@ describe('widgets.propertygrid', () => {
                         attributes: { style: 'color: red;' }
                     }
                 ]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -218,7 +227,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('string');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(span).to.exist;
             expect(span.attr(attr('bind'))).to.match(
@@ -232,10 +241,11 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with kendo widget (color picker)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: '#ffffff' },
                 rows: [{ field: 'sample', editor: 'colorpicker' }]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -246,7 +256,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('string');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -261,13 +271,13 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with custom widget', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 'W1N 1AC' },
                 rows: [
                     {
                         field: 'sample',
-                        editor(container, options) {
-                            $(`<input data-bind="value: ${options.field}"/>`)
+                        editor(container, opts) {
+                            $(`<input data-bind="value: ${opts.field}"/>`)
                                 .appendTo(container)
                                 .kendoMaskedTextBox({
                                     mask: 'L0L 0LL'
@@ -275,7 +285,8 @@ describe('widgets.propertygrid', () => {
                         }
                     }
                 ]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -286,7 +297,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('string');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -311,10 +322,11 @@ describe('widgets.propertygrid', () => {
                     }
                 }
             });
-            const widget = element[WIDGET]({
+            const options = {
                 value: new Sample({ sample: 'Sample' }),
                 rows: [{ field: 'sample' }]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -322,21 +334,12 @@ describe('widgets.propertygrid', () => {
             const row = element.find('div.k-grid-content>table>tbody>tr');
             const input = row.find(`input[${attr('bind')}]`);
             const span = row.find(`span[${attr('bind')}]`);
-            const title = row.find('td:first-of-type').text();
+            // const title = row.find('td:first-of-type').text();
             expect(value.sample).to.be.a('string');
             // Kendo UI v2015.3.930 data models now have _handlers
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property(
-                    'length',
-                    5 +
-                        (Object.prototype.hasOwnProperty.call(
-                            value,
-                            '_handlers'
-                        )
-                            ? 1
-                            : 0)
-                ); // including _events, _handlers, uid, dirty and id
+                .with.lengthOf(7); // including _events, _handlers, uid, dirty and id
             expect(row).to.exist;
             expect(input).not.to.exist;
             expect(span).to.exist;
@@ -360,7 +363,7 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with template', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 'Sample' },
                 rows: [
                     {
@@ -369,7 +372,8 @@ describe('widgets.propertygrid', () => {
                             '<div style="border: dashed 1px \\#000000;" data-bind="text: sample"></div>'
                     }
                 ]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -377,11 +381,11 @@ describe('widgets.propertygrid', () => {
             const row = element.find('div.k-grid-content>table>tbody>tr');
             const input = row.find(`input[${attr('bind')}]`);
             const div = row.find(`div[${attr('bind')}]`);
-            const title = row.find('td:first-of-type').text();
+            // const title = row.find('td:first-of-type').text();
             expect(value.sample).to.be.a('string');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1); // including _events, uid, dirty and id
+                .with.lengthOf(1); // including _events, uid, dirty and id
             expect(row).to.exist;
             expect(input).not.to.exist;
             expect(div).to.exist;
@@ -393,10 +397,11 @@ describe('widgets.propertygrid', () => {
 
         xit('string object value with basic rows options (title only)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: { subvalue: 'Sample' } },
                 rows: [{ field: 'sample.subvalue', title: 'Another sample' }]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -407,7 +412,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample.subvalue).to.be.a('string');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -423,9 +428,10 @@ describe('widgets.propertygrid', () => {
     describe('Number Initialization', () => {
         it('number object value', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 3 }
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -436,7 +442,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('number');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -453,10 +459,11 @@ describe('widgets.propertygrid', () => {
 
         it('number object value with basic rows options (title only)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 5.41 },
                 rows: [{ field: 'sample', title: 'Another sample' }]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -467,7 +474,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('number');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -483,10 +490,11 @@ describe('widgets.propertygrid', () => {
 
         it('number object value with kendo editor (slider)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 5.41 },
                 rows: [{ field: 'sample', title: 'Slider', editor: 'slider' }]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -497,7 +505,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('number');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -513,14 +521,14 @@ describe('widgets.propertygrid', () => {
 
         it('number object value with custom widget', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 3 },
                 rows: [
                     {
                         field: 'sample',
                         title: 'Category',
-                        editor(container, options) {
-                            $(`<input data-bind="value: ${options.field}"/>`)
+                        editor(container, opts) {
+                            $(`<input data-bind="value: ${opts.field}"/>`)
                                 .appendTo(container)
                                 .kendoDropDownList({
                                     autoBind: false,
@@ -553,7 +561,8 @@ describe('widgets.propertygrid', () => {
                         }
                     }
                 ]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -564,7 +573,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('number');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -582,26 +591,27 @@ describe('widgets.propertygrid', () => {
     describe('Date Initialization', () => {
         it('date object value', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: new Date(1966, 2, 14) }
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
             const keys = Object.keys(value);
             const row = element.find('div.k-grid-content>table>tbody>tr');
             const input = row.find(`input[${attr('bind')}]`);
-            const title = row.find('td:first-of-type').text();
+            // const title = row.find('td:first-of-type').text();
             expect(value.sample).to.be.a('date');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
                 new RegExp(`^value:[\\s]*${keys[0]}$`)
             );
-            expect(input).to.have.value(kendo.toString(value.sample, 'd'));
+            expect(input).to.have.value(toString(value.sample, 'd'));
             expect(input).to.have.attr('type', 'text');
             expect(row.find(`[${attr('role')}]`)).to.have.attr(
                 attr('role'),
@@ -611,10 +621,11 @@ describe('widgets.propertygrid', () => {
 
         it('date object value with basic rows options (title only)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: new Date(1966, 2, 14) },
                 rows: [{ field: 'sample', title: 'Another sample' }]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -625,13 +636,13 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('date');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
                 new RegExp(`^value:[\\s]*${keys[0]}$`)
             );
-            expect(input).to.have.value(kendo.toString(value.sample, 'd'));
+            expect(input).to.have.value(toString(value.sample, 'd'));
             expect(input).to.have.attr('type', 'text');
             expect(
                 row.find(`input[${attr('role')}]`).attr(attr('role'))
@@ -641,7 +652,7 @@ describe('widgets.propertygrid', () => {
 
         it('date object value with kendo editor (datetimepicker)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: new Date(1966, 2, 14) },
                 rows: [
                     {
@@ -650,7 +661,8 @@ describe('widgets.propertygrid', () => {
                         editor: 'datetimepicker'
                     }
                 ]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -661,13 +673,13 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('date');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
                 new RegExp(`^value:[\\s]*${keys[0]}$`)
             );
-            expect(input).to.have.value(kendo.toString(value.sample, 'g'));
+            expect(input).to.have.value(toString(value.sample, 'g'));
             expect(input).to.have.attr('type', 'text');
             expect(
                 row.find(`input[${attr('role')}]`).attr(attr('role'))
@@ -677,20 +689,21 @@ describe('widgets.propertygrid', () => {
 
         it('date object value with custom widget', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: new Date(1966, 2, 14) },
                 rows: [
                     {
                         field: 'sample',
                         title: 'Birthday',
-                        editor(container, options) {
+                        editor(container, opts) {
                             $(
-                                `<span data-bind="text: ${options.field}"/>`
+                                `<span data-bind="text: ${opts.field}"/>`
                             ).appendTo(container);
                         }
                     }
                 ]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -701,7 +714,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('date');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(span).to.exist;
             expect(span.attr(attr('bind'))).to.match(
@@ -716,20 +729,21 @@ describe('widgets.propertygrid', () => {
     describe('Boolean Initialization', () => {
         it('boolean object value', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: true }
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
             const keys = Object.keys(value);
             const row = element.find('div.k-grid-content>table>tbody>tr');
             const input = row.find(`input[${attr('bind')}]`);
-            const title = row.find('td:first-of-type').text();
+            // const title = row.find('td:first-of-type').text();
             expect(value.sample).to.be.a('boolean');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -745,19 +759,20 @@ describe('widgets.propertygrid', () => {
 
         it('boolean object value with basic rows options (title and attributes)', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: true },
                 rows: [
                     {
                         field: 'sample',
                         title: 'Another sample',
                         attributes: {
-                            'data-off-label': 'No',
-                            'data-on-label': 'Yes'
+                            'data-messages':
+                                '{"checked":"Yes","unchecked":"No"}'
                         }
                     }
                 ]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -768,7 +783,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('boolean');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -781,26 +796,27 @@ describe('widgets.propertygrid', () => {
                 'switch'
             );
             expect(title).to.equal(widget.options.rows[0].title);
-            expect(row.find('span.km-switch-label-on')).to.have.text('Yes');
-            expect(row.find('span.km-switch-label-off')).to.have.text('No');
+            expect(row.find('span.k-switch-label-on')).to.have.text('Yes');
+            expect(row.find('span.k-switch-label-off')).to.have.text('No');
         });
 
         it('boolean object value with custom widget', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: new Date(1966, 2, 14) },
                 rows: [
                     {
                         field: 'sample',
                         title: 'Birthday',
-                        editor(container, options) {
+                        editor(container, opts) {
                             $(
-                                `<input type="checkbox" data-bind="checked: ${options.field}"/>`
+                                `<input type="checkbox" data-bind="checked: ${opts.field}"/>`
                             ).appendTo(container);
                         }
                     }
                 ]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             const value = widget.value();
@@ -811,7 +827,7 @@ describe('widgets.propertygrid', () => {
             expect(value.sample).to.be.a('date');
             expect(keys)
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
@@ -827,7 +843,7 @@ describe('widgets.propertygrid', () => {
     describe('Composite Object Initialization', () => {
         it('from code with object value only', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: {
                     firstName: 'John',
                     lastName: 'Smith',
@@ -835,14 +851,15 @@ describe('widgets.propertygrid', () => {
                     children: 3,
                     male: true
                 }
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, Object.keys(widget.value()).length);
         });
 
         it('from code with object value and rows options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: {
                     title: 'Google',
                     description: 'A nice logo',
@@ -863,9 +880,9 @@ describe('widgets.propertygrid', () => {
                     {
                         field: 'category',
                         title: 'Category',
-                        editor(container, options) {
+                        editor(container, opts) {
                             $(
-                                `<input data-bind="value: ${options.field}"/>`
+                                `<input data-bind="value: ${opts.field}"/>`
                             ).appendTo(container);
                         }
                     },
@@ -884,14 +901,20 @@ describe('widgets.propertygrid', () => {
                     { field: 'scale', title: 'Scale', editor: 'slider' } // ,
                     // { field: 'active', title: 'Active' }
                 ]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             // One row has been commented out and should not be displayed
             validateGridHtml(element, Object.keys(widget.value()).length - 1);
         });
 
         it('from markup', () => {
-            const element = $(PROPERTYGRID2).appendTo(`#${FIXTURES}`);
+            const attributes = {};
+            attributes[attr('role')] = ROLE;
+            attributes[attr('bind')] = 'value: current';
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             const viewModel = observable({});
             bind(`#${FIXTURES}`, viewModel);
             const widget = element.data(WIDGET);
@@ -899,7 +922,14 @@ describe('widgets.propertygrid', () => {
         });
 
         it('from markup and rows', () => {
-            const element = $(PROPERTYGRID2).appendTo(`#${FIXTURES}`);
+            const attributes = {
+                // TODO
+            };
+            attributes[attr('role')] = ROLE;
+            attributes[attr('bind')] = 'value: current';
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             const viewModel = observable({});
             bind(`#${FIXTURES}`, viewModel);
             const widget = element.data(WIDGET);
@@ -925,10 +955,11 @@ describe('widgets.propertygrid', () => {
                     }
                 }
             });
-            const widget = element[WIDGET]({
+            const options = {
                 value: new Sample({ id: guid(), sample: null }),
                 rows: [{ field: 'sample' }]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
@@ -951,22 +982,23 @@ describe('widgets.propertygrid', () => {
                     }
                 }
             });
-            const widget = element[WIDGET]({
+            const options = {
                 value: new Sample({ id: guid(), sample: 'sample' }),
                 rows: [{ field: 'sample' }]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
             expect(widget.errors())
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(widget.errors()[0]).to.equal('sample is not valid');
         });
 
         it('min, max, step', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: -100 },
                 rows: [
                     {
@@ -980,13 +1012,14 @@ describe('widgets.propertygrid', () => {
                         }
                     }
                 ]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
             expect(widget.errors())
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(widget.errors()[0]).to.equal(
                 'sample should be greater than or equal to 0'
             );
@@ -994,37 +1027,39 @@ describe('widgets.propertygrid', () => {
 
         it('url', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 'Sample' },
                 rows: [{ field: 'sample', attributes: { type: 'url' } }]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
             expect(widget.errors())
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(widget.errors()[0]).to.equal('sample is not valid URL');
         });
 
         it('email', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 'Sample' },
                 rows: [{ field: 'sample', attributes: { type: 'email' } }]
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
             expect(widget.errors())
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(widget.errors()[0]).to.equal('sample is not valid email');
         });
 
         it('custom validation rules', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: { sample: 'Sample' },
                 validation: {
                     messages: {
@@ -1039,13 +1074,14 @@ describe('widgets.propertygrid', () => {
                         }
                     }
                 }
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             validateGridHtml(element, 1);
             expect(widget.validate()).to.be.false;
             expect(widget.errors())
                 .to.be.an.instanceof(Array)
-                .with.property('length', 1);
+                .with.lengthOf(1);
             expect(widget.errors()[0]).to.equal(
                 'Please enter a valid value for my custom rule'
             );
@@ -1083,7 +1119,7 @@ describe('widgets.propertygrid', () => {
 
         it('Get/set rows', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: {
                     firstName: 'John',
                     lastName: 'Smith',
@@ -1091,7 +1127,8 @@ describe('widgets.propertygrid', () => {
                     married: true,
                     children: 3
                 }
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             function fn() {
                 widget.rows(1);
             }
@@ -1114,7 +1151,7 @@ describe('widgets.propertygrid', () => {
 
         it('Destroy', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]({
+            const options = {
                 value: {
                     firstName: 'John',
                     lastName: 'Smith',
@@ -1122,7 +1159,8 @@ describe('widgets.propertygrid', () => {
                     married: true,
                     children: 3
                 }
-            }).data(WIDGET);
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
             widget.destroy();
         });
     });
@@ -1141,7 +1179,12 @@ describe('widgets.propertygrid', () => {
          */
 
         beforeEach(() => {
-            element = $(PROPERTYGRID2).appendTo(`#${FIXTURES}`);
+            const attributes = {};
+            attributes[attr('role')] = ROLE;
+            attributes[attr('bind')] = 'value: current';
+            element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 current: null
             });
@@ -1163,26 +1206,28 @@ describe('widgets.propertygrid', () => {
         });
 
         it('Setting the bound value to an object, display rows', () => {
-            viewModel.set('current', {
+            const value = {
                 firstName: 'John',
                 lastName: 'Smith',
                 dateOfBirth: new Date(1966, 2, 14),
                 married: true,
                 children: 3
-            });
+            };
+            viewModel.set('current', value);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             expect(widget.value()).to.equal(viewModel.get('current'));
             validateGridHtml(element, 6); // including uid
         });
 
         it('Adding rows options customizes the display', () => {
-            viewModel.set('current', {
+            const value = {
                 firstName: 'John',
                 lastName: 'Smith',
                 dateOfBirth: new Date(1966, 2, 14),
                 married: true,
                 children: 3
-            });
+            };
+            viewModel.set('current', value);
             expect(widget).to.be.an.instanceof(PropertyGrid);
             expect(widget.value()).to.equal(viewModel.get('current'));
             widget.rows([
@@ -1218,13 +1263,14 @@ describe('widgets.propertygrid', () => {
 
         it('Setting a value in the property grid updates the view model', () => {
             const change = sinon.spy();
-            viewModel.set('current', {
+            const value = {
                 firstName: 'John',
                 lastName: 'Smith',
                 dateOfBirth: new Date(1966, 2, 14),
                 married: true,
                 children: 3
-            });
+            };
+            viewModel.set('current', value);
             viewModel.bind('change', e => {
                 change(e.field);
             });

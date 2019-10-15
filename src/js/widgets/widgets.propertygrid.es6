@@ -112,12 +112,20 @@ const PropertyGrid = Widget.extend({
      * @returns {*}
      */
     rows(rows) {
-        assert.isArray(rows, assert.format(assert.messages.isArray.default));
+        assert.nullableTypeOrUndef(
+            CONSTANTS.ARRAY,
+            rows,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                'rows',
+                CONSTANTS.ARRAY
+            )
+        );
         let ret;
         if ($.type(rows) === CONSTANTS.UNDEFINED) {
             ret = this.options.rows;
         } else if (rows !== this.options.rows) {
-            this.options.rows = rows;
+            this.options.rows = rows || [];
             this.refresh();
         }
         return ret;
@@ -375,7 +383,11 @@ const PropertyGrid = Widget.extend({
                             pattern: fields[prop].validation.pattern,
                             type: fields[prop].validation.type
                         };
-                        $.extend(row.attributes, attributes);
+                        row.attributes = $.extend(
+                            {},
+                            row.attributes,
+                            attributes
+                        );
                     }
 
                     optimizeEditor(row);

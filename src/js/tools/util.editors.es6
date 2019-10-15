@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// Note: kendo widgets are not loaded here
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -88,11 +90,10 @@ function optimizeEditor(row = {}) {
                     row.editor
                 ))
         ) {
-            row.attributes = $.extend(
-                {},
-                row.attributes,
-                getRoleBinding(row.editor)
-            );
+            row.attributes = {
+                ...row.attributes,
+                ...getRoleBinding(row.editor)
+            };
             row.editor = editors.input;
             return;
         }
@@ -106,11 +107,10 @@ function optimizeEditor(row = {}) {
                 row.editor
             )
         ) {
-            row.attributes = $.extend(
-                {},
-                row.attributes,
-                getRoleBinding(row.editor)
-            );
+            row.attributes = {
+                ...row.attributes,
+                ...getRoleBinding(row.editor)
+            };
             row.editor = editors.select;
             return;
         }
@@ -121,39 +121,39 @@ function optimizeEditor(row = {}) {
 
     // If there is a template, use the corresponding editor
     if ($.type(row.template) === CONSTANTS.STRING && row.template.length) {
-        row.editor = editors._template;
+        row.editor = editors.template;
         return;
     }
 
     // Otherwise we can only rely on data type
     switch (row.type) {
         case CONSTANTS.NUMBER:
-            row.attributes = $.extend(
-                {},
-                row.attributes,
-                getRoleBinding('numerictextbox')
-            );
+            row.attributes = {
+                ...row.attributes,
+                ...getRoleBinding('numerictextbox')
+            };
             row.editor = editors.input;
             break;
         case CONSTANTS.BOOLEAN:
-            row.attributes = $.extend(
-                {},
-                row.attributes,
-                getRoleBinding('switch')
-            );
+            row.attributes = {
+                ...row.attributes,
+                ...getRoleBinding('switch')
+            };
             row.editor = editors.input;
             break;
         case CONSTANTS.DATE:
-            row.attributes = $.extend(
-                {},
-                row.attributes,
-                getRoleBinding('datepicker')
-            );
+            row.attributes = {
+                ...row.attributes,
+                ...getRoleBinding('datepicker')
+            };
             row.editor = editors.input;
             break;
         default:
             // CONSTANTS.STRING
-            row.attributes = $.extend({ type: 'text' }, row.attributes);
+            row.attributes = {
+                type: 'text',
+                ...row.attributes
+            };
             row.editor = editors.input;
     }
     /* eslint-enable no-param-reassign */

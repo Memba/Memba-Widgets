@@ -31,6 +31,7 @@ const CONSTANTS = {
     DROP: 'drop',
     ERROR: 'error',
     FOCUS: 'focus',
+    FOCUSIN: 'focusin',
     FOCUSOUT: 'focusout',
     HASHCHANGE: 'hashchange',
     INITOPEN: 'initOpen',

@@ -12,19 +12,19 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import sinon from 'sinon';
+// import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.selector.es6';
+import { getStageElement } from '../_misc/test.util.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
-    bind,
-    data: { DataSource, ObservableArray },
+    // attr,
+    // bind,
     destroy,
-    init,
-    observable,
+    // init,
+    // observable,
     ui: { roles, Selector }
 } = window.kendo;
 const { expect } = chai;
@@ -33,6 +33,7 @@ const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'selector';
 const WIDGET = 'kendoSelector';
+const STAGE_ELEMENT = 'div.kj-element';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -42,6 +43,10 @@ describe('widgets.selector', () => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
+    });
+
+    beforeEach(() => {
+        $(`#${FIXTURES}`).append(getStageElement());
     });
 
     describe('Availability', () => {
@@ -55,11 +60,28 @@ describe('widgets.selector', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            expect(true).to.be.false;
+            const element = $(ELEMENT).appendTo(STAGE_ELEMENT);
+            const widget = element[WIDGET]().data(WIDGET);
+            expect(widget).to.be.an.instanceof(Selector);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('kj-selector');
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
+            expect(widget.value()).to.be.empty;
         });
 
         it('from code with options', () => {
-            expect(true).to.be.false;
+            const element = $(ELEMENT).appendTo(STAGE_ELEMENT);
+            const options = {};
+            const widget = element[WIDGET](options).data(WIDGET);
+            expect(widget).to.be.an.instanceof(Selector);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('kj-selector');
+            expect(widget)
+                .to.have.property('wrapper')
+                .that.is.an.instanceof($);
+            expect(widget.value()).to.be.empty;
         });
 
         it('from markup', () => {
@@ -71,7 +93,7 @@ describe('widgets.selector', () => {
         });
     });
 
-    describe('Methods', () => {
+    xdescribe('Methods', () => {
         it('value', () => {
             expect(true).to.be.false;
         });
@@ -85,13 +107,13 @@ describe('widgets.selector', () => {
         });
     });
 
-    describe('MVVM (with UI interactions)', () => {
+    xdescribe('MVVM (with UI interactions)', () => {
         it('It should...', () => {
             expect(true).to.be.false;
         });
     });
 
-    describe('Events', () => {
+    xdescribe('Events', () => {
         it('change', () => {
             expect(true).to.be.false;
         });

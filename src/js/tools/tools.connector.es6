@@ -66,7 +66,7 @@ const ConnectorTool = BaseTool.extend({
     attributes: {
         color: new ColorAdapter({
             title: __('tools.connector.attributes.color.title'),
-            defaultValue: '#f0000'
+            defaultValue: '#ff0000'
         })
     },
     properties: {

@@ -20,8 +20,7 @@ import '../../../src/js/widgets/widgets.mathinput.es6';
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
     attr,
-    bind,
-    data: { DataSource },
+    // bind,
     destroy,
     init,
     observable,
@@ -34,7 +33,7 @@ const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'mathinput';
 const WIDGET = 'kendoMathInput';
 
-const TOOLBAR = '<div id="toolbar"></div>';
+// const TOOLBAR = '<div id="toolbar"></div>';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -66,7 +65,7 @@ describe('widgets.mathinput', () => {
         });
 
         it('from code with options', () => {
-            const toolbar = $(TOOLBAR).appendTo(`#${FIXTURES}`);
+            // const toolbar = $(TOOLBAR).appendTo(`#${FIXTURES}`);
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {};
             const widget = element[WIDGET](options).data('kendoMathInput');
@@ -101,7 +100,7 @@ describe('widgets.mathinput', () => {
             widget = element[WIDGET](options).data('kendoMathInput');
         });
 
-        xit('value', done => {
+        xit('value', () => {
             expect(widget).to.be.an.instanceof(MathInput);
         });
 
@@ -122,7 +121,6 @@ describe('widgets.mathinput', () => {
         const options = {};
         let viewModel;
         let change;
-        let destroy;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
@@ -131,10 +129,11 @@ describe('widgets.mathinput', () => {
                 // TODO
             });
             change = sinon.spy();
-            destroy = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, viewModel, change);
+        });
     });
 
     describe('Events', () => {
@@ -149,7 +148,9 @@ describe('widgets.mathinput', () => {
             event = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, event);
+        });
     });
 
     afterEach(() => {

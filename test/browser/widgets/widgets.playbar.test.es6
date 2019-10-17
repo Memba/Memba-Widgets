@@ -19,8 +19,8 @@ import { Page, PageDataSource } from '../../../src/js/data/data.page.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.playbar.es6';
 import {
-    componentGenerator,
-    getPageArray
+    componentGenerator
+    // getPageArray
 } from '../../../src/js/helpers/helpers.components.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
@@ -495,7 +495,7 @@ describe('widgets.playbar', () => {
         it('Changing the selected page by clicking a number in the widget, changes the corresponding page in the viewModel', () => {
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
-            const check = sinon.spy();
+            // const check = sinon.spy();
             /*
             // For whatever reason , second click does not work
             $.each(element.find('ul.k-pager-numbers>li>a.k-link'), function (index, item) {

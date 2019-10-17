@@ -5,9 +5,10 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-// import $ from 'jquery';
+import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
+import { iconUri } from '../app/app.uris.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // import { PageComponent } from '../data/data.pagecomponent.es6';
@@ -29,14 +30,15 @@ import { questionValidator, scoreValidator } from './util.validators.es6';
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-const TEMPLATE = `<div
+const TEMPLATE = `<img
+    alt="#: alt$() #" 
     data-${ns}role="selector"
     data-${ns}id="#: properties.name #"
     data-${ns}shape="#: attributes.shape #"
     data-${ns}stroke="{ color: '#: attributes.color #', dashType: 'solid', opacity: 1, width: '#: attributes.strokeWidth #' }"
     data-${ns}empty="#: attributes.empty #"
-    data-${ns}hit-radius="#: attributes.hitRadius #" {0}>
-    </div>`;
+    data-${ns}hit-radius="#: attributes.hitRadius #"
+    src="#: src$() #" {0}>`;
 const BINDING = `data-${ns}bind="value: #: properties.name #.value, source: interactions"`;
 const DISABLED = `data-${ns}enable="false"`;
 
@@ -46,21 +48,18 @@ const DISABLED = `data-${ns}enable="false"`;
  */
 const SelectorTool = BaseTool.extend({
     id: 'selector',
-    childSelector: `${CONSTANTS.DIV}${roleSelector('selector')}`,
+    childSelector: `${CONSTANTS.IMG}${roleSelector('selector')}`,
     height: 50,
     width: 50,
     weight: 1,
-    MENU: ['properties.question', 'properties.solution'],
+    menu: ['properties.question', 'properties.solution'],
     templates: {
-        design:
-            '<img src="https://cdn.kidoju.com/images/o_collection/svg/office/selector.svg" alt="selector">',
-        // design: '<img src="#: icon$() #" alt="#: description$() #">',
+        design: format(TEMPLATE, DISABLED),
         play: format(
             TEMPLATE,
-            `data-${ns}toolbar="\\#floating .kj-floating-content" ${BINDING}`
+            `data-${ns}toolbar="\\#floating .kj-floating-content" ${BINDING}` // TODO review
         ),
-        review:
-            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+        review: format(TEMPLATE, `${BINDING} ${DISABLED}`) +
             BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
@@ -162,6 +161,52 @@ const SelectorTool = BaseTool.extend({
      */
     solution$(testItem) {
         return htmlEncode(testItem.solution || '');
+    },
+
+    /**
+     * getHtmlContent
+     * @method getHtmlContent
+     * @param component
+     * @param mode
+     * @returns {*}
+     */
+    getHtmlContent(component, mode) {
+        const { icon } = this;
+        $.extend(component, {
+            // alternate text of an image
+            alt$() {
+                return component.get('properties.name');
+            },
+            // The src$ function resolves the icon path
+            src$() {
+                return iconUri(icon);
+            }
+        });
+        return BaseTool.fn.getHtmlContent.call(this, component, mode);
+    },
+
+    /**
+     * onResize
+     * @method onResize
+     * @param e
+     * @param component
+     */
+    onResize(e, component) {
+        const stageElement = $(e.currentTarget);
+        const content = stageElement.children('img');
+        // Assuming we can get the natural size of the image, we shall keep proportions
+        const { naturalHeight, naturalWidth } = content[0];
+        if (naturalHeight && naturalWidth) {
+            const height = component.get('height');
+            const width = component.get('width');
+            // Keep the height, change the width
+            const w = (height * naturalWidth) / naturalHeight;
+            if (width !== w) {
+                // `if` avoids a stack overflow
+                component.set('width', w);
+            }
+        }
+        BaseTool.fn.onResize.call(this, e, component);
     },
 
     /**

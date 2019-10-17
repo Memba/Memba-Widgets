@@ -89,7 +89,7 @@ const LIBRARY = [
     }
 ];
 const NAME = LIBRARY[4].name;
-const FORMULA = LIBRARY[4].formula;
+// const FORMULA = LIBRARY[4].formula;
 const SOLUTION = '0';
 
 describe('widgets.codeinput', () => {
@@ -418,7 +418,7 @@ describe('widgets.codeinput', () => {
             const attributes = {};
             attributes[attr('role')] = ROLE;
             attributes[attr('bind')] = 'source: library, value: code';
-            attributes[attr('default')] = IB_COMMENT + NAME;
+            attributes[attr('default')] = TOOLS.LIB_COMMENT + NAME;
             element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);

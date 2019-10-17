@@ -180,16 +180,16 @@ describe('widgets.assetmanager', () => {
         });
 
         it('value and select', done => {
-            if (window.PHANTOMJS) {
-                return done(); // TODO: Does not work on Travis-CI
-            }
+            // if (window.PHANTOMJS) {
+            //    return done(); // TODO: Does not work on Travis-CI
+            // }
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
             expect(widget.dropDownList).to.be.an.instanceof(DropDownList);
             expect(widget.listView).to.be.an.instanceof(ListView);
             expect(widget.tabStrip).to.be.an.instanceof(TabStrip);
             expect(widget.value()).to.be.undefined;
-            widget.listView.bind('dataBound', e => {
+            widget.listView.bind('dataBound', () => {
                 if (
                     widget.tabStrip.select().index() === 1 &&
                     widget.dropDownList.text() === '32x32'
@@ -245,7 +245,6 @@ describe('widgets.assetmanager', () => {
         let widget;
         let viewModel;
         let change;
-        let destroy;
         const options = {
             change(e) {
                 const url = e.sender.value();
@@ -260,8 +259,8 @@ describe('widgets.assetmanager', () => {
             extensions: ASSETS.IMAGE_EXT,
             schemes: ASSETS.SCHEMES,
             transport: {
-                read(options) {
-                    options.success({
+                read(opts) {
+                    opts.success({
                         total: 3,
                         data: [
                             { url: 'data://Elvis.jpg', size: 69057 },
@@ -273,26 +272,25 @@ describe('widgets.assetmanager', () => {
                         ]
                     });
                 },
-                create(options) {
+                create(opts) {
                     // Note: if there is an error, this is the place where to display notifications...
                     // options.error(new Error('Oops'));
-                    if (
-                        options.data &&
-                        options.data.file instanceof window.File
-                    ) {
+                    if (opts.data && opts.data.file instanceof window.File) {
                         // Make sure we are asynchronous to simulate a file upload...
                         setTimeout(() => {
-                            options.data.file = null;
-                            options.data.url =
+                            // eslint-disable-next-line no-param-reassign
+                            opts.data.file = null;
+                            // eslint-disable-next-line no-param-reassign
+                            opts.data.url =
                                 'https://cdn.kidoju.com/images/o_collection/svg/office/add.svg';
                             // VERY IMPORTANT: it won't work without total + data which are both expected
-                            options.success({ total: 1, data: [options.data] });
+                            opts.success({ total: 1, data: [opts.data] });
                         }, 2 * TTL);
                     }
                 },
-                destroy(options) {
+                destroy(opts) {
                     // options.error(new Error('Oops'));
-                    options.success({ total: 1, data: [options.data] });
+                    opts.success({ total: 1, data: [opts.data] });
                     destroy();
                 }
             }
@@ -303,21 +301,20 @@ describe('widgets.assetmanager', () => {
             widget = element[WIDGET](options).data(WIDGET);
             viewModel = observable({ url: undefined });
             change = sinon.spy();
-            destroy = sinon.spy();
         });
 
         it('Click tabs', done => {
-            if (window.PHANTOMJS) {
-                // TODO: Does not work on Travis-CI
-                return done();
-            }
+            // if (window.PHANTOMJS) {
+            //    TODO: Does not work on Travis-CI
+            //    return done();
+            // }
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
             expect(widget.dropDownList).to.be.an.instanceof(DropDownList);
             expect(widget.listView).to.be.an.instanceof(ListView);
             expect(widget.tabStrip).to.be.an.instanceof(TabStrip);
             expect(widget.value()).to.equal('data://Elvis.jpg');
-            widget.listView.bind('dataBound', e => {
+            widget.listView.bind('dataBound', () => {
                 setTimeout(() => {
                     if (
                         widget.tabStrip.select().index() === 1 &&
@@ -341,15 +338,15 @@ describe('widgets.assetmanager', () => {
                 const tab = widget.element.find(
                     'ul.k-tabstrip-items > li.k-item:nth-child(2)'
                 );
-                tab.simulate(CLICK);
+                tab.simulate(CONSTANTS.CLICK);
             }, TTL);
         });
 
         it('Change collection in drop down list', done => {
-            if (window.PHANTOMJS) {
-                // TODO: Does not work on Travis-CI
-                return done();
-            }
+            // if (window.PHANTOMJS) {
+            // TODO: Does not work on Travis-CI
+            //    return done();
+            // }
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
             expect(widget.dropDownList).to.be.an.instanceof(DropDownList);
@@ -363,18 +360,18 @@ describe('widgets.assetmanager', () => {
                     e.sender.text() !== 'White'
                 ) {
                     setTimeout(() => {
-                        $(e.sender.element).simulate(CLICK);
+                        $(e.sender.element).simulate(CONSTANTS.CLICK);
                         const list = $('.k-list-container ul.k-list');
                         const item = list.find('li:contains("White")');
                         expect(item)
                             .to.be.an.instanceof($)
                             .with.property('length', 1);
                         expect(item).to.have.text('White');
-                        item.simulate(CLICK);
+                        item.simulate(CONSTANTS.CLICK);
                     }, 0);
                 }
             });
-            widget.listView.bind('dataBound', e => {
+            widget.listView.bind('dataBound', () => {
                 // 3) Third, check list view once loaded
                 if (
                     widget.tabStrip.select().index() === 1 &&
@@ -400,22 +397,22 @@ describe('widgets.assetmanager', () => {
                 const tab = widget.element.find(
                     'ul.k-tabstrip-items > li.k-item:nth-child(2)'
                 );
-                tab.simulate(CLICK);
+                tab.simulate(CONSTANTS.CLICK);
             }, TTL);
         });
 
         it('Search input', done => {
-            if (window.PHANTOMJS) {
-                // TODO: Does not work on Travis-CI
-                return done();
-            }
+            // if (window.PHANTOMJS) {
+            //    TODO: Does not work on Travis-CI
+            //    return done();
+            // }
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
             expect(widget.listView).to.be.an.instanceof(ListView);
             expect(widget.searchInput).to.be.an.instanceof($);
             expect(widget.tabStrip).to.be.an.instanceof(TabStrip);
             expect(widget.value()).to.equal('data://Elvis.jpg');
-            widget.listView.bind('dataBound', e => {
+            widget.listView.bind('dataBound', () => {
                 if (
                     widget.tabStrip.select().index() === 1 &&
                     widget.dropDownList.text() === 'Dark Grey'
@@ -451,7 +448,7 @@ describe('widgets.assetmanager', () => {
                 const tab = widget.element.find(
                     'ul.k-tabstrip-items > li.k-item:nth-child(2)'
                 );
-                tab.simulate(CLICK);
+                tab.simulate(CONSTANTS.CLICK);
             }, TTL);
         });
 
@@ -466,7 +463,7 @@ describe('widgets.assetmanager', () => {
             expect(widget.searchInput).to.be.an.instanceof($);
             expect(widget.tabStrip).to.be.an.instanceof(TabStrip);
             expect(widget.value()).to.equal('data://Elvis.jpg');
-            widget.listView.bind('dataBound', e => {
+            widget.listView.bind('dataBound', () => {
                 // setTimeout(function () {
                 const list = $('div.k-filebrowser ul.k-tiles');
                 for (let i = 0; i < widget.listView.dataSource.total(); i++) {
@@ -474,8 +471,8 @@ describe('widgets.assetmanager', () => {
                     expect(item)
                         .to.be.an.instanceof($)
                         .with.property('length', 1);
-                    if (support.click === CLICK) {
-                        item.simulate(CLICK);
+                    if (support.click === CONSTANTS.CLICK) {
+                        item.simulate(CONSTANTS.CLICK);
                         // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
                         // item.simulate('mousedown');
                         // item.simulate('mouseup');
@@ -505,7 +502,7 @@ describe('widgets.assetmanager', () => {
             expect(widget.tabStrip).to.be.an.instanceof(TabStrip);
             let doneCalled = false;
             const count = widget.listView.dataSource.total();
-            widget.listView.bind('dataBound', e => {
+            widget.listView.bind('dataBound', () => {
                 // Without this timeout the dataBound eveneyt handler is called before teh destroy transport
                 // and we then need two clicks two delete the last item causing a mismatch in count at the end
                 setTimeout(() => {
@@ -526,8 +523,8 @@ describe('widgets.assetmanager', () => {
                         expect(
                             url.replace(scheme[0], options.schemes[scheme[1]])
                         ).to.equal(src);
-                        if (support.click === CLICK) {
-                            item.simulate(CLICK);
+                        if (support.click === CONSTANTS.CLICK) {
+                            item.simulate(CONSTANTS.CLICK);
                             // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
                             // item.simulate('mousedown');
                             // item.simulate('mouseup');
@@ -536,7 +533,7 @@ describe('widgets.assetmanager', () => {
                             );
                             expect(deleteButton).to.be.visible;
                             setTimeout(() => {
-                                deleteButton.simulate(CLICK);
+                                deleteButton.simulate(CONSTANTS.CLICK);
                             }, 0);
                             // Deleting a dataSource item causes a refresh which triggers the dataBound event
                             // so we are deleting all items until dataSource.total() === 0
@@ -580,8 +577,8 @@ describe('widgets.assetmanager', () => {
             extensions: ASSETS.IMAGE_EXT,
             schemes: ASSETS.SCHEMES,
             transport: {
-                read(options) {
-                    options.success({
+                read(opts) {
+                    opts.success({
                         total: 3,
                         data: [
                             { url: 'data://Elvis.jpg', size: 69057 },
@@ -593,25 +590,24 @@ describe('widgets.assetmanager', () => {
                         ]
                     });
                 },
-                create(options) {
+                create(opts) {
                     // Note: if there is an error, this is the place where to display notifications...
-                    // options.error(new Error('Oops'));
-                    if (
-                        options.data &&
-                        options.data.file instanceof window.File
-                    ) {
+                    // opts.error(new Error('Oops'));
+                    if (opts.data && opts.data.file instanceof window.File) {
                         // Make sure we are asynchronous to simulate a file upload...
                         setTimeout(() => {
-                            options.data.file = null;
-                            options.data.url =
+                            // eslint-disable-next-line no-param-reassign
+                            opts.data.file = null;
+                            // eslint-disable-next-line no-param-reassign
+                            opts.data.url =
                                 'https://cdn.kidoju.com/images/o_collection/svg/office/add.svg';
                             // VERY IMPORTANT: it won't work without total + data which are both expected
-                            options.success({ total: 1, data: [options.data] });
+                            opts.success({ total: 1, data: [opts.data] });
                         }, 2 * TTL);
                     }
                 },
-                destroy(options) {
-                    options.error(new Error(OOPS));
+                destroy(opts) {
+                    opts.error(new Error(OOPS));
                 }
             }
         };
@@ -628,7 +624,7 @@ describe('widgets.assetmanager', () => {
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
             expect(widget.listView).to.be.an.instanceof(ListView);
             expect(widget.value()).to.equal('data://Elvis.jpg');
-            widget.listView.bind('dataBound', e => {
+            widget.listView.bind('dataBound', () => {
                 widget.select(0);
                 expect(widget.value()).to.equal(widget.dataSource.at(0).id);
                 expect(change).to.have.been.calledWith(widget.value());

@@ -34,8 +34,7 @@ const ScoreAdapter = NumberAdapter;
 const TEMPLATE = `<div
     data-${ns}role="mathinput"
     data-${ns}toolbar="#: JSON.stringify(toolbar$()) #"
-    style="#: attributes.style #" {0}>#: attributes.formula #
-    </div>`;
+    style="#: attributes.style #" {0}>#: attributes.formula #</div>`;
 const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
 const DISABLED = `data-${ns}enable="false"`; // TODO enabled
 

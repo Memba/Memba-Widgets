@@ -3,11 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-/**
- * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
- * Sources at https://github.com/Memba
- */
-
 // TODO use applyEventMap - See scratchpad
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
@@ -45,10 +40,10 @@ const WIDGET = 'kendoSelector';
 const NS = CONSTANTS.DOT + WIDGET;
 const WIDGET_CLASS = 'kj-selector'; // 'k-widget kj-selector';
 
-const MOUSEDOWN = `mousedown${NS} ` + `touchstart${NS}`;
-const MOUSEMOVE = `mousemove${NS} ` + `touchmove${NS}`;
-const MOUSELEAVE = `mouseleave${NS} ` + `touchleave${NS}`;
-const MOUSEUP = `mouseup${NS} ` + `touchend${NS}`;
+const MOUSEDOWN = `mousedown${NS} touchstart${NS}`;
+const MOUSEMOVE = `mousemove${NS} touchmove${NS}`;
+const MOUSELEAVE = `mouseleave${NS} touchleave${NS}`;
+const MOUSEUP = `mouseup${NS} touchend${NS}`;
 const TOGGLE = 'toggle';
 const CONSTANT = 'constant';
 const SURFACE_CLASS = `${WIDGET_CLASS}-surface`;
@@ -232,12 +227,14 @@ const SelectorEvents = Class.extend({
         const selectorSurface = container
             .find(roleSelector('selectorsurface'))
             .data('kendoSelectorSurface');
+        let ret;
         if (
             selectorSurface instanceof SelectorSurface &&
             selectorSurface.enabled()
         ) {
-            return selectorSurface;
+            ret = selectorSurface;
         }
+        return ret;
     },
 
     /**
@@ -695,7 +692,7 @@ if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'SelectorToolBar')) {
  * @class SelectorSurface
  * @extends Widget
  */
-var SelectorSurface = Widget.extend({
+const SelectorSurface = Widget.extend({
     /**
      * Init
      * @param element
@@ -724,8 +721,10 @@ var SelectorSurface = Widget.extend({
      * @private
      */
     _layout() {
-        const element = (this.wrapper = this.element);
-        element.addClass(SURFACE_CLASS).attr(attr(CONSTANTS.ID), randomId()); // Add an id to match the toolbar
+        const { element } = this;
+        this.wrapper = element
+            .addClass(SURFACE_CLASS)
+            .attr(attr(CONSTANTS.ID), randomId()); // Add an id to match the toolbar
         this.drawingSurface = Surface.create(element);
     },
 
@@ -991,9 +990,7 @@ var SelectorSurface = Widget.extend({
         );
         const radius = parseInt(selector.options.minRadius, 10) || MIN_RADIUS;
         return (
-            Math.sqrt(
-                Math.pow(rect.size.height, 2) + Math.pow(rect.size.width, 2)
-            ) <=
+            Math.sqrt(rect.size.height ** 2 + rect.size.width ** 2) <=
             2 * Math.sqrt(2) * radius
         );
     },
@@ -1451,14 +1448,13 @@ if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'SelectorSurface')) {
  * @class Selector
  * @extends DataBoundWidget
  */
-var Selector = DataBoundWidget.extend({
+const Selector = DataBoundWidget.extend({
     /**
      * Init
      * @param element
      * @param options
      */
     init(element, options = {}) {
-        const that = this;
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._layout();
@@ -1476,7 +1472,7 @@ var Selector = DataBoundWidget.extend({
         name: 'Selector',
         id: null,
         autoBind: true,
-        dataSource: null,
+        dataSource: [],
         scaler: 'div.kj-stage',
         container: `div.kj-stage>div[data-${ns}role="stage"]`,
         selectable: `div.kj-element>[data-${ns}behavior="selectable"]`,
@@ -1590,8 +1586,8 @@ var Selector = DataBoundWidget.extend({
      * @private
      */
     _layout() {
-        const element = (this.wrapper = this.element);
-        element.addClass(WIDGET_CLASS);
+        const { element } = this;
+        this.wrapper = element.addClass(WIDGET_CLASS);
         this._initSurface();
     },
 

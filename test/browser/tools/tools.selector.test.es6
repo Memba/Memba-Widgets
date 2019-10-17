@@ -58,7 +58,7 @@ describe('tools.selector', () => {
                 'description',
                 __('tools.selector.description')
             );
-            expect(tool).to.have.property('height', 80);
+            expect(tool).to.have.property('height', 50);
             expect(tool).to.have.property('help', __('tools.selector.help'));
             expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.selector.icon'));
@@ -67,7 +67,7 @@ describe('tools.selector', () => {
                 .that.eql(['properties.question', 'properties.solution']);
             expect(tool).to.have.property('name', __('tools.selector.name'));
             expect(tool).to.have.property('weight', 1);
-            expect(tool).to.have.property('width', 300);
+            expect(tool).to.have.property('width', 50);
         });
 
         it('getAttributeModel', () => {
@@ -78,22 +78,28 @@ describe('tools.selector', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('mask');
-            expect(Model.fields).to.have.property('style');
+            expect(Model.fields).to.have.property('color');
+            expect(Model.fields).to.have.property('empty');
+            expect(Model.fields).to.have.property('hitRadius');
+            expect(Model.fields).to.have.property('shape');
+            expect(Model.fields).to.have.property('strokeWidth');
         });
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(10);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.mask');
-            expect(rows[6]).to.have.property('field', 'attributes.style');
+            expect(rows[5]).to.have.property('field', 'attributes.color');
+            expect(rows[6]).to.have.property('field', 'attributes.empty');
+            expect(rows[7]).to.have.property('field', 'attributes.hitRadius');
+            expect(rows[8]).to.have.property('field', 'attributes.shape');
+            expect(rows[9]).to.have.property('field', 'attributes.strokeWidth');
         });
 
         it('getPropertyModel', () => {
@@ -111,13 +117,14 @@ describe('tools.selector', () => {
             expect(Model.fields).to.have.property('solution');
             expect(Model.fields).to.have.property('success');
             expect(Model.fields).to.have.property('validation');
+            expect(Model.fields).to.have.property('disabled');
         });
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(8);
             expect(rows[0]).to.have.property('field', 'properties.name');
             expect(rows[1]).to.have.property('field', 'properties.question');
             expect(rows[2]).to.have.property('field', 'properties.solution');
@@ -125,6 +132,7 @@ describe('tools.selector', () => {
             expect(rows[4]).to.have.property('field', 'properties.success');
             expect(rows[5]).to.have.property('field', 'properties.failure');
             expect(rows[6]).to.have.property('field', 'properties.omit');
+            expect(rows[7]).to.have.property('field', 'properties.disabled');
         });
 
         it('getAssets', () => {
@@ -219,7 +227,7 @@ describe('tools.selector', () => {
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
-                expect(content).to.match('input');
+                expect(content).to.match(CONSTANTS.IMG);
             });
         });
 

@@ -363,6 +363,7 @@ describe('widgets.propertygrid', () => {
 
         it('string object value with template', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            // noinspection CssInvalidPropertyValue
             const options = {
                 value: { sample: 'Sample' },
                 rows: [

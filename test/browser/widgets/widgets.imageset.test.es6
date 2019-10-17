@@ -147,10 +147,8 @@ describe('widgets.imageset', () => {
     describe('MVVM (and UI interactions)', () => {
         let element;
         let widget;
-        const options = {};
         let viewModel;
         let change;
-        let destroy;
 
         beforeEach(() => {
             element = $(ELEMENT)
@@ -162,13 +160,15 @@ describe('widgets.imageset', () => {
             });
             bind(`#${FIXTURES}`);
             change = sinon.spy();
-            destroy = sinon.spy();
         });
 
         it('TODO', () => {
+            $.noop(element, widget, viewModel, change);
+            /*
             DATA.forEach(data => {
                 $(`.kj-${ROLE}`).simulate(CONSTANTS.CLICK);
             });
+             */
         });
     });
 
@@ -184,7 +184,9 @@ describe('widgets.imageset', () => {
             event = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, event);
+        });
     });
 
     afterEach(() => {

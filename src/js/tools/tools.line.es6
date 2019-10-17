@@ -57,7 +57,7 @@ const LineTool = BaseTool.extend({
             {
                 help: __('tools.line.attributes.lineWidth.help'),
                 title: __('tools.line.attributes.lineWidth.title'),
-                defaultValue: 5
+                defaultValue: 10
             },
             {
                 'data-decimals': 0,
@@ -68,17 +68,17 @@ const LineTool = BaseTool.extend({
         ),
         startCap: new DropDownListAdapter(
             {
-                title: __('tools.line.attributes.endCap.title'),
+                title: __('tools.line.attributes.startCap.title'),
                 defaultValue: 'none',
-                source: __('tools.line.attributes.endCap.source')
+                source: __('tools.line.attributes.startCap.source')
             },
             { style: 'width: 100%;' }
         ),
         endCap: new DropDownListAdapter(
             {
-                title: __('tools.line.attributes.startCap.title'),
+                title: __('tools.line.attributes.endCap.title'),
                 defaultValue: 'none',
-                source: __('tools.line.attributes.startCap.source')
+                source: __('tools.line.attributes.endCap.source')
             },
             { style: 'width: 100%;' }
         )

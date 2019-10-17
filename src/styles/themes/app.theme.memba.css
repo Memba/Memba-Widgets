@@ -36421,6 +36421,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   font-size: 1em;
 }
 
+.kj-stage.kj-review .kj-element[data-tool=selector], .kj-stage.kj-play .kj-element[data-tool=selector] {
+  display: none;
+}
+
 .kj-stage .kj-element[data-tool=textarea] .k-textbox {
   font-size: 50px;
   resize: none;
@@ -36814,6 +36818,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 }
 .kj-stage .kj-element[data-tool=quiz] .kj-quiz .k-button.kj-quiz-button {
   font-size: 1em;
+}
+
+.kj-stage.kj-review .kj-element[data-tool=selector], .kj-stage.kj-play .kj-element[data-tool=selector] {
+  display: none;
 }
 
 .kj-stage .kj-element[data-tool=textarea] .k-textbox {

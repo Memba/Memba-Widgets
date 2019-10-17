@@ -14,6 +14,7 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { getStageElement } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.connector.es6';
 
@@ -32,25 +33,22 @@ const { expect } = chai;
 
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
-const ROLE = 'connnector';
+const ROLE = 'connector';
 const WIDGET = 'kendoConnector';
+const STAGE_ELEMENT = 'div.kj-element';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
-
-const ELEMENT_DIV =
-    '<div class="kj-stage" style="position:relative;height:300px;width:300px;transform:scale(0.75);">' +
-    '<div data-role="stage" style="height:300px;width:300px;">' +
-    '<div class="kj-element" style="position:absolute;top:50px;left:50px;height:50px;width:50px;">' +
-    '</div></div></div>';
-const STAGE = `${FIXTURES} div${roleSelector('stage')}`;
-// TODO const ELEMENT = `${STAGE}>div.kj-element`;
 
 describe('widgets.connector', () => {
     before(() => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
+    });
+
+    beforeEach(() => {
+        $(`#${FIXTURES}`).append(getStageElement());
     });
 
     describe('Availability', () => {
@@ -63,27 +61,22 @@ describe('widgets.connector', () => {
     });
 
     describe('Initialization', () => {
-        beforeEach(() => {
-            $(`#${FIXTURES}`).append(ELEMENT_DIV);
-        });
-
         it('from code', () => {
-            const element = $(ELEMENT).appendTo(ELEMENT);
-            const widget = element[WIDGET]().data('kendoConnector');
+            const element = $(ELEMENT).appendTo(STAGE_ELEMENT);
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
-            expect(widget.value()).to.be.null;
+            expect(widget.value()).to.be.empty;
         });
 
         it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(ELEMENT);
-            const widget = element[WIDGET]({ color: '#000000' }).data(
-                'kendoConnector'
-            );
+            const element = $(ELEMENT).appendTo(STAGE_ELEMENT);
+            const options = { color: '#000000' };
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
@@ -93,15 +86,17 @@ describe('widgets.connector', () => {
             // expect(widget).to.have.property('dataSource').that.is.an.instanceof(DataSource);
             // expect(widget.dataSource.total()).to.equal(LIBRARY.length);
             // expect(widget.dataSource.data()).to.deep.equal(LIBRARY);
-            expect(widget.value()).to.be.null;
+            expect(widget.value()).to.be.empty;
         });
 
         it('from markup', () => {
+            const attributes = {};
+            attributes[attr('role')] = ROLE;
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
-                .appendTo(ELEMENT);
+                .attr(attributes)
+                .appendTo(STAGE_ELEMENT);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoConnector');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
@@ -110,19 +105,18 @@ describe('widgets.connector', () => {
                 .that.is.an.instanceof($);
             // expect(widget).to.have.property('dataSource').that.is.an.instanceof(DataSource);
             // expect(widget.dataSource.total()).to.equal(0);
-            expect(widget.value()).to.be.null;
+            expect(widget.value()).to.be.empty;
         });
 
         it('from markup with data attributes', () => {
-            const attr = {
-                'data-color': '#000000'
-            };
+            const attributes = {};
+            attributes[attr('color')] = '#000000';
+            attributes[attr('role')] = ROLE;
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
-                .attr(attr)
-                .appendTo(ELEMENT);
+                .attr(attributes)
+                .appendTo(STAGE_ELEMENT);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoConnector');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
@@ -132,7 +126,7 @@ describe('widgets.connector', () => {
             // expect(widget).to.have.property('dataSource').that.is.an.instanceof(DataSource);
             // expect(widget.dataSource.total()).to.equal(LIBRARY.length);
             // expect(widget.dataSource.data()).to.deep.equal(LIBRARY);
-            expect(widget.value()).to.be.null;
+            expect(widget.value()).to.be.empty;
         });
     });
 
@@ -141,14 +135,14 @@ describe('widgets.connector', () => {
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).appendTo(STAGE_ELEMENT);
             widget = element[WIDGET]({
                 // TODO
-            }).data('kendoConnector');
+            }).data(WIDGET);
         });
 
         xit('value', () => {
-            // TODO
+            $.noop(widget);
         });
 
         xit('destroy', () => {
@@ -171,9 +165,9 @@ describe('widgets.connector', () => {
                     // 'data-bind': 'source: library, value: code',
                     // 'data-default': NAME
                 })
-                .appendTo(`#${FIXTURES}`);
+                .appendTo(STAGE_ELEMENT);
             bind(`#${FIXTURES}`, viewModel);
-            widget = element.data('kendoConnector');
+            widget = element.data(WIDGET);
             change = sinon.spy();
             // viewModel.bind(CHANGE, change);
         });
@@ -240,13 +234,13 @@ describe('widgets.connector', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).appendTo(STAGE_ELEMENT);
             widget = element[WIDGET]({
                 // dataSource: LIBRARY,
                 // value: NAME,
                 // default: NAME,
                 // solution: SOLUTION
-            }).data('kendoConnector');
+            }).data(WIDGET);
         });
 
         it('Change event', () => {

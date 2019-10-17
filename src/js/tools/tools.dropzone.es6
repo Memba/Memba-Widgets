@@ -34,16 +34,16 @@ const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 const TEMPLATE = `<div
-    id="#: properties.name #"
     data-${ns}role="dropzone"
     data-${ns}center="#: attributes.center #"
     data-${ns}empty="#: attributes.empty #"
+    id="#: properties.name #"
     style="#: attributes.style #" {0}>
     <div>#: attributes.text #</div>
     </div>`;
 // TODO: Check whether TEMPLATE requires class="kj-interactive"
 const BINDING = `data-${ns}bind="value: #: properties.name #.value, source: interactions"`;
-const DISABLED = `data-${ns}enable="false"`; // TODO : enabled
+const DISABLED = `data-${ns}enable="false"`;
 
 /**
  * @class DropZoneTool tool

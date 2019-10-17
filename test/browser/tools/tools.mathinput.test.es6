@@ -14,7 +14,9 @@ import $ from 'jquery';
 import 'kendo.core';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import __ from '../../../src/js/app/app.i18n.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import BaseModel from '../../../src/js/data/data.base.es6';
 import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import { BaseTool } from '../../../src/js/tools/tools.base.es6';
@@ -22,8 +24,6 @@ import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 // Component data
 import { getMathInput } from '../../../src/js/helpers/helpers.components.es6';
-import __ from '../../../src/js/app/app.i18n';
-import BaseModel from '../../../src/js/data/data.base';
 
 const { describe, it, xit } = window;
 const { expect } = chai;
@@ -218,7 +218,7 @@ describe('tools.mathinput', () => {
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
-                expect(content).to.match('input');
+                expect(content).to.match(CONSTANTS.INPUT);
             });
         });
 

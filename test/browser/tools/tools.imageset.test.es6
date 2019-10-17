@@ -186,7 +186,7 @@ describe('tools.imageset', () => {
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
-                expect(content).to.match('input');
+                expect(content).to.match(CONSTANTS.INPUT);
                 expect(content).to.have.attr('data-role', 'imageset');
                 expect(content).to.have.attr(
                     'data-source',

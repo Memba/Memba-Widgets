@@ -104,7 +104,7 @@ describe('widgets.markdown', () => {
             expect(widget.element).to.be.empty;
         });
 
-        xit('value', done => {
+        xit('value', () => {
             expect(widget).to.be.an.instanceof(Markdown);
         });
 
@@ -117,7 +117,6 @@ describe('widgets.markdown', () => {
         const options = {};
         let viewModel;
         let change;
-        let destroy;
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
@@ -126,10 +125,11 @@ describe('widgets.markdown', () => {
                 // TODO
             });
             change = sinon.spy();
-            destroy = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, viewModel, change);
+        });
     });
 
     describe('Events', () => {
@@ -144,7 +144,9 @@ describe('widgets.markdown', () => {
             event = sinon.spy();
         });
 
-        xit('TODO', () => {});
+        xit('TODO', () => {
+            $.noop(widget, event);
+        });
     });
 
     afterEach(() => {

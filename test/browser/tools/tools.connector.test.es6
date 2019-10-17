@@ -57,7 +57,7 @@ describe('tools.connector', () => {
                 'description',
                 __('tools.connector.description')
             );
-            expect(tool).to.have.property('height', 80);
+            expect(tool).to.have.property('height', 70);
             expect(tool).to.have.property('help', __('tools.connector.help'));
             expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.connector.icon'));
@@ -65,8 +65,8 @@ describe('tools.connector', () => {
                 .to.have.property('menu')
                 .that.eql(['properties.question', 'properties.solution']);
             expect(tool).to.have.property('name', __('tools.connector.name'));
-            expect(tool).to.have.property('weight', 1);
-            expect(tool).to.have.property('width', 300);
+            expect(tool).to.have.property('weight', 0.25);
+            expect(tool).to.have.property('width', 70);
         });
 
         it('getAttributeModel', () => {
@@ -77,22 +77,20 @@ describe('tools.connector', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('mask');
-            expect(Model.fields).to.have.property('style');
+            expect(Model.fields).to.have.property('color');
         });
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(6);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.mask');
-            expect(rows[6]).to.have.property('field', 'attributes.style');
+            expect(rows[5]).to.have.property('field', 'attributes.color');
         });
 
         it('getPropertyModel', () => {
@@ -110,13 +108,14 @@ describe('tools.connector', () => {
             expect(Model.fields).to.have.property('solution');
             expect(Model.fields).to.have.property('success');
             expect(Model.fields).to.have.property('validation');
+            expect(Model.fields).to.have.property('disabled');
         });
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(8);
             expect(rows[0]).to.have.property('field', 'properties.name');
             expect(rows[1]).to.have.property('field', 'properties.question');
             expect(rows[2]).to.have.property('field', 'properties.solution');
@@ -124,6 +123,7 @@ describe('tools.connector', () => {
             expect(rows[4]).to.have.property('field', 'properties.success');
             expect(rows[5]).to.have.property('field', 'properties.failure');
             expect(rows[6]).to.have.property('field', 'properties.omit');
+            expect(rows[7]).to.have.property('field', 'properties.disabled');
         });
 
         it('getAssets', () => {
@@ -218,7 +218,7 @@ describe('tools.connector', () => {
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
-                expect(content).to.match('input');
+                expect(content).to.match(CONSTANTS.DIV);
             });
         });
 

@@ -1,0 +1,10 @@
+@import "./tools";
+
+.kj-stage {
+    &.kj-review,
+    &.kj-play {
+        .kj-element[data-tool="selector"] {
+            display: none;
+        }
+    }
+}

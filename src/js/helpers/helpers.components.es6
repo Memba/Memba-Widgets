@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Could be merged with src/js/helpers/helpers.data.es6
+// TODO Could be merged with ./helpers.data.es6
 
 import JSC from 'jscheck';
 import ObjectId from '../common/window.objectid.es6';
@@ -130,7 +130,7 @@ function getChart() {
 function getConnector() {
     return {
         attributes: {
-            // TODO
+            color: '#00ff00'
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -158,7 +158,10 @@ function getConnector() {
 function getDropZone() {
     return {
         attributes: {
-            // TODO
+            center: JSC.boolean()(),
+            // empty
+            style: styleGenerator(),
+            text: textGenerator()
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -357,7 +360,15 @@ function getLine() {
 function getMathInput() {
     return {
         attributes: {
-            // TODO
+            keypad: JSC.boolean()(),
+            basic: JSC.boolean()(),
+            greek: JSC.boolean()(),
+            operators: JSC.boolean()(),
+            expressions: JSC.boolean()(),
+            sets: JSC.boolean()(),
+            matrices: JSC.boolean()(),
+            statistics: JSC.boolean()(),
+            style: styleGenerator()
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -486,7 +497,25 @@ function getQuiz() {
  */
 function getSelector() {
     return {
-        // TODO
+        attributes: {
+            // TODO
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        properties: {
+            failure: -JSC.integer(0, 1)(),
+            name: randomVal(),
+            omit: 0,
+            question: textGenerator(),
+            solution: '', // TODO
+            success: JSC.integer(0, 3)(),
+            validation: '// equal'
+        },
+        rotate: angleGenerator(),
+        tool: 'selector',
+        top: positionGenerator(),
+        width: positionGenerator()
     };
 }
 
@@ -496,7 +525,18 @@ function getSelector() {
  */
 function getTable() {
     return {
-        // TODO
+        attributes: {
+            // columns:
+            // rows:
+            // data:
+        },
+        height: positionGenerator(),
+        id: new ObjectId().toString(),
+        left: positionGenerator(),
+        rotate: angleGenerator(),
+        tool: 'table',
+        top: positionGenerator(),
+        width: positionGenerator()
     };
 }
 

@@ -338,7 +338,7 @@ describe('widgets.formatstrip', () => {
             const { min } = widget.options;
             const { max } = widget.options;
             const { step } = widget.options;
-            const value = widget.value();
+            // const value = widget.value();
             expect(min).to.equal(0);
             expect(max).to.equal(5);
             expect(step).to.equal(1);

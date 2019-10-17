@@ -296,10 +296,10 @@
             <input type="text" class="kj-interactive" style="height: 50px; width: 100px; font-size: 40px;">
         </div>
         <div class="kj-element" style="position: absolute; top: 0; left: 290px; height: 10px; width: 10px;">
-            <div data-role="selector" data-id="val_abcde1" data-shape="rect" data-stroke="{ color: '#00FFFF', width: 6 }" data-toolbar="#toolbarA" style="height: 10px; width: 10px;" data-bind="value: selectorA1, source: sourceA, visible: visibleA, enabled: enabledA"></div>
+            <img data-role="selector" data-id="val_abcde1" data-shape="rect" data-stroke="{ color: '#00FFFF', width: 6 }" data-toolbar="#toolbarA" style="height: 10px; width: 10px;" data-bind="value: selectorA1, source: sourceA, visible: visibleA, enabled: enabledA">
         </div>
         <div class="kj-element" style="position: absolute; top: 0; left: 290px; height: 10px; width: 10px;">
-            <div data-role="selector" data-id="val_abcde2" data-shape="cross" data-stroke="{ color: '#AAFF22', width: 6 }" data-toolbar="#toolbarA" style="height: 10px; width: 10px;" data-bind="value: selectorA2, source: sourceA, visible: visibleA, enabled: enabledA"></div>
+            <img data-role="selector" data-id="val_abcde2" data-shape="cross" data-stroke="{ color: '#AAFF22', width: 6 }" data-toolbar="#toolbarA" style="height: 10px; width: 10px;" data-bind="value: selectorA2, source: sourceA, visible: visibleA, enabled: enabledA">
         </div>
     </div>
 </div>
@@ -322,23 +322,23 @@
 <div id="toolbarB"></div>
 <div class="kj-stage" style="position: relative; height: 300px; width: 300px; border: solid 1px black; transform: scale(0.9);">
     <div data-role="stage" style="height: 300px; width: 300px;">
-        <div class="kj-element" style="position: absolute; top: 10px; left: 10px; height: 50px; width:100px;">
-            <div data-behavior="selectable" data-constant="red" style="height:50px; width:100px; background:#f00; border:solid 1px #000; border-radius:50%;"></div>
+        <div class="kj-element" style="position: absolute; top: 10px; left: 10px; height: 50px; width: 100px;">
+            <div data-behavior="selectable" data-constant="red" style="height: 50px; width: 100px; background: #f00; border: solid 1px #000; border-radius: 50%;"></div>
         </div>
-        <div class="kj-element" style="position:absolute; top:10px; left:190px; height:50px; width:100px;">
-            <div data-behavior="selectable" data-constant="green" style="height:50px; width:100px; background:#0f0; border:solid 1px #000; border-radius:50%;"></div>
+        <div class="kj-element" style="position: absolute; top: 10px; left: 190px; height: 50px; width: 100px;">
+            <div data-behavior="selectable" data-constant="green" style="height: 50px; width: 100px; background: #0f0; border: solid 1px #000; border-radius: 50%;"></div>
         </div>
-        <div class="kj-element" style="position:absolute; top:240px; left:190px; height:50px; width:100px;">
-            <div data-behavior="selectable" data-constant="blue" style="height:50px; width:100px; background:#00f; border:solid 1px #000; border-radius:50%;"></div>
+        <div class="kj-element" style="position: absolute; top: 240px; left: 190px; height: 50px; width: 100px;">
+            <div data-behavior="selectable" data-constant="blue" style="height: 50px; width: 100px; background: #00f; border: solid 1px #000; border-radius: 50%;"></div>
         </div>
-        <div class="kj-element" style="position:absolute; top:240px; left:10px; height:50px; width:100px;">
-            <div data-behavior="selectable" data-constant="magenta" style="height:50px; width:100px; background:#f0f; border:solid 1px #000; border-radius:50%;"></div>
+        <div class="kj-element" style="position: absolute; top: 240px; left: 10px; height: 50px; width: 100px;">
+            <div data-behavior="selectable" data-constant="magenta" style="height: 50px; width: 100px; background: #f0f; border: solid 1px #000; border-radius: 50%;"></div>
         </div>
-        <div class="kj-element" style="position:absolute; top:125px; left:100px; height:50px; width:100px;">
-            <div data-behavior="selectable" data-constant="cyan" style="height:50px; width:100px; background:#0ff; border:solid 1px #000; border-radius:50%;"></div>
+        <div class="kj-element" style="position: absolute; top: 125px; left: 100px; height: 50px; width: 100px;">
+            <div data-behavior="selectable" data-constant="cyan" style="height: 50px; width: 100px; background: #0ff; border: solid 1px #000; border-radius: 50%;"></div>
         </div>
-        <div class="kj-element" style="position:absolute; top:0; left:290px; height:10px; width:10px;">
-            <div data-role="selector" data-id="val_abcde5" data-shape="cross" data-stroke="{ color: '#000', width: 4 }" data-toolbar="#toolbarB" style="height:10px; width:10px;" data-bind="value: selectorB1, source: sourceB, visible: visibleB, enabled: enabledB"></div>
+        <div class="kj-element" style="position: absolute; top: 0; left: 290px; height: 10px; width: 10px;">
+            <img data-role="selector" data-id="val_abcde5" data-shape="cross" data-stroke="{ color: '#000', width: 4 }" data-toolbar="#toolbarB" style="height: 10px; width: 10px;" data-bind="value: selectorB1, source: sourceB, visible: visibleB, enabled: enabledB">
         </div>
     </div>
 </div>
@@ -350,7 +350,7 @@
 {
     selectorB1: <span data-bind="text: selectorB1$"></span>
     source:
-    <div data-bind="text: sourceB$" style="margin-left:50px;"></div>
+    <div data-bind="text: sourceB$" style="margin-left: 50px;"></div>
     visible: <span data-bind="text: visibleB"></span>
     enabled: <span data-bind="text: enabledB"></span>
 }

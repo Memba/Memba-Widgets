@@ -41,7 +41,7 @@ describe('tools.table', () => {
         tools.load(TOOL).always(done);
     });
 
-    describe('TabkeTool', () => {
+    describe('TableTool', () => {
         let tool;
         let component;
 
@@ -55,18 +55,22 @@ describe('tools.table', () => {
             expect(tool).to.have.property('cursor', CONSTANTS.CROSSHAIR_CURSOR);
             expect(tool).to.have.property(
                 'description',
-                __('tools.label.description')
+                __('tools.table.description')
             );
-            expect(tool).to.have.property('height', 80);
-            expect(tool).to.have.property('help', __('tools.label.help'));
+            expect(tool).to.have.property('height', 350);
+            expect(tool).to.have.property('help', __('tools.table.help'));
             expect(tool).to.have.property('id', TOOL);
-            expect(tool).to.have.property('icon', __('tools.label.icon'));
+            expect(tool).to.have.property('icon', __('tools.table.icon'));
             expect(tool)
                 .to.have.property('menu')
-                .that.eql(['attributes.text']);
-            expect(tool).to.have.property('name', __('tools.label.name'));
+                .that.eql([
+                    'attributes.columns',
+                    'attributes.rows',
+                    'attributes.data'
+                ]);
+            expect(tool).to.have.property('name', __('tools.table.name'));
             expect(tool).to.have.property('weight', 0);
-            expect(tool).to.have.property('width', 300);
+            expect(tool).to.have.property('width', 600);
         });
 
         it('getAttributeModel', () => {
@@ -77,22 +81,24 @@ describe('tools.table', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('text');
-            expect(Model.fields).to.have.property('style');
+            expect(Model.fields).to.have.property('columns');
+            expect(Model.fields).to.have.property('rows');
+            expect(Model.fields).to.have.property('data');
         });
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(8);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.text');
-            expect(rows[6]).to.have.property('field', 'attributes.style');
+            expect(rows[5]).to.have.property('field', 'attributes.columns');
+            expect(rows[6]).to.have.property('field', 'attributes.rows');
+            expect(rows[7]).to.have.property('field', 'attributes.data');
         });
 
         it('getPropertyModel', () => {
@@ -103,17 +109,14 @@ describe('tools.table', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('behavior');
-            expect(Model.fields).to.have.property('constant');
+            expect(Model.fields).to.eql({});
         });
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(2);
-            expect(rows[0]).to.have.property('field', 'properties.behavior');
-            expect(rows[1]).to.have.property('field', 'properties.constant');
+                .with.lengthOf(0);
         });
 
         it('getAssets', () => {
@@ -168,7 +171,7 @@ describe('tools.table', () => {
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
-                expect(content).to.match('div');
+                expect(content).to.match(CONSTANTS.DIV);
             });
         });
 

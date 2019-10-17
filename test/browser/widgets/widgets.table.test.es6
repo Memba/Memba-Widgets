@@ -12,19 +12,18 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import sinon from 'sinon';
+// import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.table.es6';
 
-const { afterEach, before, beforeEach, describe, it } = window;
+const { afterEach, before, describe, it } = window;
 const {
-    attr,
-    bind,
-    data: { DataSource, ObservableArray },
+    // attr,
+    // bind,
     destroy,
-    init,
-    observable,
+    // init,
+    // observable,
     ui: { roles, Table }
 } = window.kendo;
 const { expect } = chai;
@@ -55,7 +54,13 @@ describe('widgets.table', () => {
 
     describe('Initialization', () => {
         it('from code', () => {
-            expect(true).to.be.false;
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            // const options = {};
+            const widget = element[WIDGET]().data(WIDGET);
+            expect(widget).to.be.an.instanceof(Table);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            // expect(element).to.be.empty;
         });
 
         it('from code with options', () => {
@@ -71,7 +76,7 @@ describe('widgets.table', () => {
         });
     });
 
-    describe('Methods', () => {
+    xdescribe('Methods', () => {
         it('value', () => {
             expect(true).to.be.false;
         });
@@ -85,13 +90,13 @@ describe('widgets.table', () => {
         });
     });
 
-    describe('MVVM (with UI interactions)', () => {
+    xdescribe('MVVM (with UI interactions)', () => {
         it('It should...', () => {
             expect(true).to.be.false;
         });
     });
 
-    describe('Events', () => {
+    xdescribe('Events', () => {
         it('change', () => {
             expect(true).to.be.false;
         });

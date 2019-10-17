@@ -218,7 +218,7 @@ describe('tools.textarea', () => {
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
-                expect(content).to.match('textarea');
+                expect(content).to.match(CONSTANTS.TEXTAREA);
             });
         });
 

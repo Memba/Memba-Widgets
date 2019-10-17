@@ -170,7 +170,7 @@ describe('tools.image', () => {
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
-                expect(content).to.match('img');
+                expect(content).to.match(CONSTANTS.IMG);
             });
         });
 

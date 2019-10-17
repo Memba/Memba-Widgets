@@ -264,6 +264,46 @@ function tools(id) {
         });
 
         /**
+         * Connector
+         */
+        _tools.connector = new StubTool({
+            description: __('tools.connector.description'),
+            help: __('tools.connector.help'),
+            icon: __('tools.connector.icon'),
+            name: __('tools.connector.name')
+        });
+
+        /**
+         * Selector
+         */
+        _tools.selector = new StubTool({
+            description: __('tools.selector.description'),
+            help: __('tools.selector.help'),
+            icon: __('tools.selector.icon'),
+            name: __('tools.selector.name')
+        });
+
+        /**
+         * Drop Zone
+         */
+        _tools.dropzone = new StubTool({
+            description: __('tools.dropzone.description'),
+            help: __('tools.dropzone.help'),
+            icon: __('tools.dropzone.icon'),
+            name: __('tools.dropzone.name')
+        });
+
+        /**
+         * Latex
+         */
+        _tools.mathinput = new StubTool({
+            description: __('tools.mathinput.description'),
+            help: __('tools.mathinput.help'),
+            icon: __('tools.mathinput.icon'),
+            name: __('tools.mathinput.name')
+        });
+
+        /**
          * Latex
          */
         _tools.latex = new StubTool({
@@ -291,6 +331,16 @@ function tools(id) {
             help: __('tools.video.help'),
             icon: __('tools.video.icon'),
             name: __('tools.video.name')
+        });
+
+        /**
+         * Table
+         */
+        _tools.table = new StubTool({
+            description: __('tools.table.description'),
+            help: __('tools.table.help'),
+            icon: __('tools.table.icon'),
+            name: __('tools.table.name')
         });
 
         /**

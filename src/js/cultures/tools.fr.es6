@@ -166,13 +166,13 @@ const res = {
 
     // dropzone
     dropzone: {
-        description: 'Zone de Dépot',
+        description: 'Zone de Dépôt: <em>#: attributes.text #</em>',
         help: 'TODO',
         icon: 'elements_selection',
-        name: 'Zone de Dépot',
+        name: 'Zone de Dépôt',
         attributes: {
             center: {
-                defaultValue: false, // TODO
+                defaultValue: false,
                 title: 'Centrer'
             },
             empty: { title: 'Vide' },

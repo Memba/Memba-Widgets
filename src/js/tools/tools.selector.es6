@@ -84,9 +84,9 @@ const SelectorTool = BaseTool.extend({
         ),
         shape: new DropDownListAdapter(
             {
-                title: __('tools.selector.attributes.shape.title'),
                 defaultValue: 'circle',
-                source: __('tools.selector.attributes.shape.source')
+                source: __('tools.selector.attributes.shape.source'),
+                title: __('tools.selector.attributes.shape.title')
             },
             { style: 'width: 100%;' }
         ),

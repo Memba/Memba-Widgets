@@ -23,7 +23,7 @@ import 'kendo.popup';
 import 'kendo.window';
 import assert from '../common/window.assert.es6';
 // import CONSTANTS from '../common/window.constants.es6';
-// import Logger from '../common/window.logger.es6';
+import Logger from '../common/window.logger.es6';
 import './widgets.markdown.es6';
 // import './widgets.markeditor.es6'; // <-- cyclical dependency
 // import './widgets.mathinput.es6'; // <-- TODO
@@ -205,7 +205,7 @@ const MarkEditorToolBar = ToolBar.extend({
      * @param options
      */
     init(element, options = {}) {
-        options = options || {};
+        // eslint-disable-next-line no-param-reassign
         options.items = this._expandTools(
             options.tools || MarkEditorToolBar.prototype.options.tools
         );

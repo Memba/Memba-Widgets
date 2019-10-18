@@ -177,7 +177,7 @@ const MathInputTool = BaseTool.extend({
                     tools.push('statistics');
                 }
                 return {
-                    container: '#floating .kj-floating-content',
+                    container: '', // TODO: '#floating .kj-floating-content',
                     resizable: false,
                     tools
                 };

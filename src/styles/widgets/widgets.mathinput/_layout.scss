@@ -1,5 +1,4 @@
 @include exports( "widgets.mathinput/layout" ) {
-
     .kj-mathinput {
         /*
         .mq-editable-field {
@@ -99,8 +98,12 @@
 
     .kj-mathinput-popup {
         max-width: 242px;
-        .k-icon {
-            overflow: initial;
+
+        .kj-mathinput-palette {
+            display: flex;
+            flex-wrap: wrap;
+            width: 200px;
+            // .k-icon { overflow: initial; }
         }
     }
 
@@ -108,8 +111,7 @@
         .k-list {
             display: flex;
             flex-wrap: wrap;
-            .k-item {
-            }
+            // .k-item {}
         }
     }
 
@@ -117,7 +119,6 @@
     .kj-mathinput-popup,
     .kj-mathinput-dialog,
     .k-overflow-container {
-
         .k-button-icon[data-tool="keypad"],
         .k-button-icon[data-tool="basic"],
         .k-button-icon[data-tool="greek"],
@@ -129,12 +130,11 @@
             width: auto;
         }
 
-
         // ------------------
         // Kidoju font
         // ------------------
-        .k-icon, .k-font-icon
-        {
+        .k-icon,
+        .k-font-icon {
             // Toolbar
             &.k-i-field,
             &.k-i-backspace,
@@ -146,11 +146,11 @@
             &.k-i-sets,
             &.k-i-matrices,
             &.k-i-statistics,
-                // &.k-i-units,
-                // &.k-i-chemistry,
-                // KeyPad
+            // &.k-i-units,
+            // &.k-i-chemistry,
+            // KeyPad
             &.k-i-subscript,
-                // Basic
+            // Basic
             &.k-i-frac,
             &.k-i-sqrt,
             &.k-i-pow2,
@@ -160,14 +160,14 @@
             &.k-i-tan,
             &.k-i-pleft,
             &.k-i-pright,
-                // Operators
+            // Operators
             &.k-i-bleft,
             &.k-i-bright,
             &.k-i-cleft,
             &.k-i-cright,
             &.k-i-vleft,
             &.k-i-vright,
-                // Expressions (functions)
+            // Expressions (functions)
             &.k-i-cbrt,
             &.k-i-nthroot,
             &.k-i-pow,
@@ -184,8 +184,8 @@
             &.k-i-sum-ex,
             &.k-i-prod,
             &.k-i-lim,
-                // Sets and Logic
-                // Matrices and Vectors
+            // Sets and Logic
+            // Matrices and Vectors
             &.k-i-vector,
             &.k-i-widehat,
             &.k-i-matrix,
@@ -196,18 +196,17 @@
             &.k-i-vvmatrix,
             &.k-i-column,
             &.k-i-row,
-                // Statistics
+            // Statistics
             &.k-i-factorial,
             &.k-i-binomial,
             &.k-i-overline {
+                /* stylelint-disable-next-line font-family-no-missing-generic-family-keyword */
                 font: 16px/1 kidoju !important;
             }
-        }
 
-        // ------------------
-        // Symbola font
-        // ------------------
-        .k-icon, .k-font-icon {
+            // ------------------
+            // Symbola font
+            // ------------------
             // KeyPad
             &.k-i-comma,
             &.k-i-stop,
@@ -235,14 +234,14 @@
             &.k-i-z,
             &.k-i-infty,
             &.k-i-space,
-                // Basic
+            // Basic
             &.k-i-equal,
             &.k-i-plus,
             &.k-i-minus,
             &.k-i-times,
             &.k-i-cdot,
             &.k-i-div,
-                // Greek (lowercase)
+            // Greek (lowercase)
             &.k-i-alpha,
             &.k-i-beta,
             &.k-i-gamma,
@@ -260,7 +259,7 @@
             &.k-i-omicron,
             &.k-i-pi,
             &.k-i-rho,
-                // Note that \03c2 is not represented
+            // Note that \03c2 is not represented
             &.k-i-sigma,
             &.k-i-tau,
             &.k-i-upsilon,
@@ -268,7 +267,7 @@
             &.k-i-chi,
             &.k-i-psi,
             &.k-i-omega,
-                // Greek (uppercase)
+            // Greek (uppercase)
             &.k-i-alpha-maj,
             &.k-i-beta-maj,
             &.k-i-gamma-maj,
@@ -286,7 +285,7 @@
             &.k-i-omicron-maj,
             &.k-i-pi-maj,
             &.k-i-rho-maj,
-                // Note that \03a2 is not represented
+            // Note that \03a2 is not represented
             &.k-i-sigma-maj,
             &.k-i-tau-maj,
             &.k-i-upsilon-maj,
@@ -294,7 +293,7 @@
             &.k-i-chi-maj,
             &.k-i-psi-maj,
             &.k-i-omega-maj,
-                // Operators
+            // Operators
             &.k-i-plusminus,
             &.k-i-percent,
             &.k-i-lt,
@@ -309,16 +308,16 @@
             &.k-i-or,
             &.k-i-circ,
             &.k-i-nabla,
-                // Expressions (functions)
-                // Sets and Logic
+            // Expressions (functions)
+            // Sets and Logic
             &.k-i-cset,
             &.k-h-iset,
-                // &.k-i-iset, // imaginaries
+            // &.k-i-iset, // imaginaries
             &.k-i-nset,
             &.k-i-pset,
             &.k-i-qset,
             &.k-i-rset,
-                // &.k-i-wset, // whole numbers
+            // &.k-i-wset, // whole numbers
             &.k-i-zset,
             &.k-i-emptyset,
             &.k-i-forall,
@@ -336,63 +335,62 @@
             &.k-i-implies,
             &.k-i-impliedby,
             &.k-i-nimplies,
-            &.k-i-iff
-                // Matrices and Vectors
-                // Statistics
-            {
+            // Matrices and Vectors
+            // Statistics
+            &.k-i-iff {
+                /* stylelint-disable-next-line font-family-no-missing-generic-family-keyword */
                 font: 16px/1 Symbola !important;
             }
         }
 
-
         // ------------------
         // Toolbar
         // ------------------
-        .k-i-field:before {content:"\e700";}
-        .k-i-backspace:before {content:"\232b";}
-        .k-i-keypad:before {content:"\2328";}
-        .k-i-basic:before {content:"\e701";}
-        .k-i-greek:before {content:"\03b1";}
-        .k-i-operators:before {content:"\00b1";}
-        .k-i-expressions:before {content:"\e702";}
-        .k-i-sets:before {content:"\26ad";}
-        .k-i-matrices:before {content:"\e751";}
-        .k-i-statistics:before {content:"\2680";}
-        // .k-i-units:before {content:"TODO";}
-        // .k-i-chemistry:before {content:"\e703";}
+        .k-i-field::before { content: "\e700"; }
+        .k-i-backspace::before { content: "\232b"; }
+        .k-i-keypad::before { content: "\2328"; }
+        .k-i-basic::before { content: "\e701"; }
+        .k-i-greek::before { content: "\03b1"; }
+        .k-i-operators::before { content: "\00b1"; }
+        .k-i-expressions::before { content: "\e702"; }
+        .k-i-sets::before { content: "\26ad"; }
+        .k-i-matrices::before { content: "\e751"; }
+        .k-i-statistics::before { content: "\2680"; }
+        // .k-i-units::before { content: "TODO"; }
+        // .k-i-chemistry::before { content: "\e703"; }
 
         // ------------------
         // KeyPad
         // ------------------
-        .k-i-comma:before {content:"\002c";}
-        .k-i-stop:before {content:"\002e";}
-        .k-i-n0:before {content:"\0030";}
-        .k-i-n1:before {content:"\0031";}
-        .k-i-n2:before {content:"\0032";}
-        .k-i-n3:before {content:"\0033";}
-        .k-i-n4:before {content:"\0034";}
-        .k-i-n5:before {content:"\0035";}
-        .k-i-n6:before {content:"\0036";}
-        .k-i-n7:before {content:"\0037";}
-        .k-i-n8:before {content:"\0038";}
-        .k-i-n9:before {content:"\0039";}
-        .k-i-a:before {content:"\0061";}
-        .k-i-b:before {content:"\0062";}
-        .k-i-c:before {content:"\0063";}
-        .k-i-i:before {content:"\0069";}
-        .k-i-j:before {content:"\006a";}
-        .k-i-k:before {content:"\006b";}
-        .k-i-n:before {content:"\006e";}
-        .k-i-p:before {content:"\0070";}
-        .k-i-q:before {content:"\0071";}
-        .k-i-x:before {content:"\0078";}
-        .k-i-y:before {content:"\0079";}
-        .k-i-z:before {content:"\007a";}
+        .k-i-comma::before { content: "\002c"; }
+        .k-i-stop::before { content: "\002e"; }
+        .k-i-n0::before { content: "\0030"; }
+        .k-i-n1::before { content: "\0031"; }
+        .k-i-n2::before { content: "\0032"; }
+        .k-i-n3::before { content: "\0033"; }
+        .k-i-n4::before { content: "\0034"; }
+        .k-i-n5::before { content: "\0035"; }
+        .k-i-n6::before { content: "\0036"; }
+        .k-i-n7::before { content: "\0037"; }
+        .k-i-n8::before { content: "\0038"; }
+        .k-i-n9::before { content: "\0039"; }
+        .k-i-a::before { content: "\0061"; }
+        .k-i-b::before { content: "\0062"; }
+        .k-i-c::before { content: "\0063"; }
+        .k-i-i::before { content: "\0069"; }
+        .k-i-j::before { content: "\006a"; }
+        .k-i-k::before { content: "\006b"; }
+        .k-i-n::before { content: "\006e"; }
+        .k-i-p::before { content: "\0070"; }
+        .k-i-q::before { content: "\0071"; }
+        .k-i-x::before { content: "\0078"; }
+        .k-i-y::before { content: "\0079"; }
+        .k-i-z::before { content: "\007a"; }
         // Add Euler/Napier constant Math.E
         // Unicode has special glyphs for these symbols: 0x2148 for imaginary i, 0x2149 for imaginary j, 0x2107 for Euler's constant, etc (although on most fonts they look ugly).
-        .k-i-infty:before {content:"\221e";}
-        .k-i-space:before {content:"\fe48";}
-        .k-i-subscript:before {content:"\e711";}
+        .k-i-infty::before { content: "\221e"; }
+        .k-i-space::before { content: "\fe48"; }
+        .k-i-subscript::before { content: "\e711"; }
 
         // ------------------
         // TODO: unassigned
@@ -404,177 +402,177 @@
         // ------------------
         // Basic (has to be compatible with kidoju.widgets.mathgraph)
         // ------------------
-        .k-i-equal:before {content:"\003d";}
-        .k-i-plus:before {content:"\002b";}
-        .k-i-minus:before {content:"\002d";}
-        .k-i-times:before {content:"\00d7";}
-        .k-i-cdot:before {content:"\00b7";}
-        .k-i-div:before {content:"\00f7";}
-        // .k-i-pleft:before {content:"\003b";}
-        // .k-i-pright:before {content:"\003d";}
-        .k-i-frac:before {content:"\e710";}
-        .k-i-sqrt:before {content:"\221a";}
-        .k-i-pow2:before {content:"\e722";}
-        .k-i-pow3:before {content:"\e723";}
-        .k-i-sin:before {content:"\e730";}
-        .k-i-cos:before {content:"\e731";}
-        .k-i-tan:before {content:"\e732";}
-        .k-i-pleft:before {content:"\0028";}
-        .k-i-pright:before {content:"\0029";}
+        .k-i-equal::before { content: "\003d"; }
+        .k-i-plus::before { content: "\002b"; }
+        .k-i-minus::before { content: "\002d"; }
+        .k-i-times::before { content: "\00d7"; }
+        .k-i-cdot::before { content: "\00b7"; }
+        .k-i-div::before { content: "\00f7"; }
+        // .k-i-pleft::before { content: "\003b"; }
+        // .k-i-pright::before { content: "\003d"; }
+        .k-i-frac::before { content: "\e710"; }
+        .k-i-sqrt::before { content: "\221a"; }
+        .k-i-pow2::before { content: "\e722"; }
+        .k-i-pow3::before { content: "\e723"; }
+        .k-i-sin::before { content: "\e730"; }
+        .k-i-cos::before { content: "\e731"; }
+        .k-i-tan::before { content: "\e732"; }
+        .k-i-pleft::before { content: "\0028"; }
+        .k-i-pright::before { content: "\0029"; }
 
         // ------------------
         // Greek (lowercase)
         // ------------------
-        .k-i-alpha:before {content:"\03b1";}
-        .k-i-beta:before {content:"\03b2";}
-        .k-i-gamma:before {content:"\03b3";}
-        .k-i-delta:before {content:"\03b4";}
-        .k-i-epsilon:before {content:"\03b5";}
-        .k-i-zeta:before {content:"\03b6";}
-        .k-i-eta:before {content:"\03b7";}
-        .k-i-theta:before {content:"\03b8";}
-        .k-i-iota:before {content:"\03b9";}
-        .k-i-kappa:before {content:"\03ba";}
-        .k-i-lambda:before {content:"\03bb";}
-        .k-i-mu:before {content:"\03bc";}
-        .k-i-nu:before {content:"\03bd";}
-        .k-i-xi:before {content:"\03be";}
-        .k-i-omicron:before {content:"\03bf";}
-        .k-i-pi:before {content:"\03c0";}
-        .k-i-rho:before {content:"\03c1";}
+        .k-i-alpha::before { content: "\03b1"; }
+        .k-i-beta::before { content: "\03b2"; }
+        .k-i-gamma::before { content: "\03b3"; }
+        .k-i-delta::before { content: "\03b4"; }
+        .k-i-epsilon::before { content: "\03b5"; }
+        .k-i-zeta::before { content: "\03b6"; }
+        .k-i-eta::before { content: "\03b7"; }
+        .k-i-theta::before { content: "\03b8"; }
+        .k-i-iota::before { content: "\03b9"; }
+        .k-i-kappa::before { content: "\03ba"; }
+        .k-i-lambda::before { content: "\03bb"; }
+        .k-i-mu::before { content: "\03bc"; }
+        .k-i-nu::before { content: "\03bd"; }
+        .k-i-xi::before { content: "\03be"; }
+        .k-i-omicron::before { content: "\03bf"; }
+        .k-i-pi::before { content: "\03c0"; }
+        .k-i-rho::before { content: "\03c1"; }
         // Note that \03c2 is not represented
-        .k-i-sigma:before {content:"\03c3";}
-        .k-i-tau:before {content:"\03c4";}
-        .k-i-upsilon:before {content:"\03c5";}
-        .k-i-phi:before {content:"\03c6";}
-        .k-i-chi:before {content:"\03c7";}
-        .k-i-psi:before {content:"\03c8";}
-        .k-i-omega:before {content:"\03c9";}
+        .k-i-sigma::before { content: "\03c3"; }
+        .k-i-tau::before { content: "\03c4"; }
+        .k-i-upsilon::before { content: "\03c5"; }
+        .k-i-phi::before { content: "\03c6"; }
+        .k-i-chi::before { content: "\03c7"; }
+        .k-i-psi::before { content: "\03c8"; }
+        .k-i-omega::before { content: "\03c9"; }
 
         // ------------------
         // Greek (uppercase)
         // ------------------
-        .k-i-alpha-maj:before {content:"\0391";}
-        .k-i-beta-maj:before {content:"\0392";}
-        .k-i-gamma-maj:before {content:"\0393";}
-        .k-i-delta-maj:before {content:"\0394";}
-        .k-i-epsilon-maj:before {content:"\0395";}
-        .k-i-zeta-maj:before {content:"\0396";}
-        .k-i-eta-maj:before {content:"\0397";}
-        .k-i-theta-maj:before {content:"\0398";}
-        .k-i-iota-maj:before {content:"\0399";}
-        .k-i-kappa-maj:before {content:"\039a";}
-        .k-i-lambda-maj:before {content:"\039b";}
-        .k-i-mu-maj:before {content:"\039c";}
-        .k-i-nu-maj:before {content:"\039d";}
-        .k-i-xi-maj:before {content:"\039e";}
-        .k-i-omicron-maj:before {content:"\039f";}
-        .k-i-pi-maj:before {content:"\03a0";}
-        .k-i-rho-maj:before {content:"\03a1";}
+        .k-i-alpha-maj::before { content: "\0391"; }
+        .k-i-beta-maj::before { content: "\0392"; }
+        .k-i-gamma-maj::before { content: "\0393"; }
+        .k-i-delta-maj::before { content: "\0394"; }
+        .k-i-epsilon-maj::before { content: "\0395"; }
+        .k-i-zeta-maj::before { content: "\0396"; }
+        .k-i-eta-maj::before { content: "\0397"; }
+        .k-i-theta-maj::before { content: "\0398"; }
+        .k-i-iota-maj::before { content: "\0399"; }
+        .k-i-kappa-maj::before { content: "\039a"; }
+        .k-i-lambda-maj::before { content: "\039b"; }
+        .k-i-mu-maj::before { content: "\039c"; }
+        .k-i-nu-maj::before { content: "\039d"; }
+        .k-i-xi-maj::before { content: "\039e"; }
+        .k-i-omicron-maj::before { content: "\039f"; }
+        .k-i-pi-maj::before { content: "\03a0"; }
+        .k-i-rho-maj::before { content: "\03a1"; }
         // Note that \03a2 is not represented
-        .k-i-sigma-maj:before {content:"\03a3";}
-        .k-i-tau-maj:before {content:"\03a4";}
-        .k-i-upsilon-maj:before {content:"\03a5";}
-        .k-i-phi-maj:before {content:"\03a6";}
-        .k-i-chi-maj:before {content:"\03a7";}
-        .k-i-psi-maj:before {content:"\03a8";}
-        .k-i-omega-maj:before {content:"\03a9";}
+        .k-i-sigma-maj::before { content: "\03a3"; }
+        .k-i-tau-maj::before { content: "\03a4"; }
+        .k-i-upsilon-maj::before { content: "\03a5"; }
+        .k-i-phi-maj::before { content: "\03a6"; }
+        .k-i-chi-maj::before { content: "\03a7"; }
+        .k-i-psi-maj::before { content: "\03a8"; }
+        .k-i-omega-maj::before { content: "\03a9"; }
 
         // ------------------
         // Operators
         // ------------------
-        .k-i-bleft:before {content:"\005b";}
-        .k-i-bright:before {content:"\005d";}
-        .k-i-cleft:before {content:"\007b";}
-        .k-i-cright:before {content:"\007d";}
-        .k-i-vleft:before {content:"\009b";}
-        .k-i-vright:before {content:"\009d";}
-        .k-i-plusminus:before {content:"\00b1";}
-        .k-i-percent:before {content:"\0025";}
-        .k-i-lt:before {content:"\003c";}
-        .k-i-le:before {content:"\2264";}
-        .k-i-gt:before {content:"\003e";}
-        .k-i-ge:before {content:"\2265";}
-        .k-i-approx:before {content:"\2248";}
-        .k-i-propto:before {content:"\221d";}
-        .k-i-not:before {content:"\00ac";}
-        .k-i-neq:before {content:"\2260";}
-        .k-i-and:before {content:"\2227";}
-        .k-i-or:before {content:"\2228";}
-        .k-i-circ:before {content:"\2218";}
-        .k-i-nabla:before {content:"\2207";}
+        .k-i-bleft::before { content: "\005b"; }
+        .k-i-bright::before { content: "\005d"; }
+        .k-i-cleft::before { content: "\007b"; }
+        .k-i-cright::before { content: "\007d"; }
+        .k-i-vleft::before { content: "\009b"; }
+        .k-i-vright::before { content: "\009d"; }
+        .k-i-plusminus::before { content: "\00b1"; }
+        .k-i-percent::before { content: "\0025"; }
+        .k-i-lt::before { content: "\003c"; }
+        .k-i-le::before { content: "\2264"; }
+        .k-i-gt::before { content: "\003e"; }
+        .k-i-ge::before { content: "\2265"; }
+        .k-i-approx::before { content: "\2248"; }
+        .k-i-propto::before { content: "\221d"; }
+        .k-i-not::before { content: "\00ac"; }
+        .k-i-neq::before { content: "\2260"; }
+        .k-i-and::before { content: "\2227"; }
+        .k-i-or::before { content: "\2228"; }
+        .k-i-circ::before { content: "\2218"; }
+        .k-i-nabla::before { content: "\2207"; }
 
         // ------------------
         // Expressions (functions)
         // ------------------
 
-        .k-i-cbrt:before {content:"\221b";} // TODO use standard unicode
-        .k-i-nthroot:before {content:"\221c";}
-        .k-i-pow:before {content:"\e721";}
-        .k-i-log:before {content:"\e726";}
-        .k-i-log10:before {content:"\e727";}
-        .k-i-ln:before {content:"\e728";}
-        .k-i-arcsin:before {content:"\e733";}
-        .k-i-arccos:before {content:"\e734";}
-        .k-i-arctan:before {content:"\e735";}
-        .k-i-deriv:before {content:"\e740";}
-        .k-i-partial:before {content:"\e741";} // TODO use standard unicode
-        .k-i-int:before {content:"\e742";} // TODO use standard unicode
-        .k-i-oint:before {content:"\e743";} // TODO use standard unicode
-        .k-i-sum-ex:before {content:"\e744";} // TODO use standard unicode
-        .k-i-prod:before {content:"\e745";} // TODO use standard unicode
-        .k-i-lim:before {content:"\e746";}
+        .k-i-cbrt::before { content: "\221b"; } // TODO use standard unicode
+        .k-i-nthroot::before { content: "\221c"; }
+        .k-i-pow::before { content: "\e721"; }
+        .k-i-log::before { content: "\e726"; }
+        .k-i-log10::before { content: "\e727"; }
+        .k-i-ln::before { content: "\e728"; }
+        .k-i-arcsin::before { content: "\e733"; }
+        .k-i-arccos::before { content: "\e734"; }
+        .k-i-arctan::before { content: "\e735"; }
+        .k-i-deriv::before { content: "\e740"; }
+        .k-i-partial::before { content: "\e741"; } // TODO use standard unicode
+        .k-i-int::before { content: "\e742"; } // TODO use standard unicode
+        .k-i-oint::before { content: "\e743"; } // TODO use standard unicode
+        .k-i-sum-ex::before { content: "\e744"; } // TODO use standard unicode
+        .k-i-prod::before { content: "\e745"; } // TODO use standard unicode
+        .k-i-lim::before { content: "\e746"; }
 
         // ------------------
         // Sets and Logic
         // ------------------
-        .k-i-cset:before {content:"\2102";}
-        .k-h-iset:before {content:"\210d";}
-        // .k-i-iset:before {content:"\xxxx";} // imaginaries
-        .k-i-nset:before {content:"\2115";}
-        .k-i-pset:before {content:"\2119";}
-        .k-i-qset:before {content:"\211a";}
-        .k-i-rset:before {content:"\211d";}
-        // .k-i-wset:before {content:"\xxxx";} // whole numbers
-        .k-i-zset:before {content:"\2124";}
-        .k-i-emptyset:before {content:"\2205";}
-        .k-i-forall:before {content:"\2200";}
-        .k-i-exists:before {content:"\2203";}
-        .k-i-nexists:before {content:"\2204";}
-        .k-i-in:before {content:"\220a";}
-        .k-i-nin:before {content:"\2209";}
-        .k-i-subset:before {content:"\2282";}
-        .k-i-supset:before {content:"\2283";}
-        .k-i-nsubset:before {content:"\2284";}
-        .k-i-nsupset:before {content:"\2285";}
-        .k-i-intersection:before {content:"\2229";}
-        .k-i-union:before {content:"\222a";}
-        .k-i-to:before {content:"\2192";}
-        .k-i-implies:before {content:"\21d2";}
-        .k-i-impliedby:before {content:"\21d0";}
-        .k-i-nimplies:before {content:"\21cf";}
-        .k-i-iff:before {content:"\21d4";}
+        .k-i-cset::before { content: "\2102"; }
+        .k-h-iset::before { content: "\210d"; }
+        // .k-i-iset::before { content: "\xxxx"; } // imaginaries
+        .k-i-nset::before { content: "\2115"; }
+        .k-i-pset::before { content: "\2119"; }
+        .k-i-qset::before { content: "\211a"; }
+        .k-i-rset::before { content: "\211d"; }
+        // .k-i-wset::before { content: "\xxxx"; } // whole numbers
+        .k-i-zset::before { content: "\2124"; }
+        .k-i-emptyset::before { content: "\2205"; }
+        .k-i-forall::before { content: "\2200"; }
+        .k-i-exists::before { content: "\2203"; }
+        .k-i-nexists::before { content: "\2204"; }
+        .k-i-in::before { content: "\220a"; }
+        .k-i-nin::before { content: "\2209"; }
+        .k-i-subset::before { content: "\2282"; }
+        .k-i-supset::before { content: "\2283"; }
+        .k-i-nsubset::before { content: "\2284"; }
+        .k-i-nsupset::before { content: "\2285"; }
+        .k-i-intersection::before { content: "\2229"; }
+        .k-i-union::before { content: "\222a"; }
+        .k-i-to::before { content: "\2192"; }
+        .k-i-implies::before { content: "\21d2"; }
+        .k-i-impliedby::before { content: "\21d0"; }
+        .k-i-nimplies::before { content: "\21cf"; }
+        .k-i-iff::before { content: "\21d4"; }
 
         // ------------------
         // Matrices
         // ------------------
-        .k-i-vector:before {content:"\e758";}
-        .k-i-widehat:before {content:"\e759";}
-        .k-i-matrix:before {content:"\e750";}
-        .k-i-pmatrix:before {content:"\e751";}
-        .k-i-bmatrix:before {content:"\e752";}
-        .k-i-bbmatrix:before {content:"\e753";} // aka cmatrix
-        .k-i-vmatrix:before {content:"\e754";}
-        .k-i-vvmatrix:before {content:"\e755";}
-        .k-i-column:before {content:"\e756";}
-        .k-i-row:before {content:"\e757";}
+        .k-i-vector::before { content: "\e758"; }
+        .k-i-widehat::before { content: "\e759"; }
+        .k-i-matrix::before { content: "\e750"; }
+        .k-i-pmatrix::before { content: "\e751"; }
+        .k-i-bmatrix::before { content: "\e752"; }
+        .k-i-bbmatrix::before { content: "\e753"; } // aka cmatrix
+        .k-i-vmatrix::before { content: "\e754"; }
+        .k-i-vvmatrix::before { content: "\e755"; }
+        .k-i-column::before { content: "\e756"; }
+        .k-i-row::before { content: "\e757"; }
 
         // ------------------
         // Statistics
         // ------------------
-        .k-i-factorial:before {content:"\e760";}
-        .k-i-binomial:before {content:"\e761";}
-        .k-i-overline:before {content:"\e762";}
+        .k-i-factorial::before { content: "\e760"; }
+        .k-i-binomial::before { content: "\e761"; }
+        .k-i-overline::before { content: "\e762"; }
 
         // ------------------
         // Units

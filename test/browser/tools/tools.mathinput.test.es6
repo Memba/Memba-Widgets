@@ -57,7 +57,7 @@ describe('tools.mathinput', () => {
                 'description',
                 __('tools.mathinput.description')
             );
-            expect(tool).to.have.property('height', 80);
+            expect(tool).to.have.property('height', 120);
             expect(tool).to.have.property('help', __('tools.mathinput.help'));
             expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.mathinput.icon'));
@@ -66,7 +66,7 @@ describe('tools.mathinput', () => {
                 .that.eql(['properties.question', 'properties.solution']);
             expect(tool).to.have.property('name', __('tools.mathinput.name'));
             expect(tool).to.have.property('weight', 1);
-            expect(tool).to.have.property('width', 300);
+            expect(tool).to.have.property('width', 370);
         });
 
         it('getAttributeModel', () => {
@@ -77,7 +77,14 @@ describe('tools.mathinput', () => {
                     Model.prototype
                 )
             ).to.be.true;
-            expect(Model.fields).to.have.property('mask');
+            expect(Model.fields).to.have.property('basic');
+            expect(Model.fields).to.have.property('expressions');
+            expect(Model.fields).to.have.property('greek');
+            expect(Model.fields).to.have.property('keypad');
+            expect(Model.fields).to.have.property('matrices');
+            expect(Model.fields).to.have.property('operators');
+            expect(Model.fields).to.have.property('sets');
+            expect(Model.fields).to.have.property('statistics');
             expect(Model.fields).to.have.property('style');
         });
 
@@ -85,14 +92,21 @@ describe('tools.mathinput', () => {
             const rows = tool.getAttributeRows(component);
             expect(rows)
                 .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+                .with.lengthOf(14);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
             expect(rows[3]).to.have.property('field', 'width');
             expect(rows[4]).to.have.property('field', 'rotate');
-            expect(rows[5]).to.have.property('field', 'attributes.mask');
-            expect(rows[6]).to.have.property('field', 'attributes.style');
+            expect(rows[5]).to.have.property('field', 'attributes.keypad');
+            expect(rows[6]).to.have.property('field', 'attributes.basic');
+            expect(rows[7]).to.have.property('field', 'attributes.greek');
+            expect(rows[8]).to.have.property('field', 'attributes.operators');
+            expect(rows[9]).to.have.property('field', 'attributes.expressions');
+            expect(rows[10]).to.have.property('field', 'attributes.sets');
+            expect(rows[11]).to.have.property('field', 'attributes.matrices');
+            expect(rows[12]).to.have.property('field', 'attributes.statistics');
+            expect(rows[13]).to.have.property('field', 'attributes.style');
         });
 
         it('getPropertyModel', () => {
@@ -218,7 +232,7 @@ describe('tools.mathinput', () => {
             Object.values(TOOLS.STAGE_MODES).forEach(mode => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
-                expect(content).to.match(CONSTANTS.INPUT);
+                expect(content).to.match(CONSTANTS.DIV);
             });
         });
 

@@ -148,7 +148,9 @@ const Navigation = DataBoundWidget.extend({
      * @returns {*}
      */
     id(id) {
+        // TODO use asserts
         let page;
+        let ret;
         if (
             $.type(id) === CONSTANTS.STRING ||
             $.type(id) === CONSTANTS.NUMBER
@@ -162,11 +164,12 @@ const Navigation = DataBoundWidget.extend({
         } else if ($.type(id) === CONSTANTS.UNDEFINED) {
             page = this.dataSource.getByUid(this._selectedUid);
             if (page instanceof Page) {
-                return page[page.idField];
+                ret = page[page.idField];
             }
         } else {
-            throw new TypeError();
+            throw new TypeError('Invalid id');
         }
+        return ret;
     },
 
     /**
@@ -187,7 +190,7 @@ const Navigation = DataBoundWidget.extend({
                 'Page'
             )
         );
-
+        let ret;
         if (page === null || page instanceof Page) {
             let hasChanged = false;
             if (page === null && this._selectedUid !== null) {
@@ -207,11 +210,12 @@ const Navigation = DataBoundWidget.extend({
                 this.trigger(CONSTANTS.CHANGE, { value: page });
             }
         } else if ($.type(page) === CONSTANTS.UNDEFINED) {
-            if (this._selectedUid === null) {
-                return null;
-            }
-            return this.dataSource.getByUid(this._selectedUid) || null; // getByUid returns undefined if not found
+            ret =
+                this._selectedUid === null
+                    ? null
+                    : this.dataSource.getByUid(this._selectedUid) || null; // getByUid returns undefined if not found
         }
+        return ret;
     },
 
     /**

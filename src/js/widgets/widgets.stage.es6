@@ -324,24 +324,25 @@ const Stage = DataBoundWidget.extend({
      */
     index(index) {
         // TODO select
-        const that = this;
         let component;
-        if (index !== undefined) {
+        let ret;
+        if ($.type(index) !== CONSTANTS.UNDEFINED) {
             if ($.type(index) !== CONSTANTS.NUMBER || index % 1 !== 0) {
                 throw new TypeError();
-            } else if (index < 0 || (index > 0 && index >= that.length())) {
+            } else if (index < 0 || (index > 0 && index >= this.length())) {
                 throw new RangeError();
             } else {
-                component = that.dataSource.at(index);
-                that.value(component);
+                component = this.dataSource.at(index);
+                this.value(component);
             }
         } else {
-            component = that.dataSource.getByUid(that._selectedUid);
+            component = this.dataSource.getByUid(this._selectedUid);
             if (component instanceof PageComponent) {
-                return that.dataSource.indexOf(component);
+                ret = this.dataSource.indexOf(component);
             }
             return -1;
         }
+        return ret;
     },
 
     /**
@@ -350,24 +351,25 @@ const Stage = DataBoundWidget.extend({
      * @returns {*}
      */
     id(id) {
-        // TODO dataItem
-        const that = this;
+        // TODO Check dataItem
         let component;
-        if (id !== undefined) {
+        let ret;
+        if ($.type(id) !== CONSTANTS.UNDEFINED) {
             if (
                 $.type(id) !== CONSTANTS.NUMBER &&
                 $.type(id) !== CONSTANTS.STRING
             ) {
                 throw new TypeError();
             }
-            component = that.dataSource.get(id);
-            that.value(component);
+            component = this.dataSource.get(id);
+            this.value(component);
         } else {
-            component = that.dataSource.getByUid(that._selectedUid);
+            component = this.dataSource.getByUid(this._selectedUid);
             if (component instanceof PageComponent) {
-                return component[component.idField];
+                ret = component[component.idField];
             }
         }
+        return ret;
     },
 
     /**
@@ -1845,7 +1847,12 @@ const Stage = DataBoundWidget.extend({
                         this.stage.focus();
                     }
                 })
-                .catch($.noop); // TODO error
+                .catch(error => {
+                    logger.error({
+                        error,
+                        method: '_onMousePress'
+                    });
+                });
         }
     },
 

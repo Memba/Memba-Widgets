@@ -58,7 +58,7 @@ const ChartTool = BaseTool.extend({
                 defaultValue: 'column',
                 help: __('tools.chart.attributes.type.help'),
                 source: __('tools.chart.attributes.type.source'),
-                title: __('tools.chart.attributes.type.title'),
+                title: __('tools.chart.attributes.type.title')
             },
             { style: 'width: 100%;' }
         ),

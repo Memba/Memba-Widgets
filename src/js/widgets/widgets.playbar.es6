@@ -183,6 +183,7 @@ const PlayBar = DataBoundWidget.extend({
      */
     index(index) {
         const that = this;
+        let ret;
         if (index !== undefined) {
             if ($.type(index) !== CONSTANTS.NUMBER || index % 1 !== 0) {
                 throw new TypeError();
@@ -201,8 +202,9 @@ const PlayBar = DataBoundWidget.extend({
                 }
             }
         } else {
-            return that._selectedIndex;
+            ret = that._selectedIndex;
         }
+        return ret;
     },
 
     /**
@@ -212,30 +214,31 @@ const PlayBar = DataBoundWidget.extend({
      * @returns {*}
      */
     id(id) {
-        const that = this;
         let page;
-        if (id !== undefined) {
+        let ret;
+        if ($.type(id) !== CONSTANTS.UNDEFINED) {
             if (
                 $.type(id) !== CONSTANTS.STRING &&
                 $.type(id) !== CONSTANTS.NUMBER
             ) {
                 throw new TypeError();
             }
-            page = that.dataSource.get(id);
+            page = this.dataSource.get(id);
             if (page !== undefined) {
-                const index = that.dataSource.indexOf(page);
+                const index = this.dataSource.indexOf(page);
                 if (index >= 0) {
                     // index = -1 if not found
-                    that.index(index);
+                    this.index(index);
                 }
                 // if page not found, we do nothing
             }
         } else {
-            page = that.dataSource.at(that._selectedIndex);
+            page = this.dataSource.at(this._selectedIndex);
             if (page instanceof Page) {
-                return page[page.idField];
+                ret = page[page.idField];
             }
         }
+        return ret;
     },
 
     /**
@@ -245,20 +248,21 @@ const PlayBar = DataBoundWidget.extend({
      * @returns {*}
      */
     value(page) {
-        const that = this;
+        let ret;
         if (page === null) {
             $.noop(); // TODO
         } else if (page !== undefined) {
             if (!(page instanceof Page)) {
                 throw new TypeError();
             }
-            const index = that.dataSource.indexOf(page);
+            const index = this.dataSource.indexOf(page);
             if (index > -1) {
-                that.index(index);
+                this.index(index);
             }
         } else {
-            return that.dataSource.at(that._selectedIndex); // This returns undefined if not found
+            ret = this.dataSource.at(this._selectedIndex); // This returns undefined if not found
         }
+        return ret;
     },
 
     /**

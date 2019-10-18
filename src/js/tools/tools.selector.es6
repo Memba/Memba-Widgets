@@ -59,7 +59,8 @@ const SelectorTool = BaseTool.extend({
             TEMPLATE,
             `data-${ns}toolbar="\\#floating .kj-floating-content" ${BINDING}` // TODO review
         ),
-        review: format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+        review:
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
             BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {

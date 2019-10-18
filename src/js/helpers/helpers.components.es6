@@ -203,7 +203,7 @@ function getDummy() {
  * @function getHighLighter
  */
 function getHighLighter() {
-    const text = '';
+    // const text = '';
     return {
         attributes: {
             highlightStyle: styleGenerator(),

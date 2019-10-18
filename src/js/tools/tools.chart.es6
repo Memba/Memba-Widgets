@@ -55,22 +55,10 @@ const ChartTool = BaseTool.extend({
     attributes: {
         type: new DropDownListAdapter(
             {
-                title: __('tools.chart.attributes.type.title'),
                 defaultValue: 'column',
-                enum: [
-                    'area',
-                    'bar',
-                    'column',
-                    'line',
-                    'radarArea',
-                    'radarColumn',
-                    'radarLine',
-                    'smoothLine',
-                    'stackBar',
-                    'waterfall',
-                    'verticalArea',
-                    'verticalLine'
-                ]
+                help: __('tools.chart.attributes.type.help'),
+                source: __('tools.chart.attributes.type.source'),
+                title: __('tools.chart.attributes.type.title'),
             },
             { style: 'width: 100%;' }
         ),
@@ -103,15 +91,16 @@ const ChartTool = BaseTool.extend({
         ),
         legend: new DropDownListAdapter(
             {
-                title: __('tools.chart.attributes.legend.title'),
                 defaultValue: 'none',
-                enum: ['none', 'top', 'bottom', 'left', 'right']
+                source: __('tools.chart.attributes.legend.source'),
+                title: __('tools.chart.attributes.legend.title')
             },
             { style: 'width: 100%;' }
         ),
         data: new ChartAdapter({
-            title: __('tools.chart.attributes.data.title'),
-            defaultValue: defaultChartData(4, 2)
+            defaultValue: defaultChartData(4, 2),
+            help: __('tools.chart.attributes.data.help'),
+            title: __('tools.chart.attributes.data.title')
         }),
         style: new StyleAdapter({
             title: __('tools.chart.attributes.style.title'),

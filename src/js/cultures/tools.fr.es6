@@ -126,11 +126,40 @@ const res = {
         name: 'Diagramme',
         attributes: {
             categories: { title: 'Catégories' },
-            data: { title: 'Données' },
-            legend: { title: 'Légende' },
+            data: {
+                help: 'Saisissez les données',
+                title: 'Données'
+            },
+            legend: {
+                source: [
+                    { text: 'Aucun', value: 'none' },
+                    { text: 'Haut', value: 'top' },
+                    { text: 'Bas', value: 'bottom' },
+                    { text: 'Gauche', value: 'left' },
+                    { text: 'Droite', value: 'right' }
+                ],
+                title: 'Légende'
+            },
             style: { title: 'Style' },
             title: { title: 'Titre' },
-            type: { title: 'Type' },
+            type: {
+                help: 'Saisissez un type de diagramme',
+                source: [
+                    { text: 'Area', value: 'area' },
+                    { text: 'Bar', value: 'bar' },
+                    { text: 'Column', value: 'column' },
+                    { text: 'Line', value: 'line' },
+                    { text: 'Radar Area', value: 'radarArea' },
+                    { text: 'Radar Column', value: 'radarColumn' },
+                    { text: 'Radar Line', value: 'radarLine' },
+                    { text: 'Smooth Line', value: 'smoothLine' },
+                    { text: 'Stack Bar', value: 'stackBar' },
+                    { text: 'Waterfall', value: 'waterfall' },
+                    { text: 'Vertical Area', value: 'verticalArea' },
+                    { text: 'Vertical Line', value: 'verticalLine' }
+                ],
+                title: 'Type'
+            },
             values: { title: 'Valeurs' }
         }
     },

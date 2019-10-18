@@ -126,11 +126,40 @@ const res = {
         name: 'Chart',
         attributes: {
             categories: { title: 'Categories' },
-            data: { title: 'Data' },
-            legend: { title: 'Legend' },
+            data: {
+                help: 'Enter chart data',
+                title: 'Data'
+            },
+            legend: {
+                source: [
+                    { text: 'None', value: 'none' },
+                    { text: 'Top', value: 'top' },
+                    { text: 'Bottom', value: 'bottom' },
+                    { text: 'Left', value: 'left' },
+                    { text: 'Right', value: 'right' }
+                ],
+                title: 'Legend'
+            },
             style: { title: 'Style' },
             title: { title: 'Title' },
-            type: { title: 'Type' },
+            type: {
+                help: 'Enter a chart type',
+                source: [
+                    { text: 'Area', value: 'area' },
+                    { text: 'Bar', value: 'bar' },
+                    { text: 'Column', value: 'column' },
+                    { text: 'Line', value: 'line' },
+                    { text: 'Radar Area', value: 'radarArea' },
+                    { text: 'Radar Column', value: 'radarColumn' },
+                    { text: 'Radar Line', value: 'radarLine' },
+                    { text: 'Smooth Line', value: 'smoothLine' },
+                    { text: 'Stack Bar', value: 'stackBar' },
+                    { text: 'Waterfall', value: 'waterfall' },
+                    { text: 'Vertical Area', value: 'verticalArea' },
+                    { text: 'Vertical Line', value: 'verticalLine' }
+                ],
+                title: 'Type'
+            },
             values: { title: 'Values' }
         }
     },

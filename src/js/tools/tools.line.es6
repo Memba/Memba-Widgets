@@ -68,17 +68,17 @@ const LineTool = BaseTool.extend({
         ),
         startCap: new DropDownListAdapter(
             {
-                title: __('tools.line.attributes.startCap.title'),
                 defaultValue: 'none',
-                source: __('tools.line.attributes.startCap.source')
+                source: __('tools.line.attributes.startCap.source'),
+                title: __('tools.line.attributes.startCap.title')
             },
             { style: 'width: 100%;' }
         ),
         endCap: new DropDownListAdapter(
             {
-                title: __('tools.line.attributes.endCap.title'),
                 defaultValue: 'none',
-                source: __('tools.line.attributes.endCap.source')
+                source: __('tools.line.attributes.endCap.source'),
+                title: __('tools.line.attributes.endCap.title')
             },
             { style: 'width: 100%;' }
         )

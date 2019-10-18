@@ -1,6 +1,9 @@
+const count = window.location.pathname.match(/\//g).length;
+const baseURL = new Array(count - 2).fill('../').join('');
+
 // eslint-disable-next-line no-undef
 SystemJS.config({
-    baseURL: '../../../',
+    baseURL,
     bundles: {
         kendogrid: ['kendo.grid'],
         kendoaspnetmvc: ['kendo.aspnetmvc'],
@@ -169,7 +172,24 @@ SystemJS.config({
         kendogrid: 'src/js/vendor/kendo/kendo.grid.js',
         kendopdf: 'src/js/vendor/kendo/kendo.pdf.js',
         kendoscheduler: 'src/js/vendor/kendo/kendo.scheduler.js',
-        kendospreadsheet: 'src/js/vendor/kendo/kendo.spreadsheet.js'
+        kendospreadsheet: 'src/js/vendor/kendo/kendo.spreadsheet.js',
+        // Test frameworks
+        chai: 'test/vendor/chai.js',
+        'chai-jquery': 'test/vendor/chai-jquery.js',
+        'jquery.mockjax': 'test/vendor/jquery.mockjax.js',
+        'jquery.simulate': 'test/vendor/jquery.simulate.js',
+        jscheck: 'test/vendor/jscheck.js',
+        mocha: 'test/vendor/mocha.js',
+        modernizr: 'src/js/vendor/modernizr/modernizr.js',
+        sinon: 'test/vendor/sinon.js',
+        'sinon-chai': 'test/vendor/sinon-chai.js'
+    },
+    meta: {
+        'test/vendor/chai-jquery.js': { format: 'cjs' },
+        'test/vendor/jquery.mockjax.js': { format: 'global' },
+        'test/vendor/jscheck.js': { format: 'global' },
+        'test/vendor/mocha.js': { format: 'global' },
+        'test/vendor/sinon-chai.js': { format: 'cjs' }
     },
     packages: {
         'src/js': {
@@ -180,6 +200,9 @@ SystemJS.config({
                     format: 'global'
                 },
                 'vendor/modernizr/modernizr.js': {
+                    format: 'global'
+                },
+                'vendor/mathquill/mathquill.js': {
                     format: 'global'
                 },
                 '*.js': {

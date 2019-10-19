@@ -12,7 +12,6 @@ import Style from '../../../src/js/common/window.style.es6';
 const { describe, it } = window;
 const { expect } = chai;
 
-function noop() {}
 const DATA = [
     {
         // Simple
@@ -65,10 +64,9 @@ describe('window.style', () => {
 
         it('It should throw with invalid data', () => {
             function test() {
-                const style = new Style(
-                    JSC.one_of([JSC.array(), JSC.falsy(), JSC.number()])()
+                return new Style(
+                    JSC.one_of([JSC.array(), JSC.boolean(), JSC.number()])()
                 );
-                noop(style); // to please eslint
             }
             expect(test).to.throw();
         });

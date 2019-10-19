@@ -19,10 +19,10 @@ import '../../../src/js/widgets/widgets.table.es6';
 
 const { afterEach, before, describe, it } = window;
 const {
-    // attr,
+    attr,
     // bind,
     destroy,
-    // init,
+    init,
     // observable,
     ui: { roles, Table }
 } = window.kendo;
@@ -64,15 +64,45 @@ describe('widgets.table', () => {
         });
 
         it('from code with options', () => {
-            expect(true).to.be.false;
+            const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            const options = {
+                // TODO
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
+            expect(widget).to.be.an.instanceof(Table);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            // expect(element).to.be.empty;
         });
 
         it('from markup', () => {
-            expect(true).to.be.false;
+            const attributes = {};
+            attributes[attr('role')] = ROLE;
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data(WIDGET);
+            expect(widget).to.be.an.instanceof(Table);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            // expect(element).to.be.empty;
         });
 
         it('from markup with attributes', () => {
-            expect(true).to.be.false;
+            const attributes = {
+                // TODO
+            };
+            attributes[attr('role')] = ROLE;
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data(WIDGET);
+            expect(widget).to.be.an.instanceof(Table);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class(`kj-${ROLE}`);
+            // expect(element).to.be.empty;
         });
     });
 

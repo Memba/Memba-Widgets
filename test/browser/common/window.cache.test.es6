@@ -21,7 +21,7 @@ const { expect } = chai;
 
 const INVALID = [
     { key: JSC.number(1000)(), value: JSC.string()() },
-    { key: JSC.falsy()(), value: JSC.string()() },
+    { key: JSC.boolean()(), value: JSC.string()() },
     { key: JSC.object()(), value: JSC.string()() }
 ];
 

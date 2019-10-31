@@ -1,5 +1,5 @@
 /*!
- * modernizr v3.7.1
+ * modernizr v3.8.0
  * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-filesystem-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
  *
  * Copyright (c)
@@ -36,7 +36,7 @@
    */
   var ModernizrProto = {
     // The current version, dummy
-    _version: '3.7.1',
+    _version: '3.8.0',
 
     // Any settings that don't work as separate modules
     // can go in here as configuration.
@@ -157,8 +157,8 @@
           if (featureNameSplit.length === 1) {
             Modernizr[featureNameSplit[0]] = result;
           } else {
-            // cast to a Boolean, if not one already
-            if (Modernizr[featureNameSplit[0]] && !(Modernizr[featureNameSplit[0]] instanceof Boolean)) {
+            // cast to a Boolean, if not one already or if it doesnt exist yet (like inputtypes)
+            if (!Modernizr[featureNameSplit[0]] || Modernizr[featureNameSplit[0]] && !(Modernizr[featureNameSplit[0]] instanceof Boolean)) {
               Modernizr[featureNameSplit[0]] = new Boolean(Modernizr[featureNameSplit[0]]);
             }
 
@@ -248,9 +248,7 @@
 }
 !*/
 /* DOC
-
 Detects support for WindowBase64 API (window.atob && window.btoa).
-
 */
 
   Modernizr.addTest('atobbtoa', 'atob' in window && 'btoa' in window, {aliases: ['atob-btoa']});
@@ -283,50 +281,58 @@ Detects support for WindowBase64 API (window.atob && window.btoa).
 {
   "name": "HTML5 Audio Element",
   "property": "audio",
-  "tags": ["html5", "audio", "media"]
+  "tags": ["html5", "audio", "media"],
+  "notes": [{
+    "name": "MDN Docs",
+    "href": "https://developer.mozilla.org/En/Media_formats_supported_by_the_audio_and_video_elements"
+  }]
 }
 !*/
 /* DOC
-Detects the audio element
+Detects support of the audio element, as well as testing what types of content it supports.
+
+Subproperties are provided to describe support for `ogg`, `mp3`,`opus`, `wav` and `m4a` formats, e.g.:
+
+```javascript
+Modernizr.audio         // true
+Modernizr.audio.ogg     // 'probably'
+```
 */
 
-  // This tests evaluates support of the audio element, as well as
-  // testing what types of content it supports.
-  //
-  // We're using the Boolean constructor here, so that we can extend the value
-  // e.g.  Modernizr.audio     // true
-  //       Modernizr.audio.ogg // 'probably'
-  //
   // Codec values from : github.com/NielsLeenheer/html5test/blob/9106a8/index.html#L845
   //                     thx to NielsLeenheer and zcorpan
 
   // Note: in some older browsers, "no" was a return value instead of empty string.
   //   It was live in FF3.5.0 and 3.5.1, but fixed in 3.5.2
   //   It was also live in Safari 4.0.0 - 4.0.4, but fixed in 4.0.5
-  Modernizr.addTest('audio', function() {
+  (function() {
     var elem = createElement('audio');
-    var bool = false;
 
+    Modernizr.addTest('audio', function() {
+      var bool = false;
+      try {
+        bool = !!elem.canPlayType;
+        if (bool) {
+          bool = new Boolean(bool);
+        }
+      } catch (e) {}
+
+      return bool;
+    });
+
+    // IE9 Running on Windows Server SKU can cause an exception to be thrown, bug #224
     try {
-      bool = !!elem.canPlayType;
-      if (bool) {
-        bool      = new Boolean(bool);
-        bool.ogg  = elem.canPlayType('audio/ogg; codecs="vorbis"') .replace(/^no$/, '');
-        bool.mp3  = elem.canPlayType('audio/mpeg; codecs="mp3"')   .replace(/^no$/, '');
-        bool.opus  = elem.canPlayType('audio/ogg; codecs="opus"')  ||
-                     elem.canPlayType('audio/webm; codecs="opus"') .replace(/^no$/, '');
-
-        // Mimetypes accepted:
-        //   developer.mozilla.org/En/Media_formats_supported_by_the_audio_and_video_elements
-        //   bit.ly/iphoneoscodecs
-        bool.wav  = elem.canPlayType('audio/wav; codecs="1"')     .replace(/^no$/, '');
-        bool.m4a  = (elem.canPlayType('audio/x-m4a;')            ||
-                     elem.canPlayType('audio/aac;'))             .replace(/^no$/, '');
+      if (!!elem.canPlayType) {
+        Modernizr.addTest('audio.ogg', elem.canPlayType('audio/ogg; codecs="vorbis"').replace(/^no$/, ''));
+        Modernizr.addTest('audio.mp3', elem.canPlayType('audio/mpeg; codecs="mp3"').replace(/^no$/, ''));
+        Modernizr.addTest('audio.opus', elem.canPlayType('audio/ogg; codecs="opus"') ||
+          elem.canPlayType('audio/webm; codecs="opus"').replace(/^no$/, ''));
+        Modernizr.addTest('audio.wav', elem.canPlayType('audio/wav; codecs="1"').replace(/^no$/, ''));
+        Modernizr.addTest('audio.m4a', (elem.canPlayType('audio/x-m4a;') ||
+          elem.canPlayType('audio/aac;')).replace(/^no$/, ''));
       }
     } catch (e) {}
-
-    return bool;
-  });
+  })();
 
 /*!
 {
@@ -390,8 +396,8 @@ Detects support for the `<canvas>` element for 2D drawing.
 Detects support for the text APIs for `<canvas>` elements.
 */
 
-  Modernizr.addTest('canvastext',  function() {
-    if (Modernizr.canvas  === false) {
+  Modernizr.addTest('canvastext', function() {
+    if (Modernizr.canvas === false) {
       return false;
     }
     return typeof createElement('canvas').getContext('2d').fillText === 'function';
@@ -530,6 +536,12 @@ Detects support for the History API for manipulating the browser session history
     // Unfortunately support is really buggy and there is no clean way to detect
     // these bugs, so we fall back to a user agent sniff :(
     var ua = navigator.userAgent;
+    
+    // Some browsers allow to have empty userAgent.
+    // Therefore, we need to check ua before using "indexOf" on it.
+    if(!ua) {
+      return false;
+    }
 
     // We only want Android 2 and 4.0, stock browser, and not Chrome which identifies
     // itself as 'Mobile Safari' as well, nor Windows Phone (issue #1471).
@@ -793,6 +805,7 @@ Detects support for SVG in `<embed>` or `<object>` elements.
     "href": "https://www.w3.org/TR/2013/WD-touch-events-20130124/"
   }],
   "warnings": [
+    "** DEPRECATED see https://github.com/Modernizr/Modernizr/pull/2432 **",
     "Indicates if the browser supports the Touch Events spec, and does not necessarily reflect a touchscreen device"
   ],
   "knownBugs": [
@@ -836,7 +849,7 @@ This test will also return `true` for Firefox 4 Multitouch support.
   "name": "HTML5 Video",
   "property": "video",
   "caniuse": "video",
-  "tags": ["html5"],
+  "tags": ["html5", "video", "media"],
   "knownBugs": ["Without QuickTime, `Modernizr.video.h264` will be `undefined`; https://github.com/Modernizr/Modernizr/issues/546"],
   "polyfills": [
     "html5media",
@@ -865,31 +878,34 @@ Modernizr.video.ogg     // 'probably'
   // Note: in some older browsers, "no" was a return value instead of empty string.
   //   It was live in FF3.5.0 and 3.5.1, but fixed in 3.5.2
   //   It was also live in Safari 4.0.0 - 4.0.4, but fixed in 4.0.5
-
-  Modernizr.addTest('video', function() {
+  (function() {
     var elem = createElement('video');
-    var bool = false;
+
+    Modernizr.addTest('video', function() {
+      var bool = false;
+      try {
+        bool = !!elem.canPlayType;
+        if (bool) {
+          bool = new Boolean(bool);
+        }
+      } catch (e) {}
+
+      return bool;
+    });
 
     // IE9 Running on Windows Server SKU can cause an exception to be thrown, bug #224
     try {
-      bool = !!elem.canPlayType;
-      if (bool) {
-        bool = new Boolean(bool);
-        bool.ogg = elem.canPlayType('video/ogg; codecs="theora"').replace(/^no$/, '');
+      if (!!elem.canPlayType) {
+        Modernizr.addTest('video.ogg', elem.canPlayType('video/ogg; codecs="theora"').replace(/^no$/, ''));
 
         // Without QuickTime, this value will be `undefined`. github.com/Modernizr/Modernizr/issues/546
-        bool.h264 = elem.canPlayType('video/mp4; codecs="avc1.42E01E"').replace(/^no$/, '');
-
-        bool.webm = elem.canPlayType('video/webm; codecs="vp8, vorbis"').replace(/^no$/, '');
-
-        bool.vp9 = elem.canPlayType('video/webm; codecs="vp9"').replace(/^no$/, '');
-
-        bool.hls = elem.canPlayType('application/x-mpegURL; codecs="avc1.42E01E"').replace(/^no$/, '');
+        Modernizr.addTest('video.h264', elem.canPlayType('video/mp4; codecs="avc1.42E01E"').replace(/^no$/, ''));
+        Modernizr.addTest('video.webm', elem.canPlayType('video/webm; codecs="vp8, vorbis"').replace(/^no$/, ''));
+        Modernizr.addTest('video.vp9', elem.canPlayType('video/webm; codecs="vp9"').replace(/^no$/, ''));
+        Modernizr.addTest('video.hls', elem.canPlayType('application/x-mpegURL; codecs="avc1.42E01E"').replace(/^no$/, ''));
       }
     } catch (e) {}
-
-    return bool;
-  });
+  })();
 
 
   /**
@@ -1097,12 +1113,12 @@ Modernizr.video.ogg     // 'probably'
     var afterInit, i, propsLength, prop, before;
 
     // If we don't have a style element, that means we're running async or after
-    // the core tests, so we'll need to create our own elements to use
+    // the core tests, so we'll need to create our own elements to use.
 
-    // inside of an SVG element, in certain browsers, the `style` element is only
+    // Inside of an SVG element, in certain browsers, the `style` element is only
     // defined for valid tags. Therefore, if `modernizr` does not have one, we
     // fall back to a less used element and hope for the best.
-    // for strict XHTML browsers the hardly used samp element is used
+    // For strict XHTML browsers the hardly used samp element is used.
     var elems = ['modernizr', 'tspan', 'samp'];
     while (!mStyle.style && elems.length) {
       afterInit = true;
@@ -1591,7 +1607,13 @@ Tests for XHR2.
 }
 !*/
 
-  Modernizr.addTest('speechrecognition', !!prefixed('SpeechRecognition', window));
+  Modernizr.addTest('speechrecognition', function() {
+    try {
+      return !!prefixed('SpeechRecognition', window);
+    } catch (e) {
+      return false;
+    }
+  });
 
 /*!
 {
@@ -1606,8 +1628,13 @@ Tests for XHR2.
 }
 !*/
 
-
-  Modernizr.addTest('speechsynthesis', 'SpeechSynthesisUtterance' in window);
+  Modernizr.addTest('speechsynthesis', function() {
+    try {
+      return 'SpeechSynthesisUtterance' in window;
+    } catch (e) {
+      return false;
+    }
+  });
 
 /*!
 {
@@ -2031,21 +2058,21 @@ Modernizr.datauri.over32kb  // false in IE8
     if (navigator.userAgent.indexOf('MSIE 7.') !== -1) {
       // Keep the test async
       setTimeout(function() {
-        addTest('datauri', false);
+        Modernizr.addTest('datauri', new Boolean(false));
       }, 10);
     }
 
     var datauri = new Image();
 
     datauri.onerror = function() {
-      addTest('datauri', false);
+      Modernizr.addTest('datauri', new Boolean(false));
     };
     datauri.onload = function() {
       if (datauri.width === 1 && datauri.height === 1) {
         testOver32kb();
       }
       else {
-        addTest('datauri', false);
+        Modernizr.addTest('datauri', new Boolean(false));
       }
     };
 
@@ -2058,14 +2085,12 @@ Modernizr.datauri.over32kb  // false in IE8
       var datauriBig = new Image();
 
       datauriBig.onerror = function() {
-        addTest('datauri', true);
-        Modernizr.datauri = new Boolean(true);
-        Modernizr.datauri.over32kb = false;
+        Modernizr.addTest('datauri', new Boolean(true));
+        Modernizr.addTest('datauri.over32kb', false);
       };
       datauriBig.onload = function() {
-        addTest('datauri', true);
-        Modernizr.datauri = new Boolean(true);
-        Modernizr.datauri.over32kb = (datauriBig.width === 1 && datauriBig.height === 1);
+        Modernizr.addTest('datauri', new Boolean(true));
+        Modernizr.addTest('datauri.over32kb', datauriBig.width === 1 && datauriBig.height === 1);
       };
 
       var base64str = 'R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
@@ -2074,7 +2099,6 @@ Modernizr.datauri.over32kb  // false in IE8
       }
       datauriBig.src = 'data:image/gif;base64,' + base64str;
     }
-
   });
 
 /*!

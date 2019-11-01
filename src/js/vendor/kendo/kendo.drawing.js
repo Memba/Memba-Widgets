@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -6396,7 +6396,7 @@
             var tok_percent = /^([-0-9.]+%)/;
             var tok_length = /^([-0-9.]+px)/;
             var tok_keyword = /^(left|right|top|bottom|to|center)\W/;
-            var tok_angle = /^([-0-9.]+(deg|grad|rad|turn))/;
+            var tok_angle = /^([-0-9.]+(deg|grad|rad|turn)|0)/;
             var tok_whitespace = /^(\s+)/;
             var tok_popen = /^(\()/;
             var tok_pclose = /^(\))/;
@@ -6447,6 +6447,9 @@
                     var reverse = false;
                     if (read(tok_popen)) {
                         angle = read(tok_angle);
+                        if (angle == '0') {
+                            angle = '0deg';
+                        }
                         if (angle) {
                             angle = parseAngle(angle);
                             read(tok_comma);

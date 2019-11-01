@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3346,6 +3346,23 @@
                 }).addClass('k-state-selected');
                 this._syncLockedContentHeight();
                 that._togglePagerVisibility();
+                that._setExpanderElement();
+            },
+            _setExpanderElement: function () {
+                var that = this, hiddenDivClass = 'k-grid-content-expander', hiddenDiv = '<div class="' + hiddenDivClass + '"></div>', expander;
+                if (that.options.scrollable && that.wrapper.is(':visible')) {
+                    expander = that.table.parent().children('.' + hiddenDivClass);
+                    if (!that.dataSource || !that.dataSource.view().length) {
+                        if (!expander[0]) {
+                            expander = $(hiddenDiv).appendTo(that.table.parent());
+                        }
+                        if (that.thead) {
+                            expander.width(that.thead.width());
+                        }
+                    } else if (expander[0]) {
+                        expander.remove();
+                    }
+                }
             },
             _renderProgress: function (toggle) {
                 kendo.ui.progress(this.wrapper, toggle);

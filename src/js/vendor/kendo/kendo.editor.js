@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -99,7 +99,7 @@
             editorWrapperTemplate: '<table cellspacing="4" cellpadding="0" class="k-widget k-editor k-header" role="presentation"><tbody>' + '<tr role="presentation"><td class="k-editor-toolbar-wrap" role="presentation"><ul class="k-editor-toolbar" role="toolbar" /></td></tr>' + '<tr><td class="k-editable-area" /></tr>' + '</tbody></table>',
             buttonTemplate: '# var iconCssClass= "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '<a tabindex="0" role="button" class="k-tool"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #" aria-label="#= data.title #"><span unselectable="on" class="k-tool-icon #= iconCssClass #"></span></a>',
             tableWizardButtonTemplate: '# var iconCssClass= "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '<a tabindex="0" role="button" class="k-tool"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #"><span unselectable="on" class="k-tool-icon #= iconCssClass #"></span><span class="k-tool-text">#= data.title #</span></a>',
-            colorPickerTemplate: '<div class="k-colorpicker k-icon k-i-#= data.cssClass.replace("k-", "") #" />',
+            colorPickerTemplate: '<input class="k-colorpicker k-icon k-i-#= data.cssClass.replace("k-", "") #" />',
             comboBoxTemplate: '<select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #" />',
             dropDownListTemplate: '<span class="k-editor-dropdown"><select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #" /></span>',
             separatorTemplate: '<span class="k-separator" />',
@@ -138,6 +138,10 @@
                     addRowBelow: 'table-row-insert-below',
                     deleteRow: 'table-row-delete',
                     deleteColumn: 'table-column-delete',
+                    mergeCellsHorizontally: 'cells-merge-horizontally',
+                    mergeCellsVertically: 'cells-merge-vertically',
+                    splitCellHorizontally: 'cell-split-horizontally',
+                    splitCellVertically: 'cell-split-vertically',
                     tableWizard: 'table-properties',
                     tableWizardInsert: 'table-wizard',
                     cleanFormatting: 'clear-css'
@@ -240,6 +244,10 @@
             addRowBelow: 'Add row below',
             deleteRow: 'Delete row',
             deleteColumn: 'Delete column',
+            mergeCellsHorizontally: 'Merge cells horizontally',
+            mergeCellsVertically: 'Merge cells vertically',
+            splitCellHorizontally: 'Split cells horizontally',
+            splitCellVertically: 'Split cells vertically',
             tableWizard: 'Table Wizard',
             tableTab: 'Table',
             cellTab: 'Cell',
@@ -313,7 +321,11 @@
                 'addRowAbove',
                 'addRowBelow',
                 'deleteRow',
-                'deleteColumn'
+                'deleteColumn',
+                'mergeCellsHorizontally',
+                'mergeCellsVertically',
+                'splitCellHorizontally',
+                'splitCellVertically'
             ]
         };
         var Editor = Widget.extend({
@@ -1968,8 +1980,11 @@
                 }
                 return parent;
             },
-            closest: function (node, tag) {
-                while (node && Dom.name(node) != tag) {
+            closest: function (node, tags) {
+                if (typeof tags === 'string') {
+                    tags = [tags];
+                }
+                while (node && tags.indexOf(Dom.name(node)) < 0) {
                     node = node.parentNode;
                 }
                 return node;
@@ -2264,6 +2279,50 @@
                     br = node.ownerDocument.createElement('br');
                     br.className = 'k-br';
                     node.appendChild(br);
+                }
+            },
+            reMapTableColumns: function (table, colAttr) {
+                Dom._mapColIndices(table, colAttr);
+            },
+            clearTableMappings: function (table, colAttr) {
+                $(table).find('[' + colAttr + ']').removeAttr(colAttr);
+            },
+            _mapColIndices: function (table, colAttr) {
+                var registeredColumns = {};
+                for (var rowIndex = 0; rowIndex < table.rows.length; rowIndex++) {
+                    var cells = table.rows[rowIndex].cells;
+                    var colIndex = 0;
+                    for (var cellIndex = 0; cellIndex < cells.length; cellIndex++, colIndex++) {
+                        var cell = cells[cellIndex];
+                        if (cell.rowSpan > 1) {
+                            this._mapColspan(cell.rowSpan, rowIndex, colIndex, registeredColumns);
+                        }
+                        if (registeredColumns[rowIndex]) {
+                            while (registeredColumns[rowIndex][colIndex]) {
+                                colIndex++;
+                            }
+                        }
+                        cell.setAttribute(colAttr, colIndex);
+                        if (cell.colSpan > 1) {
+                            colIndex = colIndex + cell.colSpan - 1;
+                        }
+                    }
+                }
+            },
+            _mapColspan: function (rowSpan, rowIndex, colIndex, registeredColumns) {
+                var index = colIndex;
+                for (var ri = rowIndex + 1; ri < rowIndex + rowSpan; ri++) {
+                    if (!registeredColumns[ri]) {
+                        registeredColumns[ri] = {};
+                        registeredColumns[ri].length = 0;
+                    }
+                    if (registeredColumns[rowIndex]) {
+                        while (registeredColumns[rowIndex][index]) {
+                            index++;
+                        }
+                    }
+                    registeredColumns[ri][index] = true;
+                    registeredColumns[ri].length++;
                 }
             }
         };
@@ -4289,7 +4348,11 @@
             'k-i-table-column-delete': 'deleteColumn',
             'k-i-table-properties': 'tableWizard',
             'k-i-table-wizard': 'tableWizardInsert',
-            'k-i-clear-css': 'cleanFormatting'
+            'k-i-clear-css': 'cleanFormatting',
+            'k-i-cells-merge-horizontally': 'mergeCellsHorizontally',
+            'k-i-cells-merge-vertically': 'mergeCellsVertically',
+            'k-i-cell-split-horizontally': 'splitCellHorizontally',
+            'k-i-cell-split-vertically': 'splitCellVertically'
         };
         var OverflowAnchorTool = Tool.extend({
             initialize: function (ui, options) {
@@ -4354,14 +4417,20 @@
                     'indent',
                     'outdent'
                 ],
-                tables: [
-                    'createTable',
+                tablesInsert: ['createTable'],
+                tablesAddDelete: [
                     'addColumnLeft',
                     'addColumnRight',
                     'addRowAbove',
                     'addRowBelow',
                     'deleteRow',
                     'deleteColumn'
+                ],
+                tablesMerge: [
+                    'mergeCellsHorizontally',
+                    'mergeCellsVertically',
+                    'splitCellHorizontally',
+                    'splitCellVertically'
                 ],
                 advanced: [
                     'viewHtml',
@@ -4421,8 +4490,8 @@
                 var popupTemplate = '<ul class=\'k-editor-overflow-popup k-overflow-container k-list-container\'></ul>';
                 that.overflowPopup = $(popupTemplate).appendTo('body').kendoPopup({
                     anchor: ui,
-                    origin: 'bottom right',
-                    position: 'top right',
+                    origin: kendo.support.isRtl(that.element) ? 'bottom left' : 'bottom right',
+                    position: kendo.support.isRtl(that.element) ? 'top left' : 'top right',
                     copyAnchorStyles: false,
                     open: function (e) {
                         if (this.element.is(':empty')) {
@@ -7095,9 +7164,10 @@
                 var options = this.options;
                 var toolName = options.name;
                 var that = this;
+                var selectBox;
                 that.editor = editor;
                 ui.width(options.width);
-                ui.kendoSelectBox({
+                selectBox = ui.kendoSelectBox({
                     dataTextField: 'text',
                     dataValueField: 'value',
                     dataSource: options.items || editor.options[toolName],
@@ -7117,7 +7187,9 @@
                     },
                     highlightFirst: false,
                     template: kendo.template('<span unselectable="on" style="display:block;#=(data.style||"")#">#:data.text#</span>')
-                });
+                }).data('kendoSelectBox');
+                ui.attr('title', initOptions.title);
+                selectBox.wrapper.attr('title', initOptions.title);
                 ui.addClass('k-decorated').closest('.k-widget').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
             },
             getFormattingValue: function (items, nodes) {
@@ -7520,6 +7592,8 @@
                     title: editor.options.messages.insertHtml,
                     highlightFirst: false
                 });
+                ui.attr('title', initOptions.title);
+                this._selectBox.wrapper.attr('title', initOptions.title);
             },
             command: function (commandArguments) {
                 return new InsertHtmlCommand(commandArguments);
@@ -7653,13 +7727,14 @@
                 var toolName = options.name;
                 var changeHandler = proxy(tool.changeHandler, tool);
                 var dataSource = options.items || editor.options[toolName];
+                var selectBox;
                 dataSource.unshift({
                     text: editor.options.messages[toolName],
                     value: ''
                 });
                 tool.editor = editor;
                 ui.width(options.width);
-                ui.kendoSelectBox({
+                selectBox = ui.kendoSelectBox({
                     dataTextField: 'text',
                     dataValueField: 'value',
                     dataSource: dataSource,
@@ -7672,7 +7747,9 @@
                     },
                     highlightFirst: false,
                     template: kendo.template('<span unselectable="on" style="display:block;#=(data.style||"")#">#:data.text#</span>')
-                });
+                }).data('kendoSelectBox');
+                ui.attr('title', initOptions.title);
+                selectBox.wrapper.attr('title', initOptions.title);
                 ui.addClass('k-decorated').closest('.k-widget').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
             },
             changeHandler: function (e) {
@@ -8484,125 +8561,438 @@
                 this.popup().element.off('.' + NS);
             }
         });
-        var InsertRowCommand = Command.extend({
-            exec: function () {
-                var range = this.lockRange(true), td = range.endContainer, cellCount, row, newRow;
-                while (dom.name(td) != 'td') {
-                    td = td.parentNode;
+        var TableModificationCommand = Command.extend({
+            _clearColIndexAtrr: function (table) {
+                dom.clearTableMappings(table, 'col-index');
+            },
+            _mapColIndices: function (table) {
+                dom.reMapTableColumns(table, 'col-index');
+            },
+            _findRowSpanCell: function (table, rowIndex, colIndex) {
+                var row, cell;
+                for (var i = rowIndex; i >= 0; i--) {
+                    row = table.rows[i];
+                    cell = $(row).find('[col-index=' + colIndex + ']');
+                    if (cell.length) {
+                        return cell;
+                    }
                 }
-                if (this.immutables() && Editor.Immutables.immutableParent(td)) {
+            },
+            _resetTableResizing: function (editor) {
+                editor._destroyResizings();
+                editor._initializeColumnResizing();
+                editor._initializeRowResizing();
+                editor._initializeTableResizing();
+            }
+        });
+        var InsertRowCommand = TableModificationCommand.extend({
+            exec: function () {
+                var range = this.lockRange(true), td = dom.closest(range.endContainer, [
+                        'td',
+                        'th'
+                    ]), table = dom.closest(td, 'table'), position = this.options.position || 'after', cellCount, row, lastTd, cell, newRow, rowIndex, rowSpanIndex;
+                if (!table || this.immutables() && Editor.Immutables.immutableParent(td)) {
                     return;
                 }
+                this._mapColIndices(table);
                 row = td.parentNode;
-                cellCount = row.children.length;
-                newRow = row.cloneNode(true);
-                for (var i = 0; i < row.cells.length; i++) {
-                    newRow.cells[i].innerHTML = Editor.emptyTableCellContent;
+                rowIndex = dom.findNodeIndex(row, true);
+                if (td.rowSpan > 1 && position === 'after') {
+                    row = table.rows[rowIndex + td.rowSpan - 1];
                 }
-                if (this.options.position == 'before') {
+                cellCount = table.rows[0].cells.length;
+                lastTd = table.rows[0].cells[cellCount - 1];
+                cellCount = parseInt(lastTd.getAttribute('col-index'), 10) + lastTd.colSpan - 1;
+                newRow = row.cloneNode(true);
+                $(newRow).empty();
+                for (var i = 0; i <= cellCount; i = i + cell.prop('colSpan')) {
+                    cell = $(row).find('[col-index=' + i + ']');
+                    if (cell.length) {
+                        if (cell.prop('rowSpan') > 1 && position === 'after' && cell) {
+                            cell.attr('rowspan', cell.prop('rowSpan') + 1);
+                        } else {
+                            this._appendCell(newRow, cell);
+                        }
+                    } else {
+                        rowIndex = dom.findNodeIndex(row, true);
+                        cell = this._findRowSpanCell(table, rowIndex, i);
+                        rowSpanIndex = cell.closest('tr').index();
+                        if (rowSpanIndex + cell.prop('rowSpan') - 1 === rowIndex && position === 'after') {
+                            this._appendCell(newRow, cell);
+                        } else {
+                            cell.attr('rowspan', cell.prop('rowSpan') + 1);
+                        }
+                    }
+                }
+                if (position == 'before') {
                     dom.insertBefore(newRow, row);
                 } else {
                     dom.insertAfter(newRow, row);
                 }
+                this._clearColIndexAtrr(table);
                 this.releaseRange(range);
+                this._resetTableResizing(this.editor);
+            },
+            _appendCell: function (row, cell) {
+                var newCell;
+                newCell = cell.clone();
+                newCell.html(Editor.emptyTableCellContent);
+                newCell.removeAttr('rowspan');
+                newCell.appendTo(row);
             }
         });
-        var InsertColumnCommand = Command.extend({
+        var InsertColumnCommand = TableModificationCommand.extend({
             exec: function () {
-                var range = this.lockRange(true), td = dom.closest(range.endContainer, 'td'), table = dom.closest(td, 'table'), columnIndex, i, rows = table.rows, cell, newCell, position = this.options.position;
-                if (this.immutables() && Editor.Immutables.immutableParent(td)) {
+                var range = this.lockRange(true), td = dom.closest(range.endContainer, [
+                        'td',
+                        'th'
+                    ]), table = dom.closest(td, 'table'), columnIndex, i, rows = table && table.rows, cell, newCell, position = this.options.position || 'after';
+                if (!td || this.immutables() && Editor.Immutables.immutableParent(td)) {
                     return;
                 }
-                columnIndex = dom.findNodeIndex(td, true);
+                this._mapColIndices(table);
+                columnIndex = parseInt(td.getAttribute('col-index'), 10);
+                if (td.colSpan > 1 && position === 'after') {
+                    td.setAttribute('col-index', columnIndex + td.colSpan - 1);
+                    columnIndex = columnIndex + td.colSpan - 1;
+                }
                 for (i = 0; i < rows.length; i++) {
-                    cell = rows[i].cells[columnIndex];
+                    cell = this._processForColSpan(rows[i], columnIndex, position, td);
+                    if (!cell) {
+                        continue;
+                    }
                     newCell = cell.cloneNode();
                     newCell.innerHTML = Editor.emptyTableCellContent;
+                    newCell.removeAttribute('colspan');
                     if (position == 'before') {
                         dom.insertBefore(newCell, cell);
                     } else {
                         dom.insertAfter(newCell, cell);
                     }
+                    this._resizeCells(newCell, cell);
                 }
+                this._clearColIndexAtrr(table);
                 this.releaseRange(range);
+                this._resetTableResizing(this.editor);
+            },
+            _processForColSpan: function (row, columnIndex, position, selectedCell) {
+                var cell, colSpanEffect, index = columnIndex - 1;
+                cell = $(row).find('[col-index=' + columnIndex + ']')[0];
+                if (cell && cell.colSpan > 1 && position === 'after' && cell !== selectedCell) {
+                    cell.colSpan += 1;
+                    return;
+                }
+                if (cell) {
+                    return cell;
+                }
+                for (index; index >= 0; index--) {
+                    cell = $(row).find('[col-index=' + index + ']')[0];
+                    if (cell && cell.colSpan > 1) {
+                        break;
+                    }
+                }
+                if (!cell) {
+                    return;
+                }
+                colSpanEffect = parseInt(cell.getAttribute('col-index'), 10) + cell.colSpan - 1;
+                if (colSpanEffect === columnIndex && position === 'after') {
+                    return cell;
+                } else if (columnIndex <= colSpanEffect) {
+                    cell.setAttribute('colspan', cell.colSpan + 1);
+                }
+            },
+            _resizeCells: function (newCell, cell) {
+                var width = newCell.style.width, parsedWidth, unit, calculatedWidth;
+                if (!width) {
+                    return;
+                }
+                parsedWidth = parseFloat(width);
+                unit = width.slice(parsedWidth.toString().length);
+                calculatedWidth = parsedWidth / 2 + unit;
+                newCell.style.width = calculatedWidth;
+                cell.style.width = calculatedWidth;
             }
         });
-        var DeleteRowCommand = Command.extend({
+        var DeleteRowCommand = TableModificationCommand.extend({
             exec: function () {
                 var range = this.lockRange();
                 var rows = RangeUtils.mapAll(range, function (node) {
                     return $(node).closest('tr')[0];
                 });
+                var td = dom.closest(range.endContainer, [
+                    'td',
+                    'th'
+                ]);
                 var row = rows[0];
-                if (this.immutables() && Editor.Immutables.immutableParent(row)) {
-                    return;
-                }
+                var rowSpan = td ? td.rowSpan : 1;
+                var rowIndex = $(rows[0]).index();
                 var table = dom.closest(row, 'table');
                 var focusElement;
+                if (!table || this.immutables() && Editor.Immutables.immutableParent(row)) {
+                    return;
+                }
+                for (var x = 0; x < rowSpan; x++) {
+                    if (rows.indexOf(table.rows[rowIndex + x]) < 0) {
+                        rows.push(table.rows[rowIndex + x]);
+                    }
+                }
                 if (table.rows.length <= rows.length) {
                     focusElement = dom.next(table);
                     if (!focusElement || dom.insignificant(focusElement)) {
                         focusElement = dom.prev(table);
                     }
                     dom.remove(table);
+                    this._resetTableResizing(this.editor);
                 } else {
+                    this._mapColIndices(table);
                     for (var i = 0; i < rows.length; i++) {
                         row = rows[i];
                         dom.removeTextSiblings(row);
                         focusElement = dom.next(row) || dom.prev(row);
                         focusElement = focusElement.cells[0];
+                        this._handleRowSpanCells(table, row);
                         dom.remove(row);
                     }
+                    this._clearColIndexAtrr(table);
                 }
                 if (focusElement) {
                     range.setStart(focusElement, 0);
                     range.collapse(true);
                     this.editor.selectRange(range);
                 }
+                this._resetTableResizing(this.editor);
+            },
+            _handleRowSpanCells: function (table, row) {
+                var index, cell, adjacentCell, previousRow, rowIndex = dom.findNodeIndex(row, true), lastIndex = parseInt(row.cells[row.cells.length - 1].getAttribute('col-index'), 10);
+                for (index = 0; index <= lastIndex; index = index + cell.prop('colSpan')) {
+                    cell = $(row).find('[col-index=' + index + ']');
+                    if (cell.length && cell.prop('rowSpan') > 1) {
+                        previousRow = table.rows[rowIndex + 1];
+                        adjacentCell = $(previousRow).find('[col-index=' + (index + 1) + ']');
+                        if (adjacentCell.length) {
+                            adjacentCell.before(cell);
+                        } else {
+                            adjacentCell = $(previousRow).find('[col-index=' + (index - 1) + ']');
+                            adjacentCell.after(cell);
+                        }
+                        this._reduceRowSpan(cell);
+                    }
+                    if (!cell.length) {
+                        cell = this._findRowSpanCell(table, rowIndex, index);
+                        this._reduceRowSpan(cell);
+                    }
+                }
+            },
+            _reduceRowSpan: function (td) {
+                var rowSpanValue = td.prop('rowSpan') - 1;
+                if (rowSpanValue <= 1) {
+                    td.removeAttr('rowspan');
+                } else {
+                    td.attr('rowspan', rowSpanValue);
+                }
             }
         });
-        var DeleteColumnCommand = Command.extend({
+        var DeleteColumnCommand = TableModificationCommand.extend({
             exec: function () {
-                var range = this.lockRange(), td = dom.closest(range.endContainer, 'td'), table = dom.closest(td, 'table'), rows = table.rows, columnIndex = dom.findNodeIndex(td, true), columnCount = rows[0].cells.length, focusElement, i;
-                if (this.immutables() && Editor.Immutables.immutableParent(td)) {
+                var range = this.lockRange(), td = dom.closest(range.endContainer, [
+                        'td',
+                        'th'
+                    ]), table = dom.closest(td, 'table'), rows = table && table.rows, columnIndex = dom.findNodeIndex(td, true), columnCount = rows && rows[0].cells.length, focusElement, i, cell, x;
+                if (!td || this.immutables() && Editor.Immutables.immutableParent(td)) {
                     return;
                 }
-                if (columnCount == 1) {
+                if (columnCount == 1 || td.colSpan == columnCount) {
                     focusElement = dom.next(table);
                     if (!focusElement || dom.insignificant(focusElement)) {
                         focusElement = dom.prev(table);
                     }
                     dom.remove(table);
+                    this._resetTableResizing(this.editor);
                 } else {
                     dom.removeTextSiblings(td);
                     focusElement = dom.next(td) || dom.prev(td);
-                    for (i = 0; i < rows.length; i++) {
-                        dom.remove(rows[i].cells[columnIndex]);
+                    this._mapColIndices(table);
+                    columnIndex = parseInt(td.getAttribute('col-index'), 10);
+                    for (x = 0; x < td.colSpan; x++) {
+                        for (i = 0; i < rows.length; i = i + (cell.prop('rowSpan') || 1)) {
+                            cell = $(rows[i]).find('[col-index=' + (columnIndex + x) + ']');
+                            if (cell.length && cell.prop('colSpan') <= 1) {
+                                cell.remove();
+                            } else {
+                                this._handleColSpanCells(rows[i], columnIndex + x);
+                            }
+                        }
                     }
+                    this._clearColIndexAtrr(table);
                 }
                 if (focusElement) {
                     range.setStart(focusElement, 0);
                     range.collapse(true);
                     this.editor.selectRange(range);
                 }
+                this._resetTableResizing(this.editor);
+            },
+            _handleColSpanCells: function (row, colIndex) {
+                var cell = $(row).find('[col-index=' + colIndex + ']');
+                if (cell.length && cell.prop('colSpan') > 1) {
+                    var clone = cell.clone(true);
+                    cell.after(clone);
+                    this._reduceColSpan(clone);
+                    clone.attr('col-index', parseInt(cell.attr('col-index'), 10) + 1);
+                    cell.remove();
+                    return;
+                }
+                for (var i = colIndex; i >= 0; i--) {
+                    cell = $(row).find('[col-index=' + i + ']');
+                    if (cell.length) {
+                        this._reduceColSpan(cell);
+                        cell.attr('col-index', parseInt(cell.attr('col-index'), 10) + 1);
+                        return;
+                    }
+                }
+            },
+            _reduceColSpan: function (td) {
+                var colSpanValue = td.prop('colSpan') - 1;
+                if (colSpanValue <= 1) {
+                    td.removeAttr('colspan');
+                } else {
+                    td.attr('colspan', colSpanValue);
+                }
+            }
+        });
+        var MergeCellsHorizontallyCommand = TableModificationCommand.extend({
+            exec: function () {
+                var range = this.lockRange(), td = dom.closest(range.endContainer, [
+                        'td',
+                        'th'
+                    ]), table, row, columnIndex, nextTd;
+                if (!td) {
+                    return;
+                }
+                table = dom.closest(td, 'table');
+                row = td.parentNode;
+                columnIndex = dom.findNodeIndex(td, true);
+                nextTd = row.children[columnIndex + 1];
+                if (this.immutables() && Editor.Immutables.immutableParent(td)) {
+                    return;
+                }
+                this._mapColIndices(table);
+                columnIndex = parseInt($(td).attr('col-index'), 10);
+                nextTd = $(row).find('[col-index=' + (columnIndex + 1 + this._getColspan(td) - 1) + ']').get(0);
+                if (!nextTd || $(nextTd).is('[rowspan]') || $(td).is('[rowspan]')) {
+                    this._clearColIndexAtrr(table);
+                    this.releaseRange(range);
+                    return;
+                }
+                $(td).prop('colspan', this._getColspan(td) + this._getColspan(nextTd)).append(dom.emptyNode(nextTd) ? '' : '<br/>' + nextTd.innerHTML);
+                $(nextTd).remove();
+                this._clearColIndexAtrr(table);
+                this.releaseRange(range);
+            },
+            _getColspan: function (td) {
+                return parseInt(td.getAttribute('colspan'), 10) || 1;
+            }
+        });
+        var MergeCellsVerticallyCommand = TableModificationCommand.extend({
+            exec: function () {
+                var range = this.lockRange(), td = dom.closest(range.endContainer, [
+                        'td',
+                        'th'
+                    ]), tr, table, columnIndex, rowIndex, targetRow, bottomTd;
+                if (!td) {
+                    return;
+                }
+                tr = dom.closest(td, 'tr');
+                table = dom.closest(td, 'table');
+                columnIndex = dom.findNodeIndex(td, true);
+                rowIndex = dom.findNodeIndex(tr, true);
+                targetRow = table.rows[rowIndex + this._getRowspan(td)];
+                bottomTd = targetRow && targetRow.children[columnIndex];
+                if (this.immutables() && Editor.Immutables.immutableParent(td)) {
+                    return;
+                }
+                this._mapColIndices(table);
+                columnIndex = $(td).attr('col-index');
+                bottomTd = $(targetRow).find('[col-index=' + columnIndex + ']').get(0);
+                if (!bottomTd || $(bottomTd).is('[colspan]') || $(td).is('[colspan]')) {
+                    this._clearColIndexAtrr(table);
+                    this.releaseRange(range);
+                    return;
+                }
+                $(td).prop('rowspan', this._getRowspan(td) + this._getRowspan(bottomTd)).append(dom.emptyNode(bottomTd) ? '' : '<br/>' + bottomTd.innerHTML);
+                $(bottomTd).remove();
+                this._clearColIndexAtrr(table);
+                this.releaseRange(range);
+            },
+            _getRowspan: function (td) {
+                return parseInt(td.getAttribute('rowspan'), 10) || 1;
+            }
+        });
+        var SplitCellCommand = TableModificationCommand.extend({
+            exec: function () {
+                var attrValue, range = this.lockRange(), type = this.options.type, attr = type === 'row' ? 'colspan' : 'rowspan', td = dom.closest(range.endContainer, [
+                        'td',
+                        'th'
+                    ]), table = dom.closest(td, 'table'), emptyTd = '<td></td>';
+                if (!td || this.immutables() && Editor.Immutables.immutableParent(td)) {
+                    return;
+                }
+                attrValue = type === 'row' ? this._getColspanValue(td) - 1 : this._getRowspanValue(td) - 1;
+                this._mapColIndices(table);
+                if (type === 'row' && $(td).is('[' + attr + ']')) {
+                    $(td).prop(attr, attrValue).width(this._getWidth(table, td)).after(emptyTd);
+                } else if (type === 'column' && $(td).is('[' + attr + ']')) {
+                    this._splitCellVertically(td, table, attr, attrValue, emptyTd);
+                }
+                if (attrValue === 1) {
+                    $(td).removeAttr(attr);
+                }
+                this._clearColIndexAtrr(table);
+                this.releaseRange(range);
+            },
+            _getRowspanValue: function (td) {
+                return parseInt(td.getAttribute('rowspan'), 10);
+            },
+            _getColspanValue: function (td) {
+                return parseInt(td.getAttribute('colspan'), 10);
+            },
+            _splitCellVertically: function (td, table, attr, attrValue, emptyTd) {
+                var tr = dom.closest(td, 'tr'), columnIndex = parseInt($(td).attr('col-index'), 10), rowIndex = dom.findNodeIndex(tr, true), targetRow = $(table).find('tr').eq(rowIndex + attrValue), nextTd = targetRow.find('[col-index=' + (columnIndex + 1) + ']');
+                if (nextTd.length) {
+                    nextTd.before(emptyTd);
+                } else {
+                    targetRow.append(emptyTd);
+                }
+                $(td).prop(attr, attrValue);
+            },
+            _getWidth: function (table, td) {
+                var colIndex = td.getAttribute('col-index');
+                var availableTd = $(table).find('[col-index=' + colIndex + ']:not([colspan])');
+                if (availableTd.length) {
+                    return availableTd.width();
+                }
+                return parseFloat($(td).width() / 2);
             }
         });
         var TableModificationTool = Tool.extend({
             command: function (options) {
+                var commandsMap = {
+                    row: {
+                        insert: InsertRowCommand,
+                        'delete': DeleteRowCommand,
+                        merge: MergeCellsHorizontallyCommand,
+                        split: SplitCellCommand
+                    },
+                    column: {
+                        insert: InsertColumnCommand,
+                        'delete': DeleteColumnCommand,
+                        merge: MergeCellsVerticallyCommand,
+                        split: SplitCellCommand
+                    }
+                };
                 options = extend(options, this.options);
-                if (options.action == 'delete') {
-                    if (options.type == 'row') {
-                        return new DeleteRowCommand(options);
-                    } else {
-                        return new DeleteColumnCommand(options);
-                    }
-                } else {
-                    if (options.type == 'row') {
-                        return new InsertRowCommand(options);
-                    } else {
-                        return new InsertColumnCommand(options);
-                    }
-                }
+                options.action = options.action || 'insert';
+                return new commandsMap[options.type][options.action](options);
             },
             initialize: function (ui, options) {
                 Tool.fn.initialize.call(this, ui, options);
@@ -8621,7 +9011,10 @@
             InsertRowCommand: InsertRowCommand,
             InsertColumnCommand: InsertColumnCommand,
             DeleteRowCommand: DeleteRowCommand,
-            DeleteColumnCommand: DeleteColumnCommand
+            DeleteColumnCommand: DeleteColumnCommand,
+            MergeCellsHorizontallyCommand: MergeCellsHorizontallyCommand,
+            MergeCellsVerticallyCommand: MergeCellsVerticallyCommand,
+            SplitCellCommand: SplitCellCommand
         });
         registerTool('createTable', new InsertTableTool({
             template: new ToolTemplate({
@@ -8674,6 +9067,38 @@
             template: new ToolTemplate({
                 template: EditorUtils.buttonTemplate,
                 title: 'Delete column'
+            })
+        }));
+        registerTool('mergeCellsHorizontally', new TableModificationTool({
+            type: 'row',
+            action: 'merge',
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Merge Cell Right'
+            })
+        }));
+        registerTool('mergeCellsVertically', new TableModificationTool({
+            type: 'column',
+            action: 'merge',
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Merge Cell Down'
+            })
+        }));
+        registerTool('splitCellHorizontally', new TableModificationTool({
+            type: 'row',
+            action: 'split',
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Split Cell'
+            })
+        }));
+        registerTool('splitCellVertically', new TableModificationTool({
+            type: 'column',
+            action: 'split',
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Split Cell'
             })
         }));
     }(window.kendo.jQuery));
@@ -9078,7 +9503,7 @@
                         lastSiblingIndex -= 1;
                         lastSibling = siblingNodes.get(lastSiblingIndex);
                     }
-                    if (lastSibling === focusedTable.get(0)) {
+                    if (lastSibling === focusedTable.get(0) && !focusedTable.parents('table').length) {
                         dom.insertAfter(dom.createEmptyNode(editor.document, 'p'), focusedTable[0]);
                     }
                 }
@@ -10015,6 +10440,9 @@
                 }
                 range.collapse(true);
                 editor.selectRange(range);
+                if (dom.isDataNode(start) && !dom.emptyNode(start.parentElement)) {
+                    this._cleanBomBefore(range);
+                }
                 return true;
             },
             _handleImmutables: function (marker) {
@@ -10713,7 +11141,8 @@
     define('editor/resizing/column-resizing', [
         'editor/main',
         'editor/resizing/resizing-utils',
-        'editor/resizing/table-element-resizing'
+        'editor/resizing/table-element-resizing',
+        'editor/dom'
     ], f);
 }(function () {
     (function (kendo, undefined) {
@@ -10723,6 +11152,7 @@
         var $ = kendo.jQuery;
         var extend = $.extend;
         var Editor = kendo.ui.editor;
+        var dom = Editor.Dom;
         var TableElementResizing = Editor.TableElementResizing;
         var ResizingUtils = Editor.ResizingUtils;
         var constrain = ResizingUtils.constrain;
@@ -10740,6 +11170,7 @@
         var TD = 'td';
         var TH = 'th';
         var TR = 'tr';
+        var COLATTR = 'col-index';
         var COMMA = ',';
         var WIDTH = 'width';
         var ColumnResizing = TableElementResizing.extend({
@@ -10834,10 +11265,19 @@
                 var newWidth;
                 var initialAdjacentColumnWidth;
                 var initialColumnWidth;
+                var colIndex;
+                var nextColumn;
+                dom.reMapTableColumns(that.element, COLATTR);
+                colIndex = parseInt(column.attr(COLATTR), 10);
+                if (column.prop('colSpan') > 1) {
+                    column = $(that.element).find('[' + COLATTR + '=' + (colIndex + column.prop('colSpan') - 1) + ']').eq(0);
+                    colIndex = parseInt(column.attr(COLATTR), 10);
+                }
+                nextColumn = $(that.element).find('[' + COLATTR + '=' + (colIndex + 1) + ']:not([colspan])');
                 that._setTableComputedWidth();
                 that._setColumnsComputedWidth();
                 initialColumnWidth = outerWidth(column);
-                initialAdjacentColumnWidth = outerWidth(column.next());
+                initialAdjacentColumnWidth = outerWidth(nextColumn);
                 newWidth = constrain({
                     value: initialColumnWidth + initialDeltaX,
                     min: min,
@@ -10845,7 +11285,8 @@
                 });
                 that._resizeColumn(column[0], newWidth);
                 that._resizeTopAndBottomColumns(column[0], newWidth);
-                that._resizeAdjacentColumns(column.index(), initialAdjacentColumnWidth, initialColumnWidth, initialColumnWidth - newWidth);
+                that._resizeAdjacentColumns(parseInt(column.attr(COLATTR), 10), initialAdjacentColumnWidth, initialColumnWidth, initialColumnWidth - newWidth);
+                dom.clearTableMappings(that.element, COLATTR);
             },
             _setTableComputedWidth: function () {
                 var element = this.element;
@@ -10873,10 +11314,10 @@
             },
             _resizeTopAndBottomColumns: function (column, newWidth) {
                 var that = this;
-                var columnIndex = $(column).index();
+                var columnIndex = $(column).attr(COLATTR);
                 var topAndBottomColumns = $(that.element).children(TBODY).children(TR).children(that.options.tags.join(COMMA)).filter(function () {
                     var cell = this;
-                    return $(cell).index() === columnIndex && cell !== column;
+                    return $(cell).attr(COLATTR) === columnIndex && cell !== column;
                 });
                 var length = topAndBottomColumns.length;
                 var i;
@@ -10894,7 +11335,7 @@
             _resizeAdjacentColumns: function (columnIndex, initialAdjacentColumnWidth, initialColumnWidth, deltaWidth) {
                 var that = this;
                 var adjacentColumns = $(that.element).children(TBODY).children(TR).children(that.options.tags.join(COMMA)).filter(function () {
-                    return $(this).index() === columnIndex + 1;
+                    return parseInt($(this).attr(COLATTR), 10) === columnIndex + 1;
                 });
                 var length = adjacentColumns.length;
                 var i;

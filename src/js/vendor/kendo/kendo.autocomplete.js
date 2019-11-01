@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -616,6 +616,10 @@
                 that._focused = that.element;
                 that.wrapper = wrapper.addClass('k-widget k-autocomplete').addClass(DOMelement.className);
                 that._inputWrapper = $(wrapper[0]);
+            },
+            _clearValue: function () {
+                List.fn._clearValue.call(this);
+                this.element.focus();
             }
         });
         ui.plugin(AutoComplete);

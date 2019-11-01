@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -37,7 +37,7 @@
         depends: ['userevents']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, DataSource = kendo.data.DataSource, Transition = kendo.effects.Transition, proxy = $.proxy, LEFT_PAGE = -1, CETER_PAGE = 0, RIGHT_PAGE = 1, VERTICAL = 'vertical', TRANSITION_END = 'transitionEnd', VIRTUAL_PAGE_COUNT = 3, VIRTUAL_PAGE_CLASS = 'timeline-event', FLAGWRAPCLASS = 'k-timeline-flag-wrap', TRACKITEMCLASS = 'k-timeline-track-item', SCROLLABLEWRAPCLASS = 'k-timeline-scrollable-wrap', DEFAULTHORIZONTALCARDTEMPLATE = '# var titleField = data.titleField, subtitleField = data.subtitleField, descriptionField = data.descriptionField, imagesField = data.imagesField, actionsField = data.actionsField, data = data.data; #' + '<div class="k-card-header">' + '# if(data[titleField]) { #' + '<h5 class="k-card-title">#= data[titleField] #</h5>' + '# }' + 'if(data[subtitleField]) { #' + '<h6 class="k-card-subtitle">#= data[subtitleField] #</h6>' + '# } #' + '</div>' + '<div class="k-card-body">' + '<div class="k-card-description">' + '# if(data[descriptionField]) { #' + '<p>#= data[descriptionField] #</p>' + '# }' + 'if(data[imagesField] && data[imagesField].length > 0) { #' + '<img src="#= data[imagesField][0].src #" class="k-card-image" />' + '# } #' + '</div>' + '</div>' + '# if(data[actionsField] && data[actionsField].length > 0) { #' + '<div class="k-card-actions">' + '# for (var i = 0; i < data[actionsField].length; i++) { #' + '<a class="k-button k-flat k-primary" href="#= data[actionsField][i].url ? data[actionsField][i].url : "\\#" #">#= data[actionsField][i].text #</a>' + '# } #' + '</div>' + '# } #', DEFAULTVERTICALCARDTEMPLATE = '# var titleField = data.titleField, subtitleField = data.subtitleField, descriptionField = data.descriptionField, imagesField = data.imagesField, actionsField = data.actionsField, data = data.data; #' + '<div class="k-card-header">' + '<h5 class="k-card-title">' + '# if(data[titleField]) { #' + '<span class="k-event-title">#= data[titleField] #</span>' + '# } #' + '<span class="k-event-collapse k-button k-button-icon k-flat">' + '<span class="k-icon k-i-arrow-chevron-right"></span>' + '</span></h5>' + '# if(data[subtitleField]) { #' + '<h6 class="k-card-subtitle">#= data[subtitleField] #</h6>' + '# } #' + '</div>' + '<div class="k-card-body">' + '<div class="k-card-description">' + '# if(data[descriptionField]) { #' + '<p>#= data[descriptionField] #</p>' + '# } #' + '# if(data[imagesField] && data[imagesField].length > 0) { #' + '<img src="#= data[imagesField][0].src #" class="k-card-image" />' + '# } #' + '</div>' + '</div>' + '# if(data[actionsField] && data[actionsField].length > 0) { #' + '<div class="k-card-actions">' + '# for (var i = 0; i < data[actionsField].length; i++) { #' + '<a class="k-button k-flat k-primary" href="#= data[actionsField][i].url ? data[actionsField][i].url : "\\#" #">#= data[actionsField][i].text #</a>' + '# } #' + '</div>' + '# } #', HORIZONTALTRACKTEMPLATE = '<div class="k-timeline-track">' + '<ul class="k-timeline-scrollable-wrap">' + '# var itemTemplate = data.itemTemplate, dateField = data.dateField, dateFormat = data.dateFormat, showDateLabels = data.showDateLabels, data = data.data, year = 0; #' + '# for (var i = 0; i < data.length; i++) {' + 'if(!(data[i][dateField] instanceof Date)) {' + 'continue;' + '}' + 'var currentYear = data[i][dateField].getFullYear();' + 'if(year != currentYear) {' + 'year = currentYear; #' + '<li class="k-timeline-track-item k-timeline-flag-wrap">' + '<span class="k-timeline-flag">#= year #</span>' + '</li>' + '# } #' + '<li class="k-timeline-track-item">' + '<div class="k-timeline-date-wrap">' + '# if(showDateLabels) { #' + '<span class="k-timeline-date">#= kendo.toString(data[i][dateField], dateFormat) #</span>' + '# } #' + '</div>' + '<a class="k-timeline-circle"></a>' + '</li>' + '# } #' + '</ul>' + '</div>', VERTICALEVENTSTEMPLATE = '# var itemTemplate = data.itemTemplate, dateField = data.dateField, titleField = data.titleField, descriptionField = data.descriptionField, subtitleField = data.subtitleField, imagesField = data.imagesField, actionsField = data.actionsField, alterMode = data.alterMode, collapsibleEvents = data.collapsibleEvents, dateFormat = data.dateFormat, showDateLabels = data.showDateLabels, data = data.data, counter = 0, year = 0, reverse = false; #' + '<ul>' + '# for (var i = 0; i < data.length; i++) {' + 'if(!(data[i][dateField] instanceof Date)) {' + 'continue;' + '}' + 'var currentYear = data[i][dateField].getFullYear();' + 'if(currentYear != year) {' + 'year = currentYear; #' + '<li class="k-timeline-flag-wrap">' + '<span class="k-timeline-flag">#= year #</span>' + '</li>' + '# } ' + 'reverse = counter % 2 === 0 && alterMode; #' + '<li class="#= reverse ? \'k-timeline-event k-reverse\' : \'k-timeline-event\' #" data-uid="#: data[i].uid #">' + '# if(showDateLabels) { #' + '<div class="k-timeline-date-wrap">' + '<span class="k-timeline-date">#= kendo.toString(data[i][dateField], dateFormat) #</span>' + '</div>' + '# } #' + '<a class="k-timeline-circle"></a>' + '<div class="#= collapsibleEvents ? \'k-timeline-card k-collapsed\' : \'k-timeline-card\' #">' + '<div class="k-card">' + '<span class="#= reverse ? \'k-timeline-card-callout k-card-callout k-callout-e\' : \'k-timeline-card-callout k-card-callout k-callout-w\' #"></span>' + '#= itemTemplate({titleField: titleField, subtitleField: subtitleField, descriptionField: descriptionField, imagesField: imagesField, actionsField: actionsField, data: data[i]}) #' + '</div>' + '</div>' + '</li>' + '# counter ++;' + '} #' + '</ul>', ARROWSHTML = '<a class="k-button k-timeline-arrow k-timeline-arrow-left k-state-disabled" title="previous">' + '<span class="k-icon k-i-arrow-60-left"></span>' + '</a>' + '<a class="k-button k-timeline-arrow k-timeline-arrow-right" title="next">' + '<span class="k-icon k-i-arrow-60-right"></span>' + '</a>';
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, DataSource = kendo.data.DataSource, Transition = kendo.effects.Transition, proxy = $.proxy, LEFT_PAGE = -1, CETER_PAGE = 0, RIGHT_PAGE = 1, VERTICAL = 'vertical', TRANSITION_END = 'transitionEnd', VIRTUAL_PAGE_COUNT = 3, VIRTUAL_PAGE_CLASS = 'timeline-event', FLAGWRAPCLASS = 'k-timeline-flag-wrap', TRACKITEMCLASS = 'k-timeline-track-item', SCROLLABLEWRAPCLASS = 'k-timeline-scrollable-wrap', NS = '.kendoTimeline', DEFAULTHORIZONTALCARDTEMPLATE = '# var titleField = data.titleField, subtitleField = data.subtitleField, descriptionField = data.descriptionField, imagesField = data.imagesField, actionsField = data.actionsField, data = data.data; #' + '<div class="k-card-header">' + '# if(data[titleField]) { #' + '<h5 class="k-card-title">#= data[titleField] #</h5>' + '# }' + 'if(data[subtitleField]) { #' + '<h6 class="k-card-subtitle">#= data[subtitleField] #</h6>' + '# } #' + '</div>' + '<div class="k-card-body">' + '<div class="k-card-description">' + '# if(data[descriptionField]) { #' + '<p>#= data[descriptionField] #</p>' + '# }' + 'if(data[imagesField] && data[imagesField].length > 0) { #' + '<img src="#= data[imagesField][0].src #" class="k-card-image" />' + '# } #' + '</div>' + '</div>' + '# if(data[actionsField] && data[actionsField].length > 0) { #' + '<div class="k-card-actions">' + '# for (var i = 0; i < data[actionsField].length; i++) { #' + '<a class="k-button k-flat k-primary" href="#= data[actionsField][i].url ? data[actionsField][i].url : "\\#" #">#= data[actionsField][i].text #</a>' + '# } #' + '</div>' + '# } #', DEFAULTVERTICALCARDTEMPLATE = '# var titleField = data.titleField, subtitleField = data.subtitleField, descriptionField = data.descriptionField, imagesField = data.imagesField, actionsField = data.actionsField, data = data.data; #' + '<div class="k-card-header">' + '<h5 class="k-card-title">' + '# if(data[titleField]) { #' + '<span class="k-event-title">#= data[titleField] #</span>' + '# } #' + '<span class="k-event-collapse k-button k-button-icon k-flat">' + '<span class="k-icon k-i-arrow-chevron-right"></span>' + '</span></h5>' + '# if(data[subtitleField]) { #' + '<h6 class="k-card-subtitle">#= data[subtitleField] #</h6>' + '# } #' + '</div>' + '<div class="k-card-body">' + '<div class="k-card-description">' + '# if(data[descriptionField]) { #' + '<p>#= data[descriptionField] #</p>' + '# } #' + '# if(data[imagesField] && data[imagesField].length > 0) { #' + '<img src="#= data[imagesField][0].src #" class="k-card-image" />' + '# } #' + '</div>' + '</div>' + '# if(data[actionsField] && data[actionsField].length > 0) { #' + '<div class="k-card-actions">' + '# for (var i = 0; i < data[actionsField].length; i++) { #' + '<a class="k-button k-flat k-primary" href="#= data[actionsField][i].url ? data[actionsField][i].url : "\\#" #">#= data[actionsField][i].text #</a>' + '# } #' + '</div>' + '# } #', HORIZONTALTRACKTEMPLATE = '<div class="k-timeline-track">' + '<ul class="k-timeline-scrollable-wrap">' + '# var itemTemplate = data.itemTemplate, dateField = data.dateField, dateFormat = data.dateFormat, showDateLabels = data.showDateLabels, data = data.data, year = 0; #' + '# for (var i = 0; i < data.length; i++) {' + 'if(!(data[i][dateField] instanceof Date)) {' + 'continue;' + '}' + 'var currentYear = data[i][dateField].getFullYear();' + 'if(year != currentYear) {' + 'year = currentYear; #' + '<li class="k-timeline-track-item k-timeline-flag-wrap">' + '<span class="k-timeline-flag">#= year #</span>' + '</li>' + '# } #' + '<li class="k-timeline-track-item">' + '<div class="k-timeline-date-wrap">' + '# if(showDateLabels) { #' + '<span class="k-timeline-date">#= kendo.toString(data[i][dateField], dateFormat) #</span>' + '# } #' + '</div>' + '<a class="k-timeline-circle"></a>' + '</li>' + '# } #' + '</ul>' + '</div>', VERTICALEVENTSTEMPLATE = '# var itemTemplate = data.itemTemplate, dateField = data.dateField, titleField = data.titleField, descriptionField = data.descriptionField, subtitleField = data.subtitleField, imagesField = data.imagesField, actionsField = data.actionsField, alterMode = data.alterMode, collapsibleEvents = data.collapsibleEvents, dateFormat = data.dateFormat, showDateLabels = data.showDateLabels, data = data.data, counter = 0, year = 0, reverse = false; #' + '<ul>' + '# for (var i = 0; i < data.length; i++) {' + 'if(!(data[i][dateField] instanceof Date)) {' + 'continue;' + '}' + 'var currentYear = data[i][dateField].getFullYear();' + 'if(currentYear != year) {' + 'year = currentYear; #' + '<li class="k-timeline-flag-wrap">' + '<span class="k-timeline-flag">#= year #</span>' + '</li>' + '# } ' + 'reverse = counter % 2 === 0 && alterMode; #' + '<li class="#= reverse ? \'k-timeline-event k-reverse\' : \'k-timeline-event\' #" data-uid="#: data[i].uid #">' + '# if(showDateLabels) { #' + '<div class="k-timeline-date-wrap">' + '<span class="k-timeline-date">#= kendo.toString(data[i][dateField], dateFormat) #</span>' + '</div>' + '# } #' + '<a class="k-timeline-circle"></a>' + '<div class="#= collapsibleEvents ? \'k-timeline-card k-collapsed\' : \'k-timeline-card\' #">' + '<div class="k-card">' + '<span class="#= reverse ? \'k-timeline-card-callout k-card-callout k-callout-e\' : \'k-timeline-card-callout k-card-callout k-callout-w\' #"></span>' + '#= itemTemplate({titleField: titleField, subtitleField: subtitleField, descriptionField: descriptionField, imagesField: imagesField, actionsField: actionsField, data: data[i]}) #' + '</div>' + '</div>' + '</li>' + '# counter ++;' + '} #' + '</ul>', ARROWSHTML = '<a class="k-button k-timeline-arrow k-timeline-arrow-left k-state-disabled" title="previous">' + '<span class="k-icon k-i-arrow-60-left"></span>' + '</a>' + '<a class="k-button k-timeline-arrow k-timeline-arrow-right" title="next">' + '<span class="k-icon k-i-arrow-60-right"></span>' + '</a>';
         function className(name) {
             return 'k-' + name;
         }
@@ -162,7 +162,8 @@
                     that.pages[index].destroy();
                 }
                 that.unbind();
-                that.movable = that.tansition = that.pane = null;
+                that.movable = that.transition = that.dataFieldMappings = that.eventTemplate = that.duration = that.pages = null;
+                that.element.remove();
             }
         });
         var Timeline = kendo.ui.Widget.extend({
@@ -214,7 +215,7 @@
                 eventsWrap.append(eventsList);
                 trackWrap.appendTo(element);
                 eventsWrap.appendTo(element);
-                $(window).on('resize', proxy(this, '_resizeHandler'));
+                $(window).on('resize' + NS, proxy(this, '_resizeHandler'));
                 trackWrap.on('click', '.k-timeline-track-item:not(.k-timeline-flag-wrap)', proxy(this, '_setCurrentEvent'));
                 trackWrap.on('click', '.k-timeline-arrow:not(.k-state-disabled)', proxy(this, '_navigateToView'));
             },
@@ -369,7 +370,8 @@
                 that.currentEventIndex = itemIndex;
                 that.pane.updatePage(forward, dataItem, calculateOffset(trackItemCircle, that._trackWrap));
                 if (that._forward) {
-                    setTimeout(function () {
+                    clearTimeout(that.navigateTimeOut);
+                    that.navigateTimeOut = setTimeout(function () {
                         that.pane.transition.moveTo({
                             location: -that.pane.pages[2].element.width(),
                             duration: 800,
@@ -377,7 +379,8 @@
                         });
                     }, 200);
                 } else {
-                    setTimeout(function () {
+                    clearTimeout(that.navigateTimeOut);
+                    that.navigateTimeOut = setTimeout(function () {
                         that.pane.transition.moveTo({
                             location: that.pane.pages[0].element.width(),
                             duration: 800,
@@ -482,8 +485,9 @@
                     that.currentEventIndex = firstEventInView.index('li[class=\'k-timeline-track-item\']');
                     that._currentIndex = firstEventInView.index();
                     that.pane.updatePage(that._forward, dataItem, currentPage === 0 && !forward ? firstEventInView.find('.k-timeline-circle').offset().left + 15 : calculateOffset(firstEventInView.find('.k-timeline-circle'), that._trackWrap) + leftOffset);
-                    setTimeout(function () {
-                        if (forward) {
+                    clearTimeout(that.navigateTimeOut);
+                    that.navigateTimeOut = setTimeout(function () {
+                        if (forward && that.pane && that.pane.pages.length > 0) {
                             that.pane.transition.moveTo({
                                 location: -that.pane.pages[2].element.width(),
                                 duration: 800,
@@ -498,13 +502,16 @@
                         }
                     }, 200);
                 } else {
-                    this._trackWrap.find('.' + SCROLLABLEWRAPCLASS)[0].addEventListener('transitionend', function () {
+                    var scrollWrapElement = this._trackWrap.find('.' + SCROLLABLEWRAPCLASS);
+                    var transitionEndHandler = function () {
                         if (that.numOfEvents != 1) {
                             var page = that.pane.pages[1];
                             var calloutOffset = calculateOffset(firstEventInView.find('.k-timeline-circle'), that._trackWrap);
                             page.setPageCallout('left', calloutOffset / page.element.width() * 100 + '%');
                         }
-                    });
+                        scrollWrapElement.off('transitionend' + NS, transitionEndHandler);
+                    };
+                    scrollWrapElement.on('transitionend' + NS, transitionEndHandler);
                 }
             },
             previous: function () {
@@ -537,7 +544,8 @@
             },
             _resizeHandler: function () {
                 var that = this;
-                setTimeout(function () {
+                clearTimeout(that.resizeTimeOut);
+                that.resizeTimeOut = setTimeout(function () {
                     that._redrawEvents();
                     that.pane.repositionPages();
                 });
@@ -612,14 +620,17 @@
                         page.setPageCallout('left', calloutOffset / page.element.width() * 100 + '%');
                         that._firstIndexInView = Math.round(Math.abs(end) / width);
                     }
-                    this._trackWrap.find('.' + SCROLLABLEWRAPCLASS)[0].addEventListener('transitionend', function () {
+                    var scrollWrapElement = this._trackWrap.find('.' + SCROLLABLEWRAPCLASS);
+                    var transitionEndHandler = function () {
                         if (that.numOfEvents != 1) {
                             var page = that.pane.pages[1];
                             var eventElement = that._trackWrap.find('.' + TRACKITEMCLASS).eq(that._currentIndex);
                             var calloutOffset = calculateOffset(eventElement.find('.k-timeline-circle'), that._trackWrap);
                             page.setPageCallout('left', calloutOffset / page.element.width() * 100 + '%');
                         }
-                    });
+                        scrollWrapElement.off('transitionend' + NS, transitionEndHandler);
+                    };
+                    scrollWrapElement.on('transitionend' + NS, transitionEndHandler);
                 }
                 that._updateArrows();
             },
@@ -669,11 +680,22 @@
             destroy: function () {
                 var options = this.options;
                 Widget.fn.destroy.call(this);
+                if (this.resizeTimeOut) {
+                    clearTimeout(this.resizeTimeOut);
+                }
+                if (this.navigateTimeOut) {
+                    clearTimeout(this.navigateTimeOut);
+                }
+                $(window).off('resize' + NS, this._resizeHandler);
+                this.element.off();
                 if (options.orientation != VERTICAL) {
                     this.pane.destroy();
+                    this._trackWrap.find('.' + SCROLLABLEWRAPCLASS).off();
+                    this._trackWrap.off();
+                    this.currentEventIndex = this.maxEvents = this.numOfEvents = this._currentIndex = this._eventPage = this._eventsList = this._eventsWrap = this.element = this._trackWrap = this.pane = null;
                 }
-                this.element.off();
                 kendo.destroy(this.element);
+                this._dataFieldMappings = this.element = null;
             },
             options: {
                 name: 'Timeline',

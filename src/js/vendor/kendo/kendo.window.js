@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -651,6 +651,7 @@
                 }
                 if (value === false) {
                     wrapper.addClass('k-window-titleless');
+                    wrapper.css('padding-top', 0);
                     titleBar.remove();
                 } else {
                     if (!titleBar.length) {
@@ -739,6 +740,7 @@
                     }
                     if (!wrapper.is(VISIBLE)) {
                         contentElement.css(OVERFLOW, HIDDEN);
+                        that.wrapper.find(TITLEBAR_BUTTONS).addClass('k-bare');
                         wrapper.show().kendoStop().kendoAnimate({
                             effects: showOptions.effects,
                             duration: showOptions.duration,
@@ -806,6 +808,7 @@
                         }
                     });
                     this._removeOverlay();
+                    that.wrapper.find(TITLEBAR_BUTTONS).removeClass('k-bare');
                     wrapper.kendoStop().kendoAnimate({
                         effects: hideOptions.effects || showOptions.effects,
                         reverse: hideOptions.reverse === true,

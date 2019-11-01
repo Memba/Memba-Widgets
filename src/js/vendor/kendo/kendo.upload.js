@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -915,9 +915,8 @@
             },
             _setupDropZone: function () {
                 var that = this;
-                $('.k-upload-button', that.wrapper).wrap('<div class=\'k-dropzone\'></div>');
                 var ns = that._ns;
-                var dropZone = $('.k-dropzone', that.wrapper).append($('<em>' + that.localization.dropFilesHere + '</em>')).on('dragenter' + ns, stopEvent).on('dragover' + ns, function (e) {
+                var dropZone = $('.k-dropzone', that.wrapper).append($('<em class=\'k-dropzone-hint\'>' + that.localization.dropFilesHere + '</em>')).on('dragenter' + ns, stopEvent).on('dragover' + ns, function (e) {
                     e.preventDefault();
                 }).on('drop' + ns, $.proxy(that._onDrop, that));
                 bindDragEventWrappers(dropZone, ns, function () {
@@ -932,7 +931,7 @@
             _setupCustomDropZone: function () {
                 var that = this;
                 var dropZone = $(that.options.dropZone);
-                $('.k-upload-button', that.wrapper).wrap('<div class=\'k-dropzone\'></div>').after($('<em>' + that.localization.dropFilesHere + '</em>'));
+                $('.k-dropzone', that.wrapper).append($('<em class=\'k-dropzone-hint\'>' + that.localization.dropFilesHere + '</em>'));
                 var ns = that._ns;
                 dropZone.on('dragenter' + ns, stopEvent).on('dragover' + ns, function (e) {
                     e.preventDefault();
@@ -985,9 +984,11 @@
             _wrapInput: function (input) {
                 var that = this;
                 var options = that.options;
-                input.wrap('<div class=\'k-widget k-upload k-header\'><div class=\'k-button k-upload-button\' aria-label=\'' + this.localization.select + '\'></div></div>');
+                input.wrap('<div class=\'k-widget k-upload\'><div class=\'k-dropzone\'><div class=\'k-button k-upload-button\' aria-label=\'' + this.localization.select + '\'></div></div></div>');
                 if (!options.async.saveUrl) {
                     input.closest('.k-upload').addClass('k-upload-sync');
+                } else {
+                    input.closest('.k-upload').addClass('k-upload-async');
                 }
                 input.closest('.k-upload').addClass('k-upload-empty');
                 input.closest('.k-button').append('<span>' + this.localization.select + '</span>');

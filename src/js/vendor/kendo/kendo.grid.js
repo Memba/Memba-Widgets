@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1859,7 +1859,7 @@
                     width: indicatorWidth * 3
                 }).data('th', th).show();
                 resizeHandle.off('dblclick' + NS).on('dblclick' + NS, function () {
-                    that._autoFitLeafColumn(th.data('index'));
+                    that._autoFitLeafColumn(parseInt(th.attr(kendo.attr('index')), 10));
                 });
             },
             _positionColumnResizeHandle: function () {
@@ -2554,7 +2554,7 @@
                                 }
                                 if (that.editable) {
                                     if (that.editable.end()) {
-                                        if (selectable) {
+                                        if (selectable || kendo.support.mobileOS) {
                                             $(activeElement()).blur();
                                         }
                                         that.closeCell();
@@ -3649,6 +3649,10 @@
                     }
                     if (that.groupable) {
                         that._destroyGroupable();
+                    }
+                    if (browser.chrome) {
+                        wrapper.find('div.k-grouping-header').css('touch-action', 'none');
+                        wrapper.find(filter).css('touch-action', 'none');
                     }
                     that.groupable = new ui.Groupable(wrapper, extend({}, groupable, {
                         draggable: that._draggableInstance,
@@ -5525,6 +5529,7 @@
                             e.preventDefault();
                         }
                     });
+                    that._togglePagerVisibility();
                 }
             },
             _footer: function () {

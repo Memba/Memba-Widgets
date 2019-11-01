@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2019.3.917'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2019.3.1023'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1787,9 +1787,9 @@
             var documentMode = document.documentMode;
             support.hashChange = 'onhashchange' in window && !(support.browser.msie && (!documentMode || documentMode <= 8));
             support.customElements = 'registerElement' in window.document;
-            var chrome = support.browser.chrome, mozilla = support.browser.mozilla;
+            var chrome = support.browser.chrome, mobileChrome = support.browser.crios, mozilla = support.browser.mozilla, safari = support.browser.safari;
             support.msPointers = !chrome && window.MSPointerEvent;
-            support.pointers = !chrome && !mozilla && window.PointerEvent;
+            support.pointers = !chrome && !mobileChrome && !mozilla && !safari && window.PointerEvent;
             support.kineticScrollNeeded = mobileOS && (support.touch || support.msPointers || support.pointers);
         }());
         function size(obj) {
@@ -7134,8 +7134,10 @@
                 }
                 total = query.toArray().length;
             }
-            if (sort && !inPlace) {
-                query = query.sort(sort);
+            if (sort) {
+                if (!inPlace) {
+                    query = query.sort(sort);
+                }
                 if (group) {
                     data = query.toArray();
                 }
@@ -13267,7 +13269,7 @@
             },
             _hold: function (e) {
                 this.currentTarget = e.target;
-                if (this.options.holdToDrag && this._trigger(HOLD, e)) {
+                if (this._trigger(HOLD, e)) {
                     this.userEvents.cancel();
                 } else {
                     this._activated = true;
@@ -21962,7 +21964,7 @@
             var tok_percent = /^([-0-9.]+%)/;
             var tok_length = /^([-0-9.]+px)/;
             var tok_keyword = /^(left|right|top|bottom|to|center)\W/;
-            var tok_angle = /^([-0-9.]+(deg|grad|rad|turn))/;
+            var tok_angle = /^([-0-9.]+(deg|grad|rad|turn)|0)/;
             var tok_whitespace = /^(\s+)/;
             var tok_popen = /^(\()/;
             var tok_pclose = /^(\))/;
@@ -22013,6 +22015,9 @@
                     var reverse = false;
                     if (read(tok_popen)) {
                         angle = read(tok_angle);
+                        if (angle == '0') {
+                            angle = '0deg';
+                        }
                         if (angle) {
                             angle = parseAngle(angle);
                             read(tok_comma);
@@ -56018,6 +56023,7 @@
             },
             _activate: function () {
                 var map = this.map;
+                this._deactivate();
                 map.bind('beforeReset', this._beforeReset);
                 map.bind('reset', this._reset);
                 map.bind('resize', this._resize);
@@ -67978,6 +67984,7 @@
                 var that = this;
                 normalize(options);
                 options.disableDates = getDisabledExpr(options.disableDates);
+                that._destroySelectable();
                 Widget.fn.setOptions.call(that, options);
                 that._templates();
                 that._selectable();
@@ -72406,6 +72413,7 @@
                 }
                 if (value === false) {
                     wrapper.addClass('k-window-titleless');
+                    wrapper.css('padding-top', 0);
                     titleBar.remove();
                 } else {
                     if (!titleBar.length) {
@@ -72494,6 +72502,7 @@
                     }
                     if (!wrapper.is(VISIBLE)) {
                         contentElement.css(OVERFLOW, HIDDEN);
+                        that.wrapper.find(TITLEBAR_BUTTONS).addClass('k-bare');
                         wrapper.show().kendoStop().kendoAnimate({
                             effects: showOptions.effects,
                             duration: showOptions.duration,
@@ -72561,6 +72570,7 @@
                         }
                     });
                     this._removeOverlay();
+                    that.wrapper.find(TITLEBAR_BUTTONS).removeClass('k-bare');
                     wrapper.kendoStop().kendoAnimate({
                         effects: hideOptions.effects || showOptions.effects,
                         reverse: hideOptions.reverse === true,
@@ -74512,12 +74522,11 @@
             _toggleCascadeOnFocus: function () {
                 var that = this;
                 var parent = that._parentWidget();
-                var focusout = isIE ? 'blur' : 'focusout';
                 parent._focused.add(parent.filterInput).bind('focus', function () {
                     parent.unbind(CASCADE, that._cascadeHandlerProxy);
                     parent.first(CHANGE, that._cascadeHandlerProxy);
                 });
-                parent._focused.add(parent.filterInput).bind(focusout, function () {
+                parent._focused.add(parent.filterInput).bind('focusout', function () {
                     parent.unbind(CHANGE, that._cascadeHandlerProxy);
                     parent.first(CASCADE, that._cascadeHandlerProxy);
                 });
@@ -77413,8 +77422,8 @@
                 }
                 that._userTriggered = true;
                 that._select(item).done(function () {
-                    that._focusElement(that.wrapper);
                     that._blur();
+                    that._focusElement(that.wrapper);
                 });
             },
             _focusElement: function (element) {

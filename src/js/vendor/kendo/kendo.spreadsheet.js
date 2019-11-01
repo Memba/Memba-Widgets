@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -8322,10 +8322,19 @@
                         } else {
                             ref = this.selection.lastRange();
                             if (view && view._sheet === this._sheet && view.panes[0]) {
-                                var rows = view.panes[0]._currentView.rows.values;
-                                var cols = view.panes[0]._currentView.columns.values;
-                                var visible = new RangeRef(new CellRef(rows.start, cols.start), new CellRef(rows.end, cols.end));
-                                ref = ref.intersect(visible);
+                                var panes = view.panes;
+                                var i, pane, rows, cols, visible, newRef;
+                                for (i = 0; i < panes.length; i++) {
+                                    pane = panes[i];
+                                    rows = pane._currentView.rows.values;
+                                    cols = pane._currentView.columns.values;
+                                    visible = new RangeRef(new CellRef(rows.start, cols.start), new CellRef(rows.end, cols.end));
+                                    newRef = ref.intersect(visible);
+                                    if (newRef !== kendo.spreadsheet.NULLREF) {
+                                        break;
+                                    }
+                                }
+                                ref = newRef;
                             }
                             this.activeCell(ref.first());
                         }
@@ -8606,7 +8615,7 @@
                 }
                 return false;
             },
-            insertRow: function (rowIndex) {
+            insertRow: function (rowIndex, skipDataSourceInsert) {
                 var result = this.preventInsertRow(rowIndex);
                 if (result) {
                     throw new Error('Shifting nonblank cells off the worksheet is not supported!');
@@ -8641,14 +8650,16 @@
                     insertRow: { index: rowIndex },
                     ref: new RangeRef(new CellRef(rowIndex, 0), new CellRef(Infinity, Infinity))
                 });
-                this.trigger('afterInsertRow', { index: rowIndex });
+                if (!skipDataSourceInsert) {
+                    this.trigger('afterInsertRow', { index: rowIndex });
+                }
                 return this;
             },
             isEnabledRow: function (rowIndex) {
                 var ref = new RangeRef(new CellRef(rowIndex, 0), new CellRef(rowIndex, this._grid.columnCount));
                 return new Range(ref, this).enable();
             },
-            deleteRow: function (rowIndex) {
+            deleteRow: function (rowIndex, skipDataSourceDelete) {
                 if (!this.isEnabledRow(rowIndex)) {
                     return this;
                 }
@@ -8683,7 +8694,9 @@
                     deleteRow: { index: rowIndex },
                     ref: new RangeRef(new CellRef(rowIndex, 0), new CellRef(Infinity, Infinity))
                 });
-                this.trigger('afterDeleteRow', { index: rowIndex });
+                if (!skipDataSourceDelete) {
+                    this.trigger('afterDeleteRow', { index: rowIndex });
+                }
                 return this;
             },
             insertColumn: function (columnIndex) {
@@ -14641,6 +14654,9 @@
                         if (window.DOMStringList && clipboardData.types instanceof window.DOMStringList) {
                             hasHTML = clipboardData.types.contains('text/html');
                             hasPlainText = clipboardData.types.contains('text/plain');
+                        } else if (Array.isArray(clipboardData.types)) {
+                            hasHTML = clipboardData.types.indexOf('text/html') >= 0;
+                            hasPlainText = clipboardData.types.indexOf('text/plain') >= 0;
                         } else {
                             hasHTML = /text\/html/.test(clipboardData.types);
                             hasPlainText = /text\/plain/.test(clipboardData.types);
@@ -15023,6 +15039,7 @@
         var DOT = '.';
         var RESIZE_HANDLE_WIDTH = 7;
         var EDIT_BUTTON_WIDTH = 20;
+        var ERROR = 'Error';
         var viewClassNames = {
             view: 'k-spreadsheet-view',
             fixedContainer: 'k-spreadsheet-fixed-container',
@@ -15822,7 +15839,19 @@
                 }.bind(this));
             },
             showError: function (options, reopenEditor) {
+                var currentDialogs = this._dialogs;
                 var errorMessages = this.options.messages.errors;
+                var hasOpenedError = false;
+                if (currentDialogs.length > 0) {
+                    currentDialogs.forEach(function (dialog) {
+                        if (dialog.options && dialog.options.title === ERROR) {
+                            hasOpenedError = true;
+                        }
+                    });
+                }
+                if (hasOpenedError) {
+                    return;
+                }
                 var focusButton = function (e) {
                     var cont = e.sender.dialog().element;
                     cont.find('.k-button:first').focus();
@@ -25910,7 +25939,7 @@
                     maximizable: false,
                     modal: true,
                     visible: false,
-                    width: 268,
+                    width: 'auto',
                     open: function () {
                         this.center();
                     }
@@ -29755,14 +29784,10 @@
                             operatingRange: range,
                             column: this.options.column
                         };
-                        if (range.isSortable()) {
-                            this.action({
-                                command: 'SortCommand',
-                                options: options
-                            });
-                        } else {
-                            this.close();
-                        }
+                        this.action({
+                            command: 'SortCommand',
+                            options: options
+                        });
                     }.bind(this)
                 }).data('kendoMenu');
             },

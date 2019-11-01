@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2019.3.917'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2019.3.1023'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1787,9 +1787,9 @@
             var documentMode = document.documentMode;
             support.hashChange = 'onhashchange' in window && !(support.browser.msie && (!documentMode || documentMode <= 8));
             support.customElements = 'registerElement' in window.document;
-            var chrome = support.browser.chrome, mozilla = support.browser.mozilla;
+            var chrome = support.browser.chrome, mobileChrome = support.browser.crios, mozilla = support.browser.mozilla, safari = support.browser.safari;
             support.msPointers = !chrome && window.MSPointerEvent;
-            support.pointers = !chrome && !mozilla && window.PointerEvent;
+            support.pointers = !chrome && !mobileChrome && !mozilla && !safari && window.PointerEvent;
             support.kineticScrollNeeded = mobileOS && (support.touch || support.msPointers || support.pointers);
         }());
         function size(obj) {
@@ -6706,8 +6706,10 @@
                 }
                 total = query.toArray().length;
             }
-            if (sort && !inPlace) {
-                query = query.sort(sort);
+            if (sort) {
+                if (!inPlace) {
+                    query = query.sort(sort);
+                }
                 if (group) {
                     data = query.toArray();
                 }
@@ -13605,7 +13607,7 @@
             },
             _hold: function (e) {
                 this.currentTarget = e.target;
-                if (this.options.holdToDrag && this._trigger(HOLD, e)) {
+                if (this._trigger(HOLD, e)) {
                     this.userEvents.cancel();
                 } else {
                     this._activated = true;

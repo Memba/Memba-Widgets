@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -153,6 +153,7 @@
                 that.input.off(ns);
                 that.input.off(nsFocusEvent);
                 that.element.off(ns);
+                that.wrapper.off(ns);
                 that._inputWrapper.off(ns);
                 clearTimeout(that._pasteTimeout);
                 that._arrow.off(CLICK + ' ' + MOUSEDOWN);
@@ -230,10 +231,9 @@
                     arrow.on(CLICK, proxy(that._arrowClick, that)).on(MOUSEDOWN, function (e) {
                         e.preventDefault();
                     });
-                    clear.on(CLICK + ' touchend' + ns, proxy(that._clearValue, that)).on(MOUSEDOWN, function (e) {
-                        e.preventDefault();
-                    });
+                    clear.on(CLICK + ' touchend' + ns, proxy(that._clearValue, that));
                     that.input.on('keydown' + ns, proxy(that._keydown, that)).on('input' + ns, proxy(that._search, that)).on('paste' + ns, proxy(that._inputPaste, that));
+                    that.wrapper.on(CLICK + ns, proxy(that._focusHandler, that));
                 } else {
                     wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
                     input.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable);
@@ -867,6 +867,10 @@
                 this._initialIndex = null;
                 this._presetValue = true;
                 this._toggleCloseVisibility();
+            },
+            _clearValue: function () {
+                Select.fn._clearValue.call(this);
+                this.input.focus();
             }
         });
         ui.plugin(ComboBox);

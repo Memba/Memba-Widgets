@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2019.3.917 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -130,13 +130,21 @@
                 kendo.ui.progress(that.viewer.pageContainer, true);
                 that._downloadData.done(function (result) {
                     kendo.ui.progress(that.viewer.pageContainer, false);
-                    kendo.saveAs({
-                        dataURI: result.file,
-                        fileName: fileName + '.pdf'
-                    });
+                    var reader = new FileReader();
+                    reader.readAsDataURL(result.file);
+                    reader.onload = function () {
+                        kendo.saveAs({
+                            dataURI: reader.result,
+                            fileName: fileName + '.pdf',
+                            proxyURL: function () {
+                                return reader.result;
+                            }
+                        });
+                    };
                 });
             },
             _updateDocument: function (file) {
+                this.pdf.loadingTask.destroy();
                 this.file = file;
             },
             _isBase64Data: function () {
@@ -1260,7 +1268,7 @@
                     span = $(node).wrap('<span>').parent();
                     span.empty();
                     that.splitChars(span.get(0), text);
-                    span.children().unwrap('<span>');
+                    span.children().unwrap();
                 }
             },
             splitChars: function (span, text) {
@@ -1988,8 +1996,7 @@
         'pdfviewer/page',
         'pdfviewer/search',
         'pdfviewer/dialogs',
-        'pdfviewer/commands',
-        'pdfviewer/search'
+        'pdfviewer/commands'
     ], f);
 }(function () {
     var __meta__ = {
@@ -2318,6 +2325,9 @@
                         if (!e.ctrlKey) {
                             return;
                         }
+                        if (document.activeElement !== that.pageContainer[0]) {
+                            that.pageContainer.focus();
+                        }
                         that._wheel(e);
                         e.preventDefault();
                     });
@@ -2419,16 +2429,18 @@
                 }
             },
             activatePage: function (number) {
-                var page = this.pages && this.pages[number - 1];
-                var subtractMargin;
+                var page = this.pages && this.pages[number - 1], scroller = this._scroller, scrollerTopPosition, scrollerTopOffset, pageTopOffset, pageMargin;
                 if (!page) {
                     return;
                 }
-                subtractMargin = this._autoFit ? parseInt(page.element.css('marginTop'), 0) : 0;
+                scrollerTopPosition = scroller.scrollTop;
+                scrollerTopOffset = scroller.element.offset().top;
+                pageTopOffset = page.element.offset().top;
+                pageMargin = !this._autoFit ? parseInt(page.element.css('marginTop'), 10) : 0;
                 this._pageNum = number;
                 this._loadVisiblePages();
                 this._preventScroll = true;
-                this._scroller.scrollTo(0, -this._scroller.scrollTop - page.element.position().top - subtractMargin);
+                this._scroller.scrollTo(0, -scrollerTopPosition - pageTopOffset + scrollerTopOffset + pageMargin);
                 this.trigger(UPDATE, {
                     action: PAGE_CHANGE,
                     page: number,

@@ -23,6 +23,7 @@ const {
     mobile,
     observable,
     roleSelector,
+    throttle,
     ui,
     ui: { Stage }
 } = window.kendo;
@@ -80,19 +81,20 @@ function onResize() {
         const wrapper = $('#wrapper');
         const width = wrapper.width();
         const height = wrapper.height();
-        const scale = Math.min((0.9 * width) / 1024, (0.9 * height) / 768);
+        const k = 0.9;
+        const scale = Math.min((k * width) / 1024, (k * height) / 768);
         stageWidget.scale(scale);
         $('.centered')
             .width(scale * stage.outerWidth())
-            .height(scale * stage.outerHeight())
-            .css('position', 'absolute')
-            .css('top', '50%')
-            .css('left', '50%')
-            .css('margin-left', `-${(scale * stage.outerWidth()) / 2}px`)
-            .css('margin-top', `-${(scale * stage.outerHeight()) / 2}px`);
+            .height(scale * stage.outerHeight());
+        // .css('position', 'absolute')
+        // .css('top', '50%')
+        // .css('left', '50%')
+        // .css('margin-left', `-${(scale * stage.outerWidth()) / 2}px`)
+        // .css('margin-top', `-${(scale * stage.outerHeight()) / 2}px`);
     }
 }
-$(window).on('resize', onResize);
+$(window).on('resize', throttle(onResize, 50));
 
 /**
  * Page ready

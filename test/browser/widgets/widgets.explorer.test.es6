@@ -15,6 +15,7 @@ import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { options2attributes } from '../_misc/test.util.es6';
 import {
     PageComponent,
     PageComponentDataSource
@@ -114,9 +115,10 @@ describe('widgets.explorer', () => {
         });
 
         it('from markup', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
-            attributes[attr('iconPath')] = ICON_PATH;
+            const attributes = options2attributes({
+                iconPath: ICON_PATH,
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -138,10 +140,11 @@ describe('widgets.explorer', () => {
         });
 
         it('from markup with attributes', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
-            attributes[attr('bind')] = 'source: components, value: current';
-            attributes[attr('iconPath')] = ICON_PATH;
+            const attributes = options2attributes({
+                bind: 'source: components, value: current',
+                iconPath: ICON_PATH,
+                role: ROLE
+            });
             const data = getComponentArray();
             const viewModel = observable({
                 components: new PageComponentDataSource({ data }),

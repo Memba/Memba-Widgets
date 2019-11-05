@@ -14,12 +14,12 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.multiinput.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
     bind,
     destroy,
     init,
@@ -106,8 +106,9 @@ describe('widgets.multiinput', () => {
         });
 
         it('from markup', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -133,12 +134,12 @@ describe('widgets.multiinput', () => {
         });
 
         it('from markup with attributes', () => {
-            const attributes = {
-                'data-match': '^[a-z]+$',
+            const attributes = options2attributes({
+                match: '^[a-z]+$',
+                role: ROLE,
                 // value: JSON.stringify(['alpha', 'beta', 'gamma']) // <-- Does not work
-                'data-value': JSON.stringify(['alpha', 'beta', 'gamma'])
-            };
-            attributes[attr('role')] = ROLE;
+                value: JSON.stringify(['alpha', 'beta', 'gamma'])
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -261,11 +262,11 @@ describe('widgets.multiinput', () => {
     });
 
     describe('MVVM (and UI interactions)', () => {
-        const attributes = {
-            'data-bind': 'value: value',
-            'data-match': '^[a-z]+$',
-            'data-role': ROLE
-        };
+        const attributes = options2attributes({
+            bind: 'value: value',
+            match: '^[a-z]+$',
+            role: ROLE
+        });
         let element;
         let widget;
         let change;

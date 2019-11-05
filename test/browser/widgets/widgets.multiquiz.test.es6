@@ -14,12 +14,12 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.multiquiz.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
     bind,
     data: { DataSource },
     destroy,
@@ -122,8 +122,11 @@ describe('widgets.multiquiz', () => {
         });
 
         it('from markup', () => {
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
@@ -139,15 +142,15 @@ describe('widgets.multiquiz', () => {
         });
 
         it('from markup with attributes', () => {
-            const attributes = {
-                'data-source': JSON.stringify(data),
-                'data-mode': 'checkbox',
-                'data-group-style': 'border: 1px solid rgb(255, 0, 0);',
-                'data-item-style': 'color: rgb(255, 0, 0);',
-                'data-active-style': 'background-color: rgb(255, 224, 224);'
-            };
+            const attributes = options2attributes({
+                activeStyle: 'background-color: rgb(255, 224, 224);',
+                groupStyle: 'border: 1px solid rgb(255, 0, 0);',
+                itemStyle: 'color: rgb(255, 0, 0);',
+                mode: 'checkbox',
+                role: ROLE,
+                source: JSON.stringify(data)
+            });
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
@@ -246,19 +249,19 @@ describe('widgets.multiquiz', () => {
     });
 
     describe('MVVM (and UI interactions) - buttons', () => {
+        const attributes = options2attributes({
+            bind: 'source: data, value: current',
+            mode: 'button',
+            role: ROLE
+        });
         let element;
         let widget;
-        const attributes = {
-            'data-mode': 'button',
-            'data-bind': 'source: data, value: current'
-        };
         let change;
         let viewModel;
 
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
@@ -333,19 +336,19 @@ describe('widgets.multiquiz', () => {
     });
 
     describe('MVVM (and UI interactions) - checkboxes', () => {
+        const attributes = options2attributes({
+            bind: 'source: data, value: current',
+            mode: 'checkbox',
+            role: ROLE
+        });
         let element;
         let widget;
-        const attributes = {
-            'data-mode': 'checkbox',
-            'data-bind': 'source: data, value: current'
-        };
         let change;
         let viewModel;
 
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
@@ -416,19 +419,19 @@ describe('widgets.multiquiz', () => {
     });
 
     describe('MVVM (and UI interactions) - images', () => {
+        const attributes = options2attributes({
+            bind: 'source: data, value: current',
+            mode: 'image',
+            role: ROLE
+        });
         let element;
         let widget;
-        const attributes = {
-            'data-mode': 'image',
-            'data-bind': 'source: data, value: current'
-        };
         let change;
         let viewModel;
 
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
@@ -503,19 +506,19 @@ describe('widgets.multiquiz', () => {
     });
 
     describe('MVVM (and UI interactions) - links', () => {
+        const attributes = options2attributes({
+            bind: 'source: data, value: current',
+            mode: 'link',
+            role: ROLE
+        });
         let element;
         let widget;
-        const attributes = {
-            'data-mode': 'link',
-            'data-bind': 'source: data, value: current'
-        };
         let change;
         let viewModel;
 
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
@@ -590,19 +593,19 @@ describe('widgets.multiquiz', () => {
     });
 
     describe('MVVM (and UI interactions) - multiselect', () => {
+        const attributes = options2attributes({
+            bind: 'source: data, value: current',
+            mode: 'multiselect',
+            role: ROLE
+        });
         let element;
         let widget;
-        const attributes = {
-            'data-mode': 'multiselect',
-            'data-bind': 'source: data, value: current'
-        };
         let change;
         let viewModel;
 
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({

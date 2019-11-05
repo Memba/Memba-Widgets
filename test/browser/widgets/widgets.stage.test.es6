@@ -14,6 +14,7 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import {
     PageComponent,
@@ -49,9 +50,6 @@ const WIDGET = 'kendoStage';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
-
-const STAGE2 =
-    '<div data-role="stage" data-bind="source: components, value: current" data-mode="design"></div>';
 
 function findCenter(elem) {
     const document = $(elem.get(0).ownerDocument);
@@ -245,6 +243,11 @@ describe('widgets.stage', () => {
         });
 
         it('from markup', () => {
+            const attributes = options2attributes({
+                bind: 'source: components, value: current',
+                mode: Stage.fn.modes.DESIGN,
+                role: ROLE
+            });
             const data = getComponentArray();
             const viewModel = observable({
                 components: new PageComponentDataSource({
@@ -252,7 +255,9 @@ describe('widgets.stage', () => {
                 }),
                 current: undefined
             });
-            const element = $(STAGE2).appendTo(`#${FIXTURES}`);
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             bind(`#${FIXTURES}`, viewModel);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
@@ -465,6 +470,11 @@ describe('widgets.stage', () => {
     });
 
     describe('MVVM', () => {
+        const attributes = options2attributes({
+            bind: 'source: components, value: current',
+            mode: Stage.fn.modes.DESIGN,
+            role: ROLE
+        });
         let data;
         let element;
         let widget;
@@ -480,7 +490,9 @@ describe('widgets.stage', () => {
 
         beforeEach(() => {
             data = getComponentArray();
-            element = $(STAGE2).appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 components: new PageComponentDataSource({
                     data

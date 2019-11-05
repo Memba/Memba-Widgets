@@ -15,12 +15,12 @@ import chaiJquery from 'chai-jquery';
 // import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.splitbutton.es6';
 
 const { afterEach, before, beforeEach, describe, it, xdescribe, xit } = window;
 const {
-    attr,
     // bind,
     destroy,
     init,
@@ -95,8 +95,9 @@ describe('widgets.splitbutton', () => {
         });
 
         it('from markup', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -109,11 +110,10 @@ describe('widgets.splitbutton', () => {
         });
 
         it('from markup with attributes', () => {
-            const attributes = {
-                'data-command': 'align',
-                'data-icon': 'align-justify',
-                'data-text': 'Align',
-                'data-menu-buttons': JSON.stringify([
+            const attributes = options2attributes({
+                command: 'align',
+                icon: 'align-justify',
+                menuButtons: JSON.stringify([
                     {
                         command: 'left',
                         icon: 'align-left',
@@ -129,9 +129,10 @@ describe('widgets.splitbutton', () => {
                         icon: 'align-right',
                         text: 'Align Right'
                     }
-                ])
-            };
-            attributes[attr('role')] = ROLE;
+                ]),
+                role: ROLE,
+                text: 'Align'
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);

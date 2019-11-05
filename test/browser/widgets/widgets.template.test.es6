@@ -14,12 +14,12 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.template.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
     // bind,
     data: { DataSource },
     destroy,
@@ -117,8 +117,9 @@ describe('widgets.template', () => {
         });
 
         it('from markup', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -134,10 +135,11 @@ describe('widgets.template', () => {
 
         it('from markup with attributes', () => {
             $(SCRIPT1).appendTo(`#${FIXTURES}`);
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
-            attributes[attr('template')] = 'script1';
-            attributes[attr('value')] = 'Todd';
+            const attributes = options2attributes({
+                role: ROLE,
+                template: 'script1',
+                value: 'Todd'
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);

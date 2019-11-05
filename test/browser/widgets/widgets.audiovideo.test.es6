@@ -15,13 +15,13 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import baseUrl from '../../../src/js/helpers/helpers.base.es6';
 import '../../../src/js/widgets/widgets.audiovideo.es6';
 
 const { afterEach, before, beforeEach, describe, it, xit } = window;
 const {
-    attr,
     destroy,
     init,
     ui: { AudioVideo, roles, Slider }
@@ -165,8 +165,11 @@ describe('widgets.audiovideo', () => {
         });
 
         it('from markup', () => {
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
@@ -191,12 +194,13 @@ describe('widgets.audiovideo', () => {
         });
 
         it('from markup with attributes: audio', () => {
+            const attributes = options2attributes({
+                files: JSON.stringify(AUDIO_FILES),
+                mode: 'audio',
+                role: ROLE
+            });
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
-                .attr({
-                    'data-mode': 'audio',
-                    'data-files': JSON.stringify(AUDIO_FILES)
-                })
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
@@ -227,12 +231,13 @@ describe('widgets.audiovideo', () => {
         });
 
         it('from markup with attributes: video', () => {
+            const attributes = options2attributes({
+                files: JSON.stringify(VIDEO_FILES),
+                mode: 'video',
+                role: ROLE
+            });
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
-                .attr({
-                    'data-mode': 'video',
-                    'data-files': JSON.stringify(VIDEO_FILES)
-                })
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);

@@ -15,12 +15,12 @@ import chaiJquery from 'chai-jquery';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.license.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
     bind,
     destroy,
     init,
@@ -94,8 +94,9 @@ describe('widgets.license', () => {
         });
 
         it('from markup', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -108,10 +109,10 @@ describe('widgets.license', () => {
         });
 
         it('from markup with attributes', () => {
-            const attributes = {
-                'data-value': getValue()
-            };
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                role: ROLE,
+                value: getValue()
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -183,14 +184,17 @@ describe('widgets.license', () => {
     });
 
     describe('MVVM', () => {
+        const attributes = options2attributes({
+            bind: 'value: license',
+            role: ROLE
+        });
         let element;
         let viewModel;
         let widget;
 
         beforeEach(() => {
             element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
-                .attr(attr('bind'), 'value: license')
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 license: getValue()

@@ -14,6 +14,7 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 import '../../../src/js/widgets/widgets.codeinput.es6';
@@ -34,7 +35,7 @@ const { expect } = chai;
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'codeinput';
-const WIDGET = 'kendoCodeinput';
+const WIDGET = 'kendoCodeInput';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
@@ -45,6 +46,11 @@ const LIBRARY = [
         key: 'custom',
         formula:
             'function validate(value, solution, all) {\n\t// Your code should return true when value is validated against solution.\n}'
+    },
+    {
+        name: 'equal',
+        formula:
+            'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
     },
     {
         name: 'intEqual',
@@ -88,6 +94,8 @@ const LIBRARY = [
         param: 'RegExp'
     }
 ];
+const EQ_NAME = LIBRARY[1].name;
+// const EQ_FORMULA = LIBRARY[1].formula;
 const NAME = LIBRARY[4].name;
 // const FORMULA = LIBRARY[4].formula;
 const SOLUTION = '0';
@@ -124,14 +132,15 @@ describe('widgets.codeinput', () => {
             expect(widget)
                 .to.have.property('customInput')
                 .that.is.an.instanceof($);
+            debugger;
             expect(widget)
-                .to.have.property('paramInput')
+                .to.have.property('paramContainer') // TODO paramsWrapper
                 .that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
             expect(widget.dataSource.total()).to.equal(0);
-            expect(widget.value()).to.be.undefined;
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_NAME);
             expect(widget.customInput.val()).to.equal(widget.options.custom);
         });
 
@@ -168,8 +177,9 @@ describe('widgets.codeinput', () => {
         });
 
         it('from markup', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -201,12 +211,13 @@ describe('widgets.codeinput', () => {
         });
 
         it('from markup with data attributes', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
-            attributes[attr('source')] = JSON.stringify(LIBRARY);
-            attributes[attr('default')] = 'floatEqual';
-            attributes[attr('value')] =
-                'function validate(value, solution) {\\n\\treturn true;\\n}';
+            const attributes = options2attributes({
+                default: 'floatEqual',
+                role: ROLE,
+                source: JSON.stringify(LIBRARY),
+                value:
+                    'function validate(value, solution) {\\n\\treturn true;\\n}'
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -232,7 +243,7 @@ describe('widgets.codeinput', () => {
                 .that.is.an.instanceof($);
             expect(codeInput.dataSource.total()).to.equal(LIBRARY.length);
             expect(codeInput.value()).to.equal(
-                attr['data-value'].replace(/\\\\/g, '\\')
+                attributes[attr('value')].replace(/\\\\/g, '\\')
             );
             expect(codeInput.customInput.val()).to.equal(
                 codeInput.options.custom
@@ -244,8 +255,6 @@ describe('widgets.codeinput', () => {
         let element;
         let codeInput;
         const DUMMY = 'dummy';
-        const EQ_NAME = LIBRARY[1].name;
-        const EQ_FORMULA = LIBRARY[1].formula;
         const FORMULA1 = 'function test(a, b) { return a + b; }';
         const FORMULA2 =
             'function validate(value, solution) {\n\treturn true;\n}';
@@ -259,49 +268,6 @@ describe('widgets.codeinput', () => {
                 default: TOOLS.LIB_COMMENT + NAME,
                 value: NAME
             }).data(WIDGET);
-        });
-
-        it('_isCustom: private method to check custom formula', () => {
-            function fn() {
-                codeInput._isCustom(100);
-            }
-            expect(codeInput).to.be.an.instanceof(CodeInput);
-            expect(fn).to.throw(TypeError);
-            expect(codeInput._isCustom(TOOLS.LIB_COMMENT)).to.be.undefined;
-            expect(codeInput._isCustom(EQ_NAME)).to.be.undefined;
-            expect(codeInput._isCustom(TOOLS.LIB_COMMENT + EQ_NAME)).to.be
-                .undefined;
-            expect(codeInput._isCustom(FORMULA1)).to.be.undefined;
-            expect(codeInput._isCustom(FORMULA2)).to.equal(FORMULA2);
-            expect(codeInput._isCustom(FORMULA3)).to.equal(FORMULA3);
-        });
-
-        it('_parseLibraryValue: private method to check library formula', () => {
-            function fn() {
-                codeInput._parseLibraryValue(100);
-            }
-            expect(codeInput).to.be.an.instanceof(CodeInput);
-            expect(fn).to.throw(TypeError);
-            expect(codeInput._parseLibraryValue(TOOLS.LIB_COMMENT).item).to.be
-                .undefined;
-            expect(codeInput._parseLibraryValue(DUMMY).item).to.be.undefined;
-            expect(codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + DUMMY).item)
-                .to.be.undefined;
-            expect(codeInput._parseLibraryValue(EQ_NAME).item).to.be.undefined;
-            expect(codeInput._parseLibraryValue(FORMULA1).item).to.be.undefined;
-            expect(codeInput._parseLibraryValue(FORMULA2).item).to.be.undefined;
-            expect(codeInput._parseLibraryValue(FORMULA3).item).to.be.undefined;
-            expect(
-                codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item
-            ).not.to.be.undefined;
-            expect(
-                codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item
-                    .name
-            ).to.equal(EQ_NAME);
-            expect(
-                codeInput._parseLibraryValue(TOOLS.LIB_COMMENT + EQ_NAME).item
-                    .formula
-            ).to.equal(EQ_FORMULA);
         });
 
         it('setDataSource', () => {
@@ -336,9 +302,6 @@ describe('widgets.codeinput', () => {
             );
             expect(codeInput.dataSource.total()).to.equal(3);
         });
-
-        /* This function has too many statements. */
-        /* jshint -W071 */
 
         it('value', () => {
             // TODO: paramInput
@@ -391,8 +354,6 @@ describe('widgets.codeinput', () => {
             expect(codeInput.customInput).to.be.visible;
         });
 
-        /* jshint +W071 */
-
         it('destroy', () => {
             expect(codeInput).to.be.an.instanceof(CodeInput);
             codeInput.destroy();
@@ -407,18 +368,17 @@ describe('widgets.codeinput', () => {
         let element;
         let codeInput;
         let change;
-        const EQ_NAME = LIBRARY[1].name;
-        // var EQ_FORMULA = LIBRARY[1].formula;
         const viewModel = observable({
             library: LIBRARY,
             code: ''
         });
 
         beforeEach(() => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
-            attributes[attr('bind')] = 'source: library, value: code';
-            attributes[attr('default')] = TOOLS.LIB_COMMENT + NAME;
+            const attributes = options2attributes({
+                bind: 'source: library, value: code',
+                default: TOOLS.LIB_COMMENT + NAME,
+                role: ROLE
+            });
             element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -483,8 +443,6 @@ describe('widgets.codeinput', () => {
         let codeInput;
         let change;
         const DUMMY = 'dummy';
-        const EQ_NAME = LIBRARY[1].name;
-        // var EQ_FORMULA = LIBRARY[1].formula;
         const FORMULA2 =
             'function validate(value, solution) {\n\treturn true;\n}';
 

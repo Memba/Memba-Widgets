@@ -14,6 +14,7 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { Page, PageDataSource } from '../../../src/js/data/data.page.es6';
 import tools from '../../../src/js/tools/tools.es6';
@@ -43,9 +44,6 @@ const WIDGET = 'kendoPlayBar';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
-
-const PLAYBAR2 =
-    '<div data-role="playbar" data-bind="source: pages, value: current"></div>'; // TODO use getRoleBinding and getValueBinding
 
 const pageCollectionData1 = [
     {
@@ -297,13 +295,19 @@ describe('widgets.playbar', () => {
         });
 
         it('from markup', () => {
+            const attributes = options2attributes({
+                bind: 'source: pages, value: current',
+                role: ROLE
+            });
             const viewModel = observable({
                 pages: new PageDataSource({
                     data: pageCollectionData1
                 }),
                 current: undefined
             });
-            const element = $(PLAYBAR2).appendTo(`#${FIXTURES}`);
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             bind(`#${FIXTURES}`, viewModel);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
@@ -418,6 +422,10 @@ describe('widgets.playbar', () => {
     });
 
     describe('MVVM', () => {
+        const attributes = options2attributes({
+            bind: 'source: pages, value: current',
+            role: ROLE
+        });
         let element;
         let widget;
         let viewModel;
@@ -431,7 +439,9 @@ describe('widgets.playbar', () => {
          */
 
         beforeEach(() => {
-            element = $(PLAYBAR2).appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 pages: new PageDataSource({
                     data: pageCollectionData1

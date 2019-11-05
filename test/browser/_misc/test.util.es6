@@ -9,7 +9,9 @@ import BaseModel from '../../../src/js/data/data.base.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 
 const {
-    data: { DataSource }
+    attr,
+    data: { DataSource },
+    toHyphens
 } = window.kendo;
 const { expect } = chai;
 
@@ -57,6 +59,18 @@ function getStageElement(height = 50, width = 50, scale = 0.75) {
 }
 
 /**
+ * Converts options into data-* attributes
+ * @param options
+ */
+function options2attributes(options = {}) {
+    const attributes = {};
+    Object.keys(options).forEach(key => {
+        attributes[attr(toHyphens(key))] = options[key];
+    });
+    return attributes;
+}
+
+/**
  * Try/catch wrapper for mocha tests
  * @param done
  * @returns {function(*): Function}
@@ -81,4 +95,4 @@ function tryCatch(done) {
 /**
  * Exports
  */
-export { assertBaseModel, getStageElement, tryCatch };
+export { assertBaseModel, getStageElement, options2attributes, tryCatch };

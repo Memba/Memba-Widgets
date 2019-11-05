@@ -15,12 +15,12 @@ import chaiJquery from 'chai-jquery';
 import JSC from 'jscheck';
 // import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.line.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
     // bind,
     destroy,
     init,
@@ -135,8 +135,9 @@ describe('widgets.line', () => {
         });
 
         it('from markup', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -148,8 +149,9 @@ describe('widgets.line', () => {
         });
 
         it('from markup with attributes', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);

@@ -14,12 +14,12 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.mathinput.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
     // bind,
     destroy,
     init,
@@ -58,7 +58,7 @@ describe('widgets.mathinput', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]().data('kendoMathInput');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(MathInput);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -68,18 +68,21 @@ describe('widgets.mathinput', () => {
             // const toolbar = $(TOOLBAR).appendTo(`#${FIXTURES}`);
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {};
-            const widget = element[WIDGET](options).data('kendoMathInput');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(MathInput);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 
         it('from markup', () => {
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoMathInput');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(MathInput);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
@@ -97,7 +100,7 @@ describe('widgets.mathinput', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[WIDGET](options).data('kendoMathInput');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         xit('value', () => {
@@ -124,7 +127,7 @@ describe('widgets.mathinput', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[WIDGET](options).data('kendoMathInput');
+            widget = element[WIDGET](options).data(WIDGET);
             viewModel = observable({
                 // TODO
             });
@@ -144,7 +147,7 @@ describe('widgets.mathinput', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[WIDGET](options).data('kendoMathInput');
+            widget = element[WIDGET](options).data(WIDGET);
             event = sinon.spy();
         });
 

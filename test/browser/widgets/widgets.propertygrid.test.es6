@@ -21,6 +21,7 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.propertygrid.es6';
 
@@ -910,9 +911,10 @@ describe('widgets.propertygrid', () => {
         });
 
         it('from markup', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
-            attributes[attr('bind')] = 'value: current';
+            const attributes = options2attributes({
+                bind: 'value: current',
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -923,11 +925,11 @@ describe('widgets.propertygrid', () => {
         });
 
         it('from markup and rows', () => {
-            const attributes = {
-                // TODO
-            };
-            attributes[attr('role')] = ROLE;
-            attributes[attr('bind')] = 'value: current';
+            const attributes = options2attributes({
+                bind: 'value: current',
+                role: ROLE
+                // TODO more
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -1180,9 +1182,11 @@ describe('widgets.propertygrid', () => {
          */
 
         beforeEach(() => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
-            attributes[attr('bind')] = 'value: current';
+            const attributes = options2attributes({
+                bind: 'value: current',
+                role: ROLE
+                // TODO more
+            });
             element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);

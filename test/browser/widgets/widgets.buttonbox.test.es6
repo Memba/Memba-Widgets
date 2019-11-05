@@ -14,12 +14,12 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.buttonbox.es6';
 
 const { afterEach, before, describe, it } = window;
 const {
-    attr,
     // bind,
     destroy,
     init,
@@ -71,8 +71,11 @@ describe('widgets.buttonbox', () => {
         });
 
         it('from markup', () => {
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
@@ -81,16 +84,31 @@ describe('widgets.buttonbox', () => {
             expect(widget.wrapper).to.have.class(`kj-${ROLE}`);
         });
 
-        xit('from markup with attributes', () => {});
+        xit('from markup with attributes', () => {
+            const attributes = options2attributes({
+                role: ROLE
+            });
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data(WIDGET);
+            expect(widget).to.be.an.instanceof(ButtonBox);
+        });
     });
 
     describe('Methods', () => {
+        const attributes = options2attributes({
+            role: ROLE
+        });
         let element;
         let widget;
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             widget = element[WIDGET](options).data(WIDGET);
         });
 
@@ -110,9 +128,9 @@ describe('widgets.buttonbox', () => {
     });
 
     describe('MVVM (and UI interactions)', () => {
+        const options = {};
         let element;
         let widget;
-        const options = {};
         let viewModel;
         let change;
 

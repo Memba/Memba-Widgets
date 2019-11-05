@@ -14,16 +14,16 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 // import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { getStageElement, options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.selector.es6';
-import { getStageElement } from '../_misc/test.util.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
     // attr,
     // bind,
     destroy,
-    // init,
+    init,
     // observable,
     ui: { roles, Selector }
 } = window.kendo;
@@ -85,11 +85,28 @@ describe('widgets.selector', () => {
         });
 
         it('from markup', () => {
-            expect(true).to.be.false;
+            const attributes = options2attributes({
+                role: ROLE
+            });
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data(WIDGET);
+            expect(widget).to.be.an.instanceof(Selector);
         });
 
         it('from markup with attributes', () => {
-            expect(true).to.be.false;
+            const attributes = options2attributes({
+                role: ROLE
+                // TODO more...
+            });
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
+            init(`#${FIXTURES}`);
+            const widget = element.data(WIDGET);
+            expect(widget).to.be.an.instanceof(Selector);
         });
     });
 

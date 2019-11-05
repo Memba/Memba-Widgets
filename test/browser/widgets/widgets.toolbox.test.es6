@@ -15,6 +15,7 @@ import chaiJquery from 'chai-jquery';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.toolbox.es6';
@@ -99,11 +100,11 @@ describe('widgets.toolbox', () => {
         });
 
         it('from markup with attributes', () => {
-            const attributes = {
-                'data-icon-path': ICON_PATH,
-                'data-size': 48
-            };
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                iconPath: ICON_PATH,
+                role: ROLE,
+                size: 48
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);

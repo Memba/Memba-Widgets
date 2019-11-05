@@ -14,12 +14,12 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.formatstrip.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
     bind,
     destroy,
     observable,
@@ -107,11 +107,14 @@ describe('widgets.formatstrip', () => {
         });
 
         xit('from markup', () => {
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const viewModel = observable({
                 widget: undefined
             });
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             expect(element).to.match('input');
             bind(`#${FIXTURES}`, viewModel);
@@ -197,6 +200,9 @@ describe('widgets.formatstrip', () => {
     });
 
     xdescribe('MVVM', () => {
+        const attributes = options2attributes({
+            role: ROLE
+        });
         let element;
         let widget;
         let viewModel;
@@ -210,7 +216,7 @@ describe('widgets.formatstrip', () => {
 
         beforeEach(() => {
             element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 current: undefined

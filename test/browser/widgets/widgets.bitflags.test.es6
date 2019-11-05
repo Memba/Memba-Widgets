@@ -15,12 +15,12 @@ import chaiJquery from 'chai-jquery';
 import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.bitflags.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
     // bind,
     data: { DataSource },
     destroy,
@@ -68,7 +68,7 @@ describe('widgets.bitflags', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const widget = element[WIDGET]().data('kendoBitFlags');
+            const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(BitFlags);
             expect(widget)
                 .to.have.property('dataSource')
@@ -89,7 +89,7 @@ describe('widgets.bitflags', () => {
                 placeholder: JSC.string()()
                 // value: JSC.integer(0, 255)()
             };
-            const widget = element[WIDGET](options).data('kendoBitFlags');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(BitFlags);
             expect(widget)
                 .to.have.property('dataSource')
@@ -111,7 +111,7 @@ describe('widgets.bitflags', () => {
                 // readonly: true,
                 value: JSC.integer(0, 255)()
             };
-            const widget = element[WIDGET](options).data('kendoBitFlags');
+            const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(BitFlags);
             expect(widget.options.bitflags).to.equal(options.bitflags);
             expect(widget.options.value).to.equal(options.value);
@@ -125,13 +125,14 @@ describe('widgets.bitflags', () => {
         });
 
         it('from markup', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoBitFlags');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(BitFlags);
             expect(widget)
                 .to.have.property('dataSource')
@@ -142,16 +143,16 @@ describe('widgets.bitflags', () => {
         });
 
         it('from markup with attributes', () => {
-            const attributes = {
-                dataSource: DATA,
-                'data-value': JSC.integer(0, 255)()
-            };
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                source: JSON.stringify(DATA),
+                role: ROLE,
+                value: JSC.integer(0, 255)()
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const widget = element.data('kendoBitFlags');
+            const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(BitFlags);
             expect(widget.options.value).to.equal(attributes['data-value']);
             expect(widget)
@@ -170,7 +171,7 @@ describe('widgets.bitflags', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[WIDGET](options).data('kendoBitFlags');
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         xit('value', () => {
@@ -201,7 +202,7 @@ describe('widgets.bitflags', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[WIDGET](options).data('kendoBitFlags');
+            widget = element[WIDGET](options).data(WIDGET);
             viewModel = observable({
                 // TODO
             });
@@ -221,7 +222,7 @@ describe('widgets.bitflags', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[WIDGET](options).data('kendoBitFlags');
+            widget = element[WIDGET](options).data(WIDGET);
             event = sinon.spy();
         });
 

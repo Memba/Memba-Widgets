@@ -14,6 +14,7 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/experiments/widgets.rating.es6';
 
@@ -110,13 +111,16 @@ describe('widgets.rating', () => {
         });
 
         it('from markup', () => {
+            const attributes = options2attributes({
+                bind: 'value: rating',
+                max: 10,
+                role: ROLE
+            });
             const viewModel = observable({
                 rating: undefined
             });
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
-                .attr(attr('bind'), 'value: rating')
-                .attr(attr('max'), 10)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             expect(element).to.match(CONSTANTS.INPUT);
             bind(`#${FIXTURES}`, viewModel);
@@ -203,6 +207,11 @@ describe('widgets.rating', () => {
     });
 
     describe('MVVM', () => {
+        const attributes = options2attributes({
+            bind: 'value: rating',
+            max: 10,
+            role: ROLE
+        });
         let element;
         let widget;
         let viewModel;
@@ -216,9 +225,7 @@ describe('widgets.rating', () => {
 
         beforeEach(() => {
             element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
-                .attr(attr('bind'), 'value: rating')
-                .attr(attr('max'), 10)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 rating: undefined

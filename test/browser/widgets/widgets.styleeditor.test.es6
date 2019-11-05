@@ -15,12 +15,12 @@ import chaiJquery from 'chai-jquery';
 // import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.styleeditor.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
     bind,
     data: { DataSource },
     destroy,
@@ -108,8 +108,11 @@ describe('widgets.styleeditor', () => {
         });
 
         it('from markup', () => {
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
+                .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
@@ -135,12 +138,12 @@ describe('widgets.styleeditor', () => {
         });
 
         it('from markup with attributes', () => {
-            const attributes = {
-                'data-value': 'color:#FF0000;border:1px solid rgb(255, 0, 0);',
-                'data-height': 500
-            };
+            const attributes = options2attributes({
+                height: 500,
+                role: ROLE,
+                value: 'color:#FF0000;border:1px solid rgb(255, 0, 0);'
+            });
             const element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
@@ -206,19 +209,19 @@ describe('widgets.styleeditor', () => {
     });
 
     describe('MVVM (and UI Interactions)', () => {
+        const attributes = options2attributes({
+            bind: 'value: style',
+            height: 500,
+            role: ROLE
+        });
         let element;
         let widget;
         let viewModel;
         let change;
-        const attributes = {
-            'data-bind': 'value: style',
-            'data-height': 500
-        };
 
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({

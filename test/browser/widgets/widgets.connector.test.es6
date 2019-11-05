@@ -14,13 +14,12 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import { getStageElement } from '../_misc/test.util.es6';
+import { getStageElement, options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.connector.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
     bind,
     // data: { DataSource },
     destroy,
@@ -90,8 +89,9 @@ describe('widgets.connector', () => {
         });
 
         it('from markup', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(STAGE_ELEMENT);
@@ -109,9 +109,10 @@ describe('widgets.connector', () => {
         });
 
         it('from markup with data attributes', () => {
-            const attributes = {};
-            attributes[attr('color')] = '#000000';
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                color: '#000000',
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(STAGE_ELEMENT);
@@ -151,6 +152,11 @@ describe('widgets.connector', () => {
     });
 
     xdescribe('MVVM (and UI interactions)', () => {
+        const attributes = options2attributes({
+            // bind: 'source: library, value: code',
+            // default: NAME
+            role: ROLE
+        });
         let element;
         let widget;
         let change;
@@ -160,11 +166,7 @@ describe('widgets.connector', () => {
 
         beforeEach(() => {
             element = $(ELEMENT)
-                .attr(attr('role'), ROLE)
-                .attr({
-                    // 'data-bind': 'source: library, value: code',
-                    // 'data-default': NAME
-                })
+                .attr(attributes)
                 .appendTo(STAGE_ELEMENT);
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);

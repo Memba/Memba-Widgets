@@ -14,6 +14,7 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { Page, PageDataSource } from '../../../src/js/data/data.page.es6';
 import tools from '../../../src/js/tools/tools.es6';
@@ -45,9 +46,6 @@ const WIDGET = 'kendoNavigation';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
-
-const NAVIGATION2 =
-    '<div data-role="navigation" data-bind="source: pages, value: current"></div>';
 
 describe('widgets.navigation', () => {
     before(done => {
@@ -103,6 +101,10 @@ describe('widgets.navigation', () => {
         });
 
         it('from markup', () => {
+            const attributes = options2attributes({
+                bind: 'source: pages, value: current',
+                role: ROLE
+            });
             const data = getPageArray();
             const viewModel = observable({
                 pages: new PageDataSource({
@@ -110,7 +112,9 @@ describe('widgets.navigation', () => {
                 }),
                 current: undefined
             });
-            const element = $(NAVIGATION2).appendTo(`#${FIXTURES}`);
+            const element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             bind(`#${FIXTURES}`, viewModel);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Navigation);
@@ -219,6 +223,10 @@ describe('widgets.navigation', () => {
     });
 
     describe('MVVM', () => {
+        const attributes = options2attributes({
+            bind: 'source: pages, value: current',
+            role: ROLE
+        });
         let data;
         let element;
         let widget;
@@ -234,7 +242,9 @@ describe('widgets.navigation', () => {
 
         beforeEach(() => {
             data = getPageArray();
-            element = $(NAVIGATION2).appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT)
+                .attr(attributes)
+                .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 pages: new PageDataSource({ data }),
                 current: undefined

@@ -15,13 +15,12 @@ import chaiJquery from 'chai-jquery';
 import JSC from 'jscheck';
 // import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-
+import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import '../../../src/js/widgets/widgets.textgaps.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {
-    attr,
     // bind,
     destroy,
     init,
@@ -96,8 +95,9 @@ describe('widgets.textgaps', () => {
         });
 
         it('from markup', () => {
-            const attributes = {};
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                role: ROLE
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
@@ -111,12 +111,12 @@ describe('widgets.textgaps', () => {
 
         it('from markup with attributes', () => {
             const count = JSC.integer(1, 5)();
-            const attributes = {
-                'data-input-style': 'background-color: #ff0',
-                'data-text': getText(count),
-                'data-value': JSON.stringify(getValue(count))
-            };
-            attributes[attr('role')] = ROLE;
+            const attributes = options2attributes({
+                inputStyle: 'background-color: #ff0',
+                role: ROLE,
+                text: getText(count),
+                value: JSON.stringify(getValue(count))
+            });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);

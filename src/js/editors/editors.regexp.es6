@@ -35,7 +35,10 @@ function regexpEditor(container, options) {
             CONSTANTS.STRING
         )
     );
-    const attributes = $.extend({}, options.attributes);
+    const attributes = {
+        ...options.attributes,
+        ...getValueBinding(options.field)
+    };
     if ($.type(attributes[attr('role')]) === CONSTANTS.UNDEFINED) {
         if (
             [undefined, 'text', 'email', 'search', 'tel', 'url'].indexOf(
@@ -55,7 +58,7 @@ function regexpEditor(container, options) {
     }
     $('<input style="width: 100%;"/>')
         .attr('name', options.field)
-        .attr($.extend(attributes, getValueBinding(options.field)))
+        .attr(attributes)
         .appendTo(container);
 }
 

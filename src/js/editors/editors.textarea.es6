@@ -30,9 +30,11 @@ function textarea(container, options) {
             CONSTANTS.STRING
         )
     );
-    $('<textarea class="k-textbox" style="width: 100%; resize: vertical;"/>')
+    return $(
+        '<textarea class="k-textbox" style="width: 100%; resize: vertical;"/>'
+    )
         .attr('name', options.field)
-        .attr($.extend({}, options.attributes, getValueBinding(options.field)))
+        .attr({ ...options.attributes, ...getValueBinding(options.field) })
         .appendTo(container);
 }
 

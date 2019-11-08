@@ -33,7 +33,7 @@ function template(container, options) {
         )
     );
     const tmpl = kendo.template(options.template);
-    $(tmpl(options)).appendTo(container);
+    return $(tmpl(options)).appendTo(container);
 }
 
 /**

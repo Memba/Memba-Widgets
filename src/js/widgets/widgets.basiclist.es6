@@ -5,17 +5,15 @@
 
 // Note: A DataSource cannot add records without a schema model, which an array does not provide.
 // Also kendo.ui.Editable, which kendo.ui.ListView uses, also requires a schema model
-// In order to build an array editor we have two options:
-// 1. use DataSource and ListView as in widgets.imagelist, but this requires syncing
-//   the widget dataSource wrapping an array to an internal DataSource with a schema model
-// 2. use an ObservableArray as widget value (vs. source) without ListView
-// We have chosen option 1 because it is less work considering widget.imagelist implementation
-// and the syncing is done in the refresh and _onChange methods
+// In order to build an array editor for basic types we had to:
+// 1. use value binding to get the array of basic type (bolean, date, number, string)
+// 2. convert the array into an arrey of { value: ... } objects;
+// 3. pass that array with a schema model to the listview datasource
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.core';
+import 'kendo.data';
 import 'kendo.listview';
 import 'kendo.sortable';
 import assert from '../common/window.assert.es6';
@@ -24,14 +22,15 @@ import Logger from '../common/window.logger.es6';
 
 const {
     attr,
-    data: { DataSource },
+    data: { DataSource, ObservableArray },
     destroy,
     format,
     ns,
     support,
     template,
-    ui: { DataBoundWidget, ListView, plugin, Sortable },
-    unbind
+    toString,
+    ui: { ListView, plugin, Sortable, Widget }
+    // unbind
 } = window.kendo;
 const logger = new Logger('widgets.basiclist');
 const NS = '.kendoBasicList';
@@ -39,23 +38,22 @@ const WIDGET_CLASS = 'k-widget kj-basiclist';
 
 const TOOLBAR_TMPL =
     '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><div class="k-button k-button-icontext"><span class="k-icon k-i-plus"/>{0}</div></div></div>';
-const ITEM_TMPL =
-    '<li class="k-list-item">' +
-    '<div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>' +
-    '<div class="kj-inputs"><input class="k-textbox k-state-disabled" type="text" value="#:value#" disabled /></div>' +
-    '<div class="kj-buttons">' +
-    '<a class="k-button k-edit-button" href="\\#"><span class="k-icon k-i-edit"/></a>' +
-    '<a class="k-button k-delete-button" href="\\#"><span class="k-icon k-i-delete"/></a>' +
-    '</div></li>';
-const EDIT_TMPL =
-    '<li class="k-list-item">' +
-    '<div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>' +
-    '<div class="kj-inputs">' +
-    `<input data-${ns}bind="value: value" name="value" validationMessage="{0}"/><span data-${ns}for="value" class="k-invalid-msg"/>` +
-    '</div><div class="kj-buttons">' +
-    '<a class="k-button k-update-button" href="\\#"><span class="k-icon k-i-check"/></a>' +
-    '<a class="k-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel"/></a>' +
-    '</div></li>';
+const ITEM_TMPL = `<li class="k-list-item">
+        <div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>
+        <div class="kj-input-wrap"><input value="#: value$() #" class="k-textbox k-state-disabled" /></div>
+        <div class="kj-buttons">
+            <a class="k-button k-edit-button" href="\\#"><span class="k-icon k-i-edit"/></a>
+            <a class="k-button k-delete-button" href="\\#"><span class="k-icon k-i-delete"/></a>
+        </div>
+    </li>`;
+const EDIT_TMPL = `<li class="k-list-item">
+        <div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>
+        <div class="kj-input-wrap"><input data-${ns}bind="value: value" name="value" validationMessage="{0}"/><span data-${ns}for="value" class="k-invalid-msg"/></div>
+        <div class="kj-buttons">
+            <a class="k-button k-update-button" href="\\#"><span class="k-icon k-i-check"/></a>
+            <a class="k-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel"/></a>
+        </div>
+    </li>`;
 
 const ATTRIBUTES = {
     boolean: {
@@ -83,9 +81,9 @@ ATTRIBUTES.number[attr('role')] = 'numerictextbox';
 /**
  * BasicList
  * @class BasicList
- * @extends DataBoundWidget
+ * @extends Widget
  */
-const BasicList = DataBoundWidget.extend({
+const BasicList = Widget.extend({
     /**
      * Init
      * @constructor init
@@ -93,10 +91,10 @@ const BasicList = DataBoundWidget.extend({
      * @param options
      */
     init(element, options = {}) {
-        DataBoundWidget.fn.init.call(this, element, options);
+        Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
-        this._dataSource();
+        this.value(this.options.value);
         this.enable(this.options.enabled);
     },
 
@@ -108,8 +106,6 @@ const BasicList = DataBoundWidget.extend({
         name: 'BasicList',
         // Attributes to add to input
         attributes: {},
-        autoBind: true,
-        dataSource: [],
         enabled: true,
         messages: {
             toolbar: {
@@ -121,7 +117,8 @@ const BasicList = DataBoundWidget.extend({
         },
         // type defines a default set of input attributes
         // which can be overriden by specifying attributes hereabove
-        type: 'string'
+        type: 'string',
+        value: []
     },
 
     /**
@@ -130,7 +127,7 @@ const BasicList = DataBoundWidget.extend({
      * where it is used to plug in the asset manager
      * @property events
      */
-    events: [CONSTANTS.CLICK],
+    events: [CONSTANTS.CHANGE, CONSTANTS.CLICK],
 
     /**
      * Layout widget
@@ -138,11 +135,14 @@ const BasicList = DataBoundWidget.extend({
      * @private
      */
     _render() {
-        this.wrapper = this.element.addClass(WIDGET_CLASS);
+        const { element } = this;
+        assert.ok(
+            element.is(CONSTANTS.DIV),
+            'Please use a div tag to instantiate a BasicList widget.'
+        );
+        this.wrapper = element.addClass(WIDGET_CLASS);
         // Build the toolbar
         this._initToolbar();
-        // Build the textarea
-        this._initTextarea();
         // Build the listview
         this._initListView();
     },
@@ -160,15 +160,6 @@ const BasicList = DataBoundWidget.extend({
     },
 
     /**
-     * Initialze textarea
-     * @method _initTextarea
-     * @private
-     */
-    _initTextarea() {
-        // TODO
-    },
-
-    /**
      * Initialize list view
      * @method _initListView
      * @private
@@ -180,19 +171,35 @@ const BasicList = DataBoundWidget.extend({
         // Create the list view
         this.listView = this.ul
             .kendoListView({
-                dataSource: [],
-                template: template(ITEM_TMPL),
+                dataSource: { data: [] },
+                template: template(this._getTemplate()),
                 editTemplate: template(this._getEditTemplate()),
                 save(e) {
                     // We need to trigger a change and a blur otherwise
                     // the change event might not be raised to induce data bindings
                     e.item
-                        .find('input:not(.k-state-disabled)')
+                        .find(
+                            'input:not(.k-state-disabled, .k-formatted-value)'
+                        )
                         .change()
                         .blur();
                 }
             })
             .data('kendoListView');
+    },
+
+    /**
+     * Compute read template with type and atttibutes
+     * @method _getTemplate
+     * @private
+     */
+    _getTemplate() {
+        // const { attributes, type } = this.options;
+        // const t = $(ITEM_TMPL);
+        // const input = t.find(CONSTANTS.INPUT);
+        // input.attr({ ...ATTRIBUTES[type], ...attributes });
+        // return t[0].outerHTML;
+        return ITEM_TMPL;
     },
 
     /**
@@ -204,60 +211,112 @@ const BasicList = DataBoundWidget.extend({
         const { attributes, messages, type } = this.options;
         const t = $(format(EDIT_TMPL, messages.validation.value));
         const input = t.find(CONSTANTS.INPUT);
-        input.attr($.extend({}, ATTRIBUTES[type], attributes));
+        input.attr({ ...ATTRIBUTES[type], ...attributes });
         return t[0].outerHTML;
     },
 
     /**
-     * Initialize dataSource
-     * @method _dataSource
+     * Value
+     * @param value
+     */
+    value(value) {
+        let ret;
+        if (
+            $.type(value) === CONSTANTS.NULL ||
+            Array.isArray(value) ||
+            value instanceof ObservableArray
+        ) {
+            this._setDataSource(value || []);
+        } else if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._value();
+        } else {
+            throw new TypeError(
+                '`value` should be an array, null or undefined'
+            );
+        }
+        return ret;
+    },
+
+    /**
+     * Sets listView DataSource
+     * @param value
      * @private
      */
-    _dataSource() {
+    _setDataSource(data) {
+        const { listView, options } = this;
         assert.instanceof(
             ListView,
-            this.listView,
+            listView,
             assert.format(
                 assert.messages.instanceof.default,
                 'this.listView',
                 'kendo.ui.ListView'
             )
         );
-
-        // if the DataSource is defined and the _refreshHandler is wired up, unbind because
-        // we need to rebuild the DataSource
-        if (
-            this.dataSource instanceof DataSource &&
-            $.isFunction(this._refreshHandler)
-        ) {
-            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
-            this._refreshHandler = undefined;
-        }
-
-        if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
-            // returns the datasource OR creates one if using array or configuration object
-            this.dataSource = DataSource.create(this.options.dataSource);
-
-            // bind to the change event to refresh the widget
-            this._refreshHandler = this.refresh.bind(this);
-            this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
-
-            if (this.options.autoBind) {
-                this.dataSource.fetch();
+        function refresh(e) {
+            if (e.action !== 'sync') {
+                this.trigger(CONSTANTS.CHANGE);
             }
         }
+        if ($.isFunction(this._refreshHandler)) {
+            listView.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
+        }
+        const dataSource = new DataSource({
+            // change: this._refreshHandler
+            data: data.map(value => ({ value })),
+            schema: {
+                model: {
+                    idField: 'value', // Without idField, cancel removes the item which is not found
+                    fields: {
+                        value: {
+                            type: this.options.type
+                        }
+                    },
+                    value$() {
+                        let ret;
+                        const f = options.attributes[attr('format')];
+                        const c = options.attributes[attr('culture')];
+                        switch (options.type) {
+                            // case 'boolean':
+                            //     break;
+                            case 'date':
+                                ret = toString(this.get('value'), f || 'd', c);
+                                break;
+                            case 'number':
+                                ret = toString(this.get('value'), f || 'n', c);
+                                break;
+                            case 'string':
+                            default:
+                                ret = this.get('value');
+                                break;
+                        }
+                        return ret;
+                    }
+                }
+            }
+        });
+        listView.setDataSource(dataSource);
+        this._refreshHandler = refresh.bind(this);
+        listView.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
     },
 
     /**
-     * Sets a dataSource
-     * @method setDataSource
-     * @param dataSource
+     * Get value from dataSource
+     * @private
      */
-    setDataSource(dataSource) {
-        // set the internal datasource equal to the one passed in by MVVM
-        this.options.dataSource = dataSource;
-        // rebuild the datasource if necessary, or just reassign
-        this._dataSource();
+    _value() {
+        const { listView } = this;
+        assert.instanceof(
+            ListView,
+            listView,
+            assert.format(
+                assert.messages.instanceof.default,
+                'this.listView',
+                'kendo.ui.ListView'
+            )
+        );
+        return listView.dataSource.data().map(item => item.get('value'));
     },
 
     /**
@@ -339,7 +398,7 @@ const BasicList = DataBoundWidget.extend({
                             .addClass(CONSTANTS.DISABLED_CLASS)
                             .removeClass(
                                 // Remove any handler from buttons
-                                'k-edit-button k-delete-button k-image-button k-update-button k-cancel-button'
+                                'k-edit-button k-delete-button k-update-button k-cancel-button'
                             );
                         return hint;
                     },
@@ -355,89 +414,6 @@ const BasicList = DataBoundWidget.extend({
                     }
                 })
                 .data('kendoSortable');
-        }
-    },
-
-    /**
-     * Refresh
-     * @method refresh
-     * @param e
-     */
-    refresh(e) {
-        if (
-            $.type(e) === CONSTANTS.UNDEFINED ||
-            $.type(e.action) === CONSTANTS.UNDEFINED
-        ) {
-            if (
-                this.listView instanceof ListView &&
-                this.listView.dataSource instanceof DataSource &&
-                $.isFunction(this._changeHandler)
-            ) {
-                this.listView.dataSource.unbind(
-                    CONSTANTS.CHANGE,
-                    this._changeHandler
-                );
-                this._changeHandler = undefined;
-            }
-            const data = this.dataSource.data().map(item => ({ value: item }));
-            const dataSource = new DataSource({
-                data,
-                schema: {
-                    model: {
-                        id: 'value',
-                        fields: {
-                            value: {
-                                type: this.options.type
-                            }
-                        }
-                    }
-                }
-            });
-            this.listView.setDataSource(dataSource);
-            this._changeHandler = this._onChange.bind(this);
-            this.listView.dataSource.bind(
-                CONSTANTS.CHANGE,
-                this._changeHandler
-            );
-            logger.debug({ method: 'refresh', message: 'widget refreshed' });
-        }
-    },
-
-    /**
-     * Change event handler
-     * @method _onChange
-     * @param e
-     * @private
-     */
-    _onChange(e) {
-        assert.isNonEmptyPlainObject(
-            e,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
-        );
-        const { action, index, items } = e;
-        // Note: this is not the dataSource that raised the event
-        // This is the target dataSource we need to sync based on the event
-        // We modify the underlying ObservableArray becasue this dataSource
-        // has no schema model for inserting new records
-        const data = this.dataSource.data();
-        switch (action) {
-            case 'add':
-                data.splice(index, 0, ...items.map(item => item.get('value')));
-                break;
-            case 'remove':
-                data.splice(index, items.length);
-                break;
-            // case 'sync':
-            case 'itemchange':
-                // itemchange and sync have no index, so we need to find it
-                items.forEach(item => {
-                    const idx = this.listView.dataSource.indexOf(item);
-                    const value = item.get('value');
-                    // data[idx] = value; <-- does not raise a change event
-                    data.splice(idx, 1, value);
-                });
-                break;
-            default:
         }
     },
 
@@ -497,8 +473,6 @@ const BasicList = DataBoundWidget.extend({
             action = 'edit';
         } else if (button.hasClass('k-delete-button')) {
             action = 'delete';
-        } else if (button.hasClass('k-image-button')) {
-            action = 'image';
         } else if (button.hasClass('k-update-button')) {
             action = 'update';
         } else if (button.hasClass('k-cancel-button')) {
@@ -506,7 +480,7 @@ const BasicList = DataBoundWidget.extend({
         }
         const listItem = button.closest('.k-list-item');
         const uid = listItem.attr(attr(CONSTANTS.UID));
-        const dataItem = this.dataSource.getByUid(uid);
+        const dataItem = this.listView.dataSource.getByUid(uid);
         this.trigger(CONSTANTS.CLICK, { action, item: dataItem });
     },
 
@@ -515,16 +489,23 @@ const BasicList = DataBoundWidget.extend({
      * @method destroy
      */
     destroy() {
+        const { element, listView } = this;
+        Widget.fn.destroy.call(this);
         this.enable(false);
-        unbind(this.element);
-        this.setDataSource(null);
-        if (this.listView instanceof ListView) {
-            this.listView.destroy();
+        // unbind(element);
+        if (listView instanceof ListView) {
+            if ($.isFunction(this._refreshHandler)) {
+                listView.dataSource.unbind(
+                    CONSTANTS.CHANGE,
+                    this._refreshHandler
+                );
+                this._refreshHandler = undefined;
+            }
+            listView.destroy();
             this.listView = undefined;
         }
         // Destroy widget
-        DataBoundWidget.fn.destroy.call(this);
-        destroy(this.element);
+        destroy(element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });

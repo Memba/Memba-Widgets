@@ -83,6 +83,7 @@ const CodeEditor = DataBoundWidget.extend({
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
         this._dataSource();
+        // this.value(this.options.value);
         this.enable(this.options.enabled);
     },
 
@@ -96,7 +97,6 @@ const CodeEditor = DataBoundWidget.extend({
         enabled: true,
         dataSource: [],
         custom: 'custom',
-        default: '// equal',
         solution: null, // TODO Solution Adapter editor --> component
         value: null, // Not the value to test, but the widget value for MVVM bindings
         messages: {
@@ -139,9 +139,7 @@ const CodeEditor = DataBoundWidget.extend({
             ret = this._value;
         } else if (this._value !== value) {
             this._value =
-                $.type(value) === CONSTANTS.STRING
-                    ? value
-                    : this.options.default;
+                $.type(value) === CONSTANTS.STRING ? value : undefined;
             if (
                 this.dataSource instanceof DataSource &&
                 this.dataSource.total()
@@ -416,7 +414,7 @@ const CodeEditor = DataBoundWidget.extend({
             )
         );
 
-        const value = this.value() || '';
+        const value = this.value();
 
         // Any changes should remove any pending message
         this.messageWrapper.empty();
@@ -438,25 +436,15 @@ const CodeEditor = DataBoundWidget.extend({
                 this.codeMirror.getDoc().setValue(this._value);
             }
         } else {
-            const { options } = this;
             const library = this.dataSource.data();
             // Otherwise, search the library
-            let parsed = parseLibraryItem(value, library);
-            if ($.type(parsed.item) === CONSTANTS.UNDEFINED) {
-                // and use default if not found
-                parsed = parseLibraryItem(options.default, library);
-                assert.type(
-                    CONSTANTS.OBJECT,
-                    parsed.item,
-                    `\`${options.default}\` is expected to exist in the library`
-                );
-            }
-
+            const parsed = parseLibraryItem(value, library);
             const { item, params } = parsed;
 
             // Reset value in case the original value could not be found and we had to fallback to default
             this._value = stringifyLibraryItem(item, params);
 
+            // Set drop down list value
             this.dropDownList.value(item.key);
 
             // Show/hide params editor when required
@@ -637,6 +625,7 @@ const CodeEditor = DataBoundWidget.extend({
      * @method destroy
      */
     destroy() {
+        DataBoundWidget.fn.destroy.call(this);
         // Unbind events
         if (this.dropDownList instanceof DropDownList) {
             this.dropDownList.destroy();
@@ -649,18 +638,17 @@ const CodeEditor = DataBoundWidget.extend({
         if (this.codeMirror instanceof CodeMirror) {
             this.codeMirror.off(CONSTANTS.BEFORECHANGE);
             this.codeMirror.off(CONSTANTS.CHANGE);
+            this.codeMirror = undefined;
         }
         if (this.testButton instanceof $) {
             this.testButton.off(NS);
+            this.testButton = undefined;
         }
         if (this.tooltip instanceof Tooltip) {
             this.tooltip.destroy();
             this.tooltip = undefined;
         }
-        // Destroy kendo
-        DataBoundWidget.fn.destroy.call(this);
         destroy(this.element);
-        // Log
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });

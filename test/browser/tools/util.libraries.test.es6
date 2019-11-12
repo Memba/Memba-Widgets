@@ -52,6 +52,7 @@ const sampleLibrary = [
 const formulas = {
     empty: TOOLS.LIB_COMMENT,
     spaces: `${TOOLS.LIB_COMMENT}      `,
+    dummy: `${TOOLS.LIB_COMMENT}dummy`,
     equal: `${TOOLS.LIB_COMMENT}equal`,
     withoutParams: `${TOOLS.LIB_COMMENT}${key}`,
     withParams: `${TOOLS.LIB_COMMENT}${key}${format(
@@ -59,7 +60,7 @@ const formulas = {
         JSON.stringify(params)
     )}`,
     anyFunction: 'function (a) {\n\treturn a;\n}',
-    custoom: `function validate(value, solution, all) {\n\treturn "${JSC.string()()}";\n}`
+    custom: `function validate(value, solution, all) {\n\treturn "${JSC.string()()}";\n}`
 };
 
 describe('util.libraries', () => {
@@ -67,11 +68,11 @@ describe('util.libraries', () => {
         it('It should assess formulas', () => {
             expect(isCustomFormula(formulas.empty)).to.be.false;
             expect(isCustomFormula(formulas.spaces)).to.be.false;
-            expect(isCustomFormula(formulas.equal)).to.be.false;
+            expect(isCustomFormula(formulas.dummy)).to.be.false;
             expect(isCustomFormula(formulas.withoutParams)).to.be.false;
             expect(isCustomFormula(formulas.withParams)).to.be.false;
             expect(isCustomFormula(formulas.anyFunction)).to.be.false;
-            expect(isCustomFormula(formulas.custoom)).to.be.true;
+            expect(isCustomFormula(formulas.custom)).to.be.true;
         });
     });
 
@@ -79,11 +80,11 @@ describe('util.libraries', () => {
         it('It should assess formulas', () => {
             expect(isLibraryFormula(formulas.empty)).to.be.false;
             expect(isLibraryFormula(formulas.spaces)).to.be.false;
-            expect(isLibraryFormula(formulas.equal)).to.be.true;
+            expect(isLibraryFormula(formulas.dummy)).to.be.true;
             expect(isLibraryFormula(formulas.withoutParams)).to.be.true;
             expect(isLibraryFormula(formulas.withParams)).to.be.true;
             expect(isLibraryFormula(formulas.anyFunction)).to.be.false;
-            expect(isLibraryFormula(formulas.custoom)).to.be.false;
+            expect(isLibraryFormula(formulas.custom)).to.be.false;
         });
     });
 

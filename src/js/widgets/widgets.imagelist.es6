@@ -23,8 +23,8 @@ const {
     ns,
     support,
     template,
-    ui: { DataBoundWidget, ListView, plugin, Sortable, Tooltip },
-    unbind
+    ui: { DataBoundWidget, ListView, plugin, Sortable, Tooltip }
+    // unbind
 } = window.kendo;
 const logger = new Logger('widgets.imagelist');
 const NS = '.kendoImageList';
@@ -37,7 +37,7 @@ const TOOLBAR_TMPL =
 const ITEM_TMPL =
     '<li class="k-list-item">' +
     '<div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>' +
-    '<div class="kj-inputs"><input class="k-textbox k-state-disabled" name="text" value="#:text#" disabled /></div>' +
+    '<div class="kj-input-wrap"><input class="k-textbox k-state-disabled" name="text" value="#:text#" disabled /></div>' +
     '<div class="kj-buttons">' +
     '# if (url$().length) { #' +
     '<img class="k-image" alt="#:text#" src="#:url$()#">' +
@@ -48,7 +48,7 @@ const ITEM_TMPL =
 const EDIT_TMPL =
     '<li class="k-list-item">' +
     '<div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>' +
-    '<div class="kj-inputs">' +
+    '<div class="kj-input-wrap">' +
     `<input data-${ns}bind="value:text" name="text" validationMessage="{0}"/><span data-${ns}for="text" class="k-invalid-msg"/>` +
     '# if ({1}) { #' +
     `<input type="hidden" data-${ns}bind="value:url$()" name="url" required="required" validationMessage="{2}"/><span data-${ns}for="url" class="k-invalid-msg"/>` +
@@ -120,7 +120,12 @@ const ImageList = DataBoundWidget.extend({
      * @private
      */
     _render() {
-        this.wrapper = this.element.addClass(WIDGET_CLASS);
+        const { element } = this;
+        assert.ok(
+            element.is(CONSTANTS.DIV),
+            'Please use a div tag to instantiate a BasicList widget.'
+        );
+        this.wrapper = element.addClass(WIDGET_CLASS);
         // Build the toolbar
         this._initToolbar();
         // Build the listview
@@ -151,8 +156,8 @@ const ImageList = DataBoundWidget.extend({
         // Create the list view
         this.listView = this.ul
             .kendoListView({
-                dataSource: [],
-                template: template(ITEM_TMPL),
+                dataSource: { data: [] },
+                template: template(this._getTemplate()),
                 editTemplate: template(this._getEditTemplate()),
                 save(e) {
                     // We need to trigger a change and a blur otherwise
@@ -192,6 +197,27 @@ const ImageList = DataBoundWidget.extend({
     },
 
     /**
+     * Compute read template with type and atttibutes
+     * @method _getTemplate
+     * @private
+     */
+    _getTemplate() {
+        // const { attributes, messages, requireImages } = this.options;
+        // const t = $(
+        //     format(
+        //         ITEM_TMPL,
+        //         messages.validation.text,
+        //         String(!!requireImages),
+        //         messages.validation.url
+        //     )
+        // );
+        // const input = t.find(CONSTANTS.INPUT).first();
+        // input.attr({ ...attributes });
+        // return t[0].outerHTML;
+        return ITEM_TMPL;
+    },
+
+    /**
      * Compute edit template with type and atttibutes
      * @method _getEditTemplate
      * @private
@@ -207,7 +233,7 @@ const ImageList = DataBoundWidget.extend({
             )
         );
         const input = t.find(CONSTANTS.INPUT).first();
-        input.attr($.extend({}, attributes));
+        input.attr({ ...attributes });
         return t[0].outerHTML;
     },
 
@@ -409,7 +435,7 @@ const ImageList = DataBoundWidget.extend({
         }
         const listItem = button.closest('.k-list-item');
         const uid = listItem.attr(attr(CONSTANTS.UID));
-        const dataItem = this.dataSource.getByUid(uid);
+        const dataItem = this.listView.dataSource.getByUid(uid);
         this.trigger(CONSTANTS.CLICK, { action, item: dataItem });
     },
 
@@ -418,20 +444,21 @@ const ImageList = DataBoundWidget.extend({
      * @method destroy
      */
     destroy() {
+        const { element, listView, tooltip } = this;
+        DataBoundWidget.fn.destroy.call(this);
         this.enable(false);
-        unbind(this.element);
-        if (this.listView instanceof ListView) {
-            this.listView.destroy();
+        // unbind(element);
+        if (listView instanceof ListView) {
+            listView.destroy();
             this.listView = undefined;
         }
-        if (this.tooltip instanceof Tooltip) {
-            this.tooltip.destroy();
+        if (tooltip instanceof Tooltip) {
+            tooltip.destroy();
             this.tooltip = undefined;
         }
         this.dataSource = undefined;
         // Destroy widget
-        DataBoundWidget.fn.destroy.call(this);
-        destroy(this.element);
+        destroy(element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });

@@ -92,7 +92,8 @@
 }
 
 .cm-s-default .cm-number {
-    color: contrast-wcag($series-e);
+    // color: contrast-wcag($series-e);
+    color: $series-b;
 }
 
 .cm-s-default .cm-def {
@@ -105,7 +106,8 @@
 .cm-s-default .cm-operator { /* default text color */ }
 
 .cm-s-default .cm-variable-2 {
-    color: contrast-wcag($series-d);
+    // color: contrast-wcag($series-d);
+    color: $series-e;
 }
 
 .cm-s-default .cm-variable-3,

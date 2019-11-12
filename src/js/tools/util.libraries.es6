@@ -26,10 +26,27 @@ import 'kendo.core';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import regexpEditor from '../editors/editors.regexp.es6'; // TODO use string to designate entry in util.editors;
+import regexpEditor from '../editors/editors.regex.es6'; // TODO use string to designate entry in util.editors;
 import TOOLS from './util.constants.es6';
 
 const { format } = window.kendo;
+
+/**
+ * Get a library item key
+ * @param value
+ */
+function getLibraryItemKey(value) {
+    let ret = value;
+    if ($.type(value) === CONSTANTS.STRING) {
+        const libraryMatches = value.match(TOOLS.RX_VALIDATION_LIBRARY);
+        if (Array.isArray(libraryMatches) && libraryMatches.length === 4) {
+            [, ret] = libraryMatches;
+        } else {
+            ret = 'custom';
+        }
+    }
+    return ret;
+}
 
 /**
  * Check that value refers to a custom function and not a library item
@@ -477,6 +494,7 @@ const textLibrary = {
  */
 export {
     // functions
+    getLibraryItemKey,
     isCustomFormula,
     isLibraryFormula,
     parseLibraryItem,

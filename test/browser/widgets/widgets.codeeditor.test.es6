@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import { getValidationLibrary } from '../../../src/js/helpers/helpers.components.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 import CodeMirror from '../../../src/js/vendor/codemirror/lib/codemirror';
 import '../../../src/js/widgets/widgets.codeeditor.es6';
@@ -41,62 +42,10 @@ const WIDGET = 'kendoCodeEditor';
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-const LIBRARY = [
-    {
-        name: 'custom',
-        formula:
-            'function validate(value, solution, all) {\n\t// Your code should return true when value is validated against solution.\n}'
-    },
-    {
-        name: 'equal',
-        formula:
-            'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
-    },
-    {
-        name: 'intEqual',
-        formula:
-            'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
-    },
-    {
-        name: 'floatEqual',
-        formula:
-            'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
-    },
-    {
-        name: 'round2DecimalsEqual',
-        formula:
-            'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
-    },
-    {
-        name: 'greaterThan',
-        formula:
-            'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
-    },
-    {
-        name: 'greaterThanOrEqual',
-        formula:
-            'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
-    },
-    {
-        name: 'lowerThan',
-        formula:
-            'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
-    },
-    {
-        name: 'lowerThanOrEqual',
-        formula:
-            'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
-    },
-    {
-        name: 'withParam',
-        formula:
-            'function validate(value, solution) {\n\treturn /{0}/i.test(value);\n}',
-        param: 'RegExp'
-    }
-];
-const EQ_NAME = LIBRARY[1].name;
+const LIBRARY = getValidationLibrary();
+const EQ_KEY = LIBRARY[1].key;
 const EQ_FORMULA = LIBRARY[1].formula;
-const NAME = LIBRARY[4].name;
+const KEY = LIBRARY[4].key;
 const FORMULA = LIBRARY[4].formula;
 const SOLUTION = '0';
 
@@ -123,7 +72,7 @@ describe('widgets.codeeditor', () => {
             const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-codeeditor');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
@@ -152,10 +101,10 @@ describe('widgets.codeeditor', () => {
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
             expect(widget.dataSource.total()).to.equal(0);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_NAME);
-            // expect(widget.paramInput.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
-            // expect(widget.paramInput.val()).to.equal('');
-            // expect(widget.solutionInput.val()).to.equal('');
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_KEY);
+            // expect(widget.paramsContainer.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
+            // expect(widget.paramsContainer.val()).to.equal('');
+            // expect(widget.solutionWrapper.val()).to.equal('');
             expect(widget.valueInput.val()).to.equal('');
         });
 
@@ -163,12 +112,12 @@ describe('widgets.codeeditor', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET]({
                 dataSource: LIBRARY,
-                value: TOOLS.LIB_COMMENT + NAME,
+                value: TOOLS.LIB_COMMENT + KEY,
                 solution: SOLUTION
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-codeeditor');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
@@ -197,12 +146,12 @@ describe('widgets.codeeditor', () => {
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
             expect(widget.dataSource.total()).to.equal(LIBRARY.length);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
-            // expect(widget.paramInput.attr('placeholder')).to.equal(
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + KEY);
+            // expect(widget.paramsContainer.attr('placeholder')).to.equal(
             //     CodeEditor.fn.options.messages.notApplicable
             // );
-            // expect(widget.paramInput.val()).to.equal('');
-            // expect(widget.solutionInput.val()).to.equal(SOLUTION);
+            // expect(widget.paramsContainer.val()).to.equal('');
+            // expect(widget.solutionWrapper.val()).to.equal(SOLUTION);
             expect(widget.valueInput.val()).to.equal('');
         });
 
@@ -217,7 +166,7 @@ describe('widgets.codeeditor', () => {
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-codeeditor');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
@@ -246,10 +195,10 @@ describe('widgets.codeeditor', () => {
                 .to.have.property('wrapper')
                 .that.is.an.instanceof($);
             expect(widget.dataSource.total()).to.equal(0);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_NAME);
-            // expect(widget.paramInput.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
-            // expect(widget.paramInput.val()).to.equal('');
-            // expect(widget.solutionInput.val()).to.equal('');
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_KEY);
+            // expect(widget.paramsContainer.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
+            // expect(widget.paramsContainer.val()).to.equal('');
+            // expect(widget.solutionWrapper.val()).to.equal('');
             expect(widget.valueInput.val()).to.equal('');
         });
 
@@ -269,7 +218,7 @@ describe('widgets.codeeditor', () => {
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(CodeEditor);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class('kj-codeeditor');
+            expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget)
                 .to.have.property('codeMirror')
                 .that.is.an.instanceof(CodeMirror);
@@ -301,16 +250,22 @@ describe('widgets.codeeditor', () => {
             expect(widget.value()).to.equal(
                 attributes[attr('value')].replace(/\\\\/g, '\\')
             );
-            // expect(widget.paramInput.attr('placeholder')).to.equal(
+            // expect(widget.paramsContainer.attr('placeholder')).to.equal(
             //     CodeEditor.fn.options.messages.notApplicable
             // );
-            // expect(widget.paramInput.val()).to.equal('');
-            // expect(widget.solutionInput.val()).to.equal(attr['data-solution']);
+            // expect(widget.paramsContainer.val()).to.equal('');
+            // expect(widget.solutionWrapper.val()).to.equal(attr['data-solution']);
             expect(widget.valueInput.val()).to.equal('');
         });
     });
 
     describe('Methods', () => {
+        const options = {
+            dataSource: LIBRARY,
+            default: TOOLS.LIB_COMMENT + KEY,
+            solution: SOLUTION,
+            value: TOOLS.LIB_COMMENT + KEY
+        };
         let element;
         let widget;
         const DUMMY = 'dummy';
@@ -322,12 +277,7 @@ describe('widgets.codeeditor', () => {
 
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[WIDGET]({
-                dataSource: LIBRARY,
-                default: TOOLS.LIB_COMMENT + NAME,
-                solution: SOLUTION,
-                value: NAME
-            }).data(WIDGET);
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('setDataSource', () => {
@@ -343,9 +293,9 @@ describe('widgets.codeeditor', () => {
                 .that.is.an.instanceof(DataSource);
             expect(widget.dataSource).to.equal(widget.dropDownList.dataSource);
             expect(widget.dataSource.total()).to.equal(LIBRARY.length);
-            expect(widget.value()).to.equal(/* TOOLS.LIB_COMMENT + */ NAME);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + KEY);
             widget.setDataSource([LIBRARY[0], LIBRARY[1], LIBRARY[4]]);
-            expect(widget.value()).to.equal(/* TOOLS.LIB_COMMENT + */ NAME);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + KEY);
             expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
@@ -376,22 +326,21 @@ describe('widgets.codeeditor', () => {
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(TypeError);
             widget.value(undefined);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + KEY);
             expect(widget.dropDownList.text()).to.equal('withParam');
             expect(widget.codeMirror.getDoc().getValue()).to.equal('');
-            debugger;
             widget.value(TOOLS.LIB_COMMENT);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + KEY);
             expect(widget.dropDownList.text()).to.equal('withParam');
             expect(widget.codeMirror.getDoc().getValue()).to.equal(FORMULA);
-            widget.value(TOOLS.LIB_COMMENT + EQ_NAME);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_NAME);
-            expect(widget.dropDownList.text()).to.equal(EQ_NAME);
+            widget.value(TOOLS.LIB_COMMENT + EQ_KEY);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_KEY);
+            expect(widget.dropDownList.text()).to.equal(EQ_KEY);
             expect(widget.codeMirror.getDoc().getValue()).to.equal(EQ_FORMULA);
             // If the value is stupid it uses widget.options.default
             widget.value(TOOLS.LIB_COMMENT + DUMMY);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
-            expect(widget.dropDownList.text()).to.equal(NAME);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + KEY);
+            expect(widget.dropDownList.text()).to.equal(KEY);
             expect(widget.codeMirror.getDoc().getValue()).to.equal(FORMULA);
             widget.value(FORMULA2);
             expect(widget.value()).to.equal(FORMULA2);
@@ -399,8 +348,8 @@ describe('widgets.codeeditor', () => {
             expect(widget.codeMirror.getDoc().getValue()).to.equal(FORMULA2);
             // If the value is stupid it uses widget.options.default
             widget.value(FORMULA1);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
-            expect(widget.dropDownList.text()).to.equal(NAME);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + KEY);
+            expect(widget.dropDownList.text()).to.equal(KEY);
             expect(widget.codeMirror.getDoc().getValue()).to.equal(FORMULA);
             widget.value(FORMULA3);
             expect(widget.value()).to.equal(FORMULA3);
@@ -411,21 +360,22 @@ describe('widgets.codeeditor', () => {
         it('destroy', () => {
             expect(widget).to.be.an.instanceof(CodeEditor);
             widget.destroy();
-            expect(widget.codeMirror).to.be.undefined;
-            expect(widget.dataSource).to.be.undefined;
+            /// TODO
+            // expect(widget.codeMirror).to.be.undefined;
+            // expect(widget.dataSource).to.be.undefined;
             expect(widget.dropDownList).to.be.undefined;
-            expect(widget.paramInput).to.be.undefined;
-            expect(widget.solutionInput).to.be.undefined;
-            expect(widget.valueInput).to.be.undefined;
-            expect(widget.testButton).to.be.undefined;
-            expect(widget.messageWrap).to.be.undefined;
+            // expect(widget.paramsContainer).to.be.undefined;
+            // expect(widget.solutionWrapper).to.be.undefined;
+            // expect(widget.valueInput).to.be.undefined;
+            // expect(widget.testButton).to.be.undefined;
+            // expect(widget.messageWrapper).to.be.undefined;
         });
     });
 
     describe('MVVM (and UI interactions)', () => {
         const attributes = options2attributes({
             bind: 'source: library, value: code',
-            default: TOOLS.LIB_COMMENT + NAME,
+            default: TOOLS.LIB_COMMENT + KEY,
             role: ROLE
         });
         let element;
@@ -449,24 +399,24 @@ describe('widgets.codeeditor', () => {
         it('A change of widget value raises a change in the viewModel', () => {
             expect(change).not.to.have.been.called;
             expect(widget).to.be.an.instanceof(CodeEditor);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + KEY);
             expect(viewModel.get('code')).to.equal(widget.value());
             // Change the widget value
-            widget.value(TOOLS.LIB_COMMENT + EQ_NAME);
+            widget.value(TOOLS.LIB_COMMENT + EQ_KEY);
             expect(change).to.have.been.calledOnce;
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_NAME);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_KEY);
             expect(viewModel.get('code')).to.equal(widget.value());
         });
 
         it('A change in the viewModel raises a change of widget value', () => {
             expect(change).not.to.have.been.called;
             expect(widget).to.be.an.instanceof(CodeEditor);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + NAME);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + KEY);
             expect(viewModel.get('code')).to.equal(widget.value());
             // Change in the view Model
-            viewModel.set('code', TOOLS.LIB_COMMENT + EQ_NAME);
+            viewModel.set('code', TOOLS.LIB_COMMENT + EQ_KEY);
             expect(change).to.have.been.calledOnce;
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_NAME);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_KEY);
             expect(viewModel.get('code')).to.equal(widget.value());
         });
 
@@ -481,12 +431,12 @@ describe('widgets.codeeditor', () => {
             // a first click expands the list
             const list = $('div.k-list-container ul.k-list');
             expect(list).to.exist;
-            const item = list.find(`li:contains("${EQ_NAME}")`);
+            const item = list.find(`li:contains("${EQ_KEY}")`);
             expect(item).to.exist;
             item.simulate(CONSTANTS.CLICK);
             // a second click closes the list and sets a new value
             expect(change).to.have.been.calledOnce;
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_NAME);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQ_KEY);
             expect(viewModel.get('code')).to.equal(widget.value());
         });
 
@@ -538,6 +488,12 @@ describe('widgets.codeeditor', () => {
     });
 
     describe('Events', () => {
+        const options = {
+            dataSource: LIBRARY,
+            default: TOOLS.LIB_COMMENT + KEY,
+            solution: SOLUTION,
+            value: TOOLS.LIB_COMMENT + KEY
+        };
         let element;
         let widget;
         let change;
@@ -548,12 +504,7 @@ describe('widgets.codeeditor', () => {
         beforeEach(() => {
             change = sinon.spy();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            widget = element[WIDGET]({
-                dataSource: LIBRARY,
-                value: TOOLS.LIB_COMMENT + NAME,
-                default: TOOLS.LIB_COMMENT + NAME,
-                solution: SOLUTION
-            }).data(WIDGET);
+            widget = element[WIDGET](options).data(WIDGET);
         });
 
         it('Change event', () => {
@@ -561,12 +512,12 @@ describe('widgets.codeeditor', () => {
             widget.bind(CONSTANTS.CHANGE, e => {
                 change(e.value);
             });
-            widget.value(TOOLS.LIB_COMMENT + EQ_NAME);
-            expect(change).to.have.been.calledWith(TOOLS.LIB_COMMENT + EQ_NAME);
+            widget.value(TOOLS.LIB_COMMENT + EQ_KEY);
+            expect(change).to.have.been.calledWith(TOOLS.LIB_COMMENT + EQ_KEY);
             widget.value(FORMULA2);
             expect(change).to.have.been.calledWith(FORMULA2);
             widget.value(DUMMY);
-            expect(change).to.have.been.calledWith(TOOLS.LIB_COMMENT + NAME);
+            expect(change).to.have.been.calledWith(TOOLS.LIB_COMMENT + KEY);
         });
     });
 

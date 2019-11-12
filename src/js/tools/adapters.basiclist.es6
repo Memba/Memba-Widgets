@@ -5,7 +5,7 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
+// import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
@@ -27,7 +27,7 @@ const BasicListAdapter = BaseAdapter.extend({
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'textarea';
-        this.attributes = $.extend({}, this.attributes, attributes);
+        this.attributes = { ...this.attributes, ...attributes };
     }
 });
 

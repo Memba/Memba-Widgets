@@ -8,6 +8,8 @@
 import JSC from 'jscheck';
 import ObjectId from '../common/window.objectid.es6';
 import { randomVal } from '../common/window.util.es6';
+import basiclist from '../editors/editors.basiclist.es6';
+import regex from '../editors/editors.regex.es6';
 import tools from '../tools/tools.es6';
 import { BaseTool } from '../tools/tools.base.es6';
 
@@ -48,6 +50,96 @@ const imageList = () => [
     { text: JSC.string()(), url: urlGenerator('png') },
     { text: JSC.string()(), url: urlGenerator('png') }
 ];
+
+
+/**
+ * getValidationLibrary
+ * @function getValidationLibrary
+ */
+function getValidationLibrary() {
+    return [
+        {
+            name: 'Custom',
+            key: 'custom',
+            formula:
+                'function validate(value, solution, all) {\n\t// Your code should return true when value is validated against solution.\n}'
+        },
+        {
+            name: 'equal',
+            key: 'equal',
+            formula:
+                'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
+        },
+        {
+            name: 'Equal (int)',
+            key: 'intEqual',
+            formula:
+                'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
+        },
+        {
+            name: 'Equal (float)',
+            key: 'floatEqual',
+            formula:
+                'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
+        },
+        {
+            name: 'Equal (2 decimals))',
+            key: 'round2DecimalsEqual',
+            formula:
+                'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
+        },
+        {
+            name: 'Greater than',
+            key: 'greaterThan',
+            formula:
+                'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
+        },
+        {
+            name: 'Greater or equal',
+            key: 'greaterThanOrEqual',
+            formula:
+                'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
+        },
+        {
+            name: 'Lower than',
+            key: 'lowerThan',
+            formula:
+                'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
+        },
+        {
+            name: 'Lower or equal',
+            key: 'lowerThanOrEqual',
+            formula:
+                'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
+        },
+        {
+            name: 'With regex',
+            key: 'withRegex',
+            formula:
+                'function validate(value, params) {\n\tconsole.log(params);\n\treturn new RegExp(params, "i").test(value);\n}',
+            editor: regex,
+            options: {
+                field: 'params'
+            },
+            defaultParams: ''
+        },
+        {
+            name: 'With list',
+            key: 'withList',
+            formula:
+                'function validate(value, params) {\n\tconsole.log(params);\n\treturn new RegExp(params, "i").test(value);\n}',
+            editor: basiclist,
+            options: {
+                field: 'params',
+                type: 'number',
+                attributes: {
+                    'data-culture': 'fr-FR'
+                }
+            },
+            defaultParams: []
+        }
+    ];
+}
 
 /**
  * getAudio
@@ -779,5 +871,6 @@ export {
     getComponentArray,
     getPage,
     getPageArray,
-    getStream
+    getStream,
+    getValidationLibrary
 };

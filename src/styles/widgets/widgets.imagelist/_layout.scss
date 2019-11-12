@@ -37,7 +37,7 @@
                 width: 1em;
             }
 
-            > .kj-inputs {
+            > .kj-input-wrap {
                 flex: 1 1 auto;
                 overflow: hidden;
                 position: relative;
@@ -46,6 +46,21 @@
 
                 input {
                     width: 100%;
+                }
+
+                .k-textbox,
+                .k-dateinput-wrap,
+                    // .k-dropdown-wrap,
+                    // .k-picker-wrap,
+                    // .k-multiselect-wrap,
+                .k-numeric-wrap {
+                    border-bottom-right-radius: 0;
+                    border-top-right-radius: 0;
+
+                    .k-select {
+                        border-bottom-right-radius: 0;
+                        border-top-right-radius: 0;
+                    }
                 }
 
                 .k-tooltip-validation {
@@ -62,12 +77,20 @@
                 flex-flow: row nowrap;
 
                 .k-image {
-                    height: 2em;
-                    width: 2em;
+                    height: 2.3125em;
+                    width: 2.3125em;
                 }
 
                 .k-button {
-                    height: 2em;
+                    height: 2.3125em;
+
+                    &:not(:last-child) {
+                        border-radius: 0;
+                    }
+
+                    &:last-child {
+                        border-radius: 0 0.25em 0.25em 0;
+                    }
                 }
             }
         }

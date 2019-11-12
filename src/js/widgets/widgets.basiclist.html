@@ -35,14 +35,14 @@
                 });
                 $(function() {
                     $('#basiclist').kendoBasicList({
-                        dataSource: [1, 2, 3, 4],
-                        type: 'number',
                         attributes: {
                             'data-min': 0,
                             'data-max': 100,
                             'data-step': 5,
                             'data-culture': 'fr-FR'
-                        }
+                        },
+                        type: 'number',
+                        value: [1, 2, 3, 4]
                     });
                     kendo.bind('body', viewModel);
                 });
@@ -57,7 +57,7 @@
 <div id="basiclist"></div>
 
 <h2>Bound to observable</h2>
-<div data-role="basiclist" data-bind="source: list, visible: visible, enabled: enabled"></div>
+<div data-role="basiclist" data-bind="value: list, visible: visible, enabled: enabled"></div>
 
 <div>
     <input type="checkbox" data-bind="checked: visible">Visible

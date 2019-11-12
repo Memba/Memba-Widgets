@@ -13,6 +13,7 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import {
+    getLibraryItemKey,
     isCustomFormula,
     parseLibraryItem,
     stringifyLibraryItem
@@ -52,6 +53,8 @@ const CodeInput = DataBoundWidget.extend({
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
         this._dataSource();
+        // value is set in _onDropDownListDataBound
+        // this.value(this.options.value);
         this.enable(this.options.enabled);
     },
 
@@ -64,8 +67,7 @@ const CodeInput = DataBoundWidget.extend({
         autoBind: true,
         enabled: true,
         dataSource: [],
-        custom: 'custom',
-        default: '// equal',
+        custom: 'custom', // key versus name??
         value: null
     },
 
@@ -94,15 +96,17 @@ const CodeInput = DataBoundWidget.extend({
         let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
             ret = this._value;
-        } else if (this._value !== value) {
+        } else if (
+            this._value !== value &&
+            this.dataSource instanceof DataSource
+            // this.dataSource.total()
+        ) {
+            const _old = getLibraryItemKey(this._value);
+            const _new = getLibraryItemKey(value);
             this._value =
-                $.type(value) === CONSTANTS.STRING
-                    ? value
-                    : this.options.default;
-            if (
-                this.dataSource instanceof DataSource &&
-                this.dataSource.total()
-            ) {
+                $.type(value) === CONSTANTS.STRING ? value : undefined;
+            if (_old !== _new) {
+                // Only rebuild the UI if we change the formula
                 this.refresh();
             }
         }
@@ -134,7 +138,7 @@ const CodeInput = DataBoundWidget.extend({
                 autoBind: options.autoBind,
                 autoWidth: true,
                 change: this._onUserInputChange.bind(this),
-                dataBound: () => this.value(this.options.value),
+                dataBound: this._onDropDownListDataBound.bind(this),
                 dataTextField: 'name',
                 dataValueField: 'key',
                 dataSource: options.dataSource
@@ -142,7 +146,7 @@ const CodeInput = DataBoundWidget.extend({
             .data('kendoDropDownList');
 
         // Param editor container
-        this.paramContainer = $(`<${CONSTANTS.DIV}/>`)
+        this.paramsContainer = $(`<${CONSTANTS.DIV}/>`)
             .css({ marginTop: '0.25em' })
             .width('100%')
             .hide()
@@ -192,7 +196,7 @@ const CodeInput = DataBoundWidget.extend({
         const enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         this.dropDownList.enable(enabled);
-        this.paramContainer.find('*').each((index, item) => {
+        this.paramsContainer.find('*').each((index, item) => {
             const element = $(item);
             const widget = widgetInstance(element);
             if (widget && $.isFunction(widget.enable)) {
@@ -234,23 +238,23 @@ const CodeInput = DataBoundWidget.extend({
         );
         assert.instanceof(
             $,
-            this.paramContainer,
+            this.paramsContainer,
             assert.format(
                 assert.messages.instanceof.default,
-                'this.paramContainer',
+                'this.paramsContainer',
                 'jQuery'
             )
         );
         const value = this.value() || '';
 
         // Clear param editor
-        unbind(this.paramContainer);
-        destroy(this.paramContainer);
+        unbind(this.paramsContainer);
+        destroy(this.paramsContainer);
         if (this.viewModel instanceof Observable) {
             this.viewModel.unbind(CONSTANTS.CHANGE);
         }
         this.viewModel = undefined;
-        this.paramContainer.empty().hide();
+        this.paramsContainer.empty().hide();
 
         if (isCustomFormula(value)) {
             // Hide drop down list
@@ -260,52 +264,53 @@ const CodeInput = DataBoundWidget.extend({
             // Show custom input
             this.customInput.show();
         } else {
-            const { options } = this;
             const library = this.dataSource.data();
             // Otherwise, search the library
-            let parsed = parseLibraryItem(value, library);
-            if ($.type(parsed.item) === CONSTANTS.UNDEFINED) {
-                // and use default if not found
-                parsed = parseLibraryItem(options.default, library);
-                assert.type(
-                    CONSTANTS.OBJECT,
-                    parsed.item,
-                    `\`${options.default}\` is expected to exist in the library`
-                );
-            }
+            const parsed = parseLibraryItem(value, library);
             const { item, params } = parsed;
+            if (item) {
+                // Hide custom input
+                this.customInput.hide();
 
-            // Reset value in case the original value could not be found and we had to fallback to default
-            this._value = stringifyLibraryItem(item, params);
+                // Show drop down list
+                this.dropDownList.wrapper.show();
+                this.dropDownList.value(item.key);
 
-            // Hide custom input
-            this.customInput.hide();
-
-            // Show drop down list
-            this.dropDownList.wrapper.show();
-            this.dropDownList.value(item.key);
-
-            // Show editor when required
-            if ($.isFunction(item.editor)) {
-                this.viewModel = observable({ params });
-                this.viewModel.bind(
-                    CONSTANTS.CHANGE,
-                    this._onUserInputChange.bind(this)
-                );
-                item.editor(this.paramContainer, { field: 'params' });
-                bind(this.paramContainer, this.viewModel);
-                this.paramContainer.show();
+                // Show editor when required
+                if ($.isFunction(item.editor)) {
+                    this.viewModel = observable({});
+                    this.viewModel.set(
+                        item.options.field,
+                        params || item.defaultParams
+                    );
+                    this.viewModel.bind(
+                        CONSTANTS.CHANGE,
+                        this._onUserInputChange.bind(this)
+                    );
+                    item.editor(this.paramsContainer, item.options.toJSON());
+                    bind(this.paramsContainer, this.viewModel);
+                    this.paramsContainer.show();
+                }
             }
         }
         logger.debug({ method: 'refresh', message: 'widget refreshed' });
     },
 
     /**
-     * Event handler executed when changing the value of the drop down list
+     * Event handler triggered when the drop down list is databound
+     * (and the dataSource is therefore read)
+     * @private
+     */
+    _onDropDownListDataBound() {
+        this.value(this.options.value);
+    },
+
+    /**
+     * Event handler triggered when changing the value of the drop down list
      * or the value of validation param in the editor
      * @private
      */
-    _onUserInputChange() {
+    _onUserInputChange(e) {
         assert.instanceof(
             DropDownList,
             this.dropDownList,
@@ -319,11 +324,13 @@ const CodeInput = DataBoundWidget.extend({
         if (item) {
             if (item.key === this.options.custom) {
                 this.value(item.formula);
-            } else {
-                let params;
-                if (this.viewModel instanceof Observable) {
-                    params = this.viewModel.get('params');
-                }
+            } else if (e.sender instanceof DropDownList) {
+                this.value(stringifyLibraryItem(item, item.defaultParams));
+            } else if (
+                this.viewModel instanceof Observable &&
+                e.sender === this.viewModel
+            ) {
+                const params = this.viewModel.get(item.options.field);
                 this.value(stringifyLibraryItem(item, params));
             }
             this.trigger(CONSTANTS.CHANGE);
@@ -335,6 +342,7 @@ const CodeInput = DataBoundWidget.extend({
      * @method destroy
      */
     destroy() {
+        DataBoundWidget.fn.destroy.call(this);
         if (this.dropDownList instanceof DropDownList) {
             this.dropDownList.destroy();
             this.dropDownList = undefined;
@@ -344,9 +352,7 @@ const CodeInput = DataBoundWidget.extend({
             this.viewModel = undefined;
         }
         // Destroy kendo;
-        DataBoundWidget.fn.destroy.call(this);
         destroy(this.element);
-        // Log
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });

@@ -24,7 +24,7 @@
             'use strict';
             Promise.all([
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('../helpers/helpers.data.es6'),
+                SystemJS.import('../helpers/helpers.components.es6'),
                 SystemJS.import('./widgets.codeeditor.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
@@ -45,7 +45,7 @@
 <body>
 <h1>widgets.codeeditor</h1>
 <h2>Bound to observable</h2>
-<div data-role="codeeditor" data-bind="value: code, source: library, visible: visible, enabled: enabled" data-default="// floatEqual" data-solution="0"></div>
+<div data-role="codeeditor" data-bind="value: code, source: library, visible: visible, enabled: enabled" data-solution="0"></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />enabled

@@ -9,7 +9,7 @@ const TOOLS = {
     KENDO_VAR: '#: $1 #',
 
     LIB_COMMENT: '// ',
-    LIB_PARAMS: ' [{0}]',
+    LIB_PARAMS: ' {0}',
 
     MEDIUM_GREY: '#808080',
 
@@ -31,7 +31,7 @@ const TOOLS = {
     RX_TEXT: /\S+/i, // RX_TEXT: /\S[\s\S]{0, 99}/
     RX_VALIDATION_FORMULA: /^function[\s]+validate[\s]*\([\s]*value[\s]*,/,
     // RX_VALIDATION_LIBRARY: /^\/\/ ([^\s[\n]+)( \[([^\n]+)])?$/,
-    RX_VALIDATION_LIBRARY: /^\/\/ ([^\s[\n]+)( (\[[^\n]+]))?$/,
+    RX_VALIDATION_LIBRARY: /^\/\/ ([^\s[\n]+)( ([^\n]+))?$/,
     // RX_VALIDATION_CUSTOM: /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*{[\s\S]*}$/,
     // RX_VALIDATION_CUSTOM: /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/,
     RX_VALIDATION_CUSTOM: /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/,

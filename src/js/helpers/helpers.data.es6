@@ -8,7 +8,6 @@
 import JSC from 'jscheck';
 import ObjectId from '../common/window.objectid.es6';
 import { randomVal } from '../common/window.util.es6';
-import input from '../editors/editors.input.es6';
 
 const MAX_HEIGHT = 768;
 const MAX_RATIO = 0.25;
@@ -28,76 +27,6 @@ const IMAGES = [
             'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg'
     }
 ];
-
-/**
- * getValidationLibrary
- * @function getValidationLibrary
- */
-function getValidationLibrary() {
-    return [
-        {
-            name: 'Custom',
-            key: 'custom',
-            formula:
-                'function validate(value, solution, all) {\n\t// Your code should return true when value is validated against solution.\n}'
-        },
-        // { // Test another options.default
-        //    name: 'equal',
-        //    key: 'equal',
-        //    formula:
-        //        'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
-        // },
-        {
-            name: 'Equal (int)',
-            key: 'intEqual',
-            formula:
-                'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
-        },
-        {
-            name: 'Equal (float)',
-            key: 'floatEqual',
-            formula:
-                'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
-        },
-        {
-            name: 'Equal (2 decimals))',
-            key: 'round2DecimalsEqual',
-            formula:
-                'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
-        },
-        {
-            name: 'Greater than',
-            key: 'greaterThan',
-            formula:
-                'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
-        },
-        {
-            name: 'Greater or equal',
-            key: 'greaterThanOrEqual',
-            formula:
-                'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
-        },
-        {
-            name: 'Lower than',
-            key: 'lowerThan',
-            formula:
-                'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
-        },
-        {
-            name: 'Lower or equal',
-            key: 'lowerThanOrEqual',
-            formula:
-                'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
-        },
-        {
-            name: 'With parameters',
-            key: 'withParam',
-            formula:
-                'function validate(value, params) {\n\tconsole.log(params);\n\treturn new RegExp(params, "i").test(value);\n}',
-            editor: input
-        }
-    ];
-}
 
 /**
  * getAudio
@@ -394,6 +323,5 @@ export {
     getTextBox,
     getComponentArray,
     getPage,
-    getPageArray,
-    getValidationLibrary
+    getPageArray
 };

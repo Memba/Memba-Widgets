@@ -29,8 +29,12 @@ function span(container, options) {
             CONSTANTS.STRING
         )
     );
+    const attributes = {
+        ...options.attributes,
+        ...getTextBinding(options.field)
+    };
     return $(`<${CONSTANTS.SPAN}/>`)
-        .attr({ ...options.attributes, ...getTextBinding(options.field) })
+        .attr(attributes)
         .appendTo(container);
 }
 

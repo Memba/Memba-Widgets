@@ -13,7 +13,7 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { randomVal } from '../../../src/js/common/window.util.es6';
-import span from '../../../src/js/editors/editors.span.es6';
+import regex from '../../../src/js/editors/editors.regex.es6';
 
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
@@ -22,7 +22,7 @@ const FIXTURES = 'fixtures';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 
-describe('editors.span', () => {
+describe('editors.regex', () => {
     before(() => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
@@ -30,16 +30,14 @@ describe('editors.span', () => {
     });
 
     it('Initialization', () => {
-        const component = randomVal();
-        const field = `${component}.value`;
+        const field = `${randomVal()}.value`;
         const fixtures = $(`#${FIXTURES}`);
-        const viewModel = observable({});
-        viewModel.set(component, { value: null });
-        span(fixtures, { field });
+        const viewModel = observable({ value: null });
+        regex(fixtures, { field });
         bind(fixtures, viewModel);
-        const element = fixtures.children('span');
+        const element = fixtures.children('input');
         expect(element).to.exist;
-        expect(element).to.have.attr(attr('bind'), `text: ${field}`);
+        expect(element).to.have.attr(attr('bind'), `value: ${field}`);
     });
 
     afterEach(() => {

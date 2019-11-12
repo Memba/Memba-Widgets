@@ -17,7 +17,7 @@ import textarea from '../../../src/js/editors/editors.textarea.es6';
 
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
-const { destroy } = window.kendo;
+const { attr, bind, destroy, observable } = window.kendo;
 const FIXTURES = 'fixtures';
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -30,12 +30,16 @@ describe('editors.textarea', () => {
     });
 
     it('Initialization', () => {
+        const component = randomVal();
+        const field = `${component}.value`;
         const fixtures = $(`#${FIXTURES}`);
-        const field = `${randomVal()}.value`;
+        const viewModel = observable({});
+        viewModel.set(component, { value: null });
         textarea(fixtures, { field });
+        bind(fixtures, viewModel);
         const element = fixtures.children('textarea');
         expect(element).to.exist;
-        expect(element).to.have.attr('data-bind', `value: ${field}`);
+        expect(element).to.have.attr(attr('bind'), `value: ${field}`);
     });
 
     afterEach(() => {

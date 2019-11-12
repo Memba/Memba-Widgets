@@ -30,11 +30,18 @@ function textarea(container, options) {
             CONSTANTS.STRING
         )
     );
-    return $(
-        '<textarea class="k-textbox" style="width: 100%; resize: vertical;"/>'
-    )
+    const attributes = {
+        ...options.attributes,
+        ...getValueBinding(options.field)
+    };
+    attributes.class = attributes.class || 'k-textbox';
+    return $(`<${CONSTANTS.TEXTAREA}/>`)
+        .attr(attributes)
         .attr('name', options.field)
-        .attr({ ...options.attributes, ...getValueBinding(options.field) })
+        .css({
+            resize: 'vertical',
+            width: '100%'
+        })
         .appendTo(container);
 }
 

@@ -17,7 +17,7 @@ import select from '../../../src/js/editors/editors.select.es6';
 
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
-const { bind, destroy, observable } = window.kendo;
+const { attr, bind, destroy, observable } = window.kendo;
 const FIXTURES = 'fixtures';
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -30,10 +30,15 @@ describe('editors.select', () => {
     });
 
     it('Initialization', () => {
-        const field = `${randomVal()}.value`;
+        const component = randomVal();
+        const field = `${component}.value`;
         const fixtures = $(`#${FIXTURES}`);
-        const viewModel = observable({ value: null });
-        const source = [{ text: 'One', value: 1 }, { text: 'Two', value: 2 }];
+        const viewModel = observable({});
+        viewModel.set(component, { value: null });
+        const source = [
+            { text: 'One', value: 1 },
+            { text: 'Two', value: 2 }
+        ];
         const attributes = {
             'data-text-field': 'text',
             'data-value-field': 'value'
@@ -42,7 +47,7 @@ describe('editors.select', () => {
         bind(fixtures, viewModel);
         const element = fixtures.find('select'); // .children('select');
         expect(element).to.exist;
-        expect(element).to.have.attr('data-bind', `value: ${field}`);
+        expect(element).to.have.attr(attr('bind'), `value: ${field}`);
     });
 
     afterEach(() => {

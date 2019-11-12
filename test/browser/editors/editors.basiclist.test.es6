@@ -13,7 +13,7 @@ import chai from 'chai';
 import chaiJquery from 'chai-jquery';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { randomVal } from '../../../src/js/common/window.util.es6';
-import span from '../../../src/js/editors/editors.span.es6';
+import basiclist from '../../../src/js/editors/editors.basiclist.es6';
 
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
@@ -22,7 +22,7 @@ const FIXTURES = 'fixtures';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 
-describe('editors.span', () => {
+describe('editors.basiclist', () => {
     before(() => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
@@ -35,11 +35,11 @@ describe('editors.span', () => {
         const fixtures = $(`#${FIXTURES}`);
         const viewModel = observable({});
         viewModel.set(component, { value: null });
-        span(fixtures, { field });
+        basiclist(fixtures, { field });
         bind(fixtures, viewModel);
-        const element = fixtures.children('span');
+        const element = fixtures.children('div.kj-basiclist');
         expect(element).to.exist;
-        expect(element).to.have.attr(attr('bind'), `text: ${field}`);
+        expect(element).to.have.attr(attr('bind'), `value: ${field}`);
     });
 
     afterEach(() => {

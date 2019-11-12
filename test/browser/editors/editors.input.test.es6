@@ -17,7 +17,7 @@ import input from '../../../src/js/editors/editors.input.es6';
 
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
-const { bind, destroy, observable } = window.kendo;
+const { attr, bind, destroy, observable } = window.kendo;
 const FIXTURES = 'fixtures';
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -30,14 +30,16 @@ describe('editors.input', () => {
     });
 
     it('Initialization', () => {
-        const field = `${randomVal()}.value`;
+        const component = randomVal();
+        const field = `${component}.value`;
         const fixtures = $(`#${FIXTURES}`);
-        const viewModel = observable({ value: null });
+        const viewModel = observable({});
+        viewModel.set(component, { value: null });
         input(fixtures, { field });
         bind(fixtures, viewModel);
         const element = fixtures.children('input');
         expect(element).to.exist;
-        expect(element).to.have.attr('data-bind', `value: ${field}`);
+        expect(element).to.have.attr(attr('bind'), `value: ${field}`);
     });
 
     afterEach(() => {

@@ -17,7 +17,7 @@ import tmpl from '../../../src/js/editors/editors.template.es6';
 
 const { afterEach, before, describe, it } = window;
 const { expect } = chai;
-const { destroy } = window.kendo;
+const { attr, bind, destroy, observable } = window.kendo;
 const FIXTURES = 'fixtures';
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -30,13 +30,17 @@ describe('editors.template', () => {
     });
 
     it('Initialization', () => {
-        const field = `${randomVal()}.value`;
+        const component = randomVal();
+        const field = `${component}.value`;
         const fixtures = $(`#${FIXTURES}`);
+        const viewModel = observable({});
+        viewModel.set(component, { value: null });
         const template = '<span data-bind="text: #: field #"></span>';
         tmpl(fixtures, { field, template });
+        bind(fixtures, viewModel);
         const element = fixtures.children('span');
         expect(element).to.exist;
-        expect(element).to.have.attr('data-bind', `text: ${field}`);
+        expect(element).to.have.attr(attr('bind'), `text: ${field}`);
     });
 
     afterEach(() => {

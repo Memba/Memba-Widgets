@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>editors.select</title>
+    <title>editors.basiclist</title>
     <script>
         window.DEBUG = true;
     </script>
@@ -19,34 +19,19 @@
             'use strict';
             Promise.all([
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('./editors.select.es6')
+                SystemJS.import('./editors.basiclist.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
-                    value: null,
-                    value$() {
-                        var val = this.get('value');
-                        if (typeof val === 'undefined' || val === null) {
-                            val = '';
-                        } else if (typeof val !== 'string') {
-                            val = JSON.stringify(val);
-                        }
-                        return val;
+                    source: [],
+                    source$() {
+                        const source = this.get('source');
+                        return JSON.stringify(source);
                     }
                 });
                 $(function() {
                     modules[1].default($('#container'), {
-                        field: 'value', // for data-bind
-                        attributes: {
-                            'data-text-field': 'text',
-                            'data-value-field': 'value'
-                        },
-                        source: [
-                            { text: 'Zero', value: 0 },
-                            { text: 'One', value: 1 },
-                            { text: 'Two', value: 2 },
-                            { text: 'Three', value: 3 }
-                        ]
+                        field: 'source' // for data-bind
                     });
                     kendo.bind('body', viewModel);
                 });
@@ -55,10 +40,10 @@
     </script>
 </head>
 <body>
-<h1>editors.select</h1>
+<h1>editors.basiclist</h1>
 <div id="container"></div>
 <pre>
-value: <span data-bind="text: value$()"></span>
+value: <span data-bind="text: source$()"></span>
 </pre>
 </body>
 </html>

@@ -10,15 +10,16 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
+import '../widgets/widgets.basiclist.es6';
 
 const { attr } = window.kendo;
 
 /**
- * Input
+ * basiclist
  * @param container
  * @param options
  */
-function input(container, options) {
+function basiclist(container, options) {
     assert.isNonEmptyPlainObject(
         options,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
@@ -32,24 +33,18 @@ function input(container, options) {
             CONSTANTS.STRING
         )
     );
-    const attributes = {
-        ...options.attributes,
-        ...getValueBinding(options.field)
-    };
-    if ($.type(attributes[attr('role')]) === CONSTANTS.UNDEFINED) {
-        if (
-            [undefined, 'text', 'email', 'search', 'tel', 'url'].indexOf(
-                attributes.type
-            ) > -1
-        ) {
-            attributes.class = attributes.class || 'k-textbox';
-        } else if (['button', 'reset'].indexOf(attributes.type) > -1) {
-            attributes.class = attributes.class || 'k-button';
-        }
+    const attributes = getValueBinding(options.field);
+    attributes[attr('role')] = 'basiclist';
+    attributes[attr('type')] = options.type;
+    if (
+        $.isPlainObject(options.attributes) &&
+        !$.isEmptyObject(options.attributes)
+    ) {
+        attributes[attr('attributes')] = JSON.stringify(options.attributes);
     }
-    return $(`<${CONSTANTS.INPUT}/>`)
+    return $(`<${CONSTANTS.DIV}/>`)
+        .attr('name', options.field)
         .attr(attributes)
-        .attr({ name: options.field })
         .css({ width: '100%' })
         .appendTo(container);
 }
@@ -57,4 +52,4 @@ function input(container, options) {
 /**
  * Default export
  */
-export default input;
+export default basiclist;

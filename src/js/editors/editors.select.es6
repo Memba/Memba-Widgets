@@ -43,9 +43,10 @@ function select(container, options) {
     if (options.source) {
         attributes[attr('source')] = JSON.stringify(options.source || {});
     }
-    return $('<select style="width: 100%;"/>')
-        .attr('name', options.field)
+    return $(`<${CONSTANTS.SELECT}/>`)
         .attr(attributes)
+        .attr({ name: options.field })
+        .css({ width: '100%' })
         .appendTo(container);
 }
 

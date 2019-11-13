@@ -67,8 +67,11 @@ const CodeInput = DataBoundWidget.extend({
         autoBind: true,
         enabled: true,
         dataSource: [],
-        custom: 'custom', // key versus name??
-        value: null
+        custom: 'custom', // key
+        value: null,
+        messages: {
+            custom: 'Custom' // name
+        }
     },
 
     /**
@@ -127,7 +130,7 @@ const CodeInput = DataBoundWidget.extend({
             '<input class="k-textbox k-state-disabled" disabled>'
         )
             .width('100%')
-            .val(options.custom)
+            .val(options.messages.custom)
             .appendTo(element);
 
         // Drop down list to choose from library
@@ -258,7 +261,7 @@ const CodeInput = DataBoundWidget.extend({
 
         if (isCustomFormula(value)) {
             // Hide drop down list
-            this.dropDownList.text(this.options.custom);
+            this.dropDownList.value(this.options.custom);
             this.dropDownList.wrapper.hide();
 
             // Show custom input

@@ -111,50 +111,70 @@ const RegEx = Widget.extend({
     _render() {
         assert.ok(
             this.element.is(CONSTANTS.DIV),
-            'Please instantiate this widget with a <div/>'
+            'Please use a div tag to instantiate a RegEx widget.'
         );
         const { element, options } = this;
         this.wrapper = element.addClass(WIDGET_CLASS);
-        $(`<${CONSTANTS.DIV}/>`).append(CONSTANTS.SLASH).appendTo(element);
-        const editorDiv = $(`<${CONSTANTS.DIV}/>`).appendTo(element);
 
         // TODO See correct options at
         // https://stackoverflow.com/questions/13026285/codemirror-for-just-one-line-textfield
         // https://github.com/gskinner/regexr/blob/master/dev/src/utils/CMUtils.js
 
         // Initialize CodeMirror
-        this.codeMirror = CodeMirror(editorDiv.get(0), {
+        this.codeMirror = CodeMirror(element.get(0), {
             lineNumbers: false,
-            mode: 'regex',
-            scrollbarStyle: null
-            /*
             tabSize: 3,
-            indentWithTabs: true
+            indentWithTabs: true,
             extraKeys: {},
             specialChars: /[ \u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff]/,
-            specialCharPlaceholder: ch =>
-                $.create('span', ch === ' ' ? 'cm-space' : 'cm-special', ' ') // needs to be a space so wrapping works
-            */
+            specialCharPlaceholder: (ch) => $.create('span', ch === ' ' ? 'cm-space' : 'cm-special', ' ') // needs to be a space so wrapping works
         });
 
         // Enfore single line
-        this.codeMirror.on(CONSTANTS.BEFORECHANGE, (cm, change) => {
-            if (change.update) {
-                const str = change.text.join('').replace(/(\n|\r)/g, '');
-                change.update(change.from, change.to, [str]);
-            }
-            return true;
-        });
-
-        // TODO
         this.codeMirror.on(
-            CONSTANTS.CHANGE,
-            this._onUserInputChange.bind(this)
+            CONSTANTS.BEFORECHANGE,
+            this._onBeforeChange.bind(this)
         );
 
-        // TODO
+        // Parse and colorize regular expression
+        this.codeMirror.on(
+            CONSTANTS.CHANGE,
+            this._onChange.bind(this)
+        );
+
         this.codeMirror.setSize('100%', '100%');
+        this._setInitialExpression();
         this.codeMirror.refresh();
+    },
+
+    /**
+     * Set initial expression
+     * @private
+     */
+    _setInitialExpression() {
+        this.codeMirror.setValue("/./g");
+
+        // leading /
+        editor.getDoc().markText({line: 0, ch: 0}, {
+            line: 0,
+            ch: 1
+        }, {
+            className: "exp-decorator",
+            readOnly: true,
+            atomic: true,
+            inclusiveLeft: true
+        });
+
+        // trailing /g
+        editor.getDoc().markText({line: 0, ch: 2}, {
+            line: 0,
+            ch: 4
+        }, {
+            className: "exp-decorator",
+            readOnly: false,
+            atomic: true,
+            inclusiveRight: true
+        });
     },
 
     /**
@@ -180,13 +200,28 @@ const RegEx = Widget.extend({
     },
 
     /**
-     * Event handler triggered when changing the content
-     * @method _onUserInputChange
+     * Event handler triggered before changing the content
+     * @method _onBeforeChange
      * @param cm
      * @param change
      * @private
      */
-    _onUserInputChange(/* cm, change */) {
+    _onBeforeChange(cm, change) {
+        if (change.update) {
+            const str = change.text.join('').replace(/([\n\r])/g, '');
+            change.update(change.from, change.to, [str]);
+        }
+        return true;
+    },
+
+    /**
+     * Event handler triggered when changing the content
+     * @method _onChange
+     * @param cm
+     * @param change
+     * @private
+     */
+    _onChange(/* cm, change */) {
         this.trigger(CONSTANTS.CHANGE);
     },
 

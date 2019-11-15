@@ -1,0 +1,43 @@
+@include exports( "widgets.codeinput/theme" ) {
+    .kj-codeinput {
+        .kj-codeinput-wrap {
+            @include fill(
+                $dropdownlist-text,
+                $dropdownlist-bg,
+                $dropdownlist-border,
+                $dropdownlist-gradient
+            );
+            @include use-background-clip();
+
+            .k-select {
+                padding: 0;
+                width: button-inner-size();
+            }
+
+            &:hover,
+            &.k-state-hover {
+                @include fill(
+                    $dropdownlist-hovered-text,
+                    $dropdownlist-hovered-bg,
+                    $dropdownlist-hovered-border,
+                    $dropdownlist-hovered-gradient
+                );
+            }
+
+            // &.k-state-active {}
+
+            /*
+            // TODO review box-shadow on .k-dropdown .k-state-focused
+            &.k-state-focused {
+                @include fill(
+                    $dropdownlist-focused-text,
+                    $dropdownlist-focused-bg,
+                    $dropdownlist-focused-border,
+                    $dropdownlist-focused-gradient
+                );
+                @include box-shadow($dropdownlist-focused-shadow);
+            }
+            */
+        }
+    }
+}

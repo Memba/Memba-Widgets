@@ -1,0 +1,51 @@
+@include exports( "widgets.codeeinput/layout" ) {
+    .kj-codeinput {
+        .kj-codeinput-formula {
+            display: flex;
+            flex-direction: row;
+
+            > .k-input,
+            > .k-textbox {
+                @include border-radius( $input-border-radius 0 0 $input-border-radius );
+
+                width: 100%;
+            }
+
+            .kj-codeinput-wrap {
+                @include border-right-radius-only();
+
+                display: flex;
+                flex-direction: row;
+
+                .k-select {
+                    @include border-right-radius-only();
+
+                    padding: $picker-select-padding-y $picker-select-padding-x;
+                    border-width: 0;
+                    box-sizing: border-box;
+                    border-style: solid;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex: 0 0 auto;
+                    text-align: center;
+                    cursor: pointer;
+
+                    // .k-icon {}
+                }
+            }
+
+            .k-dropdown {
+                .k-dropdown-wrap {
+                    @include border-radius( $input-border-radius 0 0 $input-border-radius );
+
+                    .k-select {
+                        @include border-radius( 0 );
+                    }
+                }
+            }
+        }
+
+        // .kj-codeinput-params {}
+    }
+}

@@ -78,7 +78,7 @@ const CodeInput = DataBoundWidget.extend({
      * Events
      * @property events
      */
-    events: [CONSTANTS.CHANGE],
+    events: [CONSTANTS.CHANGE, CONSTANTS.CLICK],
 
     /**
      * Value for MVVM binding
@@ -102,7 +102,7 @@ const CodeInput = DataBoundWidget.extend({
         } else if (
             this._value !== value &&
             this.dataSource instanceof DataSource
-            // this.dataSource.total()
+            // && this.dataSource.total()
         ) {
             const _old = getLibraryItemKey(this._value);
             const _new = getLibraryItemKey(value);
@@ -110,6 +110,7 @@ const CodeInput = DataBoundWidget.extend({
                 $.type(value) === CONSTANTS.STRING ? value : undefined;
             if (_old !== _new) {
                 // Only rebuild the UI if we change the formula
+                // because this is not needed when changing params
                 this.refresh();
             }
         }
@@ -125,18 +126,22 @@ const CodeInput = DataBoundWidget.extend({
         const { element, options } = this;
         this.wrapper = element.addClass(WIDGET_CLASS);
 
+        const formulaWrapper = $(`<${CONSTANTS.DIV}/>`)
+            .addClass('kj-codeinput-formula')
+            .appendTo(element);
+
         // Static input showing `Custom`
         this.customInput = $(
             '<input class="k-textbox k-state-disabled" disabled>'
         )
             .width('100%')
             .val(options.messages.custom)
-            .appendTo(element);
+            .appendTo(formulaWrapper);
 
         // Drop down list to choose from library
         this.dropDownList = $(`<${CONSTANTS.SELECT}/>`)
             .width('100%')
-            .appendTo(element)
+            .appendTo(formulaWrapper)
             .kendoDropDownList({
                 autoBind: options.autoBind,
                 autoWidth: true,
@@ -148,10 +153,17 @@ const CodeInput = DataBoundWidget.extend({
             })
             .data('kendoDropDownList');
 
-        // Param editor container
+        this.moreButton = $(
+            `<span unselectable="on" class="kj-codeinput-wrap k-state-default">
+                <span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-more-horizontal"/></span>
+            </span>`
+        )
+            .appendTo(formulaWrapper)
+            .on(CONSTANTS.CLICK, this._onMoreButtonClick.bind(this));
+
+        // Params editor container
         this.paramsContainer = $(`<${CONSTANTS.DIV}/>`)
-            .css({ marginTop: '0.25em' })
-            .width('100%')
+            .addClass('kj-codeinput-params')
             .hide()
             .appendTo(element);
     },
@@ -338,6 +350,14 @@ const CodeInput = DataBoundWidget.extend({
             }
             this.trigger(CONSTANTS.CHANGE);
         }
+    },
+
+    /**
+     * Event handler triggered when clicking the more button
+     * @private
+     */
+    _onMoreButtonClick() {
+        this.trigger(CONSTANTS.CLICK);
     },
 
     /**

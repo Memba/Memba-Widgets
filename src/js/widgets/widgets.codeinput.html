@@ -29,6 +29,9 @@
                     library: library,
                     visible: true,
                     enabled: true,
+                    onClick() {
+                        window.alert('Click');
+                    },
                     keys: library.map(function(item) {
                         if (item.key === 'custom') {
                             return item.formula;
@@ -49,7 +52,7 @@
 <body>
 <h1>widgets.codeinput</h1>
 <h2>Bound to observable</h2>
-<div data-role="codeinput" data-bind="value: code, source: library, visible: visible, enabled: enabled"></div>
+<div data-role="codeinput" data-bind="value: code, source: library, visible: visible, enabled: enabled, events: { click: onClick }"></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />enabled

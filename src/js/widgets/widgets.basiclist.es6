@@ -10,6 +10,8 @@
 // 2. convert the array into an arrey of { value: ... } objects;
 // 3. pass that array with a schema model to the listview datasource
 
+// TODO: New items are not added to ds._pristineData. As a result canceling editing removes new items (but not old ones).
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -25,6 +27,7 @@ const {
     data: { DataSource, ObservableArray },
     destroy,
     format,
+    guid,
     ns,
     support,
     template,
@@ -264,11 +267,15 @@ const BasicList = Widget.extend({
         }
         const dataSource = new DataSource({
             // change: this._refreshHandler
-            data: data.map(value => ({ value })),
+            data: data.map(value => ({ id: guid(), value })),
             schema: {
                 model: {
-                    idField: 'value', // Without idField, cancel removes the item which is not found
+                    idField: 'id', // Without idField, cancel removes the item which is not found
                     fields: {
+                        id: {
+                            type: CONSTANTS.STRING,
+                            defaultValue: guid
+                        },
                         value: {
                             type: this.options.type
                         }

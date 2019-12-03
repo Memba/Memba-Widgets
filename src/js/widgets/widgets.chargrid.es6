@@ -519,7 +519,8 @@ const CharGrid = Widget.extend({
         if (
             r >= 0 &&
             r < rows &&
-            (c >= 0 && c < columns) &&
+            c >= 0 &&
+            c < columns &&
             !this.isLocked(r, c)
         ) {
             const scroll = {

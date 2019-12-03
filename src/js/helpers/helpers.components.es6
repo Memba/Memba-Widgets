@@ -51,7 +51,6 @@ const imageList = () => [
     { text: JSC.string()(), url: urlGenerator('png') }
 ];
 
-
 /**
  * getValidationLibrary
  * @function getValidationLibrary

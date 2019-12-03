@@ -71,9 +71,9 @@ const PropertyGrid = Widget.extend({
         size: ['35%', '65%'],
         templates: {
             row:
-                '<tr role="row"><td role="gridcell">#: title ## if (help) { #<span class="k-icon k-i-help" title="#: help #"></span># } #</td><td role="gridcell"></td></tr>',
+                '<tr role="row"><td role="gridcell">#: title ## if (help) { #<span class="k-icon k-i-help" title="#: help #"/># } #</td><td role="gridcell"/></tr>',
             altRow:
-                '<tr class="k-alt" role="row"><td role="gridcell">#: title ## if (help) { #<span class="k-icon k-i-help" title="#: help #"></span># } #</td><td role="gridcell"></td></tr>'
+                '<tr class="k-alt" role="row"><td role="gridcell">#: title ## if (help) { #<span class="k-icon k-i-help" title="#: help #"/># } #</td><td role="gridcell"/></tr>'
         },
         messages: {
             property: 'Property',
@@ -153,9 +153,7 @@ const PropertyGrid = Widget.extend({
                 `${'<div class="k-grid-header" style="padding-right:17px;">' +
                     '<div class="k-grid-header-wrap k-auto-scrollable">' +
                     '<table role="grid">' +
-                    `<colgroup><col style="width:${
-                        size[0]
-                    };"><col style="width:${size[1]};"></colgroup>` +
+                    `<colgroup><col style="width:${size[0]};"><col style="width:${size[1]};"></colgroup>` +
                     '<thead role="rowgroup"><tr role="row">' +
                     '<th role="columnheader" class="k-header">'}${
                     messages.property
@@ -172,9 +170,7 @@ const PropertyGrid = Widget.extend({
         element.append(
             '<div class="k-grid-content k-auto-scrollable">' + // the kendo.ui.Grid has style="height:..."
                 '<table role="grid" style="height: auto;">' +
-                `<colgroup><col style="width:${size[0]};"><col style="width:${
-                    size[1]
-                };"></colgroup>` +
+                `<colgroup><col style="width:${size[0]};"><col style="width:${size[1]};"></colgroup>` +
                 '<tbody role="rowgroup">' +
                 // ------------------------------ This is where rows are added
                 '</tbody>' +
@@ -633,9 +629,10 @@ const PropertyGrid = Widget.extend({
                     pos = name.indexOf(CONSTANTS.DOT, pos + 1);
                     if (pos === -1) {
                         // If there is no dot left to find, try fields.<name>.validation
-                        validation = getter(`fields.${name}.validation`, true)(
-                            value
-                        );
+                        validation = getter(
+                            `fields.${name}.validation`,
+                            true
+                        )(value);
                     } else {
                         // If there is a dot left, break the field into prefix.suffix and try prefix.fields.suffix.validation
                         // as in attributes.fields.text.validation or properties.fields.question.validation

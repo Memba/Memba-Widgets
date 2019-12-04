@@ -14,6 +14,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import {
     getLibraryItemKey,
+    getParams,
     isCustomFormula,
     parseLibraryItem,
     stringifyLibraryItem
@@ -112,6 +113,15 @@ const CodeInput = DataBoundWidget.extend({
                 // Only rebuild the UI if we change the formula
                 // because this is not needed when changing params
                 this.refresh();
+            } else if (this.viewModel instanceof Observable) {
+                const item = this.dropDownList.dataItem();
+                if (item && $.isFunction(item.editor)) {
+                    const params = getParams(this._value);
+                    this.viewModel.set(
+                        item.options.field,
+                        params || item.defaultParams
+                    );
+                }
             }
         }
         return ret;

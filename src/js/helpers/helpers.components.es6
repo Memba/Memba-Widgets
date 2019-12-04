@@ -118,7 +118,7 @@ function getValidationLibrary() {
                 'function validate(value, params) {\n\tconsole.log(params);\n\treturn new RegExp(params, "i").test(value);\n}',
             editor: regex,
             options: {
-                field: 'params'
+                field: 'params' // Note: this is required for editors
             },
             defaultParams: ''
         },
@@ -129,7 +129,7 @@ function getValidationLibrary() {
                 'function validate(value, params) {\n\tconsole.log(params);\n\treturn new RegExp(params, "i").test(value);\n}',
             editor: basiclist,
             options: {
-                field: 'params',
+                field: 'params', // Note: this is required for editors
                 type: 'number',
                 attributes: {
                     'data-culture': 'fr-FR'

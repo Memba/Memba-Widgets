@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Are we missing a  quizLibrary!!!!!
+// TODO Are we missing a quizLibrary!!!!!
 // TODO Add alternate solutions (array of solutions)
 // TODO consider replacer and reviver to stringify and parse library item
 
@@ -26,6 +26,7 @@ import 'kendo.core';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { dateReviver } from '../common/window.util.es6';
 import regexpEditor from '../editors/editors.regex.es6'; // TODO use string to designate entry in util.editors;
 import TOOLS from './util.constants.es6';
 
@@ -43,6 +44,28 @@ function getLibraryItemKey(value) {
             [, ret] = libraryMatches;
         } else {
             ret = 'custom';
+        }
+    }
+    return ret;
+}
+
+/**
+ * Get params
+ * @param value
+ */
+function getParams(value) {
+    let ret;
+    if ($.type(value) === CONSTANTS.STRING) {
+        const libraryMatches = value.match(TOOLS.RX_VALIDATION_LIBRARY);
+        if (Array.isArray(libraryMatches) && libraryMatches.length === 4) {
+            const [, , , params] = libraryMatches;
+            if ($.type(params) === CONSTANTS.STRING && params.length) {
+                try {
+                    ret = JSON.parse(params, dateReviver);
+                } catch (ex) {
+                    $.noop(ex);
+                }
+            }
         }
     }
     return ret;
@@ -147,7 +170,11 @@ function parseLibraryItem(value, library) {
             $.type(params) === CONSTANTS.STRING &&
             params.length
         ) {
-            ret.params = JSON.parse(params);
+            try {
+                ret.params = JSON.parse(params, dateReviver);
+            } catch (ex) {
+                $.noop(ex);
+            }
         }
     }
     return ret;
@@ -495,6 +522,7 @@ const textLibrary = {
 export {
     // functions
     getLibraryItemKey,
+    getParams,
     isCustomFormula,
     isLibraryFormula,
     parseLibraryItem,

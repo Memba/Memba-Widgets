@@ -35,8 +35,6 @@
                     keys: library.map(function(item) {
                         if (item.key === 'custom') {
                             return item.formula;
-                        } else if (item.key === 'withParam') {
-                            return '// withParam ["^[a-z](\w+)$"]';
                         } else {
                             return '// ' + item.key;
                         }

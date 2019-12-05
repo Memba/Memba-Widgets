@@ -14,7 +14,7 @@ import 'kendo.numerictextbox';
 import 'kendo.switch';
 import CONSTANTS from '../common/window.constants.es6';
 import '../widgets/widgets.codeinput.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
 const {
@@ -41,14 +41,17 @@ const DisabledAdapter = BaseAdapter.extend({
         this.defaultValue = this.defaultValue || (this.nullable ? null : false);
         // this.editor = 'input';
         // this.attributes = $.extend({}, this.attributes, attributes);
-        // this.attributes[attr('role')] = 'switch';
+        // this.attributes[attr(CONSTANTS.ROLE)] = 'switch';
         this.editor = (container, settings = {}) => {
             const input = $(`<${CONSTANTS.INPUT}>`)
                 .attr(
                     $.extend(
                         {},
                         settings.attributes,
-                        getValueBinding(settings.field)
+                        getAttributeBinding(
+                            CONSTANTS.BIND,
+                            `value: ${settings.field}`
+                        )
                     )
                 )
                 .appendTo(container);
@@ -77,7 +80,7 @@ const DisabledAdapter = BaseAdapter.extend({
             .find(
                 format(
                     ATTR_CONTAIN_SELECTOR,
-                    attr('bind'),
+                    attr(CONSTANTS.BIND),
                     'properties.question'
                 )
             )
@@ -87,7 +90,7 @@ const DisabledAdapter = BaseAdapter.extend({
         }
         // Solution - Note: cannot predict what solutionWidget is
         /*
-        var solutionElement = tbody.find(format(ATTR_CONTAIN_SELECTOR, attr('bind'), 'properties.solution'));
+        var solutionElement = tbody.find(format(ATTR_CONTAIN_SELECTOR, attr(CONSTANTS.BIND), 'properties.solution'));
         var solutionWidget = kendo.widgetInstance(solutionElement);
         if ($.isFunction(solutionWidget.enable)) {
              solutionWidget.enable(!e.checked);
@@ -98,7 +101,7 @@ const DisabledAdapter = BaseAdapter.extend({
             .find(
                 format(
                     ATTR_CONTAIN_SELECTOR,
-                    attr('bind'),
+                    attr(CONSTANTS.BIND),
                     'properties.validation'
                 )
             )
@@ -116,7 +119,7 @@ const DisabledAdapter = BaseAdapter.extend({
             .find(
                 format(
                     ATTR_CONTAIN_SELECTOR,
-                    attr('bind'),
+                    attr(CONSTANTS.BIND),
                     'properties.success'
                 )
             )
@@ -129,7 +132,7 @@ const DisabledAdapter = BaseAdapter.extend({
             .find(
                 format(
                     ATTR_CONTAIN_SELECTOR,
-                    attr('bind'),
+                    attr(CONSTANTS.BIND),
                     'properties.failure'
                 )
             )
@@ -140,7 +143,11 @@ const DisabledAdapter = BaseAdapter.extend({
         // Omit
         const omit = tbody
             .find(
-                format(ATTR_CONTAIN_SELECTOR, attr('bind'), 'properties.omit')
+                format(
+                    ATTR_CONTAIN_SELECTOR,
+                    attr(CONSTANTS.BIND),
+                    'properties.omit'
+                )
             )
             .data('kendoNumericTextBox');
         if (omit instanceof NumericTextBox) {

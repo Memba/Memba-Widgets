@@ -32,7 +32,7 @@ const DateAdapter = BaseAdapter.extend({
             this.defaultValue || (this.nullable ? null : () => new Date());
         this.editor = 'input';
         this.attributes = $.extend({}, this.attributes, attributes);
-        this.attributes[attr('role')] = 'datepicker';
+        this.attributes[attr(CONSTANTS.ROLE)] = 'datepicker';
     }
 });
 

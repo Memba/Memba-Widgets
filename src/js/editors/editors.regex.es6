@@ -12,7 +12,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 // import '../experiments/widgets.regex.es6';
 
 /**
@@ -36,7 +36,7 @@ function regex(container, options) {
     );
     const attributes = {
         ...options.attributes,
-        ...getValueBinding(options.field)
+        ...getAttributeBinding(CONSTANTS.BIND, `value: ${options.field}`)
     };
     attributes.class = attributes.class || 'k-textbox';
     return $(`<${CONSTANTS.INPUT}/>`)

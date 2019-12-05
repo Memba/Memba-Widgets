@@ -129,6 +129,7 @@ const CONSTANTS = {
     UNDERSCORE: '_',
     // Miscellaneous
     ACTION: 'action',
+    BIND: 'bind',
     DATA_PAGE_SIZE: {
         SMALL: 5,
         MEDIUM: 10,
@@ -148,6 +149,7 @@ const CONSTANTS = {
         READ: 1,
         EDIT: 2
     },
+    ROLE: 'role',
     TEXT: 'text',
     UID: 'uid',
     VALUE: 'value',

@@ -10,7 +10,7 @@ import 'kendo.core';
 import 'kendo.dropdownlist';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 
 const { attr } = window.kendo;
 
@@ -35,10 +35,10 @@ function select(container, options) {
     );
     const attributes = {
         ...options.attributes,
-        ...getValueBinding(options.field)
+        ...getAttributeBinding(CONSTANTS.BIND, `value: ${options.field}`)
     };
-    if ($.type(attributes[attr('role')]) === CONSTANTS.UNDEFINED) {
-        attributes[attr('role')] = 'dropdownlist';
+    if ($.type(attributes[attr(CONSTANTS.ROLE)]) === CONSTANTS.UNDEFINED) {
+        attributes[attr(CONSTANTS.ROLE)] = 'dropdownlist';
     }
     if (options.source) {
         attributes[attr('source')] = JSON.stringify(options.source || {});

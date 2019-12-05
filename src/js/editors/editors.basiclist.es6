@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import '../widgets/widgets.basiclist.es6';
 
 const { attr } = window.kendo;
@@ -33,8 +33,11 @@ function basiclist(container, options) {
             CONSTANTS.STRING
         )
     );
-    const attributes = getValueBinding(options.field);
-    attributes[attr('role')] = 'basiclist';
+    const attributes = getAttributeBinding(
+        CONSTANTS.BIND,
+        `value: ${options.field}`
+    );
+    attributes[attr(CONSTANTS.ROLE)] = 'basiclist';
     attributes[attr('type')] = options.type;
     if (
         $.isPlainObject(options.attributes) &&

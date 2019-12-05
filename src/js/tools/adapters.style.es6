@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import openStyleEditor from '../dialogs/dialogs.styleeditor.es6';
 import '../dialogs/widgets.basedialog.es6';
 import BaseAdapter from './adapters.base.es6';
@@ -44,7 +44,10 @@ const StyleAdapter = BaseAdapter.extend({
                         true,
                         { name: settings.name },
                         settings.attributes,
-                        getValueBinding(settings.field),
+                        getAttributeBinding(
+                            CONSTANTS.BIND,
+                            `value: ${settings.field}`
+                        ),
                         attributes
                     )
                 )

@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.combobox';
 import CONSTANTS from '../common/window.constants.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
 // TODO make it a generic combobox adapter with a generic fill callback/open event  handler
@@ -39,7 +39,10 @@ const QuestionAdapter = BaseAdapter.extend({
                         true,
                         { name: settings.field },
                         settings.attributes,
-                        getValueBinding(settings.field),
+                        getAttributeBinding(
+                            CONSTANTS.BIND,
+                            `value: ${settings.field}`
+                        ),
                         attributes
                     )
                 )
@@ -55,7 +58,9 @@ const QuestionAdapter = BaseAdapter.extend({
                     const data = [];
                     // find the design (mode) stage, avoiding navigation
                     const stage = $(
-                        `[${attr('role')}="stage"][${attr('mode')}="design"]`
+                        `[${attr(CONSTANTS.ROLE)}="stage"][${attr(
+                            'mode'
+                        )}="design"]`
                     );
                     // find all labels
                     const labels = stage.find(

@@ -31,7 +31,7 @@ const BooleanAdapter = BaseAdapter.extend({
         this.defaultValue = this.defaultValue || (this.nullable ? null : false);
         this.editor = 'input';
         this.attributes = $.extend({}, this.attributes, attributes);
-        this.attributes[attr('role')] = 'switch';
+        this.attributes[attr(CONSTANTS.ROLE)] = 'switch';
     }
 });
 

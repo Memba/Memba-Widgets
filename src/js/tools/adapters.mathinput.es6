@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import '../widgets/widgets.mathinput.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
 // const { attr } = window.kendo;
@@ -43,7 +43,10 @@ const MathInputAdapter = BaseAdapter.extend({
                         true,
                         {}, // { name: settings.field },
                         settings.attributes,
-                        getValueBinding(settings.field),
+                        getAttributeBinding(
+                            CONSTANTS.BIND,
+                            `value: ${settings.field}`
+                        ),
                         attributes
                     )
                 )

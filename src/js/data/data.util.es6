@@ -10,7 +10,7 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
-const { attr } = window.kendo;
+const { attr, toCamelCase } = window.kendo;
 
 /**
  * Synchronization state
@@ -159,46 +159,34 @@ export function extendQueryWithPartition(query, partition) {
 }
 
 /**
- * Returns a Kendo UI role data binding
- * @fiuncton getRoleBinding
- * @param role
+ * Returns a Kendo UI attribute binding
+ * @function getAttributeBinding
+ * @param attribute
+ * @param value
  */
-export function getRoleBinding(role) {
+export function getAttributeBinding(attribute, value) {
+    assert.type(
+        CONSTANTS.STRING,
+        attribute,
+        assert.format(
+            assert.messages.type.default,
+            'attribute',
+            CONSTANTS.STRING
+        )
+    );
+    assert.type(
+        CONSTANTS.STRING,
+        value,
+        assert.format(
+            assert.messages.type.default,
+            'value',
+            CONSTANTS.STRING
+        )
+    );
     const binding = {};
-    if ($.type(role) === CONSTANTS.STRING && role.length) {
-        binding[attr('role')] = role;
-    }
-    return binding;
-}
-
-/**
- * Returns a Kendo UI text data binding
- * @fiuncton getTextBinding
- * @param field
- */
-export function getTextBinding(field) {
-    const binding = {};
-    if ($.type(field) === CONSTANTS.STRING && field.length) {
-        binding[attr('bind')] = `text: ${field}`;
-    }
-    return binding;
-}
-
-/**
- * Returns a Kendo UI value data binding (with optional source binding)
- * @function getValueBinding
- * @param field
- * @param source
- */
-export function getValueBinding(field, source) {
-    const binding = {};
-    if ($.type(field) === CONSTANTS.STRING && field.length) {
-        binding[attr('bind')] = `value: ${field}`;
-    }
-    if ($.type(source) === CONSTANTS.STRING && source.length) {
-        binding[attr('bind')] = binding[attr('bind')]
-            ? `${binding[attr('bind')]}, source: ${source}`
-            : `source: ${source}`;
+    if (attribute.length && value.length) {
+        // Note: consider improving with toHyphens or toCamelCase is necessary
+        binding[attr(attribute)] = value;
     }
     return binding;
 }
@@ -210,6 +198,10 @@ export function getValueBinding(field, source) {
  * @returns {*}
  */
 export function normalizeSchema(schema) {
+    assert.isNonEmptyPlainObject(
+        schema,
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'schema')
+    );
     return {
         // aggregates
         data(response) {

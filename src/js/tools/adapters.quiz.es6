@@ -10,7 +10,7 @@ import 'kendo.core';
 import 'kendo.dropdownlist';
 import CONSTANTS from '../common/window.constants.es6';
 import { ImageDataSource } from '../data/data.image.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 import '../widgets/widgets.quiz.es6';
 
@@ -43,15 +43,15 @@ const QuizAdapter = BaseAdapter.extend({
         this.editor = (container, settings) => {
             const input = $(`<${CONSTANTS.INPUT}/>`)
                 .css({ width: '100%' })
-                .attr(
-                    $.extend(
-                        true,
-                        { name: settings.field },
-                        settings.attributes,
-                        getValueBinding(settings.field),
-                        attributes
-                    )
-                )
+                .attr({
+                    name: settings.field,
+                    ...settings.attributes,
+                    ...getAttributeBinding(
+                        CONSTANTS.BIND,
+                        `value: ${settings.field}`
+                    ),
+                    ...attributes
+                })
                 .appendTo(container);
             input.kendoDropDownList({
                 autoWidth: true,

@@ -11,7 +11,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { getRoleBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import input from '../editors/editors.input.es6';
 import span from '../editors/editors.span.es6';
 import template from '../editors/editors.template.es6';
@@ -92,7 +92,7 @@ function optimizeEditor(row = {}) {
         ) {
             row.attributes = {
                 ...row.attributes,
-                ...getRoleBinding(row.editor)
+                ...getAttributeBinding(CONSTANTS.ROLE, row.editor)
             };
             row.editor = editors.input;
             return;
@@ -109,7 +109,7 @@ function optimizeEditor(row = {}) {
         ) {
             row.attributes = {
                 ...row.attributes,
-                ...getRoleBinding(row.editor)
+                ...getAttributeBinding(CONSTANTS.ROLE, row.editor)
             };
             row.editor = editors.select;
             return;
@@ -130,21 +130,21 @@ function optimizeEditor(row = {}) {
         case CONSTANTS.NUMBER:
             row.attributes = {
                 ...row.attributes,
-                ...getRoleBinding('numerictextbox')
+                ...getAttributeBinding(CONSTANTS.ROLE, 'numerictextbox')
             };
             row.editor = editors.input;
             break;
         case CONSTANTS.BOOLEAN:
             row.attributes = {
                 ...row.attributes,
-                ...getRoleBinding('switch')
+                ...getAttributeBinding(CONSTANTS.ROLE, 'switch')
             };
             row.editor = editors.input;
             break;
         case CONSTANTS.DATE:
             row.attributes = {
                 ...row.attributes,
-                ...getRoleBinding('datepicker')
+                ...getAttributeBinding(CONSTANTS.ROLE, 'datepicker')
             };
             row.editor = editors.input;
             break;

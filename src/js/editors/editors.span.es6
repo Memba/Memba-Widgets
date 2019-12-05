@@ -8,7 +8,7 @@
 import $ from 'jquery';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { getTextBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 
 /**
  * Span
@@ -31,7 +31,7 @@ function span(container, options) {
     );
     const attributes = {
         ...options.attributes,
-        ...getTextBinding(options.field)
+        ...getAttributeBinding(CONSTANTS.BIND, `text: ${options.field}`)
     };
     return $(`<${CONSTANTS.SPAN}/>`)
         .attr(attributes)

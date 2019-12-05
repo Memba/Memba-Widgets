@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 
 const { attr } = window.kendo;
 
@@ -34,9 +34,9 @@ function input(container, options) {
     );
     const attributes = {
         ...options.attributes,
-        ...getValueBinding(options.field)
+        ...getAttributeBinding(CONSTANTS.BIND, `value: ${options.field}`)
     };
-    if ($.type(attributes[attr('role')]) === CONSTANTS.UNDEFINED) {
+    if ($.type(attributes[attr(CONSTANTS.ROLE)]) === CONSTANTS.UNDEFINED) {
         if (
             [undefined, 'text', 'email', 'search', 'tel', 'url'].indexOf(
                 attributes.type

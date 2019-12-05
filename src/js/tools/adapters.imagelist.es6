@@ -10,7 +10,7 @@ import 'kendo.core';
 import assets from '../app/app.assets.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import openAssetManager from '../dialogs/dialogs.assetmanager.es6';
 import '../dialogs/widgets.basedialog.es6';
 import '../widgets/widgets.imagelist.es6';
@@ -46,7 +46,10 @@ const ImageListAdapter = BaseAdapter.extend({
                         true,
                         {}, // { name: settings.field } for validation
                         settings.attributes,
-                        getValueBinding(undefined, settings.field),
+                        getAttributeBinding(
+                            CONSTANTS.BIND,
+                            `source: ${settings.field}`
+                        ),
                         attributes
                     )
                 )

@@ -38,18 +38,15 @@ const ConnectorAdapter = BaseAdapter.extend({
         this.editor = (container, settings) => {
             const input = $(`<${CONSTANTS.INPUT}>`)
                 .css({ width: '100%' })
-                .attr(
-                    $.extend(
-                        true,
-                        { name: settings.field },
-                        settings.attributes,
-                        getAttributeBinding(
-                            CONSTANTS.BIND,
-                            `value: ${settings.field}`
-                        ),
-                        attributes
-                    )
-                )
+                .attr({
+                    name: settings.field,
+                    ...settings.attributes,
+                    ...getAttributeBinding(
+                        CONSTANTS.BIND,
+                        `value: ${settings.field}`
+                    ),
+                    ...attributes
+                })
                 .appendTo(container);
             input.kendoComboBox({
                 autoWidth: true,

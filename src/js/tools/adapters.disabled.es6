@@ -34,8 +34,9 @@ const DisabledAdapter = BaseAdapter.extend({
      * Init
      * @constructor init
      * @param options
+     * @param attributes
      */
-    init(options /* , attributes */) {
+    init(options, attributes) {
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.BOOLEAN;
         this.defaultValue = this.defaultValue || (this.nullable ? null : false);
@@ -44,16 +45,15 @@ const DisabledAdapter = BaseAdapter.extend({
         // this.attributes[attr(CONSTANTS.ROLE)] = 'switch';
         this.editor = (container, settings = {}) => {
             const input = $(`<${CONSTANTS.INPUT}>`)
-                .attr(
-                    $.extend(
-                        {},
-                        settings.attributes,
-                        getAttributeBinding(
-                            CONSTANTS.BIND,
-                            `value: ${settings.field}`
-                        )
-                    )
-                )
+                .attr({
+                    name: settings.field,
+                    ...settings.attributes,
+                    ...getAttributeBinding(
+                        CONSTANTS.BIND,
+                        `value: ${settings.field}`
+                    ),
+                    ...attributes
+                })
                 .appendTo(container);
             const switchWidget = input
                 .kendoSwitch({

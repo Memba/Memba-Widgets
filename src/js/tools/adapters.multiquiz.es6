@@ -35,18 +35,15 @@ const MultiQuizAdapter = BaseAdapter.extend({
         // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = (container, settings) => {
             const input = $(`<${CONSTANTS.DIV}/>`)
-                .attr(
-                    $.extend(
-                        true,
-                        {}, // { name: settings.field }
-                        settings.attributes,
-                        getAttributeBinding(
-                            CONSTANTS.BIND,
-                            `value: ${settings.field}`
-                        ),
-                        attributes
-                    )
-                )
+                .attr({
+                    name: settings.field,
+                    ...settings.attributes,
+                    ...getAttributeBinding(
+                        CONSTANTS.BIND,
+                        `value: ${settings.field}`
+                    ),
+                    ...attributes
+                })
                 .appendTo(container);
             input.kendoMultiQuiz({
                 mode: 'checkbox',

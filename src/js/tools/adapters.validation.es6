@@ -45,7 +45,7 @@ const ValidationAdapter = BaseAdapter.extend({
             // Add code input
             $(`<div data-${ns}role="codeinput"/>`)
                 .attr({
-                    //  name: settings.field
+                    name: settings.field,
                     ...settings.attributes,
                     ...getAttributeBinding(
                         CONSTANTS.BIND,

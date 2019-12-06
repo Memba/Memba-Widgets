@@ -41,18 +41,15 @@ const ImageListAdapter = BaseAdapter.extend({
         // this.editor is the list editor where the insert image button triggers this.onImageClick
         this.editor = (container, settings) => {
             const element = $(`<${CONSTANTS.DIV}/>`)
-                .attr(
-                    $.extend(
-                        true,
-                        {}, // { name: settings.field } for validation
-                        settings.attributes,
-                        getAttributeBinding(
-                            CONSTANTS.BIND,
-                            `source: ${settings.field}`
-                        ),
-                        attributes
-                    )
-                )
+                .attr({
+                    name: settings.field,
+                    ...settings.attributes,
+                    ...getAttributeBinding(
+                        CONSTANTS.BIND,
+                        `value: ${settings.field}`
+                    ),
+                    ...attributes
+                })
                 .appendTo(container);
             const widget = element
                 .kendoImageList({

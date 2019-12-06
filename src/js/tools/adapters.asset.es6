@@ -43,18 +43,15 @@ const AssetAdapter = BaseAdapter.extend({
             $(`<${CONSTANTS.INPUT}>`)
                 .css({ width: '100%' }) // 'auto' seems to imply a min-width
                 .prop({ readonly: true })
-                .attr(
-                    $.extend(
-                        true,
-                        { name: settings.field },
-                        settings.attributes,
-                        getAttributeBinding(
-                            CONSTANTS.BIND,
-                            `value: ${settings.field}`
-                        ),
-                        attributes
-                    )
-                )
+                .attr({
+                    name: settings.field,
+                    ...settings.attributes,
+                    ...getAttributeBinding(
+                        CONSTANTS.BIND,
+                        `value: ${settings.field}`
+                    ),
+                    ...attributes
+                })
                 .appendTo(container)
                 .kendoButtonBox({
                     click: this.showDialog.bind(this, settings)

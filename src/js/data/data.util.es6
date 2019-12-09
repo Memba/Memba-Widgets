@@ -10,7 +10,7 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
-const { attr, toCamelCase } = window.kendo;
+const { attr } = window.kendo;
 
 /**
  * Synchronization state
@@ -177,11 +177,7 @@ export function getAttributeBinding(attribute, value) {
     assert.type(
         CONSTANTS.STRING,
         value,
-        assert.format(
-            assert.messages.type.default,
-            'value',
-            CONSTANTS.STRING
-        )
+        assert.format(assert.messages.type.default, 'value', CONSTANTS.STRING)
     );
     const binding = {};
     if (attribute.length && value.length) {

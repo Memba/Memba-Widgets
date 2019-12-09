@@ -360,7 +360,7 @@ describe('widgets.codeeditor', () => {
         it('destroy', () => {
             expect(widget).to.be.an.instanceof(CodeEditor);
             widget.destroy();
-            /// TODO
+            // TODO
             // expect(widget.codeMirror).to.be.undefined;
             // expect(widget.dataSource).to.be.undefined;
             expect(widget.dropDownList).to.be.undefined;

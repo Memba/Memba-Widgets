@@ -407,7 +407,9 @@ describe('widgets.codeinput', () => {
                 change(e.value);
             });
             widget.value(TOOLS.LIB_COMMENT + EQUAL.key);
-            expect(change).to.have.been.calledWith(TOOLS.LIB_COMMENT + EQUAL.key);
+            expect(change).to.have.been.calledWith(
+                TOOLS.LIB_COMMENT + EQUAL.key
+            );
             widget.value(FORMULA2);
             expect(change).to.have.been.calledWith(FORMULA2);
             widget.value(DUMMY);

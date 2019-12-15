@@ -12,8 +12,7 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import {
     error2xhr,
     extendQueryWithPartition,
-    getTextBinding,
-    getValueBinding,
+    getAttributeBinding,
     normalizeSchema,
     xhr2error
 } from '../../../src/js/data/data.util.es6';
@@ -116,29 +115,30 @@ describe('data.util', () => {
         });
     });
 
-    describe('getTextBinding', () => {
+    describe('getAttributeBinding', () => {
         it('it should return a text binding', () => {
             const field = JSC.string()();
+            const value = `text: ${field}`;
             const binding = {};
-            binding[`data-${ns}bind`] = `text: ${field}`;
-            expect(getTextBinding(field)).to.deep.equal(binding);
+            binding[`data-${ns}bind`] = value;
+            expect(getAttributeBinding('bind', value)).to.deep.equal(binding);
         });
-    });
 
-    describe('getValueBinding', () => {
         it('it should return a value binding', () => {
             const field = JSC.string()();
+            const value = `value: ${field}`;
             const binding = {};
-            binding[`data-${ns}bind`] = `value: ${field}`;
-            expect(getValueBinding(field)).to.deep.equal(binding);
+            binding[`data-${ns}bind`] = value;
+            expect(getAttributeBinding('bind', value)).to.deep.equal(binding);
         });
 
         it('it should return a value binding with optional source binding', () => {
             const field = JSC.string()();
             const source = JSC.string()();
+            const value = `value: ${field}, source: ${source}`;
             const binding = {};
-            binding[`data-${ns}bind`] = `value: ${field}, source: ${source}`;
-            expect(getValueBinding(field, source)).to.deep.equal(binding);
+            binding[`data-${ns}bind`] = value;
+            expect(getAttributeBinding('bind', value)).to.deep.equal(binding);
         });
     });
 

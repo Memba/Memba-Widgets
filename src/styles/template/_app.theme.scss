@@ -7,7 +7,7 @@
 @import "../themes/common/global";
 
 // Kendo UI
-// ~ only works with webpack module resolution
+// ~ tilde only works with webpack module resolution
 // @import "~@progress/kendo-theme-bootstrap/scss/all";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/all";
 
@@ -15,7 +15,7 @@
 // @import "../themes/common/bootstrap";
 
 // Bootstrap 4
-// ~ only works with webpack module resolution
+// ~ tilde only works with webpack module resolution
 // @import "~bootstrap/scss/bootstrap";
 @import "../../../node_modules/bootstrap/scss/bootstrap";
 
@@ -42,7 +42,6 @@
 @import "../widgets/widgets.playbar.scss";
 @import "../widgets/widgets.propertygrid.scss";
 @import "../widgets/widgets.quiz.scss";
-@import "../widgets/widgets.rating.scss";
 @import "../widgets/widgets.social.scss";
 @import "../widgets/widgets.splitbutton.scss";
 @import "../widgets/widgets.stage.scss";

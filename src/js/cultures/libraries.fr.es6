@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+/**
+ * Resources
+ */
 const res = {
     /* custom */
     custom: { name: 'Personnalisé' },

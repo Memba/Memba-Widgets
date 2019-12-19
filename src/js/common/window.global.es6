@@ -13,9 +13,9 @@ const app = {
 };
 
 /**
- * Add to globals in debug mode
+ * Add to globals in cordova and debug mode
  */
-if (window.DEBUG) {
+if (window.cordova || window.DEBUG) {
     window.app = app;
 }
 

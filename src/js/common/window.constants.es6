@@ -19,9 +19,11 @@ const CONSTANTS = {
     SYMBOL: 'symbol',
     UNDEFINED: 'undefined',
     // Events
+    BACK: 'back',
     BEFORECHANGE: 'beforeChange',
     BLUR: 'blur',
     CHANGE: 'change',
+    CHANGING: 'changing',
     CLICK: 'click',
     CLOSE: 'close',
     DATABINDING: 'dataBinding',
@@ -100,6 +102,7 @@ const CONSTANTS = {
     // CSS Properties
     CURSOR: 'cursor',
     HEIGHT: 'height',
+    INLINE_BLOCK: 'inline-block',
     LEFT: 'left',
     NONE: 'none',
     TOP: 'top',

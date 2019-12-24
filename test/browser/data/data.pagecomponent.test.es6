@@ -448,7 +448,19 @@ describe('data.pagecomponent', () => {
             it('it should initialize from a transport', done => {
                 const data = getComponentArray();
                 const dataSource = new PageComponentDataSource({
-                    schema: normalizeSchema(),
+                    schema: normalizeSchema({
+                        model: {
+                            id: 'id',
+                            fields: {
+                                id: { type: CONSTANTS.STRING },
+                                height: { type: CONSTANTS.NUMBER },
+                                left: { type: CONSTANTS.NUMBER },
+                                rotate: { type: CONSTANTS.NUMBER },
+                                top: { type: CONSTANTS.NUMBER },
+                                width: { type: CONSTANTS.NUMBER }
+                            }
+                        }
+                    }),
                     transport: getSpyingTransport(data)
                 });
                 expect(dataSource)

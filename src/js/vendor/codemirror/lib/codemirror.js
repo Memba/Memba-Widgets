@@ -2208,7 +2208,7 @@
     var isWidget = classTest("CodeMirror-linewidget");
     for (var node = lineView.node.firstChild, next = (void 0); node; node = next) {
       next = node.nextSibling;
-      if (isWidget.test(node)) { lineView.node.removeChild(node); }
+      if (isWidget.test(node.className)) { lineView.node.removeChild(node); }
     }
     insertLineWidgets(cm, lineView, dims);
   }
@@ -9712,7 +9712,7 @@
 
   addLegacyProps(CodeMirror);
 
-  CodeMirror.version = "5.50.0";
+  CodeMirror.version = "5.50.2";
 
   return CodeMirror;
 

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -157,30 +157,31 @@
                 var name = options.name || options.title || 'Sheet' + (i + 1);
                 return '<sheet name="' + ESC(name) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '" />';
             }) + '\n  </sheets>\n  ' + (filterNames.length || userNames.length ? '\n    <definedNames>\n      ' + foreach(filterNames, function (f) {
-                return '\n         <definedName name="_xlnm._FilterDatabase" hidden="1" localSheetId="' + f.localSheetId + '">' + ESC(f.name) + '!' + ESC(f.from) + ':' + ESC(f.to) + '</definedName>';
+                return '\n         <definedName name="_xlnm._FilterDatabase" hidden="1" localSheetId="' + f.localSheetId + '">' + ESC(quoteSheet(f.name)) + '!' + ESC(f.from) + ':' + ESC(f.to) + '</definedName>';
             }) + '\n      ' + foreach(userNames, function (f) {
                 return '\n         <definedName name="' + f.name + '" hidden="' + (f.hidden ? 1 : 0) + '" ' + (f.localSheetId != null ? 'localSheetId="' + f.localSheetId + '"' : '') + '>' + ESC(f.value) + '</definedName>';
             }) + '\n    </definedNames>' : '') + '\n  <calcPr fullCalcOnLoad="1" calcId="145621" />\n</workbook>';
         };
-        var WORKSHEET = function (ref) {
-            var frozenColumns = ref.frozenColumns;
-            var frozenRows = ref.frozenRows;
-            var columns = ref.columns;
-            var defaults = ref.defaults;
-            var data = ref.data;
-            var index = ref.index;
-            var mergeCells = ref.mergeCells;
-            var autoFilter = ref.autoFilter;
-            var filter = ref.filter;
-            var showGridLines = ref.showGridLines;
-            var hyperlinks = ref.hyperlinks;
-            var validations = ref.validations;
-            var defaultCellStyleId = ref.defaultCellStyleId;
-            var rtl = ref.rtl;
-            var legacyDrawing = ref.legacyDrawing;
-            var drawing = ref.drawing;
-            var lastRow = ref.lastRow;
-            return XMLHEAD + '\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" mc:Ignorable="x14ac">\n   <dimension ref="A1:A' + lastRow + '" />\n\n   <sheetViews>\n     <sheetView ' + (rtl ? 'rightToLeft="1"' : '') + ' ' + (index === 0 ? 'tabSelected="1"' : '') + ' workbookViewId="0" ' + (showGridLines === false ? 'showGridLines="0"' : '') + '>\n     ' + (frozenRows || frozenColumns ? '\n       <pane state="frozen"\n         ' + (frozenColumns ? 'xSplit="' + frozenColumns + '"' : '') + '\n         ' + (frozenRows ? 'ySplit="' + frozenRows + '"' : '') + '\n         topLeftCell="' + (String.fromCharCode(65 + (frozenColumns || 0)) + ((frozenRows || 0) + 1)) + '"\n       />' : '') + '\n     </sheetView>\n   </sheetViews>\n\n   <sheetFormatPr x14ac:dyDescent="0.25" customHeight="1" defaultRowHeight="' + (defaults.rowHeight ? defaults.rowHeight * 0.75 : 15) + '"\n     ' + (defaults.columnWidth ? 'defaultColWidth="' + toWidth(defaults.columnWidth) + '"' : '') + ' />\n\n   ' + (defaultCellStyleId != null || columns && columns.length > 0 ? '\n     <cols>\n       ' + (!columns || !columns.length ? '\n         <col min="1" max="16384" style="' + defaultCellStyleId + '"\n              ' + (defaults.columnWidth ? 'width="' + toWidth(defaults.columnWidth) + '"' : '') + ' /> ' : '') + '\n       ' + foreach(columns, function (column, ci) {
+        var WORKSHEET = function (ref$1) {
+            var frozenColumns = ref$1.frozenColumns;
+            var frozenRows = ref$1.frozenRows;
+            var columns = ref$1.columns;
+            var defaults = ref$1.defaults;
+            var data = ref$1.data;
+            var index = ref$1.index;
+            var mergeCells = ref$1.mergeCells;
+            var autoFilter = ref$1.autoFilter;
+            var filter = ref$1.filter;
+            var showGridLines = ref$1.showGridLines;
+            var hyperlinks = ref$1.hyperlinks;
+            var validations = ref$1.validations;
+            var defaultCellStyleId = ref$1.defaultCellStyleId;
+            var rtl = ref$1.rtl;
+            var legacyDrawing = ref$1.legacyDrawing;
+            var drawing = ref$1.drawing;
+            var lastRow = ref$1.lastRow;
+            var lastCol = ref$1.lastCol;
+            return XMLHEAD + '\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" mc:Ignorable="x14ac">\n   <dimension ref="A1:' + ref(lastRow - 1, lastCol - 1) + '" />\n\n   <sheetViews>\n     <sheetView ' + (rtl ? 'rightToLeft="1"' : '') + ' ' + (index === 0 ? 'tabSelected="1"' : '') + ' workbookViewId="0" ' + (showGridLines === false ? 'showGridLines="0"' : '') + '>\n     ' + (frozenRows || frozenColumns ? '\n       <pane state="frozen"\n         ' + (frozenColumns ? 'xSplit="' + frozenColumns + '"' : '') + '\n         ' + (frozenRows ? 'ySplit="' + frozenRows + '"' : '') + '\n         topLeftCell="' + (String.fromCharCode(65 + (frozenColumns || 0)) + ((frozenRows || 0) + 1)) + '"\n       />' : '') + '\n     </sheetView>\n   </sheetViews>\n\n   <sheetFormatPr x14ac:dyDescent="0.25" customHeight="1" defaultRowHeight="' + (defaults.rowHeight ? defaults.rowHeight * 0.75 : 15) + '"\n     ' + (defaults.columnWidth ? 'defaultColWidth="' + toWidth(defaults.columnWidth) + '"' : '') + ' />\n\n   ' + (defaultCellStyleId != null || columns && columns.length > 0 ? '\n     <cols>\n       ' + (!columns || !columns.length ? '\n         <col min="1" max="16384" style="' + defaultCellStyleId + '"\n              ' + (defaults.columnWidth ? 'width="' + toWidth(defaults.columnWidth) + '"' : '') + ' /> ' : '') + '\n       ' + foreach(columns, function (column, ci) {
                 var columnIndex = typeof column.index === 'number' ? column.index + 1 : ci + 1;
                 if (column.width === 0) {
                     return '<col ' + (defaultCellStyleId != null ? 'style="' + defaultCellStyleId + '"' : '') + '\n                        min="' + columnIndex + '" max="' + columnIndex + '" hidden="1" customWidth="1" />';
@@ -197,7 +198,7 @@
                 return '\n         <dataValidation sqref="' + val.sqref.join(' ') + '"\n                         showErrorMessage="' + val.showErrorMessage + '"\n                         type="' + ESC(val.type) + '"\n                         ' + (val.type !== 'list' ? 'operator="' + ESC(val.operator) + '"' : '') + '\n                         allowBlank="' + val.allowBlank + '"\n                         showDropDown="' + val.showDropDown + '"\n                         ' + (val.error ? 'error="' + ESC(val.error) + '"' : '') + '\n                         ' + (val.errorTitle ? 'errorTitle="' + ESC(val.errorTitle) + '"' : '') + '>\n           ' + (val.formula1 ? '<formula1>' + ESC(val.formula1) + '</formula1>' : '') + '\n           ' + (val.formula2 ? '<formula2>' + ESC(val.formula2) + '</formula2>' : '') + '\n         </dataValidation>';
             }) + '\n     </dataValidations>' : '') + '\n\n   ' + (hyperlinks.length ? '\n     <hyperlinks>\n       ' + foreach(hyperlinks, function (link) {
                 return '\n         <hyperlink ref="' + link.ref + '" r:id="' + link.rId + '"/>';
-            }) + '\n     </hyperlinks>' : '') + '\n\n   <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3" />\n   ' + (legacyDrawing ? '<legacyDrawing r:id="' + legacyDrawing + '"/>' : '') + '\n   ' + (drawing ? '<drawing r:id="' + drawing + '"/>' : '') + '\n</worksheet>';
+            }) + '\n     </hyperlinks>' : '') + '\n\n   <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3" />\n   ' + (drawing ? '<drawing r:id="' + drawing + '"/>' : '') + '\n   ' + (legacyDrawing ? '<legacyDrawing r:id="' + legacyDrawing + '"/>' : '') + '\n</worksheet>';
         };
         var WORKBOOK_RELS = function (ref) {
             var count = ref.count;
@@ -346,6 +347,7 @@
                 var freezePane = this.options.freezePane || {};
                 var defaults = this.options.defaults || {};
                 var lastRow = this.options.rows ? this._getLastRow() : 1;
+                var lastCol = this.options.rows ? this._getLastCol() : 1;
                 return WORKSHEET({
                     frozenColumns: this.options.frozenColumns || freezePane.colSplit,
                     frozenRows: this.options.frozenRows || freezePane.rowSplit,
@@ -363,7 +365,8 @@
                     rtl: this.options.rtl !== undefined ? this.options.rtl : defaults.rtl,
                     legacyDrawing: this._comments.length ? 'vml' + this.options.sheetIndex : null,
                     drawing: this._drawings.length ? 'drw' + this.options.sheetIndex : null,
-                    lastRow: lastRow
+                    lastRow: lastRow,
+                    lastCol: lastCol
                 });
             },
             commentsXML: function () {
@@ -506,7 +509,7 @@
                 var columns = this.options.columns || [];
                 var column = columns[cellIndex];
                 var type = typeof value;
-                if (column && column.autoWidth) {
+                if (column && column.autoWidth && (!data.colSpan || data.colSpan === 1)) {
                     var displayValue = value;
                     if (type === 'number') {
                         displayValue = IntlService.toString(value, data.format);
@@ -584,16 +587,27 @@
                 this._validations[json].sqref.push(ref);
             },
             _getLastRow: function () {
-                var rows = this.options.rows;
-                var lastRow = rows.length;
-                rows.forEach(function (row) {
-                    if (row.index && row.index >= lastRow) {
-                        lastRow = row.index + 1;
+                return countData(this.options.rows);
+            },
+            _getLastCol: function () {
+                var last = 0;
+                this.options.rows.forEach(function (row) {
+                    if (row.cells) {
+                        last = Math.max(last, countData(row.cells));
                     }
                 });
-                return lastRow;
+                return last;
             }
         });
+        function countData(data) {
+            var last = data.length;
+            data.forEach(function (el) {
+                if (el.index && el.index >= last) {
+                    last = el.index + 1;
+                }
+            });
+            return last;
+        }
         var MAP_EXCEL_OPERATOR = {
             greaterThanOrEqualTo: 'greaterThanOrEqual',
             lessThanOrEqualTo: 'lessThanOrEqual'
@@ -1109,6 +1123,15 @@
                 doesnotmatch: 'notEqual'
             }[f.operator.toLowerCase()];
         };
+        function quoteSheet(name) {
+            if (/^\'/.test(name)) {
+                return name;
+            }
+            if (/^[a-z_][a-z0-9_]*$/i.test(name)) {
+                return name;
+            }
+            return '\'' + name.replace(/\x27/g, '\\\'') + '\'';
+        }
         spreadsheetFilters.customValue = function (f) {
             function esc(str) {
                 return str.replace(/([*?])/g, '~$1');

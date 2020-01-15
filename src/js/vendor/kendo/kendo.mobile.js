@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2019.3.1023'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2020.1.114'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -2428,7 +2428,8 @@
             var widget = $(this);
             return $.inArray(widget.attr('data-' + kendo.ns + 'role'), [
                 'slider',
-                'rangeslider'
+                'rangeslider',
+                'breadcrumb'
             ]) > -1 || widget.is(':visible');
         }
         kendo.resize = function (element, force) {
@@ -2909,6 +2910,11 @@
                     targetDay = days[on.substr(0, 3)];
                     ourDay = date.getUTCDay();
                     date.setUTCDate(date.getUTCDate() + targetDay - ourDay + (targetDay < ourDay ? 7 : 0));
+                } else if (on.indexOf('<=') >= 0) {
+                    date = new Date(Date.UTC(year, months[month], on.substr(5), time[0], time[1], time[2], 0));
+                    targetDay = days[on.substr(0, 3)];
+                    ourDay = date.getUTCDay();
+                    date.setUTCDate(date.getUTCDate() + targetDay - ourDay - (targetDay > ourDay ? 7 : 0));
                 }
                 return cache[year] = date;
             }
@@ -3438,6 +3444,187 @@
                 'lg': '(min-width: 992px)',
                 'xl': '(min-width: 1200px)'
             }[bootstrapMedia];
+        };
+        kendo.fileGroupMap = {
+            audio: [
+                '.aif',
+                '.iff',
+                '.m3u',
+                '.m4a',
+                '.mid',
+                '.mp3',
+                '.mpa',
+                '.wav',
+                '.wma',
+                '.ogg',
+                '.wav',
+                '.wma',
+                '.wpl'
+            ],
+            video: [
+                '.3g2',
+                '.3gp',
+                '.avi',
+                '.asf',
+                '.flv',
+                '.m4u',
+                '.rm',
+                '.h264',
+                '.m4v',
+                '.mkv',
+                '.mov',
+                '.mp4',
+                '.mpg',
+                '.rm',
+                '.swf',
+                '.vob',
+                '.wmv'
+            ],
+            image: [
+                '.ai',
+                '.dds',
+                '.heic',
+                '.jpe',
+                'jfif',
+                '.jif',
+                '.jp2',
+                '.jps',
+                '.eps',
+                '.bmp',
+                '.gif',
+                '.jpeg',
+                '.jpg',
+                '.png',
+                '.ps',
+                '.psd',
+                '.svg',
+                '.svgz',
+                '.tif',
+                '.tiff'
+            ],
+            txt: [
+                '.doc',
+                '.docx',
+                '.log',
+                '.pages',
+                '.tex',
+                '.wpd',
+                '.wps',
+                '.odt',
+                '.rtf',
+                '.text',
+                '.txt',
+                '.wks'
+            ],
+            presentation: [
+                '.key',
+                '.odp',
+                '.pps',
+                '.ppt',
+                '.pptx'
+            ],
+            data: [
+                '.xlr',
+                '.xls',
+                '.xlsx'
+            ],
+            programming: [
+                '.tmp',
+                '.bak',
+                '.msi',
+                '.cab',
+                '.cpl',
+                '.cur',
+                '.dll',
+                '.dmp',
+                '.drv',
+                '.icns',
+                '.ico',
+                '.link',
+                '.sys',
+                '.cfg',
+                '.ini',
+                '.asp',
+                '.aspx',
+                '.cer',
+                '.csr',
+                '.css',
+                '.dcr',
+                '.htm',
+                '.html',
+                '.js',
+                '.php',
+                '.rss',
+                '.xhtml'
+            ],
+            pdf: ['.pdf'],
+            config: [
+                '.apk',
+                '.app',
+                '.bat',
+                '.cgi',
+                '.com',
+                '.exe',
+                '.gadget',
+                '.jar',
+                '.wsf'
+            ],
+            zip: [
+                '.7z',
+                '.cbr',
+                '.gz',
+                '.sitx',
+                '.arj',
+                '.deb',
+                '.pkg',
+                '.rar',
+                '.rpm',
+                '.tar.gz',
+                '.z',
+                '.zip',
+                '.zipx'
+            ],
+            'disc-image': [
+                '.dmg',
+                '.iso',
+                '.toast',
+                '.vcd',
+                '.bin',
+                '.cue',
+                '.mdf'
+            ]
+        };
+        kendo.getFileGroup = function (extension, withPrefix) {
+            var fileTypeMap = kendo.fileGroupMap;
+            var groups = Object.keys(fileTypeMap);
+            var type = 'file';
+            if (extension === undefined) {
+                return '';
+            }
+            if (extension === '') {
+                return 'folder';
+            }
+            for (var i = 0; i < groups.length; i += 1) {
+                var extensions = fileTypeMap[groups[i]];
+                if (extensions.indexOf(extension.toLowerCase()) > -1) {
+                    return withPrefix ? 'file-' + groups[i] : groups[i];
+                }
+            }
+            return type;
+        };
+        kendo.getFileSizeMessage = function (size) {
+            var sizes = [
+                'Bytes',
+                'KB',
+                'MB',
+                'GB',
+                'TB'
+            ];
+            if (size === 0) {
+                return '0 Byte';
+            }
+            var i = parseInt(Math.floor(Math.log(size) / Math.log(1024)), 10);
+            return Math.round(size / Math.pow(1024, i), 2) + ' ' + sizes[i];
         };
         (function () {
             function postToProxy(dataURI, fileName, proxyURL, proxyTarget) {
@@ -5392,12 +5579,12 @@
             at: function (index) {
                 return this[index];
             },
-            toJSON: function () {
+            toJSON: function (serializeFunctions) {
                 var idx, length = this.length, value, json = new Array(length);
                 for (idx = 0; idx < length; idx++) {
                     value = this[idx];
                     if (value instanceof ObservableObject) {
-                        value = value.toJSON();
+                        value = value.toJSON(serializeFunctions);
                     }
                     json[idx] = value;
                 }
@@ -5681,8 +5868,8 @@
                 }
                 that.uid = kendo.guid();
             },
-            shouldSerialize: function (field) {
-                return this.hasOwnProperty(field) && field !== '_handlers' && field !== '_events' && typeof this[field] !== FUNCTION && field !== 'uid';
+            shouldSerialize: function (field, serializeFunctions) {
+                return this.hasOwnProperty(field) && field !== '_handlers' && field !== '_events' && (serializeFunctions && serializeFunctions[field] || typeof this[field] !== FUNCTION) && field !== 'uid';
             },
             forEach: function (f) {
                 for (var i in this) {
@@ -5691,13 +5878,13 @@
                     }
                 }
             },
-            toJSON: function () {
+            toJSON: function (serializeFunctions) {
                 var result = {}, value, field;
                 for (field in this) {
-                    if (this.shouldSerialize(field)) {
+                    if (this.shouldSerialize(field, serializeFunctions)) {
                         value = this[field];
                         if (value instanceof ObservableObject || value instanceof ObservableArray) {
-                            value = value.toJSON();
+                            value = value.toJSON(serializeFunctions);
                         }
                         result[field] = value;
                     }
@@ -5915,7 +6102,7 @@
                 field = (this.fields || {})[field];
                 return field ? field.editable !== false : true;
             },
-            set: function (field, value, initiator) {
+            set: function (field, value) {
                 var that = this;
                 var dirty = that.dirty;
                 if (that.editable(field)) {
@@ -5923,7 +6110,7 @@
                     if (!equal(value, that.get(field))) {
                         that.dirty = true;
                         that.dirtyFields[field] = true;
-                        if (ObservableObject.fn.set.call(that, field, value, initiator) && !dirty) {
+                        if (ObservableObject.fn.set.call(that, field, value) && !dirty) {
                             that.dirty = dirty;
                             if (!that.dirty) {
                                 that.dirtyFields[field] = false;
@@ -6304,6 +6491,22 @@
                     return !!d.dir;
                 });
             }
+        }
+        function sortFields(sorts, dir) {
+            var sortObject = {};
+            if (sorts) {
+                var descriptor = typeof sorts === STRING ? {
+                        field: sorts,
+                        dir: dir
+                    } : sorts, descriptors = isArray(descriptor) ? descriptor : descriptor !== undefined ? [descriptor] : [];
+                for (var i = 0; i < descriptors.length; i++) {
+                    sortObject[descriptors[i].field] = {
+                        dir: descriptors[i].dir,
+                        index: i + 1
+                    };
+                }
+            }
+            return sortObject;
         }
         var operatorMap = {
             '==': 'eq',
@@ -8321,6 +8524,7 @@
                     }
                     if (options.sort) {
                         that._sort = options.sort = normalizeSort(options.sort);
+                        that._sortFields = sortFields(options.sort);
                     }
                     if (options.filter) {
                         that._filter = options.filter = that.options.accentFoldingFiltering && !$.isEmptyObject(options.filter) ? $.extend({}, normalizeFilter(options.filter), { accentFoldingFiltering: that.options.accentFoldingFiltering }) : normalizeFilter(options.filter);
@@ -8441,6 +8645,7 @@
             sort: function (val) {
                 var that = this;
                 if (val !== undefined) {
+                    that.trigger('sort');
                     that._query({ sort: val });
                     return;
                 }
@@ -14660,7 +14865,13 @@
                     return;
                 }
                 if (that.paneAxis.outOfBounds()) {
-                    that._snapBack();
+                    if (that.transition._started) {
+                        that.transition.cancel();
+                        that.velocity = Math.min(e.touch[that.axis].velocity * that.velocityMultiplier, MAX_VELOCITY);
+                        Animation.fn.start.call(that);
+                    } else {
+                        that._snapBack();
+                    }
                 } else {
                     velocity = e.touch.id === MOUSE_WHEEL_ID ? 0 : e.touch[that.axis].velocity;
                     that.velocity = Math.max(Math.min(velocity * that.velocityMultiplier, MAX_VELOCITY), -MAX_VELOCITY);

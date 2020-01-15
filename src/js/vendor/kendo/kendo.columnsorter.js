@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -82,38 +82,31 @@
                 that.dataSource.unbind('change', that._refreshHandler);
                 that._refreshHandler = that.element = that.link = that.dataSource = null;
             },
-            refresh: function () {
-                var that = this, sort = that.dataSource.sort() || [], idx, length, descriptor, dir, element = that.element, field = element.attr(kendo.attr(FIELD)), headerIndex, sortOrder, leafCells;
+            refresh: function (e) {
+                if (e && (e.action === 'itemchange' || e.action === 'sync')) {
+                    return;
+                }
+                var that = this, sort = that.dataSource.sort() || [], dir, table, leafCells, element = that.element, field = element.attr(kendo.attr(FIELD)), descriptor = (that.dataSource._sortFields || {})[field], headerIndex, sortOrder;
                 element.removeAttr(kendo.attr(DIR));
                 element.removeAttr(ARIASORT);
-                for (idx = 0, length = sort.length; idx < length; idx++) {
-                    descriptor = sort[idx];
-                    if (field == descriptor.field) {
-                        element.attr(kendo.attr(DIR), descriptor.dir);
-                        sortOrder = idx + 1;
-                    }
+                if (descriptor) {
+                    dir = descriptor.dir;
+                    element.attr(kendo.attr(DIR), dir);
+                    sortOrder = descriptor.index;
                 }
-                dir = element.attr(kendo.attr(DIR));
-                if (element.is('th')) {
-                    var table = element.closest('table');
-                    if (table.parent().hasClass('k-grid-header-wrap')) {
-                        table = table.closest('.k-grid').find('.k-grid-content > table');
-                    } else if (table.parent().hasClass('k-grid-header-locked')) {
-                        table = table.closest('.k-grid').find('.k-grid-content-locked > table');
-                    } else if (!table.parent().hasClass('k-grid')) {
-                        table = null;
-                    }
+                if (element.is('th') && descriptor) {
+                    table = getColsTable(element);
                     if (table) {
                         if (element.attr(kendo.attr('index'))) {
-                            leafCells = leafDataCells(element.closest('.k-grid-header'));
+                            leafCells = leafDataCells(element.closest('table'));
                             headerIndex = leafCells.index(element);
                         } else {
                             headerIndex = element.parent().children(':visible').index(element);
                         }
-                        element.toggleClass('k-sorted', dir !== undefined);
-                        table.children('colgroup').children(':not(.k-group-col):not(.k-hierarchy-col)').eq(headerIndex).toggleClass('k-sorted', dir !== undefined);
+                        table.find('col:not(.k-group-col):not(.k-hierarchy-col)').eq(headerIndex).toggleClass('k-sorted', dir !== undefined);
                     }
                 }
+                element.toggleClass('k-sorted', dir !== undefined);
                 element.find('.k-i-sort-asc-sm,.k-i-sort-desc-sm,.k-sort-order').remove();
                 if (dir === ASC) {
                     $('<span class="k-icon k-i-sort-asc-sm" />').appendTo(that.link);
@@ -178,18 +171,8 @@
         });
         function leafDataCells(container) {
             var rows = container.find('tr:not(.k-filter-row)');
-            var filter = function () {
-                var el = $(this);
-                return !el.hasClass('k-group-cell') && !el.hasClass('k-hierarchy-cell');
-            };
-            var cells = $();
-            if (rows.length > 1) {
-                cells = rows.find('th:visible').filter(filter).filter(function () {
-                    return this.rowSpan > 1;
-                });
-            }
-            cells = cells.add(rows.last().find('th:visible').filter(filter));
             var indexAttr = kendo.attr('index');
+            var cells = rows.find('th[' + indexAttr + ']:visible');
             cells.sort(function (a, b) {
                 a = $(a);
                 b = $(b);
@@ -206,6 +189,18 @@
                 return indexA > indexB ? 1 : indexA < indexB ? -1 : 0;
             });
             return cells;
+        }
+        function getColsTable(element) {
+            var table = null;
+            if (element.is('th')) {
+                table = element.closest('table');
+                if (table.parent().hasClass('k-grid-header-wrap')) {
+                    table = table.closest('.k-grid').find('.k-grid-content > table');
+                } else if (table.parent().hasClass('k-grid-header-locked')) {
+                    table = table.closest('.k-grid').find('.k-grid-content-locked > table');
+                }
+            }
+            return table;
         }
         ui.plugin(ColumnSorter);
     }(window.kendo.jQuery));

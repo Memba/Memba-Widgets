@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -319,7 +319,7 @@
                 var hint = view._createEventElement(adjustedEvent.occurrence, adjustedEvent.occurrence, false, false);
                 hint.addClass('k-event-drag-hint');
                 var rect = range.innerRect(adjustedEvent.occurrence.start, adjustedEvent.occurrence.end, view.options.snap);
-                var width = rect.right - rect.left - 2;
+                var width = rect.right - rect.left;
                 if (width < 0) {
                     width = 0;
                 }
@@ -327,7 +327,7 @@
                 var css = {
                     left: left,
                     top: startSlot.offsetTop,
-                    height: startSlot.offsetHeight - 2,
+                    height: startSlot.offsetHeight,
                     width: width
                 };
                 hint.css(css);
@@ -1325,7 +1325,7 @@
                 }
             },
             _setRowsHeight: function (eventGroups, groupsCount, maxRowCount) {
-                var eventHeight = this.options.eventHeight + 2;
+                var eventHeight = this.options.eventHeight;
                 var eventBottomOffset = this._getBottomRowOffset();
                 var groupedView = this._groupedView;
                 var verticalGroupCount = groupedView._getVerticalGroupCount(groupsCount);
@@ -1366,7 +1366,7 @@
                 var eventHeight = this.options.eventHeight + 2;
                 var rect = eventObject.slotRange.innerRect(eventObject.start, eventObject.end, false);
                 var left = this._adjustLeftPosition(rect.left);
-                var width = rect.right - rect.left - 2;
+                var width = rect.right - rect.left;
                 if (width < 0) {
                     width = 0;
                 }
@@ -1376,7 +1376,7 @@
                     var offsetRight = lastSlot.offsetLeft + lastSlot.offsetWidth;
                     width = this.options.eventMinWidth;
                     if (offsetRight < left + width) {
-                        width = offsetRight - rect.left - 2;
+                        width = offsetRight - rect.left;
                     }
                 }
                 eventObject.element.css({

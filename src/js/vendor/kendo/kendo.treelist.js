@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -143,6 +143,7 @@
         var DOT = '.';
         var NS = '.kendoTreeList';
         var CLICK = 'click';
+        var INPUT = 'input';
         var MOUSEDOWN = 'mousedown';
         var BEFORE_EDIT = 'beforeEdit';
         var EDIT = 'edit';
@@ -150,6 +151,7 @@
         var PAGE_CHANGE = 'pageChange';
         var SAVE = 'save';
         var SAVE_CHANGES = 'saveChanges';
+        var SORT = 'sort';
         var EXPAND = 'expand';
         var COLLAPSE = 'collapse';
         var CELL_CLOSE = 'cellClose';
@@ -189,7 +191,7 @@
         var POPUP = 'popup';
         var TABLE = 'table';
         var classNames = {
-            wrapper: 'k-treelist k-grid k-widget k-display-block',
+            wrapper: 'k-treelist k-grid k-widget k-grid-display-block',
             header: 'k-header',
             button: 'k-button',
             alt: 'k-alt',
@@ -282,7 +284,8 @@
                 imageClass: 'k-i-file-pdf',
                 className: 'k-grid-pdf',
                 methodName: 'saveAsPDF'
-            }
+            },
+            search: { template: '<span class=\'k-textbox k-grid-search k-display-flex\'>' + '<input autocomplete=\'off\' placeholder=\'' + '#= messages.search #' + '\' title=\'' + '#= messages.search #' + '\' class=\'k-input\' />' + '<span class=\'k-input-icon\'><span class=\'k-icon k-i-search\'></span></span>' + '</span>' }
         };
         var TreeView = kendo.Class.extend({
             init: function (data, options) {
@@ -2163,6 +2166,7 @@
                     loading: 'Loading...',
                     requestFailed: 'Request failed.',
                     retry: 'Retry',
+                    search: 'Search...',
                     commands: {
                         edit: 'Edit',
                         update: 'Update',
@@ -2176,6 +2180,7 @@
                 },
                 excel: { hierarchy: true },
                 resizable: false,
+                search: false,
                 filterable: false,
                 editable: false,
                 reorderable: false,
@@ -2406,17 +2411,17 @@
             _scrollTo: function (element, container) {
                 var elementToLowercase = element.tagName.toLowerCase();
                 var isHorizontal = elementToLowercase === 'td' || elementToLowercase === 'th';
-                var elementOffset = element[isHorizontal ? 'offsetLeft' : 'offsetTop'];
+                var table = $(element).closest('table')[0];
                 var elementOffsetDir = element[isHorizontal ? 'offsetWidth' : 'offsetHeight'];
                 var containerScroll = container[isHorizontal ? 'scrollLeft' : 'scrollTop'];
                 var containerOffsetDir = container[isHorizontal ? 'clientWidth' : 'clientHeight'];
+                var elementOffset = $(element).css('position') === 'relative' && isRtl && isHorizontal ? Math.abs(table.offsetLeft - element.offsetLeft) : element[isHorizontal ? 'offsetLeft' : 'offsetTop'];
                 var bottomDistance = elementOffset + elementOffsetDir;
                 var result = 0;
                 var ieCorrection = 0;
                 var firefoxCorrection = 0;
                 if (isRtl && isHorizontal) {
-                    var table = $(element).closest('table')[0];
-                    if (browser.msie) {
+                    if (browser.msie || browser.edge) {
                         ieCorrection = table.offsetLeft;
                     } else if (browser.mozilla) {
                         firefoxCorrection = table.offsetLeft - kendo.support.scrollbar();
@@ -2990,7 +2995,7 @@
             _attachEvents: function () {
                 var icons = DOT + classNames.iconCollapse + ', .' + classNames.iconExpand + ', .' + classNames.refresh;
                 var retryButton = DOT + classNames.retry;
-                this.element.on(MOUSEDOWN + NS, icons, proxy(this._toggleChildren, this)).on(CLICK + NS, retryButton, this._dataSourceFetchProxy).on(CLICK + NS, '.k-button[data-command]', proxy(this._commandClick, this));
+                this.element.on(MOUSEDOWN + NS, icons, proxy(this._toggleChildren, this)).on(CLICK + NS, retryButton, this._dataSourceFetchProxy).on(CLICK + NS, '.k-button[data-command]', proxy(this._commandClick, this)).on(INPUT + NS, '.k-grid-search input', proxy(this._search, this));
                 this._attachCellEditingEventHandlers();
             },
             _attachCellEditingEventHandlers: function () {
@@ -3097,6 +3102,36 @@
                     e.preventDefault();
                 }
             },
+            _search: function (e) {
+                var that = this;
+                var input = e.currentTarget;
+                clearTimeout(that._searchTimeOut);
+                that._searchTimeOut = setTimeout(function () {
+                    that._searchTimeOut = null;
+                    var options = that.options;
+                    var searchFields = options.search ? options.search.fields : null;
+                    var expression = {
+                        filters: [],
+                        logic: 'or'
+                    };
+                    var value = input.value;
+                    if (!searchFields) {
+                        searchFields = getColumnsFields(options.columns);
+                    }
+                    if (value) {
+                        for (var i = 0; i < searchFields.length; i++) {
+                            expression.filters.push({
+                                field: searchFields[i],
+                                operator: 'contains',
+                                value: value
+                            });
+                        }
+                    } else {
+                        expression = {};
+                    }
+                    that.dataSource.filter(expression);
+                }, 300);
+            },
             _ensureExpandableColumn: function () {
                 if (this._autoExpandable) {
                     delete this._autoExpandable.expandable;
@@ -3161,6 +3196,15 @@
                 for (idx = 0, length = columns.length; idx < length; idx++) {
                     convertStyle(columns[idx].attributes);
                     convertStyle(columns[idx].headerAttributes);
+                }
+            },
+            _clearSortClasses: function () {
+                var that = this;
+                if (that.content) {
+                    that.content.find('col:not(.k-group-col):not(.k-hierarchy-col)').removeClass('k-sorted');
+                }
+                if (that.lockedContent) {
+                    that.lockedContent.find('col:not(.k-group-col):not(.k-hierarchy-col)').removeClass('k-sorted');
                 }
             },
             _layout: function () {
@@ -3728,9 +3772,9 @@
                 }
                 this.lockedHeader.add(this.lockedContent).width(lockedWidth);
                 headerTable.add(this.table).width(nonLockedWidth);
-                var width = wrapperWidth - lockedWidth - 2;
-                this.content.width(width);
-                headerTable.parent().width(width - scrollbar);
+                var width = wrapperWidth - lockedWidth;
+                this.content.width(width - 1);
+                headerTable.parent().width(width - scrollbar - 2);
             },
             _trs: function (options) {
                 var that = this;
@@ -4012,11 +4056,11 @@
             _buildCommands: function (commands) {
                 var i, result = [];
                 for (i = 0; i < commands.length; i++) {
-                    result.push(this._button(commands[i]));
+                    result.push(this._handleCommand(commands[i]));
                 }
                 return result;
             },
-            _button: function (command) {
+            _handleCommand: function (command) {
                 var name = (command.name || command).toLowerCase();
                 var text = this.options.messages.commands[name];
                 var icon = [];
@@ -4029,6 +4073,13 @@
                         ].join(' ')
                     }));
                 }
+                if (command.template) {
+                    return kendoHtmlElement(kendo.template(command.template)({ messages: this.options.messages }));
+                } else {
+                    return this._button(command, name, icon);
+                }
+            },
+            _button: function (command, name, icon) {
                 return kendoDomElement('button', {
                     'type': 'button',
                     'data-command': name,
@@ -4496,10 +4547,12 @@
                 if (ds) {
                     ds.unbind(CHANGE, this._refreshHandler);
                     ds.unbind(ERROR, this._errorHandler);
+                    ds.unbind(SORT, this._sortHandler);
                     ds.unbind(PROGRESS, this._progressHandler);
                 }
                 this._refreshHandler = proxy(this.refresh, this);
                 this._errorHandler = proxy(this._error, this);
+                this._sortHandler = proxy(this._clearSortClasses, this);
                 this._progressHandler = proxy(this._progress, this);
                 if (isPlainObject(dataSource)) {
                     extend(dataSource, {
@@ -4516,6 +4569,7 @@
                 }
                 ds.bind(CHANGE, this._refreshHandler);
                 ds.bind(ERROR, this._errorHandler);
+                ds.bind(SORT, this._sortHandler);
                 ds.bind(PROGRESS, this._progressHandler);
                 this._dataSourceFetchProxy = proxy(function () {
                     this.dataSource.fetch();
@@ -5388,6 +5442,18 @@
                     continue;
                 }
                 result = result.concat(leafColumns(columns[idx].columns));
+            }
+            return result;
+        }
+        function getColumnsFields(columns) {
+            var result = [];
+            columns = leafColumns(columns);
+            for (var idx = 0; idx < columns.length; idx++) {
+                if (typeof columns[idx] === 'string') {
+                    result.push(columns[idx]);
+                } else if (columns[idx].field) {
+                    result.push(columns[idx].field);
+                }
             }
             return result;
         }

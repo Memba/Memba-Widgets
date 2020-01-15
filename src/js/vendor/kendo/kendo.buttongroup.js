@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -55,16 +55,23 @@
         var BLUR = 'blur';
         var MOUSEDOWN = 'mousedown';
         var templates = {
-            item: template('<span ' + '#= item.enabled === false ? "disabled" : "" # ' + '# if (item.badge) { #' + kendo.attr('badge') + '="#=item.badge#"' + '# } #' + '>' + '#= icon(iconClass) #' + '#= image(item) #' + '#= text #' + '</span>'),
+            item: template('<span ' + '#= item.enabled === false ? "disabled" : "" # ' + '>' + '#= icon(iconClass) #' + '#= image(item) #' + '#= text #' + '</span>'),
             image: template('<img alt="icon" src="#=data.imageUrl#" />'),
             icon: template('<span class="#=data#" />'),
             empty: template('')
         };
-        function createBadge(value, item) {
-            if (value === undefined) {
-                return;
+        function createBadge(badgeOptions, item) {
+            var span = $('<span />').appendTo(item);
+            if (typeof badgeOptions == 'string' || typeof badgeOptions == 'number') {
+                item.badge = new ui.Badge(span, {
+                    value: badgeOptions,
+                    appearance: 'rectangle'
+                });
+            } else if (typeof badgeOptions == 'boolean') {
+                item.badge = new ui.Badge(span);
+            } else {
+                item.badge = new ui.Badge(span, badgeOptions);
             }
-            $('<span class="k-badge">' + kendo.htmlEncode(value) + '</span>').appendTo(item);
         }
         var ButtonGroup = Widget.extend({
             init: function (element, options) {
@@ -80,7 +87,7 @@
                     that._updateClasses.bind(that)(item);
                 });
                 that._enable = true;
-                if (!that.options.enable) {
+                if (!that.options.enable || !that.options.enabled) {
                     that._enable = false;
                     that.element.attr('aria-disabled', true).addClass(DISABLED);
                 }
@@ -97,7 +104,8 @@
                 name: 'ButtonGroup',
                 selection: 'single',
                 index: -1,
-                enable: true
+                enable: true,
+                enabled: true
             },
             current: function () {
                 return this.element.find('.' + ACTIVE);
@@ -120,6 +128,9 @@
                     }
                     if (item.iconClass || item.icon || item.imageUrl) {
                         renderedItem.addClass(item.text ? 'k-button-icontext' : 'k-button-icon');
+                    }
+                    if (item.badge) {
+                        createBadge(item.badge, renderedItem);
                     }
                     renderedItem.appendTo(that.element);
                 });
@@ -195,18 +206,19 @@
                 if (!button.length) {
                     return;
                 }
-                badge = button.children('.k-badge').eq(0);
-                if (!badge.length && validValue) {
-                    createBadge(kendo.htmlEncode(value), button);
+                badge = button.children('.k-badge').eq(0).data('kendoBadge');
+                if (!badge && validValue) {
+                    createBadge({ value: kendo.htmlEncode(value) }, button);
                     return kendo.htmlEncode(value);
                 }
                 if (validValue) {
-                    badge.html(kendo.htmlEncode(value));
+                    badge.value(kendo.htmlEncode(value));
                 } else if (value === false) {
-                    badge.empty().remove();
+                    badge.element.empty().remove();
+                    badge.destroy();
                     return;
                 }
-                return badge.html();
+                return badge ? badge.value() : null;
             },
             enable: function (enable) {
                 if (typeof enable == 'undefined') {
@@ -218,6 +230,9 @@
             destroy: function () {
                 var that = this;
                 that.element.off(NS);
+                that.element.find('.k-badge').each(function () {
+                    $(this).data('kendoBadge').destroy();
+                });
                 Widget.fn.destroy.call(that);
             },
             _updateClasses: function (button) {

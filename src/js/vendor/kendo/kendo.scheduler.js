@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1098,34 +1098,40 @@
                 var settings = extend({}, kendo.Template, this.options.templateSettings);
                 var paramName = settings.paramName;
                 var html = '';
-                html += '<ul>';
+                html += '<ul class="k-listgroup k-listgroup-flush">';
                 for (var idx = 0, length = fields.length; idx < length; idx++) {
                     var field = fields[idx];
                     if (field.field === 'timezone' || field.field === 'recurrenceRule') {
-                        html += '</ul><ul>';
+                        html += '</ul><ul class="k-listgroup k-listgroup-flush">';
                     }
                     if (field.field === 'startTimezone') {
                         html += '<div class="k-popup-edit-form k-scheduler-edit-form k-scheduler-timezones" style="display:none">';
-                        html += '<ul><li class="k-item"><label class="k-label">';
-                        html += '<span class="k-item-title">' + messages.editor.separateTimezones + '</span>';
-                        html += '<input class="k-timezone-toggle" data-role="switch" type="checkbox">';
-                        html += '</label></li>';
+                        html += '<ul class="k-listgroup k-listgroup-flush">';
+                        html += '<li class="k-item k-listgroup-item">';
+                        html += '<label class="k-label k-listgroup-form-row">';
+                        html += '<span class="k-item-title k-listgroup-form-row">' + messages.editor.separateTimezones + '</span>';
+                        html += '<span class="k-listgroup-form-field-wrapper">';
+                        html += '<input class="k-timezone-toggle" data-role="switch" type="checkbox" />';
+                        html += '</span>';
+                        html += '</label>';
+                        html += '</li>';
                     }
                     if (!model.editable || model.editable(field.field)) {
-                        html += '<li class="k-item">';
+                        html += '<li class="k-item k-listgroup-item">';
                         if (field.field === 'timezone') {
-                            html += '<label class="k-label" data-bind="css: { k-state-disabled: isAllDay }">';
+                            html += '<label class="k-label k-listgroup-form-row" data-bind="css: { k-state-disabled: isAllDay }">';
                         } else {
-                            html += '<label class="k-label">';
+                            html += '<label class="k-label k-listgroup-form-row">';
                         }
-                        html += '<span class="k-item-title">' + (field.title || field.field || '') + '</span>';
+                        html += '<span class="k-item-title k-listgroup-form-field-label">' + (field.title || field.field || '') + '</span>';
                         editableFields.push(field);
-                        html += '<div ' + kendo.attr('container-for') + '="' + field.field + '"></div>';
+                        html += '<div class="k-listgroup-form-field-wrapper" ' + kendo.attr('container-for') + '="' + field.field + '"></div>';
+                        html += '</label></li>';
                     } else {
                         var tmpl = '#:';
-                        html += '<li class="k-item">';
-                        html += '<label class="k-label k-no-click">';
-                        html += '<span class="k-item-title">' + (field.title || field.field || '') + '</span>';
+                        html += '<li class="k-item k-listgroup-item">';
+                        html += '<label class="k-label k-no-click k-listgroup-form-row">';
+                        html += '<span class="k-item-title k-listgroup-form-field-label">' + (field.title || field.field || '') + '</span>';
                         if (field.field) {
                             field = kendo.expr(field.field, paramName);
                             tmpl += field + '==null?\'\':' + field;
@@ -1134,14 +1140,14 @@
                         }
                         tmpl += '#';
                         tmpl = kendo.template(tmpl, settings);
-                        html += '<span class="k-no-editor">' + tmpl(model) + '</span>';
+                        html += '<span class="k-no-editor k-listgroup-form-field-wrapper">' + tmpl(model) + '</span>';
+                        html += '</label></li>';
                     }
-                    html += '</label></li>';
                     if (field.field === 'recurrenceRule') {
-                        html += '</ul><ul>';
+                        html += '</ul><ul class="k-listgroup k-listgroup-flush">';
                     }
                     if (field.field === 'endTimezone') {
-                        html += this._createEndTimezoneButton();
+                        html += '</ul></div>';
                     }
                 }
                 html += '</ul>';
@@ -1223,7 +1229,7 @@
                 that._startTimezone = model.startTimezone || '';
                 that._endTimezone = model.endTimezone || '';
                 if (!timezoneView) {
-                    var html = '<div data-role="view" class="k-popup-edit-form k-scheduler-edit-form k-mobile-list">' + '<div data-role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-scheduler-cancel k-link" title="' + messages.cancel + '"' + 'aria-label="' + messages.cancel + '"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + messages.editor.timezoneTitle + '<a href="\\#" class="k-header-done k-scheduler-update k-link" title="' + messages.save + '" ' + 'aria-label="' + messages.save + '"><span class="k-icon k-i-check"></span></a>' + '</div><div data-role="content"></div>';
+                    var html = '<div data-role="view" class="k-popup-edit-form k-scheduler-edit-form">' + '<div data-role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-scheduler-cancel k-link" title="' + messages.cancel + '"' + 'aria-label="' + messages.cancel + '"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + messages.editor.timezoneTitle + '<a href="\\#" class="k-header-done k-scheduler-update k-link" title="' + messages.save + '" ' + 'aria-label="' + messages.save + '"><span class="k-icon k-i-check"></span></a>' + '</div><div data-role="content"></div>';
                     this.timezoneView = timezoneView = pane.append(html);
                     timezoneView.contentElement.append(container.show());
                     timezoneView.element.on(CLICK + NS, '.k-scheduler-cancel, .k-scheduler-update', function (e) {
@@ -1284,7 +1290,7 @@
                 var cancelText = messages.cancel;
                 var titleText = messages.editor.editorTitle;
                 var resetSeries = messages.resetSeries;
-                html += '<div data-role="view" class="k-popup-edit-form k-scheduler-edit-form k-mobile-list"' + kendo.attr('uid') + '="' + model.uid + '">' + '<div data-role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-scheduler-cancel k-link" title="' + cancelText + '"' + 'aria-label="' + cancelText + '"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + titleText + '<a href="\\#" class="k-header-done k-scheduler-update k-link" title="' + updateText + '" ' + 'aria-label="' + updateText + '"><span class="k-icon k-i-check"></span></a>' + '</div>';
+                html += '<div data-role="view" class="k-popup-edit-form k-scheduler-edit-form"' + kendo.attr('uid') + '="' + model.uid + '">' + '<div data-role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-scheduler-cancel k-link" title="' + cancelText + '"' + 'aria-label="' + cancelText + '"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + titleText + '<a href="\\#" class="k-header-done k-scheduler-update k-link" title="' + updateText + '" ' + 'aria-label="' + updateText + '"><span class="k-icon k-i-check"></span></a>' + '</div>';
                 var fields = this.fields(editors.mobile, model);
                 var that = this;
                 var editableFields = [];
@@ -1292,11 +1298,11 @@
                 html += '</div>';
                 var view = pane.append(html);
                 if (!model.isNew() && this.options.editable && this.options.editable.destroy !== false && model.isRecurrenceHead() && model.recurrenceException) {
-                    var resetSeriesBtn = '<ul class="k-edit-buttons"><li class="k-item"><span href="#" class="k-scheduler-resetSeries k-label" aria-label="' + resetSeries + '">' + resetSeries + '</span></li></ul>';
+                    var resetSeriesBtn = '<ul class="k-edit-buttons k-listgroup k-listgroup-flush"><li class="k-item k-listgroup-item"><span class="k-scheduler-resetSeries k-link k-label" aria-label="' + resetSeries + '">' + resetSeries + '</span></li></ul>';
                     view.contentElement.append(resetSeriesBtn);
                 }
                 if (!model.isNew() && this.options.editable && this.options.editable.destroy !== false) {
-                    var deleteBtn = '<ul class="k-edit-buttons"><li class="k-item"><span href="#" class="k-scheduler-delete k-label" aria-label="' + removeText + '">' + removeText + '</span></li></ul>';
+                    var deleteBtn = '<ul class="k-edit-buttons k-listgroup k-listgroup-flush"><li class="k-item k-listgroup-item"><span class="k-scheduler-delete k-link k-label" aria-label="' + removeText + '">' + removeText + '</span></li></ul>';
                     view.contentElement.append(deleteBtn);
                 }
                 this._editPane = view;
@@ -1955,7 +1961,9 @@
                 } else {
                     this._select();
                 }
-                this.toolbar.find('ul > li').removeClass(FOCUSEDSTATE);
+                if (this.toolbar) {
+                    this.toolbar.find('ul > li').removeClass(FOCUSEDSTATE);
+                }
             },
             _selectFirstSlot: function () {
                 this._createSelection(this.wrapper.find('.k-scheduler-content').find('td:first'));
@@ -3634,16 +3642,18 @@
                 var isResourceGrouped = isGrouped && that.options.group.resources.indexOf(groupName) > -1;
                 if (!that._resourceRefreshHandler && isResourceGrouped) {
                     that._resourceRefreshHandler = proxy(that._refreshResource, that);
-                    that._resourceProgressHandler = proxy(that._requestStart, that);
                     that._resourceErrorHandler = proxy(that._error, that);
                 }
                 if (isResourceGrouped) {
-                    resourceDS.bind(CHANGE, that._resourceRefreshHandler).bind(PROGRESS, that._resourceProgressHandler).bind(ERROR, that._resourceErrorHandler);
+                    resourceDS.bind(CHANGE, that._resourceRefreshHandler).bind(ERROR, that._resourceErrorHandler);
                 }
             },
             _refreshResource: function () {
                 var that = this;
-                that.view(that._selectedViewName);
+                var preventRefresh = that._editor.editable || that._preventRefresh;
+                if (!preventRefresh) {
+                    that.view(that._selectedViewName);
+                }
             },
             _initModel: function () {
                 var that = this;
@@ -4074,7 +4084,7 @@
             },
             _zonePicker: function () {
                 var that = this;
-                that._zonePickerLabel = $('<li class=\'k-item k-zonepicker\' style=\'display:none\'>' + '<label class=\'k-label\'><span class=\'k-item-title\'></span>' + '<div></div>' + '</label>' + '</li>');
+                that._zonePickerLabel = $('<li class=\'k-item k-listgroup-item k-zonepicker\' style=\'display:none\'>' + '<label class=\'k-label k-listgroup-form-row\'>' + '<span class=\'k-item-title k-listgroup-form-field-label\'></span>' + '<div class=\'k-listgroup-form-field-wrapper\'></div>' + '</label>' + '</li>');
                 that._zone = $('<select></select>').appendTo(that._zonePickerLabel.find('div')).change(function () {
                     that._value = this.value;
                     that.trigger('change');

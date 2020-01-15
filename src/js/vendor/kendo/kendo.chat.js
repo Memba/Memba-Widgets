@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -53,7 +53,13 @@
                 this._typing = false;
             },
             events: [],
-            options: { messages: { placeholder: 'Type a message...' } },
+            options: {
+                messages: {
+                    placeholder: 'Type a message...',
+                    toggleButton: 'Toggle toolbar',
+                    sendButton: 'Send message'
+                }
+            },
             destroy: function () {
                 Widget.fn.destroy.call(this);
                 if (this.input) {
@@ -71,10 +77,10 @@
                 var inputId = 'inputId_' + kendo.guid();
                 $('<label>').addClass(styles.hidden).html(messages.placeholder).attr('for', inputId).appendTo(this.element);
                 this.input = $('<input type=\'text\'>').addClass(styles.input).attr('id', inputId).attr('placeholder', messages.placeholder).appendTo(this.element);
-                if (options.toolbar && options.toolbar.toggleable && options.toolbar.buttons) {
-                    $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.buttonIcon).addClass(styles.buttonToggle).attr('type', 'button').append($(TOGGLE_ICON)).appendTo(this.element);
+                if (options.toolbar && options.toolbar.toggleable && options.toolbar.buttons && options.toolbar.buttons.length) {
+                    $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.buttonIcon).addClass(styles.buttonToggle).attr('type', 'button').append($(TOGGLE_ICON)).appendTo(this.element).attr('title', messages.toggleButton).attr('aria-label', messages.toggleButton);
                 }
-                $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.buttonIcon).addClass(styles.buttonSend).append($(SEND_ICON)).appendTo(this.element);
+                $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.buttonIcon).addClass(styles.buttonSend).append($(SEND_ICON)).appendTo(this.element).attr('title', messages.sendButton).attr('aria-label', messages.sendButton);
             },
             _attachEvents: function () {
                 var styles = ChatMessageBox.styles;
@@ -183,7 +189,7 @@
                     this._initScrolling();
                 }
                 this._setupAnimation();
-                if (toolbarOptions.toggleable) {
+                if (buttonsDefined && toolbarOptions.toggleable) {
                     this.toggle(true);
                 }
                 this.element.on('click' + NS, proxy(this._onClick, this));
@@ -212,7 +218,7 @@
                 if (typeof btnOptions === 'string') {
                     btnOptions = { name: btnOptions };
                 }
-                buttonElm.attr(btnOptions.attr || {}).attr('title', btnOptions.text).attr('type', 'button').addClass(btnOptions.name).data(DATA_K_BUTTON_NAME, btnOptions.name).addClass(styles.button);
+                buttonElm.attr(btnOptions.attr || {}).attr('title', btnOptions.text || btnOptions.name).attr('aria-label', btnOptions.text || btnOptions.name).attr('type', 'button').addClass(btnOptions.name).data(DATA_K_BUTTON_NAME, btnOptions.name).addClass(styles.button);
                 if (btnOptions.iconClass) {
                     buttonElm.addClass(styles.buttonIcon);
                     buttonElm.prepend('<span class=\'' + btnOptions.iconClass + '\'></span>');
@@ -781,7 +787,11 @@
                     iconUrl: ''
                 },
                 name: 'Chat',
-                messages: { placeholder: 'Type a message...' },
+                messages: {
+                    placeholder: 'Type a message...',
+                    toggleButton: 'Toggle toolbar',
+                    sendButton: 'Send message'
+                },
                 toolbar: false
             },
             setOptions: function (options) {

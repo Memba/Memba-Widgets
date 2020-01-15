@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -26,7 +26,8 @@
     define('kendo.filebrowser', [
         'kendo.listview',
         'kendo.dropdownlist',
-        'kendo.upload'
+        'kendo.upload',
+        'kendo.breadcrumb'
     ], f);
 }(function () {
     var __meta__ = {
@@ -39,11 +40,12 @@
             'selectable',
             'listview',
             'dropdownlist',
-            'upload'
+            'upload',
+            'breadcrumb'
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, isPlainObject = $.isPlainObject, proxy = $.proxy, extend = $.extend, placeholderSupported = kendo.support.placeholder, browser = kendo.support.browser, isFunction = kendo.isFunction, trimSlashesRegExp = /(^\/|\/$)/g, CHANGE = 'change', APPLY = 'apply', ERROR = 'error', CLICK = 'click', NS = '.kendoFileBrowser', BREADCRUBMSNS = '.kendoBreadcrumbs', SEARCHBOXNS = '.kendoSearchBox', NAMEFIELD = 'name', SIZEFIELD = 'size', TYPEFIELD = 'type', DEFAULTSORTORDER = {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, isPlainObject = $.isPlainObject, proxy = $.proxy, extend = $.extend, placeholderSupported = kendo.support.placeholder, browser = kendo.support.browser, isFunction = kendo.isFunction, trimSlashesRegExp = /(^\/|\/$)/g, CHANGE = 'change', APPLY = 'apply', ERROR = 'error', CLICK = 'click', NS = '.kendoFileBrowser', SEARCHBOXNS = '.kendoSearchBox', NAMEFIELD = 'name', SIZEFIELD = 'size', TYPEFIELD = 'type', DEFAULTSORTORDER = {
                 field: TYPEFIELD,
                 dir: 'asc'
             }, EMPTYTILE = kendo.template('<li class="k-tile-empty"><strong>${text}</strong></li>'), TOOLBARTMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' + '<div class="k-toolbar-wrap">' + '# if (showUpload) { # ' + '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button">' + '<span class="k-icon k-i-plus"></span>#=messages.uploadFile#<input type="file" name="file" /></div></div>' + '# } #' + '# if (showCreate) { #' + '<button type="button" class="k-button k-button-icon"><span class="k-icon k-i-folder-add" /></button>' + '# } #' + '# if (showDelete) { #' + '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-i-close" /></button>&nbsp;' + '# } #' + '</div>' + '<div class="k-tiles-arrange">' + '<label>#=messages.orderBy#: <select /></label>' + '</div>' + '</div>';
@@ -481,7 +483,7 @@
                     var folder = that.dataSource.getByUid(li.attr(kendo.attr('uid')));
                     if (folder) {
                         that.path(concatPaths(that.path(), folder.get(NAMEFIELD)));
-                        that.breadcrumbs.value(that.path());
+                        that.breadcrumbs.value('/' + that.path());
                     }
                 } else if (li.filter('[' + kendo.attr('type') + '=f]').length) {
                     that.trigger(APPLY);
@@ -522,13 +524,15 @@
                 that.dataSource = kendo.data.DataSource.create(dataSource).bind(ERROR, that._errorHandler);
             },
             _navigation: function () {
-                var that = this, navigation = $('<div class="k-floatwrap"><input/><input/></div>').appendTo(this.element);
-                that.breadcrumbs = navigation.find('input:first').kendoBreadcrumbs({
-                    value: that.options.path,
+                var that = this, navigation = $('<div class="k-floatwrap"><nav/><input/></div>').appendTo(this.element);
+                that.breadcrumbs = navigation.find('nav:first').kendoBreadcrumb({
+                    editable: true,
+                    gap: 50,
+                    value: that.options.path || '/',
                     change: function () {
                         that.path(this.value());
                     }
-                }).data('kendoBreadcrumbs');
+                }).data('kendoBreadcrumb');
                 that.searchBox = navigation.parent().find('input:last').kendoSearchBox({
                     label: that.options.messages.search,
                     change: function () {
@@ -683,128 +687,7 @@
                 return that.options.value;
             }
         });
-        var Breadcrumbs = Widget.extend({
-            init: function (element, options) {
-                var that = this;
-                options = options || {};
-                Widget.fn.init.call(that, element, options);
-                that._wrapper();
-                that.wrapper.on('focus' + BREADCRUBMSNS, 'input', proxy(that._focus, that)).on('blur' + BREADCRUBMSNS, 'input', proxy(that._blur, that)).on('keydown' + BREADCRUBMSNS, 'input', proxy(that._keydown, that)).on(CLICK + BREADCRUBMSNS, 'a.k-i-arrow-60-up:first', proxy(that._rootClick, that)).on(CLICK + BREADCRUBMSNS, 'a:not(.k-i-arrow-60-up)', proxy(that._click, that));
-                that.value(that.options.value);
-            },
-            options: {
-                name: 'Breadcrumbs',
-                gap: 50
-            },
-            events: [CHANGE],
-            destroy: function () {
-                var that = this;
-                Widget.fn.destroy.call(that);
-                that.wrapper.add(that.wrapper.find('input')).add(that.wrapper.find('a')).off(BREADCRUBMSNS);
-            },
-            _update: function (val) {
-                val = (val || '').charAt(0) === '/' ? val : '/' + (val || '');
-                if (val !== this.value()) {
-                    this.value(val);
-                    this.trigger(CHANGE);
-                }
-            },
-            _click: function (e) {
-                e.preventDefault();
-                this._update(this._path($(e.target).prevAll('a:not(.k-i-arrow-60-up)').addBack()));
-            },
-            _rootClick: function (e) {
-                e.preventDefault();
-                this._update('');
-            },
-            _focus: function () {
-                var that = this, element = that.element;
-                that.overlay.hide();
-                that.element.val(that.value());
-                setTimeout(function () {
-                    element.select();
-                });
-            },
-            _blur: function () {
-                if (this.overlay.is(':visible')) {
-                    return;
-                }
-                var that = this, element = that.element, val = element.val().replace(/\/{2,}/g, '/');
-                that.overlay.show();
-                element.val('');
-                that._update(val);
-            },
-            _keydown: function (e) {
-                var that = this;
-                if (e.keyCode === 13) {
-                    that._blur();
-                    setTimeout(function () {
-                        that.overlay.find('a:first').focus();
-                    });
-                }
-            },
-            _wrapper: function () {
-                var element = this.element, wrapper = element.parents('.k-breadcrumbs'), overlay;
-                element[0].style.width = '';
-                element.addClass('k-input');
-                if (!wrapper.length) {
-                    wrapper = element.wrap($('<div class="k-widget k-breadcrumbs k-textbox"/>')).parent();
-                }
-                overlay = wrapper.find('.k-breadcrumbs-wrap');
-                if (!overlay.length) {
-                    overlay = $('<div class="k-breadcrumbs-wrap"/>').appendTo(wrapper);
-                }
-                this.wrapper = wrapper;
-                this.overlay = overlay;
-            },
-            refresh: function () {
-                var html = '', value = this.value(), segments, segment, idx, length;
-                if (value === undefined || !value.match(/^\//)) {
-                    value = '/' + (value || '');
-                }
-                segments = value.split('/');
-                for (idx = 0, length = segments.length; idx < length; idx++) {
-                    segment = segments[idx];
-                    if (segment) {
-                        if (!html) {
-                            html += '<a href="#" class="k-icon k-i-arrow-60-up" title="Go to parent folder"></a>';
-                        }
-                        html += '<a class="k-link" href="#">' + segments[idx] + '</a>';
-                        html += '<span class="k-icon k-i-arrow-60-right" title="Go to child folder"></span>';
-                    }
-                }
-                this.overlay.empty().append($(html));
-                this._adjustSectionWidth();
-            },
-            _adjustSectionWidth: function () {
-                var that = this, wrapper = that.wrapper, width = wrapper.width() - that.options.gap, links = that.overlay.find('a'), a;
-                links.each(function (index) {
-                    a = $(this);
-                    if (a.parent().width() > width) {
-                        if (index == links.length - 1) {
-                            a.width(width);
-                        } else {
-                            a.prev().addBack().hide();
-                        }
-                    }
-                });
-            },
-            value: function (val) {
-                if (val !== undefined) {
-                    this._value = val.replace(/\/{2,}/g, '/');
-                    this.refresh();
-                    return;
-                }
-                return this._value;
-            },
-            _path: function (trail) {
-                return '/' + $.map(trail, function (b) {
-                    return $(b).text();
-                }).join('/');
-            }
-        });
         kendo.ui.plugin(FileBrowser);
-        kendo.ui.plugin(Breadcrumbs);
         kendo.ui.plugin(SearchBox);
     }(window.kendo.jQuery));
     return window.kendo;

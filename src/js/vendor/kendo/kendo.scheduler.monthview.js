@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -34,8 +34,9 @@
         hidden: true
     };
     (function ($) {
-        var kendo = window.kendo, ui = kendo.ui, SchedulerView = ui.SchedulerView, NS = '.kendoMonthView', extend = $.extend, getDate = kendo.date.getDate, MS_PER_DAY = kendo.date.MS_PER_DAY, NUMBER_OF_ROWS = 6, NUMBER_OF_COLUMNS = 7, INVERSE_COLOR_CLASS = 'k-event-inverse', DAY_TEMPLATE = kendo.template('<span class="k-link k-nav-day">#:kendo.toString(date, "dd")#</span>'), EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" data-#=ns#uid="#=uid#"' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' + 'class="k-event"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-60-left"></span>' + '#}#' + '# if(data.isException()) {#' + '<span class="k-icon k-i-non-recurrence"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '#}#' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' + '#}#' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-60-right"></span>' + '#}#' + '</span>' + '# if(resizable && !data.tail && !data.middle) {#' + '<span class="k-resize-handle k-resize-w"></span>' + '#}#' + '# if(resizable && !data.head && !data.middle) {#' + '<span class="k-resize-handle k-resize-e"></span>' + '#}#' + '</div>', EVENT_TEMPLATE = kendo.template('<div title="#=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template">#:title#</div>' + '</div>');
-        var MORE_BUTTON_TEMPLATE = kendo.template('<div style="width:#=width#px;left:#=left#px;top:#=top#px" class="k-more-events k-button"><span>...</span></div>');
+        var kendo = window.kendo, ui = kendo.ui, SchedulerView = ui.SchedulerView, NS = '.kendoMonthView', extend = $.extend, getDate = kendo.date.getDate, MS_PER_DAY = kendo.date.MS_PER_DAY, NUMBER_OF_ROWS = 6, NUMBER_OF_COLUMNS = 7, INVERSE_COLOR_CLASS = 'k-event-inverse', DAY_TEMPLATE = kendo.template('<span class="k-link k-nav-day">#:kendo.toString(date, "dd")#</span>'), EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" data-#=ns#uid="#=uid#"' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' + 'class="k-event"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if (data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-60-left"></span>' + '#}#' + '# if (data.isException()) {#' + '<span class="k-icon k-i-non-recurrence"></span>' + '# } else if (data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '#}#' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' + '#}#' + '# if (data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-60-right"></span>' + '#}#' + '</span>' + '# if (resizable && !data.tail && !data.middle) {#' + '<span class="k-resize-handle k-resize-w"></span>' + '#}#' + '# if (resizable && !data.head && !data.middle) {#' + '<span class="k-resize-handle k-resize-e"></span>' + '#}#' + '</div>', EVENT_TEMPLATE = kendo.template('<div title="#=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template">#:title#</div>' + '</div>');
+        var CELL_INNER_SPACING = 2;
+        var MORE_BUTTON_TEMPLATE = kendo.template('<div style="width:#=width#px;left:#=left#px;top:#=top#px" class="k-more-events k-button"><span class="k-icon k-i-more-horizontal"></span></div>');
         var MonthGroupedView = kendo.Class.extend({
             init: function (view) {
                 this._view = view;
@@ -96,9 +97,8 @@
                 var view = this._view;
                 return view._columnCountForLevel(level) / view._columnOffsetForResource(level);
             },
-            _positionEvent: function (event, group, range, rangeCount, start, end, rangeIndex) {
+            _positionMobileEvent: function (event, group, range, rangeCount, start, end, rangeIndex) {
                 var view = this._view;
-                var isMobile = view._isMobile();
                 if (rangeCount > 1) {
                     if (rangeIndex === 0) {
                         end = range.end.endDate();
@@ -115,11 +115,27 @@
                     head: range.head,
                     tail: range.tail
                 });
-                if (isMobile) {
-                    view._positionMobileEvent(range, view._createEventElement(occurrence), group);
-                } else {
-                    view._positionEvent(range, view._createEventElement(occurrence), group);
+                view._positionMobileEvent(range, view._createEventElement(occurrence), group);
+            },
+            _positionEvent: function (event, group, range, rangeCount, start, end, rangeIndex) {
+                var view = this._view;
+                if (rangeCount > 1) {
+                    if (rangeIndex === 0) {
+                        end = range.end.endDate();
+                    } else if (rangeIndex == rangeCount - 1) {
+                        start = range.start.startDate();
+                    } else {
+                        start = range.start.startDate();
+                        end = range.end.endDate();
+                    }
                 }
+                var occurrence = event.clone({
+                    start: start,
+                    end: end,
+                    head: range.head,
+                    tail: range.tail
+                });
+                view._positionEvent(range, view._createEventElement(occurrence), group);
             },
             _addDaySlotCollections: function (groupCount, tableRows, startDate) {
                 var view = this._view;
@@ -173,8 +189,8 @@
                 hint.css({
                     left: startSlot.offsetLeft + 2,
                     top: startSlot.offsetTop + startSlot.firstChildHeight,
-                    height: view.options.eventHeight,
-                    width: range.innerWidth() - (startSlot.index !== endSlot.index ? 5 : 4)
+                    height: view.options.eventHeight === 'auto' ? 25 : view.options.eventHeight,
+                    width: range.innerWidth() - (startSlot.index !== endSlot.index ? 3 : 2)
                 });
                 hint.addClass('k-event-drag-hint');
                 if (event.inverseColor) {
@@ -288,11 +304,10 @@
                 var view = this._view;
                 return view._columnCountForLevel(level) / NUMBER_OF_COLUMNS;
             },
-            _positionEvent: function (event, group, range, rangeCount, start, end) {
+            _positionMobileEvent: function (event, group, range, rangeCount, start, end) {
                 var view = this._view;
                 var startIndex = range.start.index;
                 var endIndex = range.end.index;
-                var isMobile = view._isMobile();
                 for (var i = range.start.index; i <= range.end.index; i++) {
                     var currentSlot = range.collection._slots[i];
                     var dateRange = group.daySlotRanges(currentSlot.start, currentSlot.start, true)[0];
@@ -302,11 +317,23 @@
                         head: i !== endIndex || range.head,
                         tail: i !== startIndex || range.tail
                     });
-                    if (isMobile) {
-                        view._positionMobileEvent(dateRange, view._createEventElement(occurrence), group);
-                    } else {
-                        view._positionEvent(dateRange, view._createEventElement(occurrence), group);
-                    }
+                    view._positionMobileEvent(dateRange, view._createEventElement(occurrence), group);
+                }
+            },
+            _positionEvent: function (event, group, range, rangeCount, start, end) {
+                var view = this._view;
+                var startIndex = range.start.index;
+                var endIndex = range.end.index;
+                for (var i = range.start.index; i <= range.end.index; i++) {
+                    var currentSlot = range.collection._slots[i];
+                    var dateRange = group.daySlotRanges(currentSlot.start, currentSlot.start, true)[0];
+                    var occurrence = event.clone({
+                        start: i === startIndex ? start : currentSlot.startDate(),
+                        end: i === endIndex ? end : currentSlot.endDate(),
+                        head: i !== endIndex || range.head,
+                        tail: i !== startIndex || range.tail
+                    });
+                    view._positionEvent(dateRange, view._createEventElement(occurrence), group);
                 }
             },
             _addDaySlotCollections: function (groupCount, tableRows, startDate) {
@@ -385,7 +412,7 @@
                     hint.css({
                         left: slot.offsetLeft,
                         top: slot.offsetTop + slot.firstChildHeight,
-                        height: view.options.eventHeight,
+                        height: view.options.eventHeight === 'auto' ? 25 : view.options.eventHeight,
                         width: slot.offsetWidth - 2
                     });
                     hint.addClass('k-event-drag-hint');
@@ -401,8 +428,32 @@
         ui.MonthView = SchedulerView.extend({
             init: function (element, options) {
                 var that = this;
+                if (options.eventsPerDay === 0) {
+                    options.eventsPerDay = 1;
+                }
+                if (options.eventHeight === 0) {
+                    options.eventHeight = 1;
+                }
+                if (options.moreButtonHeight === 0) {
+                    options.moreButtonHeight = 1;
+                }
+                if (typeof options.eventHeight === 'string' && options.eventHeight !== 'auto') {
+                    options.eventHeight = 25;
+                }
+                if (options.eventHeight === 'auto') {
+                    options.adaptiveSlotHeight = true;
+                }
                 SchedulerView.fn.init.call(that, element, options);
                 that._groupedView = that._getGroupedView();
+                var isGroupedByDate = this._isGroupedByDate();
+                var adaptiveSlotHeight = this.options.adaptiveSlotHeight;
+                var eventHeight = this.options.eventHeight;
+                if (isGroupedByDate === true && adaptiveSlotHeight === true) {
+                    throw new Error('Incompatible options: adaptive slot height and date grouping!');
+                }
+                if (isGroupedByDate === true && eventHeight === 'auto') {
+                    throw new Error('Incompatible options: auto event height and date grouping!');
+                }
                 that.title = that.options.title;
                 that._templates();
                 that._editable();
@@ -560,6 +611,7 @@
                 this._startDate = firstVisibleMonthDay(date, this.calendarInfo());
                 this.createLayout(this._layout());
                 this._content();
+                this._initSlotHeight();
                 this.refreshLayout();
                 this.content.on('click' + NS, '.k-nav-day,.k-more-events', function (e) {
                     var offset = $(e.currentTarget).offset();
@@ -670,6 +722,123 @@
                 }
                 html += '</tbody>';
                 this.content.find('table').html(html);
+            },
+            _calcSlotHeight: function (eventsPerDay) {
+                var options = this.options;
+                var eventHeight = options.eventHeight;
+                var eventSpacing = options.eventSpacing;
+                var moreButtonHeight = options.moreButtonHeight;
+                var firstCell = this.content.find('table tr td')[0];
+                var dateHeader = firstCell.firstChild;
+                if (eventHeight === 'auto') {
+                    return undefined;
+                }
+                return Math.round(firstCell.offsetHeight - firstCell.clientHeight + dateHeader.offsetTop + dateHeader.offsetHeight + CELL_INNER_SPACING + eventsPerDay * eventHeight + (eventsPerDay - 1) * eventSpacing + (CELL_INNER_SPACING + moreButtonHeight) + CELL_INNER_SPACING);
+            },
+            _initSlotHeight: function () {
+                var options = this.options;
+                var eventsPerDay = options.eventsPerDay;
+                var eventHeight = options.eventHeight;
+                var isMobile = this._isMobile();
+                var table = this.content.find('table');
+                var rowHeight;
+                if (isMobile) {
+                    return;
+                }
+                if (typeof eventHeight === 'number') {
+                    table.addClass('k-scheduler-table-auto');
+                    rowHeight = this._calcSlotHeight(eventsPerDay);
+                    table.find('tr').height(rowHeight);
+                }
+            },
+            _adjustSlotHeight: function (group) {
+                var options = this.options;
+                var eventHeight = options.eventHeight;
+                var eventSpacing = options.eventSpacing;
+                var moreButtonHeight = options.moreButtonHeight;
+                if (this._canAdjustSlotHeight !== true) {
+                    return;
+                }
+                var weeks = group._daySlotCollections;
+                this.content.find('table').addClass('k-scheduler-table-auto');
+                weeks.forEach(function (week) {
+                    var events = week._events;
+                    var eventIndex = 0;
+                    var slots = week._slots;
+                    var firstSlot = slots[0];
+                    var weekOffsetTop = firstSlot.element.offsetTop;
+                    var weekHeight = 0;
+                    slots.forEach(function (slot) {
+                        if (!slot.eventMeta) {
+                            slot.eventMeta = [];
+                            slot.actualEventCount = 0;
+                        } else {
+                            slot.actualEventCount = slot.eventMeta.length;
+                        }
+                    });
+                    slots.forEach(function (slot, slotIndex) {
+                        slot.eventMeta.forEach(function (meta, eventIndex) {
+                            if (meta.startIndex !== slotIndex) {
+                                return;
+                            }
+                            if (meta.startIndex === meta.endIndex) {
+                                return;
+                            }
+                            slots.slice(slotIndex, meta.endIndex + 1).forEach(function (adjSlot) {
+                                var adjMeta = adjSlot.eventMeta;
+                                if (adjMeta.indexOf(meta) > -1) {
+                                    return;
+                                }
+                                adjMeta[adjMeta.length] = slot.eventMeta[eventIndex];
+                                adjSlot.actualEventCount = adjMeta.length;
+                                adjSlot.dirty = true;
+                            });
+                        });
+                        if (slot.dirty === true) {
+                            slot.eventMeta.sort(function (first, second) {
+                                return first.order - second.order;
+                            });
+                            delete slot.dirty;
+                        }
+                    });
+                    if (eventHeight === 'auto') {
+                        slots.forEach(function (slot, slotIndex) {
+                            var slotHeight = slot.firstChildTop + slot.firstChildHeight + CELL_INNER_SPACING;
+                            slot.eventMeta.forEach(function (meta, eventIndex) {
+                                meta.top = Math.max(meta.top, weekOffsetTop + slotHeight);
+                                slotHeight = meta.top - weekOffsetTop + eventSpacing + meta.height;
+                            });
+                        });
+                    }
+                    slots.forEach(function (slot, slotIndex) {
+                        var slotHeight = slot.firstChildTop + slot.firstChildHeight + CELL_INNER_SPACING;
+                        slot.eventMeta.forEach(function (meta) {
+                            meta.top = Math.max(meta.top, weekOffsetTop + slotHeight);
+                            slotHeight = meta.top - weekOffsetTop + eventSpacing + meta.height;
+                            if (meta.startIndex === slotIndex) {
+                                events[eventIndex].element[0].style.top = meta.top + 'px';
+                                eventIndex++;
+                            }
+                        });
+                        if (slot.eventMeta.length > 0) {
+                            slotHeight -= eventSpacing;
+                            slotHeight += CELL_INNER_SPACING;
+                        } else {
+                            slotHeight += eventHeight === 'auto' ? 25 : eventHeight;
+                        }
+                        if (slot.more) {
+                            slot.more[0].style.top = weekOffsetTop + slotHeight + 'px';
+                            slotHeight += CELL_INNER_SPACING + moreButtonHeight;
+                        }
+                        weekHeight = Math.max(weekHeight, slotHeight + 1);
+                    });
+                    firstSlot.element.parentNode.style.height = weekHeight + 'px';
+                    slots.forEach(function (slot) {
+                        slot.offsetTop = weekOffsetTop;
+                        slot.offsetHeight = weekHeight;
+                        slot.clientHeight = weekHeight - 1;
+                    });
+                }.bind(this));
             },
             _createCalendar: function (verticalGroupIndex) {
                 var start = this.startDate();
@@ -833,6 +1002,7 @@
             },
             _positionEvent: function (slotRange, element, group) {
                 var eventHeight = this.options.eventHeight;
+                var eventSpacing = this.options.eventSpacing;
                 var startSlot = slotRange.start;
                 if (slotRange.start.offsetLeft > slotRange.end.offsetLeft) {
                     startSlot = slotRange.end;
@@ -841,7 +1011,7 @@
                 var endIndex = slotRange.end.index;
                 var eventCount = startSlot.eventCount;
                 var events = SchedulerView.collidingEvents(slotRange.events(), startIndex, endIndex);
-                var rightOffset = startIndex !== endIndex ? 5 : 4;
+                var rightOffset = startIndex !== endIndex ? 3 : 2;
                 events.push({
                     element: element,
                     start: startIndex,
@@ -850,9 +1020,10 @@
                 var rows = SchedulerView.createRows(events);
                 for (var idx = 0, length = Math.min(rows.length, eventCount); idx < length; idx++) {
                     var rowEvents = rows[idx].events;
-                    var eventTop = startSlot.offsetTop + startSlot.firstChildTop + startSlot.firstChildHeight + idx * eventHeight + 3 * idx + 'px';
+                    var eventTop = eventHeight === 'auto' ? '' : startSlot.offsetTop + startSlot.firstChildTop + startSlot.firstChildHeight + CELL_INNER_SPACING + idx * (eventHeight + eventSpacing) + 'px';
                     for (var j = 0, eventLength = rowEvents.length; j < eventLength; j++) {
                         rowEvents[j].element[0].style.top = eventTop;
+                        rowEvents[j].element.attr(kendo.attr('order'), idx);
                     }
                 }
                 if (rows.length > eventCount) {
@@ -868,7 +1039,7 @@
                             end: slotIndex,
                             width: slot.clientWidth - 2,
                             left: slot.offsetLeft + 2,
-                            top: slot.offsetTop + slot.firstChildTop + slot.firstChildHeight + eventCount * eventHeight + 3 * eventCount
+                            top: eventHeight === 'auto' ? '' : slot.offsetTop + slot.firstChildTop + slot.firstChildHeight + CELL_INNER_SPACING + eventCount * eventHeight + (eventCount - 1) * eventSpacing + CELL_INNER_SPACING
                         }));
                         this.content[0].appendChild(slot.more[0]);
                     }
@@ -881,15 +1052,30 @@
                     });
                     element[0].style.width = slotRange.innerWidth() - rightOffset + 'px';
                     element[0].style.left = startSlot.offsetLeft + 2 + 'px';
-                    element[0].style.height = eventHeight + 'px';
+                    element[0].style.height = eventHeight === 'auto' ? '' : eventHeight + 'px';
                     group._continuousEvents.push({
                         element: element,
                         uid: element.attr(kendo.attr('uid')),
                         start: slotRange.start,
-                        end: slotRange.end
+                        end: slotRange.end,
+                        order: parseInt(element.attr(kendo.attr('order')), 10)
                     });
                     element.appendTo(this.content);
                     this._inverseEventColor(element);
+                    var _collectionIndex = slotRange.start.collectionIndex;
+                    var _startSlotIndex = slotRange.start.index;
+                    var _startSlot = group._daySlotCollections[_collectionIndex]._slots[_startSlotIndex];
+                    if (!_startSlot.eventMeta) {
+                        _startSlot.eventMeta = [];
+                    }
+                    _startSlot.eventMeta.push({
+                        height: eventHeight === 'auto' ? element.outerHeight() : eventHeight,
+                        top: 0,
+                        startIndex: _startSlotIndex,
+                        endIndex: slotRange.end.index,
+                        uid: element.attr(kendo.attr('uid')),
+                        order: parseInt(element.attr(kendo.attr('order')), 10)
+                    });
                 }
             },
             _slotByPosition: function (x, y) {
@@ -948,19 +1134,17 @@
                 this._groupedView._addDaySlotCollections(groupCount, tableRows, startDate);
             },
             addDaySlot: function (collection, cell, startDate, cellCount) {
-                var clientHeight = cell.clientHeight;
-                var firstChildHeight = cell.children.length ? cell.children[0].offsetHeight + 3 : 0;
                 var start = kendo.date.addDays(startDate, cellCount);
                 var end = kendo.date.MS_PER_DAY;
+                var eventsPerDay = this.options.eventsPerDay;
                 if (startDate.getHours() !== start.getHours()) {
                     end += (startDate.getHours() - start.getHours()) * kendo.date.MS_PER_HOUR;
                 }
                 start = kendo.date.toUtcTime(start);
                 end += start;
-                var eventCount = Math.floor((clientHeight - firstChildHeight - this.options.moreButtonHeight) / (this.options.eventHeight + 3));
                 cell.setAttribute('role', 'gridcell');
                 cell.setAttribute('aria-selected', false);
-                collection.addDaySlot(cell, start, end, eventCount);
+                collection.addDaySlot(cell, start, end, eventsPerDay);
             },
             render: function (events) {
                 this.content.children('.k-event,.k-more-events,.k-events-container').remove();
@@ -974,8 +1158,14 @@
                         field: 'end',
                         dir: 'desc'
                     }
-                ]).toArray();
+                ]).toArray().filter(function (event) {
+                    return this._isInDateSlot(event);
+                }.bind(this));
                 var resources = this.groupedResources;
+                var isMobile = this._isMobile();
+                var isGroupedByDate = this._isGroupedByDate();
+                var adaptiveSlotHeight = this.options.adaptiveSlotHeight;
+                this._canAdjustSlotHeight = isMobile !== true && isGroupedByDate !== true && resources.length === 0 && adaptiveSlotHeight === true;
                 if (resources.length) {
                     this._renderGroups(events, resources, 0, 1);
                 } else {
@@ -985,51 +1175,49 @@
                 this.trigger('activate');
             },
             _renderEvents: function (events, groupIndex) {
-                var event;
-                var idx;
-                var length;
-                var range;
-                var start;
-                var end;
-                for (idx = 0, length = events.length; idx < length; idx++) {
-                    event = events[idx];
-                    if (this._isInDateSlot(event)) {
-                        var group = this.groups[groupIndex];
-                        var view = this._groupedView._view;
-                        var isMobile = view._isMobile();
-                        if (!group._continuousEvents) {
-                            group._continuousEvents = [];
+                var group = this.groups[groupIndex];
+                var view = this._groupedView._view;
+                var isMobile = view._isMobile();
+                if (!group._continuousEvents) {
+                    group._continuousEvents = [];
+                }
+                if (isMobile) {
+                    events.forEach(function (event) {
+                        var ranges = group.slotRanges(event, true);
+                        var range = ranges[0];
+                        var start = range.start.start;
+                        var end = range.end.end;
+                        var rangeStart = new Date(range.start.start);
+                        var rangeEnd = ranges[ranges.length - 1].end.end;
+                        var newStart = new Date(rangeStart);
+                        var newEnd = new Date(end);
+                        while (rangeStart.getTime() <= rangeEnd && event.end >= kendo.timezone.toLocalDate(rangeStart) && event.start <= kendo.timezone.toLocalDate(rangeEnd)) {
+                            var dateRange = group.daySlotRanges(newStart.getTime(), newEnd.getTime(), true)[0];
+                            newEnd.setDate(newEnd.getDate() + 1);
+                            newStart.setDate(newStart.getDate() + 1);
+                            if (dateRange) {
+                                dateRange.head = null;
+                                dateRange.middle = null;
+                                dateRange.tail = null;
+                                this._groupedView._positionMobileEvent(event, group, dateRange, 1, start, end, 0);
+                            }
+                            rangeStart = kendo.date.addDays(rangeStart, 1);
                         }
+                    }.bind(this));
+                } else {
+                    events.forEach(function (event) {
+                        var range;
+                        var start = event.start;
+                        var end = event.end;
                         var ranges = group.slotRanges(event, true);
                         var rangeCount = ranges.length;
-                        if (isMobile) {
-                            range = ranges[0];
-                            start = range.start.start;
-                            end = range.end.end;
-                            var rangeStart = new Date(range.start.start);
-                            var rangeEnd = ranges[ranges.length - 1].end.end;
-                            var newStart = new Date(rangeStart);
-                            var newEnd = new Date(end);
-                            while (rangeStart.getTime() <= rangeEnd && event.end >= kendo.timezone.toLocalDate(rangeStart) && event.start <= kendo.timezone.toLocalDate(rangeEnd)) {
-                                var dateRange = group.daySlotRanges(newStart.getTime(), newEnd.getTime(), true)[0];
-                                newEnd.setDate(newEnd.getDate() + 1);
-                                newStart.setDate(newStart.getDate() + 1);
-                                if (dateRange) {
-                                    dateRange.head = null;
-                                    dateRange.middle = null;
-                                    dateRange.tail = null;
-                                    this._groupedView._positionEvent(event, group, dateRange, 1, start, end, 0);
-                                }
-                                rangeStart = kendo.date.addDays(rangeStart, 1);
-                            }
-                        } else {
-                            for (var rangeIndex = 0; rangeIndex < rangeCount; rangeIndex++) {
-                                range = ranges[rangeIndex];
-                                start = event.start;
-                                end = event.end;
-                                this._groupedView._positionEvent(event, group, range, rangeCount, start, end, rangeIndex);
-                            }
+                        for (var rangeIndex = 0; rangeIndex < rangeCount; rangeIndex++) {
+                            range = ranges[rangeIndex];
+                            this._groupedView._positionEvent(event, group, range, rangeCount, start, end, rangeIndex);
                         }
+                    }.bind(this));
+                    if (this._canAdjustSlotHeight === true) {
+                        this._adjustSlotHeight(group);
                     }
                 }
             },
@@ -1101,7 +1289,10 @@
                 selectedMobileDateFormat: '{0:MMMM}',
                 groupHeaderTemplate: '#=text#',
                 dayTemplate: DAY_TEMPLATE,
-                eventTemplate: EVENT_TEMPLATE
+                eventTemplate: EVENT_TEMPLATE,
+                eventsPerDay: 2,
+                adaptiveSlotHeight: false,
+                eventSpacing: 3
             }
         });
         function shiftArray(array, idx) {

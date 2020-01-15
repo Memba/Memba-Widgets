@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -329,7 +329,7 @@
         "borderStyle": "Rahmenstil",
         "collapseBorders": "Collapse rahmen",
         "wrapText": "Texthülle",
-        "associateCellsWithHeaders": "Zellen mit header verbinden",
+        "associateCellsWithHeaders": "Header verbinden",
         "alignLeft": "Ausrichten links",
         "alignCenter": "Ausrichten zentriert",
         "alignRight": "Ausrichten rechts",

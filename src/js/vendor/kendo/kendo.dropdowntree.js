@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -41,6 +41,7 @@
             init: function (element, options, dropdowntree) {
                 var that = this;
                 that.dropdowntree = dropdowntree;
+                that._nodesToLoad = 0;
                 TreeView.fn.init.call(that, element, options);
                 if (that.dropdowntree._isMultipleSelection()) {
                     that.wrapper.on(CLICK + NS, '.k-in.k-state-selected', proxy(that._clickSelectedItem, that));
@@ -70,6 +71,7 @@
                 }
             },
             defaultrefresh: function (e) {
+                var that = this;
                 var node = e.node;
                 var action = e.action;
                 var items = e.items;
@@ -112,6 +114,7 @@
                 } else if (action == 'itemchange') {
                     this._updateNodes(items);
                 } else if (action == 'itemloaded') {
+                    this._nodesToLoad--;
                     this._refreshChildren(parentNode, items, e.index);
                 } else {
                     this._refreshRoot(items);
@@ -119,9 +122,15 @@
                 if (action != 'remove') {
                     for (i = 0; i < items.length; i++) {
                         if (!loadOnDemand || items[i].expanded) {
+                            if (items[i].hasChildren) {
+                                that._nodesToLoad++;
+                            }
                             items[i].load();
                         }
                     }
+                }
+                if (this._nodesToLoad === 0) {
+                    this.dropdowntree.trigger('allNodesAreLoaded');
                 }
                 this.trigger(DATABOUND, { node: node ? parentNode : undefined });
                 this.dropdowntree._treeViewDataBound({
@@ -354,10 +363,17 @@
                 }
             },
             setDataSource: function (dataSource) {
-                this._noInitialValue = true;
-                this._clearTextAndValue();
+                this._isDataSourceSet = true;
+                if (this._tags) {
+                    this._noInitialValue = true;
+                    this.setValue([]);
+                    this._tags.empty();
+                    this.span.show();
+                    this._multipleTags.empty();
+                }
                 this.dataSource = dataSource;
                 this.treeview.setDataSource(dataSource);
+                this._isDataSourceSet = false;
             },
             _isMultipleSelection: function () {
                 return this.options && (this.options.treeview.checkboxes || this.options.checkboxes);
@@ -555,9 +571,15 @@
                     if (that.filterInput && that.dataSource._filter) {
                         that._filtering = true;
                         that.dataSource.filter({});
-                    } else if (!that.dataSource.data().length) {
+                    } else if (!that.dataSource.data().length || !that.treeview.dataSource.data().length) {
                         that.dataSource.fetch(function () {
-                            that._selection._setValue(value);
+                            if (that.options.loadOnDemand) {
+                                that._selection._setValue(value);
+                            } else {
+                                that.one('allNodesAreLoaded', function () {
+                                    that._selection._setValue(value);
+                                });
+                            }
                         });
                         return;
                     }
@@ -843,7 +865,7 @@
                 this.setValue(value);
                 this._textAccessor(text, dataItem);
                 this._accessor(value);
-                if (!this._valueMethodCalled) {
+                if (!this._preventChangeTrigger && !this._valueMethodCalled) {
                     this.trigger(CHANGE);
                 }
                 this._valueMethodCalled = false;
@@ -1692,7 +1714,15 @@
             },
             _checkLoadedItem: function (tempItem, value) {
                 var dropdowntree = this._dropdowntree;
-                if (!dropdowntree._isNullorUndefined(value) && value !== '' && dropdowntree._valueComparer(tempItem, value) || !value && tempItem.selected) {
+                if (!dropdowntree._isNullorUndefined(value) && value !== '') {
+                    if (dropdowntree._valueComparer(tempItem, value)) {
+                        dropdowntree._preventChangeTrigger = true;
+                        tempItem.set('selected', true);
+                        dropdowntree._preventChangeTrigger = false;
+                    } else if (tempItem.selected) {
+                        dropdowntree.treeview.select(dropdowntree.treeview.findByUid(tempItem.uid));
+                    }
+                } else if (!value && tempItem.selected) {
                     dropdowntree.treeview.select(dropdowntree.treeview.findByUid(tempItem.uid));
                 }
             }
@@ -1829,11 +1859,13 @@
                     dropdowntree._checkValue(tempItem);
                     return;
                 }
-                if (value.length && (value.indexOf(dropdowntree._currentValue(tempItem)) !== -1 || value.indexOf(tempItem)) !== -1 && !this._findTag(dropdowntree._currentValue(tempItem))) {
+                if ((value.length || this._isDataSourceSet) && (value.indexOf(dropdowntree._currentValue(tempItem)) !== -1 || value.indexOf(tempItem)) !== -1 && !this._findTag(dropdowntree._currentValue(tempItem))) {
                     if (tempItem.checked) {
                         dropdowntree._checkValue(tempItem);
                     } else {
+                        dropdowntree._preventChangeTrigger = true;
                         tempItem.set('checked', true);
+                        dropdowntree._preventChangeTrigger = false;
                     }
                 }
             },

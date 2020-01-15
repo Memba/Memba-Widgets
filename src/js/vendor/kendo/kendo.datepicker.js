@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -395,6 +395,9 @@
                 that.close();
                 if (value !== that._oldText) {
                     that._change(value);
+                    if (!value) {
+                        that.dateView.current(kendo.calendar.getToday());
+                    }
                 }
                 that._inputWrapper.removeClass(FOCUSED);
             },
@@ -508,10 +511,16 @@
                 that._inputWrapper = $(wrapper[0].firstChild);
             },
             _reset: function () {
-                var that = this, element = that.element, formId = element.attr('form'), form = formId ? $('#' + formId) : element.closest('form');
+                var that = this, element = that.element, formId = element.attr('form'), options = that.options, disabledDate = options.disableDates, parseFormats = options.parseFormats.length ? options.parseFormats : null, optionsValue = that._initialOptions.value, form = formId ? $('#' + formId) : element.closest('form'), initialValue = element[0].defaultValue;
+                if (optionsValue && (disabledDate && disabledDate(optionsValue))) {
+                    optionsValue = null;
+                }
+                if ((!initialValue || !kendo.parseDate(initialValue, parseFormats, options.culture)) && optionsValue) {
+                    element.attr('value', kendo.toString(optionsValue, options.format, options.culture));
+                }
                 if (form[0]) {
                     that._resetHandler = function () {
-                        that.value(element[0].defaultValue);
+                        that.value(optionsValue || element[0].defaultValue);
                         that.max(that._initialOptions.max);
                         that.min(that._initialOptions.min);
                     };

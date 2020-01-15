@@ -66,12 +66,8 @@ div.k-treeview
     display: inline-block;
     vertical-align: middle;
 }
-.k-treeview .k-checkbox
-{
-    margin-top: .2em;
-}
-.k-treeview .k-checkbox-label {
-    padding-left: ~"calc(@{checkbox-size} + 0.7ex)";
+.k-treeview .k-checkbox-wrapper + .k-in {
+    margin-left: 4px;
 }
 
 .k-treeview .k-icon,
@@ -104,9 +100,8 @@ div.k-treeview
     margin-right: 3px;
 }
 
-.k-treeview .k-in
-{
-    margin: @treeview-inner-margin;
+.k-treeview .k-in {
+    margin: 0;
     padding: @treeview-inner-padding;
     line-height: 1.3333em;
     text-decoration: none;
@@ -136,4 +131,8 @@ div.k-treeview
 .k-rtl .k-treeview .k-i-collapse {
     margin-left: 0;
     margin-right: -16px;
+}
+.k-rtl .k-treeview .k-checkbox-wrapper + .k-in {
+    margin-left: 0;
+    margin-right: 4px;
 }

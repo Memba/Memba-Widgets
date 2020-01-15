@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -884,6 +884,9 @@
                 var endIndex = direction ? orderId : oldOrderId;
                 var newIndex = direction ? startIndex : startIndex + 1;
                 var siblings = this.taskSiblings(task);
+                if (!siblings.length) {
+                    return;
+                }
                 endIndex = Math.min(endIndex, siblings.length - 1);
                 for (var i = startIndex; i <= endIndex; i++) {
                     if (siblings[i] === task) {

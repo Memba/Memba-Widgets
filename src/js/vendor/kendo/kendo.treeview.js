@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -652,6 +652,7 @@
                 }
             },
             _checkboxChange: function (e) {
+                var that = this;
                 var checkbox = $(e.target);
                 var isChecked = checkbox.prop(CHECKED);
                 var node = checkbox.closest(NODE);
@@ -663,6 +664,10 @@
                     dataItem.set(CHECKED, isChecked);
                     node.attr(ARIACHECKED, isChecked);
                     this._trigger(CHECK, node);
+                }
+                if (checkbox.is(':focus')) {
+                    that._trigger(NAVIGATE, node);
+                    that.focus();
                 }
             },
             _toggleButtonClick: function (e) {

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -183,7 +183,7 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "borderStyle": "Стил на раб",
   "collapseBorders": "Сокриј рабови",
   "wrapText": "Прелом на текст",
-  "associateCellsWithHeaders": "Асоцирај ќелии со заглавија",
+  "associateCellsWithHeaders": "Асоцирај заглавија",
   "alignLeft": "Порамнување од лево",
   "alignCenter": "Централно порaмнување",
   "alignRight": "Порамнување од десно",

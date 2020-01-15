@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -912,7 +912,7 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "borderStyle": "Стил на рамката",
   "collapseBorders": "Свиване на рамката",
   "wrapText": "Събиране на текста",
-  "associateCellsWithHeaders": "Асоциирай клетките с заглавията на колоните",
+  "associateCellsWithHeaders": "Асоциирай заглавията",
   "alignLeft": "Подравни ляво",
   "alignCenter": "Подравни център",
   "alignRight": "Подравни дясно",
@@ -925,11 +925,16 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "alignLeftBottom": "Подравни ляво и долу",
   "alignCenterBottom": "Подравни център и горе",
   "alignRightBottom": "Подравни дясно и долу",
-  "alignRemove": "RПремахни подравняване",
+  "alignRemove": "Премахни подравняване",
   "columns": "Колони",
   "rows": "Редове",
   "selectAllCells": "Избери всички клетки",
-  "print": "Принтирай"
+  "print": "Принтирай",
+  "associateNone": "Без асоцииране",
+  "associateScope": "Асоцииране чрез 'scope' атрибут",
+  "associateIds": "Асоцииране чрез Id",
+  "copyFormat": "Копирай форматирането",
+  "applyFormat": "Приложи форматирането"
 });
 }
 
@@ -1130,6 +1135,17 @@ if (kendo.ui.MultiSelect) {
         "clear": "изчисти",
         "deleteTag": "премахни",
         "noData": "Няма налични опции."
+    });
+}
+
+/* Chat messages */
+
+if (kendo.ui.Chat) {
+    kendo.ui.Chat.prototype.options.messages =
+    $.extend(true, kendo.ui.Chat.prototype.options.messages,{
+        "placeholder": "Напиши съобщение...",
+        "toggleButton": "Отвори/затвори лентата с инструменти",
+        "sendButton": "Изпрати съобщение"
     });
 }
 

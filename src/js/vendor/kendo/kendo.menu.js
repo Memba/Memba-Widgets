@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -263,7 +263,8 @@
             return id ? 'li[data-groupparent=\'' + id + '\']' : 'li[data-groupparent]';
         }
         function popupGroupSelector(id) {
-            return id ? 'ul[data-group=\'' + id + '\']' : 'ul[data-group]';
+            var selector = id ? '[data-group=\'' + id + '\']' : '[data-group]';
+            return 'ul' + selector + ',div' + selector;
         }
         function getChildPopups(currentPopup, overflowWrapper) {
             var childPopupOpener = currentPopup.find(popupOpenerSelector());
@@ -616,7 +617,7 @@
             },
             append: function (item, referenceItem) {
                 referenceItem = this.attemptGetItem(referenceItem);
-                var inserted = this._insert(item, referenceItem, referenceItem.length ? referenceItem.find('> .k-menu-group, > .k-animation-container > .k-menu-group') : null);
+                var inserted = this._insert(item, referenceItem, referenceItem.length ? this._childPopupElement(referenceItem) : null);
                 each(inserted.items, function (i) {
                     inserted.group.append(this);
                     updateArrow(this);

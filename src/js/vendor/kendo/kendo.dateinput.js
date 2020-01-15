@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -305,10 +305,14 @@
                 var element = that.element;
                 var formId = element.attr('form');
                 var form = formId ? $('#' + formId) : element.closest('form');
+                var initialValue = element[0].value;
+                if (!initialValue && that.options.value) {
+                    initialValue = that.options.value;
+                }
                 if (form[0]) {
                     that._resetHandler = function () {
                         setTimeout(function () {
-                            that.value(element[0].value);
+                            that.value(initialValue);
                         });
                     };
                     that._formElement = form.on('reset', that._resetHandler);

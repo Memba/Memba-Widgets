@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -43,7 +43,7 @@
         'boolean': '# var checkboxGuid = kendo.guid(); # <input class=\'k-checkbox\' data-role=\'checkbox\' id=\'#= checkboxGuid #\' data-#=ns#bind=\'checked: value\' type=\'checkbox\'><label for=\'#= checkboxGuid #\' class=\'k-checkbox-label k-no-text\'>&\\#8203;</label>',
         'date': '<input type=\'text\' title=\'#=field#\' data-#=ns#role=\'datepicker\' data-#=ns#bind=\'value: value\'/>'
     };
-    var operatorsTemplate = '<select data-#=ns#bind=\'value: operator\' title=\'#=operatorsLabel#\' data-#=ns#role=\'dropdownlist\'>' + '#for(var op in operators){#' + '<option value=\'#=op#\'>#=operators[op]#</option>' + '#}#' + '</select>';
+    var operatorsTemplate = '<select data-#=ns#bind=\'value: operator\' title=\'#=operatorsLabel#\' data-#=ns#role=\'dropdownlist\'>' + '#for(var op in operators){#' + '<option value=\'#=op#\'>#=operators[op].text || operators[op]#</option>' + '#}#' + '</select>';
     var logicTemplate = '<div data-#=ns#bind=\'value: logic\' data-#=ns#role=\'filterbuttongroup\'>' + '#for(var op in operators){#' + '<span value=\'#=op#\'>#=operators[op]#</span>' + '#}#' + '</div>';
     var mainContainer = '<ul class=\'k-filter-container\'>' + '<li class=\'k-filter-group-main\'></li>' + '</ul>';
     var mainLogicTemplate = '<div class=\'k-filter-toolbar\'>' + '<div class=\'k-toolbar\' id=\'#=uid#\'>' + '<div class=\'k-filter-toolbar-item\'>' + logicTemplate + '</div>' + '<div class=\'k-filter-toolbar-item\'>' + '<button data-role=\'button\' class=\'k-button k-button-icon\' role=\'button\' aria-disabled=\'false\' title=\'#=addExpression#\' aria-label=\'#=addExpression#\' tabindex=\'0\'>' + '<span class=\'k-icon k-i-filter-add-expression\'>' + '</span>' + '</button>' + '</div>' + '<div class=\'k-filter-toolbar-item\'>' + '<button data-role=\'button\' class=\'k-button k-button-icon\' role=\'button\' aria-disabled=\'false\' title=\'#=addGroup#\' aria-label=\'#=addGroup#\' tabindex=\'0\'>' + '<span class=\'k-icon k-i-filter-add-group\'>' + '</span>' + '</button>' + '</div>' + '<div class=\'k-filter-toolbar-item\'>' + '<button data-role=\'button\' class=\'k-button-flat k-button k-button-icon\' role=\'button\' title=\'#=close#\' aria-label=\'#=close#\' aria-disabled=\'false\' tabindex=\'0\'>' + '<span class=\'k-icon k-i-close\'>' + '</span>' + '</button>' + '</div>' + '</div>' + '</div>';
@@ -94,6 +94,7 @@
                     that._previewContainer.html(html);
                 }
                 that._attachEvents();
+                that.hasCustomOperators();
             },
             events: [CHANGE],
             options: {
@@ -156,7 +157,11 @@
             },
             applyFilter: function () {
                 var filter = this.filterModel.toJSON();
+                if (this._hasCustomOperators) {
+                    this._mapOperators(filter);
+                }
                 if (this._hasFieldsFilter(filter.filters || [])) {
+                    this._removeEmptyGroups(filter.filters);
                     this.dataSource.filter(filter);
                 } else {
                     this.dataSource.filter({});
@@ -262,7 +267,7 @@
             },
             _appendOperators: function (container, field) {
                 $(kendo.template(operatorsTemplate)({
-                    operators: this.operators[field.type],
+                    operators: field.operators && field.operators[field.type] ? field.operators[field.type] : this.operators[field.type],
                     operatorsLabel: this.options.messages.operators,
                     ns: kendo.ns
                 })).appendTo(container);
@@ -279,10 +284,17 @@
             },
             _addNewModel: function (parent, field) {
                 var filterModel;
+                var type = field.type;
+                var operators = field.operators;
+                var operator;
+                if (!operators) {
+                    operators = this.options.operators;
+                }
+                operator = Object.keys(operators[type])[0];
                 parent.push({ field: field.name });
                 filterModel = parent[parent.length - 1];
                 filterModel.set('value', field.defaultValue);
-                filterModel.set('operator', 'eq');
+                filterModel.set('operator', operator);
                 return filterModel;
             },
             _addGroup: function (parent, model) {
@@ -331,6 +343,7 @@
                 var haveFields = this._hasFieldsFilter(filter.filters || []);
                 var childhtml = '';
                 var current;
+                var field;
                 if (!filter.filters || !filter.filters.length || !haveFields) {
                     return '';
                 }
@@ -348,15 +361,16 @@
                         html += childhtml;
                     }
                     if (current.field) {
+                        field = this._fields[current.field];
                         if (createdField) {
                             html += '<span class="k-filter-preview-operator"> ' + filter.logic.toLocaleUpperCase() + ' </span>';
                         }
                         createdField = true;
-                        html += '<span class="k-filter-preview-field">' + this._fields[current.field].label + '</span>';
+                        html += '<span class="k-filter-preview-field">' + field.label + '</span>';
                         html += '<span class="k-filter-preview-criteria"> ' + this._getOperatorText(current.field, current.operator);
                         if (current.operator.indexOf('is') < 0) {
                             html += ' </span>';
-                            html += '<span class=\'k-filter-preview-value\'>\'' + kendo.htmlEncode(current.value) + '\'</span>';
+                            html += '<span class=\'k-filter-preview-value\'>\'' + kendo.htmlEncode(field.previewFormat ? kendo.toString(current.value, field.previewFormat) : current.value) + '\'</span>';
                         } else {
                             html += '</span>';
                         }
@@ -377,7 +391,11 @@
             },
             _getOperatorText: function (field, operator) {
                 var type = this._fields[field].type;
-                return this.options.operators[type][operator];
+                var operators = this._fields[field].operators;
+                if (!operators) {
+                    operators = this.options.operators;
+                }
+                return operators[type][operator].text || operators[type][operator];
             },
             _getFieldsInfo: function () {
                 var that = this;
@@ -391,7 +409,9 @@
                         editor: fieldInfo.editorTemplate || editors[fieldInfo.type || 'string'],
                         defaultValue: fieldInfo.defaultValue || '',
                         type: fieldInfo.type || 'string',
-                        label: fieldInfo.label || fieldInfo.name || field
+                        label: fieldInfo.label || fieldInfo.name || field,
+                        operators: fieldInfo.operators,
+                        previewFormat: fieldInfo.previewFormat
                     });
                     that._fields[fieldInfo.name] = fieldInfo;
                     if (!that._defaultField) {
@@ -410,6 +430,20 @@
                     }
                 }
                 return haveField;
+            },
+            _removeEmptyGroups: function (filters) {
+                if (!filters) {
+                    return;
+                }
+                for (var i = filters.length - 1; i >= 0; i--) {
+                    if (filters[i].logic && !filters[i].filters || filters[i].filters && !this._hasFieldsFilter(filters[i].filters)) {
+                        filters.splice(i, 1);
+                        continue;
+                    }
+                    if (filters[i].filters) {
+                        this._removeEmptyGroups(filters[i].filters);
+                    }
+                }
             },
             _modelChange: function (e) {
                 var that = this;
@@ -500,8 +534,46 @@
                 } else {
                     editorContainer.show();
                 }
+            },
+            _mapOperators: function (expression) {
+                var that = this;
+                if (expression.filters) {
+                    expression.filters.forEach(function (filter) {
+                        if (filter.filters) {
+                            that._mapOperators(filter);
+                        } else {
+                            var operator;
+                            var field = that._fields[filter.field];
+                            var type = field.type;
+                            if (field.operators && field.operators[type][filter.operator]) {
+                                operator = field.operators[type][filter.operator];
+                            } else {
+                                operator = that.operators[type][filter.operator];
+                            }
+                            if (operator) {
+                                filter.operator = operator.handler || filter.operator;
+                            }
+                        }
+                    });
+                }
+            },
+            hasCustomOperators: function () {
+                var operators = $.extend(true, {}, this.operators);
+                for (var field in this._fields) {
+                    operators = $.extend(true, {}, operators, this._fields[field].operators);
+                }
+                this._hasCustomOperators = findCustomOperators(operators);
             }
         });
+        function findCustomOperators(operators) {
+            for (var field in operators) {
+                var operator = operators[field];
+                if (operator.handler && typeof operator.handler === 'function' || typeof operator === 'object' && operator !== null && findCustomOperators(operator)) {
+                    return true;
+                }
+            }
+            return false;
+        }
         function findModel(model, uid) {
             if (model.uid === uid) {
                 return model;

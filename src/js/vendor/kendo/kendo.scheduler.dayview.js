@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -107,7 +107,7 @@
                 this._updateCurrentTimeMarker(new Date());
             },
             _updateCurrentTimeMarker: function (currentTime) {
-                var options = this.options;
+                var options = this.options, currentTimeMarkers, currentContentMarkers, timesTableMarkerWidth, position, elementHtml = '<div class=\'' + CURRENT_TIME_MARKER_CLASS + '\'></div>';
                 if (options.currentTimeMarker.useLocalTimezone === false) {
                     var timezone = options.dataSource.options.schema.timezone;
                     if (options.dataSource && timezone) {
@@ -115,11 +115,20 @@
                         currentTime = kendo.timezone.convert(currentTime, currentTime.getTimezoneOffset(), timezoneOffset);
                     }
                 }
-                this.times.find('.' + CURRENT_TIME_MARKER_CLASS).remove();
-                this.content.find('.' + CURRENT_TIME_MARKER_CLASS).remove();
+                currentTimeMarkers = this.times.find('.' + CURRENT_TIME_MARKER_CLASS);
+                currentContentMarkers = this.content.find('.' + CURRENT_TIME_MARKER_CLASS);
                 var groupsCount = !options.group || options.group.orientation == 'horizontal' ? 1 : this.groups.length;
                 var firstTimesCell = this.times.find('tr:first th:first');
                 var lastTimesCell = this.times.find('tr:first th:last');
+                var markerWidth = this.content[0].scrollWidth;
+                if (browser.msie || browser.edge) {
+                    markerWidth -= 1;
+                }
+                if (this._isRtl) {
+                    position = firstTimesCell.position().left + outerHeight(firstTimesCell) - outerHeight(lastTimesCell);
+                } else {
+                    position = lastTimesCell.position().left;
+                }
                 for (var groupIndex = 0; groupIndex < groupsCount; groupIndex++) {
                     var currentGroup = this.groups[groupIndex];
                     if (!currentGroup) {
@@ -133,24 +142,23 @@
                     var collection = ranges[0].collection;
                     var slotElement = collection.slotByStartDate(currentTime);
                     if (slotElement) {
-                        var elementHtml = '<div class=\'' + CURRENT_TIME_MARKER_CLASS + '\'></div>';
-                        var timesTableMarker = $(elementHtml).prependTo(this.times);
+                        var timesTableMarker = currentTimeMarkers[groupIndex] ? currentTimeMarkers.eq(groupIndex) : $(elementHtml).prependTo(this.times);
                         var markerTopPosition = Math.round(ranges[0].innerRect(currentTime, new Date(currentTime.getTime() + 1), false).top);
                         var timesTableMarkerCss = {};
-                        var markerWidth = this.content[0].scrollWidth;
-                        if (browser.msie || browser.edge) {
-                            markerWidth -= 1;
-                        }
                         if (this._isRtl) {
-                            timesTableMarkerCss.right = firstTimesCell.position().left + outerHeight(firstTimesCell) - outerHeight(lastTimesCell);
+                            timesTableMarkerCss.right = position;
                             timesTableMarker.addClass(CURRENT_TIME_MARKER_ARROW_CLASS + '-left');
                         } else {
-                            timesTableMarkerCss.left = lastTimesCell.position().left;
+                            timesTableMarkerCss.left = position;
                             timesTableMarker.addClass(CURRENT_TIME_MARKER_ARROW_CLASS + '-right');
                         }
-                        timesTableMarkerCss.top = markerTopPosition - outerWidth(timesTableMarker) * BORDER_SIZE_COEFF / 2;
+                        if (!timesTableMarkerWidth) {
+                            timesTableMarkerWidth = outerWidth(timesTableMarker) * BORDER_SIZE_COEFF / 2;
+                        }
+                        timesTableMarkerCss.top = markerTopPosition - timesTableMarkerWidth;
                         timesTableMarker.css(timesTableMarkerCss);
-                        $(elementHtml).prependTo(this.content).css({
+                        var contentMarker = currentContentMarkers[groupIndex] ? currentContentMarkers.eq(groupIndex) : $(elementHtml).prependTo(this.content);
+                        contentMarker.css({
                             top: markerTopPosition,
                             height: '1px',
                             right: 0,
@@ -245,7 +253,7 @@
                             var slot = range.collection._slots[slotIdx];
                             css.left = this._isRtl ? slot.clientWidth * 0.1 + slot.offsetLeft + 2 : slot.offsetLeft + 2;
                             css.height = slot.offsetHeight;
-                            css.width = slot.clientWidth * 0.9 - 4;
+                            css.width = slot.clientWidth * 0.9 - 2;
                             hint = this._createEventElement(event.clone({
                                 start: start,
                                 end: end
@@ -261,12 +269,12 @@
                             css.left = startSlot.clientWidth * 0.1 + startSlot.offsetLeft + 2;
                         }
                         if (multiday) {
-                            css.width = range.innerWidth() - 4;
+                            css.width = range.innerWidth() - 2;
                         } else {
                             var rect = range.outerRect(start, end, this.options.snap);
                             css.top = rect.top;
                             css.height = rect.bottom - rect.top;
-                            css.width = startSlot.clientWidth * 0.9 - 4;
+                            css.width = startSlot.clientWidth * 0.9 - 2;
                         }
                         hint = this._createEventElement(event.clone({
                             start: start,
@@ -592,7 +600,7 @@
                     e.preventDefault();
                 });
                 if (that.options.editable.create !== false) {
-                    that.element.on('dblclick' + NS, '.k-scheduler-content td', function (e) {
+                    that.element.on('dblclick' + NS, '.k-scheduler-content > table td', function (e) {
                         if (!$(this).parent().hasClass('k-scheduler-header-all-day')) {
                             var slot = that._slotByPosition(e.pageX, e.pageY);
                             if (slot) {
@@ -1086,7 +1094,8 @@
             },
             selectionByElement: function (cell) {
                 var offset = cell.offset();
-                return this._slotByPosition(offset.left, offset.top);
+                var height = Math.round(cell.innerHeight()) - 5;
+                return this._slotByPosition(offset.left, offset.top + height);
             },
             _timeSlotInterval: function () {
                 var options = this.options;
@@ -1128,7 +1137,7 @@
                 var allDayEvents = SchedulerView.collidingEvents(slotRange.events(), startIndex, endIndex);
                 var currentColumnCount = this._headerColumnCount || 0;
                 var leftOffset = 2;
-                var rightOffset = startIndex !== endIndex ? 5 : 4;
+                var rightOffset = startIndex !== endIndex ? 3 : 2;
                 var eventHeight = this._allDayHeaderHeight;
                 var start = slotRange.startSlot();
                 element.css({
@@ -1175,7 +1184,7 @@
                 for (var idx = 0, length = columns.length; idx < length; idx++) {
                     columnEvents = columns[idx].events;
                     for (var j = 0, eventLength = columnEvents.length; j < eventLength; j++) {
-                        var calculatedWidth = columnWidth - 4;
+                        var calculatedWidth = columnWidth - 2;
                         columnEvents[j].element[0].style.width = (calculatedWidth > 0 ? calculatedWidth : columnWidth) + 'px';
                         columnEvents[j].element[0].style.left = (this._isRtl ? eventRightOffset : 0) + startSlot.offsetLeft + idx * columnWidth + 2 + 'px';
                     }
@@ -1185,7 +1194,7 @@
                 var start = event._startTime || event.start;
                 var end = event._endTime || event.end;
                 var rect = slotRange.innerRect(start, end, false);
-                var height = rect.bottom - rect.top - 2;
+                var height = rect.bottom - rect.top;
                 if (height < 0) {
                     height = 0;
                 }

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1585,10 +1585,18 @@
                 }
             },
             _topSection: function (columnLevels, allDaySlot, rowCount) {
+                var thElm = $('<tr>');
                 var columnCount = columnLevels[columnLevels.length - 1].length;
                 this.timesHeader = timesHeader(columnLevels.length, allDaySlot, rowCount);
                 this.datesHeader = datesHeader(columnLevels, columnCount, allDaySlot);
-                var thElm = '<tr ' + (this._isMobile() ? 'class=\'k-mobile-header\'' : '') + '>';
+                var dateGroup = this.datesHeader.find('.k-nav-day');
+                if (dateGroup.length) {
+                    dateGroup.closest('tr').addClass('k-scheduler-date-group');
+                }
+                if (this._isMobile()) {
+                    thElm.addClass('k-mobile-header');
+                    thElm.addClass('k-mobile-' + this._groupOrientation() + '-header');
+                }
                 return $(thElm).append(this.timesHeader.add(this.datesHeader).wrap('<td>').parent());
             },
             _bottomSection: function (columnLevels, rowLevels, rowCount) {

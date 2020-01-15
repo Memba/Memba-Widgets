@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -143,6 +143,7 @@
                 that._initialOptions = extend({}, options);
                 that._buildHTML();
                 that._range = that.options.range;
+                that._changeTriggered = false;
                 that.dateView = new DateRangeView(extend({}, options, {
                     id: element.attr(ID),
                     anchor: that.wrapper,
@@ -153,8 +154,10 @@
                         var range = this.selectRange();
                         that.range(range);
                         that.trigger(CHANGE);
+                        that._changeTriggered = true;
                         that._startDateInput.trigger(CHANGE);
                         that._endDateInput.trigger(CHANGE);
+                        that._changeTriggered = false;
                     },
                     close: function (e) {
                         if (that.trigger(CLOSE)) {
@@ -280,7 +283,9 @@
                     start: startValue,
                     end: endValue
                 });
-                that.trigger(CHANGE);
+                if (!that._changeTriggered) {
+                    that.trigger(CHANGE);
+                }
             },
             _endChange: function (e) {
                 var that = this;
@@ -295,7 +300,9 @@
                     start: startValue,
                     end: endValue
                 });
-                that.trigger(CHANGE);
+                if (!that._changeTriggered) {
+                    that.trigger(CHANGE);
+                }
             },
             _initializeDateInputs: function () {
                 var that = this;

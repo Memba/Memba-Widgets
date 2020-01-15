@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -622,7 +622,7 @@
                 if (snap) {
                     return snapToEnd ? slot.end : slot.start;
                 }
-                var offsetLeft = x - $(DOT + GanttView.styles.tasksTable).offset().left;
+                var offsetLeft = x - this.element.find(DOT + GanttView.styles.tasksTable).offset().left;
                 var duration = slot.end - slot.start;
                 var slotOffset = offsetLeft - slot.offsetLeft;
                 if (isRtl) {
@@ -631,7 +631,7 @@
                 return new Date(slot.start.getTime() + duration * (slotOffset / slot.offsetWidth));
             },
             _slotByPosition: function (x) {
-                var offsetLeft = x - $(DOT + GanttView.styles.tasksTable).offset().left;
+                var offsetLeft = x - this.element.find(DOT + GanttView.styles.tasksTable).offset().left;
                 var slotIndex = this._slotIndex('offsetLeft', offsetLeft, isRtl);
                 return this._timeSlots()[slotIndex];
             },
@@ -896,7 +896,7 @@
                 var tooltipWidth = this._resizeTooltipWidth;
                 var options = this.options;
                 var messages = options.messages;
-                var tableOffset = $(DOT + GanttView.styles.tasksTable).offset().left - $(DOT + GanttView.styles.tasksWrapper).offset().left;
+                var tableOffset = this.element.find(DOT + GanttView.styles.tasksTable).offset().left - this.element.find(DOT + GanttView.styles.tasksWrapper).offset().left;
                 if (isRtl) {
                     left += tableOffset;
                 }
@@ -1260,8 +1260,8 @@
                 var timeOffset = this._offset(currentTime);
                 var element = $('<div class=\'k-current-time\'></div>');
                 var viewStyles = GanttView.styles;
-                var tablesWrap = $(DOT + viewStyles.tasksWrapper);
-                var tasksTable = $(DOT + viewStyles.tasksTable);
+                var tablesWrap = this.element.find(DOT + viewStyles.tasksWrapper);
+                var tasksTable = this.element.find(DOT + viewStyles.tasksTable);
                 var slot;
                 if (!this.content || !this._timeSlots().length) {
                     return;

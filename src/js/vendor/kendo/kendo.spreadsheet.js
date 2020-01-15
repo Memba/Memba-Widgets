@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1533,6 +1533,7 @@
             }
         });
         kendo.spreadsheet.ToolbarCutCommand = Command.extend({
+            cannotUndo: true,
             init: function (options) {
                 Command.fn.init.call(this, options);
                 this._clipboard = options.workbook.clipboard();
@@ -4540,7 +4541,6 @@
         var SheetNavigator = kendo.Class.extend({
             init: function (sheet) {
                 this._sheet = sheet;
-                this.columns = this._sheet._grid._columns;
                 this.autoFillCalculator = new kendo.spreadsheet.AutoFillCalculator(sheet._grid);
                 this.colEdge = new EdgeNavigator('col', this._sheet._grid._columns, this.columnRange.bind(this), this.union.bind(this));
                 this.rowEdge = new EdgeNavigator('row', this._sheet._grid._rows, this.rowRange.bind(this), this.union.bind(this));
@@ -4632,6 +4632,7 @@
                 var activeCell = sheet.activeCell();
                 var topLeft = originalSelection.topLeft.clone();
                 var bottomRight = originalSelection.bottomRight.clone();
+                var bottomLeft = new CellRef(bottomRight.row, topLeft.col);
                 var scrollInto;
                 this.colEdge.boundary(selection.topLeft.row, selection.bottomRight.row);
                 this.rowEdge.boundary(selection.topLeft.col, selection.bottomRight.col);
@@ -4712,6 +4713,38 @@
                     bottomRight = activeCell.bottomRight;
                     scrollInto = topLeft;
                     break;
+                case 'expand-word-right':
+                    bottomRight.col = columns.nextUntil(bottomRight.col, makeWordMovement(sheet, bottomRight, true));
+                    scrollInto = bottomRight;
+                    break;
+                case 'shrink-word-right':
+                    topLeft.col = columns.nextUntil(bottomLeft.col, makeWordMovement(sheet, bottomLeft, true));
+                    scrollInto = topLeft;
+                    break;
+                case 'expand-word-left':
+                    topLeft.col = columns.prevUntil(bottomLeft.col, makeWordMovement(sheet, bottomLeft, true));
+                    scrollInto = topLeft;
+                    break;
+                case 'shrink-word-left':
+                    bottomRight.col = columns.prevUntil(bottomRight.col, makeWordMovement(sheet, bottomRight, true));
+                    scrollInto = bottomRight;
+                    break;
+                case 'expand-word-up':
+                    topLeft.row = rows.prevUntil(topLeft.row, makeWordMovement(sheet, topLeft, false));
+                    scrollInto = topLeft;
+                    break;
+                case 'shrink-word-up':
+                    bottomRight.row = rows.prevUntil(bottomRight.row, makeWordMovement(sheet, bottomRight, false));
+                    scrollInto = bottomRight;
+                    break;
+                case 'expand-word-down':
+                    bottomRight.row = rows.nextUntil(bottomRight.row, makeWordMovement(sheet, bottomRight, false));
+                    scrollInto = bottomRight;
+                    break;
+                case 'shrink-word-down':
+                    topLeft.row = rows.nextUntil(topLeft.row, makeWordMovement(sheet, topLeft, false));
+                    scrollInto = topLeft;
+                    break;
                 }
                 var newSelection = new RangeRef(topLeft, bottomRight);
                 if (!this.union(newSelection).intersects(activeCell)) {
@@ -4771,6 +4804,18 @@
                     break;
                 case 'prev-page':
                     row = rows.prevPage(bottomRight.row, this._viewPortHeight);
+                    break;
+                case 'word-right':
+                    column = columns.nextUntil(column, makeWordMovement(sheet, bottomRight, true));
+                    break;
+                case 'word-left':
+                    column = columns.prevUntil(column, makeWordMovement(sheet, bottomRight, true));
+                    break;
+                case 'word-up':
+                    row = rows.prevUntil(row, makeWordMovement(sheet, bottomRight, false));
+                    break;
+                case 'word-down':
+                    row = rows.nextUntil(row, makeWordMovement(sheet, bottomRight, false));
                     break;
                 }
                 sheet.select(new CellRef(row, column));
@@ -4954,6 +4999,18 @@
                 case 'next-page':
                     action = topMode ? 'expand-page-down' : 'shrink-page-down';
                     break;
+                case 'word-left':
+                    action = rightMode ? 'expand-word-left' : 'shrink-word-left';
+                    break;
+                case 'word-right':
+                    action = leftMode ? 'expand-word-right' : 'shrink-word-right';
+                    break;
+                case 'word-up':
+                    action = bottomMode ? 'expand-word-up' : 'shrink-word-up';
+                    break;
+                case 'word-down':
+                    action = topMode ? 'expand-word-down' : 'shrink-word-down';
+                    break;
                 }
                 return action;
             },
@@ -4975,6 +5032,23 @@
                 return punch;
             }
         });
+        function makeWordMovement(sheet, pivot, isCol) {
+            var firstVal = sheet.range(pivot).value();
+            return function (pos, advanced, hidden) {
+                if (hidden) {
+                    return true;
+                }
+                var val = (isCol ? sheet.range(pivot.row, pos) : sheet.range(pos, pivot.col)).value();
+                if (firstVal === null) {
+                    return val === null ? false : pos;
+                } else if (!advanced && val === null) {
+                    firstVal = null;
+                    return false;
+                } else {
+                    return val === null;
+                }
+            };
+        }
         kendo.spreadsheet.SheetNavigator = SheetNavigator;
     }(kendo));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -5251,6 +5325,7 @@
                 this.origin = kendo.spreadsheet.NULLREF;
                 this.iframe = document.createElement('iframe');
                 this.iframe.className = 'k-spreadsheet-clipboard-paste';
+                this.iframe.setAttribute('title', 'Spreadsheet clipboard iframe');
                 this.menuInvoked = false;
                 this._uid = kendo.guid();
                 document.body.appendChild(this.iframe);
@@ -9063,7 +9138,9 @@
                 }
             },
             startSelection: function (view) {
-                if (view && view._sheet === this) {
+                if (this.frozenRows() || this.frozenColumns()) {
+                    this._currentView = null;
+                } else if (view && view._sheet === this) {
                     this._currentView = view;
                 }
                 this._selectionInProgress = true;
@@ -12707,6 +12784,9 @@
                     styles.numFmts[attrs.numFmtId] = attrs;
                 } else if (this.is(SEL_FONT)) {
                     styles.fonts.push(font = {});
+                    if (closed) {
+                        font = null;
+                    }
                 } else if (font) {
                     if (tag == 'sz') {
                         font.size = parseFloat(attrs.val);
@@ -12723,6 +12803,9 @@
                     }
                 } else if (this.is(SEL_FILL)) {
                     styles.fills.push(fill = {});
+                    if (closed) {
+                        fill = null;
+                    }
                 } else if (fill) {
                     if (tag == 'patternFill') {
                         fill.type = attrs.patternType;
@@ -12733,6 +12816,9 @@
                     }
                 } else if (this.is(SEL_BORDER)) {
                     styles.borders.push(border = {});
+                    if (closed) {
+                        border = null;
+                    }
                 } else if (border) {
                     if (/^(?:left|top|right|bottom)$/.test(tag)) {
                         border[tag] = { style: attrs.style || 'none' };
@@ -13901,11 +13987,11 @@
             'left': 'left',
             'right': 'right',
             'home': 'first-col',
-            'ctrl+left': 'first-col',
             'end': 'last-col',
-            'ctrl+right': 'last-col',
-            'ctrl+up': 'first-row',
-            'ctrl+down': 'last-row',
+            'ctrl+left': 'word-left',
+            'ctrl+right': 'word-right',
+            'ctrl+up': 'word-up',
+            'ctrl+down': 'word-down',
             'ctrl+home': 'first',
             'ctrl+end': 'last',
             'pageup': 'prev-page',
@@ -14610,6 +14696,7 @@
                         this.clipboardElement.empty().append(table);
                     }.bind(this));
                 }
+                this.clipboard.menuInvoked = e === undefined;
                 this._execute({
                     command: 'CutCommand',
                     options: {
@@ -14621,9 +14708,8 @@
             clipBoardValue: function () {
                 return this.clipboardElement.html();
             },
-            _pasteImage: function (dataTransferItem) {
+            _pasteImage: function (blob) {
                 var self = this;
-                var blob = dataTransferItem.getAsFile();
                 var img = new window.Image();
                 img.src = window.URL.createObjectURL(blob);
                 img.onload = function () {
@@ -14662,42 +14748,49 @@
                             hasPlainText = /text\/plain/.test(clipboardData.types);
                         }
                         if (hasHTML) {
-                            html = clipboardData.getData('text/html');
+                            html = clipboardData.getData('text/html').trim();
                         }
                         if (hasPlainText) {
                             plain = clipboardData.getData('text/plain').trim();
                         }
-                        if (!hasHTML && !hasPlainText && clipboardData.items && clipboardData.items.length) {
+                        if (!html && !plain && clipboardData.items && clipboardData.items.length) {
                             for (var i = 0; i < clipboardData.items.length; ++i) {
                                 var item = clipboardData.items[i];
                                 if (item.kind == 'file' && /^image\/(?:png|jpe?g|gif)$/i.test(item.type)) {
-                                    return self._pasteImage(item);
+                                    return self._pasteImage(item.getAsFile());
                                 }
                             }
                         }
                     } else {
                         var table = self.clipboardElement.find('table.kendo-clipboard-' + self.clipboard._uid).detach();
                         self.clipboardElement.empty();
-                        setTimeout(function () {
-                            var html = self.clipboardElement.html();
-                            var plain = window.clipboardData.getData('Text').trim();
-                            if (!html && !plain) {
-                                return;
+                        if (window.clipboardData.files && window.clipboardData.files.length) {
+                            var file = window.clipboardData.files[0];
+                            if (/^image\/(?:png|jpe?g|gif)$/i.test(file.type)) {
+                                return self._pasteImage(file);
                             }
-                            self.clipboard.external({
-                                html: html,
-                                plain: plain
-                            });
-                            self.clipboardElement.empty().append(table);
-                            self._execute({
-                                command: 'PasteCommand',
-                                options: {
-                                    workbook: self.view._workbook,
-                                    event: e.originalEvent || e
-                                }
-                            });
-                            self.clipboard.menuInvoked = true;
+                        }
+                        html = self.clipboardElement.html();
+                        plain = window.clipboardData.getData('Text');
+                        if (plain) {
+                            plain = plain.trim();
+                        }
+                        if (!html && !plain) {
+                            return;
+                        }
+                        self.clipboard.external({
+                            html: html,
+                            plain: plain
                         });
+                        self.clipboardElement.empty().append(table);
+                        self._execute({
+                            command: 'PasteCommand',
+                            options: {
+                                workbook: self.view._workbook,
+                                event: e.originalEvent || e
+                            }
+                        });
+                        self.clipboard.menuInvoked = true;
                         return;
                     }
                 } else {
@@ -14774,7 +14867,7 @@
                 this.stopAutoScroll();
             },
             extendSelection: function (object) {
-                this.navigator.extendSelection(object.ref, this._selectionMode, this.appendSelection);
+                this.navigator.extendSelection(object.ref, this._selectionMode);
             },
             autoScroll: function () {
                 var x = this._autoScrollTarget.x;
@@ -15415,7 +15508,8 @@
                         height: this._height + 'px',
                         width: this._width + 'px'
                     },
-                    className: className
+                    className: className,
+                    role: 'presentation'
                 }, [
                     kendo.dom.element('colgroup', null, this.cols),
                     kendo.dom.element('tbody', null, this.trs)
@@ -15682,11 +15776,6 @@
                             }
                         } else if (this.isEditButton(x, y, pane)) {
                             type = 'editor';
-                        }
-                        if (type == 'cell') {
-                            this._sheet.forEachMergedCell(ref, function (merged) {
-                                ref = merged.topLeft;
-                            });
                         }
                         object = {
                             type: type,
@@ -17062,6 +17151,19 @@
                 }
                 return index;
             },
+            nextUntil: function (index, pred) {
+                var end = this._count - 1, i = index, advanced = false;
+                while (++i <= end) {
+                    var val = pred(i, advanced, this.hidden(i));
+                    if (typeof val == 'number') {
+                        return val;
+                    } else if (val) {
+                        break;
+                    }
+                    advanced = true;
+                }
+                return i - 1;
+            },
             nextPage: function (index, pageSize) {
                 return this.index(this.sum(0, index - 1) + pageSize);
             },
@@ -17092,6 +17194,19 @@
                     }
                 }
                 return index;
+            },
+            prevUntil: function (index, pred) {
+                var i = index, advanced = false;
+                while (--i >= 0) {
+                    var val = pred(i, advanced, this.hidden(i));
+                    if (typeof val == 'number') {
+                        return val;
+                    } else if (val) {
+                        break;
+                    }
+                    advanced = true;
+                }
+                return i + 1;
             },
             unhide: function (index) {
                 if (this.hidden(index)) {
@@ -18652,6 +18767,7 @@
     var UnionRef = spreadsheet.UnionRef;
     var Matrix = runtime.Matrix;
     var Ref = spreadsheet.Ref;
+    var NameRef = spreadsheet.NameRef;
     var daysInMonth = runtime.daysInMonth;
     var packDate = runtime.packDate;
     var unpackDate = runtime.unpackDate;
@@ -19580,18 +19696,8 @@
             'sumRange',
             [
                 'or',
-                [
-                    'and',
-                    'matrix',
-                    [
-                        'assert',
-                        '$sumRange.width == $range.width'
-                    ],
-                    [
-                        'assert',
-                        '$sumRange.height == $range.height'
-                    ]
-                ],
+                'area',
+                '#matrix',
                 [
                     'null',
                     '$range'
@@ -19599,7 +19705,29 @@
             ]
         ]
     ];
-    defineFunction('sumif', function (range, criteria, sumRange) {
+    function fetchSumRange(continuation) {
+        return function (callback, range, criteria, sumRange) {
+            var self = this;
+            if (sumRange instanceof Ref) {
+                var r = sumRange.clone().toRangeRef();
+                if (r.width() != range.width || r.height() != range.height) {
+                    if (!isFinite(r.topLeft.row)) {
+                        r.topLeft.row = 0;
+                    }
+                    if (!isFinite(r.topLeft.col)) {
+                        r.topLeft.col = 0;
+                    }
+                    r.bottomRight.row = r.topLeft.row + range.height - 1;
+                    r.bottomRight.col = r.topLeft.col + range.width - 1;
+                    return self.resolveCells([r], function () {
+                        callback(continuation(range, criteria, self.asMatrix(r)));
+                    });
+                }
+            }
+            callback(continuation(range, criteria, self.asMatrix(sumRange)));
+        };
+    }
+    defineFunction('sumif', fetchSumRange(function (range, criteria, sumRange) {
         var sum = 0;
         criteria = parseCriteria(criteria);
         range.each(function (val, row, col) {
@@ -19611,8 +19739,8 @@
             }
         });
         return sum;
-    }).args(ARGS_SUMIF);
-    defineFunction('averageif', function (range, criteria, sumRange) {
+    })).argsAsync(ARGS_SUMIF);
+    defineFunction('averageif', fetchSumRange(function (range, criteria, sumRange) {
         var sum = 0, count = 0;
         criteria = parseCriteria(criteria);
         range.each(function (val, row, col) {
@@ -19625,7 +19753,7 @@
             }
         });
         return count ? sum / count : new CalcError('DIV/0');
-    }).args(ARGS_SUMIF);
+    })).argsAsync(ARGS_SUMIF);
     (function (def) {
         def('large', function (numbers, nth) {
             return numbers.sort(descending)[nth];
@@ -21085,10 +21213,14 @@
         try {
             var f = this.formula;
             var exp = calc.parseFormula(f.sheet, f.row, f.col, thing);
-            if (!(exp.ast instanceof Ref)) {
+            var ref = exp.ast;
+            if (ref instanceof NameRef) {
+                ref = this.ss.nameValue(ref, f.sheet, f.row, f.col);
+            }
+            if (!(ref instanceof Ref)) {
                 throw 1;
             }
-            return exp.ast.absolute(f.row, f.col);
+            return ref.absolute(f.row, f.col);
         } catch (ex) {
             return new CalcError('REF');
         }
@@ -22146,16 +22278,20 @@
         if (oldText === newText) {
             return text;
         }
-        var pos = -1;
-        function replace() {
-            text = text.substring(0, pos) + newText + text.substring(pos + oldText.length);
+        var a = text.split(oldText);
+        if (nth == null) {
+            return a.join(newText);
         }
-        while ((pos = text.indexOf(oldText, pos + 1)) >= 0) {
-            if (nth == null) {
-                replace();
-            } else if (--nth === 0) {
-                replace();
-                break;
+        text = '';
+        nth--;
+        for (var i = 0; i < a.length; ++i) {
+            text += a[i];
+            if (i < a.length - 1) {
+                if (i === nth) {
+                    text += newText;
+                } else {
+                    text += oldText;
+                }
             }
         }
         return text;
@@ -25963,10 +26099,10 @@
                 kendo.bind(dialog.element.find('.k-action-buttons'), viewModel);
             },
             _resetButton: function () {
-                this.resetButton = $('<a class=\'k-button k-reset-color\' href=\'#\'>' + '<span class=\'k-icon k-i-reset-color\'></span>' + COLOR_PICKER_MESSAGES.reset + '</a>').appendTo(this.element);
+                this.resetButton = $('<a role=\'button\' class=\'k-button k-reset-color\' href=\'#\'>' + '<span class=\'k-icon k-i-reset-color\'></span>' + COLOR_PICKER_MESSAGES.reset + '</a>').appendTo(this.element);
             },
             _customColorButton: function () {
-                this.customColorButton = $('<a class=\'k-button k-custom-color\' href=\'#\'>' + '<span class=\'k-icon\'></span>' + COLOR_PICKER_MESSAGES.customColor + '</a>').appendTo(this.element);
+                this.customColorButton = $('<a role=\'button\' class=\'k-button k-custom-color\' href=\'#\'>' + '<span class=\'k-icon\'></span>' + COLOR_PICKER_MESSAGES.customColor + '</a>').appendTo(this.element);
             },
             resetColor: function () {
                 this.colorPalette.value(null);
@@ -25996,7 +26132,7 @@
             _borderTypePalette: function () {
                 var messages = BORDER_PALETTE_MESSAGES;
                 var buttons = BORDER_TYPES.map(function (type) {
-                    return '<a title="' + messages[type] + '" aria-label="' + messages[type] + '" href="#" data-border-type="' + type + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + kendo.toHyphens(type) + '"></span>' + '</a>';
+                    return '<a role="button" title="' + messages[type] + '" aria-label="' + messages[type] + '" href="#" data-border-type="' + type + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + kendo.toHyphens(type) + '"></span>' + '</a>';
                 }).join('');
                 var element = $('<div />', {
                     'class': 'k-spreadsheet-border-type-palette',
@@ -26647,7 +26783,7 @@
         });
         var PopupTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
-                this.element = $('<a href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-60-down\'></span>' + '</a>');
+                this.element = $('<a role=\'button\' href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-60-down\'></span>' + '</a>');
                 this.element.on('click touchend', this.open.bind(this)).attr('data-command', options.command);
                 this.options = options;
                 this.toolbar = toolbar;
@@ -26683,7 +26819,7 @@
                 this._dialogName = options.dialogName;
                 this.toolbar = toolbar;
                 this._title = options.attributes.title;
-                this.element = $('<button type=\'button\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-download\' />' + '</button>').attr('title', this._title).attr('aria-label', this._title).data('instance', this);
+                this.element = $('<button type=\'button\' role=\'button\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-download\' />' + '</button>').attr('title', this._title).attr('aria-label', this._title).data('instance', this);
                 this.element.bind('click', this.open.bind(this)).data('instance', this);
             },
             open: function () {
@@ -26771,7 +26907,7 @@
         var DEFAULT_FONT_SIZE = 12;
         var FontSize = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
-                var comboBox = $('<input />').attr('aria-label', options.attributes.title).kendoComboBox({
+                var comboBox = $('<input />').attr('aria-label', options.attributes.title).attr('title', options.attributes.title).kendoComboBox({
                     change: this._valueChange.bind(this),
                     clearButton: false,
                     dataSource: options.fontSizes || FONT_SIZES,
@@ -27083,7 +27219,7 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a role=\'button\' title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].property !== options.property) {
                         element.append($('<span class=\'k-separator\' />'));
                     }
@@ -27153,7 +27289,7 @@
             _commandPalette: function () {
                 var element = $('<div />').appendTo(this.popup.element);
                 this.buttons.forEach(function (options) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icontext\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + options.text + '</a>';
+                    var button = '<a role=\'button\' title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icontext\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + options.text + '</a>';
                     element.append(button);
                 });
             },
@@ -27216,7 +27352,7 @@
             _commandPalette: function () {
                 var element = $('<div />').appendTo(this.popup.element);
                 this.buttons.forEach(function (options) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icontext\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + options.text + '</a>';
+                    var button = '<a role=\'button\' title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icontext\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + options.text + '</a>';
                     element.append(button);
                 });
             },
@@ -27396,7 +27532,7 @@
                         action: 'redo'
                     }
                 ];
-                var buttonTemplate = kendo.template('<a href=\'\\#\' title=\'#= title #\' data-action=\'#= action #\' class=\'k-button k-button-icon\' aria-label=\'#= title #\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>');
+                var buttonTemplate = kendo.template('<a role=\'button\' href=\'\\#\' title=\'#= title #\' data-action=\'#= action #\' class=\'k-button k-button-icon\' aria-label=\'#= title #\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>');
                 this.quickAccessToolBar = $('<div />', {
                     'class': 'k-spreadsheet-quick-access-toolbar',
                     'html': kendo.render(buttonTemplate, buttons)
@@ -28315,7 +28451,7 @@
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    template: '<a role=\'button\' title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -28369,7 +28505,7 @@
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
+                    template: '<a role=\'button\' title=\'#=text#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -28420,7 +28556,7 @@
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
+                    template: '<a role=\'button\' title=\'#=text#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -29437,7 +29573,7 @@
                     return array.lastIndexOf(value) === index;
                 };
                 var data = dataSource.data();
-                var values = data[0].children.data().toJSON();
+                var values = data.toJSON()[0].items;
                 var blanks = values.filter(function (item) {
                     return item.dataType === 'blank';
                 });
@@ -30333,7 +30469,7 @@
                     clearButton: false,
                     dataTextField: 'name',
                     dataValueField: 'name',
-                    template: '#:data.name#<a class=\'k-button-delete\' href=\'\\#\'><span class=\'k-icon k-i-close\'></span></a>',
+                    template: '#:data.name#<a role=\'button\' class=\'k-button-delete\' href=\'\\#\'><span class=\'k-icon k-i-close\'></span></a>',
                     dataSource: dataSource,
                     autoBind: false,
                     ignoreCase: true,

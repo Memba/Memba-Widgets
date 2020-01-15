@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2019.3.1023 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -66,13 +66,7 @@
                 } else {
                     that._module = new syncUploadModule(that);
                 }
-                if (that._supportsDrop()) {
-                    if (that.options.dropZone !== '') {
-                        that._setupCustomDropZone();
-                    } else {
-                        that._setupDropZone();
-                    }
-                }
+                that._toggleDropZone();
                 that.wrapper.on('click', '.k-upload-action', $.proxy(that._onFileAction, that)).on('click', '.k-clear-selected', $.proxy(that._onClearSelected, that)).on('click', '.k-upload-selected', $.proxy(that._onUploadSelected, that));
                 if (that.element.val()) {
                     that._onInputChange({ target: that.element });
@@ -140,6 +134,7 @@
             },
             setOptions: function (options) {
                 var that = this, activeInput = that.element;
+                $(that.options.dropZone).off(that._ns);
                 Widget.fn.setOptions.call(that, options);
                 that.multiple = that.options.multiple;
                 that.directory = that.options.directory;
@@ -149,6 +144,7 @@
                     activeInput.attr('directory', that.directory);
                 }
                 that.toggle(that.options.enabled);
+                that._toggleDropZone();
             },
             enable: function (enable) {
                 enable = typeof enable === 'undefined' ? true : enable;
@@ -458,12 +454,13 @@
                 var that = this;
                 var file = data.fileNames[0];
                 var fileSize = getTotalFilesSizeMessage(data.fileNames);
+                var fileGroup = kendo.getFileGroup(file.extension, true);
                 var errors = file[VALIDATIONERRORS];
                 var template = '';
                 if (errors && errors.length > 0) {
-                    template += '<li class=\'k-file k-file-invalid\'><span class=\'k-progress\'></span>' + '<span class=\'k-file-invalid-extension-wrapper\'>' + '<span class=\'k-file-invalid-icon\'>!</span>' + '<span class=\'k-file-state\'></span>' + '</span>' + '<span class=\'k-file-name-size-wrapper\'>' + '<span class=\'k-file-name k-file-name-invalid\' title=\'' + file.name + '\'>' + file.name + '</span>' + '<span class=\'k-file-validation-message\'>' + that.localization[errors[0]] + '</span>' + '</span>';
+                    template += '<li class=\'k-file k-file-invalid\'><span class=\'k-progress\'></span>' + '<span class=\'k-file-invalid-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-' + fileGroup + '\'></span>' + '<span class=\'k-file-state\'></span>' + '</span>' + '<span class=\'k-file-name-size-wrapper\'>' + '<span class=\'k-file-name k-file-name-invalid\' title=\'' + file.name + '\'>' + file.name + '</span>' + '<span class=\'k-file-validation-message\'>' + that.localization[errors[0]] + '</span>' + '</span>';
                 } else {
-                    template += '<li class=\'k-file\'><span class=\'k-progress\'></span>' + '<span class=\'k-file-extension-wrapper\'>' + '<span class=\'k-file-extension\'>' + file.extension.substring(1) + '</span>' + '<span class=\'k-file-state\'></span>' + '</span>' + '<span class=\'k-file-name-size-wrapper\'><span class=\'k-file-name\' title=\'' + file.name + '\'>' + file.name + '</span>' + '<span class=\'k-file-size\'>' + fileSize + '</span></span>';
+                    template += '<li class=\'k-file\'><span class=\'k-progress\'></span>' + '<span class=\'k-file-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-' + fileGroup + '\'></span>' + '<span class=\'k-file-state\'></span>' + '</span>' + '<span class=\'k-file-name-size-wrapper\'><span class=\'k-file-name\' title=\'' + file.name + '\'>' + file.name + '</span>' + '<span class=\'k-file-size\'>' + fileSize + '</span></span>';
                 }
                 template += '<strong class=\'k-upload-status\'></strong>';
                 return $(template);
@@ -476,9 +473,9 @@
                 var template = '';
                 var i, currentFile;
                 if (filesHaveValidationErrors) {
-                    template += '<li class=\'k-file k-file-invalid\'><span class=\'k-progress\'></span>' + '<span class=\'k-multiple-files-invalid-extension-wrapper\'>' + '<span class=\'k-file-invalid-icon\'>!</span>';
+                    template += '<li class=\'k-file k-file-invalid\'><span class=\'k-progress\'></span>' + '<span class=\'k-multiple-files-invalid-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-files\'></span>';
                 } else {
-                    template += '<li class=\'k-file\'><span class=\'k-progress\'></span>' + '<span class=\'k-multiple-files-extension-wrapper\'>';
+                    template += '<li class=\'k-file\'><span class=\'k-progress\'></span>' + '<span class=\'k-multiple-files-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-files\'></span>';
                 }
                 template += '<span class=\'k-file-state\'></span></span>';
                 files.sort(function (a, b) {
@@ -916,9 +913,12 @@
             _setupDropZone: function () {
                 var that = this;
                 var ns = that._ns;
-                var dropZone = $('.k-dropzone', that.wrapper).append($('<em class=\'k-dropzone-hint\'>' + that.localization.dropFilesHere + '</em>')).on('dragenter' + ns, stopEvent).on('dragover' + ns, function (e) {
+                var dropZone = $('.k-dropzone', that.wrapper).on('dragenter' + ns, stopEvent).on('dragover' + ns, function (e) {
                     e.preventDefault();
                 }).on('drop' + ns, $.proxy(that._onDrop, that));
+                if (!dropZone.find('.k-dropzone-hint').length) {
+                    dropZone.append($('<em class=\'k-dropzone-hint\'>' + that.localization.dropFilesHere + '</em>'));
+                }
                 bindDragEventWrappers(dropZone, ns, function () {
                     if (!dropZone.closest('.k-upload').hasClass('k-state-disabled')) {
                         dropZone.addClass('k-dropzone-hovered');
@@ -931,7 +931,9 @@
             _setupCustomDropZone: function () {
                 var that = this;
                 var dropZone = $(that.options.dropZone);
-                $('.k-dropzone', that.wrapper).append($('<em class=\'k-dropzone-hint\'>' + that.localization.dropFilesHere + '</em>'));
+                if (!that.wrapper.find('.k-dropzone-hint').length) {
+                    $('.k-dropzone', that.wrapper).append($('<em class=\'k-dropzone-hint\'>' + that.localization.dropFilesHere + '</em>'));
+                }
                 var ns = that._ns;
                 dropZone.on('dragenter' + ns, stopEvent).on('dragover' + ns, function (e) {
                     e.preventDefault();
@@ -939,6 +941,7 @@
                 bindDragEventWrappers(dropZone, ns, function (e) {
                     if (!that.wrapper.hasClass('k-state-disabled')) {
                         dropZone.removeClass('k-dropzone-hovered');
+                        dropZone.addClass('k-dropzone-hovered');
                         $(e.target).addClass('k-dropzone-hovered');
                     }
                 }, function () {
@@ -961,6 +964,19 @@
                         dropZone.closest('.k-upload').addClass('k-upload-empty');
                     }
                 });
+            },
+            _toggleDropZone: function () {
+                var that = this, dropZone = that.options.dropZone;
+                if (!that._supportsDrop()) {
+                    return;
+                }
+                $(dropZone).off(that._ns);
+                $('.k-dropzone', that.wrapper).off(that._ns);
+                if (dropZone !== '') {
+                    that._setupCustomDropZone();
+                } else {
+                    that._setupDropZone();
+                }
             },
             _supportsRemove: function () {
                 return !!this.options.async.removeUrl;

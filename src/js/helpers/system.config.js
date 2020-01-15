@@ -33,8 +33,10 @@ SystemJS.config({
         'kendo.messages.en-GB':
             'src/js/vendor/kendo/messages/kendo.messages.en-GB.js',
         'kendo.autocomplete': 'src/js/vendor/kendo/kendo.autocomplete.js',
+        'kendo.badge': 'src/js/vendor/kendo/kendo.badge.js',
         'kendo.binder': 'src/js/vendor/kendo/kendo.binder.js',
         'kendo.button': 'src/js/vendor/kendo/kendo.button.js',
+        'kendo.breadcrumb': 'src/js/vendor/kendo/kendo.breadcrumb.js',
         'kendo.buttongroup': 'src/js/vendor/kendo/kendo.buttongroup.js',
         'kendo.calendar': 'src/js/vendor/kendo/kendo.calendar.js',
         'kendo.color': 'src/js/vendor/kendo/kendo.color.js',
@@ -60,6 +62,7 @@ SystemJS.config({
         'kendo.editable': 'src/js/vendor/kendo/kendo.editable.js',
         'kendo.excel': 'src/js/vendor/kendo/kendo.excel.js',
         'kendo.filebrowser': 'src/js/vendor/kendo/kendo.filebrowser.js',
+        'kendo.filemanager': 'src/js/vendor/kendo/kendo.filemanager.js',
         'kendo.filter': 'src/js/vendor/kendo/kendo.filter.js',
         'kendo.filtercell': 'src/js/vendor/kendo/kendo.filtercell.js',
         'kendo.filtermenu': 'src/js/vendor/kendo/kendo.filtermenu.js',

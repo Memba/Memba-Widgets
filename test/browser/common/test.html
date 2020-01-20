@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add test to query string</title>
+    <script>
+        window.DEBUG = true;
+    </script>
+    <!-- Kidoju fonts -->
+    <link href="../../../src/styles/fonts/kidoju.css" rel="stylesheet">
+    <!-- Nordic theme -->
+    <link href="../../../src/styles/themes/app.theme.nordic.css" rel="stylesheet">
+    <!-- Mocha css -->
+    <link href="../../vendor/mocha.css" rel="stylesheet" />
+    <!-- SystemJS loader -->
+    <script src="../../vendor/polyfill.min.js"></script>
+    <script src="../../vendor/system.js"></script>
+    <script src="../../../src/js/helpers/system.config.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.import('mocha').then(function (args) {
+                var mocha = args.mocha;
+                // Help SystemJS export mocha globals
+                // https://staxmanade.com/2015/09/browser-only-mochajs-tests-using-systemjs/
+                mocha.suite.on('pre-require', function (context) {
+                    var exports = window;
+                    exports.afterEach = context.afterEach || context.teardown;
+                    exports.after = context.after || context.suiteTeardown;
+                    exports.beforeEach = context.beforeEach || context.setup;
+                    exports.before = context.before || context.suiteSetup;
+                    exports.describe = context.describe || context.suite;
+                    exports.it = context.it || context.test;
+                    exports.setup = context.setup || context.beforeEach;
+                    exports.suiteSetup = context.suiteSetup || context.before;
+                    exports.suiteTeardown = context.suiteTeardown || context.after;
+                    exports.suite = context.suite || context.describe;
+                    exports.teardown = context.teardown || context.afterEach;
+                    exports.test = context.test || context.it;
+                    exports.run = context.run;
+                    const params = 'URLSearchParams' in window ?
+                        new URLSearchParams(window.location.search) :
+                        {
+                            // Especially for Internet Explorer
+                            get: function (name) {
+                                const match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+                                return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+                            }
+                        };
+                    const test = params.get('t');
+                    if (test) {
+                        document.title = test;
+                        document.getElementsByTagName('h1')[0].innerHTML = test;
+                        document.getElementById('menu').style.display = 'none';
+                        // now use SystemJS to load all test files
+                        SystemJS.import('./' + test + '.test.es6').then(function() {
+                            mocha.checkLeaks().globals([]);
+                            mocha.run();
+                        });
+                    }
+                });
+                mocha.setup('bdd');
+                mocha.timeout(10000);
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>Add test to query string ?t=[name] (from [name].test.es6)</h1>
+<ul id="menu">
+    <li><a href="?t=jquery.deparam">jquery.deparam</a></li>
+    <li><a href="?t=window.assert">window.assert</a></li>
+    <li><a href="?t=window.cache">window.cache</a></li>
+    <li><a href="?t=window.fs">window.fs</a></li>
+    <li><a href="?t=window.global">window.global</a></li>
+    <li><a href="?t=window.image">window.image</a></li>
+    <li><a href="?t=window.logger">window.logger</a></li>
+    <li><a href="?t=window.media">window.media</a></li>
+    <li><a href="?t=window.network">window.network</a></li>
+    <li><a href="?t=window.objectid">window.objectid</a></li>
+    <li><a href="?t=window.position">window.position</a></li>
+    <li><a href="?t=window.secure">window.secure</a></li>
+    <li><a href="?t=window.style">window.style</a></li>
+    <li><a href="?t=window.support">window.support</a></li>
+    <li><a href="?t=window.util">window.util</a></li>
+    <li><a href="?t=window.workers">window.workers</a></li>
+</ul>
+<div id="mocha"></div>
+<div id="fixtures"></div>
+</body>
+</html>

@@ -2,7 +2,7 @@ REM goto current directory
 cd /d %~dp0
 
 REM set directory where HighlightJS is built from sources
-set DIR="%USERPROFILE%\Desktop\highlight.js-9.16.2"
+set DIR="%USERPROFILE%\Desktop\highlight.js-9.18.0"
 
 REM highlight.pack.js
 COPY "%DIR%\build\highlight.pack.js" ".\highlight.pack.js"

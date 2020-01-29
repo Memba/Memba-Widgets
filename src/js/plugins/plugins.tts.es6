@@ -6,11 +6,11 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import assert from './window.assert.es6';
-import CONSTANTS from './window.constants.es6';
-import Logger from './window.logger.es6';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 
-const logger = new Logger('window.tts');
+const logger = new Logger('plugins.tts');
 const CHUNK_SIZE = 175;
 const RX_IOS = /i(phone|pad|pod)/i;
 // const RX_IOS_11 = /i(phone|pad|pod) OS 11_/i;

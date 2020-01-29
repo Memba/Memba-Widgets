@@ -19,7 +19,7 @@ import {
     speechSynthesisPromise,
     useCordovaPlugIn,
     useWebSpeechSynthesis
-} from '../../../src/js/common/window.tts.es6';
+} from '../../../src/js/plugins/plugins.tts.es6';
 
 const {
     cordova,

@@ -1,5 +1,5 @@
 /*!
- * modernizr v3.8.0
+ * modernizr v3.9.1
  * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-filesystem-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
  *
  * Copyright (c)
@@ -36,7 +36,7 @@
    */
   var ModernizrProto = {
     // The current version, dummy
-    _version: '3.8.0',
+    _version: '3.9.1',
 
     // Any settings that don't work as separate modules
     // can go in here as configuration.
@@ -1576,7 +1576,7 @@ to be the File object's prototype.)
   "notes": [{
     "name": "W3C Spec",
     "href": "https://www.w3.org/TR/XMLHttpRequest2/"
-  },{
+  }, {
     "name": "Details on Related Github Issue",
     "href": "https://github.com/Modernizr/Modernizr/issues/385"
   }]
@@ -1598,11 +1598,11 @@ Tests for XHR2.
   "authors": ["Cătălin Mariș"],
   "name": "Speech Recognition API",
   "notes": [{
-      "name": "W3C Spec",
-      "href": "https://w3c.github.io/speech-api/speechapi.html#speechreco-section"
-    },{
-      "name": "Introduction to the Web Speech API",
-      "href": "https://developers.google.com/web/updates/2013/01/Voice-Driven-Web-Apps-Introduction-to-the-Web-Speech-API"
+    "name": "W3C Spec",
+    "href": "https://w3c.github.io/speech-api/speechapi.html#speechreco-section"
+  }, {
+    "name": "Introduction to the Web Speech API",
+    "href": "https://developers.google.com/web/updates/2013/01/Voice-Driven-Web-Apps-Introduction-to-the-Web-Speech-API"
   }]
 }
 !*/

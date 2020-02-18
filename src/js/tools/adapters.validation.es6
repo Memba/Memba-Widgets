@@ -11,6 +11,7 @@ import $ from 'jquery';
 import 'kendo.core';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { PageComponent } from '../data/data.pagecomponent.es6';
 import { getAttributeBinding } from '../data/data.util.es6';
 import openCodeEditor from '../dialogs/dialogs.codeeditor.es6';
 import '../widgets/widgets.codeinput.es6';
@@ -65,7 +66,9 @@ const ValidationAdapter = BaseAdapter.extend({
         openCodeEditor({
             title: options.title || this.title,
             data: {
-                value: options.model, // .get(options.field),
+                // Note: we need to clone PageComponent not to modify the original one
+                // value: options.model.get(options.field),
+                value: new PageComponent(options.model.toJSON()),
                 library: [CUSTOM].concat(this.library)
             }
         })

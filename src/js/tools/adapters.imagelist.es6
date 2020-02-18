@@ -46,7 +46,7 @@ const ImageListAdapter = BaseAdapter.extend({
                     ...settings.attributes,
                     ...getAttributeBinding(
                         CONSTANTS.BIND,
-                        `value: ${settings.field}`
+                        `source: ${settings.field}`
                     ),
                     ...attributes
                 })

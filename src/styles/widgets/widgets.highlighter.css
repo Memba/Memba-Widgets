@@ -1,8 +1,13 @@
 .kj-highlighter {
-  user-select: none; }
-  .kj-highlighter:not([data-enable="false"]) {
-    cursor: pointer; }
+  user-select: none;
+}
+.kj-highlighter:not([data-enable=false]) {
+  cursor: pointer;
+}
 
 .kj-highlighter .kj-highlighter-active {
   background-color: #ff0;
-  color: #0f0f0f; }
+  color: #0f0f0f;
+}
+
+/*# sourceMappingURL=widgets.highlighter.css.map */

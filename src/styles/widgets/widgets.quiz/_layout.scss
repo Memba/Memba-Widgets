@@ -5,6 +5,7 @@
     .k-dropdown,
     .k-animation-container .k-list {
         font-size: inherit;
+
         .kj-quiz-item.kj-quiz-dropdown {
             > .k-image {
                 background-size: cover;
@@ -32,6 +33,7 @@
 
         .kj-quiz-item {
             box-sizing: border-box !important; // fixes button alignment on iPhone
+
             //*******************
             // Buttons
             //*******************
@@ -56,6 +58,7 @@
                 }
                 // >.k-text {}
             }
+
             //*******************
             // Images
             //*******************
@@ -93,6 +96,7 @@
                 //     opacity: .8;
                 // }
             }
+
             //*******************
             // Links
             //*******************
@@ -104,54 +108,43 @@
                 }
                 // &.k-state-selected {}
             }
+
             //*******************
             // Radios
             //*******************
             &.kj-quiz-radio {
+                align-items: center;
+                display: flex;
+
+                // Radio
                 input.k-radio {
-                    display: none;
+                    height: 0.8em;
+                    width: 0.8em;
+
+                    &::before {
+                        font-size: inherit;
+                        height: 0.5em; // auto;
+                        width: 0.5em; // auto;
+                    }
                 }
+
                 // Label
                 .k-radio-label {
                     align-items: center;
                     display: flex;
-                    line-height: normal;
-                    padding-left: 1.2em; // Room for check circle
-                    // vertical-align: initial;
+                    line-height: inherit;
+                    margin-left: 0.2em;
 
                     > .k-image {
                         background-size: cover;
                         background-position: center;
                         // display: inline-block;
                         height: 1.1em;
-                        margin-right: 0.25em;
+                        margin-right: 0.2em;
                         // vertical-align: text-bottom;
                         width: 1.1em;
                     }
                     // >.k-text {}
-                }
-
-                // External circle displayed whether checked or unchecked
-                .k-radio-label::before {
-                    border-width: 0.05em;
-                    content: "";
-                    font-size: inherit;
-                    height: 0.8em;
-                    left: 0.1em;
-                    // line-height: 0.9em;
-                    top: 0.25em;
-                    width: 0.8em;
-                }
-
-                // Internal disc added when checked
-                // .k-radio:checked +
-                .k-radio-label::after {
-                    content: "";
-                    font-size: inherit;
-                    width: 0.6em;
-                    height: 0.6em;
-                    top: 0.35em;
-                    left: 0.2em;
                 }
             }
         }

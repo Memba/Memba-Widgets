@@ -1,16 +1,23 @@
 .k-multiselect.k-readonly .k-multiselect-wrap,
 .k-multiselect.k-state-disabled .k-multiselect-wrap {
   border: 0;
-  padding-right: 0; }
-  .k-multiselect.k-readonly .k-multiselect-wrap li.k-button,
-  .k-multiselect.k-state-disabled .k-multiselect-wrap li.k-button {
-    padding-right: 0.4em; }
-    .k-multiselect.k-readonly .k-multiselect-wrap li.k-button span.k-select,
-    .k-multiselect.k-state-disabled .k-multiselect-wrap li.k-button span.k-select {
-      display: none; }
-  .k-multiselect.k-readonly .k-multiselect-wrap input.k-input,
-  .k-multiselect.k-state-disabled .k-multiselect-wrap input.k-input {
-    display: none; }
-  .k-multiselect.k-readonly .k-multiselect-wrap span.k-clear-value,
-  .k-multiselect.k-state-disabled .k-multiselect-wrap span.k-clear-value {
-    display: none; }
+  padding-right: 0;
+}
+.k-multiselect.k-readonly .k-multiselect-wrap li.k-button,
+.k-multiselect.k-state-disabled .k-multiselect-wrap li.k-button {
+  padding-right: 0.4em;
+}
+.k-multiselect.k-readonly .k-multiselect-wrap li.k-button span.k-select,
+.k-multiselect.k-state-disabled .k-multiselect-wrap li.k-button span.k-select {
+  display: none;
+}
+.k-multiselect.k-readonly .k-multiselect-wrap input.k-input,
+.k-multiselect.k-state-disabled .k-multiselect-wrap input.k-input {
+  display: none;
+}
+.k-multiselect.k-readonly .k-multiselect-wrap span.k-clear-value,
+.k-multiselect.k-state-disabled .k-multiselect-wrap span.k-clear-value {
+  display: none;
+}
+
+/*# sourceMappingURL=widgets.bitflags.css.map */

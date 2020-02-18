@@ -1,68 +1,78 @@
 @include exports( "widgets.codeeditor/layout" ) {
     .kj-codeeditor {
-        .k-header,
-        .k-footer {
-            padding: 0.25em;
+        display: flex;
+        flex-direction: row;
+        height: 400px;
 
-            > div {
-                display: inline-block;
-                box-sizing: border-box;
+        // left panel
+        .kj-codeeditor-panel {
+            height: 100%;
+            min-width: initial;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            padding: 0 1rem;
+            width: 250px;
 
-                &:not(:last-child) {
-                    padding-right: 0.5em;
+            .k-edit-label {
+                clear: initial;
+                float: initial;
+                margin: initial;
+                padding: initial;
+                text-align: initial;
+                width: 100%;
+
+                .k-icon {
+                    float: right;
                 }
 
-                > label {
-                    display: flex;
-                    align-items: center;
-                    text-overflow: ellipsis;
+                &:nth-child(n+1) {
+                    margin-top: 0.5em;
+                }
+            }
 
-                    > span {
-                        padding-right: 0.5em;
+            .k-edit-field {
+                clear: initial;
+                float: initial;
+                margin: initial;
+                padding: initial;
+                text-align: initial;
+                width: 100%;
+            }
+
+            .k-edit-buttons {
+                @include appearance( widget ); // Fixes border color
+
+                align-items: center;
+                display: flex;
+                flex-direction: row;
+                margin-bottom: 0;
+                text-align: initial;
+
+                .kj-codeeditor-notification {
+                    margin-left: 1rem;
+
+                    .k-notification {
+                        padding: $button-padding-y $button-padding-x;
+                        margin: 0;
                     }
-                }
-
-                .k-dropdown,
-                .k-textbox {
-                    width: 100%;
                 }
             }
         }
 
-        .kj-codeeditor-header {
-            > div {
-                width: 50%;
+        // CodeMirror
+        .kj-codeeditor-editor {
+            height: 100%;
+            width: calc(100% - 250px);
+
+            .CodeMirror {
+                height: 100%;
             }
         }
+    }
 
-        // .kj-codeeditor-editor {}
-
-        .kj-codeeditor-footer {
-            > div {
-                width: 50%;
-
-                &:nth-child(2) {
-                    white-space: nowrap;
-                }
-
-                .kj-codeeditor-message {
-                    display: inline-block;
-                    padding-left: 0.5em;
-                    vertical-align: middle;
-
-                    .k-notification-wrap {
-                        white-space: initial;
-
-                        /* Same line-height and padding as buttons */
-                        line-height: 1.72em;
-                        padding: 2px 7px 2px;
-
-                        span.k-icon {
-                            margin-right: 0.7em;
-                        }
-                    }
-                }
-            }
+    .k-tooltip {
+        .kj-codeeditor-json {
+            margin: 0;
         }
     }
 

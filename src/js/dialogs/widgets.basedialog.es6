@@ -324,9 +324,9 @@ const BaseDialog = Dialog.extend({
      * @method destroy
      */
     destroy() {
-        this.viewModel = undefined;
         Dialog.fn.destroy.call(this);
         destroy(this.wrapper);
+        this.viewModel = undefined;
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });

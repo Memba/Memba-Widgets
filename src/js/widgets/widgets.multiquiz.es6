@@ -5,9 +5,10 @@
 
 // TODO keys
 // TODO touchend for click (tap does not exist???)
-// TODO Use ImageDataSOurce
+// TODO Use ImageDataSource
 // TODO Check html encoding and XSS
 // TODO Use setDataSource(null) in destroy
+// TODO Review this._groupStyle
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -36,11 +37,11 @@ const NS = '.kendoMultiQuiz';
 const WIDGET_CLASS = 'kj-multiquiz'; // 'k-widget kj-multiquiz',
 
 const MULTISELECT_TMPL =
-    '<span class="kj-multiquiz-item kj-multiquiz-multiselect"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></span>';
-const BUTTON_TMPL = `<button class="k-button kj-multiquiz-item kj-multiquiz-button" data-${ns}uid="#: data.uid #" data-${ns}value="#: data.{0} #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></button>`;
+    '<span class="kj-multiquiz-item kj-multiquiz-multiselect"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"/># } #<span class="k-text">#: data.{0} #</span></span>';
+const BUTTON_TMPL = `<button class="k-button kj-multiquiz-item kj-multiquiz-button" data-${ns}uid="#: data.uid #" data-${ns}value="#: data.{0} #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"/># } #<span class="k-text">#: data.{0} #</span></button>`;
 const IMAGE_TMPL = `<div class="k-widget kj-multiquiz-item kj-multiquiz-image" data-${ns}uid="#: data.uid #" data-${ns}value="#: data.{0} #"><div class="k-image" style="background-image:url(#: data.{1} #)"></div></div>`;
 const LINK_TMPL = `<span class="kj-multiquiz-item kj-multiquiz-link" data-${ns}uid="#: data.uid #" data-${ns}value="#: data.{0} #">#: data.{0} #</span>`;
-const CHECKBOX_TMPL = `<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-${ns}uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>`;
+const CHECKBOX_TMPL = `<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-${ns}uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"/># } #<span class="k-text">#: data.{0} #</span></label></div>`;
 const BUTTON_SELECTOR = '.kj-multiquiz-item.kj-multiquiz-button';
 const IMAGE_SELECTOR = '.kj-multiquiz-item.kj-multiquiz-image';
 const LINK_SELECTOR = '.kj-multiquiz-item.kj-multiquiz-link';
@@ -168,25 +169,20 @@ const MultiQuiz = DataBoundWidget.extend({
      */
     events: [CONSTANTS.CHANGE],
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Gets/sets the value
      * @param value
      */
     value(value) {
-        const that = this;
-        const { options } = that;
+        const { options, dataSource } = this;
+        let ret;
         if (Array.isArray(value) || value instanceof ObservableArray) {
-            if (that.dataSource instanceof ImageDataSource) {
+            if (dataSource instanceof ImageDataSource) {
                 // finder is used to satisfy jshint which would otherwise complain about making functions within loops
-                const finder = function(value) {
-                    return that.dataSource
+                const finder = text => {
+                    return dataSource
                         .data()
-                        .find(
-                            dataItem => dataItem[options.textField] === value
-                        );
+                        .find(dataItem => dataItem[options.textField] === text);
                 };
                 // Only retain values that have a match in dataSource
                 for (let i = value.length - 1; i >= 0; i--) {
@@ -194,27 +190,27 @@ const MultiQuiz = DataBoundWidget.extend({
                         value.splice(i, 1);
                     }
                 }
+                this._value = value;
             } else {
-                value = [];
+                this._value = [];
             }
-            that._value = value;
-            that._toggleSelection();
+            this._value = value;
+            this._toggleSelection();
         } else if ($.type(value) === CONSTANTS.NULL) {
             // null is the same as [] but we allow it for data bindings
-            if ($.type(that._value) !== CONSTANTS.NULL) {
-                that._value = null;
-                that._toggleSelection();
+            if ($.type(this._value) !== CONSTANTS.NULL) {
+                this._value = null;
+                this._toggleSelection();
             }
         } else if ($.type(value) === CONSTANTS.UNDEFINED) {
-            return that._value;
+            ret = this._value;
         } else {
             throw new TypeError(
                 '`value` is expected to be a an array if not null or undefined'
             );
         }
+        return ret;
     },
-
-    /* jshint +W074 */
 
     /**
      * Widget layout

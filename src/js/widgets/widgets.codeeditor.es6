@@ -3,12 +3,14 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Add a kendo.ui.validator - https://github.com/kidoju/Kidoju-Widgets/issues/158
-// TODO Add testing of user value against solution
-// TODO Max lines/size of code
+// TODO Add easy way to set value to solution to check simple things like // equal
+// TODO Max lines/size of code - Limit size of code
 // TODO Use solutionadapter to make a value editor (add solution editors)
-// TODO Limit size of code
 // TODO Get the component().page() to build all properly for tests or disable tests with all
+// TODO show solution, value and params JSON in tooltip
+// TODO Add contextual menu to CodeMirror with all.*
+// TODO FIx issue with CodeMirror scroll bars (especially horizontal)
+// TODOAdd icons and tooltips to diaply teh content of value, params and solution as passed to validation
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -26,8 +28,12 @@ import '../vendor/codemirror/addon/lint/javascript-lint';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
+import { PageComponent } from '../data/data.pagecomponent.es6';
+import tools from '../tools/tools.es6';
 import TOOLS from '../tools/util.constants.es6';
+import optimizeEditor from '../tools/util.editors.es6';
 import {
+    // getLibraryItemKey,
     isCustomFormula,
     stringifyLibraryItem,
     parseLibraryItem
@@ -39,6 +45,7 @@ const {
     data: { DataSource },
     destroy,
     format,
+    getter,
     guid,
     observable,
     Observable,
@@ -50,13 +57,24 @@ const {
 const logger = new Logger('widgets.codeeditor');
 const NS = '.kendoCodeEditor';
 const WIDGET_CLASS = 'k-widget kj-codeeditor';
-const LABEL_TMPL = '<label><span>{0}</span></label>';
+const EDITOR_CLASS = 'kj-codeeditor-editor';
+const MESSAGE_CLASS = 'kj-codeeditor-message';
+const NOTIFICATION_CLASS = 'kj-codeeditor-notification';
+const PANEL_CLASS = 'kj-codeeditor-panel';
+const LABEL_TMPL =
+    '<div class="k-edit-label"><label for="{0}">{1}</label></div>';
+const CODE_TMPL = '<span class="k-icon k-i-js"/>';
+const FIELD_TMPL = '<div class="k-edit-field" data-container-for="{0}"/>';
 const BUTTON_TMPL =
-    '<button class="k-button"><span class="k-icon k-i-play"></span>&nbsp;{0}</button>';
-const MESSAGE_TMPL =
+    '<button class="k-button k-primary"><span class="k-icon k-i-{0}"></span>&nbsp;{1}</button>';
+const NOTIFICATION_TMPL =
     '<div class="k-widget k-notification k-notification-#: type #" data-role="alert">' +
     '<div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div>' +
     '</div>';
+const MESSAGE_TMPL = '<div class="k-block k-error-colored">#: message #</div>';
+const TOOLTIP_TMPL = '<pre class="kj-codeeditor-json">{0}</pre>';
+const SOLUTION_PROP = 'properties.solution';
+const VALIDATION_PROP = 'properties.validation';
 
 /**
  * JSHINT needs to be global for ./src/js/vendor/codemirror/addon/lint/javascript-lint.js
@@ -97,11 +115,10 @@ const CodeEditor = DataBoundWidget.extend({
         enabled: true,
         dataSource: [],
         custom: 'custom',
-        solution: null, // TODO Solution Adapter editor --> component
-        value: null, // Not the value to test, but the widget value for MVVM bindings
+        value: null, // Not the value entered for testing, but the widget value for MVVM bindings
         messages: {
+            // custom: 'Custom',
             formula: 'Formula:',
-            notApplicable: 'N/A',
             solution: 'Solution:',
             params: 'Params:',
             value: 'Value:',
@@ -125,29 +142,39 @@ const CodeEditor = DataBoundWidget.extend({
      * @param value
      */
     value(value) {
-        assert.nullableTypeOrUndef(
-            CONSTANTS.STRING,
+        assert.nullableInstanceOrUndef(
+            PageComponent,
             value,
             assert.format(
-                assert.messages.nullableTypeOrUndef.default,
+                assert.messages.nullableInstanceOrUndef.default,
                 'value',
-                CONSTANTS.STRING
+                'PageComponent'
             )
         );
         let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
             ret = this._value;
-        } else if (this._value !== value) {
-            this._value =
-                $.type(value) === CONSTANTS.STRING ? value : undefined;
-            if (
-                this.dataSource instanceof DataSource &&
-                this.dataSource.total()
-            ) {
-                this.refresh();
+        } else if (value instanceof PageComponent && value !== this._value) {
+            if ($.isFunction(this._changeHandler)) {
+                this._value.unbind(CONSTANTS.CHANGE, this._changeHandler);
             }
+            this._value = value;
+            this._changeHandler = this._onValueChange.bind(this);
+            this._value.bind(CONSTANTS.CHANGE, this._changeHandler);
+            this.refresh();
         }
         return ret;
+    },
+
+    /**
+     * Event handler triggered especially when this._value.properties.validation changes
+     * @param e
+     * @private
+     */
+    _onValueChange(e) {
+        if (e.field === VALIDATION_PROP) {
+            // debugger;
+        }
     },
 
     /**
@@ -156,67 +183,119 @@ const CodeEditor = DataBoundWidget.extend({
      */
     _render() {
         this.wrapper = this.element.addClass(WIDGET_CLASS);
-        this._setHeader();
+        this._setControlPanel();
         this._setCodeMirror();
-        this._setFooter();
     },
 
     /**
-     * Set drop down list with code library and params input
+     * Set control panel on the left
      * @private
      */
-    _setHeader() {
-        const { autoBind, dataSource, messages, solution } = this.options;
-        const header = $(`<${CONSTANTS.DIV}/>`)
-            .addClass('k-header kj-codeeditor-header')
-            .appendTo(this.element);
+    _setControlPanel() {
+        const {
+            element,
+            options: { autoBind, dataSource, messages }
+        } = this;
+        const panel = $(`<${CONSTANTS.DIV}/>`)
+            .addClass(`${PANEL_CLASS} k-edit-form-container`)
+            .appendTo(element);
 
-        // Formula container and label
-        const formulaWrapper = $(`<${CONSTANTS.DIV}/>`).appendTo(header);
-        const formulaLabel = $(format(LABEL_TMPL, messages.formula)).appendTo(
-            formulaWrapper
-        );
-
-        // Add formula dropDownList
+        // Add formula drop down list
+        $(format(LABEL_TMPL, 'formula', messages.formula)).appendTo(panel);
+        const container = $(format(FIELD_TMPL, 'formula')).appendTo(panel);
         this.dropDownList = $(`<${CONSTANTS.SELECT}/>`)
-            .appendTo(formulaLabel)
+            .appendTo(container)
             .kendoDropDownList({
                 autoBind,
                 autoWidth: true,
-                change: this._onUserInputChange.bind(this),
-                dataBound: () => this.value(this.options.value),
+                change: this._onDropDownListChange.bind(this),
+                // dataBound: () => this.value(this.options.value),
                 dataTextField: 'name',
                 dataValueField: 'key',
                 dataSource
             })
             .data('kendoDropDownList');
 
-        // Solution container and label
-        this.solutionWrapper = $(`<${CONSTANTS.DIV}/>`).appendTo(header);
-        const solutionLabel = $(format(LABEL_TMPL, messages.solution)).appendTo(
-            this.solutionWrapper
-        );
+        // Add solution
+        $(format(LABEL_TMPL, 'solution', messages.solution))
+            .append(CODE_TMPL)
+            .appendTo(panel);
+        $(format(FIELD_TMPL, 'solution')).appendTo(panel);
 
-        // Add solution readonly input
-        $(`<${CONSTANTS.INPUT}>`)
-            .addClass('k-textbox k-state-disabled')
-            .prop('disabled', true)
-            .val(
-                // TODO: Review to provide a better solution editor
-                $.type(solution) === CONSTANTS.STRING
-                    ? solution
-                    : JSON.stringify(solution)
+        // Add params (dynamically added when refreshing)
+        $(format(LABEL_TMPL, 'params', messages.params))
+            .append(CODE_TMPL)
+            .appendTo(panel);
+        $(format(FIELD_TMPL, 'params')).appendTo(panel);
+
+        // Add test value
+        $(format(LABEL_TMPL, 'value', messages.value))
+            .append(CODE_TMPL)
+            .appendTo(panel);
+        $(format(FIELD_TMPL, 'value')).appendTo(panel);
+
+        // Add test button and notification
+        const wrapper = $(`<${CONSTANTS.DIV}/>`)
+            .addClass('k-edit-buttons')
+            .appendTo(panel);
+        this.testButton = $(
+            format(BUTTON_TMPL, 'play', messages.test)
+        ).appendTo(wrapper);
+        $(`<${CONSTANTS.DIV}/>`)
+            .addClass(NOTIFICATION_CLASS)
+            .appendTo(wrapper);
+        $(`<${CONSTANTS.DIV}/>`)
+            .addClass(MESSAGE_CLASS)
+            .appendTo(panel);
+
+        this.tooltip = panel.kendoTooltip({
+            filter: '.k-i-js',
+            position: 'right',
+            content: e => {
+                const field = e.target
+                    .closest('.k-edit-label')
+                    .children('label')
+                    .attr('for');
+                return format(
+                    TOOLTIP_TMPL,
+                    JSON.stringify(this.viewModel.get(field), null, 2)
+                );
+            }
+        });
+    },
+
+    /**
+     * Event handler executed when changing the value of the drop down list
+     * @param e
+     * @private
+     */
+    _onDropDownListChange(e) {
+        const { dropDownList } = this;
+        assert.instanceof(
+            DropDownList,
+            dropDownList,
+            assert.format(
+                assert.messages.instanceof.default,
+                'this.dropDownList',
+                'kendo.ui.DropDownList'
             )
-            .appendTo(solutionLabel);
-
-        // Param container and label
-        this.paramsWrapper = $(`<${CONSTANTS.DIV}/>`).appendTo(header);
-        const paramsLabel = $(format(LABEL_TMPL, messages.params)).appendTo(
-            this.paramsWrapper
         );
-        this.paramsContainer = $(`<${CONSTANTS.DIV}/>`)
-            .css({ display: 'inline', width: '100%' })
-            .appendTo(paramsLabel);
+        const item = dropDownList.dataItem();
+        if (item && $.isPlainObject(e) && e.sender) {
+            // Change value in drop down list or params viewModel
+            let params;
+            if (this.viewModel instanceof Observable) {
+                params = this.viewModel.get('params');
+            }
+            // if (this._value instanceof PageComponent) {
+            this._value.set(
+                VALIDATION_PROP,
+                stringifyLibraryItem(item, params)
+            );
+            this.refresh();
+            // }
+            this.trigger(CONSTANTS.CHANGE);
+        }
     },
 
     /**
@@ -224,15 +303,15 @@ const CodeEditor = DataBoundWidget.extend({
      * @private
      */
     _setCodeMirror() {
-        const div = $(`<${CONSTANTS.DIV}/>`)
-            .addClass('kj-codeeditor-editor')
+        const panel = $(`<${CONSTANTS.DIV}/>`)
+            .addClass(EDITOR_CLASS)
             .appendTo(this.element);
 
         // Initialize JSHINT
         window.JSHINT = window.JSHINT || JSHINT;
 
         // Initialize CodeMirror
-        this.codeMirror = CodeMirror(div.get(0), {
+        this.codeMirror = CodeMirror(panel.get(0), {
             gutters: ['CodeMirror-lint-markers'],
             lineNumbers: true,
             lint: true,
@@ -241,27 +320,15 @@ const CodeEditor = DataBoundWidget.extend({
         });
 
         // Prevent from modifying first lines and last line
-        this.codeMirror.on(CONSTANTS.BEFORECHANGE, (cm, change) => {
-            if (change.origin === 'setValue') {
-                return; // updated using this.value(value)
-            }
-            // if updated by typing into the code editor
-            if (
-                change.from.line === 0 || // prevent changing the first line
-                change.from.line === cm.display.renderedView.length - 1 || // prevent changing the last line
-                (change.origin === '+delete' &&
-                    change.to.line === cm.display.renderedView.length - 1)
-            ) {
-                // prevent backspace on the last line or suppr on the previous line
-                // cancel change
-                change.cancel();
-            }
-        });
+        this.codeMirror.on(
+            CONSTANTS.BEFORECHANGE,
+            this._onCodeMirrorBeforeChange.bind(this)
+        );
 
         // Synchronize drop down list with code editor to display `custom` upon any change
         this.codeMirror.on(
             CONSTANTS.CHANGE,
-            this._onUserInputChange.bind(this)
+            this._onCodeMirrorChange.bind(this)
         );
 
         // Otherwise gutters and line numbers might be misaligned
@@ -269,42 +336,79 @@ const CodeEditor = DataBoundWidget.extend({
     },
 
     /**
-     * Set value input and test buttons
+     * Event handler triggered before making changes in CodeMirror
+     * Note: Captures key inputs before making changes in the editor
+     * @param cm
+     * @param change
      * @private
      */
-    _setFooter() {
-        const {
-            options: { messages }
-        } = this;
+    _onCodeMirrorBeforeChange(cm, change) {
+        if (change.origin === 'setValue') {
+            return;
+        }
+        // if updated by typing into the code editor
+        if (
+            change.from.line === 0 || // prevent changing the first line
+            change.from.line === cm.display.renderedView.length - 1 || // prevent changing the last line
+            (change.origin === '+delete' &&
+                change.to.line === cm.display.renderedView.length - 1)
+        ) {
+            // prevent backspace on the last line or suppr on the previous line
+            // cancel change
+            change.cancel();
+        }
+    },
 
-        const footer = $(`<${CONSTANTS.DIV}/>`)
-            .addClass('k-header kj-codeeditor-footer')
-            .appendTo(this.element);
-
-        // Add value container and label
-        const valueWrapper = $(`<${CONSTANTS.DIV}/>`).appendTo(footer);
-        const valueLabel = $(format(LABEL_TMPL, messages.value)).appendTo(
-            valueWrapper
+    /**
+     * Event handler triggered after making changes in CodeMirror
+     * @param cm
+     * @param change
+     * @private
+     */
+    _onCodeMirrorChange(cm, change = {}) {
+        assert.instanceof(
+            DropDownList,
+            this.dropDownList,
+            assert.format(
+                assert.messages.instanceof.default,
+                'this.dropDownList',
+                'kendo.ui.DropDownList'
+            )
         );
-
-        // Add value input field
-        // TODO use component SolutionAdapter
-        this.valueInput = $(`<${CONSTANTS.INPUT}>`)
-            .addClass('k-textbox')
-            .appendTo(valueLabel);
-
-        // Add test container and label
-        const testWrapper = $(`<${CONSTANTS.DIV}/>`).appendTo(footer);
-
-        // Add test button
-        this.testButton = $(format(BUTTON_TMPL, messages.test)).appendTo(
-            testWrapper
+        assert.instanceof(
+            CodeMirror,
+            cm,
+            assert.format(
+                assert.messages.instanceof.default,
+                'cm',
+                'CodeMirror'
+            )
         );
-
-        // Add message block for test result
-        this.messageWrapper = $(`<${CONSTANTS.DIV}/>`)
-            .addClass('kj-codeeditor-message')
-            .appendTo(testWrapper);
+        // Reset notification and message
+        this._getErrorMessageWrapper();
+        this._getNotificationWrapper();
+        const item = this.dropDownList.dataItem();
+        if (item && change.origin !== 'setValue') {
+            if (item.key === this.options.custom) {
+                // Changing a custom formula
+                this._value.set(
+                    VALIDATION_PROP,
+                    this.codeMirror.getDoc().getValue()
+                );
+                // No need to refresh control panel
+                // this.refresh();
+            } else {
+                // Changing a library item (revert to custom)
+                const formula = this.codeMirror.getDoc().getValue();
+                const cursor = this.codeMirror.getDoc().getCursor();
+                const lines = formula.split('\n');
+                [lines[0]] = TOOLS.VALIDATION_CUSTOM.split('\n');
+                this._value.set(VALIDATION_PROP, lines.join('\n'));
+                this.refresh();
+                this.codeMirror.getDoc().setCursor(cursor);
+            }
+            this.trigger(CONSTANTS.CHANGE);
+        }
     },
 
     /**
@@ -346,32 +450,29 @@ const CodeEditor = DataBoundWidget.extend({
     enable(enable) {
         const enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
-
-        // Header
-        this.dropDownList.enable(enabled);
-        this.paramsWrapper.find('*').each((index, item) => {
+        // Control panel
+        const panel = this.element.find(`${CONSTANTS.DOT}${PANEL_CLASS}`);
+        panel.find('*').each((index, item) => {
             const element = $(item);
+            const isSolution =
+                element.closest('.k-edit-field').attr('data-container-for') ===
+                'solution';
             const widget = widgetInstance(element);
             if (widget && $.isFunction(widget.enable)) {
-                widget.enable(enabled);
+                widget.enable(enabled && !isSolution);
             } else if (
                 element.is(CONSTANTS.INPUT) ||
                 element.is(CONSTANTS.SELECT) ||
                 element.is(CONSTANTS.TEXTAREA)
             ) {
                 element
-                    .prop({ disabled: !enabled })
-                    .toggleClass(CONSTANTS.DISABLED_CLASS, !enabled);
+                    .prop({ disabled: !enabled || isSolution })
+                    .toggleClass(
+                        CONSTANTS.DISABLED_CLASS,
+                        !enabled || isSolution
+                    );
             }
         });
-
-        // CodeMirror
-        this.codeMirror.setOption('readOnly', enabled ? false : 'nocursor');
-
-        // Footer
-        this.valueInput // TODO Use SolutionAdapter
-            .prop({ disabled: !enabled })
-            .toggleClass(CONSTANTS.DISABLED_CLASS, !enabled);
         this.testButton.toggleClass(CONSTANTS.DISABLED_CLASS, !enabled).off(NS);
         if (enabled) {
             this.testButton.on(
@@ -379,144 +480,297 @@ const CodeEditor = DataBoundWidget.extend({
                 this._onTestButtonClick.bind(this)
             );
         }
+
+        // CodeMirror
+        this.codeMirror.setOption('readOnly', enabled ? false : 'nocursor');
     },
 
     /**
      * refresh UI
      * @private
      */
-    refresh() {
+    refresh(/* e */) {
+        let item;
+        let params;
+        const validation = getter(VALIDATION_PROP)(this._value);
+        if (!isCustomFormula(validation)) {
+            // Search the library
+            const library = this.dataSource.data();
+            const parsed = parseLibraryItem(validation, library);
+            ({ item, params } = parsed);
+        }
+
+        // Set drop down list value
+        if (item) {
+            this._setDropDownListValue(item.key);
+        } else {
+            // If value is in the form `function validate(value, solution[, all]) { ... }`, it is custom
+            this._setDropDownListValue(this.options.custom);
+        }
+
+        // Reset value in case the original value could not be found and we had to fallback to default
+        // TODO this._value.set(VALIDATION_PROP, stringifyLibraryItem(item, params));
+
+        // Reset viewModel
+        this._resetViewModel();
+        // Set solution container
+        this._setSolutionContainer(item);
+        // Set params container
+        this._setParamsContainer(item);
+        // Set value container
+        this._setValueContainer(item);
+        // Reset test message
+        this._getNotificationWrapper();
+        this._getErrorMessageWrapper();
+        // Bind viewModel
+        this._bindViewModel(item, params);
+        // Set CodeMirror value
+        if (item) {
+            // Update CodeMirror with code if required
+            this._setCodeMirrorValue(item.formula);
+        } else {
+            this._setCodeMirrorValue(validation);
+        }
+        logger.debug({ method: 'refresh', message: 'widget refreshed' });
+    },
+
+    /**
+     * Return field container
+     * @param field
+     * @returns {*}
+     * @private
+     */
+    _getContainer(field) {
+        assert.type(
+            CONSTANTS.STRING,
+            field,
+            assert.format(
+                assert.messages.type.default,
+                'field',
+                CONSTANTS.STRING
+            )
+        );
+        const container = this.element.find(
+            `${CONSTANTS.DOT}${PANEL_CLASS} .k-edit-field[data-container-for="${field}"]`
+        );
+        return container;
+    },
+
+    /**
+     * Set field visibility
+     * @param field
+     * @param visible
+     * @private
+     */
+    _setVisibility(field, visible) {
+        assert.type(
+            CONSTANTS.STRING,
+            field,
+            assert.format(
+                assert.messages.type.default,
+                'field',
+                CONSTANTS.STRING
+            )
+        );
+        assert.type(
+            CONSTANTS.BOOLEAN,
+            visible,
+            assert.format(
+                assert.messages.type.default,
+                'visible',
+                CONSTANTS.BOOLEAN
+            )
+        );
+        this.element
+            .find(`label[for="${field}"]`)
+            .closest('.k-edit-label')
+            .toggle(visible);
+        this.element
+            .find(`.k-edit-field[data-container-for="${field}"]`)
+            .toggle(visible);
+    },
+
+    /**
+     * Reset view model
+     * @private
+     */
+    _resetViewModel() {
+        if (this.viewModel instanceof Observable) {
+            this.viewModel.unbind(CONSTANTS.CHANGE);
+        }
+        // solution
+        let container = this._getContainer('solution');
+        unbind(container);
+        destroy(container);
+        // params
+        container = this._getContainer('params');
+        unbind(container);
+        destroy(container);
+        // value
+        container = this._getContainer('value');
+        unbind(container);
+        destroy(container);
+        this.viewModel = undefined;
+    },
+
+    /**
+     * Bind view Model
+     * @private
+     */
+    _bindViewModel(item, params) {
+        // const tool = tools(this._value.tool);
+        // const solution = getter(SOLUTION_PROP)(tool).getField();
+        const solution = getter(SOLUTION_PROP)(this._value);
+        let value;
+        if (solution && $.isFunction(solution.toJSON)) {
+            value = solution.toJSON();
+        } else if (solution && $.isFunction(solution.slice)) {
+            value = solution.slice();
+        } else {
+            value = solution;
+        }
+        this.viewModel = observable({ params, solution, value });
+        /*
+        this.viewModel.bind(
+            CONSTANTS.CHANGE,
+            this._onDropDownListChange.bind(this)
+        );
+         */
+        // solution
+        let container = this._getContainer('solution');
+        bind(container, this.viewModel);
+        // params
+        container = this._getContainer('params');
+        bind(container, this.viewModel);
+        // value
+        container = this._getContainer('value');
+        bind(container, this.viewModel);
+    },
+
+    /**
+     * Set drop down list
+     * @param value
+     * @private
+     */
+    _setDropDownListValue(value) {
+        const { dropDownList } = this;
         assert.instanceof(
             DropDownList,
-            this.dropDownList,
+            dropDownList,
             assert.format(
                 assert.messages.instanceof.default,
                 'this.dropDownList',
                 'kendo.ui.DropDownList'
             )
         );
+        dropDownList.value(value);
+    },
+
+    /**
+     * Set solution container
+     * @private
+     */
+    _setSolutionContainer(item) {
+        const container = this._getContainer('solution');
+        const tool = tools(this._value.tool);
+        const row = getter(SOLUTION_PROP)(tool).getRow('solution');
+        row.editable = true;
+        row.model = this._value;
+        optimizeEditor(row);
+        // Empty container
+        container.empty();
+        if (item && $.isFunction(item.editor)) {
+            this._setVisibility('solution', false);
+        } else {
+            // const el = row.editor(container, row);
+            row.editor(container, row);
+            this._setVisibility('solution', true);
+            // Note: At this stage, viewModel needs to be bound
+        }
+    },
+
+    /**
+     * Set params container
+     * @private
+     */
+    _setParamsContainer(item) {
+        const container = this._getContainer('params');
+        // Empty container
+        container.empty();
+        // Show/hide params editor when required
+        if (item && $.isFunction(item.editor)) {
+            item.editor(container, { field: 'params' });
+            this._setVisibility('params', true);
+        } else {
+            this._setVisibility('params', false);
+        }
+    },
+
+    /**
+     * Set value container
+     * @private
+     */
+    _setValueContainer() {
+        const container = this._getContainer('value');
+        const tool = tools(this._value.tool);
+        const row = getter(SOLUTION_PROP)(tool).getRow('value');
+        row.editable = true;
+        row.model = this._value;
+        optimizeEditor(row);
+        // Empty container
+        container.empty();
+        // const el = row.editor(container, row);
+        row.editor(container, row);
+        // Note: At this stage, viewModel needs to be bound
+    },
+
+    /**
+     * Get notification wrapper
+     * @private
+     */
+    _getNotificationWrapper() {
+        // Any changes should remove any pending message
+        return this.element
+            .find(`${CONSTANTS.DOT}${NOTIFICATION_CLASS}`)
+            .empty();
+    },
+
+    /**
+     * Get error message wrapper
+     * @private
+     */
+    _getErrorMessageWrapper() {
+        // Any changes should remove any pending message
+        return this.element.find(`${CONSTANTS.DOT}${MESSAGE_CLASS}`).empty();
+    },
+
+    /**
+     * Set CodeMirror value
+     * @param value
+     * @private
+     */
+    _setCodeMirrorValue(value) {
+        const { codeMirror } = this;
         assert.instanceof(
             CodeMirror,
-            this.codeMirror,
+            codeMirror,
             assert.format(
                 assert.messages.instanceof.default,
                 'this.codeMirror',
                 'CodeMirror'
             )
         );
-        assert.instanceof(
-            $,
-            this.paramsWrapper,
+        assert.type(
+            CONSTANTS.STRING,
+            value,
             assert.format(
-                assert.messages.instanceof.default,
-                'this.paramsWrapper',
-                'jQuery'
+                assert.messages.type.default,
+                'value',
+                CONSTANTS.STRING
             )
         );
-
-        const value = this.value();
-
-        // Any changes should remove any pending message
-        this.messageWrapper.empty();
-
-        // Clear param editor
-        unbind(this.paramsContainer);
-        destroy(this.paramsContainer);
-        if (this.viewModel instanceof Observable) {
-            this.viewModel.unbind(CONSTANTS.CHANGE);
-        }
-        this.viewModel = undefined;
-        this.paramsContainer.empty();
-
-        if (isCustomFormula(value)) {
-            // If value is in the form `function validate(value, solution[, all]) { ... }`, it is custom
-            this.dropDownList.text(this.options.custom);
-
-            if (this.codeMirror.getDoc().getValue() !== this._value) {
-                this.codeMirror.getDoc().setValue(this._value);
-            }
-        } else {
-            const library = this.dataSource.data();
-            // Otherwise, search the library
-            const parsed = parseLibraryItem(value, library);
-            const { item, params } = parsed;
-
-            // Reset value in case the original value could not be found and we had to fallback to default
-            this._value = stringifyLibraryItem(item, params);
-
-            // Set drop down list value
-            this.dropDownList.value(item.key);
-
-            // Show/hide params editor when required
-            if ($.isFunction(item.editor)) {
-                this.viewModel = observable({ params });
-                this.viewModel.bind(
-                    CONSTANTS.CHANGE,
-                    this._onUserInputChange.bind(this)
-                );
-                item.editor(this.paramsContainer, {
-                    field: 'params'
-                });
-                bind(this.paramsContainer, this.viewModel);
-                this.paramsWrapper.show();
-                this.solutionWrapper.hide();
-            } else {
-                this.paramsWrapper.hide();
-                this.solutionWrapper.show();
-            }
-
-            // Update CodeMirror with code if required
-            const code = item.formula;
-            if (this.codeMirror.getDoc().getValue() !== code) {
-                this.codeMirror.getDoc().setValue(code);
-            }
-        }
-
-        logger.debug({ method: 'refresh', message: 'widget refreshed' });
-    },
-
-    /**
-     * Event handler executed when changing the value of the drop down list
-     * or the value of validation param in the editor
-     * @private
-     */
-    _onUserInputChange(e, change) {
-        assert.instanceof(
-            DropDownList,
-            this.dropDownList,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this.dropDownList',
-                'kendo.ui.DropDownList'
-            )
-        );
-        const item = this.dropDownList.dataItem();
-        if (item) {
-            if ($.isPlainObject(e) && e.sender) {
-                // Change value in drop down list or params viewModel
-                let params;
-                if (this.viewModel instanceof Observable) {
-                    params = this.viewModel.get('params');
-                }
-                this.value(stringifyLibraryItem(item, params));
-                this.trigger(CONSTANTS.CHANGE);
-            } else if (
-                e instanceof CodeMirror &&
-                change.origin !== 'setValue'
-            ) {
-                // Change value in CodeMirror (not using the setValue API)
-                if (item.key === this.options.custom) {
-                    this.value(this.codeMirror.getDoc().getValue());
-                } else {
-                    const code = this.codeMirror.getDoc().getValue();
-                    const cursor = this.codeMirror.getDoc().getCursor();
-                    const lines = code.split('\n');
-                    [lines[0]] = TOOLS.VALIDATION_CUSTOM.split('\n');
-                    this.value(lines.join('\n'));
-                    this.codeMirror.getDoc().setCursor(cursor);
-                }
-                this.trigger(CONSTANTS.CHANGE);
-            }
+        if (codeMirror.getDoc().getValue() !== value) {
+            codeMirror.getDoc().setValue(value);
         }
     },
 
@@ -525,23 +779,15 @@ const CodeEditor = DataBoundWidget.extend({
      * @private
      */
     _onTestButtonClick() {
-        const { options } = this;
         const code = this.codeMirror.getDoc().getValue();
         const item = this.dropDownList.dataItem();
         const data = {};
 
-        // TODO: Use SolutionAdapter to enter value
-        data.value = this.valueInput.val();
-
-        if ($.isFunction(item.editor)) {
-            data.solution = this.viewModel.get('params');
-        } else {
-            data.solution =
-                $.type(options.solution) === CONSTANTS.STRING
-                    ? JSON.parse(options.solution)
-                    : options.solution;
-        }
-
+        data.value = this.viewModel.get('value');
+        data.solution =
+            item && $.isFunction(item.editor)
+                ? this.viewModel.get('params')
+                : this.viewModel.get('solution');
         // avoid error when calling all.val_<id>
         data.all = {};
 
@@ -558,39 +804,34 @@ const CodeEditor = DataBoundWidget.extend({
      */
     _showResult(res) {
         const { messages } = this.options;
-        this.messageWrapper.empty();
+        const wrapper = this._getNotificationWrapper();
         if (
             $.type(res.result) === CONSTANTS.UNDEFINED ||
             $.type(res.result) === CONSTANTS.NULL
         ) {
-            this.messageWrapper.append(
-                template(MESSAGE_TMPL)({
+            wrapper.append(
+                template(NOTIFICATION_TMPL)({
                     type: 'warning',
                     message: messages.omit
                 })
             );
         } else if (res.result === true) {
-            this.messageWrapper.append(
-                template(MESSAGE_TMPL)({
+            wrapper.append(
+                template(NOTIFICATION_TMPL)({
                     type: 'success',
                     message: messages.success
                 })
             );
         } else if (res.result === false) {
-            this.messageWrapper.append(
-                template(MESSAGE_TMPL)({
+            wrapper.append(
+                template(NOTIFICATION_TMPL)({
                     type: 'info',
                     message: messages.failure
                 })
             );
         }
-        const that = this;
         setTimeout(() => {
-            if (that.messageWrapper instanceof $) {
-                // Note: that.messageWrapper might no more exist
-                // if the codeeditor has been closed in the meantime
-                that.messageWrapper.empty();
-            }
+            wrapper.empty();
         }, 5000);
     },
 
@@ -601,23 +842,13 @@ const CodeEditor = DataBoundWidget.extend({
      */
     _showError(error) {
         const { messages } = this.options;
-        this.messageWrapper.empty();
-        this.messageWrapper.append(
-            $(
-                template(MESSAGE_TMPL)({
-                    type: 'error',
-                    message: messages.error
-                })
-            ).attr({ title: error.message })
+        this._getNotificationWrapper().append(
+            template(NOTIFICATION_TMPL)({
+                type: 'error',
+                message: messages.error
+            })
         );
-
-        if (!(this.tooltip instanceof Tooltip)) {
-            this.tooltip = this.messageWrapper.kendoTooltip({
-                filter: '.k-notification-error',
-                position: 'top',
-                width: 250
-            });
-        }
+        this._getErrorMessageWrapper().append(template(MESSAGE_TMPL)(error));
     },
 
     /**

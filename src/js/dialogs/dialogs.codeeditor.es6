@@ -12,7 +12,6 @@ import CONSTANTS from '../common/window.constants.es6';
 import './widgets.basedialog.es6';
 
 const {
-    htmlEncode,
     ns,
     resize,
     roleSelector,
@@ -36,20 +35,16 @@ function openCodeEditor(options = {}) {
         .then(() => {
             // Find or create the DOM element
             const $dialog = BaseDialog.getElement(options.cssClass);
-            $dialog.css({ padding: 0 });
+            $dialog.css({ overflow: 'hidden', padding: 0 });
 
             // Create the dialog
             const dialog = $dialog
                 .kendoBaseDialog({
                     title: __('dialogs.codeeditor.title'),
-                    content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" data-${ns}default="${htmlEncode(
-                        options.default
-                    )}" data-${ns}solution="${htmlEncode(
-                        JSON.stringify(options.solution)
-                    )}"></div>`,
+                    content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" style="border:0;"/>`,
                     data: {
-                        value: '',
-                        library: [] // Do we really need this?
+                        value: null,
+                        library: []
                     },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
@@ -77,7 +72,7 @@ function openCodeEditor(options = {}) {
                     action: e.action,
                     // data: e.sender.viewModel.toJSON() <-- we do not need to return the library
                     data: {
-                        value: e.sender.viewModel.get('value')
+                        value: e.sender.viewModel.get('value').toJSON()
                     }
                 });
             });

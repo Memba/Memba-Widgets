@@ -22,3 +22,4 @@ validation-report.json
 
 # Ignore Dummy Files
 temp/
+src/js/vendor/gskinner/

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -342,8 +342,10 @@
             },
             _updateMenuItems: function () {
                 var that = this;
-                that._setMenuItemsVisibility();
-                that._reorderMenuItems();
+                if (that.options.columns) {
+                    that._setMenuItemsVisibility();
+                    that._reorderMenuItems();
+                }
             },
             _setMenuItemsVisibility: function () {
                 var that = this;
@@ -517,10 +519,14 @@
                         'columnLock'
                     ], that._updateColumnsLockedStateHandler);
                     that.menu.bind(SELECT, function (e) {
-                        var item = $(e.item), input, column, columns = grep(leafColumns(that.owner.columns), function (col) {
+                        var item = $(e.item), input, column, indexAttr = kendo.attr('index'), columnIndexMap = {}, columnsCount = 0, columns = grep(leafColumns(that.owner.columns), function (col, idx) {
                                 var result = true, title = trim(col.title || '');
                                 if (col.menu === false || !col.field && !title.length) {
                                     result = false;
+                                }
+                                if (result) {
+                                    columnIndexMap[idx] = columnsCount;
+                                    columnsCount++;
                                 }
                                 return result;
                             });
@@ -534,7 +540,7 @@
                         if (input.attr('disabled')) {
                             return;
                         }
-                        column = columns[item.index()];
+                        column = columns[columnIndexMap[parseInt(input.attr(indexAttr), 10)]];
                         if (column.hidden === true) {
                             that.owner.showColumn(column);
                         } else {
@@ -545,10 +551,14 @@
             },
             _updateColumnsMenu: function () {
                 var idx, length, current, checked, locked;
-                var fieldAttr = kendo.attr('field'), lockedAttr = kendo.attr('locked'), columnsInMenu = grep(leafColumns(this.owner.columns), function (col) {
+                var fieldAttr = kendo.attr('field'), lockedAttr = kendo.attr('locked'), columnIndexMap = {}, columnsCount = 0, indexAttr = kendo.attr('index'), colIdx = 0, columnsInMenu = grep(leafColumns(this.owner.columns), function (col, idx) {
                         var result = true, title = trim(col.title || '');
                         if (col.menu === false || !col.field && !title.length) {
                             result = false;
+                        }
+                        if (result) {
+                            columnIndexMap[idx] = columnsCount;
+                            columnsCount++;
                         }
                         return result;
                     }), visibleFields = grep(this._ownerColumns(), function (field) {
@@ -572,7 +582,8 @@
                     locked = current.attr(lockedAttr) === 'true';
                     checked = false;
                     switchWidget = current.data('kendoSwitch');
-                    checked = !columnsInMenu[idx].hidden && columnsInMenu[idx].matchesMedia !== false;
+                    colIdx = columnIndexMap[parseInt(current.attr(indexAttr), 10)];
+                    checked = !columnsInMenu[colIdx].hidden && columnsInMenu[colIdx].matchesMedia !== false;
                     current.prop('checked', checked);
                     if (switchWidget) {
                         switchWidget.enable(true);
@@ -714,7 +725,7 @@
                 return found;
             }
         });
-        var template = '<ul id="#=uid#">' + '#if(sortable){#' + '<li class="k-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}</span></li>' + '<li class="k-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}</span></li>' + '#if(showColumns || filterable){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(showColumns){#' + '<li class="k-item k-columns-item" aria-haspopup="true"><span class="k-link"><span class="k-icon k-i-columns"></span>${messages.columns}</span><ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input type="checkbox" title="#=columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#"/>#=columns[idx].title#</li>' + '#}#' + '</ul></li>' + '#if(filterable || lockedColumns){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(filterable){#' + '<li class="k-item k-filter-item" aria-haspopup="true"><span class="k-link"><span class="k-icon k-i-filter"></span>${messages.filter}</span><ul>' + '<li><div class="k-filterable"></div></li>' + '</ul></li>' + '#if(lockedColumns){#' + '<li class="k-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(lockedColumns){#' + '<li class="k-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span>${messages.lock}</span></li>' + '<li class="k-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span>${messages.unlock}</span></li>' + '#}#' + '</ul>';
+        var template = '<ul id="#=uid#">' + '#if(sortable){#' + '<li class="k-item k-menu-item k-sort-asc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}</span></li>' + '<li class="k-item k-menu-item k-sort-desc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}</span></li>' + '#if(showColumns || filterable){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(showColumns){#' + '<li class="k-item k-menu-item k-columns-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-columns"></span>${messages.columns}</span><ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input type="checkbox" title="#=columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#"/>#=columns[idx].title#</li>' + '#}#' + '</ul></li>' + '#if(filterable || lockedColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(filterable){#' + '<li class="k-item k-menu-item k-filter-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-filter"></span>${messages.filter}</span><ul>' + '<li><div class="k-filterable"></div></li>' + '</ul></li>' + '#if(lockedColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(lockedColumns){#' + '<li class="k-item k-menu-item k-lock"><span class="k-link k-menu-link"><span class="k-icon k-i-lock"></span>${messages.lock}</span></li>' + '<li class="k-item k-menu-item k-unlock"><span class="k-link k-menu-link"><span class="k-icon k-i-unlock"></span>${messages.unlock}</span></li>' + '#}#' + '</ul>';
         var mobileTemplate = '<div data-#=ns#role="view" class="k-grid-column-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '${messages.settings}' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<div class="k-column-menu">' + '<ul class="k-reset">' + '<li>' + '<span class="k-list-title">#=messages.column#: ${title}</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '#if(sortable){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-item-title">${messages.sortAscending}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-item-title">${messages.sortDescending}</span></span></li>' + '#}#' + '#if(lockedColumns){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span><span class="k-item-title">${messages.lock}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span><span class="k-item-title">${messages.unlock}</span></span></li>' + '#}#' + '#if(filterable){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-filter-item">' + '<span class="k-link k-filterable">' + '<span class="k-icon k-i-filter"></span>' + '<span class="k-item-title">${messages.filter}</span>' + '<span class="k-select"><span class="k-icon k-i-arrow-chevron-right"></span></span>' + '</span>' + '</li>' + '#}#' + '</ul>' + '</li>' + '#if(showColumns){#' + '<li class="k-columns-item"><span class="k-list-title">${messages.columnVisibility}</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item">' + '<span class="k-listgroup-form-row">' + '<span class="k-listgroup-form-field-label k-item-title">' + '#=columns[idx].title#' + '</span>' + '<span class="k-listgroup-form-field-wrapper">' + '<input type="checkbox" title="#=columns[idx].title#" ' + ' data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#"' + ' data-#=ns#index="#=columns[idx].index#"' + ' data-#=ns#locked="#=columns[idx].locked#" />' + '</span>' + '</span>' + '</li>' + '#}#' + '</ul>' + '</li>' + '#}#' + '<li class="k-item k-clear-wrap">' + '<span class="k-list-title">&nbsp;</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '<li class="k-listgroup-item">' + '<span class="k-link k-label k-clear" title="#=messages.clear#" aria-label="#=messages.clear#">' + '#=messages.clear#' + '</span>' + '</li>' + '</ul>' + '</li>' + '</ul>' + '</div>' + '</div>';
         var MobileMenu = Widget.extend({
             init: function (element, options) {

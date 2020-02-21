@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -40,7 +40,7 @@
     var editors = {
         'number': '<input type=\'text\' title=\'#=field#\' data-#=ns#role=\'numerictextbox\' data-#=ns#bind=\'value: value\'/>',
         'string': '<input type=\'text\' title=\'#=field#\' class=\'k-textbox\' data-#=ns#bind=\'value: value\'/>',
-        'boolean': '# var checkboxGuid = kendo.guid(); # <input class=\'k-checkbox\' data-role=\'checkbox\' id=\'#= checkboxGuid #\' data-#=ns#bind=\'checked: value\' type=\'checkbox\'><label for=\'#= checkboxGuid #\' class=\'k-checkbox-label k-no-text\'>&\\#8203;</label>',
+        'boolean': '<input class=\'k-checkbox\' data-role=\'checkbox\' data-#=ns#bind=\'checked: value\' type=\'checkbox\'>',
         'date': '<input type=\'text\' title=\'#=field#\' data-#=ns#role=\'datepicker\' data-#=ns#bind=\'value: value\'/>'
     };
     var operatorsTemplate = '<select data-#=ns#bind=\'value: operator\' title=\'#=operatorsLabel#\' data-#=ns#role=\'dropdownlist\'>' + '#for(var op in operators){#' + '<option value=\'#=op#\'>#=operators[op].text || operators[op]#</option>' + '#}#' + '</select>';
@@ -407,7 +407,7 @@
                     fieldInfo = $.extend(true, {}, {
                         name: fieldInfo.name || field,
                         editor: fieldInfo.editorTemplate || editors[fieldInfo.type || 'string'],
-                        defaultValue: fieldInfo.defaultValue || '',
+                        defaultValue: fieldInfo.defaultValue || fieldInfo.defaultValue === false || fieldInfo.defaultValue === 0 ? fieldInfo.defaultValue : '',
                         type: fieldInfo.type || 'string',
                         label: fieldInfo.label || fieldInfo.name || field,
                         operators: fieldInfo.operators,

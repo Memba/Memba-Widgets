@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -144,7 +144,6 @@
         var NS = '.kendoTreeList';
         var CLICK = 'click';
         var INPUT = 'input';
-        var MOUSEDOWN = 'mousedown';
         var BEFORE_EDIT = 'beforeEdit';
         var EDIT = 'edit';
         var PAGE = 'page';
@@ -1527,9 +1526,7 @@
             };
             var cells = $();
             if (rows.length > 1) {
-                cells = rows.find('th').filter(filter).filter(function () {
-                    return this.rowSpan > 1;
-                });
+                cells = rows.find('th[data-index]').filter(filter);
             }
             cells = cells.add(rows.last().find('th').filter(filter));
             return sortCells(cells);
@@ -1791,6 +1788,9 @@
                 var pageable = that._isPageable();
                 if (!editable || !editable.move) {
                     return;
+                }
+                if (kendo.support.touch && editable.move) {
+                    that.element.find(DOT + classNames.gridContentWrap).css('touch-action', 'none');
                 }
                 this._dragging = new kendo.ui.HierarchicalDragAndDrop(this.wrapper, {
                     $angular: this.$angular,
@@ -2133,6 +2133,10 @@
                     this._draggableInstance.destroy();
                     this._draggableInstance = null;
                 }
+                if (this._userEvents) {
+                    this._userEvents.destroy();
+                    this._userEvents = null;
+                }
                 if (this.minScreenResizeHandler) {
                     $(window).off('resize', this.minScreenResizeHandler);
                 }
@@ -2289,7 +2293,7 @@
                 return this._toggle(this.dataItem(row), false);
             },
             _toggleChildren: function (e) {
-                var icon = $(e.currentTarget);
+                var icon = $(e.target);
                 var model = this.dataItem(icon);
                 if (!model) {
                     return;
@@ -2993,10 +2997,21 @@
                 }
             },
             _attachEvents: function () {
-                var icons = DOT + classNames.iconCollapse + ', .' + classNames.iconExpand + ', .' + classNames.refresh;
+                var that = this;
                 var retryButton = DOT + classNames.retry;
-                this.element.on(MOUSEDOWN + NS, icons, proxy(this._toggleChildren, this)).on(CLICK + NS, retryButton, this._dataSourceFetchProxy).on(CLICK + NS, '.k-button[data-command]', proxy(this._commandClick, this)).on(INPUT + NS, '.k-grid-search input', proxy(this._search, this));
+                that._userEvents = new kendo.UserEvents(that.element, {
+                    press: proxy(that._onPress, that),
+                    allowSelection: true
+                });
+                this.element.on(CLICK + NS, retryButton, this._dataSourceFetchProxy).on(CLICK + NS, '.k-button[data-command]', proxy(this._commandClick, this)).on(INPUT + NS, '.k-grid-search input', proxy(this._search, this));
                 this._attachCellEditingEventHandlers();
+            },
+            _onPress: function (e) {
+                var that = this;
+                var icons = DOT + classNames.iconCollapse + ', .' + classNames.iconExpand + ', .' + classNames.refresh;
+                if ($(e.event.target).is(icons)) {
+                    that._toggleChildren.call(that, e.event);
+                }
             },
             _attachCellEditingEventHandlers: function () {
                 var that = this;
@@ -3928,6 +3943,9 @@
                 if (column.attributes) {
                     extend(true, attr, column.attributes);
                 }
+                if (this.options.navigatable) {
+                    attr['aria-describedby'] = column.headerAttributes.id;
+                }
                 if (model._edit && column.field && options.editColumn && (incellEditing || !incellEditing && isColumnEditable(column, model))) {
                     attr[kendo.attr('container-for')] = column.field;
                     if (incellEditing) {
@@ -4235,6 +4253,7 @@
                         this._adjustLockedHorizontalScrollBar();
                     }
                     this._adjustRowsHeight(this.table, this.lockedTable);
+                    this._syncLockedScroll();
                 }
             },
             _syncLockedHeaderHeight: function () {
@@ -4244,6 +4263,12 @@
                     this._adjustRowsHeight(lockedTable, table);
                     syncTableHeight(lockedTable, table);
                 }
+            },
+            _syncLockedScroll: function () {
+                if (!this.options.scrollable) {
+                    return;
+                }
+                this.lockedContent[0].scrollTop = this.content[0].scrollTop;
             },
             _resizable: function () {
                 if (!this.options.resizable) {
@@ -4370,7 +4395,7 @@
                 }, this);
                 if (hasMultiColumnHeaders) {
                     if (this.lockedHeader) {
-                        cells = leafDataCells(this.lockedHeader.find('>table>thead')).add(leafDataCells(this.thead));
+                        cells = leafDataCells(this.lockedHeader.find('>table>thead').add(this.thead));
                     } else {
                         cells = leafDataCells(this.thead);
                     }
@@ -5474,14 +5499,22 @@
                 return result;
             });
         }
-        function normalizeColumns(columns, hide) {
+        function normalizeColumns(columns, hide, parentIds) {
             return map(columns, function (column) {
                 var hidden;
+                column.parentIds = parentIds;
                 if (!isVisible(column) || hide) {
                     hidden = true;
                 }
+                var uid = kendo.guid();
+                column.headerAttributes = extend({ headers: parentIds }, column.headerAttributes);
+                if (!column.headerAttributes || !column.headerAttributes.id) {
+                    column.headerAttributes = extend({ id: uid }, column.headerAttributes);
+                } else {
+                    uid = column.headerAttributes.id;
+                }
                 if (column.columns) {
-                    column.columns = normalizeColumns(column.columns, hidden);
+                    column.columns = normalizeColumns(column.columns, hidden, parentIds ? parentIds + ' ' + uid : uid);
                 }
                 return extend({ hidden: hidden }, column);
             });

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -53,7 +53,7 @@
                 noColor: 'no color',
                 clearColor: 'Clear color',
                 previewInput: 'Color Hexadecimal Code'
-            }, NS = '.kendoColorTools', CLICK_NS = 'click' + NS, KEYDOWN_NS = 'keydown' + NS, browser = kendo.support.browser, isIE8 = browser.msie && browser.version < 9;
+            }, NS = '.kendoColorTools', CLICK_NS = 'click' + NS, KEYDOWN_NS = 'keydown' + NS, DISABLED = 'k-state-disabled', browser = kendo.support.browser, isIE8 = browser.msie && browser.version < 9;
         var ColorSelector = Widget.extend({
             init: function (element, options) {
                 var that = this, ariaId;
@@ -102,10 +102,7 @@
                 if (arguments.length === 0) {
                     enable = true;
                 }
-                $('.k-disabled-overlay', this.wrapper).remove();
-                if (!enable) {
-                    this.wrapper.append('<div class=\'k-disabled-overlay\'></div>');
-                }
+                this.wrapper.toggleClass(DISABLED, !enable);
                 this._onEnable(enable);
             },
             _select: function (color, nohooks) {
@@ -316,6 +313,7 @@
                 }
             },
             destroy: function () {
+                this._hsvEvents.destroy();
                 this._hueSlider.destroy();
                 if (this._opacitySlider) {
                     this._opacitySlider.destroy();

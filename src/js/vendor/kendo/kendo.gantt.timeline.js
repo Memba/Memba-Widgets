@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -147,13 +147,13 @@
             taskResizeHandleEast: 'k-resize-e',
             taskSummaryProgress: 'k-task-summary-progress',
             taskSummaryComplete: 'k-task-summary-complete',
-            line: 'k-line',
-            lineHorizontal: 'k-line-h',
-            lineVertical: 'k-line-v',
+            line: 'k-gantt-line',
+            lineHorizontal: 'k-gantt-line-h',
+            lineVertical: 'k-gantt-line-v',
             arrowWest: 'k-arrow-w',
             arrowEast: 'k-arrow-e',
             dragHint: 'k-drag-hint',
-            dependencyHint: 'k-dependency-hint',
+            dependencyHint: 'k-gantt-dependency-hint',
             tooltipWrapper: 'k-widget k-tooltip k-popup k-group k-reset',
             tooltipContent: 'k-tooltip-content',
             tooltipCallout: 'k-callout k-callout-s',
@@ -1471,7 +1471,7 @@
             tasksWrapper: 'k-gantt-tables',
             dependenciesWrapper: 'k-gantt-dependencies',
             task: 'k-task',
-            line: 'k-line',
+            line: 'k-gantt-line',
             taskResizeHandle: 'k-resize-handle',
             taskResizeHandleWest: 'k-resize-w',
             taskDragHandle: 'k-task-draghandle',

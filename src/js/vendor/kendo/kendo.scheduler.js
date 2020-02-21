@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3003,21 +3003,34 @@
                 }
             },
             saveEvent: function () {
-                var editor = this._editor;
+                var that = this;
+                var editor = that._editor;
+                var dataSource = that.dataSource;
                 if (!editor) {
                     return;
                 }
                 var editable = editor.editable;
                 var container = editor.container;
-                var model = this._modelForContainer(container);
-                if (container && editable && editable.end() && !this.trigger(SAVE, {
+                var model = that._modelForContainer(container);
+                var events, i, event;
+                if (container && editable && editable.end() && !that.trigger(SAVE, {
                         container: container,
                         event: model
                     })) {
-                    if (!model.dirty && !model.isOccurrence()) {
-                        this._convertDates(model, 'remove');
+                    if (!model.isOccurrence() && !!model.recurrenceException && !model.recurrenceRule) {
+                        events = dataSource.data();
+                        for (i = events.length - 1; i >= 0; i -= 1) {
+                            event = events[i];
+                            if (event && event.recurrenceId === model.id) {
+                                dataSource.remove(event);
+                            }
+                        }
+                        model.set('recurrenceException', '');
                     }
-                    this.dataSource.sync();
+                    if (!model.dirty && !model.isOccurrence()) {
+                        that._convertDates(model, 'remove');
+                    }
+                    dataSource.sync();
                 }
             },
             cancelEvent: function () {

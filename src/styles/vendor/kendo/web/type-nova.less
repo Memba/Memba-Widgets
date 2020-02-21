@@ -523,10 +523,10 @@
 
 //Checkboxes
 @checkbox-icon-size: 12px;
-@checkbox-size: @icon-size;
+// @checkbox-size: @icon-size;
 @checkbox-radius: @border-radius;
 @checkbox-border-width: 1px;
-@checkbox-line-height: (@checkbox-size + @checkbox-border-width);
+// @checkbox-line-height: (@checkbox-size + @checkbox-border-width);
 
 @checkbox-bg: @input-bg;
 @checkbox-text: @input-text;
@@ -557,10 +557,10 @@
 
 //Radio Buttons
 @radio-icon-size: 12px;
-@radio-size: @icon-size;
+// @radio-size: @icon-size;
 @radio-radius: 50%;
 @radio-border-width: 1px;
-@radio-line-height: @radio-size + @radio-border-width;
+// @radio-line-height: @radio-size + @radio-border-width;
 
 @radio-bg: @checkbox-bg;
 @radio-text: @checkbox-text;
@@ -1826,12 +1826,12 @@ table:not(.k-scheduler-dayview) .k-scheduler-header-wrap .k-today {
     border-color: @accent;
 }
 
-.k-line {
+.k-gantt-line {
     background-color: @normal-text-color;
     color: @normal-text-color;
 }
 
-.k-state-selected.k-line {
+.k-state-selected.k-gantt-line {
     background-color: @accent;
     color: @accent;
 }
@@ -2051,13 +2051,7 @@ table:not(.k-scheduler-dayview) .k-scheduler-header-wrap .k-today {
 }
 
 .k-upload .k-upload-selected {
-    color: @accent;
     border-color: @widget-border-color;
-
-    &:hover {
-        color: @selected-text-color;
-        background-color: @accent;
-    }
 }
 
 // Slider
@@ -2308,18 +2302,31 @@ table:not(.k-scheduler-dayview) .k-scheduler-header-wrap .k-today {
 }
 
 // Map
-.k-map .k-header {
-    background-color: @widget-background-color;
+.k-map {
     border-color: @widget-border-color;
-}
+    color: @widget-text-color;
+    background-color: @widget-background-color;
 
-.k-map .k-marker {
-    font-size: 28px;
-    color: @accent;
-}
 
-.k-map .k-attribution {
-    color: #666666;
+    // Controls
+    .k-navigator {
+        border-color: @button-border-color;
+        color: @button-text-color;
+        background-color: @button-background-color;
+        background-position: 50% 50%;
+        .composite-background(@button-gradient);
+    }
+    .k-zoom-control {}
+
+
+    // Attribution
+    .k-attribution {}
+
+
+    // Marker
+    .k-marker {
+        color: @accent;
+    }
 }
 
 @import "themes/spreadsheet.less";

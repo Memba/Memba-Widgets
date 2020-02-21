@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -544,7 +544,7 @@
                 endTime: kendo.date.today(),
                 minorTickCount: 2,
                 majorTick: 60,
-                majorTimeHeaderTemplate: '<span class=\'k-time-text\'>#=kendo.toString(date, \'h:mm\')#</span> ' + '<span class=\'k-time-period\'>#=kendo.toString(date, \'tt\')#</span>',
+                majorTimeHeaderTemplate: '<span>#=kendo.toString(date, \'t\')#</span>',
                 minorTimeHeaderTemplate: '&\\#8203;',
                 groupHeaderTemplate: '#=text#',
                 slotTemplate: '&nbsp;',
@@ -1371,13 +1371,12 @@
                                 if (byDate && startIndex !== endIndex) {
                                     start = range.start.start;
                                     end = range.end.end;
-                                    var newStart = new Date(start);
-                                    var newEnd = new Date(start);
+                                    var newStart = start;
+                                    var newEnd = start;
                                     for (var i = range.start.index; i <= range.end.index; i++) {
                                         element = this._createEventElement(event, !isMultiDayEvent, i !== endIndex, i !== startIndex);
                                         var dateRange = group.daySlotRanges(newStart, newEnd, true)[0];
-                                        newEnd.setDate(newEnd.getDate() + 1);
-                                        newStart.setDate(newStart.getDate() + 1);
+                                        newStart = newEnd += kendo.date.MS_PER_DAY;
                                         this._positionAllDayEvent(element, dateRange);
                                         addContinuousEvent(group, dateRange, element, true);
                                         element.appendTo(container);

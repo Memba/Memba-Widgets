@@ -588,10 +588,10 @@
 
 //Checkboxes
 @checkbox-icon-size: 12px;
-@checkbox-size: @icon-size;
+// @checkbox-size: @icon-size;
 @checkbox-radius: 0;
 @checkbox-border-width: 1px;
-@checkbox-line-height: (@checkbox-size + @checkbox-border-width);
+// @checkbox-line-height: (@checkbox-size + @checkbox-border-width);
 
 @checkbox-bg: @input-bg;
 @checkbox-text: @accent;
@@ -622,10 +622,10 @@
 
 //Radio Buttons
 @radio-icon-size: 12px;
-@radio-size: @icon-size;
+// @radio-size: @icon-size;
 @radio-radius: 50%;
 @radio-border-width: 1px;
-@radio-line-height: @radio-size + @radio-border-width;
+// @radio-line-height: @radio-size + @radio-border-width;
 
 @radio-bg: @checkbox-bg;
 @radio-text: @checkbox-text;
@@ -992,11 +992,6 @@ textarea.k-textbox:hover,
 
 .k-hr {
     border-color: @widget-border-color;
-}
-
-.k-tool
-{
-    border-color: transparent;
 }
 
 .k-i-loading {
@@ -1832,13 +1827,13 @@ div.k-filebrowser-dropzone em
     border-color: @selected-border-color;
 }
 
-.k-line
+.k-gantt-line
 {
     background-color: @widget-text-color;
     color: @widget-text-color;
 }
 
-.k-state-selected.k-line
+.k-state-selected.k-gantt-line
 {
     background-color: @selected-background-color;
     color: @selected-background-color;
@@ -2704,9 +2699,35 @@ div.k-filebrowser-dropzone em
     background: #fff;
 }
 
-.k-map .k-marker {
-    font-size: 28px;
-    color: @accent;
+// Map
+.k-map {
+    border-color: @widget-border-color;
+    color: @widget-text-color;
+    background-color: @widget-background-color;
+
+
+    // Controls
+    .k-navigator {
+        border-color: @button-border-color;
+        color: @button-text-color;
+        background-color: @button-background-color;
+        background-position: 50% 50%;
+        .composite-background(@button-gradient);
+        .box-shadow(0 1px 2px 0 @shadow-color);
+    }
+    .k-zoom-control {
+        .box-shadow(0 1px 2px 0 @shadow-color);
+    }
+
+
+    // Attribution
+    .k-attribution {}
+
+
+    // Marker
+    .k-marker {
+        color: @accent;
+    }
 }
 
 @import "themes/spreadsheet.less";

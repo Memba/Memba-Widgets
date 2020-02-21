@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -60,7 +60,7 @@
                     styles: switchStyles,
                     checked: options.messages.checked,
                     unchecked: options.messages.unchecked
-                }))).addClass(element.className);
+                }))).addClass(element.className).removeClass('input-validation-error');
                 that.wrapper.on(CLICK, proxy(that._click, that)).on(TOUCHEND, proxy(that._touchEnd, that)).on(KEYDOWN, proxy(that._keydown, that));
                 if (that.options.enabled) {
                     that._tabindex();

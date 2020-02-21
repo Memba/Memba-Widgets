@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1764,12 +1764,16 @@
         });
         kendo.spreadsheet.AddColumnCommand = AddCommand.extend({
             exec: function () {
+                var value = this._value;
                 var sheet = this.range().sheet();
                 var result = sheet.axisManager().preventAddColumn();
+                if (!result && value === 'right') {
+                    result = sheet.axisManager().preventAddColumnAfterLast();
+                }
                 if (result) {
                     return result;
                 }
-                if (this._value === 'left') {
+                if (value === 'left') {
                     this._pos = sheet.axisManager().addColumnLeft();
                 } else {
                     this._pos = sheet.axisManager().addColumnRight();
@@ -1781,12 +1785,16 @@
         });
         kendo.spreadsheet.AddRowCommand = AddCommand.extend({
             exec: function () {
+                var value = this._value;
                 var sheet = this.range().sheet();
                 var result = sheet.axisManager().preventAddRow();
+                if (!result && value === 'below') {
+                    result = sheet.axisManager().preventAddRowAfterLast();
+                }
                 if (result) {
                     return result;
                 }
-                if (this._value === 'above') {
+                if (value === 'above') {
                     this._pos = sheet.axisManager().addRowAbove();
                 } else {
                     this._pos = sheet.axisManager().addRowBelow();
@@ -2151,14 +2159,15 @@
             },
             _keydown: function (e) {
                 var key = e.keyCode;
+                var that = this;
                 if (KEY_NAMES[key]) {
-                    this.popup.close();
-                    this._navigated = true;
-                } else if (this._move(key)) {
-                    this._navigated = true;
+                    that.popup.close();
+                    that._navigated = true;
+                } else if (that._move(key)) {
+                    that._navigated = true;
                     e.preventDefault();
                 }
-                this._keyDownTimeout = setTimeout(this._syntaxHighlight.bind(this));
+                that._keyDownTimeout = setTimeout(that._syntaxHighlight.bind(that));
             },
             _keyup: function () {
                 var popup = this.popup;
@@ -4829,6 +4838,8 @@
                 var columns = sheet._grid._columns;
                 var row = cell.row;
                 var column = cell.col;
+                var isFirstCell = false;
+                var isLastCell = false;
                 var selTopLeft, selBottomRight;
                 var topLeftCol = topLeft.col;
                 var topLeftRow = topLeft.row;
@@ -4839,11 +4850,26 @@
                 }
                 setSelection(sheet.currentNavigationRange());
                 var done = false;
-                while (!done) {
+                var navigatedAway = false;
+                while (!done && !navigatedAway) {
                     var current = new CellRef(row, column);
+                    var isSingleCellSelected = sheet.singleCellSelection();
+                    if (isSingleCellSelected) {
+                        isFirstCell = selTopLeft.eq(current) && sheet._sheetRef.topLeft.eq(current);
+                        isLastCell = selBottomRight.eq(current) && sheet._sheetRef.bottomRight.eq(current);
+                        if (!isFirstCell) {
+                            isFirstCell = columns.firstVisible() === column && rows.firstVisible() === row;
+                        }
+                        if (!isLastCell) {
+                            isLastCell = columns.lastVisible() === column && rows.lastVisible() === row;
+                        }
+                    }
                     switch (direction) {
                     case 'next':
-                        if (selBottomRight.eq(current)) {
+                        if (isLastCell) {
+                            navigatedAway = true;
+                            kendo.focusNextElement();
+                        } else if (selBottomRight.eq(current)) {
                             setSelection(sheet.nextNavigationRange());
                             row = selTopLeft.row;
                             column = selTopLeft.col;
@@ -4861,7 +4887,10 @@
                         }
                         break;
                     case 'previous':
-                        if (selTopLeft.eq(current)) {
+                        if (isFirstCell) {
+                            navigatedAway = true;
+                            this._sheet._workbook._view.element.find('.k-spreadsheet-name-editor .k-input').focus();
+                        } else if (selTopLeft.eq(current)) {
                             setSelection(sheet.previousNavigationRange());
                             row = selBottomRight.row;
                             column = selBottomRight.col;
@@ -4921,10 +4950,12 @@
                     topLeftCol = column;
                     topLeftRow = row;
                 }
-                if (sheet.singleCellSelection()) {
-                    sheet.select(new CellRef(row, column));
-                } else {
-                    sheet.activeCell(new CellRef(row, column));
+                if (done) {
+                    if (sheet.singleCellSelection()) {
+                        sheet.select(new CellRef(row, column));
+                    } else {
+                        sheet.activeCell(new CellRef(row, column));
+                    }
                 }
             },
             extendSelection: function (ref, mode) {
@@ -5216,10 +5247,20 @@
                 var rowCount = range.height();
                 return this._sheet.preventInsertRow(0, rowCount);
             },
+            preventAddRowAfterLast: function () {
+                var range = this._sheet.select().toRangeRef();
+                var rowCount = range.height();
+                return this._sheet.preventInsertBelowLastRow(range.bottomRight.row, rowCount);
+            },
             preventAddColumn: function () {
                 var range = this._sheet.select().toRangeRef();
                 var columnCount = range.width();
                 return this._sheet.preventInsertColumn(0, columnCount);
+            },
+            preventAddColumnAfterLast: function () {
+                var range = this._sheet.select().toRangeRef();
+                var columnCount = range.width();
+                return this._sheet.preventInsertAfterLastColumn(range.bottomRight.col, columnCount);
             },
             addColumnLeft: function () {
                 var sheet = this._sheet;
@@ -5264,12 +5305,17 @@
             addRowAbove: function () {
                 var sheet = this._sheet;
                 var base, count = 0;
+                var totalRows = sheet._grid.rowCount;
+                var selectedRows = sheet.select();
+                var selectedRowsCount = selectedRows.bottomRight.row - selectedRows.topLeft.row + 1;
                 sheet.batch(function () {
-                    sheet.select().forEachRowIndex(function (index) {
+                    selectedRows.forEachRowIndex(function (index) {
                         if (!base) {
                             base = index;
                         }
-                        sheet.insertRow(base);
+                        if (selectedRows.bottomRight.row + selectedRowsCount < totalRows) {
+                            sheet.insertRow(base);
+                        }
                         ++count;
                     });
                 }, {
@@ -5284,13 +5330,16 @@
             addRowBelow: function () {
                 var sheet = this._sheet;
                 var base, count = 0;
+                var totalRows = sheet._grid.rowCount;
                 sheet.batch(function () {
                     sheet.select().forEachRowIndex(function (index) {
                         base = index + 1;
                         ++count;
                     });
-                    for (var i = 0; i < count; ++i) {
-                        sheet.insertRow(base);
+                    if (base + count < totalRows) {
+                        for (var i = 0; i < count; ++i) {
+                            sheet.insertRow(base);
+                        }
                     }
                 }, {
                     recalc: true,
@@ -7716,25 +7765,11 @@
     var ARGS_ANYVALUE = [
         [
             '*a',
-            [
-                'or',
-                'anyvalue',
-                [
-                    'null',
-                    0
-                ]
-            ]
+            'forced'
         ],
         [
             '*b',
-            [
-                'or',
-                'anyvalue',
-                [
-                    'null',
-                    0
-                ]
-            ]
+            'forced'
         ]
     ];
     defineFunction('binary+', function (a, b) {
@@ -7791,13 +7826,32 @@
             ]
         ]
     ]);
-    defineFunction('binary=', function (a, b) {
+    function equals(a, b) {
         a = typeof a === 'string' ? a.toLowerCase() : a;
         b = typeof b === 'string' ? b.toLowerCase() : b;
+        if (a === false && b == null) {
+            return true;
+        }
+        if (b === false && a == null) {
+            return true;
+        }
+        if (a === 0 && b == null) {
+            return true;
+        }
+        if (b === 0 && a == null) {
+            return true;
+        }
+        if (a === '' && b == null) {
+            return true;
+        }
+        if (b === '' && a == null) {
+            return true;
+        }
         return a === b;
-    }).args(ARGS_ANYVALUE);
+    }
+    defineFunction('binary=', equals).args(ARGS_ANYVALUE);
     defineFunction('binary<>', function (a, b) {
-        return a !== b;
+        return !equals(a, b);
     }).args(ARGS_ANYVALUE);
     defineFunction('binary<', binaryCompare(function (a, b) {
         return a < b;
@@ -8672,6 +8726,16 @@
                 }
                 return false;
             },
+            preventInsertBelowLastRow: function (rowIndex, count) {
+                count = count || 1;
+                if (rowIndex + count === this._rows._count) {
+                    return {
+                        reason: 'error',
+                        type: 'insertRowBelowLastRow'
+                    };
+                }
+                return false;
+            },
             preventInsertColumn: function (colIndex, count) {
                 if (this.selectedHeaders().allCols) {
                     return {
@@ -8686,6 +8750,16 @@
                     return {
                         reason: 'error',
                         type: 'shiftingNonblankCells'
+                    };
+                }
+                return false;
+            },
+            preventInsertAfterLastColumn: function (colIndex, count) {
+                count = count || 1;
+                if (colIndex + count === this._columns._count) {
+                    return {
+                        reason: 'error',
+                        type: 'insertColAfterLastCol'
                     };
                 }
                 return false;
@@ -14349,8 +14423,8 @@
             onEntryAction: function (event, action) {
                 var sheet = this._workbook.activeSheet();
                 if (event.mod) {
-                    var shouldPrevent = true;
                     var key = String.fromCharCode(event.keyCode);
+                    var shouldPrevent = true;
                     switch (key) {
                     case 'A':
                         sheet._activeDrawing = null;
@@ -15172,7 +15246,9 @@
                 cantSortNullRef: 'Cannot sort empty selection',
                 cantSortMixedCells: 'Cannot sort range containing cells of mixed shapes',
                 validationError: 'The value that you entered violates the validation rules set on the cell.',
-                cannotModifyDisabled: 'Cannot modify disabled cells.'
+                cannotModifyDisabled: 'Cannot modify disabled cells.',
+                insertRowBelowLastRow: 'Cannot insert row below the last row.',
+                insertColAfterLastCol: 'Cannot insert column to the right of the last column.'
             },
             tabs: {
                 home: 'Home',
@@ -29346,7 +29422,7 @@
                     return kendo.getter(column.field);
                 });
                 this.sheet.batch(function () {
-                    var length = Math.max(data.length, this._boundRowsCount);
+                    var length = Math.max(data.length, this._boundRowsCount, this.sheet._grid.rowCount - 1);
                     for (var idx = 0; idx < length; idx++) {
                         for (var getterIdx = 0; getterIdx < getters.length; getterIdx++) {
                             var value = data[idx] ? getters[getterIdx](data[idx]) : null;
@@ -29504,7 +29580,7 @@
             }
         });
         var templates = {
-            filterByValue: '<div class=\'' + classNames.detailsSummary + '\'>#= messages.filterByValue #</div>' + '<div class=\'' + classNames.detailsContent + '\'>' + '<div class=\'k-textbox k-space-right\'>' + '<input placeholder=\'#= messages.search #\' data-#=ns#bind=\'events: { input: filterValues }\' />' + '<span class=\'k-icon k-i-zoom\' />' + '</div>' + '<div data-#=ns#bind=\'visible: hasActiveSearch\'><input class=\'k-checkbox\' type=\'checkbox\' data-#=ns#bind=\'checked: appendToSearch\' id=\'_#=guid#\' /><label class=\'k-checkbox-label\' for=\'_#=guid#\'>#= messages.addToCurrent #</label></div>' + '<div class=\'' + classNames.valuesTreeViewWrapper + '\'>' + '<div data-#=ns#role=\'treeview\' ' + 'data-#=ns#checkboxes=\'{ checkChildren: true }\' ' + 'data-#=ns#bind=\'source: valuesDataSource, events: { check: valuesChange, select: valueSelect }\' ' + '/>' + '</div>' + '</div>',
+            filterByValue: '<div class=\'' + classNames.detailsSummary + '\'>#= messages.filterByValue #</div>' + '<div class=\'' + classNames.detailsContent + '\'>' + '<div class=\'k-textbox k-space-right\'>' + '<input placeholder=\'#= messages.search #\' data-#=ns#bind=\'events: { input: filterValues }\' />' + '<span class=\'k-icon k-i-zoom\' />' + '</div>' + '<div data-#=ns#bind=\'visible: hasActiveSearch\'><input class=\'k-checkbox\' type=\'checkbox\' data-#=ns#bind=\'checked: appendToSearch\' id=\'_#=guid#\'/><label class=\'k-checkbox-label\' for=\'_#=guid#\'>#= messages.addToCurrent #</label></div>' + '<div class=\'' + classNames.valuesTreeViewWrapper + '\'>' + '<div data-#=ns#role=\'treeview\' ' + 'data-#=ns#checkboxes=\'{ checkChildren: true }\' ' + 'data-#=ns#bind=\'source: valuesDataSource, events: { check: valuesChange, select: valueSelect }\' ' + '/>' + '</div>' + '</div>',
             filterByCondition: '<div class=\'' + classNames.detailsSummary + '\'>#= messages.filterByCondition #</div>' + '<div class=\'' + classNames.detailsContent + '\'>' + '<div>' + '<select ' + 'data-#=ns#role="dropdownlist"' + 'data-#=ns#bind="value: operator, source: operators, events: { change: operatorChange } "' + 'data-value-primitive="false"' + 'data-option-label="#=messages.operatorNone#"' + 'data-height="auto"' + 'data-text-field="text"' + 'data-value-field="unique">' + '</select>' + '</div>' + '<div data-#=ns#bind="visible: isString">' + '<input data-filter-type="string" data-#=ns#bind="spreadsheetFilterValue: customFilter.criteria[0].value" class="k-textbox" />' + '</div>' + '<div data-#=ns#bind="visible: isNumber">' + '<input data-filter-type="number" data-#=ns#role="numerictextbox" data-#=ns#bind="spreadsheetFilterValue: customFilter.criteria[0].value" />' + '</div>' + '<div data-#=ns#bind="visible: isDate">' + '<input data-filter-type="date" data-#=ns#role="datepicker" data-#=ns#bind="spreadsheetFilterValue: customFilter.criteria[0].value" />' + '</div>' + '</div>',
             menuItem: '<li data-command=\'#=command#\' data-dir=\'#=dir#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>#=text#' + '</li>',
             actionButtons: '<button data-#=ns#bind=\'click: apply\' class=\'k-button k-primary\'>#=messages.apply#</button>' + '<button data-#=ns#bind=\'click: clear\' class=\'k-button\'>#=messages.clear#</button>'

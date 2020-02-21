@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -64,7 +64,7 @@
                     that.wrapper = element.parent();
                 } else {
                     that.wrapper = element.wrap('<span class=\'k-widget k-dateinput\'></span>').parent();
-                    that.wrapper.addClass(element[0].className);
+                    that.wrapper.addClass(element[0].className).removeClass('input-validation-error');
                     that.wrapper[0].style.cssText = element[0].style.cssText;
                     element.css({
                         width: '100%',

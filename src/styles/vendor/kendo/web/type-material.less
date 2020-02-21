@@ -617,10 +617,10 @@
 
 //Checkboxes
 @checkbox-icon-size: 12px;
-@checkbox-size: @icon-size;
+// @checkbox-size: @icon-size;
 @checkbox-radius: 0;
 @checkbox-border-width: 1px;
-@checkbox-line-height: (@checkbox-size + @checkbox-border-width);
+// @checkbox-line-height: (@checkbox-size + @checkbox-border-width);
 
 @checkbox-bg: @input-bg;
 @checkbox-text: @input-text;
@@ -651,10 +651,10 @@
 
 //Radio Buttons
 @radio-icon-size: 12px;
-@radio-size: @icon-size;
+// @radio-size: @icon-size;
 @radio-radius: 50%;
 @radio-border-width: 1px;
-@radio-line-height: @radio-size + @radio-border-width;
+// @radio-line-height: @radio-size + @radio-border-width;
 
 @radio-bg: @checkbox-bg;
 @radio-text: @checkbox-text;
@@ -1718,13 +1718,7 @@ div.k-filebrowser-dropzone em
 }
 
 .k-upload .k-upload-selected {
-    color: @selected-text-color;
     border-color: @widget-border-color;
-
-    &:hover {
-        color: @base;
-        background-color: @selected-text-color;
-    }
 }
 
 // ImageBrowser
@@ -1939,13 +1933,13 @@ div.k-filebrowser-dropzone em
     border-color: @selected-border-color;
 }
 
-.k-line
+.k-gantt-line
 {
     background-color: @widget-text-color;
     color: @widget-text-color;
 }
 
-.k-state-selected.k-line
+.k-state-selected.k-gantt-line
 {
     background-color: @selected-background-color;
     color: @selected-background-color;
@@ -2906,11 +2900,11 @@ td.k-group-cell,
 .k-gantt .k-treelist .k-alt.k-state-selected,
 .k-gantt .k-treelist .k-alt.k-state-selected > td,
 .k-listview > .k-state-selected,
-.k-state-selected.k-line {
+.k-state-selected.k-gantt-line {
     background-color: @selected-background;
 }
 
-.k-state-selected.k-line
+.k-state-selected.k-gantt-line
 {
     color: @selected-background;
 }
@@ -3487,56 +3481,36 @@ div.k-scheduler-marquee:after {
 }
 
 // Map
+.k-map {
+    border-color: @widget-border-color;
+    color: @widget-text-color;
+    background-color: @widget-background-color;
 
-.k-map .k-marker {
-    font-size: 28px;
-    color: @accent;
-}
 
-.k-map .k-attribution {
-    color: #666666;
-}
+    // Controls
+    .k-navigator {
+        border-color: @button-border-color;
+        color: @button-text-color;
+        background-color: @button-background-color;
+        background-position: 50% 50%;
+        .composite-background(@button-gradient);
+        .box-shadow(@button-shadow);
 
-.k-map .k-shadow {
-    background-color: #f9f9f9;
-    border-color: #f9f9f9;
-}
+        .k-button {
+            box-shadow: none;
+        }
+    }
+    .k-zoom-control {}
 
-.k-map .k-zoom-control {
-    border-color: #fff;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-    border-radius: 2px;
-}
 
-.k-map .k-map-controls .k-button {
-    box-shadow: none;
-}
+    // Attribution
+    .k-attribution {}
 
-.k-map .k-map-controls .k-button:focus,
-.k-map .k-map-controls .k-button:active,
-.k-map .k-map-controls .k-button:focus:active {
-    background-color: #d6d6d6;
-    border-color: #d6d6d6;
-    box-shadow: none;
-}
 
-.k-buttons-horizontal .k-zoom-out {
-    border-radius: 0 2px 2px 0;
-}
-
-.k-buttons-horizontal :first-child
-{
-    border-radius: 2px 0 0 2px;
-}
-
-.k-rtl .k-buttons-horizontal .k-zoom-out
-{
-    border-radius: 2px 0 0 2px;
-}
-
-.k-rtl .k-buttons-horizontal :first-child
-{
-    border-radius: 0 2px 2px 0;
+    // Marker
+    .k-marker {
+        color: @accent;
+    }
 }
 
 @import "themes/spreadsheet.less";
@@ -3929,9 +3903,6 @@ div.k-scheduler-marquee:after {
 // Editor
 .k-editor .k-tool {
     color: inherit;
-}
-.k-tool {
-    border-color: transparent;
 }
 .k-tool {
     text-align: center;

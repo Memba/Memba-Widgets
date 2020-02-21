@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -332,7 +332,7 @@
                     nonDefaultMessage = kendo.isFunction(customMessage) ? customMessage(input) : customMessage;
                 }
                 customMessage = kendo.isFunction(customMessage) ? customMessage(input) : customMessage;
-                return kendo.format(input.attr(kendo.attr(ruleKey + '-msg')) || input.attr('validationMessage') || nonDefaultMessage || input.attr('title') || customMessage || '', fieldName, input.attr(ruleKey) || input.attr(kendo.attr(ruleKey)));
+                return kendo.format(input.attr(kendo.attr(ruleKey + '-msg')) || input.attr('validationMessage') || nonDefaultMessage || customMessage || input.attr('title') || '', fieldName, input.attr(ruleKey) || input.attr(kendo.attr(ruleKey)));
             },
             _checkValidity: function (input) {
                 var rules = this.options.rules, rule;

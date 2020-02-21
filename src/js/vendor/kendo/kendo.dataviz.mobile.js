@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.1.114'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2020.1.219'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -3432,6 +3432,16 @@
                 $(parent).scrollTop(scrollTopPositions[index]);
             });
         };
+        kendo.focusNextElement = function () {
+            if (document.activeElement) {
+                var focussable = $(':kendoFocusable');
+                var index = focussable.index(document.activeElement);
+                if (index > -1) {
+                    var nextElement = focussable[index + 1] || focussable[0];
+                    nextElement.focus();
+                }
+            }
+        };
         kendo.matchesMedia = function (mediaQuery) {
             var media = kendo._bootstrapToMedia(mediaQuery) || mediaQuery;
             return support.matchMedia && window.matchMedia(media).matches;
@@ -3598,11 +3608,8 @@
             var fileTypeMap = kendo.fileGroupMap;
             var groups = Object.keys(fileTypeMap);
             var type = 'file';
-            if (extension === undefined) {
-                return '';
-            }
-            if (extension === '') {
-                return 'folder';
+            if (extension === undefined || !extension.length) {
+                return type;
             }
             for (var i = 0; i < groups.length; i += 1) {
                 var extensions = fileTypeMap[groups[i]];
@@ -13361,6 +13368,9 @@
                     cancel: proxy(that._cancel, that),
                     select: proxy(that._select, that)
                 });
+                if (kendo.support.touch) {
+                    that.element.find(that.options.filter).css('touch-action', 'none');
+                }
                 that._afterEndHandler = proxy(that._afterEnd, that);
                 that._captureEscape = proxy(that._captureEscape, that);
             },
@@ -14942,6 +14952,9 @@
                 axis = that.options.position.match(/left|right/) ? 'horizontal' : 'vertical';
                 that.dimensions = DIMENSIONS[axis];
                 that._documentKeyDownHandler = proxy(that._documentKeyDown, that);
+                if (kendo.support.touch && this._isShownOnMouseEnter()) {
+                    that.element.on(kendo.support.mousedown + NS, that.options.filter, proxy(that._showOn, that));
+                }
                 that.element.on(that.options.showOn + NS, that.options.filter, proxy(that._showOn, that));
                 if (this._isShownOnMouseEnter() || this._isShownOnClick()) {
                     that.element.on('mouseenter' + NS, that.options.filter, proxy(that._mouseenter, that));
@@ -14951,6 +14964,9 @@
                 }
                 if (this.options.autoHide && this._isShownOnFocus()) {
                     that.element.on('blur' + NS, that.options.filter, proxy(that._blur, that));
+                }
+                if (kendo.support.touch) {
+                    that.element.on(kendo.support.mousedown + NS, that.options.filter, proxy(that._mouseenter, that));
                 }
             },
             options: {
@@ -55914,7 +55930,7 @@
             init: function (element, options) {
                 Widget.fn.init.call(this, element, options);
                 this._initOptions(options);
-                this.element.addClass('k-widget k-header k-shadow k-navigator').append(BUTTONS).on('click' + NS, '.k-button', proxy(this, '_click'));
+                this.element.addClass('k-widget k-navigator').append(BUTTONS).on('click' + NS, '.k-button', proxy(this, '_click'));
                 var parentElement = this.element.parent().closest('[' + kendo.attr('role') + ']');
                 this._keyroot = parentElement.length > 0 ? parentElement : this.element;
                 this._tabindex(this._keyroot);
@@ -55987,7 +56003,7 @@
         var keys = kendo.keys;
         var proxy = $.proxy;
         function button(dir, iconClass) {
-            return kendo.format('<button class="k-button k-zoom-{0}" title="zoom-{0}" aria-label="zoom-{0}"><span class="k-icon {1}"></span></button>', dir, iconClass);
+            return kendo.format('<button class="k-button k-button-icon k-zoom-{0}" title="zoom-{0}" aria-label="zoom-{0}"><span class="k-icon {1}"></span></button>', dir, iconClass);
         }
         var NS = '.kendoZoomControl';
         var BUTTONS = button('in', 'k-i-plus') + button('out', 'k-i-minus');
@@ -55999,7 +56015,7 @@
             init: function (element, options) {
                 Widget.fn.init.call(this, element, options);
                 this._initOptions(options);
-                this.element.addClass('k-widget k-zoom-control k-button-wrap k-buttons-horizontal k-button-group k-group-horizontal').append(BUTTONS).on('click' + NS, '.k-button', proxy(this, '_click'));
+                this.element.addClass('k-widget k-zoom-control k-button-group k-group-horizontal').append(BUTTONS).on('click' + NS, '.k-button', proxy(this, '_click'));
                 var parentElement = this.element.parent().closest('[' + kendo.attr('role') + ']');
                 this._keyroot = parentElement.length > 0 ? parentElement : this.element;
                 this._tabindex(this._keyroot);
@@ -68110,7 +68126,7 @@
                 that._header();
                 that._viewWrapper();
                 that._footer(that.footer);
-                id = element.addClass('k-widget k-calendar ' + (options.weekNumber ? ' k-week-number' : '')).on(MOUSEENTER_WITH_NS + ' ' + MOUSELEAVE, CELLSELECTOR, mousetoggle).on(KEYDOWN_NS, 'table.k-content', proxy(that._move, that)).on(CLICK, CELLSELECTOR, function (e) {
+                id = element.addClass('k-widget k-calendar ' + (options.weekNumber ? ' k-week-number' : '')).on(MOUSEENTER_WITH_NS + ' ' + MOUSELEAVE, CELLSELECTOR, mousetoggle).on(KEYDOWN_NS, 'table.k-content', proxy(that._move, that)).on(CLICK + ' touchend', CELLSELECTOR, function (e) {
                     var link = e.currentTarget.firstChild, value = toDateObject(link);
                     if (link.href.indexOf('#') != -1) {
                         e.preventDefault();
@@ -69505,7 +69521,7 @@
                     that.wrapper = element.parent();
                 } else {
                     that.wrapper = element.wrap('<span class=\'k-widget k-dateinput\'></span>').parent();
-                    that.wrapper.addClass(element[0].className);
+                    that.wrapper.addClass(element[0].className).removeClass('input-validation-error');
                     that.wrapper[0].style.cssText = element[0].style.cssText;
                     element.css({
                         width: '100%',
@@ -70428,7 +70444,9 @@
             },
             current: function (date) {
                 this._current = date;
-                this.calendar._focus(date);
+                if (this.calendar) {
+                    this.calendar._focus(date);
+                }
             },
             value: function (value) {
                 var that = this, calendar = that.calendar, options = that.options, disabledDate = options.disableDates;
@@ -70762,7 +70780,7 @@
                     width: '100%',
                     height: element[0].style.height
                 });
-                that.wrapper = wrapper.addClass('k-widget k-datepicker').addClass(element[0].className);
+                that.wrapper = wrapper.addClass('k-widget k-datepicker').addClass(element[0].className).removeClass('input-validation-error');
                 that._inputWrapper = $(wrapper[0].firstChild);
             },
             _reset: function () {
@@ -70927,7 +70945,7 @@
                 that._toggleText(true);
                 that._upArrowEventHandler.unbind('press');
                 that._downArrowEventHandler.unbind('press');
-                element.off('keydown' + ns).off('keypress' + ns).off('keyup' + ns).off('paste' + ns);
+                element.off('keydown' + ns).off('keyup' + ns).off('input' + ns).off('paste' + ns);
                 if (!readonly && !disable) {
                     wrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
                     text.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false);
@@ -70941,7 +70959,7 @@
                         that._spin(-1);
                         that._downArrow.addClass(SELECTED);
                     });
-                    that.element.on('keydown' + ns, proxy(that._keydown, that)).on('keypress' + ns, proxy(that._keypress, that)).on('keyup' + ns, proxy(that._keyup, that)).on('paste' + ns, proxy(that._paste, that));
+                    that.element.on('keydown' + ns, proxy(that._keydown, that)).on('keyup' + ns, proxy(that._keyup, that)).on('paste' + ns, proxy(that._paste, that)).on('input' + ns, proxy(that._inputHandler, that));
                 } else {
                     wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
                     text.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable);
@@ -71146,49 +71164,45 @@
             },
             _keydown: function (e) {
                 var that = this, key = e.keyCode;
-                that._key = key;
                 if (key == keys.DOWN) {
                     that._step(-1);
+                    return;
                 } else if (key == keys.UP) {
                     that._step(1);
+                    return;
                 } else if (key == keys.ENTER) {
                     that._change(that.element.val());
-                } else if (key != keys.TAB) {
-                    that._typing = true;
-                }
-            },
-            _keypress: function (e) {
-                if (e.which === 0 || e.metaKey || e.ctrlKey || e.keyCode === keys.BACKSPACE || e.keyCode === keys.ENTER) {
                     return;
                 }
-                var that = this;
-                var min = that.options.min;
-                var element = that.element;
-                var selection = caret(element);
-                var selectionStart = selection[0];
-                var selectionEnd = selection[1];
-                var character = String.fromCharCode(e.which);
-                var numberFormat = that._format(that.options.format);
-                var isNumPadDecimal = that._key === keys.NUMPAD_DOT;
-                var value = element.val();
-                var isValid;
-                if (isNumPadDecimal) {
-                    character = numberFormat[POINT];
+                if (key != keys.TAB) {
+                    that._typing = true;
                 }
-                value = value.substring(0, selectionStart) + character + value.substring(selectionEnd);
-                isValid = that._numericRegex(numberFormat).test(value);
-                if (isValid && isNumPadDecimal) {
-                    element.val(value);
-                    caret(element, selectionStart + character.length);
-                    e.preventDefault();
-                } else if (min !== null && min >= 0 && value.charAt(0) === '-' || !isValid) {
-                    that._addInvalidState();
-                    e.preventDefault();
-                }
-                that._key = 0;
+                that._cachedCaret = caret(that.element);
             },
             _keyup: function () {
                 this._removeInvalidState();
+            },
+            _inputHandler: function () {
+                var element = this.element;
+                var value = element.val();
+                var numberFormat = this._format(this.options.format);
+                var isValid = this._numericRegex(numberFormat).test(value);
+                if (isValid) {
+                    this._oldText = value;
+                } else {
+                    this._blinkInvalidState();
+                    this.element.val(this._oldText);
+                    if (this._cachedCaret) {
+                        caret(element, this._cachedCaret[0]);
+                        this._cachedCaret = null;
+                    }
+                }
+            },
+            _blinkInvalidState: function () {
+                var that = this;
+                that._addInvalidState();
+                clearTimeout(that._invalidStateTimeout);
+                that._invalidStateTimeout = setTimeout(proxy(that._removeInvalidState, that), 100);
             },
             _addInvalidState: function () {
                 var that = this;
@@ -71199,6 +71213,7 @@
                 var that = this;
                 that._inputWrapper.removeClass(STATE_INVALID);
                 that._validationIcon.hide();
+                that._invalidStateTimeout = null;
             },
             _numericRegex: function (numberFormat) {
                 var that = this;
@@ -71318,6 +71333,7 @@
                     value = null;
                 }
                 that.element.val(value);
+                that._oldText = value;
                 that.element.add(that._text).attr('aria-valuenow', value);
             },
             _placeholder: function (value) {
@@ -71337,7 +71353,7 @@
                 }
                 wrapper[0].style.cssText = DOMElement.style.cssText;
                 DOMElement.style.width = '';
-                that.wrapper = wrapper.addClass('k-widget k-numerictextbox').addClass(DOMElement.className).css('display', '');
+                that.wrapper = wrapper.addClass('k-widget k-numerictextbox').addClass(DOMElement.className).removeClass('input-validation-error').css('display', '');
                 that._inputWrapper = $(wrapper[0].firstChild);
             },
             _reset: function () {
@@ -71681,7 +71697,7 @@
                     nonDefaultMessage = kendo.isFunction(customMessage) ? customMessage(input) : customMessage;
                 }
                 customMessage = kendo.isFunction(customMessage) ? customMessage(input) : customMessage;
-                return kendo.format(input.attr(kendo.attr(ruleKey + '-msg')) || input.attr('validationMessage') || nonDefaultMessage || input.attr('title') || customMessage || '', fieldName, input.attr(ruleKey) || input.attr(kendo.attr(ruleKey)));
+                return kendo.format(input.attr(kendo.attr(ruleKey + '-msg')) || input.attr('validationMessage') || nonDefaultMessage || customMessage || input.attr('title') || '', fieldName, input.attr(ruleKey) || input.attr(kendo.attr(ruleKey)));
             },
             _checkValidity: function (input) {
                 var rules = this.options.rules, rule;
@@ -73523,7 +73539,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, outerHeight = kendo._outerHeight, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', GROUPHEADER = '.k-group-header', ITEMSELECTOR = '.k-item', LABELIDPART = '_label', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, HIDDENCLASS = 'k-hidden', WIDTH = 'width', isIE = browser.msie, isIE8 = isIE && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
+        var kendo = window.kendo, ui = kendo.ui, outerHeight = kendo._outerHeight, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', GROUPHEADER = '.k-group-header', ITEMSELECTOR = '.k-item', LABELIDPART = '_label', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', BLUR = 'blur', FOCUS = 'focus', FOCUSOUT = 'focusout', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, HIDDENCLASS = 'k-hidden', WIDTH = 'width', isIE = browser.msie, isIE8 = isIE && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
                 'ComboBox': [
                     'DropDownList',
                     'MultiColumnComboBox'
@@ -74748,11 +74764,12 @@
             _toggleCascadeOnFocus: function () {
                 var that = this;
                 var parent = that._parentWidget();
-                parent._focused.add(parent.filterInput).bind('focus', function () {
+                var focusout = isIE && parent instanceof ui.DropDownList ? BLUR : FOCUSOUT;
+                parent._focused.add(parent.filterInput).bind(FOCUS, function () {
                     parent.unbind(CASCADE, that._cascadeHandlerProxy);
                     parent.first(CHANGE, that._cascadeHandlerProxy);
                 });
-                parent._focused.add(parent.filterInput).bind('focusout', function () {
+                parent._focused.add(parent.filterInput).bind(focusout, function () {
                     parent.unbind(CHANGE, that._cascadeHandlerProxy);
                     parent.first(CASCADE, that._cascadeHandlerProxy);
                 });
@@ -77899,7 +77916,7 @@
                     wrapper[0].style.cssText = DOMelement.style.cssText;
                     wrapper[0].title = DOMelement.title;
                 }
-                that._focused = that.wrapper = wrapper.addClass('k-widget k-dropdown').addClass(DOMelement.className).css('display', '').attr({
+                that._focused = that.wrapper = wrapper.addClass('k-widget k-dropdown').addClass(DOMelement.className).removeClass('input-validation-error').css('display', '').attr({
                     accesskey: element.attr('accesskey'),
                     unselectable: 'on',
                     role: 'listbox',

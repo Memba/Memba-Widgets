@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1146,24 +1146,26 @@
                 that.element.append(canvas);
             },
             load: function (defaultScale, force) {
-                var that = this;
+                var that = this, promise = $.Deferred();
                 if (that._scale === defaultScale && !force) {
                     return;
                 } else if (that._scale && that._scale !== defaultScale && !force) {
                     that._scale = defaultScale;
                     that.render(defaultScale);
-                    return;
+                    return promise.resolve(that);
                 }
                 if (that.processor) {
                     that.processor.fetchPageData(that.pageNumber).then(function (page) {
                         that._page = page;
-                        return that.render(defaultScale).then(function () {
+                        that._renderPromise = that.render(defaultScale).then(function () {
                             that.viewer.trigger(RENDER, { page: that });
                         });
+                        promise.resolve(that);
                     });
                 }
                 that._scale = defaultScale;
                 that.loaded = true;
+                return promise;
             },
             render: function (scale) {
                 var that = this;
@@ -1910,8 +1912,9 @@
                     that.viewer._triggerError({ message: this.errorMessages.notFound });
                     return;
                 }
+                progress(that.viewer.pageContainer, true);
                 that._renderPrintContainer();
-                that._loadAllPages();
+                that._loadAllPages().then(proxy(that.processAfterRender, that));
             },
             _renderPrintContainer: function () {
                 this.printContainer = $('<div></div>');
@@ -1919,33 +1922,32 @@
             _loadAllPages: function () {
                 var that = this;
                 var pages = that.viewer.pages;
-                var originalScale = that.viewer.zoom();
-                var timeout = 20;
-                var printImmediately = true;
-                var interval;
+                var loadPromises = [];
+                var renderPromises = [];
+                var promise = $.Deferred();
+                that._originalScale = that.viewer.zoom();
+                function getRenderPromise(page) {
+                    renderPromises.push(page._renderPromise);
+                }
                 for (var i = 0; i < pages.length; i++) {
-                    if (!pages[i].loaded) {
-                        printImmediately = false;
-                        pages[i].load(4 / 3, true);
-                        timeout += 20;
-                    }
+                    loadPromises.push(pages[i].load(3, true).then(getRenderPromise));
                 }
-                var printHandler = function () {
-                    clearTimeout(interval);
-                    interval = setTimeout(function () {
-                        that.viewer.unbind('render', printHandler);
-                        that._renderPrintPages();
-                        setTimeout(function () {
-                            that._printDocument();
-                            that.viewer.zoom(originalScale);
-                        }, 0);
-                    }, timeout);
-                };
-                if (printImmediately) {
-                    printHandler();
-                } else {
-                    that.viewer.bind('render', printHandler);
-                }
+                Promise.all(loadPromises).then(function () {
+                    promise.resolve(renderPromises);
+                });
+                return promise;
+            },
+            processAfterRender: function (renderPromises) {
+                var that = this;
+                Promise.all(renderPromises).then(function () {
+                    that._renderPrintPages();
+                    setTimeout(function () {
+                        that._printDocument();
+                        that.viewer.zoom(that._originalScale);
+                        progress(that.viewer.pageContainer, false);
+                        delete that._originalScale;
+                    }, 0);
+                });
             },
             _renderPrintPages: function () {
                 var pages = this.viewer.pages;
@@ -1966,6 +1968,10 @@
                 var width = pages[0].width;
                 var height = pages[0].height;
                 var myWindow = window.open('', '', 'innerWidth=' + width + ',innerHeight=' + height + 'location=no,titlebar=no,toolbar=no');
+                if (!myWindow) {
+                    that.viewer._triggerError({ message: that.errorMessages.popupBlocked });
+                    return;
+                }
                 myWindow.document.write(that.printContainer.html());
                 myWindow.document.close();
                 myWindow.focus();
@@ -2119,7 +2125,8 @@
                     errorMessages: {
                         notSupported: 'Only pdf files allowed.',
                         parseError: 'PDF file fails to process.',
-                        notFound: 'File is not found.'
+                        notFound: 'File is not found.',
+                        popupBlocked: 'Popup is blocked.'
                     },
                     dialogs: {
                         exportAsDialog: {
@@ -2531,7 +2538,7 @@
             setOptions: function (options) {
                 var that = this;
                 if (options.pdfjsProcessing || options.dplProcessing) {
-                    that._initProcessor();
+                    that._initProcessor(options || {});
                 }
                 options = $.extend(that.options, options);
                 Widget.fn.setOptions.call(that, options);

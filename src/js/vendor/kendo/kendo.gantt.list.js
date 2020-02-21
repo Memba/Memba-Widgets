@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -95,6 +95,7 @@
             iconHidden: 'k-i-none',
             iconPlaceHolder: 'k-icon k-i-none',
             input: 'k-input',
+            textbox: 'k-textbox',
             link: 'k-link',
             resizeHandle: 'k-resize-handle',
             resizeHandleInner: 'k-resize-handle-inner',
@@ -750,7 +751,7 @@
                     holdToDrag: mobileOS,
                     group: 'listGroup',
                     filter: 'tr[data-uid]',
-                    ignore: DOT + listStyles.input,
+                    ignore: DOT + listStyles.input + ', ' + DOT + listStyles.textbox,
                     hint: function (target) {
                         return $('<div class="' + listStyles.header + ' ' + listStyles.dragClue + '"/>').css({
                             width: 300,

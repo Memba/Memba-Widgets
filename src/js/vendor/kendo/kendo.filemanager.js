@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -56,7 +56,11 @@
             },
             _renameTreeViewItem: function (target) {
                 var that = this, uid = target.data('uid'), item = that.filemanager.treeView.widgetComponent.dataSource.getByUid(uid), realItem = that.filemanager.dataSource.get(item.id);
-                that.filemanager._prompt('rename', realItem.name).done(function (newName) {
+                that.filemanager._prompt({
+                    type: 'rename',
+                    defaultInput: realItem.name,
+                    target: target
+                }).done(function (newName) {
                     realItem.set('name', newName);
                 });
             }
@@ -66,24 +70,28 @@
                 Command.fn.init.call(this, options);
             },
             exec: function () {
-                var that = this, target = that.options.target, filemanager = that.filemanager, items = filemanager.getSelected(), viewItem = that.filemanager._view.widgetComponent.dataItem(target);
+                var that = this, target = that.options.target, filemanager = that.filemanager, items = filemanager.getSelected(), viewItem = that.filemanager._view.widgetComponent.dataItem(target), itemsToRemove;
                 if (target && target.is('.k-state-selected') && items && items.length) {
-                    filemanager._confirm('delete').done(function () {
-                        for (var i = 0; i < items.length; i++) {
-                            filemanager.dataSource.remove(items[i]);
-                        }
-                    });
+                    itemsToRemove = items;
                 } else if (target && viewItem) {
-                    filemanager._confirm('delete').done(function () {
-                        filemanager.dataSource.remove(viewItem);
-                    });
+                    itemsToRemove = viewItem;
                 } else if (target) {
                     var uid = target.data('uid');
                     var item = that.filemanager.treeView.widgetComponent.dataSource.getByUid(uid);
                     var realItem = that.filemanager.dataSource.get(item.id);
-                    filemanager._confirm('delete').done(function () {
-                        filemanager.dataSource.remove(realItem);
-                    });
+                    itemsToRemove = realItem;
+                }
+                filemanager._confirm({
+                    type: 'delete',
+                    target: target
+                }).done(function () {
+                    that.removeItems(itemsToRemove);
+                });
+            },
+            removeItems: function (items) {
+                var itemsToRemove = Array.isArray(items) ? items : [items];
+                for (var i = 0; i < itemsToRemove.length; i++) {
+                    this.filemanager.dataSource.remove(itemsToRemove[i]);
                 }
             }
         });
@@ -190,6 +198,7 @@
         });
         extend(kendo.ui, {
             filemanager: {
+                FileManagerCommand: Command,
                 commands: {
                     CreateFolderCommand: CreateFolderCommand,
                     RenameCommand: RenameCommand,
@@ -344,8 +353,8 @@
             },
             defaultOptions: {
                 selectable: kendo.support.mobileOS ? 'row' : 'multiple',
-                template: '<div class=\'k-item\' title=\'#:name##:extension#\'>' + '<div class=\'file-group-icon\'><span class=\'k-icon k-i-#=kendo.getFileGroup(extension, true)#\'></span></div>' + '<div class=\'file-name\'>#:name##:extension#</div>' + '</div>',
-                editTemplate: '<div class=\'k-item\'>' + '<div class=\'file-group-icon\'><span class=\'k-icon k-i-#=kendo.getFileGroup(extension, true)#\'></span></div>' + '<div class=\'file-edit-input\'><input type=\'text\' class=\'k-textbox\' data-bind=\'value:name\' name=\'name\' required=\'required\' /></div>' + '</div>',
+                template: '<div class=\'k-item\' title=\'#:name##:extension#\'>' + '<div class=\'file-group-icon\'><span class=\'k-icon k-i-#= !isDirectory ? kendo.getFileGroup(extension, true) : \'folder\' #\'></span></div>' + '<div class=\'file-name\'>#:name##:extension#</div>' + '</div>',
+                editTemplate: '<div class=\'k-item\'>' + '<div class=\'file-group-icon\'><span class=\'k-icon k-i-#= !isDirectory ? kendo.getFileGroup(extension, true) : \'folder\' #\'></span></div>' + '<div class=\'file-edit-input\'><input type=\'text\' class=\'k-textbox\' data-bind=\'value:name\' name=\'name\' required=\'required\' /></div>' + '</div>',
                 dropFilter: '.k-item',
                 navigatable: true
             },
@@ -376,10 +385,12 @@
             },
             _keydownAction: function (ev) {
                 var that = this, target = $(ev.target).find('.k-state-focused');
-                that.trigger(KEYDOWNACTION, {
-                    target: target,
-                    keyCode: ev.keyCode
-                });
+                if (target.length && !target.is('.k-edit-item')) {
+                    that.trigger(KEYDOWNACTION, {
+                        target: target,
+                        keyCode: ev.keyCode
+                    });
+                }
             },
             _mousedown: function (ev) {
                 var that = this, node = $(ev.target).closest('.k-item');
@@ -458,6 +469,10 @@
                         treeView.remove(item);
                     });
                     treeView.append(items, parentNode);
+                    if (that._shouldFocus) {
+                        treeView.current(parentNode);
+                        treeView.focus();
+                    }
                 } else if (action == 'remove') {
                     this._remove(items[0].id);
                 } else if (action == 'itemchange') {
@@ -469,11 +484,15 @@
                     }
                 } else if (!treeView.dataSource.data().length) {
                     treeView.append(items);
-                } else if (action === 'sync') {
+                } else if (action === 'sync' || action === undefined && !parentNode) {
                     treeView.items().each(function (index, item) {
                         treeView.remove(item);
                     });
                     treeView.append(items);
+                    if (that._shouldFocus) {
+                        treeView.current(treeView._nextVisible($()));
+                        treeView.focus();
+                    }
                 }
             },
             _remove: function (id) {
@@ -557,7 +576,7 @@
                                 field: 'name',
                                 title: messages.nameField || 'Name',
                                 template: function (item) {
-                                    var icon = kendo.getFileGroup(item.extension, true);
+                                    var icon = !item.isDirectory ? kendo.getFileGroup(item.extension, true) : 'folder';
                                     var template = '<div class=\'file-group-icon\'>' + '<span class=\'k-icon k-i-' + icon + '\'></span>' + '</div>' + '<div class=\'file-name\'>' + item.name + item.extension + '<div>';
                                     return template;
                                 }
@@ -596,10 +615,12 @@
                 },
                 _keydownAction: function (ev) {
                     var that = this, target = $(ev.target).find('.k-state-focused').closest('tr');
-                    that.trigger(KEYDOWNACTION, {
-                        target: target,
-                        keyCode: ev.keyCode
-                    });
+                    if (target.length && !target.is('.k-grid-edit-row')) {
+                        that.trigger(KEYDOWNACTION, {
+                            target: target,
+                            keyCode: ev.keyCode
+                        });
+                    }
                 },
                 _keydown: function (ev) {
                     var that = this, grid = that.grid;
@@ -709,7 +730,7 @@
                 ToolBar.fn.init.call(that, element, options);
                 that._attachEvents();
             },
-            events: [ACTION],
+            events: ToolBar.fn.events.concat([ACTION]),
             defaultTools: {
                 createFolder: {
                     type: 'button',
@@ -794,20 +815,20 @@
                     name: 'changeView',
                     buttons: [
                         {
-                            name: 'listView',
+                            name: 'gridView',
                             icon: 'grid-layout',
                             togglable: true,
                             group: 'changeView',
                             command: 'ChangeViewCommand',
-                            options: 'list'
+                            options: 'grid'
                         },
                         {
-                            name: 'gridView',
+                            name: 'listView',
                             icon: 'grid',
                             togglable: true,
                             group: 'changeView',
                             command: 'ChangeViewCommand',
-                            options: 'grid'
+                            options: 'list'
                         }
                     ]
                 },
@@ -1251,7 +1272,7 @@
                     command: 'DeleteCommand'
                 }
             },
-            events: [ACTION],
+            events: ContextMenu.fn.events.concat([ACTION]),
             _extendItems: function () {
                 var that = this, items = that.options.items, item, isBuiltInTool;
                 if (items && items.length) {
@@ -1336,7 +1357,9 @@
             'upload',
             'dialog',
             'switch',
-            'resizable'
+            'resizable',
+            'selectable',
+            'editable'
         ],
         features: [{
                 id: 'filemanager-grid-view',
@@ -1346,7 +1369,7 @@
             }]
     };
     (function ($, undefined) {
-        var ui = kendo.ui, extend = $.extend, isPlainObject = $.isPlainObject, isArray = $.isArray, DataBoundWidget = ui.DataBoundWidget, proxy = $.proxy, template = kendo.template, outerHeight = kendo._outerHeight, NAVIGATE = 'navigate', SELECT = 'select', OPEN = 'open', ERROR = 'error', CHANGE = 'change', UPLOAD = 'upload', SUCCESS = 'success', CLOSE = 'close', LOAD = 'load', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', DROP = 'drop', EXECUTE = 'execute', KEYDOWNACTION = 'keydownAction', TREE_TYPE = 'tree', DOT = '.';
+        var ui = kendo.ui, extend = $.extend, isPlainObject = $.isPlainObject, isArray = $.isArray, DataBoundWidget = ui.DataBoundWidget, proxy = $.proxy, template = kendo.template, outerHeight = kendo._outerHeight, NAVIGATE = 'navigate', SELECT = 'select', OPEN = 'open', ERROR = 'error', CHANGE = 'change', UPLOAD = 'upload', SUCCESS = 'success', CLOSE = 'close', HIDE = 'hide', LOAD = 'load', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', DROP = 'drop', EXECUTE = 'execute', KEYDOWNACTION = 'keydownAction', TREE_TYPE = 'tree', DOT = '.';
         var fileManagerStyles = {
             wrapper: 'k-widget k-filemanager',
             header: 'k-filemanager-header',
@@ -1385,15 +1408,18 @@
             created: 'k-file-created',
             modified: 'k-file-modified'
         };
+        var viewTypes = {
+            grid: 'grid',
+            list: 'list'
+        };
         var NO_FILE_PREVIEW_TEMPLATE = '<p>#= messages.noFileSelected #</p>';
-        var SINGLE_FILES_PREVIEW_TEMPLATE = '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreviewWrapper#">' + '<span class="k-icon k-i-#=kendo.getFileGroup(selection[0].extension, true)#"></span>' + '</div>' + '<div class="#=styles.fileTitleWrapper#">' + '<span class="#=styles.fileTitle#">#=selection[0].name#</span>' + '</div>' + '#if(metaFields){#' + '<dl class="#=styles.fileMetaWrapper#">' + '#for(var i = 0; i < metaFields.length; i+=1){#' + '#var field = metaFields[i]#' + '<dt class="#=styles.metaLabel#">#=messages[field]#: </dt>' + '<dd class="#=styles.metaValue# #=styles[field]#">' + '#if(field == "size"){#' + ' #=kendo.getFileSizeMessage(selection[0][field])#' + '#} else if(selection[0][field] instanceof Date) {#' + ' #=kendo.toString(selection[0][field], "G")#' + '#} else if(field == "extension") {#' + ' #=kendo.getFileGroup(selection[0].extension)#' + '#} else {#' + ' #=selection[0][field]#' + '#}#' + '</dd>' + '<dd class="line-break"></dd>' + '# } #' + '</dl>' + '#}#' + '</div>';
+        var SINGLE_FILES_PREVIEW_TEMPLATE = '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreviewWrapper#">' + '<span class="k-icon k-i-#= !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension, true) : "folder" #"></span>' + '</div>' + '<div class="#=styles.fileTitleWrapper#">' + '<span class="#=styles.fileTitle#">#=selection[0].name#</span>' + '</div>' + '#if(metaFields){#' + '<dl class="#=styles.fileMetaWrapper#">' + '#for(var i = 0; i < metaFields.length; i+=1){#' + '#var field = metaFields[i]#' + '<dt class="#=styles.metaLabel#">#=messages[field]#: </dt>' + '<dd class="#=styles.metaValue# #=styles[field]#">' + '#if(field == "size"){#' + ' #=kendo.getFileSizeMessage(selection[0][field])#' + '#} else if(selection[0][field] instanceof Date) {#' + ' #=kendo.toString(selection[0][field], "G")#' + '#} else if(field == "extension") {#' + ' #= !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension) : "folder"#' + '#} else {#' + ' #=selection[0][field]#' + '#}#' + '</dd>' + '<dd class="line-break"></dd>' + '# } #' + '</dl>' + '#}#' + '</div>';
         var MULTIPLE_FILES_PREVIEW_TEMPLATE = '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreviewWrapper#">' + '<span class="k-icon k-i-file"></span>' + '</div>' + '<div class="#=styles.fileTitleWrapper#">' + '<span class="#=styles.fileTitle#">' + '#=selection.length# ' + '#=messages.items#' + '</span>' + '</div>' + '</div>';
         var FileManager = DataBoundWidget.extend({
             init: function (element, options) {
                 var that = this;
                 DataBoundWidget.fn.init.call(that, element, options);
                 that.options = kendo.deepExtend({}, that.options, options);
-                that._hasUpload = (that.options.uploadUrl || that.options.upload.async && that.options.upload.async.saveUrl) && that.options.upload !== false;
                 that.defaultSortOption = {
                     field: 'name',
                     dir: 'asc'
@@ -1410,9 +1436,7 @@
                 that._renderNavigation();
                 that._renderContent();
                 that._renderPreview();
-                if (that._hasUpload) {
-                    that._initUploadDialog();
-                }
+                that._initUploadDialog();
                 that._resizable();
                 that.resize();
                 kendo.notify(that, kendo.ui);
@@ -1616,6 +1640,7 @@
                     return;
                 }
                 that.contextMenu = new ui.filemanager.ContextMenu('<ul></ul>', menuOptions);
+                that.contextMenu.bind(OPEN, proxy(that._cacheFocus, that));
             },
             _renderNavigation: function () {
                 var that = this;
@@ -1631,10 +1656,10 @@
                 if (options.breadcrumb) {
                     that.content.append(that._initBreadcrumb().element);
                 }
-                if (!toolbar || !toolbar.isToolEnabled(toolbar.defaultTools.upload.name)) {
-                    that.content.append(that._initUpload().wrapper);
-                }
                 that.content.append(that._initView());
+                if (!toolbar || !toolbar.isToolEnabled(toolbar.defaultTools.upload.name)) {
+                    that.content.append(that._initUpload().wrapper.hide());
+                }
                 that.contentContainer.append(that.content);
             },
             _renderPreview: function () {
@@ -1687,7 +1712,10 @@
             _drop: function (ev) {
                 var that = this;
                 if (!that.trigger(DROP, ev) && ev.items.indexOf(ev.target) < 0) {
-                    that._confirm('move').done(function () {
+                    that._confirm({
+                        type: 'move',
+                        target: ev.target
+                    }).done(function () {
                         that.executeCommand({
                             command: 'CopyCommand',
                             options: ev
@@ -1708,35 +1736,61 @@
                         options: { target: ev.target }
                     });
                 }
-                if (keyCode === keys.F2 && that._viewType !== 'grid') {
+                if (keyCode === keys.F2 && that._viewType !== viewTypes.grid) {
                     that.executeCommand({
                         command: 'RenameCommand',
                         options: { target: ev.target }
                     });
                 }
             },
-            _confirm: function (type) {
-                var messages = this.options.messages.dialogs[type + 'Confirm'];
+            _confirm: function (options) {
+                var that = this, messages = that.options.messages.dialogs[options.type + 'Confirm'];
                 var confirm = $('<div></div>').kendoConfirm(extend({}, {
                     title: messages.title,
                     content: messages.content,
                     messages: messages
-                }, this.options.dialogs[type + 'Confirm'])).data('kendoConfirm');
+                }, that.options.dialogs[options.type + 'Confirm'])).data('kendoConfirm');
+                confirm.bind(OPEN, proxy(that._cacheFocus, that));
+                confirm.bind(HIDE, proxy(that._restoreFocus, that, options.target));
                 confirm.open();
                 confirm.wrapper.removeClass('k-confirm');
                 return confirm.result;
             },
-            _prompt: function (type, defaultInput) {
-                var messages = this.options.messages.dialogs[type + 'Prompt'];
+            _prompt: function (options) {
+                var that = this, messages = this.options.messages.dialogs[options.type + 'Prompt'];
                 var prompt = $('<div></div>').kendoPrompt(extend({}, {
                     title: messages.title,
                     content: messages.content,
                     messages: messages,
-                    value: defaultInput
-                }, this.options.dialogs[type + 'Prompt'])).data('kendoPrompt');
+                    value: options.defaultInput
+                }, this.options.dialogs[options.type + 'Prompt'])).data('kendoPrompt');
+                prompt.bind(OPEN, proxy(that._cacheFocus, that));
+                prompt.bind(CLOSE, proxy(that._restoreFocus, that, options.target));
                 prompt.open();
                 prompt.wrapper.removeClass('k-prompt');
                 return prompt.result;
+            },
+            _cacheFocus: function () {
+                var that = this, activeElement = $(document.activeElement), view = that.view(), treeView = that.treeView.widgetComponent;
+                if (that.contextMenu && that.contextMenu.popup.visible()) {
+                    return;
+                }
+                that.treeView._shouldFocus = false;
+                if (treeView.current() && treeView.current().find('.k-state-focused').length || activeElement.hasClass(fileManagerStyles.treeview)) {
+                    that.treeView._shouldFocus = true;
+                }
+                view._focusElement = activeElement.hasClass(fileManagerStyles[that._viewType]) ? activeElement : null;
+            },
+            _restoreFocus: function (target) {
+                var that = this, view = that.view();
+                if (!target) {
+                    return;
+                }
+                if (view._focusElement) {
+                    view._focusElement.focus();
+                } else if (target.closest(':kendoFocusable').length) {
+                    target.closest(':kendoFocusable').focus();
+                }
             },
             _initView: function () {
                 var that = this, viewWrapper = $('<div />').addClass(fileManagerStyles.view), initialView = that.options.initialView;
@@ -1759,7 +1813,7 @@
                 this._navigate({ path: ev.value });
             },
             _initUploadDialog: function () {
-                var that = this, options = that.options, toolbar = that.toolbar, dialogMessages = options.messages.dialogs.upload, dialogElement = $('<div />'), dialogOptions = extend({}, {
+                var that = this, options = that.options, dialogMessages = options.messages.dialogs.upload, dialogElement = $('<div />'), dialogOptions = extend({}, {
                         title: dialogMessages.title,
                         modal: true,
                         visible: false,
@@ -1776,7 +1830,7 @@
                         ],
                         messages: dialogMessages
                     }, options.dialogs.upload), uploadInstance;
-                if (toolbar && !toolbar.isToolEnabled(toolbar.defaultTools.upload.name)) {
+                if (!that._shouldInitUpload()) {
                     return;
                 }
                 uploadInstance = that._initUpload();
@@ -1786,6 +1840,13 @@
                 that.uploadDialog.bind(OPEN, proxy(that._toggleUploadDropZone, that, ''));
                 that.uploadDialog.bind(CLOSE, proxy(that._toggleUploadDropZone, that, that.viewWrapper));
                 return that.uploadDialog;
+            },
+            _shouldInitUpload: function () {
+                var that = this, options = that.options, shouldInit = false;
+                if ((options.uploadUrl || options.upload.async && options.upload.async.saveUrl) && options.upload !== false) {
+                    shouldInit = true;
+                }
+                return shouldInit;
             },
             _initUpload: function () {
                 var that = this, options = that.options, uploadElement = $('<input type=\'file\' name=\'file\'/>').addClass(fileManagerStyles.upload), uploadOptions = extend(true, {
@@ -1971,9 +2032,20 @@
                     targetDataSource.sync();
                 }
                 if (ev.action === 'remove' && that._viewDataSource && that._viewDataSource.parent() && ev.items[0] === that._viewDataSource.parent()) {
-                    var parentNodePath = ev.items[0].parentNode() ? ev.items[0].parentNode().id : '';
-                    that._navigate({ path: parentNodePath });
+                    that._navigateToParent(ev.items[0]);
                 }
+                if (ev.action == 'itemchange' && that._viewDataSource && that._viewDataSource.parent() && that.path().indexOf(ev.items[0].id) >= 0) {
+                    that._navigateToParent(ev.items[0]);
+                }
+                if (ev.action === 'itemchange') {
+                    ev.items[0].loaded(false);
+                }
+            },
+            _navigateToParent: function (item) {
+                var that = this;
+                var parent = item.parentNode();
+                var parentNodePath = parent ? parent.id : '';
+                that._navigate({ path: parentNodePath });
             },
             _buildBreadcrumbPath: function (entry) {
                 var that = this, breadcrumb = that.breadcrumb, values = [];

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -821,13 +821,16 @@
                 clearTimeout(that._typingTimeout);
                 that._typingTimeout = setTimeout(function () {
                     var value = that.text();
-                    if (that._prev !== value) {
+                    if (value !== '' && that._prev !== value) {
                         that._prev = value;
                         if (that.options.filter === 'none' && that.options.virtual) {
                             that.listView.select(-1);
                         }
                         that.search(value);
                         that._toggleCloseVisibility();
+                    } else if (value === '' && that._prev !== '') {
+                        that._clearValue();
+                        that.search('');
                     }
                     that._typingTimeout = null;
                 }, that.options.delay);
@@ -842,7 +845,7 @@
                     wrapper = element.hide().wrap('<span />').parent();
                     wrapper[0].style.cssText = element[0].style.cssText;
                 }
-                that.wrapper = wrapper.addClass('k-widget k-combobox').addClass(element[0].className).css('display', '');
+                that.wrapper = wrapper.addClass('k-widget k-combobox').addClass(element[0].className).removeClass('input-validation-error').css('display', '');
             },
             _clearSelection: function (parent, isFiltered) {
                 var that = this;

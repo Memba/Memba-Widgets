@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -409,6 +409,80 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "timeline": "Tijdlijn"
   }
 });
+}
+
+/* FileManager messages */ 
+
+if (kendo.ui.FileManager) {
+  kendo.ui.FileManager.prototype.options.messages = $.extend(true, kendo.ui.FileManager.prototype.options.messages, {
+    "toolbar": {
+      "createFolder": "Nieuwe map",
+      "upload": "Uploaden",
+      "sortDirection": "Sorteer richting",
+      "sortDirectionAsc": "Sorteer richting oplopend",
+      "sortDirectionDesc": "Sorteer richting aflopend",
+      "sortField": "Sorteren op",
+      "nameField": "Naam",
+      "sizeField": "Bestandsgrootte",
+      "typeField": "Type",
+      "dateModifiedField": "Datum gewijzigd",
+      "dateCreatedField": "Datum gecreeërd",
+      "listView": "Lijstweergave",
+      "gridView": "Rasterweergave",
+      "search" : "zoek",
+      "details": "Details bekijken",
+      "detailsChecked": "Aan",
+      "detailsUnchecked": "Uit",
+      "delete": "Verwijderen",
+      "rename": "Naam wijzigen"
+    },
+    "views": {
+      "nameField": "Naam",
+      "sizeField": "Bestandsgrootte",
+      "typeField": "Type",
+      "dateModifiedField": "Datum gewijzigd",
+      "dateCreatedField": "Datum gecreeërd",
+      "items": "Items"
+    },
+    "dialogs": {
+      "upload": {
+        "title": "Bestanden uploaden",
+        "clear": "Lijst wissen",
+        "done": "Klaar"
+      },
+      "moveConfirm": {
+        "title": "Bevestigen",
+        "content": "<p style = 'text-align: center;'> Wilt u verplaatsen of kopiëren? </p>",
+        "okText": "Kopiëren",
+        "cancel": "Annuleren",
+        "close": "Sluiten"
+      },
+      "deleteConfirm": {
+        "title": "Bevestigen",
+        "content": "<p style = 'text-align: center;'> Weet u zeker dat u de geselecteerde bestanden wilt verwijderen? </br> U kunt deze actie niet ongedaan maken. </p>",
+        "okText": "Verwijderen",
+        "cancel": "Annuleren",
+        "close": "Sluiten"
+      },
+      "renamePrompt": {
+        "title": "Bevestigen",
+        "content": "<p style = 'text-align: center;'> Voer een nieuwe naam in voor het bestand. </p>",
+        "okText": "Naam wijzigen",
+        "cancel": "Annuleren",
+        "close": "Sluiten"
+      }
+    },
+    "previewPane": {
+      "noFileSelected": "Geen bestand geselecteerd",
+      "extension": "Type",
+      "size": "Grootte",
+      "created": "Datum gecreeërd",
+      "createdUtc": "Datum gecreeërd UTC",
+      "modified": "datum gewijzigd",
+      "modifiedUtc": "datum gewijzigd UTC",
+      "items": "items"
+    }
+  });
 }
 
 /* Upload messages */

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1188,7 +1188,7 @@
                     wrapper[0].title = element[0].title;
                     $('<div class="k-multiselect-wrap k-floatwrap" role="listbox" unselectable="on" />').insertBefore(element);
                 }
-                that.wrapper = wrapper.addClass(element[0].className).css('display', '');
+                that.wrapper = wrapper.addClass(element[0].className).removeClass('input-validation-error').css('display', '');
                 that._innerWrapper = $(wrapper[0].firstChild);
             },
             _ariaSetSize: function (value) {

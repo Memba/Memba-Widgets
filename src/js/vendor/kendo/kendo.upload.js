@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -564,7 +564,7 @@
                 allCompletedFiles = $('.k-file-success, .k-file-error', fileList);
                 allInvalidFiles = $('.k-file-invalid', fileList);
                 if (allCompletedFiles.length === allFiles.length || allInvalidFiles.length === allFiles.length) {
-                    this._hideUploadButton();
+                    this._hideActionButtons();
                 }
                 if (allFiles.length === 0) {
                     fileList.remove();
@@ -821,18 +821,22 @@
                     $(this).css('width', '0%');
                 });
             },
-            _showUploadButton: function () {
+            _showActionButtons: function () {
                 var that = this;
+                var actionsWrapper = $('.k-action-buttons', that.wrapper);
                 var uploadButton = $('.k-upload-selected', that.wrapper);
                 var clearButton = $('.k-clear-selected', that.wrapper);
                 if (uploadButton.length === 0) {
-                    uploadButton = that._renderAction('', this.localization.uploadSelectedFiles).addClass('k-upload-selected');
+                    uploadButton = that._renderAction('', this.localization.uploadSelectedFiles).addClass('k-upload-selected').addClass('k-primary');
                     clearButton = that._renderAction('', this.localization.clearSelectedFiles).addClass('k-clear-selected');
                 }
-                this.wrapper.append(clearButton, uploadButton);
+                if (!actionsWrapper.length) {
+                    actionsWrapper = $('<div />').addClass('k-action-buttons').append(clearButton, uploadButton);
+                }
+                this.wrapper.append(actionsWrapper);
             },
-            _hideUploadButton: function () {
-                $('.k-upload-selected, .k-clear-selected', this.wrapper).remove();
+            _hideActionButtons: function () {
+                $('.k-action-buttons', this.wrapper).remove();
             },
             _showHeaderUploadStatus: function (isUploading) {
                 var that = this;
@@ -1075,7 +1079,7 @@
                 } else {
                     upload._fileAction(fileEntry, REMOVE);
                     if (!hasValidationErrors) {
-                        upload._showUploadButton();
+                        upload._showActionButtons();
                     } else {
                         upload._updateHeaderUploadStatus();
                     }
@@ -1118,7 +1122,7 @@
                 var iframe = fileEntry.data('frame');
                 var upload = this.upload;
                 if (!upload.trigger(UPLOAD, e)) {
-                    upload._hideUploadButton();
+                    upload._hideActionButtons();
                     upload._showHeaderUploadStatus(true);
                     iframe.appendTo(document.body);
                     var form = iframe.data('form').attr('action', upload.options.async.saveUrl).appendTo(document.body);
@@ -1291,7 +1295,7 @@
                     } else {
                         upload._fileAction(this, REMOVE);
                         if (!hasValidationErrors) {
-                            upload._showUploadButton();
+                            upload._showActionButtons();
                             this.addClass('k-toupload');
                         } else {
                             upload._updateHeaderUploadStatus();
@@ -1364,7 +1368,7 @@
                         upload._fileAction(fileEntry, CANCEL, upload.options.async.chunkSize);
                     }
                     if (!upload.wrapper.find('.k-toupload').length) {
-                        upload._hideUploadButton();
+                        upload._hideActionButtons();
                     }
                     upload._showHeaderUploadStatus(true);
                     if (e.formData) {

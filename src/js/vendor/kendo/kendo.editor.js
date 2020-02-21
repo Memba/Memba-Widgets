@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -98,7 +98,7 @@
         var EditorUtils = {
             editorWrapperTemplate: '<table cellspacing="4" cellpadding="0" class="k-widget k-editor k-header" role="presentation"><tbody>' + '<tr role="presentation"><td class="k-editor-toolbar-wrap" role="presentation"><ul class="k-editor-toolbar" role="toolbar" /></td></tr>' + '<tr><td class="k-editable-area" /></tr>' + '</tbody></table>',
             buttonTemplate: '# var iconCssClass= "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '<a tabindex="0" role="button" class="k-tool"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #" aria-label="#= data.title #"><span unselectable="on" class="k-tool-icon #= iconCssClass #"></span></a>',
-            tableWizardButtonTemplate: '# var iconCssClass= "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '<a tabindex="0" role="button" class="k-tool"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #"><span unselectable="on" class="k-tool-icon #= iconCssClass #"></span><span class="k-tool-text">#= data.title #</span></a>',
+            tableWizardButtonTemplate: '# var iconCssClass= "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '<a tabindex="0" role="button" class="k-tool k-button"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #"><span unselectable="on" class="k-tool-icon #= iconCssClass #"></span><span class="k-tool-text">#= data.title #</span></a>',
             colorPickerTemplate: '<input class="k-colorpicker k-icon k-i-#= data.cssClass.replace("k-", "") #" />',
             comboBoxTemplate: '<select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #" />',
             dropDownListTemplate: '<span class="k-editor-dropdown"><select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #" /></span>',
@@ -693,6 +693,31 @@
                 }
                 this._initializePlaceholder();
                 this._spellCorrect(editor);
+                this._registerHandler(editor.document, {
+                    'mouseover dragenter': function (e) {
+                        var height = $(editor.body).height();
+                        var htmlHeight = $(editor.body.parentElement).height();
+                        if (htmlHeight > height && e.target.nodeName.toLowerCase() === 'html') {
+                            editor._cachedHeight = '' + editor.body.style.height;
+                            editor.body.style.height = '100%';
+                        }
+                    },
+                    'mouseout dragleave drop contextmenu': function (e) {
+                        var restoreHeight = function () {
+                            if (editor._cachedHeight !== undefined && e.target === editor.body) {
+                                editor.body.style.height = editor._cachedHeight;
+                                delete editor._cachedHeight;
+                            }
+                        };
+                        if (e.type === 'contextmenu') {
+                            setTimeout(function () {
+                                restoreHeight();
+                            }, 10);
+                        } else {
+                            restoreHeight();
+                        }
+                    }
+                });
                 this._registerHandler(editor.body, {
                     'keydown': function (e) {
                         var range;
@@ -8604,7 +8629,7 @@
                     insertNewTable: true
                 });
                 registerTool('tableWizardInsert', tableWizard);
-                var twTool = $('<div class=\'k-editor-toolbar\'>' + tableWizard.options.template.getHtml() + '</div>');
+                var twTool = $('<div>' + tableWizard.options.template.getHtml() + '</div>');
                 twTool.appendTo(popup.element);
                 if (editor.toolbar) {
                     editor.toolbar.attachToolsEvents(twTool);
@@ -10737,6 +10762,7 @@
                 var table = dom.closest(ancestor, 'table');
                 var emptyParagraphContent = editorNS.emptyElementContent;
                 var editor = this.editor;
+                var parentElementOrNode;
                 if (inTable(range)) {
                     var removeTableContent = new RemoveTableContent(editor);
                     removeTableContent.remove(range);
@@ -10780,7 +10806,8 @@
                 }
                 range.collapse(true);
                 editor.selectRange(range);
-                if (dom.isDataNode(start) && !dom.emptyNode(start.parentElement)) {
+                parentElementOrNode = start.parentElement || start.parentNode;
+                if (dom.isDataNode(start) && !dom.emptyNode(parentElementOrNode)) {
                     this._cleanBomBefore(range);
                 }
                 return true;

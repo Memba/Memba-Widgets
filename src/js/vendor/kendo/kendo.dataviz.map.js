@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -689,7 +689,7 @@
             init: function (element, options) {
                 Widget.fn.init.call(this, element, options);
                 this._initOptions(options);
-                this.element.addClass('k-widget k-header k-shadow k-navigator').append(BUTTONS).on('click' + NS, '.k-button', proxy(this, '_click'));
+                this.element.addClass('k-widget k-navigator').append(BUTTONS).on('click' + NS, '.k-button', proxy(this, '_click'));
                 var parentElement = this.element.parent().closest('[' + kendo.attr('role') + ']');
                 this._keyroot = parentElement.length > 0 ? parentElement : this.element;
                 this._tabindex(this._keyroot);
@@ -762,7 +762,7 @@
         var keys = kendo.keys;
         var proxy = $.proxy;
         function button(dir, iconClass) {
-            return kendo.format('<button class="k-button k-zoom-{0}" title="zoom-{0}" aria-label="zoom-{0}"><span class="k-icon {1}"></span></button>', dir, iconClass);
+            return kendo.format('<button class="k-button k-button-icon k-zoom-{0}" title="zoom-{0}" aria-label="zoom-{0}"><span class="k-icon {1}"></span></button>', dir, iconClass);
         }
         var NS = '.kendoZoomControl';
         var BUTTONS = button('in', 'k-i-plus') + button('out', 'k-i-minus');
@@ -774,7 +774,7 @@
             init: function (element, options) {
                 Widget.fn.init.call(this, element, options);
                 this._initOptions(options);
-                this.element.addClass('k-widget k-zoom-control k-button-wrap k-buttons-horizontal k-button-group k-group-horizontal').append(BUTTONS).on('click' + NS, '.k-button', proxy(this, '_click'));
+                this.element.addClass('k-widget k-zoom-control k-button-group k-group-horizontal').append(BUTTONS).on('click' + NS, '.k-button', proxy(this, '_click'));
                 var parentElement = this.element.parent().closest('[' + kendo.attr('role') + ']');
                 this._keyroot = parentElement.length > 0 ? parentElement : this.element;
                 this._tabindex(this._keyroot);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.114 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.1.114'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2020.1.219'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -3432,6 +3432,16 @@
                 $(parent).scrollTop(scrollTopPositions[index]);
             });
         };
+        kendo.focusNextElement = function () {
+            if (document.activeElement) {
+                var focussable = $(':kendoFocusable');
+                var index = focussable.index(document.activeElement);
+                if (index > -1) {
+                    var nextElement = focussable[index + 1] || focussable[0];
+                    nextElement.focus();
+                }
+            }
+        };
         kendo.matchesMedia = function (mediaQuery) {
             var media = kendo._bootstrapToMedia(mediaQuery) || mediaQuery;
             return support.matchMedia && window.matchMedia(media).matches;
@@ -3598,11 +3608,8 @@
             var fileTypeMap = kendo.fileGroupMap;
             var groups = Object.keys(fileTypeMap);
             var type = 'file';
-            if (extension === undefined) {
-                return '';
-            }
-            if (extension === '') {
-                return 'folder';
+            if (extension === undefined || !extension.length) {
+                return type;
             }
             for (var i = 0; i < groups.length; i += 1) {
                 var extensions = fileTypeMap[groups[i]];
@@ -11748,7 +11755,7 @@
                     nonDefaultMessage = kendo.isFunction(customMessage) ? customMessage(input) : customMessage;
                 }
                 customMessage = kendo.isFunction(customMessage) ? customMessage(input) : customMessage;
-                return kendo.format(input.attr(kendo.attr(ruleKey + '-msg')) || input.attr('validationMessage') || nonDefaultMessage || input.attr('title') || customMessage || '', fieldName, input.attr(ruleKey) || input.attr(kendo.attr(ruleKey)));
+                return kendo.format(input.attr(kendo.attr(ruleKey + '-msg')) || input.attr('validationMessage') || nonDefaultMessage || customMessage || input.attr('title') || '', fieldName, input.attr(ruleKey) || input.attr(kendo.attr(ruleKey)));
             },
             _checkValidity: function (input) {
                 var rules = this.options.rules, rule;
@@ -13699,6 +13706,9 @@
                     cancel: proxy(that._cancel, that),
                     select: proxy(that._select, that)
                 });
+                if (kendo.support.touch) {
+                    that.element.find(that.options.filter).css('touch-action', 'none');
+                }
                 that._afterEndHandler = proxy(that._afterEnd, that);
                 that._captureEscape = proxy(that._captureEscape, that);
             },

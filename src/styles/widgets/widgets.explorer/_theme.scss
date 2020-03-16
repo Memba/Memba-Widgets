@@ -2,7 +2,8 @@
     .kj-explorer {
         .k-in {
             em {
-                @include disabled;
+                /* stylelint-disable-next-line at-rule-no-unknown */
+                @include disabled( $disabled-styling );
             }
         }
     }

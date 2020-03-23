@@ -396,7 +396,10 @@ describe('widgets.audiovideo', () => {
                     Math.round(100 * mediaElement.duration * Math.random()) /
                     100;
                 widget.seek(seek);
-                expect(mediaElement.currentTime).to.equal(seek);
+                expect(
+                    // Avoid Uncaught AssertionError: expected 4.139999 to equal 4.14
+                    Math.round(100 * mediaElement.currentTime) / 100
+                ).to.equal(seek);
                 done();
             }, TTL);
         });

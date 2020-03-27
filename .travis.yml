@@ -2,11 +2,10 @@ sudo: false
 dist: trusty
 language: node_js
 node_js:
+  - "13"
   - "12"
   - "11"
   - "10"
-  - "9"
-  - "8"
 addons:
   chrome: stable
 before_install:

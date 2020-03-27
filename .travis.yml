@@ -1,11 +1,13 @@
 sudo: false
-dist: trusty
+# dist: xenial
 language: node_js
 node_js:
   - "13"
   - "12"
   - "11"
   - "10"
+env:
+    - NODE_ENV=test FORCE_COLOR=true
 addons:
   chrome: stable
 before_install:

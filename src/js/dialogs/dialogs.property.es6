@@ -6,17 +6,20 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.core';
+import 'kendo.data';
 import 'kendo.validator';
 import './widgets.basedialog.es6';
+import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import optimizeEditor from '../tools/util.editors.es6';
 
 const {
     bind,
+    data: { Model },
+    deepExtend,
     resize,
     template,
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 const NOTIFICATION =
@@ -31,6 +34,29 @@ const CONTENT =
  */
 function openPropertyDialog(options = {}) {
     const dfd = $.Deferred();
+
+    assert.type(
+        CONSTANTS.STRING,
+        options.field,
+        assert.format(
+            assert.messages.type.default,
+            'options.field',
+            CONSTANTS.STRING
+        )
+    );
+    assert.instanceof(
+        Model,
+        options.model,
+        assert.format(
+            assert.messages.instanceof.default,
+            'options.model',
+            'kendo.data.Model'
+        )
+    );
+    assert.isPlainObject(
+        options.row,
+        assert.format(assert.messages.isPlainObject.default, 'options.row')
+    );
 
     // Find or create the DOM element
     const $dialog = BaseDialog.getElement(options.cssClass);
@@ -53,8 +79,8 @@ function openPropertyDialog(options = {}) {
                 maxlength: field.validation.maxlength, // See http://docs.telerik.com/kendo-ui/aspnet-mvc/helpers/editor/how-to/add-max-length-validation
                 step: field.validation.step,
                 pattern: field.validation.pattern,
-                type: field.validation.type
-            }
+                type: field.validation.type,
+            },
         });
     }
 
@@ -69,20 +95,21 @@ function openPropertyDialog(options = {}) {
             content: options.row.help
                 ? template(NOTIFICATION)(options.row) + CONTENT
                 : CONTENT,
-            data: options.model.clone(),
+            // data: options.model.clone(),
+            data: deepExtend({}, options.model),
             actions: [
                 BaseDialog.fn.options.messages.actions.ok,
-                BaseDialog.fn.options.messages.actions.cancel
+                BaseDialog.fn.options.messages.actions.cancel,
             ],
             width: 500,
-            ...options
+            ...options,
         })
         .data('kendoBaseDialog');
 
     // Build rules
     const rules = {};
     if ($.isPlainObject(field.validation)) {
-        Object.keys(field.validation).forEach(key => {
+        Object.keys(field.validation).forEach((key) => {
             if ($.isFunction(field.validation[key])) {
                 rules[key] = field.validation[key];
             }
@@ -96,7 +123,7 @@ function openPropertyDialog(options = {}) {
         .data('kendoValidator');
 
     dialog.unbind(CONSTANTS.INITOPEN);
-    dialog.one(CONSTANTS.INITOPEN, e => {
+    dialog.one(CONSTANTS.INITOPEN, (e) => {
         // Add editor
         const { row } = options;
         row.model = e.sender.viewModel;
@@ -107,19 +134,19 @@ function openPropertyDialog(options = {}) {
     });
 
     // Bind the show event to resize once opened
-    dialog.one(CONSTANTS.SHOW, e => {
+    dialog.one(CONSTANTS.SHOW, (e) => {
         resize(e.sender.element);
     });
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, (e) => {
         if (
             e.action === BaseDialog.fn.options.messages.actions.cancel.action ||
             validator.validate()
         ) {
             dfd.resolve({
                 action: e.action,
-                data: e.sender.viewModel.toJSON()
+                data: e.sender.viewModel.toJSON(),
             });
         } else {
             e.preventDefault();

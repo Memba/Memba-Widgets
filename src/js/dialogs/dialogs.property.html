@@ -20,9 +20,32 @@
             SystemJS.import('./dialogs.property.es6').then(function (module) {
                 var openPropertyDialog = module.default;
                 var kendo = window.kendo;
+                var Person = kendo.data.Model.extend({
+                    id: 'lastName',
+                    fields: {
+                        firstName: {
+                            type: 'string'
+                        },
+                        lastName: {
+                            type: 'string'
+                        }
+                    }
+                });
                 $(function () {
                     $('#button1').click(function (e) {
-                        openPropertyDialog().then(function(result) {
+                        openPropertyDialog({
+                            field: 'firstName',
+                            model: new Person({
+                                firstName: 'Joe',
+                                lastName: 'Bloggs'
+                            }),
+                            row: {
+                                field: 'firstName',
+                                help: 'Please type some text',
+                                title: 'First name' // Field label
+                            },
+                            title: 'First Name' // Dialog title
+                        }).then(function(result) {
                             $("#console1").append(
                                 kendo.format(
                                     '<div>action `{0}` with data `{1}` at {2}</div>',

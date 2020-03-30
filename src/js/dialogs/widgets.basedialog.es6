@@ -18,6 +18,7 @@ import Logger from '../common/window.logger.es6';
 
 const {
     bind,
+    // deepExtend,
     destroy,
     htmlEncode,
     observable,
@@ -172,6 +173,8 @@ const BaseDialog = Dialog.extend({
      */
     _initViewModel() {
         if (this.options.data) {
+            // We need a copy of data so as to cancel dialog
+            // this.viewModel = observable(deepExtend({}, this.options.data));
             this.viewModel = observable(this.options.data);
             this.one(CONSTANTS.INITOPEN, e => {
                 bind(e.sender.element.children(), e.sender.viewModel);

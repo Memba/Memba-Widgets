@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1992,6 +1992,7 @@
             },
             _wire: function () {
                 var that = this, options = that.options, target = that.target;
+                that._preventProxy = null;
                 that._showProxy = proxy(that._showHandler, that);
                 that._closeProxy = proxy(that._closeHandler, that);
                 that._closeTimeoutProxy = proxy(that.close, that);
@@ -2001,14 +2002,15 @@
                             filter: options.filter,
                             allowSelection: false
                         });
-                        target.on(options.showOn + NS + that._marker, false);
+                        that._preventProxy = function () {
+                            return false;
+                        };
                         that.userEvents.bind('hold', that._showProxy);
+                    }
+                    if (options.filter) {
+                        target.on(options.showOn + NS + that._marker, options.filter, that._preventProxy || that._showProxy);
                     } else {
-                        if (options.filter) {
-                            target.on(options.showOn + NS + that._marker, options.filter, that._showProxy);
-                        } else {
-                            target.on(options.showOn + NS + that._marker, that._showProxy);
-                        }
+                        target.on(options.showOn + NS + that._marker, that._preventProxy || that._showProxy);
                     }
                 }
             },

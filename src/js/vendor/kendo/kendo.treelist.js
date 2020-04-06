@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -284,7 +284,7 @@
                 className: 'k-grid-pdf',
                 methodName: 'saveAsPDF'
             },
-            search: { template: '<span class=\'k-textbox k-grid-search k-display-flex\'>' + '<input autocomplete=\'off\' placeholder=\'' + '#= messages.search #' + '\' title=\'' + '#= messages.search #' + '\' class=\'k-input\' />' + '<span class=\'k-input-icon\'><span class=\'k-icon k-i-search\'></span></span>' + '</span>' }
+            search: { template: '<span class=\'k-textbox k-grid-search k-display-flex\'>' + '<input autocomplete=\'off\' placeholder=\'' + '#= message #' + '\' title=\'' + '#= message #' + '\' class=\'k-input\' />' + '<span class=\'k-input-icon\'><span class=\'k-icon k-i-search\'></span></span>' + '</span>' }
         };
         var TreeView = kendo.Class.extend({
             init: function (data, options) {
@@ -2170,7 +2170,6 @@
                     loading: 'Loading...',
                     requestFailed: 'Request failed.',
                     retry: 'Retry',
-                    search: 'Search...',
                     commands: {
                         edit: 'Edit',
                         update: 'Update',
@@ -2179,7 +2178,8 @@
                         createchild: 'Add child record',
                         destroy: 'Delete',
                         excel: 'Export to Excel',
-                        pdf: 'Export to PDF'
+                        pdf: 'Export to PDF',
+                        search: 'Search...'
                     }
                 },
                 excel: { hierarchy: true },
@@ -3340,6 +3340,7 @@
                 var data = that._dataToRender(options);
                 var level = that._renderedModelLevel(data[0], options);
                 var uidAttr = kendo.attr('uid');
+                var hasFooterTemplate;
                 var selected = this.select().removeClass('k-state-selected').map(function (_, row) {
                     return $(row).attr(uidAttr);
                 });
@@ -3365,6 +3366,7 @@
                         viewChildrenMap = that._viewChildrenMap(options);
                     }
                     this._hideStatus();
+                    hasFooterTemplate = this._hasFooterTemplate();
                     this._contentTree.render(this._trs({
                         columns: leafColumns(nonLockedColumns(this.columns)),
                         editedColumn: options.editedColumn,
@@ -3374,6 +3376,7 @@
                         data: data,
                         childrenMap: childrenMap,
                         viewChildrenMap: viewChildrenMap,
+                        hasFooterTemplate: hasFooterTemplate,
                         visible: true,
                         level: 0
                     }));
@@ -3388,6 +3391,7 @@
                             data: data,
                             childrenMap: childrenMap,
                             viewChildrenMap: viewChildrenMap,
+                            hasFooterTemplate: hasFooterTemplate,
                             visible: true,
                             level: level
                         }));
@@ -3862,12 +3866,13 @@
                             visible: pageable ? options.visible : options.visible && !!model.expanded,
                             data: childNodes,
                             childrenMap: options.childrenMap || childrenMap,
+                            hasFooterTemplate: options.hasFooterTemplate,
                             viewChildrenMap: options.viewChildrenMap,
                             level: level + 1
                         }));
                     }
                 }
-                if (this._hasFooterTemplate() && model) {
+                if (options.hasFooterTemplate && model) {
                     attr = {
                         className: classNames.footerTemplate,
                         'data-parentId': model[parentIdField]
@@ -3907,7 +3912,7 @@
                 return kendoDomElement('td', attr, content);
             },
             _hasFooterTemplate: function () {
-                return !!grep(this.columns, function (c) {
+                return !!grep(leafColumns(this.columns), function (c) {
                     return c.footerTemplate;
                 }).length;
             },
@@ -4092,7 +4097,7 @@
                     }));
                 }
                 if (command.template) {
-                    return kendoHtmlElement(kendo.template(command.template)({ messages: this.options.messages }));
+                    return kendoHtmlElement(kendo.template(command.template)({ message: command.text || this.options.messages.commands.search }));
                 } else {
                     return this._button(command, name, icon);
                 }
@@ -4245,7 +4250,7 @@
             _adjustLockedHorizontalScrollBar: function () {
                 var table = this.table, content = table.parent();
                 var scrollbar = table[0].offsetWidth > content[0].clientWidth ? kendo.support.scrollbar() : 0;
-                this.lockedContent.height(content.height() - scrollbar);
+                this.lockedContent.height(outerHeight(content) - scrollbar);
             },
             _syncLockedContentHeight: function () {
                 if (this.lockedTable) {

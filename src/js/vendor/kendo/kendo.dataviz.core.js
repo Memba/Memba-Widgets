@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3392,7 +3392,7 @@
                 return '';
             },
             clone: function () {
-                var copy = new CategoryAxis($.extend({}, this.options), this.chartService);
+                var copy = new CategoryAxis($.extend({}, this.options, { categories: this.options.srcCategories }), this.chartService);
                 copy.createLabels();
                 return copy;
             },
@@ -4893,8 +4893,9 @@
                 this.intlService = intlService;
                 this.seriesMin = min;
                 this.seriesMax = max;
-                this.totalMin = toTime(floorDate(toTime(min) - 1, options.baseUnit));
-                this.totalMax = toTime(ceilDate(toTime(max) + 1, options.baseUnit));
+                var weekStartDay = options.weekStartDay || 0;
+                this.totalMin = toTime(floorDate(toTime(min) - 1, options.baseUnit, weekStartDay));
+                this.totalMax = toTime(ceilDate(toTime(max) + 1, options.baseUnit, weekStartDay));
             },
             clone: function () {
                 return new DateValueAxis(this.seriesMin, this.seriesMax, $.extend({}, this.options), this.chartService);
@@ -4921,9 +4922,10 @@
                 var timeRange = dateDiff(options.max, options.min);
                 var lineSize = vertical ? lineBox.height() : lineBox.width();
                 var scale = lineSize / timeRange;
+                var weekStartDay = options.weekStartDay || 0;
                 var positions = [start];
                 for (var i = 1; i < divisions; i++) {
-                    var date = addDuration(options.min, i * step, options.baseUnit);
+                    var date = addDuration(options.min, i * step, options.baseUnit, weekStartDay);
                     var pos = start + dateDiff(date, options.min) * scale * dir;
                     positions.push(round(pos, COORD_PRECISION));
                 }
@@ -4948,9 +4950,10 @@
             createAxisLabel: function (index, labelOptions) {
                 var options = this.options;
                 var offset = index * options.majorUnit;
+                var weekStartDay = options.weekStartDay || 0;
                 var date = options.min;
                 if (offset > 0) {
-                    date = addDuration(date, offset, options.baseUnit);
+                    date = addDuration(date, offset, options.baseUnit, weekStartDay);
                 }
                 var unitFormat = labelOptions.dateFormats[options.baseUnit];
                 labelOptions.format = labelOptions.format || unitFormat;
@@ -4960,7 +4963,7 @@
             translateRange: function (delta, exact) {
                 var options = this.options;
                 var baseUnit = options.baseUnit;
-                var weekStartDay = options.weekStartDay;
+                var weekStartDay = options.weekStartDay || 0;
                 var lineBox = this.lineBox();
                 var size = options.vertical ? lineBox.height() : lineBox.width();
                 var range = this.range();
@@ -5051,8 +5054,9 @@
             var max = options.max || seriesMax;
             var baseUnit = options.baseUnit || (max && min ? timeUnits(absoluteDateDiff(max, min)) : HOURS);
             var baseUnitTime = TIME_PER_UNIT[baseUnit];
-            var autoMin = floorDate(toTime(min) - 1, baseUnit) || toDate(max);
-            var autoMax = ceilDate(toTime(max) + 1, baseUnit);
+            var weekStartDay = options.weekStartDay || 0;
+            var autoMin = floorDate(toTime(min) - 1, baseUnit, weekStartDay) || toDate(max);
+            var autoMax = ceilDate(toTime(max) + 1, baseUnit, weekStartDay);
             var userMajorUnit = options.majorUnit ? options.majorUnit : undefined;
             var majorUnit = userMajorUnit || ceil(autoMajorUnit(autoMin.getTime(), autoMax.getTime()), baseUnitTime) / baseUnitTime;
             var actualUnits = duration(autoMin, autoMax, baseUnit);
@@ -5064,8 +5068,8 @@
                 delete options.baseUnit;
             }
             options.baseUnit = options.baseUnit || baseUnit;
-            options.min = options.min || addDuration(autoMin, -head, baseUnit);
-            options.max = options.max || addDuration(autoMax, tail, baseUnit);
+            options.min = options.min || addDuration(autoMin, -head, baseUnit, weekStartDay);
+            options.max = options.max || addDuration(autoMax, tail, baseUnit, weekStartDay);
             options.minorUnit = options.minorUnit || majorUnit / 5;
             options.majorUnit = majorUnit;
             return options;

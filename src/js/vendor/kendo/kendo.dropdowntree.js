@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -209,6 +209,9 @@
                     that._checkboxChange({ target: checkbox });
                     target = focused;
                 } else if (e.altKey && key === keys.UP || key === keys.ESC) {
+                    that._closePopup();
+                } else if (key === keys.TAB) {
+                    e.preventDefault();
                     that._closePopup();
                 }
                 if (target) {
@@ -878,6 +881,7 @@
             },
             _clearClick: function (e) {
                 e.stopPropagation();
+                this.wrapper.focus();
                 this._clearTextAndValue();
             },
             _clearTextAndValue: function () {
@@ -1201,9 +1205,7 @@
             _changeCheckAll: function () {
                 var checkAllCheckbox = this.checkAll.find('.k-checkbox');
                 var isChecked = checkAllCheckbox.prop('checked');
-                if (!browser.msie && !browser.edge) {
-                    this._updateCheckAll(isChecked);
-                }
+                this._updateCheckAll(isChecked);
             },
             _updateCheckAll: function (isChecked) {
                 var checkAllCheckbox = this.checkAll.find('.k-checkbox');
@@ -1224,7 +1226,7 @@
             _keydownCheckAll: function (e) {
                 var key = e.keyCode;
                 var altKey = e.altKey;
-                if (altKey && key === keys.UP || key === keys.ESC) {
+                if (altKey && key === keys.UP || key === keys.ESC || key === keys.TAB) {
                     this.close();
                     this.wrapper.focus();
                     e.preventDefault();
@@ -1532,10 +1534,16 @@
                             this._search();
                         }
                     }
+                    if (key === keys.TAB) {
+                        this.close();
+                        this.wrapper.focus();
+                        e.preventDefault();
+                        return;
+                    }
                 }
                 if (altKey && key === keys.UP || key === keys.ESC) {
-                    this.wrapper.focus();
                     this.close();
+                    this.wrapper.focus();
                     e.preventDefault();
                     return;
                 }
@@ -1559,6 +1567,11 @@
                     } else if (this.tree.is(':visible')) {
                         this.tree.focus();
                     }
+                    e.preventDefault();
+                }
+                if (key === keys.TAB && isPopupVisible) {
+                    this.close();
+                    this.wrapper.focus();
                     e.preventDefault();
                 }
             },

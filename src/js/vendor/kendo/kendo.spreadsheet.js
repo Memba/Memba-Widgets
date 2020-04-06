@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -8463,7 +8463,9 @@
                                         break;
                                     }
                                 }
-                                ref = newRef;
+                                if (newRef && newRef !== kendo.spreadsheet.NULLREF) {
+                                    ref = newRef;
+                                }
                             }
                             this.activeCell(ref.first());
                         }
@@ -26654,7 +26656,7 @@
                         merge: { spriteCssClass: spriteCssClass },
                         freeze: { spriteCssClass: spriteCssClass }
                     };
-                    var tool = $.extend({
+                    var tool = kendo.deepExtend({
                         name: options.name || toolName,
                         text: MESSAGES[options.name || toolName],
                         icon: options.iconClass,

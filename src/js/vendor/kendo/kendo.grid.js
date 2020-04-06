@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -668,6 +668,10 @@
                 text: 'Export to PDF',
                 className: 'k-grid-pdf',
                 iconClass: 'k-icon k-i-file-pdf'
+            },
+            search: {
+                text: 'Search...',
+                className: 'k-grid-search'
             }
         };
         function cursor(context, value) {
@@ -1592,9 +1596,9 @@
                         update: defaultCommands.update.text,
                         canceledit: defaultCommands.canceledit.text,
                         excel: defaultCommands.excel.text,
-                        pdf: defaultCommands.pdf.text
+                        pdf: defaultCommands.pdf.text,
+                        search: defaultCommands.search.text
                     },
-                    search: 'Search...',
                     noRecords: NORECORDS,
                     expandCollapseColumnHeader: '',
                     groupHeader: 'Press ctrl + space to group',
@@ -1837,6 +1841,16 @@
                 var indicatorWidth = that.options.columnResizeHandleWidth;
                 var scrollable = that.options.scrollable;
                 var resizeHandle = that.resizeHandle;
+                var halfResizeHandle = indicatorWidth * 3 / 2;
+                var rtlCorrection = 0;
+                var headerWrap;
+                var ieCorrection;
+                var webkitCorrection;
+                var firefoxCorrection;
+                var leftMargin;
+                var invisibleSpace;
+                var leftBorderWidth;
+                var scrollLeft;
                 var left;
                 var top;
                 if (resizeHandle && that.lockedContent && resizeHandle.data('th')[0] !== th[0]) {
@@ -1847,21 +1861,29 @@
                     resizeHandle = that.resizeHandle = $('<div class="k-resize-handle"><div class="k-resize-handle-inner"></div></div>');
                     container.append(resizeHandle);
                 }
-                left = th.offset().left + container.scrollLeft() - parseFloat(th.css('marginLeft')) - (container.offset().left + parseFloat(container.css('borderLeftWidth')));
+                scrollLeft = container.scrollLeft();
+                leftBorderWidth = parseFloat(container.css('borderLeftWidth'));
+                left = th.offset().left + scrollLeft - parseFloat(th.css('marginLeft')) - (container.offset().left + leftBorderWidth);
                 if (!isRtl) {
                     left += th[0].offsetWidth;
                 } else {
                     if (scrollable) {
-                        var headerWrap = th.closest('.k-grid-header-wrap, .k-grid-header-locked'), ieCorrection = browser.msie ? headerWrap.scrollLeft() : 0, webkitCorrection = browser.webkit ? headerWrap[0].scrollWidth - headerWrap[0].offsetWidth - headerWrap.scrollLeft() : 0, firefoxCorrection = browser.mozilla ? headerWrap[0].scrollWidth - headerWrap[0].offsetWidth - (headerWrap[0].scrollWidth - headerWrap[0].offsetWidth - headerWrap.scrollLeft()) : 0;
-                        left -= webkitCorrection - firefoxCorrection + ieCorrection;
+                        rtlCorrection = left <= scrollLeft ? halfResizeHandle : 0;
+                        headerWrap = th.closest('.k-grid-header-wrap, .k-grid-header-locked');
+                        invisibleSpace = headerWrap[0].scrollWidth - headerWrap[0].offsetWidth;
+                        leftMargin = parseFloat(headerWrap.css('marginLeft'));
+                        ieCorrection = browser.msie ? 2 * headerWrap.scrollLeft() + leftBorderWidth - leftMargin - rtlCorrection : 0;
+                        webkitCorrection = browser.webkit ? invisibleSpace - rtlCorrection - leftMargin + leftBorderWidth : 0;
+                        firefoxCorrection = browser.mozilla ? leftBorderWidth - leftMargin - rtlCorrection : 0;
+                        left -= webkitCorrection + firefoxCorrection + ieCorrection;
                     }
                 }
                 top = th.offset().top - parseFloat(th.css('marginTop')) - (container.offset().top + parseFloat(container.css('borderTopWidth')));
                 resizeHandle.css({
                     top: top,
-                    left: left - indicatorWidth * 3 / 2,
+                    left: left - halfResizeHandle,
                     height: outerHeight(th),
-                    width: indicatorWidth * 3
+                    width: indicatorWidth * 3 - rtlCorrection
                 }).data('th', th).show();
                 resizeHandle.off('dblclick' + NS).on('dblclick' + NS, function () {
                     that._autoFitLeafColumn(parseInt(th.attr(kendo.attr('index')), 10));
@@ -3570,13 +3592,17 @@
                 }
             },
             _toolbarTmpl: function (commands) {
-                var that = this, idx, length, html = '', command;
+                var that = this, idx, length, html = '', command, searchText = '', messages = that.options.messages.commands;
                 if (isArray(commands)) {
                     for (idx = 0, length = commands.length; idx < length; idx++) {
                         command = typeof commands[idx] === 'string' ? commands[idx].toLowerCase() : (commands[idx].name || '').toLowerCase();
                         if (command === 'search') {
+                            if (typeof commands[idx] !== 'string') {
+                                searchText = commands[idx].text;
+                            }
+                            searchText = searchText || messages.search;
                             html += '<span class=\'k-textbox k-grid-search k-display-flex\'>';
-                            html += '<input autocomplete=\'off\' placeholder=\'' + that.options.messages.search + '\' title=\'' + that.options.messages.search + '\' class=\'k-input\' />';
+                            html += '<input autocomplete=\'off\' placeholder=\'' + searchText + '\' title=\'' + searchText + '\' class=\'k-input\' />';
                             html += '<span class=\'k-input-icon\'><span class=\'k-icon k-i-search\'></span></span>';
                             html += '</span>';
                         } else {
@@ -6276,7 +6302,7 @@
                     return c.hidden ? 0 : parseInt(c.width, 10);
                 });
                 var scrollLeft = that.virtualScrollable ? that.content.find('>.k-virtual-scrollable-wrap').scrollLeft() : that.content.scrollLeft();
-                var tableWidth = parseInt(that.options.width || that.wrapper.width(), 10);
+                var tableWidth = outerWidth(that.content);
                 var sumOfWidths = sumWidths(columns);
                 var colsToRender = [];
                 var firstColspan = 0;

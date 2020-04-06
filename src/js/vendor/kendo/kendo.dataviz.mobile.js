@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.1.219'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2020.1.406'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -19626,7 +19626,7 @@
             var base = document.getElementsByTagName('base')[0];
             var href = document.location.href;
             var url = '';
-            if (base && !supportBrowser.msie) {
+            if (base && !(supportBrowser || {}).msie) {
                 var hashIndex = href.indexOf('#');
                 if (hashIndex !== -1) {
                     href = href.substring(0, hashIndex);
@@ -20827,9 +20827,10 @@
         NODE_MAP$2.Group = GroupNode$2;
         var FRAME_DELAY = 1000 / 60;
         var RootNode$2 = GroupNode$2.extend({
-            init: function (canvas) {
+            init: function (canvas, size) {
                 GroupNode$2.fn.init.call(this);
                 this.canvas = canvas;
+                this.size = size;
                 this.ctx = canvas.getContext('2d');
                 var invalidateHandler = this._invalidate.bind(this);
                 this.invalidate = kendo.throttle(function () {
@@ -20845,10 +20846,23 @@
                 this.loadElements(elements, pos, cors);
                 this._invalidate();
             },
+            _rescale: function () {
+                var ref = this;
+                var canvas = ref.canvas;
+                var size = ref.size;
+                var scale = 1;
+                if (typeof window.devicePixelRatio === 'number') {
+                    scale = window.devicePixelRatio;
+                }
+                canvas.width = size.width * scale;
+                canvas.height = size.height * scale;
+                this.ctx.scale(scale, scale);
+            },
             _invalidate: function () {
                 if (!this.ctx) {
                     return;
                 }
+                this._rescale();
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 this.renderTo(this.ctx);
             }
@@ -21203,7 +21217,7 @@
                 canvas.width = size.width;
                 canvas.height = size.height;
                 this._rootElement = canvas;
-                this._root = new RootNode$2(canvas);
+                this._root = new RootNode$2(canvas, size);
                 this._mouseTrackHandler = this._trackMouse.bind(this);
                 bindEvents(this.element, {
                     click: this._mouseTrackHandler,
@@ -21298,6 +21312,7 @@
             _resize: function () {
                 this._rootElement.width = this._size.width;
                 this._rootElement.height = this._size.height;
+                this._root.size = this._size;
                 this._root.invalidate();
             },
             _template: function () {
@@ -21621,7 +21636,7 @@
             }
             return createPromise().resolve(svg);
         }
-        var browser = supportBrowser;
+        var browser = supportBrowser || {};
         function slice$1(thing) {
             return Array.prototype.slice.call(thing);
         }
@@ -21718,7 +21733,9 @@
                         } else if (/^(?:input|select|textarea|option)$/i.test(el.tagName)) {
                             clone.removeAttribute('id');
                             clone.removeAttribute('name');
-                            clone.value = el.value;
+                            if (!/^textarea$/i.test(el.tagName)) {
+                                clone.value = el.value;
+                            }
                             clone.checked = el.checked;
                             clone.selected = el.selected;
                         }
@@ -21750,7 +21767,9 @@
                     slice$1(clone.querySelectorAll('input, select, textarea, option')).forEach(function (el, i) {
                         el.removeAttribute('id');
                         el.removeAttribute('name');
-                        el.value = orig[i].value;
+                        if (!/^textarea$/i.test(el.tagName)) {
+                            el.value = orig[i].value;
+                        }
                         el.checked = orig[i].checked;
                         el.selected = orig[i].selected;
                     });
@@ -27956,7 +27975,7 @@
                 return '';
             },
             clone: function () {
-                var copy = new CategoryAxis($.extend({}, this.options), this.chartService);
+                var copy = new CategoryAxis($.extend({}, this.options, { categories: this.options.srcCategories }), this.chartService);
                 copy.createLabels();
                 return copy;
             },
@@ -29457,8 +29476,9 @@
                 this.intlService = intlService;
                 this.seriesMin = min;
                 this.seriesMax = max;
-                this.totalMin = toTime(floorDate(toTime(min) - 1, options.baseUnit));
-                this.totalMax = toTime(ceilDate(toTime(max) + 1, options.baseUnit));
+                var weekStartDay = options.weekStartDay || 0;
+                this.totalMin = toTime(floorDate(toTime(min) - 1, options.baseUnit, weekStartDay));
+                this.totalMax = toTime(ceilDate(toTime(max) + 1, options.baseUnit, weekStartDay));
             },
             clone: function () {
                 return new DateValueAxis(this.seriesMin, this.seriesMax, $.extend({}, this.options), this.chartService);
@@ -29485,9 +29505,10 @@
                 var timeRange = dateDiff(options.max, options.min);
                 var lineSize = vertical ? lineBox.height() : lineBox.width();
                 var scale = lineSize / timeRange;
+                var weekStartDay = options.weekStartDay || 0;
                 var positions = [start];
                 for (var i = 1; i < divisions; i++) {
-                    var date = addDuration(options.min, i * step, options.baseUnit);
+                    var date = addDuration(options.min, i * step, options.baseUnit, weekStartDay);
                     var pos = start + dateDiff(date, options.min) * scale * dir;
                     positions.push(round(pos, COORD_PRECISION));
                 }
@@ -29512,9 +29533,10 @@
             createAxisLabel: function (index, labelOptions) {
                 var options = this.options;
                 var offset = index * options.majorUnit;
+                var weekStartDay = options.weekStartDay || 0;
                 var date = options.min;
                 if (offset > 0) {
-                    date = addDuration(date, offset, options.baseUnit);
+                    date = addDuration(date, offset, options.baseUnit, weekStartDay);
                 }
                 var unitFormat = labelOptions.dateFormats[options.baseUnit];
                 labelOptions.format = labelOptions.format || unitFormat;
@@ -29524,7 +29546,7 @@
             translateRange: function (delta, exact) {
                 var options = this.options;
                 var baseUnit = options.baseUnit;
-                var weekStartDay = options.weekStartDay;
+                var weekStartDay = options.weekStartDay || 0;
                 var lineBox = this.lineBox();
                 var size = options.vertical ? lineBox.height() : lineBox.width();
                 var range = this.range();
@@ -29615,8 +29637,9 @@
             var max = options.max || seriesMax;
             var baseUnit = options.baseUnit || (max && min ? timeUnits(absoluteDateDiff(max, min)) : HOURS);
             var baseUnitTime = TIME_PER_UNIT[baseUnit];
-            var autoMin = floorDate(toTime(min) - 1, baseUnit) || toDate(max);
-            var autoMax = ceilDate(toTime(max) + 1, baseUnit);
+            var weekStartDay = options.weekStartDay || 0;
+            var autoMin = floorDate(toTime(min) - 1, baseUnit, weekStartDay) || toDate(max);
+            var autoMax = ceilDate(toTime(max) + 1, baseUnit, weekStartDay);
             var userMajorUnit = options.majorUnit ? options.majorUnit : undefined;
             var majorUnit = userMajorUnit || ceil(autoMajorUnit(autoMin.getTime(), autoMax.getTime()), baseUnitTime) / baseUnitTime;
             var actualUnits = duration(autoMin, autoMax, baseUnit);
@@ -29628,8 +29651,8 @@
                 delete options.baseUnit;
             }
             options.baseUnit = options.baseUnit || baseUnit;
-            options.min = options.min || addDuration(autoMin, -head, baseUnit);
-            options.max = options.max || addDuration(autoMax, tail, baseUnit);
+            options.min = options.min || addDuration(autoMin, -head, baseUnit, weekStartDay);
+            options.max = options.max || addDuration(autoMax, tail, baseUnit, weekStartDay);
             options.minorUnit = options.minorUnit || majorUnit / 5;
             options.majorUnit = majorUnit;
             return options;
@@ -38582,6 +38605,7 @@
                 this.series = series;
                 this.initSeries();
                 this.charts = [];
+                this.options.legend = this.options.legend || {};
                 this.options.legend.items = [];
                 this.axes = [];
                 this.crosshairs = [];
@@ -39308,12 +39332,19 @@
                 return labelAxis;
             }
         });
+        function isSingleAxis(axis) {
+            return !axis.pane.axes.some(function (a) {
+                return a.options.vertical === axis.options.vertical && a !== axis && a.options.visible !== false;
+            });
+        }
         function axisGroupBox(axes) {
             var length = axes.length;
             var box;
-            if (length > 0) {
-                for (var i = 0; i < length; i++) {
-                    var axisBox = axes[i].contentBox();
+            for (var i = 0; i < length; i++) {
+                var axis = axes[i];
+                var visible = axis.options.visible !== false;
+                if (visible || isSingleAxis(axis)) {
+                    var axisBox = visible ? axis.contentBox() : axis.lineBox();
                     if (!box) {
                         box = axisBox.clone();
                     } else {
@@ -41042,7 +41073,7 @@
                 for (var idx = 0; idx < axes.length; idx++) {
                     var axis = axes[idx];
                     var vertical = axis.options.vertical;
-                    if (!(lock === X && !vertical) && !(lock === Y && vertical)) {
+                    if (!(lock === X && !vertical) && !(lock === Y && vertical) && defined(axis.axisIndex)) {
                         var range = axis.pointsRange(start, end);
                         if (range) {
                             axisRanges.push({
@@ -41111,7 +41142,7 @@
                 for (var idx = 0; idx < axes.length; idx++) {
                     var axis = axes[idx];
                     var vertical = axis.options.vertical;
-                    if (!(lock === X && !vertical) && !(lock === Y && vertical)) {
+                    if (!(lock === X && !vertical) && !(lock === Y && vertical) && axis.zoomRange) {
                         var range = axis.zoomRange(-delta);
                         if (range) {
                             axisRanges.push({
@@ -41126,8 +41157,8 @@
             },
             zoom: function () {
                 var axisRanges = this.axisRanges;
-                if (axisRanges && axisRanges.length) {
-                    var plotArea = this.chart._plotArea;
+                var plotArea = this.chart._plotArea;
+                if (axisRanges && axisRanges.length && plotArea.updateAxisOptions) {
                     for (var idx = 0; idx < axisRanges.length; idx++) {
                         var axisRange = axisRanges[idx];
                         plotArea.updateAxisOptions(axisRange.axis, axisRange.range);
@@ -41533,7 +41564,8 @@
                 this.categoryAxis = categoryAxis;
                 this._dateAxis = this.categoryAxis instanceof dataviz.DateCategoryAxis;
                 this.initOptions();
-                if (this.options.visible) {
+                this.visible = this.options.visible && chartElement.offsetHeight;
+                if (this.visible) {
                     this.createElements();
                     this.set(this._index(this.options.from), this._index(this.options.to));
                     this.bindEvents();
@@ -42799,6 +42831,7 @@
                 var leftSideLabels = [];
                 var rightSideLabels = [];
                 var padding = valueOrDefault(options.padding, defaultPadding);
+                this.targetBox = targetBox;
                 padding = padding > halfMinWidth - space ? halfMinWidth - space : padding;
                 newBox.translate(boxCenter.x - newBoxCenter.x, boxCenter.y - newBoxCenter.y);
                 var radius = halfMinWidth - padding;
@@ -43007,6 +43040,27 @@
                     }
                 }
             },
+            renderVisual: function () {
+                ChartElement.fn.renderVisual.call(this);
+                if (this.options.series.find(function (options) {
+                        return options.autoFit;
+                    })) {
+                    var targetBox = this.targetBox;
+                    var pieCenter = this.box.center();
+                    var bbox = this.visual.bbox();
+                    if (!bbox) {
+                        return;
+                    }
+                    var bboxBottom = bbox.bottomRight();
+                    var scale = Math.min((pieCenter.y - targetBox.y1) / (pieCenter.y - bbox.origin.y), (targetBox.y2 - pieCenter.y) / (bboxBottom.y - pieCenter.y), (pieCenter.x - targetBox.x1) / (pieCenter.x - bbox.origin.x), (targetBox.x2 - pieCenter.x) / (bboxBottom.x - pieCenter.x));
+                    if (scale < 1) {
+                        this.visual.transform(transform().scale(scale, scale, [
+                            pieCenter.x,
+                            pieCenter.y
+                        ]));
+                    }
+                }
+            },
             labelComparator: function (reverse) {
                 var reverseValue = reverse ? -1 : 1;
                 return function (a, b) {
@@ -43034,6 +43088,9 @@
             },
             animationDelay: function (categoryIndex) {
                 return categoryIndex * PIE_SECTOR_ANIM_DELAY;
+            },
+            stackRoot: function () {
+                return this;
             }
         });
         function intersection(a1, a2, b1, b2) {
@@ -43059,6 +43116,7 @@
             }
         });
         deepExtend(PieChart.prototype, PieChartMixin);
+        PieChart.prototype.isStackRoot = true;
         var PiePlotArea = PlotAreaBase.extend({
             render: function () {
                 this.createPieChart(this.series);
@@ -44374,10 +44432,16 @@
             resize: function (force) {
                 var size = this.getSize();
                 var currentSize = this._size;
-                if (force || (size.width > 0 || size.height > 0) && (!currentSize || size.width !== currentSize.width || size.height !== currentSize.height)) {
+                var hasSize = size.width > 0 || size.height > 0;
+                if (force || hasSize && (!currentSize || size.width !== currentSize.width || size.height !== currentSize.height)) {
                     this._size = size;
                     this._resize(size, force);
                     this.trigger('resize', size);
+                } else if (hasSize && this._selections && this._selections.find(function (s) {
+                        return !s.visible;
+                    })) {
+                    this._destroySelections();
+                    this._setupSelection();
                 }
             },
             _resize: function () {
@@ -44478,7 +44542,7 @@
             _initSurface: function () {
                 var surface = this.surface;
                 var wrap = this._surfaceWrap();
-                var chartArea = this.options.chartArea;
+                var chartArea = this.options.chartArea || {};
                 if (chartArea.width) {
                     dataviz.elementSize(wrap, { width: chartArea.width });
                 }
@@ -44561,7 +44625,7 @@
                 return visual;
             },
             _sharedTooltip: function () {
-                return this._plotArea instanceof CategoricalPlotArea && this.options.tooltip.shared;
+                return this._plotArea instanceof CategoricalPlotArea && this.options.tooltip && this.options.tooltip.shared;
             },
             _createPannable: function () {
                 var options = this.options;
@@ -44659,7 +44723,7 @@
                 model.chart = this;
                 model._plotArea = plotArea;
                 dataviz.Title.buildTitle(options.title, model);
-                if (options.legend.visible) {
+                if (options.legend && options.legend.visible) {
                     model.append(new Legend(plotArea.options.legend, this.chartService));
                 }
                 model.append(plotArea);
@@ -45382,7 +45446,7 @@
             _noTransitionsRedraw: function () {
                 var options = this.options;
                 var transitionsState;
-                if (options.transitions) {
+                if (options.transitions !== false) {
                     options.transitions = false;
                     transitionsState = true;
                 }
@@ -45478,20 +45542,22 @@
                     this.surface = null;
                 }
             },
-            _destroyView: function () {
-                var ref = this;
-                var model = ref._model;
-                var selections = ref._selections;
-                if (model) {
-                    model.destroy();
-                    this._model = null;
-                }
+            _destroySelections: function () {
+                var selections = this._selections;
                 if (selections) {
                     while (selections.length > 0) {
                         selections.shift().destroy();
                     }
                 }
+            },
+            _destroyView: function () {
+                var model = this._model;
+                if (model) {
+                    model.destroy();
+                    this._model = null;
+                }
                 this._unsetActivePoint();
+                this._destroySelections();
                 if (this._tooltip) {
                     this._tooltip.destroy();
                 }
@@ -54852,6 +54918,12 @@
                 var coords = this._eventCoordinates(e);
                 var pane = this._plotArea.paneByPoint(coords);
                 return Chart.fn._stopChartHandlers.call(this, e) || pane && pane.options.name === NAVIGATOR_PANE;
+            },
+            _toggleDragZoomEvents: function () {
+                if (!this._dragZoomEnabled) {
+                    this.element.style.touchAction = 'none';
+                    this._dragZoomEnabled = true;
+                }
             }
         });
         dataviz.setDefaultOptions(StockChart, {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1432,6 +1432,26 @@
                 return new Subfont(this);
             }
         };
+        var fromCharCode = String.fromCharCode;
+        var BOM = 'þÿ';
+        function encodeUnit(codeUnit) {
+            return fromCharCode(codeUnit >> 8) + fromCharCode(codeUnit & 255);
+        }
+        function encodeUTF16BE(input) {
+            var output = '';
+            for (var i = 0; i < input.length; i++) {
+                var c = input.charCodeAt(i);
+                if (c < 65535) {
+                    output += encodeUnit(c);
+                } else {
+                    var lead = (c - 65536 >> 10) + 55296;
+                    var trail = (c - 65536 & 1023) + 56320;
+                    output += encodeUnit(lead);
+                    output += encodeUnit(trail);
+                }
+            }
+            return output;
+        }
         var browser = kendo.support.browser;
         var NL = '\n';
         var RESOURCE_COUNTER = 0;
@@ -1764,12 +1784,12 @@
             }
             catalog.setPages(pageTree);
             var info = self.attach(new PDFDictionary({
-                Producer: new PDFString(getOption('producer', 'Kendo UI PDF Generator')),
-                Title: new PDFString(getOption('title', '')),
-                Author: new PDFString(getOption('author', '')),
-                Subject: new PDFString(getOption('subject', '')),
-                Keywords: new PDFString(getOption('keywords', '')),
-                Creator: new PDFString(getOption('creator', 'Kendo UI PDF Generator')),
+                Producer: new PDFString(getOption('producer', 'Kendo UI PDF Generator'), true),
+                Title: new PDFString(getOption('title', ''), true),
+                Author: new PDFString(getOption('author', ''), true),
+                Subject: new PDFString(getOption('subject', ''), true),
+                Keywords: new PDFString(getOption('keywords', ''), true),
+                Creator: new PDFString(getOption('creator', 'Kendo UI PDF Generator'), true),
                 CreationDate: getOption('date', new Date())
             }));
             self.addPage = function (options) {
@@ -2189,15 +2209,19 @@
             }
             return Ctor;
         }
-        var PDFString = defclass(function PDFString(value) {
+        var PDFString = defclass(function PDFString(value, utf16be) {
             this.value = value;
+            this.utf16be = Boolean(utf16be);
         }, {
             render: function (out) {
-                var txt = '', val = this.value;
-                for (var i = 0; i < val.length; ++i) {
-                    txt += String.fromCharCode(val.charCodeAt(i) & 255);
+                var txt = this.value;
+                if (txt.length > 0) {
+                    txt = this.value.replace(/([\(\)\\])/g, '\\$1');
+                    if (this.utf16be) {
+                        txt = BOM + encodeUTF16BE(txt);
+                    }
                 }
-                out('(', txt.replace(/([\(\)\\])/g, '\\$1'), ')');
+                out('(', txt, ')');
             },
             toString: function () {
                 return this.value;

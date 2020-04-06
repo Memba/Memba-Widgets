@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -830,6 +830,12 @@
                 var coords = this._eventCoordinates(e);
                 var pane = this._plotArea.paneByPoint(coords);
                 return Chart.fn._stopChartHandlers.call(this, e) || pane && pane.options.name === NAVIGATOR_PANE;
+            },
+            _toggleDragZoomEvents: function () {
+                if (!this._dragZoomEnabled) {
+                    this.element.style.touchAction = 'none';
+                    this._dragZoomEnabled = true;
+                }
             }
         });
         dataviz.setDefaultOptions(StockChart, {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3831,7 +3831,7 @@
             var base = document.getElementsByTagName('base')[0];
             var href = document.location.href;
             var url = '';
-            if (base && !supportBrowser.msie) {
+            if (base && !(supportBrowser || {}).msie) {
                 var hashIndex = href.indexOf('#');
                 if (hashIndex !== -1) {
                     href = href.substring(0, hashIndex);
@@ -5032,9 +5032,10 @@
         NODE_MAP$2.Group = GroupNode$2;
         var FRAME_DELAY = 1000 / 60;
         var RootNode$2 = GroupNode$2.extend({
-            init: function (canvas) {
+            init: function (canvas, size) {
                 GroupNode$2.fn.init.call(this);
                 this.canvas = canvas;
+                this.size = size;
                 this.ctx = canvas.getContext('2d');
                 var invalidateHandler = this._invalidate.bind(this);
                 this.invalidate = kendo.throttle(function () {
@@ -5050,10 +5051,23 @@
                 this.loadElements(elements, pos, cors);
                 this._invalidate();
             },
+            _rescale: function () {
+                var ref = this;
+                var canvas = ref.canvas;
+                var size = ref.size;
+                var scale = 1;
+                if (typeof window.devicePixelRatio === 'number') {
+                    scale = window.devicePixelRatio;
+                }
+                canvas.width = size.width * scale;
+                canvas.height = size.height * scale;
+                this.ctx.scale(scale, scale);
+            },
             _invalidate: function () {
                 if (!this.ctx) {
                     return;
                 }
+                this._rescale();
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 this.renderTo(this.ctx);
             }
@@ -5408,7 +5422,7 @@
                 canvas.width = size.width;
                 canvas.height = size.height;
                 this._rootElement = canvas;
-                this._root = new RootNode$2(canvas);
+                this._root = new RootNode$2(canvas, size);
                 this._mouseTrackHandler = this._trackMouse.bind(this);
                 bindEvents(this.element, {
                     click: this._mouseTrackHandler,
@@ -5503,6 +5517,7 @@
             _resize: function () {
                 this._rootElement.width = this._size.width;
                 this._rootElement.height = this._size.height;
+                this._root.size = this._size;
                 this._root.invalidate();
             },
             _template: function () {
@@ -5826,7 +5841,7 @@
             }
             return createPromise().resolve(svg);
         }
-        var browser = supportBrowser;
+        var browser = supportBrowser || {};
         function slice$1(thing) {
             return Array.prototype.slice.call(thing);
         }
@@ -5923,7 +5938,9 @@
                         } else if (/^(?:input|select|textarea|option)$/i.test(el.tagName)) {
                             clone.removeAttribute('id');
                             clone.removeAttribute('name');
-                            clone.value = el.value;
+                            if (!/^textarea$/i.test(el.tagName)) {
+                                clone.value = el.value;
+                            }
                             clone.checked = el.checked;
                             clone.selected = el.selected;
                         }
@@ -5955,7 +5972,9 @@
                     slice$1(clone.querySelectorAll('input, select, textarea, option')).forEach(function (el, i) {
                         el.removeAttribute('id');
                         el.removeAttribute('name');
-                        el.value = orig[i].value;
+                        if (!/^textarea$/i.test(el.tagName)) {
+                            el.value = orig[i].value;
+                        }
                         el.checked = orig[i].checked;
                         el.selected = orig[i].selected;
                     });

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -4849,6 +4849,7 @@
                 this.series = series;
                 this.initSeries();
                 this.charts = [];
+                this.options.legend = this.options.legend || {};
                 this.options.legend.items = [];
                 this.axes = [];
                 this.crosshairs = [];
@@ -5575,12 +5576,19 @@
                 return labelAxis;
             }
         });
+        function isSingleAxis(axis) {
+            return !axis.pane.axes.some(function (a) {
+                return a.options.vertical === axis.options.vertical && a !== axis && a.options.visible !== false;
+            });
+        }
         function axisGroupBox(axes) {
             var length = axes.length;
             var box;
-            if (length > 0) {
-                for (var i = 0; i < length; i++) {
-                    var axisBox = axes[i].contentBox();
+            for (var i = 0; i < length; i++) {
+                var axis = axes[i];
+                var visible = axis.options.visible !== false;
+                if (visible || isSingleAxis(axis)) {
+                    var axisBox = visible ? axis.contentBox() : axis.lineBox();
                     if (!box) {
                         box = axisBox.clone();
                     } else {
@@ -7309,7 +7317,7 @@
                 for (var idx = 0; idx < axes.length; idx++) {
                     var axis = axes[idx];
                     var vertical = axis.options.vertical;
-                    if (!(lock === X && !vertical) && !(lock === Y && vertical)) {
+                    if (!(lock === X && !vertical) && !(lock === Y && vertical) && defined(axis.axisIndex)) {
                         var range = axis.pointsRange(start, end);
                         if (range) {
                             axisRanges.push({
@@ -7378,7 +7386,7 @@
                 for (var idx = 0; idx < axes.length; idx++) {
                     var axis = axes[idx];
                     var vertical = axis.options.vertical;
-                    if (!(lock === X && !vertical) && !(lock === Y && vertical)) {
+                    if (!(lock === X && !vertical) && !(lock === Y && vertical) && axis.zoomRange) {
                         var range = axis.zoomRange(-delta);
                         if (range) {
                             axisRanges.push({
@@ -7393,8 +7401,8 @@
             },
             zoom: function () {
                 var axisRanges = this.axisRanges;
-                if (axisRanges && axisRanges.length) {
-                    var plotArea = this.chart._plotArea;
+                var plotArea = this.chart._plotArea;
+                if (axisRanges && axisRanges.length && plotArea.updateAxisOptions) {
                     for (var idx = 0; idx < axisRanges.length; idx++) {
                         var axisRange = axisRanges[idx];
                         plotArea.updateAxisOptions(axisRange.axis, axisRange.range);
@@ -7800,7 +7808,8 @@
                 this.categoryAxis = categoryAxis;
                 this._dateAxis = this.categoryAxis instanceof dataviz.DateCategoryAxis;
                 this.initOptions();
-                if (this.options.visible) {
+                this.visible = this.options.visible && chartElement.offsetHeight;
+                if (this.visible) {
                     this.createElements();
                     this.set(this._index(this.options.from), this._index(this.options.to));
                     this.bindEvents();
@@ -9066,6 +9075,7 @@
                 var leftSideLabels = [];
                 var rightSideLabels = [];
                 var padding = valueOrDefault(options.padding, defaultPadding);
+                this.targetBox = targetBox;
                 padding = padding > halfMinWidth - space ? halfMinWidth - space : padding;
                 newBox.translate(boxCenter.x - newBoxCenter.x, boxCenter.y - newBoxCenter.y);
                 var radius = halfMinWidth - padding;
@@ -9274,6 +9284,27 @@
                     }
                 }
             },
+            renderVisual: function () {
+                ChartElement.fn.renderVisual.call(this);
+                if (this.options.series.find(function (options) {
+                        return options.autoFit;
+                    })) {
+                    var targetBox = this.targetBox;
+                    var pieCenter = this.box.center();
+                    var bbox = this.visual.bbox();
+                    if (!bbox) {
+                        return;
+                    }
+                    var bboxBottom = bbox.bottomRight();
+                    var scale = Math.min((pieCenter.y - targetBox.y1) / (pieCenter.y - bbox.origin.y), (targetBox.y2 - pieCenter.y) / (bboxBottom.y - pieCenter.y), (pieCenter.x - targetBox.x1) / (pieCenter.x - bbox.origin.x), (targetBox.x2 - pieCenter.x) / (bboxBottom.x - pieCenter.x));
+                    if (scale < 1) {
+                        this.visual.transform(transform().scale(scale, scale, [
+                            pieCenter.x,
+                            pieCenter.y
+                        ]));
+                    }
+                }
+            },
             labelComparator: function (reverse) {
                 var reverseValue = reverse ? -1 : 1;
                 return function (a, b) {
@@ -9301,6 +9332,9 @@
             },
             animationDelay: function (categoryIndex) {
                 return categoryIndex * PIE_SECTOR_ANIM_DELAY;
+            },
+            stackRoot: function () {
+                return this;
             }
         });
         function intersection(a1, a2, b1, b2) {
@@ -9326,6 +9360,7 @@
             }
         });
         deepExtend(PieChart.prototype, PieChartMixin);
+        PieChart.prototype.isStackRoot = true;
         var PiePlotArea = PlotAreaBase.extend({
             render: function () {
                 this.createPieChart(this.series);
@@ -10641,10 +10676,16 @@
             resize: function (force) {
                 var size = this.getSize();
                 var currentSize = this._size;
-                if (force || (size.width > 0 || size.height > 0) && (!currentSize || size.width !== currentSize.width || size.height !== currentSize.height)) {
+                var hasSize = size.width > 0 || size.height > 0;
+                if (force || hasSize && (!currentSize || size.width !== currentSize.width || size.height !== currentSize.height)) {
                     this._size = size;
                     this._resize(size, force);
                     this.trigger('resize', size);
+                } else if (hasSize && this._selections && this._selections.find(function (s) {
+                        return !s.visible;
+                    })) {
+                    this._destroySelections();
+                    this._setupSelection();
                 }
             },
             _resize: function () {
@@ -10745,7 +10786,7 @@
             _initSurface: function () {
                 var surface = this.surface;
                 var wrap = this._surfaceWrap();
-                var chartArea = this.options.chartArea;
+                var chartArea = this.options.chartArea || {};
                 if (chartArea.width) {
                     dataviz.elementSize(wrap, { width: chartArea.width });
                 }
@@ -10828,7 +10869,7 @@
                 return visual;
             },
             _sharedTooltip: function () {
-                return this._plotArea instanceof CategoricalPlotArea && this.options.tooltip.shared;
+                return this._plotArea instanceof CategoricalPlotArea && this.options.tooltip && this.options.tooltip.shared;
             },
             _createPannable: function () {
                 var options = this.options;
@@ -10926,7 +10967,7 @@
                 model.chart = this;
                 model._plotArea = plotArea;
                 dataviz.Title.buildTitle(options.title, model);
-                if (options.legend.visible) {
+                if (options.legend && options.legend.visible) {
                     model.append(new Legend(plotArea.options.legend, this.chartService));
                 }
                 model.append(plotArea);
@@ -11649,7 +11690,7 @@
             _noTransitionsRedraw: function () {
                 var options = this.options;
                 var transitionsState;
-                if (options.transitions) {
+                if (options.transitions !== false) {
                     options.transitions = false;
                     transitionsState = true;
                 }
@@ -11745,20 +11786,22 @@
                     this.surface = null;
                 }
             },
-            _destroyView: function () {
-                var ref = this;
-                var model = ref._model;
-                var selections = ref._selections;
-                if (model) {
-                    model.destroy();
-                    this._model = null;
-                }
+            _destroySelections: function () {
+                var selections = this._selections;
                 if (selections) {
                     while (selections.length > 0) {
                         selections.shift().destroy();
                     }
                 }
+            },
+            _destroyView: function () {
+                var model = this._model;
+                if (model) {
+                    model.destroy();
+                    this._model = null;
+                }
                 this._unsetActivePoint();
+                this._destroySelections();
                 if (this._tooltip) {
                     this._tooltip.destroy();
                 }

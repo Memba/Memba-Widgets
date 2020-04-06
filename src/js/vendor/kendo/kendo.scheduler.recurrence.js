@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.219 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -212,20 +212,37 @@
                     return changed;
                 },
                 weekDays: function (date, end, rule) {
+                    var offsetDate = new Date(date.getTime() + rule.offsets.start);
+                    var normalizeDay = offsetDate.getDay() - date.getDay();
                     var weekDays = rule.weekDays;
                     var weekStart = rule.weekStart;
-                    var weekDayRules = ruleWeekValues(weekDays, date, weekStart);
+                    var weekDayRules = ruleWeekValues(weekDays, offsetDate, weekStart);
                     var hours = date.getHours();
+                    var traverseRuleForNextMont = function (rule) {
+                        var nextMonthFirstDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+                        var ruleDay = normalizeDayIndex(rule.day, weekStart);
+                        if (nextMonthFirstDay.getDay() <= ruleDay) {
+                            if (!weekDayRule || normalizeDayIndex(weekDayRule.day, weekStart) > ruleDay) {
+                                weekDayRule = rule;
+                            }
+                        }
+                    };
                     var weekDayRule, day;
                     if (weekDayRules === null) {
                         return false;
                     }
                     weekDayRule = weekDayRules[0];
                     if (!weekDayRule) {
-                        weekDayRule = weekDays[0];
+                        if (!rule.positions || rule.position > 0) {
+                            weekDays.forEach(traverseRuleForNextMont);
+                        }
+                        if (!weekDayRule) {
+                            weekDayRule = weekDays[0];
+                        }
                         setDayOfWeek(date, weekStart);
                     }
                     day = weekDayRule.day;
+                    day -= normalizeDay;
                     if (weekDayRule.offset) {
                         while (date <= end && !isInWeek(date, weekDayRule, weekStart)) {
                             if (weekInMonth(date, weekStart) === numberOfWeeks(date, weekStart)) {
@@ -852,7 +869,11 @@
             return events;
         }
         function expand(event, start, end, zone) {
-            var rule = parseRule(event.recurrenceRule, zone), startTime, endTime, endDate, hours, minutes, seconds, durationMS, startPeriod, inPeriod, ruleStart, ruleEnd, useEventStart, freqName, exceptionDates, eventStartTime, eventStartMS, eventStart, count, freq, positions, currentIdx, periodEvents, events = [], shiftedStart, shiftedEnd, shiftedStartTime, shifterEndTime;
+            var rule, startTime, endTime, endDate, hours, minutes, seconds, durationMS, startPeriod, inPeriod, ruleStart, ruleEnd, useEventStart, freqName, exceptionDates, eventStartTime, eventStartMS, eventStart, count, freq, positions, currentIdx, periodEvents, events = [], shiftedStart, shiftedEnd, shiftedStartTime, shifterEndTime;
+            rule = parseRule(event.recurrenceRule, zone, {
+                start: (getZoneOffset(event.start, zone) - getZoneOffset(event.start, event.startTimezone)) * kendo.date.MS_PER_MINUTE,
+                end: (getZoneOffset(event.end, zone) - getZoneOffset(event.end, event.endTimezone)) * kendo.date.MS_PER_MINUTE
+            });
             if (!rule) {
                 return [event];
             }
@@ -914,6 +935,7 @@
                 rule._endPeriod = endPeriodByFreq(start, rule);
             }
             durationMS = event.duration();
+            var allDayCompensation = event.isAllDay ? 86400000 : 0;
             rule._startTime = startTime = kendoDate.toInvariantTime(start);
             if (freq.setup) {
                 freq.setup(rule, eventStart, start);
@@ -922,14 +944,16 @@
             while (start <= end) {
                 endDate = new Date(start);
                 setTime(endDate, durationMS);
-                inPeriod = start >= startPeriod || endDate > startPeriod;
+                var inPeriodCheckEndDate = new Date(start);
+                setTime(inPeriodCheckEndDate, durationMS + allDayCompensation);
+                inPeriod = start >= startPeriod || inPeriodCheckEndDate > startPeriod;
                 if (inPeriod && !isException(exceptionDates, start, zone) || positions) {
                     startTime = kendoDate.toUtcTime(kendoDate.getDate(start)) + getMilliseconds(rule._startTime);
                     endTime = startTime + durationMS;
                     if (eventStartMS !== start.getTime() || eventStartTime !== getMilliseconds(rule._startTime)) {
+                        var startZone = event.startTimezone || event.endTimezone;
+                        var endZone = event.endTimezone || event.startTimezone;
                         if (!event.isAllDay) {
-                            var startZone = event.startTimezone || event.endTimezone;
-                            var endZone = event.endTimezone || event.startTimezone;
                             if (zone && startZone || !zone && !startZone) {
                                 var startOffsetDiff = getZoneOffset(start, zone) - getZoneOffset(event.start, zone);
                                 var endOffsetDiff = getZoneOffset(endDate, zone) - getZoneOffset(event.end, zone);
@@ -1032,7 +1056,7 @@
                 };
             }
         }
-        function parseRule(recur, zone) {
+        function parseRule(recur, zone, offsets) {
             var instance = {};
             var splits, value;
             var idx = 0, length;
@@ -1168,6 +1192,7 @@
                 instance.positions = null;
             }
             instance._hasRuleValue = ruleValue;
+            instance.offsets = offsets;
             return instance;
         }
         function serializeDateRule(dateRule, zone) {

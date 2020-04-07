@@ -1,5 +1,5 @@
 /*!
- * modernizr v3.9.1
+ * modernizr v3.10.0
  * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-filesystem-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
  *
  * Copyright (c)
@@ -23,7 +23,7 @@
  * of control over the experience.
 */
 
-;(function(window, document, undefined){
+;(function(scriptGlobalObject, window, document, undefined){
 
   var tests = [];
   
@@ -36,7 +36,7 @@
    */
   var ModernizrProto = {
     // The current version, dummy
-    _version: '3.9.1',
+    _version: '3.10.0',
 
     // Any settings that don't work as separate modules
     // can go in here as configuration.
@@ -913,11 +913,11 @@ Modernizr.video.ogg     // 'probably'
    *   elem.style.WebkitBorderRadius
    * instead of something like the following (which is technically incorrect):
    *   elem.style.webkitBorderRadius
-
+   *
    * WebKit ghosts their properties in lowercase but Opera & Moz do not.
    * Microsoft uses a lowercase `ms` instead of the correct `Ms` in IE8+
    *   erik.eae.net/archives/2008/03/10/21.48.10/
-
+   *
    * More here: github.com/Modernizr/Modernizr/issues/issue/21
    *
    * @access private
@@ -1034,7 +1034,7 @@ Modernizr.video.ogg     // 'probably'
    *
    * @access private
    * @function nativeTestProps
-   * @param {array} props - An array of property names
+   * @param {Array} props - An array of property names
    * @param {string} value - A string representing the value we want to check via @supports
    * @returns {boolean|undefined} A boolean when @supports exists, undefined otherwise
    */
@@ -1206,7 +1206,7 @@ Modernizr.video.ogg     // 'probably'
    * @access private
    * @function fnBind
    * @param {Function} fn - a function you want to change `this` reference to
-   * @param {Object} that - the `this` you want to call the function with
+   * @param {object} that - the `this` you want to call the function with
    * @returns {Function} The wrapped version of the supplied function
    */
   function fnBind(fn, that) {
@@ -1224,9 +1224,9 @@ Modernizr.video.ogg     // 'probably'
    * @access private
    * @function testDOMProps
    * @param {Array<string>} props - An array of properties to test for
-   * @param {Object} obj - An object or Element you want to use to test the parameters again
-   * @param {boolean|Object} elem - An Element to bind the property lookup again. Use `false` to prevent the check
-   * @returns {false|*} returns false if the prop is unsupported, otherwise the value that is supported
+   * @param {object} obj - An object or Element you want to use to test the parameters again
+   * @param {boolean|object} elem - An Element to bind the property lookup again. Use `false` to prevent the check
+   * @returns {boolean|*} returns `false` if the prop is unsupported, otherwise the value that is supported
    */
   function testDOMProps(props, obj, elem) {
     var item;
@@ -1265,11 +1265,11 @@ Modernizr.video.ogg     // 'probably'
    * @access private
    * @function testPropsAll
    * @param {string} prop - A string of the property to test for
-   * @param {string|Object} [prefixed] - An object to check the prefixed properties on. Use a string to skip
+   * @param {string|object} [prefixed] - An object to check the prefixed properties on. Use a string to skip
    * @param {HTMLElement|SVGElement} [elem] - An element used to test the property and value against
    * @param {string} [value] - A string of a css value
    * @param {boolean} [skipValueTest] - An boolean representing if you want to test if value sticks when set
-   * @returns {false|string} returns the string version of the property, or false if it is unsupported
+   * @returns {string|boolean} returns the string version of the property, or `false` if it is unsupported
    */
   function testPropsAll(prop, prefixed, elem, value, skipValueTest) {
 
@@ -1308,7 +1308,7 @@ Modernizr.video.ogg     // 'probably'
    * @param {string} prop - String naming the property to test (either camelCase or kebab-case)
    * @param {string} [value] - String of the value to test
    * @param {boolean} [skipValueTest=false] - Whether to skip testing that the value is supported when using non-native detection
-   * @returns {false|string} returns the string version of the property, or false if it is unsupported
+   * @returns {string|boolean} returns the string version of the property, or `false` if it is unsupported
    * @example
    *
    * testAllProps determines whether a given CSS property, in some prefixed form,
@@ -1477,9 +1477,9 @@ to be the File object's prototype.)
    * @access public
    * @function prefixed
    * @param {string} prop - String name of the property to test for
-   * @param {Object} [obj] - An object to test for the prefixed properties on
+   * @param {object} [obj] - An object to test for the prefixed properties on
    * @param {HTMLElement} [elem] - An element used to test specific properties against
-   * @returns {string|false} The string representing the (possibly prefixed) valid
+   * @returns {string|boolean} The string representing the (possibly prefixed) valid
    * version of the property, or `false` when it is unsupported.
    * @example
    *
@@ -1835,11 +1835,11 @@ Tests for XHR2.
    * @optionProp addTest
    * @access public
    * @function addTest
-   * @param {string|Object} feature - The string name of the feature detect, or an
+   * @param {string|object} feature - The string name of the feature detect, or an
    * object of feature detect names and test
    * @param {Function|boolean} test - Function returning true if feature is supported,
    * false if not. Otherwise a boolean representing the results of a feature detection
-   * @returns {Object} the Modernizr object to allow chaining
+   * @returns {object} the Modernizr object to allow chaining
    * @example
    *
    * The most common way of creating your own feature detects is by calling
@@ -2161,9 +2161,9 @@ Detects support for the basic `Worker` API from the Web Workers spec. Web Worker
   }
 
   // Leak Modernizr namespace
-  window.Modernizr = Modernizr;
+  scriptGlobalObject.Modernizr = Modernizr;
 
 
 ;
 
-})(window, document);
+})(window, window, document);

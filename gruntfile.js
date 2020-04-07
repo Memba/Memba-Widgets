@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-module.exports = grunt => {
+module.exports = (grunt) => {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         eslint: {
@@ -11,11 +11,11 @@ module.exports = grunt => {
                 '*.js',
                 'templates/*.es6',
                 'src/js/**/*.es6',
-                'test/**/*.es6'
+                'test/**/*.es6',
             ],
             options: {
-                config: '.eslintrc'
-            }
+                config: '.eslintrc',
+            },
         },
         jscs: {
             files: ['src/js/**/*.js', 'test/**/*.js'],
@@ -25,9 +25,9 @@ module.exports = grunt => {
                 excludeFiles: [
                     '*.js',
                     'src/js/vendor/**/*.js',
-                    'test/vendor/**/*.js'
-                ]
-            }
+                    'test/vendor/**/*.js',
+                ],
+            },
         },
         jsdoc: {
             dist: {
@@ -37,9 +37,9 @@ module.exports = grunt => {
                     template:
                         'node_modules/grunt-jsdoc/node_modules/ink-docstrap/template',
                     configure:
-                        'node_modules/grunt-jsdoc/node_modules/ink-docstrap/template/jsdoc.conf.json'
-                }
-            }
+                        'node_modules/grunt-jsdoc/node_modules/ink-docstrap/template/jsdoc.conf.json',
+                },
+            },
         },
         jshint: {
             files: ['src/js/**/*.js', 'test/**/*.js'],
@@ -48,17 +48,17 @@ module.exports = grunt => {
                 ignores: [
                     '*.js',
                     'src/js/vendor/**/*.js',
-                    'test/vendor/**/*.js'
+                    'test/vendor/**/*.js',
                 ],
-                jshintrc: true
-            }
+                jshintrc: true,
+            },
         },
         karma: {
             // https://github.com/npm/npm/issues/12238#issuecomment-367147962
             // If webpack runs out of memory on Travis-CI
             unit: {
-                configFile: 'coverage.conf.js'
-            }
+                configFile: 'coverage.conf.js',
+            },
         },
         /*
         kendo_lint: {
@@ -97,18 +97,18 @@ module.exports = grunt => {
                     'bloburls',
                     'datauri',
                     'getusermedia',
-                    'webworkers'
+                    'webworkers',
                 ],
                 options: ['setClasses'],
-                uglify: false
-            }
+                uglify: false,
+            },
         },
         stylelint: {
             options: {
-                configFile: '.stylelintrc'
+                configFile: '.stylelintrc',
             },
-            src: ['src/styles/**/*.{css,less,scss}']
-        }
+            src: ['src/styles/**/*.{css,less,scss}'],
+        },
     });
 
     grunt.loadNpmTasks('grunt-contrib-jshint');

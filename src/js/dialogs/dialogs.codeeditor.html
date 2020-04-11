@@ -53,7 +53,8 @@
                                     kendo.format(
                                         '<div>action `{0}` with data `{1}` at {2}</div>',
                                         result.action,
-                                        JSON.stringify(result.data.value.get('properties.validation')).substr(0, 40),
+                                        // JSON.stringify(result.data.value.get('properties.validation')).substr(0, 40),
+                                        JSON.stringify(result.data.value.properties.validation).substr(0, 40),
                                         new Date().toLocaleTimeString()
                                     )
                                 );

@@ -101,7 +101,7 @@ const CodeEditor = DataBoundWidget.extend({
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
         this._dataSource();
-        // this.value(this.options.value);
+        this.value(this.options.value);
         this.enable(this.options.enabled);
     },
 

@@ -2,7 +2,7 @@ REM goto current directory
 cd /d %~dp0
 
 REM set directory where CodeMirror is built from sources
-set DIR="%USERPROFILE%\Desktop\CodeMirror-5.52.2"
+set DIR="%USERPROFILE%\Desktop\CodeMirror-5.53.2"
 
 REM \addon\lint\
 COPY "%DIR%\addon\lint\javascript-lint.js" ".\addon\lint\javascript-lint.js"

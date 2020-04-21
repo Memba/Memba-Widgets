@@ -31,12 +31,12 @@ const styleGenerator = () =>
         'font-family: Georgia, serif',
         'font-size: 3rem',
         'font-weight: 800',
-        'opacity: 0.5'
+        'opacity: 0.5',
     ]
         .filter(() => JSC.boolean(2 / 3)())
         .join('; ')};`;
 const textGenerator = JSC.string();
-const urlGenerator = ext =>
+const urlGenerator = (ext) =>
     `http://www.${JSC.string(
         JSC.integer(3, 10),
         JSC.character('a', 'z')
@@ -48,7 +48,7 @@ const imageList = () => [
     { text: JSC.string()(), url: urlGenerator('png') },
     { text: JSC.string()(), url: urlGenerator('png') },
     { text: JSC.string()(), url: urlGenerator('png') },
-    { text: JSC.string()(), url: urlGenerator('png') }
+    { text: JSC.string()(), url: urlGenerator('png') },
 ];
 
 /**
@@ -61,55 +61,55 @@ function getValidationLibrary() {
             name: 'Custom',
             key: 'custom',
             formula:
-                'function validate(value, solution, all) {\n\t// Your code should return true when value is validated against solution.\n}'
+                'function validate(value, solution, all) {\n\t// Your code should return true when value is validated against solution.\n}',
         },
         {
             name: 'equal',
             key: 'equal',
             formula:
-                'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
+                'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}',
         },
         {
             name: 'Equal (int)',
             key: 'intEqual',
             formula:
-                'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
+                'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}',
         },
         {
             name: 'Equal (float)',
             key: 'floatEqual',
             formula:
-                'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
+                'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}',
         },
         {
             name: 'Equal (2 decimals))',
             key: 'round2DecimalsEqual',
             formula:
-                'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
+                'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}',
         },
         {
             name: 'Greater than',
             key: 'greaterThan',
             formula:
-                'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
+                'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}',
         },
         {
             name: 'Greater or equal',
             key: 'greaterThanOrEqual',
             formula:
-                'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
+                'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}',
         },
         {
             name: 'Lower than',
             key: 'lowerThan',
             formula:
-                'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
+                'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}',
         },
         {
             name: 'Lower or equal',
             key: 'lowerThanOrEqual',
             formula:
-                'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
+                'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}',
         },
         {
             name: 'With regex',
@@ -118,9 +118,9 @@ function getValidationLibrary() {
                 'function validate(value, params) {\n\tconsole.log(params);\n\treturn new RegExp(params, "i").test(value);\n}',
             editor: regex,
             options: {
-                field: 'params' // Note: this is required for editors
+                field: 'params', // Note: this is required for editors
             },
-            defaultParams: ''
+            defaultParams: '\\w+',
         },
         {
             name: 'With list',
@@ -132,11 +132,11 @@ function getValidationLibrary() {
                 field: 'params', // Note: this is required for editors
                 type: 'number',
                 attributes: {
-                    'data-culture': 'fr-FR'
-                }
+                    'data-culture': 'fr-FR',
+                },
             },
-            defaultParams: []
-        }
+            defaultParams: [],
+        },
     ];
 }
 
@@ -149,7 +149,7 @@ function getAudio() {
         attributes: {
             autoplay: JSC.boolean()(),
             mp3: urlGenerator('mp3'),
-            ogg: urlGenerator('ogg')
+            ogg: urlGenerator('ogg'),
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -157,7 +157,7 @@ function getAudio() {
         rotate: angleGenerator(),
         tool: 'audio',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -180,12 +180,12 @@ function getCharGrid() {
             question: textGenerator(),
             solution: [], // TODO
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'chargrid',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -210,7 +210,7 @@ function getChart() {
         rotate: angleGenerator(),
         tool: 'chart',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -221,7 +221,7 @@ function getChart() {
 function getConnector() {
     return {
         attributes: {
-            color: '#00ff00'
+            color: '#00ff00',
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -233,12 +233,12 @@ function getConnector() {
             question: textGenerator(),
             solution: '', // TODO
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'connector',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -252,7 +252,7 @@ function getDropZone() {
             center: JSC.boolean()(),
             // empty
             style: styleGenerator(),
-            text: textGenerator()
+            text: textGenerator(),
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -264,12 +264,12 @@ function getDropZone() {
             question: textGenerator(),
             solution: '', // TODO
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'dropzone',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -285,7 +285,7 @@ function getDummy() {
         rotate: angleGenerator(),
         tool: 'dummy',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -299,7 +299,7 @@ function getHighLighter() {
         attributes: {
             highlightStyle: styleGenerator(),
             style: styleGenerator(),
-            text: ''
+            text: '',
             // split: ''
         },
         height: positionGenerator(),
@@ -312,12 +312,12 @@ function getHighLighter() {
             question: textGenerator(),
             solution: [], // TODO from text
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'highlighter',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -330,19 +330,19 @@ function getImage() {
         attributes: {
             alt: textGenerator(),
             src: urlGenerator('png'),
-            style: styleGenerator()
+            style: styleGenerator(),
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
         left: positionGenerator(),
         properties: {
             behavior: 'none',
-            constant: ''
+            constant: '',
         },
         rotate: angleGenerator(),
         tool: 'image',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -355,7 +355,7 @@ function getImageSet() {
     return {
         attributes: {
             data,
-            style: styleGenerator()
+            style: styleGenerator(),
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -367,12 +367,12 @@ function getImageSet() {
             question: textGenerator(),
             solution: data[0].text,
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'imageset',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -384,19 +384,19 @@ function getLabel() {
     return {
         attributes: {
             style: styleGenerator(),
-            text: JSC.string()().replace(/#/g, '\\#') // Note: avoids breaking kendo templates
+            text: JSC.string()().replace(/#/g, '\\#'), // Note: avoids breaking kendo templates
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
         left: positionGenerator(),
         properties: {
             behavior: 'none',
-            constant: ''
+            constant: '',
         },
         rotate: angleGenerator(),
         tool: 'label',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -409,7 +409,7 @@ function getLatex() {
         attributes: {
             formula: '', // TODO
             inline: JSC.boolean()(),
-            style: styleGenerator()
+            style: styleGenerator(),
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -417,7 +417,7 @@ function getLatex() {
         rotate: angleGenerator(),
         tool: 'latex',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -432,7 +432,7 @@ function getLine() {
             // TODO graduations
             lineColor: '#ff0000',
             lineWidth: 5,
-            startCap: 'none'
+            startCap: 'none',
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -440,7 +440,7 @@ function getLine() {
         rotate: angleGenerator(),
         tool: 'line',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -459,7 +459,7 @@ function getMathInput() {
             sets: JSC.boolean()(),
             matrices: JSC.boolean()(),
             statistics: JSC.boolean()(),
-            style: styleGenerator()
+            style: styleGenerator(),
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -471,12 +471,12 @@ function getMathInput() {
             question: textGenerator(),
             solution: '', // TODO
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'mathinput',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -493,7 +493,7 @@ function getMultiQuiz() {
             groupStyle: styleGenerator(),
             itemStyle: styleGenerator(),
             selectStyle: styleGenerator(),
-            data
+            data,
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -504,16 +504,16 @@ function getMultiQuiz() {
             omit: 0,
             question: textGenerator(),
             solution: data
-                .map(item => item.text)
+                .map((item) => item.text)
                 .filter(JSC.boolean())
                 .join('\n'), // Review
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'multiquiz',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -527,7 +527,7 @@ function getNumericBox() {
             decimals: JSC.integer(0, 2)(),
             // max: undefined
             min: JSC.integer(0, 100)(),
-            style: styleGenerator()
+            style: styleGenerator(),
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -539,12 +539,12 @@ function getNumericBox() {
             question: textGenerator(),
             solution: textGenerator(),
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'numericbox',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -561,7 +561,7 @@ function getQuiz() {
             groupStyle: styleGenerator(),
             itemStyle: styleGenerator(),
             selectStyle: styleGenerator(),
-            data
+            data,
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -573,12 +573,12 @@ function getQuiz() {
             question: textGenerator(),
             solution: data[0].text,
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'quiz',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -601,12 +601,12 @@ function getSelector() {
             question: textGenerator(),
             solution: '', // TODO
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'selector',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -627,7 +627,7 @@ function getTable() {
         rotate: angleGenerator(),
         tool: 'table',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -638,7 +638,7 @@ function getTable() {
 function getTextArea() {
     return {
         attributes: {
-            style: styleGenerator()
+            style: styleGenerator(),
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -650,12 +650,12 @@ function getTextArea() {
             question: textGenerator(),
             solution: textGenerator(),
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'textarea',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -667,7 +667,7 @@ function getTextBox() {
     return {
         attributes: {
             mask: '', // Not bothering
-            style: styleGenerator()
+            style: styleGenerator(),
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -679,12 +679,12 @@ function getTextBox() {
             question: textGenerator(),
             solution: textGenerator(),
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'textbox',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -697,7 +697,7 @@ function getTextGaps() {
         attributes: {
             inputStyle: styleGenerator(),
             style: styleGenerator(),
-            text: 'The quick [] fox is jumping over the [] dog'
+            text: 'The quick [] fox is jumping over the [] dog',
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -709,12 +709,12 @@ function getTextGaps() {
             question: textGenerator(),
             solution: textGenerator(),
             success: JSC.integer(0, 3)(),
-            validation: '// equal'
+            validation: '// equal',
         },
         rotate: angleGenerator(),
         tool: 'textgaps',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -726,14 +726,14 @@ function getVariable() {
     return {
         attributes: {
             variable: JSC.string(JSC.integer(1, 10), JSC.character('a', 'z'))(),
-            expression: 'round(random(0, 100), 2)'
+            expression: 'round(random(0, 100), 2)',
         },
         // height: positionGenerator(),
         id: new ObjectId().toString(),
         left: positionGenerator(),
         rotate: angleGenerator(),
         tool: 'variable',
-        top: positionGenerator()
+        top: positionGenerator(),
         // width: positionGenerator()
     };
 }
@@ -749,7 +749,7 @@ function getVideo() {
             toolbarHeight: JSC.integer(10, 50)(),
             mp4: urlGenerator('mp4'),
             ogv: urlGenerator('ogv'),
-            wbem: urlGenerator('wbem')
+            wbem: urlGenerator('wbem'),
         },
         height: positionGenerator(),
         id: new ObjectId().toString(),
@@ -757,7 +757,7 @@ function getVideo() {
         rotate: angleGenerator(),
         tool: 'video',
         top: positionGenerator(),
-        width: positionGenerator()
+        width: positionGenerator(),
     };
 }
 
@@ -770,7 +770,7 @@ const componentGenerator = {
     image: getImage,
     label: getLabel, // <- always keep
     // quiz: getQuiz,
-    textbox: getTextBox
+    textbox: getTextBox,
 };
 
 /**
@@ -780,7 +780,7 @@ const componentGenerator = {
 function getComponentArray() {
     let ret = [];
     const generators = [];
-    Object.keys(componentGenerator).forEach(key => {
+    Object.keys(componentGenerator).forEach((key) => {
         // This ensures we only create components for registered tools
         if (tools(key) instanceof BaseTool) {
             if (key === 'label') {
@@ -814,7 +814,7 @@ function getPage() {
         id: new ObjectId().toString(),
         instructions: textGenerator(),
         style: styleGenerator(),
-        time: JSC.integer(10, 100)()
+        time: JSC.integer(10, 100)(),
     };
 }
 
@@ -833,7 +833,7 @@ function getPageArray() {
  */
 function getStream() {
     return {
-        pages: getPageArray()
+        pages: getPageArray(),
     };
 }
 
@@ -871,5 +871,5 @@ export {
     getPage,
     getPageArray,
     getStream,
-    getValidationLibrary
+    getValidationLibrary,
 };

@@ -1,5 +1,5 @@
 /*
-  Highlight.js 10.0.0 (undefined)
+  Highlight.js 10.0.0 (51906fbb)
   License: BSD-3-Clause
   Copyright (c) 2006-2020, Ivan Sagalaev
 */
@@ -35,7 +35,7 @@
   }
 
 
-  
+
   function inherit(parent) {  // inherit(parent, override_obj, override_obj, ...)
     var key;
     var result = {};

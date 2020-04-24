@@ -16,7 +16,7 @@ import Logger from '../common/window.logger.es6';
 import MarkdownIt from '../vendor/markdown-it/markdown-it';
 import katex from '../vendor/markdown-it/markdown-it-katex.es6'; // This is a katex loader (not katex)
 import emoji from '../vendor/markdown-it/markdown-it-emoji';
-import hljs from '../vendor/highlight/highlight.pack';
+import hljs from '../vendor/highlight/highlight';
 import twemoji from '../vendor/markdown-it/twemoji.amd';
 
 const {

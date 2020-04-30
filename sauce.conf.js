@@ -6,7 +6,7 @@
 const path = require('path');
 
 // Karma configuration
-module.exports = config => {
+module.exports = (config) => {
     // Example set of browsers to run on Sauce Labs
     // Check out https://saucelabs.com/platforms for all browser/platform combos
     const customLaunchers = {
@@ -14,50 +14,50 @@ module.exports = config => {
             base: 'SauceLabs',
             platform: 'Windows 7',
             browserName: 'internet explorer',
-            version: '9'
+            version: '9',
         },
         sl_ie_10: {
             base: 'SauceLabs',
             platform: 'Windows 8',
             browserName: 'internet explorer',
-            version: '10'
+            version: '10',
         },
         sl_ie_11: {
             base: 'SauceLabs',
             platform: 'Windows 8.1',
             browserName: 'internet explorer',
-            version: '11'
+            version: '11',
         },
         sl_chrome_34: {
             base: 'SauceLabs',
             platform: 'Windows 7',
             browserName: 'chrome',
-            version: '34'
+            version: '34',
         },
         sl_firefox_27: {
             base: 'SauceLabs',
             platform: 'Linux',
             browserName: 'firefox',
-            version: '27'
+            version: '27',
         },
         sl_firefox_28: {
             base: 'SauceLabs',
             platform: 'Linux',
             browserName: 'firefox',
-            version: '28'
+            version: '28',
         },
         sl_ios_safari: {
             base: 'SauceLabs',
             platform: 'OS X 10.9',
             browserName: 'iphone',
-            version: '7.1'
+            version: '7.1',
         },
         sl_android: {
             base: 'SauceLabs',
             platform: 'Linux',
             browserName: 'android',
-            version: '4.3'
-        }
+            version: '4.3',
+        },
     };
 
     config.set({
@@ -65,8 +65,8 @@ module.exports = config => {
         client: {
             mocha: {
                 ui: 'bdd',
-                timeout: 10000
-            }
+                timeout: 10000,
+            },
         },
 
         // saucelabs configuration
@@ -74,7 +74,7 @@ module.exports = config => {
             startConnect: true,
             testName: 'Kidoju.Widgets',
             recordVideo: true,
-            recordScreenshots: true
+            recordScreenshots: true,
         },
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -111,39 +111,39 @@ module.exports = config => {
             {
                 pattern: 'src/styles/themes/app.theme.bootstrap.css',
                 served: true,
-                included: true
+                included: true,
             },
             // External jQuery and polyfill
             {
                 pattern: 'src/js/vendor/jquery/jquery-3.5.0.min.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'test/vendor/polyfill.min.js',
                 served: true,
-                included: true
+                included: true,
             },
             // Other files made available on demand
             {
                 pattern: 'src/js/**/*.es6',
                 served: true,
-                included: false
+                included: false,
             },
             {
                 pattern: 'src/js/**/*.js',
                 served: true,
-                included: false
+                included: false,
             },
             {
                 pattern: 'src/js/**/*.mjs',
                 served: true,
-                included: false
+                included: false,
             },
             {
                 pattern: 'src/styles/**/*.css',
                 served: true,
-                included: false
+                included: false,
             },
             // Our mocha tests
             {
@@ -158,14 +158,14 @@ module.exports = config => {
                 // pattern: 'test/browser/tools/*.test.es6',
                 // pattern: 'test/browser/widgets/*.test.es6',
                 served: true,
-                included: true // They need to be included!
+                included: true, // They need to be included!
             },
             // Our test data
             {
                 pattern: 'test/data/**/*',
                 served: true,
-                included: false
-            }
+                included: false,
+            },
         ],
 
         // list of files to exclude
@@ -178,7 +178,7 @@ module.exports = config => {
             // @see https://github.com/istanbuljs/babel-plugin-istanbul#karma
             // '/src/js/*.js': ['coverage'],
             '/src/js/**/*.es6': ['coverage'],
-            'test/browser/**/*.test.es6': ['webpack', 'sourcemap']
+            'test/browser/**/*.test.es6': ['webpack', 'sourcemap'],
         },
 
         webpack: {
@@ -186,7 +186,7 @@ module.exports = config => {
             devtool: 'inline-source-map', // Requires --max-old-space-size=4096
             externals: {
                 // CDN modules
-                jquery: 'jQuery'
+                jquery: 'jQuery',
             },
             mode:
                 process.env.NODE_ENV === 'production'
@@ -200,9 +200,9 @@ module.exports = config => {
                         use: [
                             {
                                 loader: 'babel-loader',
-                                options: { babelrc: true }
-                            }
-                        ]
+                                options: { babelrc: true },
+                            },
+                        ],
                     },
                     {
                         // Append  module.exports = JSC; to jscheck.js
@@ -210,7 +210,7 @@ module.exports = config => {
                         test: require.resolve(
                             path.join(__dirname, '/test/vendor/jscheck.js')
                         ),
-                        use: 'exports-loader?JSC'
+                        use: 'exports-loader?JSC',
                     },
                     {
                         // Prepend var jQuery = require("jquery"); to jquery.simulate.js.js.
@@ -224,9 +224,9 @@ module.exports = config => {
                         use: [
                             {
                                 loader: 'imports-loader',
-                                options: { jQuery: 'jquery' }
-                            }
-                        ]
+                                options: { jQuery: 'jquery' },
+                            },
+                        ],
                     },
                     {
                         // Assign this=window and prevent AMD + CJS loading
@@ -245,11 +245,11 @@ module.exports = config => {
                                 options: {
                                     // define: '>false',
                                     exports: '>false',
-                                    this: '>window'
-                                }
-                            }
-                        ]
-                    }
+                                    this: '>window',
+                                },
+                            },
+                        ],
+                    },
                     /* ,
                     {
                         // import sinonChai from 'sinon-chai' does not work
@@ -264,7 +264,7 @@ module.exports = config => {
                         ]
                     }
                     */
-                ]
+                ],
             },
             resolve: {
                 extensions: ['.es6', '.js'],
@@ -272,9 +272,9 @@ module.exports = config => {
                     path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
                     path.resolve(__dirname, 'src/js/vendor/modernizr'),
                     path.resolve(__dirname, 'test/vendor'),
-                    'node_modules'
-                ]
-            }
+                    'node_modules',
+                ],
+            },
         },
 
         /*
@@ -315,7 +315,7 @@ module.exports = config => {
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
-        singleRun: true
+        singleRun: true,
 
         // Concurrency (Infinity by default)
         // concurrency: 1

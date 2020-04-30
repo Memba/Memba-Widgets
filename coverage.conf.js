@@ -6,15 +6,15 @@
 const path = require('path');
 
 // Karma configuration
-module.exports = config => {
+module.exports = (config) => {
     config.set({
         client: {
             captureConsole: true,
             // mocha configuration
             mocha: {
                 ui: 'bdd',
-                timeout: 10000
-            }
+                timeout: 10000,
+            },
         },
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -56,60 +56,60 @@ module.exports = config => {
             {
                 pattern: 'src/styles/themes/app.theme.bootstrap.css',
                 served: true,
-                included: true
+                included: true,
             },
             // jQuery
             {
                 pattern: 'src/js/vendor/jquery/jquery-3.5.0.min.js',
                 served: true,
-                included: true
+                included: true,
             },
             // Babel polyfill
             {
                 pattern: 'test/vendor/polyfill.min.js',
                 served: true,
-                included: true
+                included: true,
             },
             // Kendo UI
             {
                 pattern: 'src/js/vendor/kendo/kendo.all.min.js',
                 served: true,
-                included: true
+                included: true,
             },
             // Other files made available on demand
             {
                 pattern: 'src/js/**/*.es6',
                 served: true,
-                included: false
+                included: false,
             },
             {
                 pattern: 'src/js/**/*.js',
                 served: true,
-                included: false
+                included: false,
             },
             {
                 pattern: 'src/js/**/*.mjs',
                 served: true,
-                included: false
+                included: false,
             },
             {
                 pattern: 'src/styles/**/*.css',
                 served: true,
-                included: false
+                included: false,
             },
             // Mocha tests
             {
                 pattern: 'test/browser/**/*.test.es6',
                 // pattern: 'test/browser/{app,common,cultures,data,tools,widgets,workers}/*.test.es6',
                 served: true,
-                included: true // They need to be included!
+                included: true, // They need to be included!
             },
             // Our test data
             {
                 pattern: 'test/data/**/*',
                 served: true,
-                included: false
-            }
+                included: false,
+            },
         ],
 
         // list of files to exclude
@@ -122,7 +122,7 @@ module.exports = config => {
             // @see https://github.com/istanbuljs/babel-plugin-istanbul#karma
             // '/src/js/*.js': ['coverage'],
             '/src/js/**/*.es6': ['coverage'],
-            'test/browser/**/*.test.es6': ['webpack', 'sourcemap']
+            'test/browser/**/*.test.es6': ['webpack', 'sourcemap'],
         },
 
         webpack: {
@@ -130,7 +130,7 @@ module.exports = config => {
             devtool: 'inline-source-map', // Requires --max-old-space-size=4096
             externals: {
                 // CDN modules
-                jquery: 'jQuery'
+                jquery: 'jQuery',
             },
             mode:
                 process.env.NODE_ENV === 'production'
@@ -145,14 +145,14 @@ module.exports = config => {
                         use: [
                             {
                                 loader: 'babel-loader',
-                                options: { babelrc: true }
-                            }
-                        ]
+                                options: { babelrc: true },
+                            },
+                        ],
                     },
                     {
                         // Prevent any kendo.* from loading (we have already added kendo.all.min.js)
                         test: /kendo\.\w+\.js$/,
-                        use: 'null-loader'
+                        use: 'null-loader',
                     },
                     {
                         // Append  module.exports = JSC; to jscheck.js
@@ -160,7 +160,7 @@ module.exports = config => {
                         test: require.resolve(
                             path.join(__dirname, '/test/vendor/jscheck.js')
                         ),
-                        use: 'exports-loader?JSC'
+                        use: 'exports-loader?JSC',
                     },
                     {
                         // Prepend var jQuery = require("jquery"); to jquery.simulate.js.js.
@@ -174,9 +174,9 @@ module.exports = config => {
                         use: [
                             {
                                 loader: 'imports-loader',
-                                options: { jQuery: 'jquery' }
-                            }
-                        ]
+                                options: { jQuery: 'jquery' },
+                            },
+                        ],
                     },
                     {
                         // Assign this=window and prevent AMD + CJS loading
@@ -195,11 +195,11 @@ module.exports = config => {
                                 options: {
                                     // define: '>false',
                                     exports: '>false',
-                                    this: '>window'
-                                }
-                            }
-                        ]
-                    }
+                                    this: '>window',
+                                },
+                            },
+                        ],
+                    },
                     /* ,
                     {
                         // import sinonChai from 'sinon-chai' does not work
@@ -214,7 +214,7 @@ module.exports = config => {
                         ]
                     }
                     */
-                ]
+                ],
             },
             resolve: {
                 extensions: ['.es6', '.js'],
@@ -222,9 +222,9 @@ module.exports = config => {
                     path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
                     path.resolve(__dirname, 'src/js/vendor/modernizr'),
                     path.resolve(__dirname, 'test/vendor'),
-                    'node_modules'
-                ]
-            }
+                    'node_modules',
+                ],
+            },
         },
 
         /*
@@ -264,9 +264,9 @@ module.exports = config => {
                 flags: [
                     //  --window-size=1280,1024
                     // --disable-software-rasterizer
-                    '--disable-gpu --disable-extensions --disable-infobars --disable-translate'
-                ]
-            }
+                    '--disable-gpu --disable-extensions --disable-infobars --disable-translate',
+                ],
+            },
         },
 
         // start these browsers
@@ -274,7 +274,7 @@ module.exports = config => {
         browsers: [
             // 'Chrome'
             // 'ChromeHeadless'
-            'ChromeTravis'
+            'ChromeTravis',
             // 'Edge',
             // 'Firefox',
             // 'IE',
@@ -286,12 +286,12 @@ module.exports = config => {
         // optionally, configure the reporter
         coverageReporter: {
             type: 'html',
-            dir: 'coverage/'
+            dir: 'coverage/',
         },
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
-        singleRun: true
+        singleRun: true,
 
         // Concurrency (Infinity by default)
         // concurrency: 1

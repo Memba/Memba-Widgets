@@ -23,10 +23,10 @@ SystemJS.config({
         kendogantt: ['kendo.gantt'],
         kendopdf: ['kendo.pdf'],
         kendoscheduler: ['kendo.scheduler'],
-        kendospreadsheet: ['kendo.spreadsheet']
+        kendospreadsheet: ['kendo.spreadsheet'],
     },
     map: {
-        jquery: 'src/js/vendor/jquery/jquery-3.5.0.js',
+        jquery: 'src/js/vendor/jquery/jquery-3.5.1.js',
         // http://docs.telerik.com/kendo-ui/third-party/systemjs
         'kendo.culture.en-GB':
             'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',
@@ -185,14 +185,14 @@ SystemJS.config({
         mocha: 'test/vendor/mocha.js',
         modernizr: 'src/js/vendor/modernizr/modernizr.js',
         sinon: 'test/vendor/sinon.js',
-        'sinon-chai': 'test/vendor/sinon-chai.js'
+        'sinon-chai': 'test/vendor/sinon-chai.js',
     },
     meta: {
         'test/vendor/chai-jquery.js': { format: 'cjs' },
         'test/vendor/jquery.mockjax.js': { format: 'global' },
         'test/vendor/jscheck.js': { format: 'global' },
         'test/vendor/mocha.js': { format: 'global' },
-        'test/vendor/sinon-chai.js': { format: 'cjs' }
+        'test/vendor/sinon-chai.js': { format: 'cjs' },
     },
     packages: {
         'src/js': {
@@ -200,38 +200,41 @@ SystemJS.config({
             meta: {
                 // IMPORTANT! See https://github.com/jshint/jshint/issues/2840
                 'vendor/codemirror/addon/lint/jshint.js': {
-                    format: 'global'
+                    format: 'global',
+                },
+                'vendor/highlight/*': {
+                    format: 'esm',
                 },
                 'vendor/modernizr/modernizr.js': {
-                    format: 'global'
+                    format: 'global',
                 },
                 'vendor/mathquill/mathquill.js': {
-                    format: 'global'
+                    format: 'global',
                 },
                 '*.js': {
                     babelOptions: {
                         es2015: false,
                         stage2: false,
-                        stage3: false
+                        stage3: false,
                     },
-                    format: 'amd'
+                    format: 'amd',
                 },
                 '*.es6': {
-                    format: 'esm'
+                    format: 'esm',
                 },
                 '*.jsx': {
-                    format: 'esm'
+                    format: 'esm',
                 },
                 '*.mjs': {
-                    format: 'esm'
-                }
-            }
-        }
+                    format: 'esm',
+                },
+            },
+        },
     },
     paths: {
         'plugin-babel': 'node_modules/systemjs-plugin-babel/plugin-babel.js',
         'systemjs-babel-build':
-            'node_modules/systemjs-plugin-babel/systemjs-babel-browser.js'
+            'node_modules/systemjs-plugin-babel/systemjs-babel-browser.js',
     },
-    transpiler: 'plugin-babel'
+    transpiler: 'plugin-babel',
 });

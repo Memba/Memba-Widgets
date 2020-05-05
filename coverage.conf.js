@@ -60,7 +60,7 @@ module.exports = (config) => {
             },
             // jQuery
             {
-                pattern: 'src/js/vendor/jquery/jquery-3.5.0.min.js',
+                pattern: 'src/js/vendor/jquery/jquery-3.5.1.min.js',
                 served: true,
                 included: true,
             },

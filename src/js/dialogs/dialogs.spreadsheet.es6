@@ -16,7 +16,7 @@ const {
     ns,
     resize,
     roleSelector,
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -42,27 +42,27 @@ function openSpreadsheet(options = {}) {
                     // data: {}
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
-                        BaseDialog.fn.options.messages.actions.cancel
+                        BaseDialog.fn.options.messages.actions.cancel,
                     ],
                     width: 860,
-                    ...options
+                    ...options,
                 })
                 .data('kendoBaseDialog');
 
             // Rebind the initOpen event considering the kendo.ui.Spreadsheet widget cannot bind to a viewModel
             dialog.unbind(CONSTANTS.INITOPEN);
-            dialog.one(CONSTANTS.INITOPEN, e => {
+            dialog.one(CONSTANTS.INITOPEN, (e) => {
                 e.sender.element
                     .find(roleSelector('spreadsheet'))
                     .kendoSpreadsheet({
                         sheetsbar: false,
                         sheets: [],
-                        ...e.sender.options.data
+                        ...e.sender.options.data,
                     });
             });
 
             // Bind the show event to resize once opened
-            dialog.one(CONSTANTS.SHOW, e => {
+            dialog.one(CONSTANTS.SHOW, (e) => {
                 resize(e.sender.element);
                 // spreadsheetWidget.activeSheet().range('A1:A1').select();
                 // Disable context menu
@@ -78,13 +78,13 @@ function openSpreadsheet(options = {}) {
             });
 
             // Bind the click event
-            dialog.bind(CONSTANTS.CLICK, e => {
+            dialog.bind(CONSTANTS.CLICK, (e) => {
                 const spreadSheet = e.sender.element
                     .find(roleSelector('spreadsheet'))
                     .data('kendoSpreadsheet');
                 dfd.resolve({
                     action: e.action,
-                    data: spreadSheet.toJSON()
+                    data: spreadSheet.toJSON(),
                 });
             });
 

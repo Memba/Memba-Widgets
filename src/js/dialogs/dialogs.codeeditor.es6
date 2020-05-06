@@ -15,7 +15,7 @@ const {
     ns,
     resize,
     roleSelector,
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -44,19 +44,19 @@ function openCodeEditor(options = {}) {
                     content: `<div data-${ns}role="codeeditor" data-${ns}bind="value:value,source:library" style="border:0;"/>`,
                     data: {
                         value: null,
-                        library: []
+                        library: [],
                     },
                     actions: [
                         BaseDialog.fn.options.messages.actions.ok,
-                        BaseDialog.fn.options.messages.actions.cancel
+                        BaseDialog.fn.options.messages.actions.cancel,
                     ],
                     width: 860,
-                    ...options
+                    ...options,
                 })
                 .data('kendoBaseDialog');
 
             // Bind the show event to resize once opened
-            dialog.one(CONSTANTS.SHOW, e => {
+            dialog.one(CONSTANTS.SHOW, (e) => {
                 resize(e.sender.element);
                 const codeEditor = e.sender.element
                     .find(roleSelector('codeeditor'))
@@ -67,13 +67,13 @@ function openCodeEditor(options = {}) {
             });
 
             // Bind the click event
-            dialog.bind(CONSTANTS.CLICK, e => {
+            dialog.bind(CONSTANTS.CLICK, (e) => {
                 dfd.resolve({
                     action: e.action,
                     // data: e.sender.viewModel.toJSON() <-- we do not need to return the library
                     data: {
-                        value: e.sender.viewModel.get('value').toJSON()
-                    }
+                        value: e.sender.viewModel.get('value').toJSON(),
+                    },
                 });
             });
 

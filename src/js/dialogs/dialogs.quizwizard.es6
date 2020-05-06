@@ -21,7 +21,7 @@ const {
     ns,
     resize,
     support: { touch },
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -51,14 +51,14 @@ function openQuizWizard(options = {}) {
                             <div class="kj-dialog-flexrow">
                               <div class="kj-dialog-col25"><label for="${ids.question}">${__('dialogs.quizwizard.question')}:</label></div>
                               <div class="kj-dialog-col75"><input id="${ids.question}" type="text" name="question" class="k-input k-textbox" data-${ns}bind="value:question"></div>
-                            </div>  
+                            </div>
                             <div class="kj-dialog-flexrow">
                               <div id="${ids.grid}"></div>
                             </div>
                             <div>
                               <input type="hidden" name="grid">
                               <span class="k-invalid-msg" data-for="grid"></span>
-                            </div> 
+                            </div>
                           </div>`,
             /* eslint-enable prettier/prettier */
             data: {
@@ -68,29 +68,29 @@ function openQuizWizard(options = {}) {
                     data: [
                         {
                             text: __('dialogs.quizwizard.text'),
-                            solution: true
-                        }
+                            solution: true,
+                        },
                     ],
                     schema: {
                         model: Model.define({
                             fields: {
                                 text: {
-                                    type: CONSTANTS.STRING
+                                    type: CONSTANTS.STRING,
                                 },
                                 solution: {
-                                    type: CONSTANTS.BOOLEAN
-                                }
-                            }
-                        })
-                    }
-                })
+                                    type: CONSTANTS.BOOLEAN,
+                                },
+                            },
+                        }),
+                    },
+                }),
             },
             actions: [
                 BaseDialog.fn.options.messages.actions.ok,
-                BaseDialog.fn.options.messages.actions.cancel
+                BaseDialog.fn.options.messages.actions.cancel,
             ],
             width: 860,
-            ...options
+            ...options,
         })
         .data('kendoBaseDialog');
 
@@ -110,7 +110,7 @@ function openQuizWizard(options = {}) {
                         const total = dialog.viewModel.source.total();
                         let solutionCount = 0;
                         let emptyCount = 0;
-                        data.forEach(dataItem => {
+                        data.forEach((dataItem) => {
                             if ((dataItem.text || '').trim().length === 0) {
                                 emptyCount += 1;
                             }
@@ -123,17 +123,17 @@ function openQuizWizard(options = {}) {
                         );
                     }
                     return true;
-                }
+                },
             },
             messages: {
                 question: __('dialogs.quizwizard.validation.question'),
-                grid: __('dialogs.quizwizard.validation.grid')
-            }
+                grid: __('dialogs.quizwizard.validation.grid'),
+            },
         })
         .data('kendoValidator');
 
     dialog.unbind(CONSTANTS.INITOPEN);
-    dialog.one(CONSTANTS.INITOPEN, e => {
+    dialog.one(CONSTANTS.INITOPEN, (e) => {
         // Create the grid widget
         const $grid = e.sender.element.find(`#${ids.grid}`).width('100%');
         const grid = $grid
@@ -142,15 +142,15 @@ function openQuizWizard(options = {}) {
                     {
                         template:
                             '<span class="k-icon k-i-handler-drag"></span>',
-                        width: '2em'
+                        width: '2em',
                     },
                     {
                         field: 'text',
-                        title: __('dialogs.quizwizard.option')
+                        title: __('dialogs.quizwizard.option'),
                     },
                     {
                         attributes: {
-                            style: 'text-align: center'
+                            style: 'text-align: center',
                         },
                         editable() {
                             return false;
@@ -159,25 +159,25 @@ function openQuizWizard(options = {}) {
                         template:
                             '<input type="checkbox" #= solution ? \'checked="checked"\' : "" #>',
                         title: __('dialogs.quizwizard.solution'),
-                        width: '5em'
+                        width: '5em',
                     },
                     {
                         command: ['destroy'],
                         title: '&nbsp;',
-                        width: '6em'
-                    }
+                        width: '6em',
+                    },
                 ],
                 dataSource: e.sender.viewModel.source,
                 editable: {
                     confirmation: false,
                     createAt: 'bottom',
-                    mode: 'incell'
+                    mode: 'incell',
                 },
                 navigatable: true,
                 scrollable: false,
                 toolbar: [
-                    { name: 'create', text: __('dialogs.quizwizard.add') }
-                ]
+                    { name: 'create', text: __('dialogs.quizwizard.add') },
+                ],
             })
             .data('kendoGrid');
 
@@ -204,12 +204,12 @@ function openQuizWizard(options = {}) {
                 const dataItem = dataSource.getByUid(evt.item.data('uid'));
                 dataSource.remove(dataItem);
                 dataSource.insert(newIndex, dataItem);
-            }
+            },
         });
 
         // Add an event handler to ensure a blur (change event) commits input changes
         // See https://docs.telerik.com/kendo-ui/knowledge-base/grid-bound-checkbox-editable-column
-        $grid.find('tbody').on('change', 'input', evt => {
+        $grid.find('tbody').on('change', 'input', (evt) => {
             const $target = $(evt.target);
             const dataItem = grid.dataItem($(evt.target).closest('tr'));
             // use equals, not the set() method because set will trigger the change event of the data source and the grid will rebind
@@ -232,25 +232,23 @@ function openQuizWizard(options = {}) {
     });
 
     // Bind the show event to resize once opened
-    dialog.one(CONSTANTS.SHOW, e => {
+    dialog.one(CONSTANTS.SHOW, (e) => {
         resize(e.sender.element);
     });
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, (e) => {
         if (
             e.action === BaseDialog.fn.options.messages.actions.cancel.action ||
             validator.validate()
         ) {
-            $(`#${ids.grid}`)
-                .find('tbody')
-                .off('change');
+            $(`#${ids.grid}`).find('tbody').off('change');
             dfd.resolve({
                 action: e.action,
                 data: {
                     question: e.sender.viewModel.get('question'),
-                    source: e.sender.viewModel.source.data().toJSON()
-                }
+                    source: e.sender.viewModel.source.data().toJSON(),
+                },
             });
         } else {
             e.preventDefault();

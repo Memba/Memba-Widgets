@@ -23,7 +23,7 @@ const {
     htmlEncode,
     observable,
     template,
-    ui: { Dialog, plugin }
+    ui: { Dialog, plugin },
 } = window.kendo;
 
 // const NS = '.kendoBaseDialog';
@@ -36,7 +36,7 @@ const ACTION = {
     no: 'no',
     ok: 'ok',
     // TODO save
-    yes: 'yes'
+    yes: 'yes',
 };
 const tmpl = {
     action: template(
@@ -44,7 +44,7 @@ const tmpl = {
     ),
     image: template(
         '<img alt="#: data.text #" class="k-image" src="#: data.imageUrl #">#: data.text #'
-    )
+    ),
 };
 
 /** *******************************************************************************
@@ -92,46 +92,46 @@ const BaseDialog = Dialog.extend({
                 error: 'Error',
                 info: 'Information',
                 success: 'Success',
-                warning: 'Warning'
+                warning: 'Warning',
             },
             actions: {
                 cancel: {
                     action: ACTION.cancel,
                     imageUrl: iconUri('close'),
-                    text: 'Cancel'
+                    text: 'Cancel',
                 },
                 close: {
                     action: ACTION.close,
                     imageUrl: iconUri('close'),
                     primary: true,
-                    text: 'Close'
+                    text: 'Close',
                 },
                 create: {
                     action: ACTION.create,
                     imageUrl: iconUri('plus'),
                     primary: true,
-                    text: 'Create'
+                    text: 'Create',
                 },
                 no: {
                     action: ACTION.no,
                     imageUrl: iconUri('close'),
-                    text: 'No'
+                    text: 'No',
                 },
                 ok: {
                     action: ACTION.ok,
                     imageUrl: iconUri('ok'),
                     primary: true,
-                    text: 'OK'
+                    text: 'OK',
                 },
                 yes: {
                     action: ACTION.yes,
                     imageUrl: iconUri('ok'),
                     primary: true,
-                    text: 'Yes'
-                }
-            }
+                    text: 'Yes',
+                },
+            },
         },
-        visible: false
+        visible: false,
     },
 
     /**
@@ -141,7 +141,7 @@ const BaseDialog = Dialog.extend({
         error: 'error',
         info: 'info',
         success: 'success',
-        warning: 'warning'
+        warning: 'warning',
     },
 
     /**
@@ -175,10 +175,10 @@ const BaseDialog = Dialog.extend({
         if (this.options.data) {
             // We need a copy of data so as to cancel dialog
             this.viewModel = observable(deepExtend({}, this.options.data));
-            this.one(CONSTANTS.INITOPEN, e => {
+            this.one(CONSTANTS.INITOPEN, (e) => {
                 bind(e.sender.element.children(), e.sender.viewModel);
             });
-            this.one(CONSTANTS.CLOSE, e => {
+            this.one(CONSTANTS.CLOSE, (e) => {
                 // Clear padding
                 e.sender.element.css({ padding: '' });
                 // The content method destroys widgets and unbinds data
@@ -244,7 +244,7 @@ const BaseDialog = Dialog.extend({
                 imageUrl: actions[i].imageUrl,
                 primary: actions[i].primary,
                 // Make sure text does not mess with template
-                text: (actions[i].text || '').replace('#', '\\#')
+                text: (actions[i].text || '').replace('#', '\\#'),
             };
             text = this._mergeTextWithOptions(options);
             const btn = $(tmpl.action(options))
@@ -330,7 +330,7 @@ const BaseDialog = Dialog.extend({
         destroy(this.wrapper);
         this.viewModel = undefined;
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

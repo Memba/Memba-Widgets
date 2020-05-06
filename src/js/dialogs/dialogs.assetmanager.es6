@@ -18,7 +18,7 @@ const {
     ns,
     resize,
     roleSelector,
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -53,16 +53,16 @@ function openAssetManager(options = {}) {
             data: { value: '' },
             actions: [
                 BaseDialog.fn.options.messages.actions.ok,
-                BaseDialog.fn.options.messages.actions.cancel
+                BaseDialog.fn.options.messages.actions.cancel,
             ],
             width: 860,
-            ...options
+            ...options,
         })
         .data('kendoBaseDialog');
 
     // Rebind the initOpen event considering the kendo.ui.AssetManager widget requires assets which cannot be bound via a viewModel
     dialog.unbind(CONSTANTS.INITOPEN);
-    dialog.one(CONSTANTS.INITOPEN, e => {
+    dialog.one(CONSTANTS.INITOPEN, (e) => {
         // Designate assets
         e.sender.element
             .find(roleSelector('assetmanager'))
@@ -72,17 +72,17 @@ function openAssetManager(options = {}) {
     });
 
     // Bind the show event to resize once opened
-    dialog.one(CONSTANTS.SHOW, e => {
+    dialog.one(CONSTANTS.SHOW, (e) => {
         resize(e.sender.element);
     });
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, (e) => {
         // assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
         // assert.instanceof(kendo.ui.Dialog, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
         const url = e.sender.viewModel.get('value');
         let hasScheme = false;
-        Object.keys(options.assets.schemes).some(scheme => {
+        Object.keys(options.assets.schemes).some((scheme) => {
             hasScheme = url.startsWith(`${scheme}://`);
             return hasScheme;
         });
@@ -90,7 +90,7 @@ function openAssetManager(options = {}) {
             // This is an asset selected from our library of images or from the project
             dfd.resolve({
                 action: e.action,
-                data: e.sender.viewModel.toJSON()
+                data: e.sender.viewModel.toJSON(),
             });
         } else if (
             CONSTANTS.RX_URL.test(url) &&
@@ -110,11 +110,11 @@ function openAssetManager(options = {}) {
                     dfd.resolve({
                         action: e.action,
                         data: {
-                            value: response.data[0].url
-                        }
+                            value: response.data[0].url,
+                        },
                     });
                 },
-                error: dfd.reject
+                error: dfd.reject,
             });
         } else if (
             CONSTANTS.RX_URL.test(url) &&
@@ -124,8 +124,8 @@ function openAssetManager(options = {}) {
             dfd.resolve({
                 action: e.action,
                 data: {
-                    value: ''
-                }
+                    value: '',
+                },
             });
         } else {
             // We do not know how to handle that url
@@ -134,7 +134,7 @@ function openAssetManager(options = {}) {
     });
 
     // Bind the close event
-    dialog.one(CONSTANTS.CLOSE, e => {
+    dialog.one(CONSTANTS.CLOSE, (e) => {
         e.sender.element.removeClass('k-tabstrip k-header');
     });
 

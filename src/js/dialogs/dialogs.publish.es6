@@ -16,7 +16,7 @@ const {
     // guid,
     // ns,
     resize,
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -53,10 +53,10 @@ function openPublish(options = {}) {
             },
             actions: [
                 BaseDialog.fn.options.messages.actions.ok,
-                BaseDialog.fn.options.messages.actions.cancel
+                BaseDialog.fn.options.messages.actions.cancel,
             ],
             width: 860,
-            ...options
+            ...options,
         })
         .data('kendoBaseDialog');
 
@@ -66,19 +66,19 @@ function openPublish(options = {}) {
         .data('kendoValidator');
 
     // Bind the show event to resize once opened
-    dialog.one(CONSTANTS.SHOW, e => {
+    dialog.one(CONSTANTS.SHOW, (e) => {
         resize(e.sender.element);
     });
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, (e) => {
         if (
             e.action === BaseDialog.fn.options.messages.actions.cancel.action ||
             validator.validate()
         ) {
             dfd.resolve({
                 action: e.action,
-                data: e.sender.viewModel.toJSON()
+                data: e.sender.viewModel.toJSON(),
             });
         } else {
             e.preventDefault();

@@ -15,7 +15,7 @@ import './widgets.basedialog.es6';
 const {
     ns,
     resize,
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -36,19 +36,19 @@ function openStyleEditor(options = {}) {
             title: __('dialogs.styleeditor.title'),
             content: `<div data-${ns}role="styleeditor" data-${ns}bind="value:value" data-${ns}height="400"></div>`,
             data: {
-                value: ''
+                value: '',
             },
             actions: [
                 BaseDialog.fn.options.messages.actions.ok,
-                BaseDialog.fn.options.messages.actions.cancel
+                BaseDialog.fn.options.messages.actions.cancel,
             ],
             width: 860,
-            ...options
+            ...options,
         })
         .data('kendoBaseDialog');
 
     // Bind the show event to resize once opened
-    dialog.one(CONSTANTS.SHOW, e => {
+    dialog.one(CONSTANTS.SHOW, (e) => {
         resize(e.sender.element);
         // Workaround for issue described at
         // https://github.com/telerik/kendo-ui-core/issues/1990 and
@@ -57,10 +57,10 @@ function openStyleEditor(options = {}) {
     });
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, (e) => {
         dfd.resolve({
             action: e.action,
-            data: e.sender.viewModel.toJSON()
+            data: e.sender.viewModel.toJSON(),
         });
     });
 

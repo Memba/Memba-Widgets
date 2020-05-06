@@ -17,7 +17,7 @@ import './widgets.basedialog.es6';
 const {
     ns,
     resize,
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -42,12 +42,12 @@ function openVideoPlayer(options = {}) {
                 // This should not be empty otherwise MVVM won't work
             },
             width: 'auto',
-            ...options
+            ...options,
         })
         .data('kendoBaseDialog');
 
     // Bind the show event to resize once opened
-    dialog.one(CONSTANTS.SHOW, e => {
+    dialog.one(CONSTANTS.SHOW, (e) => {
         resize(e.sender.element);
         // Workaround for issue described at
         // https://github.com/telerik/kendo-ui-core/issues/1990 and
@@ -56,9 +56,9 @@ function openVideoPlayer(options = {}) {
     });
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, (e) => {
         dfd.resolve({
-            action: e.action
+            action: e.action,
             // data: {}
         });
     });

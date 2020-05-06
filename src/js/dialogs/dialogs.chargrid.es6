@@ -17,7 +17,7 @@ const {
     ns,
     resize,
     roleSelector,
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -38,19 +38,19 @@ function openCharGrid(options = {}) {
             title: __('dialogs.chargrid.title'),
             content: `<div style="display:flex;flex-direction:row"><div data-${ns}role="chargrid" data-${ns}bind="value:value" style="flex-shrink:0"></div><div class="kj-chargrid-message" style="margin-left:1em;">${options.message}</div></div>`,
             data: {
-                value: []
+                value: [],
             },
             actions: [
                 BaseDialog.fn.options.messages.actions.ok,
-                BaseDialog.fn.options.messages.actions.cancel
+                BaseDialog.fn.options.messages.actions.cancel,
             ],
             width: 860,
-            ...options
+            ...options,
         })
         .data('kendoBaseDialog');
 
     dialog.unbind(CONSTANTS.INITOPEN);
-    dialog.one(CONSTANTS.INITOPEN, e => {
+    dialog.one(CONSTANTS.INITOPEN, (e) => {
         const width = 550;
         // Initialize chargrid
         e.sender.element
@@ -66,15 +66,15 @@ function openCharGrid(options = {}) {
     });
 
     // Bind the show event to resize once opened
-    dialog.one(CONSTANTS.SHOW, e => {
+    dialog.one(CONSTANTS.SHOW, (e) => {
         resize(e.sender.element);
     });
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, (e) => {
         dfd.resolve({
             action: e.action,
-            data: e.sender.viewModel.toJSON()
+            data: e.sender.viewModel.toJSON(),
         });
     });
 

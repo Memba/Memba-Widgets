@@ -138,16 +138,16 @@ const License = Widget.extend({
 
         if (by) {
             let license = 'by';
-            let icons = '<i class="kf kf-cc"/><i class="kf kf-cc-by"/>';
+            let icons = '<i class="kf kf-cc"></i><i class="kf kf-cc-by"></i>';
 
             license += sa ? '-sa' : '';
-            icons += sa ? '<i class="kf kf-cc-sa"/>' : '';
+            icons += sa ? '<i class="kf kf-cc-sa"></i>' : '';
 
             license += nc ? '-nc' : '';
-            icons += nc ? '<i class="kf kf-cc-nc"/>' : '';
+            icons += nc ? '<i class="kf kf-cc-nc"></i>' : '';
 
             license += nd ? '-nd' : '';
-            icons += nd ? '<i class="kf kf-cc-nd"/>' : '';
+            icons += nd ? '<i class="kf kf-cc-nd"></i>' : '';
 
             this.element.html(
                 `<a rel="license" href="//creativecommons.org/licenses/${license}/4.0/" target="_blank">${icons}</i></a>`

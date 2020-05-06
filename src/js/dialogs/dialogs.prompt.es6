@@ -13,7 +13,7 @@ import './widgets.basedialog.es6';
 const {
     ns,
     template,
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 const TEMPLATE = `<div><div class="k-widget k-notification k-notification-#: type #"><div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div></div><div><input type="text" class="k-textbox" style="width:100%; margin-top: 1em;" data-${ns}bind="value: input"></div></div>`;
@@ -35,24 +35,24 @@ function openPrompt(options = {}) {
             title: BaseDialog.fn.options.messages.title[options.type || 'info'],
             content: template(TEMPLATE)({
                 type: options.type || 'info',
-                message: options.message || ''
+                message: options.message || '',
             }),
             data: {
-                input: ''
+                input: '',
             },
             actions: [
                 BaseDialog.fn.options.messages.actions.ok,
-                BaseDialog.fn.options.messages.actions.cancel
+                BaseDialog.fn.options.messages.actions.cancel,
             ],
-            ...options
+            ...options,
         })
         .data('kendoBaseDialog');
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, (e) => {
         dfd.resolve({
             action: e.action,
-            data: e.sender.viewModel.toJSON()
+            data: e.sender.viewModel.toJSON(),
         });
     });
 

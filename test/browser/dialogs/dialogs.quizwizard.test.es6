@@ -29,7 +29,7 @@ const SELECTORS = {
     TITLE: '.k-dialog .k-dialog-titlebar .k-dialog-title',
     INPUT: '.k-dialog .k-dialog-content input',
     PRIMARY_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button.k-primary',
-    OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)'
+    OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)',
 };
 const TTL = 500;
 
@@ -37,14 +37,14 @@ chai.use((c, u) => chaiJquery(c, u, $));
 
 describe('dialogs.quizwizard', () => {
     describe('openQuizWizard', () => {
-        it('It should open a quiz wizard with valid options', done => {
+        it('It should open a quiz wizard with valid options', (done) => {
             const question = JSC.string()();
             const title = `">${JSC.string()()}`; // "> Checks XSS
             openQuizWizard({
-                title
+                title,
             })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal('ok');
                         expect(resp.data).to.have.property(
                             'question',
@@ -53,7 +53,7 @@ describe('dialogs.quizwizard', () => {
                         expect(resp.data)
                             .to.have.property('source')
                             .that.deep.equal([
-                                { text: 'Option 1', solution: true }
+                                { text: 'Option 1', solution: true },
                             ]);
                     })
                 )
@@ -61,9 +61,7 @@ describe('dialogs.quizwizard', () => {
             expect($(SELECTORS.TITLE)).to.have.text(title);
             setTimeout(() => {
                 // We need to give time for data to show
-                $(SELECTORS.INPUT)
-                    .val(question)
-                    .trigger('change');
+                $(SELECTORS.INPUT).val(question).trigger('change');
                 $(SELECTORS.PRIMARY_BUTTON).simulate(CONSTANTS.CLICK);
             }, TTL);
         });

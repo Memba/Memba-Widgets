@@ -21,7 +21,7 @@ import '../../../src/js/dialogs/widgets.basedialog.es6';
 const { afterEach, describe, it } = window;
 const {
     destroy,
-    ui: { BaseDialog, roles }
+    ui: { BaseDialog, roles },
 } = window.kendo;
 const { expect } = chai;
 

@@ -11,9 +11,8 @@ import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {
-    deepExtend,
     template,
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 const TEMPLATE =
@@ -32,30 +31,22 @@ function openAlert(options = {}) {
 
     // Create the dialog
     const dialog = $dialog
-        .kendoBaseDialog(
-            deepExtend(
-                {},
-                {
-                    title:
-                        BaseDialog.fn.options.messages.title[
-                            options.type || 'info'
-                        ],
-                    content: template(TEMPLATE)({
-                        type: options.type || 'info',
-                        message: options.message || ''
-                    }),
-                    actions: [
-                        BaseDialog.fn.options.messages.actions.ok,
-                        BaseDialog.fn.options.messages.actions.cancel
-                    ]
-                },
-                options
-            )
-        )
+        .kendoBaseDialog({
+            title: BaseDialog.fn.options.messages.title[options.type || 'info'],
+            content: template(TEMPLATE)({
+                type: options.type || 'info',
+                message: options.message || '',
+            }),
+            actions: [
+                BaseDialog.fn.options.messages.actions.ok,
+                BaseDialog.fn.options.messages.actions.cancel,
+            ],
+            ...options,
+        })
         .data('kendoBaseDialog');
 
     // Bind the click event
-    dialog.bind(CONSTANTS.CLICK, e => {
+    dialog.bind(CONSTANTS.CLICK, (e) => {
         dfd.resolve({ action: e.action });
     });
 
@@ -72,7 +63,7 @@ function openAlert(options = {}) {
 function openCloseAlert(options = {}) {
     return openAlert(
         Object.assign(options, {
-            actions: [BaseDialog.fn.options.messages.actions.close]
+            actions: [BaseDialog.fn.options.messages.actions.close],
         })
     );
 }
@@ -86,8 +77,8 @@ function openOKCancelAlert(options = {}) {
         Object.assign(options, {
             actions: [
                 BaseDialog.fn.options.messages.actions.ok,
-                BaseDialog.fn.options.messages.actions.cancel
-            ]
+                BaseDialog.fn.options.messages.actions.cancel,
+            ],
         })
     );
 }
@@ -101,8 +92,8 @@ function openYesNoAlert(options = {}) {
         Object.assign(options, {
             actions: [
                 BaseDialog.fn.options.messages.actions.yes,
-                BaseDialog.fn.options.messages.actions.no
-            ]
+                BaseDialog.fn.options.messages.actions.no,
+            ],
         })
     );
 }

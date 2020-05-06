@@ -29,7 +29,7 @@ const SELECTORS = {
     TITLE: '.k-dialog .k-dialog-titlebar .k-dialog-title',
     PRIMARY_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button.k-primary',
     OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)',
-    CELL: '.k-dialog .kj-assetmanager li.k-tile:has(img[alt="{0}"])' // TODO assetmanager here is wrong!!!!!
+    CELL: '.k-dialog .kj-assetmanager li.k-tile:has(img[alt="{0}"])', // TODO assetmanager here is wrong!!!!!
 };
 const TTL = 500;
 
@@ -37,7 +37,7 @@ chai.use((c, u) => chaiJquery(c, u, $));
 
 describe('dialogs.chargrid', () => {
     describe('openCharGrid', () => {
-        it('It should open a character grid with valid options', done => {
+        it('It should open a character grid with valid options', (done) => {
             const title = `">${JSC.string()()}`; // "> Checks XSS
             const message = `">${JSC.string()()}`; // "> Checks XSS
             openCharGrid({
@@ -45,11 +45,11 @@ describe('dialogs.chargrid', () => {
                 message,
                 charGrid: {
                     rows: 5,
-                    cols: 5
-                }
+                    cols: 5,
+                },
             })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal('ok');
                         expect(resp.data)
                             .to.have.property('value')

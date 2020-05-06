@@ -21,7 +21,7 @@ import { tryCatch } from '../_misc/test.util.es6';
 import {
     openAlert,
     openOKCancelAlert,
-    openYesNoAlert
+    openYesNoAlert,
 } from '../../../src/js/dialogs/dialogs.alert.es6';
 
 const { afterEach, describe, it } = window;
@@ -33,20 +33,20 @@ const TYPES = [
     { name: 'error', title: 'Error' },
     { name: 'info', title: 'Information' },
     { name: 'success', title: 'Success' },
-    { name: 'warning', title: 'Warning' }
+    { name: 'warning', title: 'Warning' },
 ];
 const SELECTORS = {
     TITLE: '.k-dialog .k-dialog-titlebar .k-dialog-title',
     MESSAGE: '.k-dialog .k-notification .k-notification-wrap',
     PRIMARY_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button.k-primary',
-    OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)'
+    OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)',
 };
 
 chai.use((c, u) => chaiJquery(c, u, $));
 
 describe('dialogs.alert', () => {
     describe('openAlert', () => {
-        it('It should open an alert with valid options', done => {
+        it('It should open an alert with valid options', (done) => {
             const TYPE = JSC.one_of(TYPES)();
             const type = TYPE.name;
             const message = JSC.string()();
@@ -59,10 +59,10 @@ describe('dialogs.alert', () => {
             openAlert({
                 type,
                 message,
-                actions: [{ action, text, primary: true }]
+                actions: [{ action, text, primary: true }],
             })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal(action);
                     })
                 )
@@ -74,7 +74,7 @@ describe('dialogs.alert', () => {
             $(SELECTORS.PRIMARY_BUTTON).simulate(CONSTANTS.CLICK);
         });
 
-        it('It should htmlEncode', done => {
+        it('It should htmlEncode', (done) => {
             const TYPE = JSC.one_of(TYPES)();
             const type = TYPE.name;
             const message = '"><script>alert("XSS");</script><"';
@@ -87,10 +87,10 @@ describe('dialogs.alert', () => {
             openAlert({
                 type,
                 message,
-                actions: [{ action, text, primary: true }]
+                actions: [{ action, text, primary: true }],
             })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal(action);
                     })
                 )
@@ -102,14 +102,14 @@ describe('dialogs.alert', () => {
     });
 
     describe('openOKCancelAlert', () => {
-        it('It should respond ok when pressed', done => {
+        it('It should respond ok when pressed', (done) => {
             const TYPE = JSC.one_of(TYPES)();
             const type = TYPE.name;
             const message = JSC.string()();
             expect(['error', 'info', 'success', 'warning']).to.include(type);
             openOKCancelAlert({ type, message })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal('ok');
                     })
                 )
@@ -119,14 +119,14 @@ describe('dialogs.alert', () => {
             $(SELECTORS.PRIMARY_BUTTON).simulate(CONSTANTS.CLICK);
         });
 
-        it('It should respond cancel when pressed', done => {
+        it('It should respond cancel when pressed', (done) => {
             const TYPE = JSC.one_of(TYPES)();
             const type = TYPE.name;
             const message = JSC.string()();
             expect(['error', 'info', 'success', 'warning']).to.include(type);
             openOKCancelAlert({ type, message })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal('cancel');
                     })
                 )
@@ -138,14 +138,14 @@ describe('dialogs.alert', () => {
     });
 
     describe('openYesNoAlert', () => {
-        it('It should respond yes when pressed', done => {
+        it('It should respond yes when pressed', (done) => {
             const TYPE = JSC.one_of(TYPES)();
             const type = TYPE.name;
             const message = JSC.string()();
             expect(['error', 'info', 'success', 'warning']).to.include(type);
             openYesNoAlert({ type, message })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal('yes');
                     })
                 )
@@ -155,14 +155,14 @@ describe('dialogs.alert', () => {
             $(SELECTORS.PRIMARY_BUTTON).simulate(CONSTANTS.CLICK);
         });
 
-        it('It should respond no when pressed', done => {
+        it('It should respond no when pressed', (done) => {
             const TYPE = JSC.one_of(TYPES)();
             const type = TYPE.name;
             const message = JSC.string()();
             expect(['error', 'info', 'success', 'warning']).to.include(type);
             openYesNoAlert({ type, message })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal('no');
                     })
                 )

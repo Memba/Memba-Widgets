@@ -28,7 +28,7 @@ const { expect } = chai;
 const SELECTORS = {
     TITLE: '.k-dialog .k-dialog-titlebar .k-dialog-title',
     PRIMARY_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button.k-primary',
-    OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)'
+    OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)',
 };
 const TTL = 500;
 
@@ -36,11 +36,11 @@ chai.use((c, u) => chaiJquery(c, u, $));
 
 describe('dialogs.spreadsheet', () => {
     describe('openSpreadsheet', () => {
-        it('It should open an spreadsheet with valid options', done => {
+        it('It should open an spreadsheet with valid options', (done) => {
             const title = `">${JSC.string()()}`; // "> Checks XSS
             openSpreadsheet({ title })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal('ok');
                         expect(resp.data).to.have.property(
                             'activeSheet',

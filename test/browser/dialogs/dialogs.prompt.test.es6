@@ -30,23 +30,23 @@ const SELECTORS = {
     MESSAGE: '.k-dialog .k-notification .k-notification-wrap',
     INPUT: '.k-dialog .k-dialog-content input',
     PRIMARY_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button.k-primary',
-    OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)'
+    OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)',
 };
 
 chai.use((c, u) => chaiJquery(c, u, $));
 
 describe('dialogs.prompt', () => {
     describe('openPrompt', () => {
-        it('It should open a prompt with valid options', done => {
+        it('It should open a prompt with valid options', (done) => {
             const title = `">${JSC.string()()}`; // "> Checks XSS
             const message = `">${JSC.string()()}`; // "> Checks XSS
             const input = JSC.string()();
             openPrompt({
                 title,
-                message
+                message,
             })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal('ok');
                         expect(resp.data).to.have.property('input', input);
                     })
@@ -54,9 +54,7 @@ describe('dialogs.prompt', () => {
                 .catch(done);
             expect($(SELECTORS.TITLE)).to.have.text(title);
             expect($(SELECTORS.MESSAGE)).to.have.text(message);
-            $(SELECTORS.INPUT)
-                .val(input)
-                .trigger('change');
+            $(SELECTORS.INPUT).val(input).trigger('change');
             $(SELECTORS.PRIMARY_BUTTON).simulate(CONSTANTS.CLICK);
         });
     });

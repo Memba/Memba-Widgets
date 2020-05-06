@@ -31,20 +31,20 @@ const SELECTORS = {
     INPUT: '.k-dialog .k-dialog-content input',
     TEXTAREA: '.k-dialog .k-dialog-content textarea',
     PRIMARY_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button.k-primary',
-    OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)'
+    OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)',
 };
 
 chai.use((c, u) => chaiJquery(c, u, $));
 
 describe('dialogs.textboxwizard', () => {
     describe('openTextBoxWizard', () => {
-        it('It should open a textbox wizard with valid options', done => {
+        it('It should open a textbox wizard with valid options', (done) => {
             const title = `">${JSC.string()()}`; // "> Checks XSS
             const question = JSC.string()();
             const solution = JSC.string()();
             openTextBoxWizard({ title })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal('ok');
                         expect(resp.data).to.have.property(
                             'question',
@@ -58,12 +58,8 @@ describe('dialogs.textboxwizard', () => {
                 )
                 .catch(done);
             expect($(SELECTORS.TITLE)).to.have.text(title);
-            $(SELECTORS.INPUT)
-                .val(question)
-                .trigger('change');
-            $(SELECTORS.TEXTAREA)
-                .val(solution)
-                .trigger('change');
+            $(SELECTORS.INPUT).val(question).trigger('change');
+            $(SELECTORS.TEXTAREA).val(solution).trigger('change');
             $(SELECTORS.PRIMARY_BUTTON).simulate(CONSTANTS.CLICK);
         });
     });

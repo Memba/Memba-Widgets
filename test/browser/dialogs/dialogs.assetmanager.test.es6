@@ -30,7 +30,7 @@ const SELECTORS = {
     TITLE: '.k-dialog .k-dialog-titlebar .k-dialog-title',
     PRIMARY_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button.k-primary',
     OTHER_BUTTON: '.k-dialog .k-dialog-buttongroup .k-button:not(.k-primary)',
-    ITEM: '.k-dialog .kj-assetmanager li.k-tile:has(img[alt="{0}"])'
+    ITEM: '.k-dialog .kj-assetmanager li.k-tile:has(img[alt="{0}"])',
 };
 const TTL = 500;
 
@@ -38,17 +38,17 @@ chai.use((c, u) => chaiJquery(c, u, $));
 
 describe('dialogs.assetmanager', () => {
     describe('openAssetManager', () => {
-        it('It should open an assetmanager with valid options', done => {
+        it('It should open an assetmanager with valid options', (done) => {
             const title = `">${JSC.string()()}`; // "> Checks XSS
             const assets = {
                 collections: [
                     ASSETS.G_COLLECTION,
                     ASSETS.O_COLLECTION,
                     ASSETS.V_COLLECTION,
-                    ASSETS.X_COLLECTION
+                    ASSETS.X_COLLECTION,
                 ],
                 extensions: ASSETS.IMAGE_EXT,
-                schemes: ASSETS.SCHEMES
+                schemes: ASSETS.SCHEMES,
             };
             const image = JSC.one_of([
                 '3d_glasses.svg',
@@ -62,14 +62,14 @@ describe('dialogs.assetmanager', () => {
                 'airplane2_starting.svg',
                 'airship.svg',
                 'air_tube_carrier.svg',
-                'alarm.svg'
+                'alarm.svg',
             ])();
             openAssetManager({
                 title,
-                assets
+                assets,
             })
                 .then(
-                    tryCatch(done)(resp => {
+                    tryCatch(done)((resp) => {
                         expect(resp.action).to.equal('ok');
                         expect(resp.data).to.have.property(
                             'value',

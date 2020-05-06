@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: Do we really need customInput?
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';

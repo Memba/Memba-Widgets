@@ -26,7 +26,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { /* ComboBox, */ Grid, roles, StyleEditor }
+    ui: { /* ComboBox, */ Grid, roles, StyleEditor },
 } = window.kendo;
 const { expect } = chai;
 
@@ -84,7 +84,7 @@ describe('widgets.styleeditor', () => {
         it('from code with options', () => {
             const options = {
                 value: 'color:#FF0000;border:1px solid rgb(255, 0, 0);',
-                height: 500
+                height: 500,
             };
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET](options).data(WIDGET);
@@ -109,7 +109,7 @@ describe('widgets.styleeditor', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -141,7 +141,7 @@ describe('widgets.styleeditor', () => {
             const attributes = options2attributes({
                 height: 500,
                 role: ROLE,
-                value: 'color:#FF0000;border:1px solid rgb(255, 0, 0);'
+                value: 'color:#FF0000;border:1px solid rgb(255, 0, 0);',
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -174,7 +174,7 @@ describe('widgets.styleeditor', () => {
         let element;
         let widget;
         const options = {
-            value: 'color:#FF0000;border:1px solid rgb(255, 0, 0);'
+            value: 'color:#FF0000;border:1px solid rgb(255, 0, 0);',
         };
 
         beforeEach(() => {
@@ -212,7 +212,7 @@ describe('widgets.styleeditor', () => {
         const attributes = options2attributes({
             bind: 'value: style',
             height: 500,
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
@@ -221,11 +221,9 @@ describe('widgets.styleeditor', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                style: 'color:#FF0000;border:1px solid rgb(255, 0, 0);'
+                style: 'color:#FF0000;border:1px solid rgb(255, 0, 0);',
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -262,7 +260,7 @@ describe('widgets.styleeditor', () => {
             expect(change).to.have.been.calledOnce;
         });
 
-        it('New style', done => {
+        it('New style', (done) => {
             const oldStyle = viewModel.get('style');
             const newStyle = { name: 'opacity', value: '0.5' };
             expect(widget).to.be.an.instanceof(StyleEditor);
@@ -313,7 +311,7 @@ describe('widgets.styleeditor', () => {
             }, 0);
         });
 
-        it('Delete', done => {
+        it('Delete', (done) => {
             const count = widget.grid.dataSource.total();
             expect(widget).to.be.an.instanceof(StyleEditor);
             expect(change).not.to.have.been.called;

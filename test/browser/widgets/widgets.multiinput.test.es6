@@ -24,7 +24,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { MultiInput, roles }
+    ui: { MultiInput, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -57,15 +57,9 @@ describe('widgets.multiinput', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(MultiInput);
-            expect(widget)
-                .to.have.property('input')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('tagList')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('input').that.is.an.instanceof($);
+            expect(widget).to.have.property('tagList').that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             const { input, tagList, wrapper } = widget;
             expect(input).to.match('input');
             expect(tagList).to.match('ul');
@@ -79,19 +73,13 @@ describe('widgets.multiinput', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 match: '^[a-z]+$',
-                value: ['alpha', 'beta', 'gamma']
+                value: ['alpha', 'beta', 'gamma'],
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(MultiInput);
-            expect(widget)
-                .to.have.property('input')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('tagList')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('input').that.is.an.instanceof($);
+            expect(widget).to.have.property('tagList').that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             const { input, tagList, wrapper } = widget;
             expect(input).to.match('input');
             expect(tagList).to.match('ul');
@@ -107,7 +95,7 @@ describe('widgets.multiinput', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -115,15 +103,9 @@ describe('widgets.multiinput', () => {
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(MultiInput);
-            expect(widget)
-                .to.have.property('input')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('tagList')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('input').that.is.an.instanceof($);
+            expect(widget).to.have.property('tagList').that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             const { input, tagList, wrapper } = widget;
             expect(input).to.match('input');
             expect(tagList).to.match('ul');
@@ -138,7 +120,7 @@ describe('widgets.multiinput', () => {
                 match: '^[a-z]+$',
                 role: ROLE,
                 // value: JSON.stringify(['alpha', 'beta', 'gamma']) // <-- Does not work
-                value: JSON.stringify(['alpha', 'beta', 'gamma'])
+                value: JSON.stringify(['alpha', 'beta', 'gamma']),
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -146,15 +128,9 @@ describe('widgets.multiinput', () => {
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(MultiInput);
-            expect(widget)
-                .to.have.property('input')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('tagList')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('input').that.is.an.instanceof($);
+            expect(widget).to.have.property('tagList').that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             const { input, tagList, wrapper } = widget;
             expect(input).to.match('input');
             expect(tagList).to.match('ul');
@@ -177,7 +153,7 @@ describe('widgets.multiinput', () => {
         let widget;
         const options = {
             match: '^[a-z]+$',
-            value: ['alpha', 'beta', 'gamma']
+            value: ['alpha', 'beta', 'gamma'],
         };
 
         beforeEach(() => {
@@ -203,7 +179,7 @@ describe('widgets.multiinput', () => {
             // TODO test match option
         });
 
-        it('focus', done => {
+        it('focus', (done) => {
             expect(widget).to.be.an.instanceof(MultiInput);
             const focus = sinon.spy();
             widget.input.on('focus', () => {
@@ -265,7 +241,7 @@ describe('widgets.multiinput', () => {
         const attributes = options2attributes({
             bind: 'value: value',
             match: '^[a-z]+$',
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
@@ -273,16 +249,14 @@ describe('widgets.multiinput', () => {
         let viewModel;
 
         beforeEach(() => {
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             change = sinon.spy();
             viewModel = observable({
-                value: ['alpha', 'beta', 'gamma']
+                value: ['alpha', 'beta', 'gamma'],
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
-            viewModel.bind('change', e => {
+            viewModel.bind('change', (e) => {
                 change(e);
             });
         });
@@ -366,7 +340,7 @@ describe('widgets.multiinput', () => {
 
         it('Change event', () => {
             expect(widget).to.be.an.instanceof(MultiInput);
-            widget.bind('change', e => {
+            widget.bind('change', (e) => {
                 change(e.sender.value().join(','));
             });
             widget.value(['alpha', 'beta', 'gamma']);

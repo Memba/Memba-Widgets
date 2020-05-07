@@ -26,7 +26,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { BitFlags, roles }
+    ui: { BitFlags, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -43,7 +43,7 @@ const DATA = [
     { text: JSC.string()(), value: 16 },
     { text: JSC.string()(), value: 32 },
     { text: JSC.string()(), value: 64 },
-    { text: JSC.string()(), value: 128 }
+    { text: JSC.string()(), value: 128 },
 ];
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -86,7 +86,7 @@ describe('widgets.bitflags', () => {
                 dataValueField: 'value',
                 autoBind: false,
                 // dataSource: DATA,
-                placeholder: JSC.string()()
+                placeholder: JSC.string()(),
                 // value: JSC.integer(0, 255)()
             };
             const widget = element[WIDGET](options).data(WIDGET);
@@ -109,7 +109,7 @@ describe('widgets.bitflags', () => {
                 dataSource: DATA,
                 placeholder: JSC.string()(),
                 // readonly: true,
-                value: JSC.integer(0, 255)()
+                value: JSC.integer(0, 255)(),
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(BitFlags);
@@ -126,7 +126,7 @@ describe('widgets.bitflags', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -146,7 +146,7 @@ describe('widgets.bitflags', () => {
             const attributes = options2attributes({
                 source: JSON.stringify(DATA),
                 role: ROLE,
-                value: JSC.integer(0, 255)()
+                value: JSC.integer(0, 255)(),
             });
             const element = $(ELEMENT)
                 .attr(attributes)

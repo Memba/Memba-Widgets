@@ -18,13 +18,13 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { options2attributes } from '../_misc/test.util.es6';
 import {
     PageComponent,
-    PageComponentDataSource
+    PageComponentDataSource,
 } from '../../../src/js/data/data.pagecomponent.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.explorer.es6';
 import {
     componentGenerator,
-    getComponentArray
+    getComponentArray,
 } from '../../../src/js/helpers/helpers.components.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
@@ -37,7 +37,7 @@ const {
     guid,
     init,
     observable,
-    ui: { Explorer, roles }
+    ui: { Explorer, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -53,11 +53,11 @@ const ICON_PATH = '../../src/styles/images/';
 const EXPLORER3 = `<div data-role="explorer" data-bind="source: components, value: current" data-icon-path="${ICON_PATH}"></div>`;
 
 describe('widgets.explorer', () => {
-    before(done => {
+    before((done) => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
-        const promises = Object.keys(componentGenerator).map(tool =>
+        const promises = Object.keys(componentGenerator).map((tool) =>
             tools.load(tool)
         );
         $.when(...promises)
@@ -96,7 +96,7 @@ describe('widgets.explorer', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 dataSource: data,
-                iconPath: ICON_PATH
+                iconPath: ICON_PATH,
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Explorer);
@@ -117,7 +117,7 @@ describe('widgets.explorer', () => {
         it('from markup', () => {
             const attributes = options2attributes({
                 iconPath: ICON_PATH,
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -143,12 +143,12 @@ describe('widgets.explorer', () => {
             const attributes = options2attributes({
                 bind: 'source: components, value: current',
                 iconPath: ICON_PATH,
-                role: ROLE
+                role: ROLE,
             });
             const data = getComponentArray();
             const viewModel = observable({
                 components: new PageComponentDataSource({ data }),
-                current: undefined
+                current: undefined,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -182,7 +182,7 @@ describe('widgets.explorer', () => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             options = {
                 dataSource: data,
-                iconPath: ICON_PATH
+                iconPath: ICON_PATH,
             };
             widget = element[WIDGET](options).data(WIDGET);
         });
@@ -293,7 +293,7 @@ describe('widgets.explorer', () => {
             element = $(EXPLORER3).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 components: new PageComponentDataSource({ data }),
-                current: null
+                current: null,
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -318,8 +318,8 @@ describe('widgets.explorer', () => {
                     rotate: 90,
                     attributes: {
                         style: 'font-family: Georgia, serif; color: #FF0000;',
-                        text: 'World'
-                    }
+                        text: 'World',
+                    },
                 })
             );
             expect(widget.items())
@@ -405,7 +405,7 @@ describe('widgets.explorer', () => {
                 },
                 dataBound(e) {
                     dataBound(e.sender);
-                }
+                },
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(
@@ -425,7 +425,7 @@ describe('widgets.explorer', () => {
                 iconPath: ICON_PATH,
                 change(e) {
                     change(e.value);
-                }
+                },
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Explorer);
             expect(widget.dataSource).to.be.an.instanceof(

@@ -20,7 +20,7 @@ import { Page, PageDataSource } from '../../../src/js/data/data.page.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.playbar.es6';
 import {
-    componentGenerator
+    componentGenerator,
     // getPageArray
 } from '../../../src/js/helpers/helpers.components.es6';
 
@@ -33,7 +33,7 @@ const {
     guid,
     // init,
     observable,
-    ui: { PlayBar, roles }
+    ui: { PlayBar, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -59,8 +59,8 @@ const pageCollectionData1 = [
                 rotate: 0,
                 attributes: {
                     src:
-                        'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png'
-                }
+                        'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png',
+                },
             },
             {
                 id: guid(),
@@ -72,8 +72,8 @@ const pageCollectionData1 = [
                 rotate: 0,
                 attributes: {
                     style: 'font-family: Georgia, serif; color: #0000FF;',
-                    text: 'Company?'
-                }
+                    text: 'Company?',
+                },
             },
             {
                 id: guid(),
@@ -84,9 +84,9 @@ const pageCollectionData1 = [
                 width: 300,
                 rotate: 0,
                 attributes: {},
-                properties: { name: 'textfield1' }
-            }
-        ]
+                properties: { name: 'textfield1' },
+            },
+        ],
     },
     {
         id: guid(),
@@ -101,8 +101,8 @@ const pageCollectionData1 = [
                 rotate: 0,
                 attributes: {
                     style: 'font-family: Georgia, serif; color: #FF0000;',
-                    text: 'Marignan?'
-                }
+                    text: 'Marignan?',
+                },
             },
             {
                 id: guid(),
@@ -113,9 +113,9 @@ const pageCollectionData1 = [
                 width: 300,
                 rotate: 0,
                 attributes: {},
-                properties: { name: 'textfield2' }
-            }
-        ]
+                properties: { name: 'textfield2' },
+            },
+        ],
     },
     {
         id: guid(),
@@ -130,8 +130,8 @@ const pageCollectionData1 = [
                 rotate: 0,
                 attributes: {
                     style: 'font-family: Georgia, serif; color: #00FF00;',
-                    text: "Couleur du cheval blanc d'Henri IV?"
-                }
+                    text: "Couleur du cheval blanc d'Henri IV?",
+                },
             },
             {
                 id: guid(),
@@ -142,10 +142,10 @@ const pageCollectionData1 = [
                 width: 300,
                 rotate: 0,
                 attributes: {},
-                properties: { name: 'textfield3' }
-            }
-        ]
-    }
+                properties: { name: 'textfield3' },
+            },
+        ],
+    },
 ];
 
 const pageCollectionData2 = [];
@@ -154,11 +154,11 @@ for (let i = 0; i < 30; i++) {
 }
 
 describe('widgets.playbar', () => {
-    before(done => {
+    before((done) => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
-        const promises = Object.keys(componentGenerator).map(tool =>
+        const promises = Object.keys(componentGenerator).map((tool) =>
             tools.load(tool)
         );
         $.when(...promises)
@@ -179,7 +179,7 @@ describe('widgets.playbar', () => {
         it('from code with all options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET]({
-                input: true
+                input: true,
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
@@ -211,7 +211,7 @@ describe('widgets.playbar', () => {
                 input: false,
                 previousNext: false,
                 tick: false,
-                refresh: false
+                refresh: false,
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
@@ -239,7 +239,7 @@ describe('widgets.playbar', () => {
         it('from code with dataSource', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET]({
-                dataSource: pageCollectionData1
+                dataSource: pageCollectionData1,
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
@@ -268,7 +268,7 @@ describe('widgets.playbar', () => {
         it('from code with large dataSource and options.buttonCount', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET]({
-                dataSource: pageCollectionData2
+                dataSource: pageCollectionData2,
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
@@ -297,13 +297,13 @@ describe('widgets.playbar', () => {
         it('from markup', () => {
             const attributes = options2attributes({
                 bind: 'source: pages, value: current',
-                role: ROLE
+                role: ROLE,
             });
             const viewModel = observable({
                 pages: new PageDataSource({
-                    data: pageCollectionData1
+                    data: pageCollectionData1,
                 }),
-                current: undefined
+                current: undefined,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -342,7 +342,7 @@ describe('widgets.playbar', () => {
         beforeEach(() => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element[WIDGET]({
-                dataSource: pageCollectionData1
+                dataSource: pageCollectionData1,
             }).data(WIDGET);
         });
 
@@ -424,7 +424,7 @@ describe('widgets.playbar', () => {
     describe('MVVM', () => {
         const attributes = options2attributes({
             bind: 'source: pages, value: current',
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
@@ -439,14 +439,12 @@ describe('widgets.playbar', () => {
          */
 
         beforeEach(() => {
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 pages: new PageDataSource({
-                    data: pageCollectionData1
+                    data: pageCollectionData1,
                 }),
-                current: undefined
+                current: undefined,
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -461,7 +459,7 @@ describe('widgets.playbar', () => {
             viewModel.pages.add(
                 new Page({
                     id: guid(),
-                    style: 'font-family: Georgia, serif; color: #FF0000;'
+                    style: 'font-family: Georgia, serif; color: #FF0000;',
                 })
             );
             expect(widget.items())
@@ -550,7 +548,7 @@ describe('widgets.playbar', () => {
                 },
                 dataBound(e) {
                     dataBound(e.sender);
-                }
+                },
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
@@ -567,7 +565,7 @@ describe('widgets.playbar', () => {
                 dataSource: pageCollectionData1,
                 change(e) {
                     change(e.value);
-                }
+                },
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(PlayBar);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);

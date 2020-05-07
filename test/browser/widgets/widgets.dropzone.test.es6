@@ -25,7 +25,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { DropZone, roles }
+    ui: { DropZone, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -75,7 +75,7 @@ describe('widgets.dropzone', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)

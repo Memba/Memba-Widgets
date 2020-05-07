@@ -25,7 +25,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { roles, SplitButton }
+    ui: { roles, SplitButton },
 } = window.kendo;
 const { expect } = chai;
 
@@ -73,19 +73,19 @@ describe('widgets.splitbutton', () => {
                     {
                         command: 'left',
                         icon: 'align-left',
-                        text: 'Align Left'
+                        text: 'Align Left',
                     },
                     {
                         command: 'center',
                         icon: 'align-center',
-                        text: 'Align Center'
+                        text: 'Align Center',
                     },
                     {
                         command: 'right',
                         icon: 'align-right',
-                        text: 'Align Right'
-                    }
-                ]
+                        text: 'Align Right',
+                    },
+                ],
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(SplitButton);
@@ -96,7 +96,7 @@ describe('widgets.splitbutton', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -117,21 +117,21 @@ describe('widgets.splitbutton', () => {
                     {
                         command: 'left',
                         icon: 'align-left',
-                        text: 'Align Left'
+                        text: 'Align Left',
                     },
                     {
                         command: 'center',
                         icon: 'align-center',
-                        text: 'Align Center'
+                        text: 'Align Center',
                     },
                     {
                         command: 'right',
                         icon: 'align-right',
-                        text: 'Align Right'
-                    }
+                        text: 'Align Right',
+                    },
                 ]),
                 role: ROLE,
-                text: 'Align'
+                text: 'Align',
             });
             const element = $(ELEMENT)
                 .attr(attributes)

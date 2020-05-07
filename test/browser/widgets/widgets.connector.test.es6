@@ -26,7 +26,7 @@ const {
     init,
     observable,
     roleSelector,
-    ui: { Connector, roles }
+    ui: { Connector, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -66,9 +66,7 @@ describe('widgets.connector', () => {
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             expect(widget.value()).to.be.empty;
         });
 
@@ -79,9 +77,7 @@ describe('widgets.connector', () => {
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             // expect(widget).to.have.property('dataSource').that.is.an.instanceof(DataSource);
             // expect(widget.dataSource.total()).to.equal(LIBRARY.length);
             // expect(widget.dataSource.data()).to.deep.equal(LIBRARY);
@@ -90,19 +86,15 @@ describe('widgets.connector', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
-            const element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(STAGE_ELEMENT);
+            const element = $(ELEMENT).attr(attributes).appendTo(STAGE_ELEMENT);
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             // expect(widget).to.have.property('dataSource').that.is.an.instanceof(DataSource);
             // expect(widget.dataSource.total()).to.equal(0);
             expect(widget.value()).to.be.empty;
@@ -111,19 +103,15 @@ describe('widgets.connector', () => {
         it('from markup with data attributes', () => {
             const attributes = options2attributes({
                 color: '#000000',
-                role: ROLE
+                role: ROLE,
             });
-            const element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(STAGE_ELEMENT);
+            const element = $(ELEMENT).attr(attributes).appendTo(STAGE_ELEMENT);
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-connector');
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             // expect(widget).to.have.property('dataSource').that.is.an.instanceof(DataSource);
             // expect(widget.dataSource.total()).to.equal(LIBRARY.length);
             // expect(widget.dataSource.data()).to.deep.equal(LIBRARY);
@@ -155,7 +143,7 @@ describe('widgets.connector', () => {
         const attributes = options2attributes({
             // bind: 'source: library, value: code',
             // default: NAME
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
@@ -165,9 +153,7 @@ describe('widgets.connector', () => {
         });
 
         beforeEach(() => {
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(STAGE_ELEMENT);
+            element = $(ELEMENT).attr(attributes).appendTo(STAGE_ELEMENT);
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
             change = sinon.spy();

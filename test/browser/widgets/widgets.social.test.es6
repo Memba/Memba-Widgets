@@ -29,7 +29,7 @@ const {
     format,
     init,
     // observable,
-    ui: { roles, Social }
+    ui: { roles, Social },
 } = window.kendo;
 const { expect } = chai;
 
@@ -47,7 +47,7 @@ const ACTION = {
     GOOGLE: 'google',
     LINKEDIN: 'linkedin',
     PINTEREST: 'pinterest',
-    TWITTER: 'twitter'
+    TWITTER: 'twitter',
 };
 const LENGTH = Object.keys(ACTION).length;
 const META_TAG = '<meta property="{0}" content="{1}" />';
@@ -91,7 +91,7 @@ describe('widgets.social', () => {
                 source: SOURCE,
                 title: TITLE,
                 twitterAccount: TWITTER_ACCOUNT,
-                url: URL
+                url: URL,
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Social);
             const { wrapper } = widget;
@@ -159,7 +159,7 @@ describe('widgets.social', () => {
             // Init and test widget
             const attributes = options2attributes({
                 role: ROLE,
-                size: SIZE
+                size: SIZE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -237,9 +237,7 @@ describe('widgets.social', () => {
             const button = widget.wrapper.find(
                 `a[role="button"][${attr(CONSTANTS.ACTION)}="${action}"]`
             );
-            expect(button)
-                .to.be.an.instanceof($)
-                .with.property('length', 1);
+            expect(button).to.be.an.instanceof($).with.property('length', 1);
             expect(widget._window).to.be.null;
             button.simulate('click');
             // expect(widget._window).to.be.an.instanceof(Window); // <-- does not work in Chrome

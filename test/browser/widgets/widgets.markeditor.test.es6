@@ -23,7 +23,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { MarkEditor, roles }
+    ui: { MarkEditor, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -73,7 +73,7 @@ describe('widgets.markeditor', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)

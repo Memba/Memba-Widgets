@@ -24,7 +24,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { CharGrid, roles }
+    ui: { CharGrid, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -74,7 +74,7 @@ describe('widgets.chargrid', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)

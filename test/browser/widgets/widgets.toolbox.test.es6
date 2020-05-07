@@ -27,7 +27,7 @@ const {
     data: { ObservableObject },
     destroy,
     init,
-    ui: { roles, ToolBox }
+    ui: { roles, ToolBox },
 } = window.kendo;
 const { expect } = chai;
 
@@ -81,7 +81,7 @@ describe('widgets.toolbox', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 iconPath: ICON_PATH,
-                size: 64
+                size: 64,
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(ToolBox);
@@ -103,7 +103,7 @@ describe('widgets.toolbox', () => {
             const attributes = options2attributes({
                 iconPath: ICON_PATH,
                 role: ROLE,
-                size: 48
+                size: 48,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -234,7 +234,7 @@ describe('widgets.toolbox', () => {
             expect(tools())
                 .to.be.an.instanceof(ObservableObject)
                 .with.property('active', 'pointer');
-            tools().bind(CONSTANTS.CHANGE, e => {
+            tools().bind(CONSTANTS.CHANGE, (e) => {
                 change(e.value);
             });
             element.find('a[data-tool=label]').simulate(CONSTANTS.CLICK);
@@ -248,7 +248,7 @@ describe('widgets.toolbox', () => {
             expect(tools())
                 .to.be.an.instanceof(ObservableObject)
                 .with.property('active', 'pointer');
-            widget.bind(CONSTANTS.CLICK, e => {
+            widget.bind(CONSTANTS.CLICK, (e) => {
                 click(e.value);
             });
             element.find('a[data-tool=textbox]').simulate(CONSTANTS.CLICK);

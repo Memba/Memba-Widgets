@@ -24,7 +24,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { ButtonBox, roles }
+    ui: { ButtonBox, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -72,7 +72,7 @@ describe('widgets.buttonbox', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -86,7 +86,7 @@ describe('widgets.buttonbox', () => {
 
         xit('from markup with attributes', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -99,16 +99,14 @@ describe('widgets.buttonbox', () => {
 
     describe('Methods', () => {
         const attributes = options2attributes({
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
         const options = {};
 
         beforeEach(() => {
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             widget = element[WIDGET](options).data(WIDGET);
         });
 

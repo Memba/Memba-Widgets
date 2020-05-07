@@ -25,12 +25,12 @@ const {
     destroy,
     init,
     observable,
-    ui: { BasicList, roles }
+    ui: { BasicList, roles },
 } = window.kendo;
 const { expect } = chai;
 
 const FIXTURES = 'fixtures';
-const ELEMENT = `<${CONSTANTS.DIV}>`;
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'basiclist';
 const WIDGET = 'kendoBasicList';
 
@@ -75,7 +75,7 @@ describe('widgets.basiclist', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -89,7 +89,7 @@ describe('widgets.basiclist', () => {
 
         it('from markup with attributes', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
                 // value: getValue()
             });
             const element = $(ELEMENT)
@@ -143,9 +143,7 @@ describe('widgets.basiclist', () => {
         it('enable/readonly', () => {
             expect(widget).to.be.an.instanceof(BasicList);
             const { wrapper } = widget;
-            expect(wrapper)
-                .to.be.an.instanceof($)
-                .with.property('length', 1);
+            expect(wrapper).to.be.an.instanceof($).with.property('length', 1);
             widget.enable(false);
             expect(wrapper).to.have.class(CONSTANTS.DISABLED_CLASS);
             widget.enable(true);
@@ -167,7 +165,7 @@ describe('widgets.basiclist', () => {
         const attributes = options2attributes({
             bind: 'value: rating',
             max: 10,
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
@@ -181,11 +179,9 @@ describe('widgets.basiclist', () => {
          */
 
         beforeEach(() => {
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                rating: undefined
+                rating: undefined,
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -194,17 +190,13 @@ describe('widgets.basiclist', () => {
         it('Changing the value in the viewModel changes the number of plain/selected stars', () => {
             expect(widget).to.be.an.instanceof(BasicList);
             const {
-                options: { min, max, step }
+                options: { min, max, step },
             } = widget;
             const count = Math.round((max - min) / step);
             const input = widget.wrapper.find('input');
-            expect(input)
-                .to.be.an.instanceof($)
-                .with.property('length', 1);
+            expect(input).to.be.an.instanceof($).with.property('length', 1);
             const stars = widget.wrapper.find('span.kj-rating-star');
-            expect(stars)
-                .to.be.an.instanceof($)
-                .with.property('length', count);
+            expect(stars).to.be.an.instanceof($).with.property('length', count);
             for (let value = min; value <= max; value += step) {
                 viewModel.set('current', value);
                 expect(parseFloat(input.val())).to.equal(value);
@@ -226,17 +218,13 @@ describe('widgets.basiclist', () => {
         it('Clicking a star updates the value in the viewModel', () => {
             expect(widget).to.be.an.instanceof(BasicList);
             const {
-                options: { min, max, step }
+                options: { min, max, step },
             } = widget;
             const count = Math.round((max - min) / step);
             const input = widget.wrapper.find('input');
-            expect(input)
-                .to.be.an.instanceof($)
-                .with.property('length', 1);
+            expect(input).to.be.an.instanceof($).with.property('length', 1);
             const stars = widget.wrapper.find('span.kj-rating-star');
-            expect(stars)
-                .to.be.an.instanceof($)
-                .with.property('length', count);
+            expect(stars).to.be.an.instanceof($).with.property('length', count);
             for (let pos = 0; pos < count; pos++) {
                 $(stars.get(pos)).simulate('click');
                 expect(parseFloat(input.val())).to.equal(
@@ -269,13 +257,11 @@ describe('widgets.basiclist', () => {
         it('mouseover', () => {
             expect(widget).to.be.an.instanceof(BasicList);
             const {
-                options: { min, max, step }
+                options: { min, max, step },
             } = widget;
             const count = Math.round((max - min) / step);
             const stars = widget.wrapper.find('span.kj-rating-star');
-            expect(stars)
-                .to.be.an.instanceof($)
-                .with.property('length', count);
+            expect(stars).to.be.an.instanceof($).with.property('length', count);
             for (let pos = 0; pos < count; pos++) {
                 $(stars.get(pos)).simulate(CONSTANTS.MOUSEOVER);
                 for (let i = 0; i < count; i++) {
@@ -306,11 +292,11 @@ describe('widgets.basiclist', () => {
             widget = element[WIDGET]({
                 change(e) {
                     change(e.value);
-                }
+                },
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(BasicList);
             const {
-                options: { min, max, step }
+                options: { min, max, step },
             } = widget;
             expect(min).to.equal(0);
             expect(max).to.equal(5);

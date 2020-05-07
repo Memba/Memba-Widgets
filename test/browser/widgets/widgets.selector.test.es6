@@ -25,7 +25,7 @@ const {
     destroy,
     init,
     // observable,
-    ui: { roles, Selector }
+    ui: { roles, Selector },
 } = window.kendo;
 const { expect } = chai;
 
@@ -65,9 +65,7 @@ describe('widgets.selector', () => {
             expect(widget).to.be.an.instanceof(Selector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-selector');
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             expect(widget.value()).to.be.empty;
         });
 
@@ -78,15 +76,13 @@ describe('widgets.selector', () => {
             expect(widget).to.be.an.instanceof(Selector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-selector');
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             expect(widget.value()).to.be.empty;
         });
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -98,7 +94,7 @@ describe('widgets.selector', () => {
 
         it('from markup with attributes', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
                 // TODO more...
             });
             const element = $(ELEMENT)

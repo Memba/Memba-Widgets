@@ -25,12 +25,12 @@ const {
     destroy,
     init,
     // observable,
-    ui: { Line, roles }
+    ui: { Line, roles },
 } = window.kendo;
 const { expect } = chai;
 
 const FIXTURES = 'fixtures';
-const ELEMENT = `<${CONSTANTS.DIV}>`;
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'line';
 const WIDGET = 'kendoLine';
 
@@ -38,26 +38,26 @@ function getOptions() {
     return {
         endCap: {
             fill: {
-                color: '#999'
+                color: '#999',
             },
             opacity: JSC.number(0, 1)(),
             scale: 3,
             shape: JSC.one_of(Object.values(Line.fn.shapes))(),
             stroke: {
-                width: 0
-            }
+                width: 0,
+            },
         },
         graduations: {
             fill: {
-                color: '#999'
+                color: '#999',
             },
             opacity: JSC.number(0, 1)(),
             scale: 4,
             count: 0,
             stroke: {
                 color: '#999',
-                width: 2
-            }
+                width: 2,
+            },
         },
         line: {
             // fill: {},
@@ -68,32 +68,32 @@ function getOptions() {
                 // lineCap: 'butt',
                 // lineJoin: 'miter',
                 // opacity: 1,
-                width: 5
-            }
+                width: 5,
+            },
         },
         smallGraduations: {
             fill: {
-                color: '#999'
+                color: '#999',
             },
             opacity: JSC.number(0, 1)(),
             scale: 3,
             count: 0,
             stroke: {
                 color: '#999',
-                width: 1
-            }
+                width: 1,
+            },
         },
         startCap: {
             fill: {
-                color: '#999'
+                color: '#999',
             },
             opacity: JSC.number(0, 1)(),
             scale: 3,
             shape: JSC.one_of(Object.values(Line.fn.shapes))(),
             stroke: {
-                width: 0
-            }
-        }
+                width: 0,
+            },
+        },
     };
 }
 
@@ -136,7 +136,7 @@ describe('widgets.line', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -150,7 +150,7 @@ describe('widgets.line', () => {
 
         it('from markup with attributes', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)

@@ -12,6 +12,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
+import JSC from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
@@ -29,7 +30,7 @@ const {
     init,
     observable,
     roleSelector,
-    ui: { CodeInput, DropDownList, roles }
+    ui: { CodeInput, DropDownList, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -79,81 +80,71 @@ describe('widgets.codeinput', () => {
             expect(widget)
                 .to.have.property('customInput')
                 .that.is.an.instanceof($);
+            expect(widget.customInput.val()).to.equal(CUSTOM.name);
             expect(widget)
                 .to.have.property('paramsContainer')
                 .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             expect(widget.dataSource.total()).to.equal(0);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQUAL.key);
-            expect(widget.customInput.val()).to.equal(widget.options.custom);
+            expect(widget.value()).to.be.undefined;
         });
 
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
-            const codeInput = element[WIDGET]({
+            const widget = element[WIDGET]({
                 dataSource: LIBRARY,
                 value: `${TOOLS.LIB_COMMENT}${ANY.key}`,
-                solution: SOLUTION
+                solution: SOLUTION,
             }).data(WIDGET);
-            expect(codeInput).to.be.an.instanceof(CodeInput);
+            expect(widget).to.be.an.instanceof(CodeInput);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(codeInput)
+            expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
-            expect(codeInput)
+            expect(widget)
                 .to.have.property('dropDownList')
                 .that.is.an.instanceof(DropDownList);
-            expect(codeInput)
+            expect(widget)
                 .to.have.property('customInput')
                 .that.is.an.instanceof($);
-            expect(codeInput)
+            expect(widget.customInput.val()).to.equal(CUSTOM.name);
+            expect(widget)
                 .to.have.property('paramsContainer')
                 .that.is.an.instanceof($);
-            expect(codeInput)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
-            expect(codeInput.dataSource.total()).to.equal(LIBRARY.length);
-            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + ANY.key);
-            expect(codeInput.customInput.val()).to.equal(
-                codeInput.options.custom
-            );
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
+            expect(widget.dataSource.total()).to.equal(LIBRARY.length);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + ANY.key);
         });
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const codeInput = element.data(WIDGET);
-            expect(codeInput).to.be.an.instanceof(CodeInput);
+            const widget = element.data(WIDGET);
+            expect(widget).to.be.an.instanceof(CodeInput);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(codeInput)
+            expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
-            expect(codeInput)
+            expect(widget)
                 .to.have.property('dropDownList')
                 .that.is.an.instanceof(DropDownList);
-            expect(codeInput)
+            expect(widget)
                 .to.have.property('customInput')
                 .that.is.an.instanceof($);
-            expect(codeInput)
+            expect(widget.customInput.val()).to.equal(CUSTOM.name);
+            expect(widget)
                 .to.have.property('paramsContainer')
                 .that.is.an.instanceof($);
-            expect(codeInput)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
-            expect(codeInput.dataSource.total()).to.equal(0);
-            expect(codeInput.value()).to.equal(TOOLS.LIB_COMMENT + EQUAL.key);
-            expect(codeInput.customInput.val()).to.equal(
-                codeInput.options.custom
-            );
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
+            expect(widget.dataSource.total()).to.equal(0);
+            expect(widget.value()).to.be.undefined;
         });
 
         it('from markup with data attributes', () => {
@@ -162,37 +153,33 @@ describe('widgets.codeinput', () => {
                 role: ROLE,
                 source: JSON.stringify(LIBRARY),
                 value:
-                    'function validate(value, solution) {\\n\\treturn true;\\n}'
+                    'function validate(value, solution) {\\n\\treturn true;\\n}',
             });
             const element = $(ELEMENT)
                 .attr(attributes)
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
-            const codeInput = element.data(WIDGET);
-            expect(codeInput).to.be.an.instanceof(CodeInput);
+            const widget = element.data(WIDGET);
+            expect(widget).to.be.an.instanceof(CodeInput);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(codeInput)
+            expect(widget)
                 .to.have.property('dataSource')
                 .that.is.an.instanceof(DataSource);
-            expect(codeInput)
+            expect(widget)
                 .to.have.property('dropDownList')
                 .that.is.an.instanceof(DropDownList);
-            expect(codeInput)
+            expect(widget)
                 .to.have.property('customInput')
                 .that.is.an.instanceof($);
-            expect(codeInput)
+            expect(widget.customInput.val()).to.equal(CUSTOM.name);
+            expect(widget)
                 .to.have.property('paramsContainer')
                 .that.is.an.instanceof($);
-            expect(codeInput)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
-            expect(codeInput.dataSource.total()).to.equal(LIBRARY.length);
-            expect(codeInput.value()).to.equal(
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
+            expect(widget.dataSource.total()).to.equal(LIBRARY.length);
+            expect(widget.value()).to.equal(
                 attributes[attr('value')].replace(/\\\\/g, '\\')
-            );
-            expect(codeInput.customInput.val()).to.equal(
-                codeInput.options.custom
             );
         });
     });
@@ -201,7 +188,7 @@ describe('widgets.codeinput', () => {
         const options = {
             dataSource: LIBRARY,
             default: TOOLS.LIB_COMMENT + ANY.key,
-            value: TOOLS.LIB_COMMENT + ANY.key
+            value: TOOLS.LIB_COMMENT + ANY.key,
         };
         let element;
         let widget;
@@ -247,54 +234,60 @@ describe('widgets.codeinput', () => {
         });
 
         it('value', () => {
-            // TODO: paramInput
-            function fn1() {
-                widget.value(100);
+            function fn() {
+                widget.value(
+                    JSC.one_of([
+                        JSC.boolean(),
+                        JSC.number(),
+                        // JSC.string(),
+                        JSC.object(),
+                        JSC.array(),
+                    ])()
+                );
             }
-            // function fn2() {
-            //     widget.value(null);
-            // }
             expect(widget).to.be.an.instanceof(CodeInput);
             expect(widget)
                 .to.have.property('dropDownList')
                 .that.is.an.instanceof(DropDownList);
-            expect(fn1).to.throw(TypeError);
-            // expect(fn2).to.throw(TypeError);
+            expect(fn).to.throw(TypeError);
             widget.value(undefined);
             expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + ANY.key);
-            expect(widget.dropDownList.text()).to.equal(CUSTOM.name); // TODO This is wrong, should be ANY.name
+            expect(widget.dropDownList.text()).to.equal(ANY.name);
             expect(widget.dropDownList.wrapper).to.be.visible;
-            // expect(codeInput.customInput).not.to.be.visible;
+            expect(widget.customInput).not.to.be.visible;
             widget.value(TOOLS.LIB_COMMENT + ANY.key);
             expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + ANY.key);
-            expect(widget.dropDownList.text()).to.equal(CUSTOM.name); // TODO this is wrong, should be ANY.name
+            expect(widget.dropDownList.text()).to.equal(ANY.name);
             expect(widget.dropDownList.wrapper).to.be.visible;
-            // expect(codeInput.customInput).not.to.be.visible;
+            expect(widget.customInput).not.to.be.visible;
             widget.value(TOOLS.LIB_COMMENT + EQUAL.key);
             expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQUAL.key);
-            expect(widget.dropDownList.text()).to.equal(EQUAL.key); // TODO this is wrong, should be EQUAL.name
+            expect(widget.dropDownList.text()).to.equal(EQUAL.name);
             expect(widget.dropDownList.wrapper).to.be.visible;
-            // expect(codeInput.customInput).not.to.be.visible;
-            // If the value is stupid it uses codeInput.options.default
+            expect(widget.customInput).not.to.be.visible;
+            // If the value is stupid it uses widget.options.default
             widget.value(TOOLS.LIB_COMMENT + DUMMY);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + ANY.key);
-            expect(widget.dropDownList.text()).to.equal(ANY.name);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + DUMMY); // TODO: is this reasonable?
+            expect(widget.dropDownList.text()).to.equal(EQUAL.name);
             expect(widget.dropDownList.wrapper).to.be.visible;
-            // expect(codeInput.customInput).not.to.be.visible;
+            expect(widget.customInput).not.to.be.visible;
+            // If the value is a formula
             widget.value(FORMULA2);
             expect(widget.value()).to.equal(FORMULA2);
+            expect(widget.dropDownList.text()).to.equal(CUSTOM.name);
             expect(widget.dropDownList.wrapper).not.to.be.visible;
-            // expect(codeInput.customInput).to.be.visible;
-            // If the value is stupid it uses codeInput.options.default
+            expect(widget.customInput).to.be.visible;
+            // If the value is another formula
             widget.value(FORMULA1);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + ANY.key);
-            expect(widget.dropDownList.text()).to.equal(ANY.name);
-            expect(widget.dropDownList.wrapper).to.be.visible;
-            // expect(codeInput.customInput).not.to.be.visible;
+            expect(widget.value()).to.equal(FORMULA1);
+            expect(widget.dropDownList.text()).to.equal(CUSTOM.name);
+            expect(widget.dropDownList.wrapper).not.to.be.visible;
+            expect(widget.customInput).to.be.visible;
             widget.value(FORMULA3);
             expect(widget.value()).to.equal(FORMULA3);
+            expect(widget.dropDownList.text()).to.equal(CUSTOM.name);
             expect(widget.dropDownList.wrapper).not.to.be.visible;
-            // expect(codeInput.customInput).to.be.visible;
+            expect(widget.customInput).to.be.visible;
         });
 
         it('destroy', () => {
@@ -308,24 +301,22 @@ describe('widgets.codeinput', () => {
         });
     });
 
-    describe('MVVM (and UI interactions)', () => {
+    xdescribe('MVVM (and UI interactions)', () => {
         const attributes = options2attributes({
             bind: 'source: library, value: code',
             default: TOOLS.LIB_COMMENT + ANY.key,
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
         let change;
         const viewModel = observable({
             library: LIBRARY,
-            code: ''
+            code: '',
         });
 
         beforeEach(() => {
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
             change = sinon.spy();
@@ -382,7 +373,7 @@ describe('widgets.codeinput', () => {
         });
     });
 
-    describe('Events', () => {
+    xdescribe('Events', () => {
         let element;
         let widget;
         let change;
@@ -397,13 +388,13 @@ describe('widgets.codeinput', () => {
                 dataSource: LIBRARY,
                 value: TOOLS.LIB_COMMENT + ANY.key,
                 default: TOOLS.LIB_COMMENT + ANY.key,
-                solution: SOLUTION
+                solution: SOLUTION,
             }).data(WIDGET);
         });
 
-        it('Change event', () => {
+        xit('Change event', () => {
             expect(widget).to.be.an.instanceof(CodeInput);
-            widget.bind(CONSTANTS.CHANGE, e => {
+            widget.bind(CONSTANTS.CHANGE, (e) => {
                 change(e.value);
             });
             widget.value(TOOLS.LIB_COMMENT + EQUAL.key);

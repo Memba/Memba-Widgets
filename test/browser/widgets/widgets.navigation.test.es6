@@ -22,7 +22,7 @@ import '../../../src/js/widgets/widgets.navigation.es6';
 
 import {
     componentGenerator,
-    getPageArray
+    getPageArray,
 } from '../../../src/js/helpers/helpers.components.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
@@ -35,7 +35,7 @@ const {
     guid,
     // init,
     observable,
-    ui: { Navigation, roles }
+    ui: { Navigation, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -48,11 +48,11 @@ chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
 describe('widgets.navigation', () => {
-    before(done => {
+    before((done) => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
-        const promises = Object.keys(componentGenerator).map(tool =>
+        const promises = Object.keys(componentGenerator).map((tool) =>
             tools.load(tool)
         );
         $.when(...promises)
@@ -86,7 +86,7 @@ describe('widgets.navigation', () => {
             const data = getPageArray();
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET]({
-                dataSource: data
+                dataSource: data,
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
@@ -103,14 +103,14 @@ describe('widgets.navigation', () => {
         it('from markup', () => {
             const attributes = options2attributes({
                 bind: 'source: pages, value: current',
-                role: ROLE
+                role: ROLE,
             });
             const data = getPageArray();
             const viewModel = observable({
                 pages: new PageDataSource({
-                    data
+                    data,
                 }),
-                current: undefined
+                current: undefined,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -139,7 +139,7 @@ describe('widgets.navigation', () => {
             data = getPageArray();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element[WIDGET]({
-                dataSource: data
+                dataSource: data,
             }).data(WIDGET);
         });
 
@@ -225,7 +225,7 @@ describe('widgets.navigation', () => {
     describe('MVVM', () => {
         const attributes = options2attributes({
             bind: 'source: pages, value: current',
-            role: ROLE
+            role: ROLE,
         });
         let data;
         let element;
@@ -242,12 +242,10 @@ describe('widgets.navigation', () => {
 
         beforeEach(() => {
             data = getPageArray();
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 pages: new PageDataSource({ data }),
-                current: undefined
+                current: undefined,
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -262,7 +260,7 @@ describe('widgets.navigation', () => {
             viewModel.pages.add(
                 new Page({
                     id: guid(),
-                    style: 'font-family: Georgia, serif; color: #FF0000;'
+                    style: 'font-family: Georgia, serif; color: #FF0000;',
                 })
             );
             expect(widget.items())
@@ -341,7 +339,7 @@ describe('widgets.navigation', () => {
                 },
                 dataBound(e) {
                     dataBound(e.sender);
-                }
+                },
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Navigation);
             expect(widget.dataSource).to.be.an.instanceof(PageDataSource);
@@ -358,7 +356,7 @@ describe('widgets.navigation', () => {
                 dataSource: data,
                 change(e) {
                     change(e.value);
-                }
+                },
             }).data(WIDGET);
             expect(change).not.to.have.been.called;
             expect(widget).to.be.an.instanceof(Navigation);

@@ -24,7 +24,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { MathInput, roles }
+    ui: { MathInput, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -76,7 +76,7 @@ describe('widgets.mathinput', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)

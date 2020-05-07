@@ -24,7 +24,7 @@ const {
     // data: { DataSource },
     destroy,
     init,
-    ui: { ImageList, roles }
+    ui: { ImageList, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -74,7 +74,7 @@ describe('widgets.imagelist', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -88,7 +88,7 @@ describe('widgets.imagelist', () => {
 
         it('from markup with attributes', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
                 // TODO more
             });
             const element = $(ELEMENT)

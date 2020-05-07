@@ -24,7 +24,7 @@ const { afterEach, before, beforeEach, describe, it, xit } = window;
 const {
     destroy,
     init,
-    ui: { AudioVideo, roles, Slider }
+    ui: { AudioVideo, roles, Slider },
 } = window.kendo;
 const { webdriver } = window.navigator;
 const { expect } = chai;
@@ -39,11 +39,11 @@ chai.use(sinonChai);
 
 const AUDIO_FILES = [
     baseUrl('/test/data/audio/audio.ogg'),
-    baseUrl('/test/data/audio/audio.mp3')
+    baseUrl('/test/data/audio/audio.mp3'),
 ];
 const VIDEO_FILES = [
     baseUrl('/test/data/video/video.mp4'),
-    baseUrl('/test/data/video/video.webm')
+    baseUrl('/test/data/video/video.webm'),
 ];
 const TTL = 250;
 
@@ -81,48 +81,36 @@ describe('widgets.audiovideo', () => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(widget)
-                .to.have.property('media')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('toolbar')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('media').that.is.an.instanceof($);
+            expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
                 .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
                 .that.is.an.instanceof(Slider);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
         });
 
         it('from code with options: audio', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 mode: 'audio',
-                files: AUDIO_FILES
+                files: AUDIO_FILES,
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(widget)
-                .to.have.property('media')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('toolbar')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('media').that.is.an.instanceof($);
+            expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
                 .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
                 .that.is.an.instanceof(Slider);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             expect(widget.media.get(0)).to.be.an.instanceof(
                 window.HTMLAudioElement
             );
@@ -135,27 +123,21 @@ describe('widgets.audiovideo', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 mode: 'video',
-                files: VIDEO_FILES
+                files: VIDEO_FILES,
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(widget)
-                .to.have.property('media')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('toolbar')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('media').that.is.an.instanceof($);
+            expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
                 .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
                 .that.is.an.instanceof(Slider);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             expect(widget.media.get(0)).to.be.an.instanceof(
                 window.HTMLVideoElement
             );
@@ -166,7 +148,7 @@ describe('widgets.audiovideo', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -176,28 +158,22 @@ describe('widgets.audiovideo', () => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(widget)
-                .to.have.property('media')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('toolbar')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('media').that.is.an.instanceof($);
+            expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
                 .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
                 .that.is.an.instanceof(Slider);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
         });
 
         it('from markup with attributes: audio', () => {
             const attributes = options2attributes({
                 files: JSON.stringify(AUDIO_FILES),
                 mode: 'audio',
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -207,21 +183,15 @@ describe('widgets.audiovideo', () => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(widget)
-                .to.have.property('media')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('toolbar')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('media').that.is.an.instanceof($);
+            expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
                 .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
                 .that.is.an.instanceof(Slider);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             expect(widget.media.get(0)).to.be.an.instanceof(
                 window.HTMLAudioElement
             );
@@ -234,7 +204,7 @@ describe('widgets.audiovideo', () => {
             const attributes = options2attributes({
                 files: JSON.stringify(VIDEO_FILES),
                 mode: 'video',
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -244,21 +214,15 @@ describe('widgets.audiovideo', () => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
-            expect(widget)
-                .to.have.property('media')
-                .that.is.an.instanceof($);
-            expect(widget)
-                .to.have.property('toolbar')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('media').that.is.an.instanceof($);
+            expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
                 .to.have.property('seekerSlider')
                 .that.is.an.instanceof(Slider);
             expect(widget)
                 .to.have.property('volumeSlider')
                 .that.is.an.instanceof(Slider);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             expect(widget.media.get(0)).to.be.an.instanceof(
                 window.HTMLVideoElement
             );
@@ -273,7 +237,7 @@ describe('widgets.audiovideo', () => {
         let widget;
         const options = {
             mode: 'audio',
-            files: AUDIO_FILES
+            files: AUDIO_FILES,
         };
 
         beforeEach(() => {
@@ -281,11 +245,9 @@ describe('widgets.audiovideo', () => {
             widget = element[WIDGET](options).data(WIDGET);
         });
 
-        (webdriver ? xit : it)('togglePlayPause', done => {
+        (webdriver ? xit : it)('togglePlayPause', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
-            expect(widget)
-                .to.have.property('media')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('media').that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLAudioElement);
             // Yield some time for media files to load
@@ -300,11 +262,9 @@ describe('widgets.audiovideo', () => {
             }, TTL);
         });
 
-        it('toggleMute', done => {
+        it('toggleMute', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
-            expect(widget)
-                .to.have.property('media')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('media').that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLAudioElement);
             // Yield some time for media files to load
@@ -320,11 +280,9 @@ describe('widgets.audiovideo', () => {
         });
 
         // Failed to execute 'requestFullScreen' on 'Element': API can only be initiated by a user gesture.
-        xit('toggleFullScreen', done => {
+        xit('toggleFullScreen', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
-            expect(widget)
-                .to.have.property('media')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('media').that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLVideoElement);
 
@@ -360,11 +318,9 @@ describe('widgets.audiovideo', () => {
             /* jshint +W074 */
         });
 
-        it('volume', done => {
+        it('volume', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
-            expect(widget)
-                .to.have.property('media')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('media').that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLAudioElement);
             // Yield some time for media files to load
@@ -378,19 +334,15 @@ describe('widgets.audiovideo', () => {
             }, TTL);
         });
 
-        it('seek', done => {
+        it('seek', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
-            expect(widget)
-                .to.have.property('media')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('media').that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLAudioElement);
             // Yield some time for media files to load
             setTimeout(() => {
                 expect(mediaElement.readyState).to.be.gte(3);
-                expect(mediaElement)
-                    .to.have.property('duration')
-                    .that.is.gt(1);
+                expect(mediaElement).to.have.property('duration').that.is.gt(1);
                 expect(mediaElement.currentTime).to.equal(0);
                 const seek =
                     Math.round(100 * mediaElement.duration * Math.random()) /
@@ -440,7 +392,7 @@ describe('widgets.audiovideo', () => {
         // var viewModel;
         const options = {
             mode: 'video',
-            files: VIDEO_FILES
+            files: VIDEO_FILES,
         };
 
         beforeEach(() => {
@@ -449,7 +401,7 @@ describe('widgets.audiovideo', () => {
             // viewModel = observable({ url: undefined });
         });
 
-        (webdriver ? xit : it)('togglePlayPause', done => {
+        (webdriver ? xit : it)('togglePlayPause', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget.media).to.be.an.instanceof($);
             expect(widget.toolbar).to.be.an.instanceof($);
@@ -485,7 +437,7 @@ describe('widgets.audiovideo', () => {
             }, TTL);
         });
 
-        it('toggleMute', done => {
+        it('toggleMute', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget.media).to.be.an.instanceof($);
             expect(widget.toolbar).to.be.an.instanceof($);
@@ -517,7 +469,7 @@ describe('widgets.audiovideo', () => {
         });
 
         // Failed to execute 'requestFullScreen' on 'Element': API can only be initiated by a user gesture.
-        xit('toggleFullScreen', done => {
+        xit('toggleFullScreen', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget.media).to.be.an.instanceof($);
             expect(widget.toolbar).to.be.an.instanceof($);

@@ -29,7 +29,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { UnitInput, roles }
+    ui: { UnitInput, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -71,7 +71,7 @@ describe('widgets.unitinput', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 units: ['%', 'px'],
-                nonUnits: ['auto', 'inherit', 'initial']
+                nonUnits: ['auto', 'inherit', 'initial'],
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(UnitInput);
@@ -81,7 +81,7 @@ describe('widgets.unitinput', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -97,7 +97,7 @@ describe('widgets.unitinput', () => {
             const attributes = options2attributes({
                 nonUnits: ['auto', 'inherit', 'initial'],
                 role: ROLE,
-                units: ['%', 'px']
+                units: ['%', 'px'],
             });
             const element = $(ELEMENT)
                 .attr(attributes)

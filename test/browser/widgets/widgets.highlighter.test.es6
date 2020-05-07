@@ -23,7 +23,7 @@ const {
     // bind,
     destroy,
     init,
-    ui: { HighLighter, roles }
+    ui: { HighLighter, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -73,7 +73,7 @@ describe('widgets.highlighter', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -87,7 +87,7 @@ describe('widgets.highlighter', () => {
 
         it('from markup with attributes', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
                 // TODO more
             });
             const element = $(ELEMENT)

@@ -25,12 +25,12 @@ const {
     destroy,
     init,
     observable,
-    ui: { License, roles }
+    ui: { License, roles },
 } = window.kendo;
 const { expect } = chai;
 
 const FIXTURES = 'fixtures';
-const ELEMENT = `<${CONSTANTS.DIV}>`;
+const ELEMENT = `<${CONSTANTS.DIV}/>`;
 const ROLE = 'license';
 const WIDGET = 'kendoLicense';
 
@@ -84,7 +84,7 @@ describe('widgets.license', () => {
         it('from code with options', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
-                value: getValue()
+                value: getValue(),
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(License);
@@ -95,7 +95,7 @@ describe('widgets.license', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -111,7 +111,7 @@ describe('widgets.license', () => {
         it('from markup with attributes', () => {
             const attributes = options2attributes({
                 role: ROLE,
-                value: getValue()
+                value: getValue(),
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -163,9 +163,7 @@ describe('widgets.license', () => {
         it('enable/readonly', () => {
             expect(widget).to.be.an.instanceof(License);
             const { wrapper } = widget;
-            expect(wrapper)
-                .to.be.an.instanceof($)
-                .with.property('length', 1);
+            expect(wrapper).to.be.an.instanceof($).with.property('length', 1);
             widget.enable(false);
             expect(wrapper).to.have.class(CONSTANTS.DISABLED_CLASS);
             widget.enable(true);
@@ -186,18 +184,16 @@ describe('widgets.license', () => {
     describe('MVVM', () => {
         const attributes = options2attributes({
             bind: 'value: license',
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let viewModel;
         let widget;
 
         beforeEach(() => {
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             viewModel = observable({
-                license: getValue()
+                license: getValue(),
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -238,7 +234,7 @@ describe('widgets.license', () => {
             widget = element[WIDGET]({
                 change(e) {
                     change(e.value);
-                }
+                },
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(License);
         });

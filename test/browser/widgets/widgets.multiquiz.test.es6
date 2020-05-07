@@ -25,7 +25,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { MultiQuiz, MultiSelect, roles }
+    ui: { MultiQuiz, MultiSelect, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -41,28 +41,28 @@ const data = [
     {
         text: 'answer 1',
         image:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_count_one.svg'
+            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_count_one.svg',
     },
     {
         text: 'answer 2',
         image:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_point_up.svg'
+            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_point_up.svg',
     },
     {
         text: 'answer 3',
         image:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_count_three.svg'
+            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_count_three.svg',
     },
     {
         text: 'answer 4',
         image:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_four.svg'
+            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_four.svg',
     },
     {
         text: 'answer 5',
         image:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_spread.svg'
-    }
+            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_spread.svg',
+    },
 ];
 
 describe('widgets.multiquiz', () => {
@@ -102,7 +102,7 @@ describe('widgets.multiquiz', () => {
                 dataSource: data,
                 mode: 'multiselect',
                 itemStyle: { color: 'rgb(255, 0, 0)' },
-                activeStyle: { backgroundColor: 'rgb(255, 224, 224)' }
+                activeStyle: { backgroundColor: 'rgb(255, 224, 224)' },
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(MultiQuiz);
@@ -123,7 +123,7 @@ describe('widgets.multiquiz', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -148,7 +148,7 @@ describe('widgets.multiquiz', () => {
                 itemStyle: 'color: rgb(255, 0, 0);',
                 mode: 'checkbox',
                 role: ROLE,
-                source: JSON.stringify(data)
+                source: JSON.stringify(data),
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -190,13 +190,13 @@ describe('widgets.multiquiz', () => {
             dataSource: data,
             mode: 'image',
             itemStyle: { color: 'rgb(255, 0, 0)' },
-            activeStyle: { backgroundColor: 'rgb(255, 224, 224)' }
+            activeStyle: { backgroundColor: 'rgb(255, 224, 224)' },
         };
         const options2 = {
             dataSource: data,
             mode: 'button',
             itemStyle: { color: 'rgb(0, 0, 255)' },
-            activeStyle: { backgroundColor: 'rgb(224, 224, 255)' }
+            activeStyle: { backgroundColor: 'rgb(224, 224, 255)' },
         };
 
         beforeEach(() => {
@@ -252,7 +252,7 @@ describe('widgets.multiquiz', () => {
         const attributes = options2attributes({
             bind: 'source: data, value: current',
             mode: 'button',
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
@@ -261,12 +261,10 @@ describe('widgets.multiquiz', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data,
-                current: null
+                current: null,
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -339,7 +337,7 @@ describe('widgets.multiquiz', () => {
         const attributes = options2attributes({
             bind: 'source: data, value: current',
             mode: 'checkbox',
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
@@ -348,12 +346,10 @@ describe('widgets.multiquiz', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data,
-                current: null
+                current: null,
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -422,7 +418,7 @@ describe('widgets.multiquiz', () => {
         const attributes = options2attributes({
             bind: 'source: data, value: current',
             mode: 'image',
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
@@ -431,12 +427,10 @@ describe('widgets.multiquiz', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data,
-                current: null
+                current: null,
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -509,7 +503,7 @@ describe('widgets.multiquiz', () => {
         const attributes = options2attributes({
             bind: 'source: data, value: current',
             mode: 'link',
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
@@ -518,12 +512,10 @@ describe('widgets.multiquiz', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data,
-                current: null
+                current: null,
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -596,7 +588,7 @@ describe('widgets.multiquiz', () => {
         const attributes = options2attributes({
             bind: 'source: data, value: current',
             mode: 'multiselect',
-            role: ROLE
+            role: ROLE,
         });
         let element;
         let widget;
@@ -605,12 +597,10 @@ describe('widgets.multiquiz', () => {
 
         beforeEach(() => {
             change = sinon.spy();
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data,
-                current: null
+                current: null,
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -684,7 +674,7 @@ describe('widgets.multiquiz', () => {
             dataSource: { data },
             mode: 'button',
             itemStyle: { color: 'rgb(0, 0, 255)' },
-            activeStyle: { backgroundColor: 'rgb(224, 224, 255)' }
+            activeStyle: { backgroundColor: 'rgb(224, 224, 255)' },
         };
 
         beforeEach(() => {

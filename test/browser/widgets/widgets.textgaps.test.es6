@@ -25,7 +25,7 @@ const {
     destroy,
     init,
     // observable,
-    ui: { roles, TextGaps }
+    ui: { roles, TextGaps },
 } = window.kendo;
 const { expect } = chai;
 
@@ -83,7 +83,7 @@ describe('widgets.textgaps', () => {
             const options = {
                 inputStyle: 'background-color: #ff0',
                 text: getText(count),
-                value: getValue(count)
+                value: getValue(count),
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(TextGaps);
@@ -96,7 +96,7 @@ describe('widgets.textgaps', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -115,7 +115,7 @@ describe('widgets.textgaps', () => {
                 inputStyle: 'background-color: #ff0',
                 role: ROLE,
                 text: getText(count),
-                value: JSON.stringify(getValue(count))
+                value: JSON.stringify(getValue(count)),
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -143,7 +143,7 @@ describe('widgets.textgaps', () => {
             options = {
                 inputStyle: 'background-color: #ff0',
                 text: getText(count),
-                value: getValue(count)
+                value: getValue(count),
             };
             widget = element[WIDGET](options).data(WIDGET);
         });
@@ -189,7 +189,7 @@ describe('widgets.textgaps', () => {
             options = {
                 inputStyle: 'background-color: #ff0',
                 text: getText(count),
-                value: getValue(count)
+                value: getValue(count),
             };
             widget = element[WIDGET](options).data(WIDGET);
         });
@@ -200,9 +200,7 @@ describe('widgets.textgaps', () => {
             widget.element
                 .children(`.kj-${ROLE}-input`)
                 .each((index, input) => {
-                    $(input)
-                        .text(value[index])
-                        .trigger('input');
+                    $(input).text(value[index]).trigger('input');
                 });
             expect(widget.value()).to.deep.equal(value);
         });
@@ -227,7 +225,7 @@ describe('widgets.textgaps', () => {
             options = {
                 inputStyle: 'background-color: #ff0',
                 text: getText(count),
-                value: getValue(count)
+                value: getValue(count),
             };
             widget = element[WIDGET](options).data(WIDGET);
         });

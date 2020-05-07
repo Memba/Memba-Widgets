@@ -28,7 +28,7 @@ const {
     observable,
     Observable, // TODO CHeck
     support,
-    ui: { AssetManager, DropDownList, ListView, Pager, roles, TabStrip }
+    ui: { AssetManager, DropDownList, ListView, Pager, roles, TabStrip },
 } = window.kendo;
 const { expect } = chai;
 
@@ -70,7 +70,7 @@ describe('widgets.assetmanager', () => {
         it('from code with options: simple collection', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
-                collections: [ASSETS.O_COLLECTION]
+                collections: [ASSETS.O_COLLECTION],
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AssetManager);
@@ -99,9 +99,7 @@ describe('widgets.assetmanager', () => {
             expect(widget)
                 .to.have.property('tabStrip')
                 .that.is.an.instanceof(TabStrip);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             expect(widget.tabStrip)
                 .to.have.property('contentElements')
                 .that.is.an.instanceof($)
@@ -115,7 +113,7 @@ describe('widgets.assetmanager', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 collections: [ASSETS.O_COLLECTION, ASSETS.V_COLLECTION],
-                schemes: ASSETS.SCHEMES
+                schemes: ASSETS.SCHEMES,
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AssetManager);
@@ -144,9 +142,7 @@ describe('widgets.assetmanager', () => {
             expect(widget)
                 .to.have.property('tabStrip')
                 .that.is.an.instanceof(TabStrip);
-            expect(widget)
-                .to.have.property('wrapper')
-                .that.is.an.instanceof($);
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
             expect(widget.tabStrip)
                 .to.have.property('contentElements')
                 .that.is.an.instanceof($)
@@ -171,7 +167,7 @@ describe('widgets.assetmanager', () => {
         const options = {
             collections: [ASSETS.O_COLLECTION, ASSETS.V_COLLECTION],
             schemes: ASSETS.SCHEMES,
-            transport: null
+            transport: null,
         };
 
         beforeEach(() => {
@@ -179,7 +175,7 @@ describe('widgets.assetmanager', () => {
             widget = element[WIDGET](options).data(WIDGET);
         });
 
-        it('value and select', done => {
+        it('value and select', (done) => {
             // if (window.PHANTOMJS) {
             //    return done(); // TODO: Does not work on Travis-CI
             // }
@@ -267,9 +263,9 @@ describe('widgets.assetmanager', () => {
                             { url: 'data://France-Fleuves-1.png', size: 35886 },
                             {
                                 url: 'data://self-portrait-1907.jpg',
-                                size: 292974
-                            }
-                        ]
+                                size: 292974,
+                            },
+                        ],
                     });
                 },
                 create(opts) {
@@ -292,8 +288,8 @@ describe('widgets.assetmanager', () => {
                     // options.error(new Error('Oops'));
                     opts.success({ total: 1, data: [opts.data] });
                     destroy();
-                }
-            }
+                },
+            },
         };
 
         beforeEach(() => {
@@ -303,7 +299,7 @@ describe('widgets.assetmanager', () => {
             change = sinon.spy();
         });
 
-        it('Click tabs', done => {
+        it('Click tabs', (done) => {
             // if (window.PHANTOMJS) {
             //    TODO: Does not work on Travis-CI
             //    return done();
@@ -342,7 +338,7 @@ describe('widgets.assetmanager', () => {
             }, TTL);
         });
 
-        it('Change collection in drop down list', done => {
+        it('Change collection in drop down list', (done) => {
             // if (window.PHANTOMJS) {
             // TODO: Does not work on Travis-CI
             //    return done();
@@ -353,7 +349,7 @@ describe('widgets.assetmanager', () => {
             expect(widget.listView).to.be.an.instanceof(ListView);
             expect(widget.tabStrip).to.be.an.instanceof(TabStrip);
             expect(widget.value()).to.equal('data://Elvis.jpg');
-            widget.dropDownList.bind('dataBound', e => {
+            widget.dropDownList.bind('dataBound', (e) => {
                 // 2) Second, select `White` in the subcollection drop down list
                 if (
                     e.sender.dataSource.total() > 0 &&
@@ -401,7 +397,7 @@ describe('widgets.assetmanager', () => {
             }, TTL);
         });
 
-        it('Search input', done => {
+        it('Search input', (done) => {
             // if (window.PHANTOMJS) {
             //    TODO: Does not work on Travis-CI
             //    return done();
@@ -456,7 +452,7 @@ describe('widgets.assetmanager', () => {
             // TODO
         });
 
-        it('Select items', done => {
+        it('Select items', (done) => {
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
             expect(widget.listView).to.be.an.instanceof(ListView);
@@ -494,7 +490,7 @@ describe('widgets.assetmanager', () => {
             // TODO: This is a tough one. How can we script the OS explorer dialog in JS to either Open or Cancel? Might be something for Zombie instead of Mocha ...
         });
 
-        it('Delete', done => {
+        it('Delete', (done) => {
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
             expect(widget.listView).to.be.an.instanceof(ListView);
@@ -585,9 +581,9 @@ describe('widgets.assetmanager', () => {
                             { url: 'data://France-Fleuves-1.png', size: 35886 },
                             {
                                 url: 'data://self-portrait-1907.jpg',
-                                size: 292974
-                            }
-                        ]
+                                size: 292974,
+                            },
+                        ],
                     });
                 },
                 create(opts) {
@@ -608,8 +604,8 @@ describe('widgets.assetmanager', () => {
                 },
                 destroy(opts) {
                     opts.error(new Error(OOPS));
-                }
-            }
+                },
+            },
         };
 
         beforeEach(() => {
@@ -619,7 +615,7 @@ describe('widgets.assetmanager', () => {
             error = sinon.spy();
         });
 
-        it('Change event', done => {
+        it('Change event', (done) => {
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
             expect(widget.listView).to.be.an.instanceof(ListView);
@@ -634,7 +630,7 @@ describe('widgets.assetmanager', () => {
             widget.listView.refresh();
         });
 
-        it('Error event', done => {
+        it('Error event', (done) => {
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(widget.dataSource).to.be.an.instanceof(DataSource);
             expect(widget.listView).to.be.an.instanceof(ListView);

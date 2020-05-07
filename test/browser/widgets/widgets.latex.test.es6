@@ -24,7 +24,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { Latex, roles }
+    ui: { Latex, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -72,7 +72,7 @@ describe('widgets.latex', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)

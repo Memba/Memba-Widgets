@@ -25,7 +25,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { roles, Template }
+    ui: { roles, Template },
 } = window.kendo;
 const { expect } = chai;
 
@@ -75,7 +75,7 @@ describe('widgets.template', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 template: 'script1',
-                value: 'Todd'
+                value: 'Todd',
             };
             const template = element[WIDGET](options).data(WIDGET);
             expect(template).to.be.an.instanceof(Template);
@@ -96,8 +96,8 @@ describe('widgets.template', () => {
                 dataSource: [
                     { id: 1, name: 'London' },
                     { id: 2, name: 'New York' },
-                    { id: 3, name: 'Paris' }
-                ]
+                    { id: 3, name: 'Paris' },
+                ],
             };
             const template = element[WIDGET](options).data(WIDGET);
             expect(template).to.be.an.instanceof(Template);
@@ -118,7 +118,7 @@ describe('widgets.template', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -138,7 +138,7 @@ describe('widgets.template', () => {
             const attributes = options2attributes({
                 role: ROLE,
                 template: 'script1',
-                value: 'Todd'
+                value: 'Todd',
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -169,7 +169,7 @@ describe('widgets.template', () => {
             template = element[WIDGET](options).data(WIDGET);
         });
 
-        xit('value', done => {
+        xit('value', (done) => {
             expect(template).to.be.an.instanceof(Template);
             done();
         });

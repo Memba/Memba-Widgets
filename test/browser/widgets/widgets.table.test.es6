@@ -24,7 +24,7 @@ const {
     destroy,
     init,
     // observable,
-    ui: { roles, Table }
+    ui: { roles, Table },
 } = window.kendo;
 const { expect } = chai;
 
@@ -77,7 +77,7 @@ describe('widgets.table', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -92,7 +92,7 @@ describe('widgets.table', () => {
 
         it('from markup with attributes', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
                 // TODO more
             });
             const element = $(ELEMENT)

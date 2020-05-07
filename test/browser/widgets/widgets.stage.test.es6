@@ -18,14 +18,14 @@ import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import {
     PageComponent,
-    PageComponentDataSource
+    PageComponentDataSource,
 } from '../../../src/js/data/data.pagecomponent.es6';
 import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import '../../../src/js/widgets/widgets.stage.es6';
 import {
     componentGenerator,
-    getComponentArray
+    getComponentArray,
 } from '../../../src/js/helpers/helpers.components.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
@@ -39,7 +39,7 @@ const {
     // init,
     observable,
     support,
-    ui: { ContextMenu, roles, Stage }
+    ui: { ContextMenu, roles, Stage },
 } = window.kendo;
 const { expect } = chai;
 
@@ -56,16 +56,16 @@ function findCenter(elem) {
     const offset = elem.offset();
     return {
         x: offset.left + elem.outerWidth() / 2 - document.scrollLeft(),
-        y: offset.top + elem.outerHeight() / 2 - document.scrollTop()
+        y: offset.top + elem.outerHeight() / 2 - document.scrollTop(),
     };
 }
 
 describe('widgets.stage', () => {
-    before(done => {
+    before((done) => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
-        const promises = Object.keys(componentGenerator).map(tool =>
+        const promises = Object.keys(componentGenerator).map((tool) =>
             tools.load(tool)
         );
         $.when(...promises)
@@ -107,7 +107,7 @@ describe('widgets.stage', () => {
             const data = getComponentArray();
             const options = {
                 mode: Stage.fn.modes.DESIGN,
-                dataSource: new PageComponentDataSource({ data })
+                dataSource: new PageComponentDataSource({ data }),
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
@@ -153,7 +153,7 @@ describe('widgets.stage', () => {
             const data = getComponentArray();
             const options = {
                 mode: Stage.fn.modes.PLAY,
-                dataSource: new PageComponentDataSource({ data })
+                dataSource: new PageComponentDataSource({ data }),
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
@@ -200,7 +200,7 @@ describe('widgets.stage', () => {
             const data = getComponentArray();
             const options = {
                 mode: Stage.fn.modes.REVIEW,
-                dataSource: new PageComponentDataSource({ data })
+                dataSource: new PageComponentDataSource({ data }),
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
@@ -246,14 +246,14 @@ describe('widgets.stage', () => {
             const attributes = options2attributes({
                 bind: 'source: components, value: current',
                 mode: Stage.fn.modes.DESIGN,
-                role: ROLE
+                role: ROLE,
             });
             const data = getComponentArray();
             const viewModel = observable({
                 components: new PageComponentDataSource({
-                    data
+                    data,
                 }),
-                current: undefined
+                current: undefined,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -310,7 +310,7 @@ describe('widgets.stage', () => {
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             widget = element[WIDGET]({
                 dataSource: data,
-                mode: Stage.fn.modes.DESIGN
+                mode: Stage.fn.modes.DESIGN,
             }).data(WIDGET);
         });
 
@@ -473,7 +473,7 @@ describe('widgets.stage', () => {
         const attributes = options2attributes({
             bind: 'source: components, value: current',
             mode: Stage.fn.modes.DESIGN,
-            role: ROLE
+            role: ROLE,
         });
         let data;
         let element;
@@ -490,14 +490,12 @@ describe('widgets.stage', () => {
 
         beforeEach(() => {
             data = getComponentArray();
-            element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
+            element = $(ELEMENT).attr(attributes).appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 components: new PageComponentDataSource({
-                    data
+                    data,
                 }),
-                current: null
+                current: null,
             });
             bind(`#${FIXTURES}`, viewModel);
             widget = element.data(WIDGET);
@@ -522,8 +520,8 @@ describe('widgets.stage', () => {
                     rotate: 90,
                     attributes: {
                         style: 'font-family: Georgia, serif; color: #FF0000;',
-                        text: 'World'
-                    }
+                        text: 'World',
+                    },
                 })
             );
             expect(widget.dataSource.total()).to.equal(data.length + 1);
@@ -609,7 +607,7 @@ describe('widgets.stage', () => {
                     tools.active = tool.id;
                     widget.element.simulate('mousedown', {
                         clientX: offset.left + 20 * count,
-                        clientY: offset.top + 15 * count
+                        clientY: offset.top + 15 * count,
                     });
                     expect(widget.dataSource.total()).to.equal(total + count);
                     const items = widget.items();
@@ -688,7 +686,7 @@ describe('widgets.stage', () => {
                     // initiate drag with mousedown event
                     handle.simulate('mousedown', {
                         clientX: x,
-                        clientY: y
+                        clientY: y,
                     }); // initiate drag on move handle
                     // move item
                     for (let i = 0; i < moves; i++) {
@@ -696,13 +694,13 @@ describe('widgets.stage', () => {
                         y += dy / moves;
                         $(item).simulate('mousemove', {
                             clientX: x,
-                            clientY: y
+                            clientY: y,
                         });
                     }
                     // end drag with mouseup event
                     $(item).simulate('mouseup', {
                         clientX: x,
-                        clientY: y
+                        clientY: y,
                     });
                 }
 
@@ -772,7 +770,7 @@ describe('widgets.stage', () => {
                     handle.simulate('mousedown', {
                         bubbles: true,
                         clientX: x,
-                        clientY: y
+                        clientY: y,
                     }); // initiate drag on move handle
                     // move item
                     for (let i = 0; i < moves; i++) {
@@ -780,13 +778,13 @@ describe('widgets.stage', () => {
                         y += dy / moves;
                         $(item).simulate('mousemove', {
                             clientX: x,
-                            clientY: y
+                            clientY: y,
                         });
                     }
                     // end drag with mouseup event
                     $(item).simulate('mouseup', {
                         clientX: x,
-                        clientY: y
+                        clientY: y,
                     });
                 }
 
@@ -860,7 +858,7 @@ describe('widgets.stage', () => {
                     // initiate drag with mousedown event
                     handle.simulate('mousedown', {
                         clientX: x,
-                        clientY: y
+                        clientY: y,
                     }); // initiate drag on resize handle
                     // resize item
                     for (let i = 0; i < moves; i++) {
@@ -868,13 +866,13 @@ describe('widgets.stage', () => {
                         y += dy / moves;
                         $(item).simulate('mousemove', {
                             clientX: x,
-                            clientY: y
+                            clientY: y,
                         });
                     }
                     // end drag with mouseup event
                     $(item).simulate('mouseup', {
                         clientX: x,
-                        clientY: y
+                        clientY: y,
                     });
                 }
 
@@ -924,7 +922,7 @@ describe('widgets.stage', () => {
                 },
                 dataBound(e) {
                     dataBound(e.sender);
-                }
+                },
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
@@ -948,7 +946,7 @@ describe('widgets.stage', () => {
                 },
                 propertyBound(e) {
                     propertyBound(e.sender);
-                }
+                },
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
@@ -967,7 +965,7 @@ describe('widgets.stage', () => {
                 dataSource: data,
                 change(e) {
                     change(e.value);
-                }
+                },
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(

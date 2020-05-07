@@ -26,7 +26,7 @@ const {
     destroy,
     init,
     observable,
-    ui: { ImageSet, roles }
+    ui: { ImageSet, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -40,20 +40,20 @@ const ROOT = 'https://www.example.com/';
 const DATA = [
     {
         text: VALUE,
-        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`
+        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`,
     },
     {
         text: JSC.string()(),
-        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`
+        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`,
     },
     {
         text: JSC.string()(),
-        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`
+        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`,
     },
     {
         text: JSC.string()(),
-        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`
-    }
+        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`,
+    },
 ];
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -89,7 +89,7 @@ describe('widgets.imageset', () => {
 
             const options = {
                 dataSource: DATA,
-                value: VALUE
+                value: VALUE,
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(ImageSet);
@@ -99,7 +99,7 @@ describe('widgets.imageset', () => {
 
         it('from markup', () => {
             const attributes = options2attributes({
-                role: ROLE
+                role: ROLE,
             });
             const element = $(ELEMENT)
                 .attr(attributes)
@@ -117,7 +117,7 @@ describe('widgets.imageset', () => {
         let widget;
         const options = {
             dataSource: DATA,
-            value: VALUE
+            value: VALUE,
         };
 
         beforeEach(() => {
@@ -127,7 +127,7 @@ describe('widgets.imageset', () => {
 
         it('value', () => {
             expect(widget).to.be.an.instanceof(ImageSet);
-            DATA.forEach(data => {
+            DATA.forEach((data) => {
                 widget.value(data.text);
                 expect(widget.wrapper).to.have.css(
                     'background-image',
@@ -160,7 +160,7 @@ describe('widgets.imageset', () => {
                 .appendTo(`#${FIXTURES}`);
             viewModel = observable({
                 data: DATA,
-                value: VALUE
+                value: VALUE,
             });
             bind(`#${FIXTURES}`);
             change = sinon.spy();

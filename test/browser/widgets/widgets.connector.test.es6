@@ -89,7 +89,9 @@ describe('widgets.connector', () => {
                 role: ROLE,
             });
             const element = $(ELEMENT).attr(attributes).appendTo(STAGE_ELEMENT);
-            init(`#${FIXTURES}`);
+            // We should not init FIXTURES, because this inits a new stage and the element is removed
+            // init(`#${FIXTURES}`);
+            init(STAGE_ELEMENT);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');
@@ -106,7 +108,9 @@ describe('widgets.connector', () => {
                 role: ROLE,
             });
             const element = $(ELEMENT).attr(attributes).appendTo(STAGE_ELEMENT);
-            init(`#${FIXTURES}`);
+            // We should not init FIXTURES, because this inits a new stage and the element is removed
+            // init(`#${FIXTURES}`);
+            init(STAGE_ELEMENT);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Connector);
             expect(element).not.to.have.class('k-widget');

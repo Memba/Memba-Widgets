@@ -102,14 +102,15 @@ const DropZoneEvents = Class.extend({
      * @param enable
      */
     enable(enable) {
-        enable = $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
 
         // We need an object so that data is passed by reference between handlers
         const data = {};
 
         $(document).off(NS);
 
-        if (enable) {
+        if (enabled) {
             $(document)
                 .on(
                     MOUSEDOWN,
@@ -213,14 +214,16 @@ const DropZoneEvents = Class.extend({
 
     /**
      * Get a stage element
-     * @param e
+     * @param target
      * @private
      */
     _getStageElement(target) {
         const stageElement = $(target).closest(this._draggable);
+        let ret;
         if (this.enabled(stageElement)) {
-            return stageElement;
+            ret = stageElement;
         }
+        return ret;
     },
 
     /**
@@ -432,6 +435,7 @@ const DropZoneEvents = Class.extend({
                         dropZoneParent.hasClass('kj-element'),
                         '`dropZoneParent` should be a satge element'
                     );
+                    // eslint-disable-next-line no-param-reassign
                     position = {
                         left: Math.round(
                             parseInt(dropZoneParent.css('left'), 10) +

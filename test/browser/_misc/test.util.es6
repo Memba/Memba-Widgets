@@ -55,7 +55,7 @@ function assertBaseModel(actual, expected) {
  */
 function getStageElement(height = 50, width = 50, scale = 0.75) {
     // noinspection CssInvalidPropertyValue
-    return `<div class="kj-stage" style="position: relative; height: 480px; width: 640px; transform:scale(${scale});"><div data-role="stage" style="height: 480px; width: 640px;"><div class="kj-element" style="position: absolute; top: 50px; left: 50px; height: ${height}px; width: ${width}px;"></div></div></div>`;
+    return `<div class="k-widget kj-stage" style="position: relative; height: 480px; width: 640px; transform:scale(${scale});"><div data-role="stage" style="height: 480px; width: 640px;"><div class="kj-element" style="position: absolute; top: 50px; left: 50px; height: ${height}px; width: ${width}px;"></div></div></div>`;
 }
 
 /**

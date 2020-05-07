@@ -149,15 +149,19 @@ describe('widgets.license', () => {
         });
 
         it('value (error)', () => {
-            function fn1() {
-                widget.value(JSC.string()());
-            }
-            function fn2() {
-                widget.value(JSC.integer(100)());
+            function fn() {
+                widget.value(
+                    JSC.one_of([
+                        JSC.boolean(),
+                        JSC.number(15, 100), // Not 1 to 13
+                        JSC.string(),
+                        JSC.object(),
+                        JSC.array(),
+                    ])()
+                );
             }
             expect(widget).to.be.an.instanceof(License);
-            expect(fn1).to.throw(TypeError);
-            expect(fn2).to.throw(RangeError);
+            expect(fn).to.throw();
         });
 
         it('enable/readonly', () => {

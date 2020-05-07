@@ -602,17 +602,21 @@ const Stage = DataBoundWidget.extend({
         });
 
         // We need that.wrapper for visible/invisible bindings
-        this.wrapper = this.stage
-            .wrap(`<${CONSTANTS.DIV}/>`)
-            .parent()
-            .addClass(WIDGET_CLASS)
-            .css({
-                position: RELATIVE, // !important
-                height: _outerHeight(this.stage),
-                width: _outerWidth(this.stage),
-                // transformOrigin: this._transformOrigin, // 'top left', // !important without such attribute, element top left calculations are wrong
-                transform: format(CSS_SCALE, this.scale()),
-            });
+        if (this.stage.parent().hasClass(WIDGET_CLASS)) {
+            this.wrapper = this.stage.parent();
+        } else {
+            this.wrapper = this.stage
+                .wrap(`<${CONSTANTS.DIV}/>`)
+                .parent()
+                .addClass(WIDGET_CLASS);
+        }
+        this.wrapper = this.stage.css({
+            position: RELATIVE, // !important
+            height: _outerHeight(this.stage),
+            width: _outerWidth(this.stage),
+            // transformOrigin: this._transformOrigin, // 'top left', // !important without such attribute, element top left calculations are wrong
+            transform: format(CSS_SCALE, this.scale()),
+        });
     },
 
     /**

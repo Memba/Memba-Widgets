@@ -27,62 +27,55 @@ const {
 } = window;
 const { expect } = chai;
 
-if (!Modernizr.getusermedia || userAgent.indexOf('HeadlessChrome') > -1) {
-    // getUserMedia does not work with headless chrome
-    // https://github.com/Modernizr/Modernizr/issues/2375
-    document.getElementById('mocha').innerHTML =
-        '<span>getUserMedia is not supported</span>';
-    // return; // Cannot have a return statement here (check in IE)
-} else {
-    describe('window.media', () => {
-        describe('enumerateDevices', () => {
-            it('It should enumerate devices', (done) => {
-                enumerateDevices()
-                    .then((devices) => {
-                        try {
-                            expect(devices)
-                                .to.be.an(CONSTANTS.ARRAY)
-                                .with.property('length')
-                                .gt(0);
-                            for (
-                                let i = 0, { length } = devices;
-                                i < length;
-                                i++
-                            ) {
-                                expect(devices[i]).to.be.an.instanceof(
-                                    MediaDeviceInfo
-                                );
-                            }
-                            done();
-                        } catch (ex) {
-                            done(ex);
-                        }
-                    })
-                    .catch(done);
-            });
-        });
+// getUserMedia does not work with headless chrome
+// https://github.com/Modernizr/Modernizr/issues/2375
+const nogo =
+    !Modernizr.getusermedia || userAgent.indexOf('HeadlessChrome') > -1;
 
-        describe('getUserMedia', () => {
-            it('It should get user media', (done) => {
-                getUserMedia()
-                    .then((stream) => {
-                        try {
-                            expect(stream).to.be.an.instanceof(MediaStream);
-                            done();
-                        } catch (ex) {
-                            done(ex);
+(nogo ? xdescribe : describe)('window.media', () => {
+    describe('enumerateDevices', () => {
+        it('It should enumerate devices', (done) => {
+            enumerateDevices()
+                .then((devices) => {
+                    try {
+                        expect(devices)
+                            .to.be.an(CONSTANTS.ARRAY)
+                            .with.property('length')
+                            .gt(0);
+                        for (let i = 0, { length } = devices; i < length; i++) {
+                            expect(devices[i]).to.be.an.instanceof(
+                                MediaDeviceInfo
+                            );
                         }
-                    })
-                    .catch(done);
-            });
-        });
-
-        describe('createAudioMeter', () => {
-            it('It should create an audio meter', () => {
-                const context = new AudioContext();
-                const processor = createAudioMeter(context);
-                expect(processor).to.be.an.instanceof(ScriptProcessorNode);
-            });
+                        done();
+                    } catch (ex) {
+                        done(ex);
+                    }
+                })
+                .catch(done);
         });
     });
-}
+
+    describe('getUserMedia', () => {
+        it('It should get user media', (done) => {
+            getUserMedia()
+                .then((stream) => {
+                    try {
+                        expect(stream).to.be.an.instanceof(MediaStream);
+                        done();
+                    } catch (ex) {
+                        done(ex);
+                    }
+                })
+                .catch(done);
+        });
+    });
+
+    describe('createAudioMeter', () => {
+        it('It should create an audio meter', () => {
+            const context = new AudioContext();
+            const processor = createAudioMeter(context);
+            expect(processor).to.be.an.instanceof(ScriptProcessorNode);
+        });
+    });
+});
